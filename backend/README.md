@@ -1,5 +1,26 @@
 NestJS API for the NEAR developer console
 
+## Database
+
+Initialize database with Prisma models
+```
+npx prisma migrate dev
+```
+
+Wipe the contents of the database
+```
+npx prisma migrate reset
+```
+
+### Update models
+
+Whenever models are changed, a new Prisma client must be generated
+```
+npx prisma generate
+```
+
+> The `prisma generate` command reads your Prisma schema and updates the generated Prisma Client library inside `node_modules/@prisma/client`. 
+
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
