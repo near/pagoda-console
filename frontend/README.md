@@ -1,2 +1,17 @@
-# developer-console-framework
-Framework for powering the Developer Console Web Application 
+Framework for powering the Developer Console Web Application
+
+Built on Next.js
+
+---
+
+## Getting Started
+
+Run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+```
+
+View at [http://localhost:3000](http://localhost:3000)
