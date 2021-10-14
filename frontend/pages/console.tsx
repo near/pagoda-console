@@ -1,37 +1,198 @@
 import firebase from 'firebase';
-import { ComponentProps } from 'react';
-import useSWR from 'swr'
+import { Alert, Button, Modal, Spinner } from 'react-bootstrap';
+import useSWR, { useSWRConfig } from 'swr'
+import Image from 'next/image'
+import nearIcon from '../public/brand/near_icon.png'
+import { useState, useEffect } from 'react';
+import type { NextPage } from 'next'
+import { useRouter } from 'next/router'
+
+// TODO convert to environment variable
+const BASE_URL = 'http://localhost:3001';
 
 interface Dapp {
     address: string
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json())
+function useTokenSWR(url: string) {
 
-function Console() {
-    const { data, error } = useSWR('http://localhost:3001/dapp/getForUser', fetcher)
+}
 
-    if (error) return <div>failed to load</div>
-    if (!data) return <div>loading...</div>
-    return <div><h1>Welcome {firebase.auth().currentUser?.displayName}</h1>
-        <DappList dapps={data} />
+
+const fetcher = async (url: string) => {
+    const headers = new Headers({
+        'Authorization': `Bearer ${await firebase.auth().currentUser?.getIdToken()}`
+    });
+    return fetch(url, {
+        headers
+    }).then((res) => res.json())
+}
+
+interface Account {
+    id: number,
+    uid: string,
+    email?: string,
+    photoUrl?: string,
+    name?: string
+}
+
+const Console: NextPage = () => {
+    const router = useRouter();
+    const [user, setUser] = useState<firebase.User>();
+    const [token, setToken] = useState<string>();
+    const { data: account, error }: { data?: Account, error?: any } = useSWR(user ? [`${BASE_URL}/user/getAccountDetails`, user.uid] : null, fetcher);
+    // TODO user error
+
+    useEffect(() => {
+        firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
+            if (user) {
+                setUser(user);
+                (async () => {
+                    let idToken: string = await user.getIdToken();
+                    // console.log(idToken);
+                    setToken(idToken);
+                })();
+            } else {
+                // user is signed out, redirect back to login
+                router.push('/');
+            }
+        })
+    });
+
+    return (
+        <div style={{ display: 'flex', height: '100vh' }}>
+            <SideBar />
+            {user
+                ? <div style={{ display: 'flex', flexDirection: 'column', padding: '30px', flexGrow: 1, rowGap: '24px' }}>
+                    <h1>Welcome {firebase.auth().currentUser?.displayName}: {account?.uid}</h1>
+                    <DappList user={user}/>
+                </div>
+                : <div style={{ display: 'flex', flexGrow: 1 }}>
+                    <Spinner style={{ margin: 'auto' }} animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                </div>
+            }
+        </div>
+    );
+}
+
+function SideBar() {
+    return <div style={{ display: 'flex', flexDirection: 'column', width: '20%', backgroundColor: '#f2f2f2', height: '100%' }}>
+        <div style={{ width: '150px' }}>
+            <Image
+                src={nearIcon}
+                alt="Near Inc Icon"
+            />
+        </div>
     </div>
 }
 
-interface DappListProps {
-    dapps: Dapp[]
-}
-function DappList(props: DappListProps) {
-    return <div>
-        {props.dapps.map((dapp) => <DappItem key={dapp.address} dapp={dapp} />)}
-    </div>
+function DappList(props: {user: firebase.User}) {
+    const { data, error }: { data?: Dapp[], error?: any } = useSWR([`${BASE_URL}/dapp/getForUser`, props.user.uid], fetcher)
+
+    let [showAddModal, setShowAddModal] = useState<boolean>(false);
+    const handleClose = () => setShowAddModal(false);
+    const handleShow = () => setShowAddModal(true);
+
+    if (!data && !error) {
+        return <p>Loading...</p>;
+    }
+
+    if (error) {
+        return <Alert variant='danger'>Something went wrong while fetching dapp list</Alert>;
+    }
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', rowGap: '12px' }}>
+            <h2>Contracts</h2>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px' }}>
+                <p style={{ width: '10em', textAlign: 'right', fontWeight: 'bold' }}>Account Balance</p>
+                <p style={{ width: '10em', textAlign: 'right', fontWeight: 'bold' }}>Storage Used</p>
+            </div>
+            {data.map((dapp) => <DappItem key={dapp.address} dapp={dapp} />)}
+            <Button variant='dark' style={{ width: '100px' }} onClick={handleShow}>Add</Button>
+
+            <AddContractModal show={showAddModal} close={handleClose} />
+        </div>
+    );
 }
 
 interface DappItemProps {
     dapp: Dapp
 };
 function DappItem(props: DappItemProps) {
-    return <a href={`https://explorer.near.org/accounts/${props.dapp.address}`} target="_blank" rel="noopener noreferrer">{props.dapp.address}</a>
+    return <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+        <a className='link-dark' href={`https://explorer.near.org/accounts/${props.dapp.address}`} target="_blank" rel="noopener noreferrer">{props.dapp.address}</a>
+        <div style={{ display: 'flex', flexDirection: 'row', columnGap: '16px' }}>
+            <p style={{ width: '10em', textAlign: 'right' }}>X.XXX NEAR</p>
+            <p style={{ width: '10em', textAlign: 'right' }}>YYYYYYY B</p>
+        </div>
+        <style jsx>{`
+            a {
+                text-decoration: underline
+            }
+        `}
+        </style>
+    </div>
+}
+
+function AddContractModal(props: { show: boolean, close: () => void }) {
+    let [contractAccount, setContractAccount] = useState<string>('');
+    function clearAndClose() {
+        props.close();
+        setContractAccount('');
+    }
+    const { mutate } = useSWRConfig();
+
+    let [addInProgress, setAddInProgress] = useState<boolean>(false);
+    async function addContract() {
+        setAddInProgress(true);
+        try {
+            const res = await fetch(`${BASE_URL}/dapp/track`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    address: contractAccount
+                })
+            });
+            setAddInProgress(false);
+            if (!res.ok) {
+                throw new Error(`Failed to add contract for tracking: ${res.status} | ${res.statusText}`);
+            }
+            mutate(`${BASE_URL}/dapp/getForUser`);
+            clearAndClose();
+        } catch (e) {
+            // TODO
+            console.error(e);
+        }
+    }
+
+
+    return (
+        <Modal show={props.show} onHide={clearAndClose}>
+            <Modal.Header closeButton>
+                <Modal.Title>Add a Contract</Modal.Title>
+            </Modal.Header>
+            <Modal.Body style={{ display: 'flex', flexDirection: 'column' }}>
+                <p>Contract Account Name</p>
+                {!addInProgress
+                    ? <input type="text" name="contract" value={contractAccount} onChange={(event) => { setContractAccount(event.target.value) }} />
+                    : <p>Adding {contractAccount}...</p>
+                }
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={clearAndClose}>
+                    Cancel
+                </Button>
+                <Button variant="primary" onClick={addContract}>
+                    Add
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    );
 }
 
 export default Console;

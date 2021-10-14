@@ -8,6 +8,9 @@ import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 import firebase from 'firebase';
 import { useEffect } from 'react'
 
+// assets
+import nearIcon from '../public/brand/near_icon.png'
+
 // Configure FirebaseUI.
 const uiConfig = {
   // Popup signin flow rather than redirect flow.
@@ -33,28 +36,30 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
+        <div style={{ width : '150px'}}>
+      <Image
+            src={nearIcon}
+            alt="Near Inc Icon"
+        // width={100} //automatically provided
+        // height={100} //automatically provided
+        // blurDataURL="data:..." automatically provided
+        // placeholder="blur" // Optional blur-up while loading
+        />
+        </div>
         <h1 className={styles.title}>
-          NEAR Developer Console
+          Login
         </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
 
         <SignInSelector />
       </main>
 
       <footer className={styles.footer}>
         <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+          href="https://near.org"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
+          Near Inc.
         </a>
       </footer>
     </div>
