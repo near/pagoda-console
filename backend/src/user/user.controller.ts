@@ -1,12 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request } from '@nestjs/common';
+import { BearerAuthGuard } from '../auth/bearer-auth.guard';
 import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
-    constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
-    @Get('getAccountDetails')
-    async getAccountDetails() {
-        return this.userService.user({ id: 1 });
-    }
+  @UseGuards(BearerAuthGuard)
+  @Get('getAccountDetails')
+  async getAccountDetails(@Request() req) {
+    return req.user;
+  }
 }
