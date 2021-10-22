@@ -18,3 +18,5 @@ FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:0-${VARIANT}
 # install bat (https://github.com/sharkdp/bat) for printing inspecting files from terminal w/ syntax highlighting
 RUN wget https://github.com/sharkdp/bat/releases/download/v0.18.3/bat_0.18.3_amd64.deb
 RUN dpkg -i bat_0.18.3_amd64.deb
+
+RUN npm completion >> ~/.zshrc
