@@ -1,18 +1,19 @@
 import firebase from 'firebase';
 import { Alert, Button, Modal, Placeholder, Spinner, DropdownButton, Dropdown, Badge, Overlay, ModalDialogProps } from 'react-bootstrap';
 import useSWR, { useSWRConfig } from 'swr'
-import Image from 'next/image'
-import nearIcon from '../public/brand/near_icon.png'
 import React, { useState, useEffect, useRef } from 'react';
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+// assets
 import { faEyeSlash, faEye, faCopy } from '@fortawesome/free-solid-svg-icons'
+import NearIcon from '../public/brand/near_icon.svg'
 
 // TODO convert to environment variable
 // const BASE_URL = 'http://localhost:3001';
-const BASE_URL = 'https://3024-71-207-128-178.ngrok.io';
+const BASE_URL = 'https://8cf9-71-207-128-178.ngrok.io';
 const MAIN_NET_RPC = 'https://rpc.mainnet.near.org'
 const TEST_NET_RPC = 'https://rpc.testnet.near.org'
 
@@ -101,11 +102,8 @@ const Console: NextPage = () => {
 
 function SideBar() {
     return <div style={{ display: 'flex', flexDirection: 'column', width: '12em', backgroundColor: '#f2f2f2', height: '100%' }}>
-        <div style={{ width: '8em' }}>
-            <Image
-                src={nearIcon}
-                alt="Near Inc Icon"
-            />
+        <div style={{ width: '8em', padding: '2em' }}>
+            <NearIcon />
         </div>
     </div>
 }

@@ -1,6 +1,5 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 
 import { useRouter } from 'next/router'
@@ -9,7 +8,7 @@ import firebase from 'firebase';
 import { useEffect } from 'react'
 
 // assets
-import nearIcon from '../public/brand/near_icon.png'
+import NearIcon from '../public/brand/near_icon.svg'
 
 // Configure FirebaseUI.
 const uiConfig = {
@@ -35,15 +34,8 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        <div style={{ width : '150px'}}>
-      <Image
-            src={nearIcon}
-            alt="Near Inc Icon"
-        // width={100} //automatically provided
-        // height={100} //automatically provided
-        // blurDataURL="data:..." automatically provided
-        // placeholder="blur" // Optional blur-up while loading
-        />
+        <div style={{ width : '10em', padding: '2em'}}>
+          <NearIcon />
         </div>
         <h1 className={styles.title}>
           Login
