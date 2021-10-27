@@ -1,14 +1,37 @@
 /* ensure all pages have Bootstrap CSS */
 @import '~bootstrap/dist/css/bootstrap.min.css';
 
-html,
+/* theme */
+body,
+body[data-theme="light"] {
+  --color-text-primary: #27201a;
+  --color-text-secondary: #A7A7A7;
+  --color-bg-primary: #fff;
+  --color-bg-toggle: #5F8AFA;
+  --color-accent: #6B6EF9;
+}
+/* TODO evaluate these colors */
+body[data-theme="dark"] {
+  --color-text-primary: #fff;
+  --color-text-secondary: #A7A7A7;
+  --color-bg-primary: #262626;
+  --color-bg-toggle: #AAD055;
+  --color-accent: #6B6EF9;
+}
+
+/* test */
+h1 {
+  color: var(--color-accent);
+}
+
 body {
   padding: 0;
   margin: 0;
   font-family: 'Inter', sans-serif;
-  /* font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, */
-    /* Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif; */
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
 }
+
 
 a {
   color: inherit;

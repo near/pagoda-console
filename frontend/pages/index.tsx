@@ -1,11 +1,15 @@
 import type { NextPage } from 'next'
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
-
 import { useRouter } from 'next/router'
+import Head from 'next/head'
+import dynamic from "next/dynamic";
+import { useEffect } from 'react'
+import styles from '../styles/Home.module.css'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 import firebase from 'firebase';
-import { useEffect } from 'react'
+
+const ThemeToggle = dynamic(() => import("../components/ThemeToggle"), {
+  ssr: false,
+});
 
 // assets
 import NearIcon from '../public/brand/near_icon.svg'
@@ -52,6 +56,7 @@ const Home: NextPage = () => {
         >
           Near Inc.
         </a>
+        <ThemeToggle />
       </footer>
     </div>
   )
