@@ -1,27 +1,44 @@
 /* ensure all pages have Bootstrap CSS */
 @import '~bootstrap/dist/css/bootstrap.min.css';
 
+/* global theme values */
+:root {
+  --color-light-gray: #A7A7A7;
+  --color-black: #262626;
+  --color-dark-gray: #3F4246;
+  --color-white: #FFFFFF;
+  --color-accent-blue: #5F8AFA;
+  --color-accent-green: #AAD055;
+  --color-accent-yellow: #FFC860;
+  --color-accent-red: #DB5555;
+  --color-accent-turquoise: #4FD1D9;
+  --color-accent-purple: #6B6EF9;
+  --color-accent-lilac: #A463B0;
+  --color-accent-orange: #E3935B;
+}
+
 /* theme */
 body,
 body[data-theme="light"] {
-  --color-text-primary: #27201a;
-  --color-text-secondary: #A7A7A7;
-  --color-bg-primary: #fff;
-  --color-bg-toggle: #5F8AFA;
-  --color-accent: #6B6EF9;
+  --color-text-primary: var(--color-black);
+  --color-text-secondary: var(--color-light-gray);
+  --color-bg-primary: var(--color-white);
+  --color-button-neutral-background: var(--color-dark-gray);
+  --color-button-neutral-text: var(--color-white);
+  --color-button-outline-neutral: var(--color-dark-gray);
+  --color-button-accent: var(--color-accent-blue);
+  --color-button-accent-text: var(--color-white);
 }
 /* TODO evaluate these colors */
 body[data-theme="dark"] {
-  --color-text-primary: #fff;
-  --color-text-secondary: #A7A7A7;
-  --color-bg-primary: #262626;
-  --color-bg-toggle: #AAD055;
-  --color-accent: #6B6EF9;
-}
-
-/* test */
-h1 {
-  color: var(--color-accent);
+  --color-text-primary: var(--color-white);
+  --color-text-secondary: var(--color-light-gray);
+  --color-bg-primary: var(--color-black);
+  --color-button-neutral-background: var(--color-light-gray);
+  --color-button-neutral-text: var(--color-black);
+  --color-button-outline-neutral: var(--color-white);
+  --color-button-accent: var(--color-accent-blue);
+  --color-button-accent-text: var(--color-white);
 }
 
 body {
@@ -41,3 +58,19 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.btn-neutral {
+  background-color: var(--color-button-neutral-background);
+  color: var(--color-button-neutral-text);
+}
+
+.btn-outline-neutral {
+  color: var(--color-button-outline-neutral);
+  border-color: var(--color-button-outline-neutral);
+}
+
+.btn-accent {
+  background-color: var(--color-button-accent);
+  color: var(--color-button-accent-text);
+}
+

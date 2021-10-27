@@ -4,8 +4,12 @@ import useSWR, { useSWRConfig } from 'swr'
 import React, { useState, useEffect, useRef } from 'react';
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
+import dynamic from "next/dynamic";
 import Head from 'next/head'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+const ThemeToggle = dynamic(() => import("../components/ThemeToggle"), {
+    ssr: false,
+  });
 
 // assets
 import { faEyeSlash, faEye, faCopy } from '@fortawesome/free-solid-svg-icons'
@@ -82,8 +86,9 @@ const Console: NextPage = () => {
             <SideBar />
             <div style={{ display: 'flex', flexDirection: 'column', padding: '30px', flexGrow: 1, rowGap: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button variant='secondary' style={{ marginLeft: '1em' }} onClick={() => { setShowAccountDetailsModal(true) }}>Account</Button>
-                    <Button variant='dark' style={{ marginLeft: '1em' }} onClick={() => { firebase.auth().signOut() }}>Sign Out</Button>
+                    <ThemeToggle />
+                    <Button variant='outline-neutral' style={{ marginLeft: '1em' }} onClick={() => { setShowAccountDetailsModal(true) }}>Account</Button>
+                    <Button variant='neutral' style={{ marginLeft: '1em' }} onClick={() => { firebase.auth().signOut() }}>Sign Out</Button>
                 </div>
                 <h1>Welcome {account ? account.name : <Placeholder animation='glow'><Placeholder xs={4} size='sm' style={{ borderRadius: '0.5em' }} /></Placeholder>}</h1>
                 {account && user
@@ -145,7 +150,7 @@ function DappList(props: { user: firebase.User }) {
                 <p style={{ textAlign: 'right', fontWeight: 'bold' }}>Account Balance</p>
                 <p style={{ textAlign: 'right', fontWeight: 'bold' }}>Storage Used</p>
                 {data!.map((dapp) => <DappItem key={dapp.address} dapp={dapp} />)}
-                <Button variant='dark' style={{ width: '100px' }} onClick={handleAddModalShow}>Add</Button>
+                <Button variant='neutral' style={{ width: '100px' }} onClick={handleAddModalShow}>Add</Button>
 
                 <AddContractModal show={showAddModal} close={handleAddModalClose} />
             </div>

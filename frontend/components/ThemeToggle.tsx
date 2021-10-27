@@ -16,7 +16,7 @@ export default function ThemeToggle() {
     
       // TODO add accessibility labels
     return <>
-        <Button onClick={() => setActiveTheme(inactiveTheme)}><FontAwesomeIcon icon={activeTheme === 'light' ? faMoon : faSun} /></Button>
+        <Button variant='accent' onClick={() => setActiveTheme(inactiveTheme)}><FontAwesomeIcon icon={activeTheme === 'light' ? faMoon : faSun} /></Button>
         <style jsx>{`
 
         `}</style>
