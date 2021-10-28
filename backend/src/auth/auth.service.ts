@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import firebaseAdmin from 'firebase-admin';
 import { User } from '@prisma/client';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class AuthService {
@@ -29,8 +29,8 @@ export class AuthService {
           name: decodedToken?.name,
           photoUrl: decodedToken?.picture,
           email: decodedToken.email,
-          apiKey: uuidv4(),
-          apiKeyTest: uuidv4(),
+          apiKey: await nanoid(),
+          apiKeyTest: await nanoid(),
         });
       }
       return user;
