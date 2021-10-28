@@ -16,7 +16,6 @@ import { faEyeSlash, faEye, faCopy } from '@fortawesome/free-solid-svg-icons'
 import NearIcon from '../public/brand/near_icon.svg'
 
 // TODO convert to environment variable
-// const BASE_URL = 'http://localhost:3001';
 const BASE_URL = 'https://8cf9-71-207-128-178.ngrok.io';
 const MAIN_NET_RPC = 'https://rpc.mainnet.near.org'
 const TEST_NET_RPC = 'https://rpc.testnet.near.org'
@@ -24,10 +23,6 @@ const TEST_NET_RPC = 'https://rpc.testnet.near.org'
 interface Dapp {
     address: string,
     net: 'MAIN' | 'TEST'
-}
-
-function useTokenSWR(url: string) {
-
 }
 
 
@@ -128,20 +123,6 @@ function DappList(props: { user: firebase.User }) {
         return <Alert variant='danger'>Something went wrong while fetching dapp list</Alert>;
     }
 
-    // return (
-    //     <div style={{ display: 'flex', flexDirection: 'column', rowGap: '12px' }}>
-    //         <h2>Contracts</h2>
-    //         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px' }}>
-    //             <p style={{ width: '10em', textAlign: 'right', fontWeight: 'bold' }}>Account Balance</p>
-    //             <p style={{ width: '10em', textAlign: 'right', fontWeight: 'bold' }}>Storage Used</p>
-    //         </div>
-    //         {data.map((dapp) => <DappItem key={dapp.address} dapp={dapp} />)}
-    //         <Button variant='dark' style={{ width: '100px' }} onClick={handleShow}>Add</Button>
-
-    //         <AddContractModal show={showAddModal} close={handleClose} />
-    //     </div>
-    // );
-
     // TODO check why data can be undefined
     return (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -162,21 +143,6 @@ function DappList(props: { user: firebase.User }) {
 interface DappItemProps {
     dapp: Dapp
 };
-// function DappItem(props: DappItemProps) {
-//     return <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-//         <a className='link-dark' href={`https://explorer.near.org/accounts/${props.dapp.address}`} target="_blank" rel="noopener noreferrer">{props.dapp.address}</a>
-//         <div style={{ display: 'flex', flexDirection: 'row', columnGap: '16px' }}>
-//             <p style={{ width: '10em', textAlign: 'right' }}>X.XXX NEAR</p>
-//             <p style={{ width: '10em', textAlign: 'right' }}>YYYYYYY B</p>
-//         </div>
-//         <style jsx>{`
-//             a {
-//                 text-decoration: underline
-//             }
-//         `}
-//         </style>
-//     </div>
-// }
 function DappItem(props: DappItemProps) {
     const { data, error } = useSWR([props.dapp.address, props.dapp.net], async (address: string) => {
         const res = await fetch(props.dapp.net === 'MAIN' ? MAIN_NET_RPC : TEST_NET_RPC, {
@@ -283,7 +249,6 @@ function AddContractModal(props: { show: boolean, close: () => void }) {
                                 variant="secondary"
                                 menuVariant="dark"
                                 title={net}
-                                // className="mt-2"
                                 onSelect={(eventKey) => {
                                     setNet(eventKey as NetOptions);
                                 }}
