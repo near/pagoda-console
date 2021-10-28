@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { BearerAuthGuard } from '../auth/bearer-auth.guard';
 import { DappService } from './dapp.service';
+import { Net } from '@prisma/client';
 
 @Controller('dapp') // TODO should this be plural
 export class DappController {
@@ -22,7 +23,11 @@ export class DappController {
 
   @UseGuards(BearerAuthGuard)
   @Post('track')
-  async track(@Request() req, @Body('address') address: string) {
-    return this.dappService.track(address, req.user.id);
+  async track(
+    @Request() req,
+    @Body('address') address: string,
+    @Body('net') net: Net,
+  ) {
+    return this.dappService.track(address, net, req.user.id);
   }
 }
