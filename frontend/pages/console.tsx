@@ -330,7 +330,8 @@ function AccountDetailsModal(props: { account: Account, show: boolean, close: ()
 
 
     function getObscuredKey(key: string) {
-        return key.split('-')[0] + '-****-****-****-************'
+        const obscureChar = '*';
+        return key.substring(0, 4) + obscureChar.repeat(key.length - 4);
     }
     return <Modal show={props.show} onHide={() => {
         obscureKey();
