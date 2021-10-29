@@ -10,16 +10,21 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors(); // TODO re-evaluate need for CORS once we have domains
 
+  const configService = app.get(ConfigService);
+
   // initialize Firebase
 
   // initializeApp({
   //   credential: credential.cert(serviceAccount as ServiceAccount),
   // });
+  // console.log(configService.get('FIREBASE_CREDENTIALS'));
+  const sa = JSON.parse(
+    configService.get('FIREBASE_CREDENTIALS'),
+  ) as ServiceAccount;
   initializeApp({
-    credential: credential.applicationDefault(),
+    credential: credential.cert(sa),
   });
 
-  const configService = app.get(ConfigService);
   await app.listen(configService.get('PORT'));
 }
 bootstrap();
