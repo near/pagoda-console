@@ -9,14 +9,17 @@ import Head from 'next/head'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 const ThemeToggle = dynamic(() => import("../components/ThemeToggle"), {
     ssr: false,
-  });
+});
 
 // assets
 import { faEyeSlash, faEye, faCopy } from '@fortawesome/free-solid-svg-icons'
 import NearIcon from '../public/brand/near_icon.svg'
+import CornerGradient from '../public/corner_grad.svg'
+import VerticalGradient from '../public/corner_grad_vert.svg'
+import NavBar from '../public/navbar.svg'
 
 // TODO convert to environment variable
-const BASE_URL = 'https://8cf9-71-207-128-178.ngrok.io';
+const BASE_URL = 'https://0821-71-207-128-178.ngrok.io';
 const MAIN_NET_RPC = 'https://rpc.mainnet.near.org'
 const TEST_NET_RPC = 'https://rpc.testnet.near.org'
 
@@ -79,21 +82,33 @@ const Console: NextPage = () => {
                 <title>NEAR Dev Console</title>
             </Head>
             <SideBar />
-            <div style={{ display: 'flex', flexDirection: 'column', padding: '30px', flexGrow: 1, rowGap: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <ThemeToggle />
-                    <Button variant='outline-neutral' style={{ marginLeft: '1em' }} onClick={() => { setShowAccountDetailsModal(true) }}>Account</Button>
-                    <Button variant='neutral' style={{ marginLeft: '1em' }} onClick={() => { firebase.auth().signOut() }}>Sign Out</Button>
-                </div>
-                <h1>Welcome {account ? account.name : <Placeholder animation='glow'><Placeholder xs={4} size='sm' style={{ borderRadius: '0.5em' }} /></Placeholder>}</h1>
-                {account && user
-                    ? <DappList user={user} />
-                    : <div style={{ display: 'flex', flexGrow: 1 }}>
-                        <Spinner style={{ margin: 'auto' }} animation="border" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </Spinner>
+            <div style={{ flexGrow: 1 }}>
+                {/* <div style={{position: 'absolute', width: '10em', height: '10em', overflow: 'hidden'}}>
+                <CornerGradient style={{width: '100%', height: '100%'}}/>
+                </div> */}
+                {/* <div style={{position: 'absolute', width: '33.3vh', height: '100vh', overflow: 'hidden', zIndex: -1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end'}}> */}
+                <div style={{ position: 'absolute', width: '33.3vh', height: '100vh', overflow: 'hidden', zIndex: -1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}> {/* floating towards bottom */}
+                    {/* <div style={{height: '30em', width: '10em', margin: 'auto 0'}}> */}
+                    <div style={{ height: '30em', width: '10em' }}> {/* floating towards bottom */}
+                        {/* <VerticalGradient style={{ width: '100%', height: '100%' }} /> */}
                     </div>
-                }
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', padding: '30px', flexGrow: 1, rowGap: '24px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <ThemeToggle />
+                        <Button variant='outline-neutral' style={{ marginLeft: '1em' }} onClick={() => { setShowAccountDetailsModal(true) }}>Account</Button>
+                        <Button variant='neutral' style={{ marginLeft: '1em' }} onClick={() => { firebase.auth().signOut() }}>Sign Out</Button>
+                    </div>
+                    <h1>Welcome {account ? account.name : <Placeholder animation='glow'><Placeholder xs={4} size='sm' style={{ borderRadius: '0.5em' }} /></Placeholder>}</h1>
+                    {account && user
+                        ? <DappList user={user} />
+                        : <div style={{ display: 'flex', flexGrow: 1 }}>
+                            <Spinner style={{ margin: 'auto' }} animation="border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </Spinner>
+                        </div>
+                    }
+                </div>
             </div>
             {account && <AccountDetailsModal show={showAccountDetailsModal} close={handleAccountDetailsModalClose} account={account} />}
         </div>
@@ -101,10 +116,21 @@ const Console: NextPage = () => {
 }
 
 function SideBar() {
-    return <div style={{ display: 'flex', flexDirection: 'column', width: '12em', backgroundColor: '#f2f2f2', height: '100%' }}>
+    return <div style={{ display: 'flex', flexDirection: 'column', width: '12em', backgroundColor: '#fff', height: '100%' }}>
+        <div style={{ position: 'absolute', width: '12em', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+            <div style={{ height: '30em', width: '10em', margin: 'auto 0', transform: 'scaleX(-1)'}}>
+                <VerticalGradient style={{ width: '100%', height: '100%' }} />
+            </div>
+        </div>
+        {/* <div style={{ position: 'absolute', width: '12em', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ height: '36em', width: '12em', margin: 'auto 0'}}>
+                <VerticalGradient style={{ width: '100%', height: '100%' }} />
+            </div>
+        </div> */}
         <div style={{ width: '8em', padding: '2em' }}>
             <NearIcon />
         </div>
+            <NavBar style={{ padding: '1em', width: '100%', flexGrow: 1}}/>
     </div>
 }
 
@@ -174,7 +200,7 @@ function DappItem(props: DappItemProps) {
     // TODO handle error
     return <React.Fragment>
         <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <a className='link-dark' href={`https://explorer${props.dapp.net === 'TEST' ? '.testnet' : ''}.near.org/accounts/${props.dapp.address}`} target="_blank" rel="noopener noreferrer">{props.dapp.address}</a>
+            <a className='link' href={`https://explorer${props.dapp.net === 'TEST' ? '.testnet' : ''}.near.org/accounts/${props.dapp.address}`} target="_blank" rel="noopener noreferrer">{props.dapp.address}</a>
             {props.dapp.net === 'TEST' && <p><Badge style={{ marginLeft: '1em' }} bg="secondary">Test</Badge></p>}
         </div>
         {data ? <p style={{ textAlign: 'right' }}>{(data.result.amount / (10 ** 24)).toFixed(5)} Ⓝ</p> : (!error ? <BorderSpinner /> : <p style={{ textAlign: 'right' }}>N/A</p>)}
@@ -370,8 +396,8 @@ function AccountDetailsModal(props: { account: Account, show: boolean, close: ()
                 </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div><span style={{ fontWeight: 'bold' }} ref={testKeyTitleTarget}>Testnet API Key</span></div>
-            <Overlay target={testKeyTitleTarget} container={modalBodyRef} show={showCopiedTest} placement='right'>
+                <div><span style={{ fontWeight: 'bold' }} ref={testKeyTitleTarget}>Testnet API Key</span></div>
+                <Overlay target={testKeyTitleTarget} container={modalBodyRef} show={showCopiedTest} placement='right'>
                     {({ placement, arrowProps, show: _show, popper, ...props }) => (
                         <div
                             {...props}

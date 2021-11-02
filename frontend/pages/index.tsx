@@ -12,7 +12,8 @@ const ThemeToggle = dynamic(() => import("../components/ThemeToggle"), {
 });
 
 // assets
-import NearIcon from '../public/brand/near_icon.svg'
+// import NearIcon from '../public/brand/near_icon.svg'
+import ConsoleMark from '../public/ConsoleMark.svg'
 
 // Configure FirebaseUI.
 const uiConfig = {
@@ -38,12 +39,12 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        <div style={{ width : '10em', padding: '2em'}}>
-          <NearIcon />
+        <div style={{ width : '40em', padding: '2em'}}>
+          <ConsoleMark style={{ width: '100%', height: '100%'}}/>
         </div>
-        <h1 className={styles.title}>
+        <p style={{ fontSize: '4rem', fontWeight: 500}}>
           Login
-        </h1>
+        </p>
 
         <SignInSelector />
       </main>

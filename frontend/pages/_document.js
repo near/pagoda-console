@@ -22,6 +22,10 @@ class MyDocument extends Document {
             href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=optional"
             rel="stylesheet"
           />
+          <link
+            href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=optional"
+            rel="stylesheet"
+          />
         </Head>
         <body>
           <script dangerouslySetInnerHTML={{ __html: setInitialTheme }} />
