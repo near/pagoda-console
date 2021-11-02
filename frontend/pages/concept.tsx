@@ -48,7 +48,7 @@ interface Account {
     apiKeyTest: string,
 }
 
-const Console: NextPage = () => {
+const Concept: NextPage = () => {
     const router = useRouter();
     const [user, setUser] = useState<firebase.User>();
     const [token, setToken] = useState<string>();
@@ -428,4 +428,4 @@ function AccountDetailsModal(props: { account: Account, show: boolean, close: ()
     </Modal>
 }
 
-export default Console;
+export default Concept;
