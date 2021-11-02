@@ -18,10 +18,11 @@ import CornerGradient from '../public/corner_grad.svg'
 import VerticalGradient from '../public/corner_grad_vert.svg'
 import NavBar from '../public/navbar.svg'
 
-// TODO convert to environment variable
-const BASE_URL = 'https://e544-71-207-128-178.ngrok.io';
-const MAIN_NET_RPC = 'https://rpc.mainnet.near.org'
-const TEST_NET_RPC = 'https://rpc.testnet.near.org'
+// TODO decide proper crash if environment variables are not defined
+// and remove unsafe type assertion
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
+const MAIN_NET_RPC = process.env.NEXT_PUBLIC_MAIN_NET_RPC!;
+const TEST_NET_RPC = process.env.NEXT_PUBLIC_TEST_NET_RPC!;
 
 interface Dapp {
     address: string,
