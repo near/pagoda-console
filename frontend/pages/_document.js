@@ -3,14 +3,24 @@ import Document, { Html, Head, Main, NextScript } from 'next/document'
 class MyDocument extends Document {
   render() {
 
+    // Use this version once it is desired that theme defaults to user's OS-level preference
+    // const setInitialTheme = `
+    //   function getUserPreference() {
+    //     if(window.localStorage.getItem('theme')) {
+    //       return window.localStorage.getItem('theme')
+    //     }
+    //     return window.matchMedia('(prefers-color-scheme: dark)').matches
+    //               ? 'dark'
+    //               : 'light'
+    //   }
+    //   document.body.dataset.theme = getUserPreference();
+    // `;
     const setInitialTheme = `
       function getUserPreference() {
         if(window.localStorage.getItem('theme')) {
           return window.localStorage.getItem('theme')
         }
-        return window.matchMedia('(prefers-color-scheme: dark)').matches
-                  ? 'dark'
-                  : 'light'
+        return 'light'
       }
       document.body.dataset.theme = getUserPreference();
     `;
@@ -18,10 +28,6 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=optional"
-            rel="stylesheet"
-          />
           <link
             href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=optional"
             rel="stylesheet"

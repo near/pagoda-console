@@ -19,7 +19,7 @@ import VerticalGradient from '../public/corner_grad_vert.svg'
 import NavBar from '../public/navbar.svg'
 
 // TODO convert to environment variable
-const BASE_URL = 'https://0821-71-207-128-178.ngrok.io';
+const BASE_URL = 'https://e544-71-207-128-178.ngrok.io';
 const MAIN_NET_RPC = 'https://rpc.mainnet.near.org'
 const TEST_NET_RPC = 'https://rpc.testnet.near.org'
 
@@ -80,6 +80,8 @@ const Console: NextPage = () => {
         <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
             <Head>
                 <title>NEAR Dev Console</title>
+                <meta name="description" content="NEAR Developer Console" />
+                <link rel="icon" href="/favicon.ico" />
             </Head>
             <SideBar />
             <div style={{ flexGrow: 1 }}>
