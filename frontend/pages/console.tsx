@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { Button } from 'react-bootstrap';
 import { useRouter } from 'next/router'
 import { useAccount } from '../utils/hooks';
-import firebase from 'firebase';
+import { getAuth, signOut } from "firebase/auth";
 
 const ThemeToggle = dynamic(() => import("../components/ThemeToggle"), {
     ssr: false,
@@ -21,6 +21,17 @@ const Console: NextPage = () => {
         return <p>Loading...</p>
     }
 
+    function signUserOut() {
+        const auth = getAuth();
+        signOut(auth).then(() => {
+        // Sign-out successful.
+        // TODO
+        }).catch((error) => {
+        // An error happened.
+        // TODO
+        });
+    }
+
     return <div>
         <Head>
             <title>NEAR Dev Console</title>
@@ -29,7 +40,7 @@ const Console: NextPage = () => {
         </Head>
         <div className='temp-buttons'>
             <Button variant='outline-neutral' onClick={() => router.push('/concept')}>Open POC</Button>
-            <Button variant='neutral' onClick={() => { firebase.auth().signOut() }}>Sign Out</Button>
+            <Button variant='neutral' onClick={signUserOut}>Sign Out</Button>
             <ThemeToggle />
         </div>
         {getWelcomeString()}

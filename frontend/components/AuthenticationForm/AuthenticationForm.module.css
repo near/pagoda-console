@@ -1,0 +1,13 @@
+.authButton {
+    box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.25);
+    height: 100%;
+    border-radius: 0.5em;
+}
+
+.authButton:focus {
+    box-shadow: 0 0 0 0.25rem rgb(130 138 145 / 50%);
+}
+
+/* .authButton:hover {
+    filter: brightness(0.9)
+} */

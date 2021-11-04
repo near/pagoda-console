@@ -1,28 +1,33 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router'
 import useSWR, { useSWRConfig } from 'swr'
-import firebase from 'firebase';
+import { getAuth, onAuthStateChanged, User, getIdToken } from "firebase/auth";
+
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
 const fetcher = async (url: string) => {
+    const user = getAuth().currentUser;
+    if (!user) throw new Error('No authenticated user')
+
     const headers = new Headers({
-        'Authorization': `Bearer ${await firebase.auth().currentUser?.getIdToken()}`
+        'Authorization': `Bearer ${await getIdToken(user)}`
     });
     return fetch(url, {
         headers
     }).then((res) => res.json())
 }
 
-export function useIdentity(): firebase.User | null {
+export function useIdentity(): User | null {
     const router = useRouter();
     // must cast cache to any to work around bug in interface definition
     // https://github.com/vercel/swr/discussions/1494
     const { cache }: {cache: any} = useSWRConfig()
-    const [user, setUser] = useState<firebase.User | null>(null);
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        const unsubscribe = firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
+        const auth = getAuth()
+        const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
             setUser(user);
 
             if(!user) {

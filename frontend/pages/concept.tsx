@@ -1,4 +1,5 @@
-import firebase from 'firebase';
+// NOTE: this file is a proof of concept and does not represent best practices
+
 import { Alert, Button, Modal, Placeholder, Spinner, DropdownButton, Dropdown, Badge, Overlay, ModalDialogProps } from 'react-bootstrap';
 import useSWR, { useSWRConfig } from 'swr'
 import React, { useState, useEffect, useRef } from 'react';
@@ -7,6 +8,10 @@ import { useRouter } from 'next/router'
 import dynamic from "next/dynamic";
 import Head from 'next/head'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import { getAuth, onAuthStateChanged, User, getIdToken, signOut } from "firebase/auth";
+
+
 const ThemeToggle = dynamic(() => import("../components/ThemeToggle"), {
     ssr: false,
 });
@@ -32,7 +37,7 @@ interface Dapp {
 
 const fetcher = async (url: string) => {
     const headers = new Headers({
-        'Authorization': `Bearer ${await firebase.auth().currentUser?.getIdToken()}`
+        'Authorization': `Bearer ${await getIdToken(getAuth().currentUser!)}`
     });
     return fetch(url, {
         headers
@@ -51,13 +56,13 @@ interface Account {
 
 const Concept: NextPage = () => {
     const router = useRouter();
-    const [user, setUser] = useState<firebase.User>();
+    const [user, setUser] = useState<User>();
     const [token, setToken] = useState<string>();
     const { data: account, error }: { data?: Account, error?: any } = useSWR(user ? [`${BASE_URL}/user/getAccountDetails`, user.uid] : null, fetcher);
     // TODO user error
 
     useEffect(() => {
-        firebase.auth().onAuthStateChanged((user: firebase.User | null) => {
+        onAuthStateChanged(getAuth(), (user: User | null) => {
             if (user) {
                 setUser(user);
                 (async () => {
@@ -100,7 +105,7 @@ const Concept: NextPage = () => {
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                         <ThemeToggle />
                         <Button variant='outline-neutral' style={{ marginLeft: '1em' }} onClick={() => { setShowAccountDetailsModal(true) }}>Account</Button>
-                        <Button variant='neutral' style={{ marginLeft: '1em' }} onClick={() => { firebase.auth().signOut() }}>Sign Out</Button>
+                        <Button variant='neutral' style={{ marginLeft: '1em' }} onClick={() => { signOut(getAuth()) }}>Sign Out</Button>
                     </div>
                     <h1>Welcome {account ? account.name : <Placeholder animation='glow'><Placeholder xs={4} size='sm' style={{ borderRadius: '0.5em' }} /></Placeholder>}</h1>
                     {account && user
@@ -137,7 +142,7 @@ function SideBar() {
     </div>
 }
 
-function DappList(props: { user: firebase.User }) {
+function DappList(props: { user: User }) {
     const { data, error, isValidating }: { data?: Dapp[], error?: any, isValidating: boolean } = useSWR([`${BASE_URL}/dapp/getForUser`, props.user.uid], fetcher)
 
     let [showAddModal, setShowAddModal] = useState<boolean>(false);
@@ -234,7 +239,7 @@ function AddContractModal(props: { show: boolean, close: () => void }) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${await firebase.auth().currentUser?.getIdToken()}` // TODO convert to hook
+                    'Authorization': `Bearer ${await getIdToken(getAuth().currentUser!)}` // TODO convert to hook
                 },
                 body: JSON.stringify({
                     address: contractAccount,
@@ -247,7 +252,7 @@ function AddContractModal(props: { show: boolean, close: () => void }) {
             }
 
             // TODO find way to keep this in sync with the SWR call above, probably through a custom hook
-            mutate([`${BASE_URL}/dapp/getForUser`, firebase.auth().currentUser?.uid]);
+            mutate([`${BASE_URL}/dapp/getForUser`, getAuth().currentUser?.uid]);
             clearAndClose();
         } catch (e) {
             // TODO
