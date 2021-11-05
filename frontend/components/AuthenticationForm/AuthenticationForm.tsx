@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { Button, FloatingLabel, Form } from 'react-bootstrap';
-import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged } from "firebase/auth";
-import { GithubAuthProvider, GoogleAuthProvider, EmailAuthProvider } from "firebase/auth";
+import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged, signInWithEmailAndPassword, AuthError, createUserWithEmailAndPassword } from "firebase/auth";
+import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
 import styles from './AuthenticationForm.module.css'
 
 // FontAwesome
@@ -48,6 +48,11 @@ const providers: Array<ProviderDetails> = [
 export default function AuthenticationForm() {
     const router = useRouter();
     const [authActive, setAuthActive] = useState<boolean>(true);
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [confirmPassword, setConfirmPassword] = useState<string>('');
+    const [hasFailedSignIn, setHasFailedSignIn] = useState<boolean>(false);
+    const [isRegistering, setIsRegistering] = useState<boolean>(false);
 
     useEffect(() => {
         const unregisterAuthObserver = onAuthStateChanged(getAuth(), user => {
@@ -58,8 +63,42 @@ export default function AuthenticationForm() {
         return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
     }, [router]);
 
-    function signInWithEmail(): void {
-        console.log('email sign in');
+    // TODO validation
+    async function signInWithEmail(): Promise<void> {
+        setHasFailedSignIn(false);
+        const auth = getAuth();
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            setHasFailedSignIn(false);
+        } catch (e) {
+            setHasFailedSignIn(true);
+            const error = e as AuthError;
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // TODO determine error handling
+            console.error(`${errorCode}: ${errorMessage}`);
+        }
+    }
+
+    //
+    // TODO validation
+    //
+    async function signUpWithEmail(): Promise<void> {
+        const auth = getAuth();
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+        } catch (e) {
+            const error = e as AuthError;
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // TODO determine error handling
+            console.error(`${errorCode}: ${errorMessage}`);
+        }
+    }
+
+    function handleFormChange(type: 'email' | 'password' | 'confirmPassword', newValue: string) {
+        hasFailedSignIn && setHasFailedSignIn(false);
+        type === 'email' ? setEmail(newValue) : setPassword(newValue);
     }
 
     return <div className='authContainer'>
@@ -67,18 +106,25 @@ export default function AuthenticationForm() {
             <FloatingLabel
                 controlId="floatingInput"
                 label="Email address"
-                className="mb-3"
             >
-                <Form.Control type="email" placeholder="name@example.com" />
+                <Form.Control type="email" placeholder="name@example.com" value={email} onChange={(e) => handleFormChange('email', e.target.value)} isInvalid={hasFailedSignIn} />
             </FloatingLabel>
             <FloatingLabel controlId="floatingPassword" label="Password">
-                <Form.Control type="password" placeholder="Password" />
+                <Form.Control type="password" placeholder="Password" value={password} onChange={(e) => handleFormChange('password', e.target.value)} isInvalid={hasFailedSignIn} />
             </FloatingLabel>
+            {isRegistering && <FloatingLabel controlId="floatingConfirmPassword" label="Confirm Password">
+                <Form.Control type="password" placeholder="Confirm Password" value={confirmPassword} onChange={(e) => handleFormChange('confirmPassword', e.target.value)} isInvalid={hasFailedSignIn} />
+            </FloatingLabel>}
         </Form>
-        <IconButton onClick={signInWithEmail} color='var(--color-white)' backgroundColor='var(--color-accent-purple)' active={authActive} text='Continue' />
-        <div style={{margin: 'auto auto'}}>Sign Up</div>
-        <hr />
-        {providers.map((provider) => <ProviderButton key={provider.name} provider={provider} active={authActive} setAuthActive={setAuthActive} />)}
+        <IconButton onClick={!isRegistering ? signInWithEmail : signUpWithEmail} color='var(--color-white)' backgroundColor='var(--color-accent-purple)' active={authActive} text={!isRegistering ? 'Continue' : 'Sign Up'} />
+        {/* <div style={{ margin: 'auto auto' }}>Sign Up</div> */}
+        <div className='signUpContainer' >
+            <Button onClick={() => setIsRegistering(!isRegistering)}>{!isRegistering ? 'Sign Up' : 'Cancel'}</Button>
+        </div>
+        {!isRegistering && <>
+            <hr />
+            {providers.map((provider) => <ProviderButton key={provider.name} provider={provider} active={authActive} setAuthActive={setAuthActive} />)}
+        </>}
         <style jsx>{`
             .authContainer {
                 display: flex;
@@ -89,6 +135,20 @@ export default function AuthenticationForm() {
             }
             .authContainer > :global(form) {
                 margin-bottom: 0.5em;
+            }
+            .authContainer > :global(.form-floating) {
+                margin-bottom: 0.5em;
+            }
+            .signUpContainer {
+                margin: auto auto;
+            }
+            .signUpContainer > :global(.btn) {
+                background-color: transparent;
+                border-width: 0;
+                color: var(--color-accent-purple)
+            }
+            .signUpContainer > :global(.btn:hover) {
+                filter: brightness(0.6)
             }
         `}</style>
     </div>
