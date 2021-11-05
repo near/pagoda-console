@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { Button } from 'react-bootstrap';
+import { Button, FloatingLabel, Form } from 'react-bootstrap';
 import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged } from "firebase/auth";
 import { GithubAuthProvider, GoogleAuthProvider, EmailAuthProvider } from "firebase/auth";
 import styles from './AuthenticationForm.module.css'
@@ -36,13 +36,13 @@ const providers: Array<ProviderDetails> = [
         providerInstance: new GoogleAuthProvider(),
         image: 'googleMark.png',
     },
-    {
-        name: 'Email',
-        color: 'var(--color-white)',
-        backgroundColor: 'var(--color-accent-purple)',
-        providerInstance: new EmailAuthProvider(),
-        icon: faEnvelope,
-    },
+    // {
+    //     name: 'Email',
+    //     color: 'var(--color-white)',
+    //     backgroundColor: 'var(--color-accent-purple)',
+    //     providerInstance: new EmailAuthProvider(),
+    //     icon: faEnvelope,
+    // },
 ]
 
 export default function AuthenticationForm() {
@@ -58,8 +58,45 @@ export default function AuthenticationForm() {
         return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
     }, [router]);
 
-    function signIn(provider: AuthProvider) {
-        setAuthActive(false);
+    function signInWithEmail(): void {
+        console.log('email sign in');
+    }
+
+    return <div className='authContainer'>
+        <Form>
+            <FloatingLabel
+                controlId="floatingInput"
+                label="Email address"
+                className="mb-3"
+            >
+                <Form.Control type="email" placeholder="name@example.com" />
+            </FloatingLabel>
+            <FloatingLabel controlId="floatingPassword" label="Password">
+                <Form.Control type="password" placeholder="Password" />
+            </FloatingLabel>
+        </Form>
+        <IconButton onClick={signInWithEmail} color='var(--color-white)' backgroundColor='var(--color-accent-purple)' active={authActive} text='Continue' />
+        <div style={{margin: 'auto auto'}}>Sign Up</div>
+        <hr />
+        {providers.map((provider) => <ProviderButton key={provider.name} provider={provider} active={authActive} setAuthActive={setAuthActive} />)}
+        <style jsx>{`
+            .authContainer {
+                display: flex;
+                flex-direction: column;
+                width: 18em;
+                padding: 2em 0;
+                justify-content: center;
+            }
+            .authContainer > :global(form) {
+                margin-bottom: 0.5em;
+            }
+        `}</style>
+    </div>
+}
+
+function ProviderButton(props: { provider: ProviderDetails, active: boolean, setAuthActive: (setTo: boolean) => void }) {
+    function socialSignIn(provider: AuthProvider) {
+        props.setAuthActive(false);
         const auth = getAuth();
         signInWithPopup(auth, provider)
             .then((result) => {
@@ -71,7 +108,7 @@ export default function AuthenticationForm() {
                 const user = result.user;
                 // ...
             }).catch((error) => {
-                setAuthActive(true);
+                props.setAuthActive(true);
                 console.error(error);
                 // Handle Errors here.
                 const errorCode = error.code;
@@ -84,27 +121,19 @@ export default function AuthenticationForm() {
             });
     }
 
-    return <div className='container'>
-        {providers.map((provider) => <ProviderButton key={provider.name} provider={provider} signIn={signIn} active={authActive} />)}
-        <style jsx>{`
-            .container {
-                display: flex;
-                flex-direction: column;
-                width: 20em;
-                padding: 2em 0;
-            }
-        `}</style>
-    </div>
+    return <IconButton {...props.provider} onClick={() => socialSignIn(props.provider.providerInstance)} text={`Sign in with ${props.provider.name}`} active={props.active} />
 }
 
-function ProviderButton(props: { provider: ProviderDetails, signIn: Function, active: boolean }) {
-    return <div className='container'>
-        <Button className={styles.authButton} variant='neutral' style={{backgroundColor: props.provider.backgroundColor, color: props.provider.color}} onClick={() => props.signIn(props.provider.providerInstance)} disabled={!props.active}>
+// TODO exract auth active to hook
+function IconButton(props: { onClick: () => void, image?: string, icon?: any, vector?: any, text: string, backgroundColor: string, color?: string, active: boolean, hoverBrightness?: number }) {
+    const hasIcon = props.vector || props.icon || props.image;
+    return <div className='buttonContainer'>
+        <Button className={styles.authButton} variant='neutral' onClick={props.onClick} disabled={!props.active}>
             <div className='buttonContent'>
-                <div className='providerMark'>
-                    {props.provider.vector || props.provider.icon && <FontAwesomeIcon style={{width: '100%', height: '100%'}} icon={props.provider.icon} /> || props.provider.image && <img src={props.provider.image}/>}
-                </div>
-            <span className='buttonText'>Sign In with {props.provider.name}</span>
+                {hasIcon && <div className='providerMark'>
+                    {props.vector || props.icon && <FontAwesomeIcon icon={props.icon} /> || props.image && <img src={props.image} />}
+                </div>}
+                <span className='buttonText'>{props.text}</span>
             </div>
         </Button>
         <style jsx>{`
@@ -112,10 +141,10 @@ function ProviderButton(props: { provider: ProviderDetails, signIn: Function, ac
                 width: 100%;
                 height: 100%;
             }
-            .container {
+            .buttonContainer {
                 display: flex;
                 flex-direction: column;
-                margin-bottom: 1em;
+                margin: 0.5em 0;
                 width: 100%;
                 height: 3em;
             }
@@ -133,15 +162,23 @@ function ProviderButton(props: { provider: ProviderDetails, signIn: Function, ac
                 flex-direction: row;
                 width: 100%;
                 height: 100%;
-                justify-content: flex-start;
                 align-items: center;
             }
-            .buttonText {
+            .providerMark > :global(svg) {
+                width: 100%;
+                height: 100%;
             }
         `}</style>
         <style jsx>{`
-            .container:hover {
-                filter: brightness(${props.provider.hoverBrightness || 0.9});
+            .buttonContent {
+                justify-content: ${hasIcon ? 'flex-start' : 'center'};
+            }
+            .buttonContainer:hover {
+                filter: brightness(${props.hoverBrightness || 0.9});
+            }
+            div > :global(.btn) {
+                background-color: ${props.backgroundColor};
+                color: ${props.color};
             }
         `}</style>
     </div >

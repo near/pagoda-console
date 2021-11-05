@@ -1,10 +1,6 @@
 import type { NextPage } from 'next'
-import { useRouter } from 'next/router'
 import Head from 'next/head'
 import dynamic from "next/dynamic";
-import { useEffect } from 'react'
-// import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
-// import firebase from 'firebase';
 import AuthenticationForm from '../components/AuthenticationForm/AuthenticationForm';
 
 const ThemeToggle = dynamic(() => import("../components/ThemeToggle"), {
@@ -15,27 +11,9 @@ const ThemeToggle = dynamic(() => import("../components/ThemeToggle"), {
 // import styles from '../styles/Home.module.css'
 import ConsoleMark from '../public/ConsoleMark.svg'
 
-// Configure FirebaseUI.
-// const uiConfig = {
-//   // Popup signin flow rather than redirect flow.
-//   signInFlow: 'popup',
-//   signInOptions: [
-//     firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-//     firebase.auth.GithubAuthProvider.PROVIDER_ID,
-//     {
-//       provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-//       requireDisplayName: true
-//     }
-//   ],
-//   callbacks: {
-//     // Avoid redirects after sign-in.
-//     signInSuccessWithAuthResult: () => false,
-//   },
-// };
-
 const Home: NextPage = () => {
   return (
-    <div className='container'>
+    <div className='pageContainer'>
       <Head>
         <title>NEAR Dev Console</title>
         <meta name="description" content="NEAR Developer Console" />
@@ -51,7 +29,6 @@ const Home: NextPage = () => {
         </p>
 
         <AuthenticationForm />
-        {/* <SignInSelector /> */}
       </main>
 
       <footer className='footer'>
@@ -75,7 +52,7 @@ const Home: NextPage = () => {
           font-weight: 500;
         }
 
-        .container {
+        .pageContainer {
           height: 100vh;
           display: flex;
           flex-direction: column;
@@ -103,24 +80,5 @@ const Home: NextPage = () => {
     </div>
   )
 }
-
-// function SignInSelector() {
-//   const router = useRouter();
-//   // Listen to the Firebase Auth state and set the local state.
-//   useEffect(() => {
-//     const unregisterAuthObserver = firebase.auth().onAuthStateChanged(user => {
-//       if (user) {
-//         router.push('/console');
-//       }
-//     });
-//     return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
-//   }, [router]);
-
-//   return (
-//     <div style={{ padding: '2em 0', height: '16rem' }}>
-//       <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()} />
-//     </div>
-//   );
-// }
 
 export default Home
