@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { Button, FloatingLabel, Form, Alert } from 'react-bootstrap';
 import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged, signInWithEmailAndPassword, AuthError, createUserWithEmailAndPassword } from "firebase/auth";
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
+import { useTranslation } from 'next-i18next';
 import styles from './AuthenticationForm.module.css'
 
 // FontAwesome
@@ -269,7 +270,7 @@ function EmailAuth(props: { authActive: boolean }) {
             .formFieldsWrapper {
                 margin-bottom: 1em;
             }
-            .emailContainer > :global(.form-floating) {
+            .formFieldsWrapper > :global(.form-floating) {
                 margin-bottom: 0.5em;
             }
             .signUpContainer {
@@ -293,6 +294,7 @@ function EmailAuth(props: { authActive: boolean }) {
 }
 
 function ProviderButton(props: { provider: ProviderDetails, active: boolean, setAuthActive: (setTo: boolean) => void }) {
+    const { t } = useTranslation('login');
     function socialSignIn(provider: AuthProvider) {
         props.setAuthActive(false);
         const auth = getAuth();
@@ -319,7 +321,7 @@ function ProviderButton(props: { provider: ProviderDetails, active: boolean, set
             });
     }
 
-    return <IconButton {...props.provider} onClick={() => socialSignIn(props.provider.providerInstance)} text={`Continue with ${props.provider.name}`} active={props.active} />
+    return <IconButton {...props.provider} onClick={() => socialSignIn(props.provider.providerInstance)} text={`${t('continueWith')} ${props.provider.name}`} active={props.active} />
 }
 
 // TODO exract auth active to hook
