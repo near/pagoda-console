@@ -19,6 +19,7 @@ import { AuthModule } from './auth/auth.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      ignoreEnvFile: true // TODO disable only in prod
     }),
     UsersModule,
     ProjectsModule,
