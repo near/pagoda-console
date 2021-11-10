@@ -10,26 +10,88 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// model User {
+//   id       Int     @id @default(autoincrement())
+//   uid      String  @unique
+//   email    String  @unique
+//   photoUrl String?
+//   name     String?
+//   dapps    Dapp[]
+//   apiKey   String
+//   apiKeyTest String
+// }
+
+// model Dapp {
+//   id      Int    @id @default(autoincrement())
+//   address String
+//   user    User?  @relation(fields: [userId], references: [id])
+//   userId  Int?
+//   net     Net
+// }
+
 model User {
-  id       Int     @id @default(autoincrement())
-  uid      String  @unique
-  email    String  @unique
-  photoUrl String?
-  name     String?
-  dapps    Dapp[]
-  apiKey   String
-  apiKeyTest String
+  id         Int          @id @default(autoincrement())
+  uid        String       @unique
+  email      String       @unique
+  name       String?
+  active     Boolean
+  TeamMember TeamMember[]
 }
 
-model Dapp {
-  id      Int    @id @default(autoincrement())
-  address String
-  user    User?  @relation(fields: [userId], references: [id])
-  userId  Int?
-  net     Net
+model Team {
+  id          Int           @id @default(autoincrement())
+  name        String
+  active      Boolean
+  TeamMember  TeamMember[]
+  TeamProject TeamProject[]
+}
+
+model TeamMember {
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int
+  team   Team    @relation(fields: [teamId], references: [id])
+  teamId Int
+  active Boolean
+
+  @@id([userId, teamId])
+}
+
+model Project {
+  id          Int           @id @default(autoincrement())
+  name        String
+  net         Net
+  active      Boolean
+  TeamProject TeamProject[]
+  ApiKey      ApiKey[]
+  Contract    Contract[]
+}
+
+model TeamProject {
+  team      Team    @relation(fields: [teamId], references: [id])
+  teamId    Int
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId Int
+  active    Boolean
+
+  @@id([teamId, projectId])
 }
 
 enum Net {
-  MAIN
-  TEST
+  MAINNET
+  TESTNET
+}
+
+model ApiKey {
+  reference String  @id
+  net       Net
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId Int
+  active    Boolean
+}
+
+model Contract {
+  id        Int     @id @default(autoincrement())
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId Int
+  address   String
 }
