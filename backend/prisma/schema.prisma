@@ -34,14 +34,15 @@ model User {
   uid        String       @unique
   email      String       @unique
   name       String?
-  active     Boolean
+  photoUrl   String?
+  active     Boolean      @default(true)
   TeamMember TeamMember[]
 }
 
 model Team {
   id          Int           @id @default(autoincrement())
   name        String
-  active      Boolean
+  active      Boolean       @default(true)
   TeamMember  TeamMember[]
   TeamProject TeamProject[]
 }
@@ -51,7 +52,7 @@ model TeamMember {
   userId Int
   team   Team    @relation(fields: [teamId], references: [id])
   teamId Int
-  active Boolean
+  active Boolean @default(true)
 
   @@id([userId, teamId])
 }
@@ -60,7 +61,7 @@ model Project {
   id          Int           @id @default(autoincrement())
   name        String
   net         Net
-  active      Boolean
+  active      Boolean       @default(true)
   TeamProject TeamProject[]
   ApiKey      ApiKey[]
   Contract    Contract[]
@@ -71,7 +72,7 @@ model TeamProject {
   teamId    Int
   project   Project @relation(fields: [projectId], references: [id])
   projectId Int
-  active    Boolean
+  active    Boolean @default(true)
 
   @@id([teamId, projectId])
 }
@@ -86,7 +87,7 @@ model ApiKey {
   net       Net
   project   Project @relation(fields: [projectId], references: [id])
   projectId Int
-  active    Boolean
+  active    Boolean @default(true)
 }
 
 model Contract {
@@ -94,4 +95,6 @@ model Contract {
   project   Project @relation(fields: [projectId], references: [id])
   projectId Int
   address   String
+  net       Net
+  active    Boolean @default(true)
 }

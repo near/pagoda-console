@@ -1,36 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { UserService } from '../user/user.service';
+import { UsersService } from '../users/users.service';
 import firebaseAdmin from 'firebase-admin';
 import { User } from '@prisma/client';
-import { nanoid } from 'nanoid';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService) {}
+  constructor(private usersService: UsersService) {}
 
-  //   async validateUser(username: string, pass: string): Promise<any> {
-  //     const user = await this.usersService.findOne(username);
-  //     if (user && user.password === pass) {
-  //       const { password, ...result } = user;
-  //       return result;
-  //     }
-  //     return null;
-  //   }
   async validateUser(token: string): Promise<User> {
     try {
       const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
       const uid = decodedToken.user_id;
-      const user = await this.userService.user({ uid });
+      const user = await this.usersService.findActive({ uid });
       if (!user) {
         // register user
         console.log('creating user');
-        return this.userService.createUser({
+        return this.usersService.create({
           uid,
-          name: decodedToken?.name,
-          photoUrl: decodedToken?.picture,
+          name: decodedToken.name,
           email: decodedToken.email,
-          apiKey: await nanoid(),
-          apiKeyTest: await nanoid(),
+          photoUrl: decodedToken.photoUrl,
         });
       }
       return user;

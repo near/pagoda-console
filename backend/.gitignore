@@ -40,3 +40,4 @@ lerna-debug.log*
 # custom
 near-dev-platform-firebase-adminsdk-7zimk-2208813638.json
 .vscode
+ignore
