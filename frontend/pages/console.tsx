@@ -39,7 +39,7 @@ const Console: NextPage = () => {
             <link rel="icon" href="/favicon.ico" />
         </Head>
         <div className='temp-buttons'>
-            <Button variant='outline-neutral' onClick={() => router.push('/concept')}>Open POC</Button>
+            {/* <Button variant='outline-neutral' onClick={() => router.push('/concept')}>Open POC</Button> */}
             <Button variant='outline-neutral' onClick={() => getIdToken(getAuth().currentUser!).then((token) => console.log(token))}>Print token</Button>
             <Button variant='neutral' onClick={signUserOut}>Sign Out</Button>
             <ThemeToggle />
@@ -47,9 +47,10 @@ const Console: NextPage = () => {
         {getWelcomeString()}
         <style jsx>{`
             .temp-buttons {
+                padding: 1em;
                 display: flex;
                 flex-direction: row;
-                width: 25em;
+                width: 20em;
                 justify-content: space-between;
             }
         `}</style>
