@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { Button } from 'react-bootstrap';
 import { useRouter } from 'next/router'
 import { useAccount } from '../utils/hooks';
-import { getAuth, signOut } from "firebase/auth";
+import { getAuth, signOut, getIdToken } from "firebase/auth";
 
 const ThemeToggle = dynamic(() => import("../components/ThemeToggle"), {
     ssr: false,
@@ -15,7 +15,7 @@ const Console: NextPage = () => {
     const router = useRouter();
     const [account, error] = useAccount();
 
-    function getWelcomeString () {
+    function getWelcomeString() {
         if (account) return <h1>Welcome {account!.name}</h1>
         if (error) return <p>An error occured while fetching account data</p>
         return <p>Loading...</p>
@@ -24,11 +24,11 @@ const Console: NextPage = () => {
     function signUserOut() {
         const auth = getAuth();
         signOut(auth).then(() => {
-        // Sign-out successful.
-        // TODO
+            // Sign-out successful.
+            // TODO
         }).catch((error) => {
-        // An error happened.
-        // TODO
+            // An error happened.
+            // TODO
         });
     }
 
@@ -40,6 +40,7 @@ const Console: NextPage = () => {
         </Head>
         <div className='temp-buttons'>
             <Button variant='outline-neutral' onClick={() => router.push('/concept')}>Open POC</Button>
+            <Button variant='outline-neutral' onClick={() => getIdToken(getAuth().currentUser!).then((token) => console.log(token))}>Print token</Button>
             <Button variant='neutral' onClick={signUserOut}>Sign Out</Button>
             <ThemeToggle />
         </div>
@@ -48,7 +49,7 @@ const Console: NextPage = () => {
             .temp-buttons {
                 display: flex;
                 flex-direction: row;
-                width: 20em;
+                width: 25em;
                 justify-content: space-between;
             }
         `}</style>

@@ -39,7 +39,7 @@ export function useIdentity(): User | null {
         })
 
         return () => unsubscribe(); // TODO why lambda function?
-    }, [router]);
+    }, [router, cache]);
 
     return user;
 }
@@ -48,17 +48,15 @@ interface Account {
     id: number,
     uid: string,
     email?: string,
-    photoUrl?: string,
     name?: string,
-    apiKey: string,
-    apiKeyTest: string,
+    photoUrl?: string,
 }
 
 export function useAccount(): [Account?, any?] {
     const identity = useIdentity();
 
     // conditionally fetch if Firebase has loaded the user identity
-    const { data: account, error }: { data?: Account, error?: any } = useSWR(identity ? [`${BASE_URL}/user/getAccountDetails`, identity.uid] : null, fetcher);
+    const { data: account, error }: { data?: Account, error?: any } = useSWR(identity ? [`${BASE_URL}/users/getAccountDetails`, identity.uid] : null, fetcher);
 
     return [
         account,
