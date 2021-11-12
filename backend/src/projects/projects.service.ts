@@ -138,26 +138,7 @@ export class ProjectsService {
     let net: Net;
     let projectId: Project['id'];
     try {
-      const project = await this.prisma.project.findUnique({
-        where: projectWhereUnique,
-        select: {
-          active: true,
-          id: true,
-          net: true,
-        },
-      });
-      if (!project) {
-        throw new VError(
-          { info: { code: 'BAD_PROJECT' } },
-          'Project not found',
-        );
-      }
-      if (!project.active) {
-        throw new VError(
-          { info: { code: 'BAD_PROJECT' } },
-          'Project not active',
-        );
-      }
+      const project = await this.getActiveProject(projectWhereUnique);
       net = project.net;
       projectId = project.id;
     } catch (e) {
@@ -227,5 +208,75 @@ export class ProjectsService {
     } catch (e) {
       throw new VError(e, 'Failed while soft deleting contract');
     }
+  }
+
+  async getContracts(
+    callingUser: User,
+    projectWhereUnique: Prisma.ProjectWhereUniqueInput,
+  ) {
+    const project = await this.getActiveProject(projectWhereUnique, true);
+
+    // throw an error if the user doesn't have permission to perform this action
+    await this.checkUserPermission(callingUser.id, projectWhereUnique);
+
+    try {
+      return await this.prisma.contract.findMany({
+        where: {
+          active: true,
+          projectId: project.id,
+        },
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while getting list of contracts');
+    }
+  }
+
+  /**
+   *
+   * @param projectWhereUnique
+   * @param assert Should be set to true when this function is being called
+   *               for an assertion and the full project info does not need
+   *               to be returned
+   * @returns full Prisma.Project is assert is false
+   */
+  async getActiveProject(
+    projectWhereUnique: Prisma.ProjectWhereUniqueInput,
+    assert = false,
+  ) {
+    // check that project is active
+    const project = await this.prisma.project.findUnique({
+      where: projectWhereUnique,
+      ...(assert ? { select: { id: true, active: true } } : {}),
+    });
+    if (!project) {
+      throw new VError({ info: { code: 'BAD_PROJECT' } }, 'Project not found');
+    }
+    if (!project.active) {
+      throw new VError({ info: { code: 'BAD_PROJECT' } }, 'Project not active');
+    }
+
+    return project;
+  }
+
+  async list(user: User) {
+    return await this.prisma.project.findMany({
+      where: {
+        active: true,
+        TeamProject: {
+          some: {
+            active: true,
+            team: {
+              active: true,
+              TeamMember: {
+                some: {
+                  active: true,
+                  userId: user.id,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
   }
 }

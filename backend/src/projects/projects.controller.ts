@@ -93,4 +93,29 @@ export class ProjectsController {
       }
     }
   }
+
+  @UseGuards(BearerAuthGuard)
+  @Post('getContracts')
+  async getContracts(@Request() req, @Body('projectId') projectId: number) {
+    try {
+      return await this.projectsService.getContracts(req.user, {
+        id: projectId,
+      });
+    } catch (e) {
+      switch (VError.info(e)?.code) {
+        case 'PERMISSION_DENIED':
+          throw new ForbiddenException();
+        case 'BAD_PROJECT':
+          throw new BadRequestException();
+        default:
+          throw e;
+      }
+    }
+  }
+
+  @UseGuards(BearerAuthGuard)
+  @Post('list')
+  async list(@Request() req) {
+    return await this.projectsService.list(req.user);
+  }
 }
