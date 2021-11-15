@@ -1,17 +1,17 @@
 version: '3.9'
 services:
   backend:
-    image: prodtest
+    image: near-developer-console-api:latest
     ports:
-    - "3001:3001"
+      - '3001:3001'
     env_file:
       - .env
   db:
-      image: postgres
-      restart: unless-stopped
-      ports:
-        - "5432:5432"
-      environment:
-        POSTGRES_USER: pguser
-        POSTGRES_PASSWORD: pgpass
-        POSTGRES_DB: pgdb
+    image: postgres
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pgpass
+      POSTGRES_DB: pgdb
