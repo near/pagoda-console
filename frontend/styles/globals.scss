@@ -1,20 +1,33 @@
 /* ensure all pages have Bootstrap CSS */
-@import '~bootstrap/dist/css/bootstrap.min.css';
+/* @import '~bootstrap/dist/css/bootstrap.min.css'; */
+
+$light-gray: #A7A7A7;
+$black: #262626;
+$dark-gray: #3F4246;
+$white: #FFFFFF;
+$accent-blue: #5F8AFA;
+$accent-green: #AAD055;
+$accent-yellow: #FFC860;
+$accent-red: #DB5555;
+$accent-turquoise: #4FD1D9;
+$accent-purple: #6B6EF9;
+$accent-lilac: #A463B0;
+$accent-orange: #E3935B;
 
 /* global theme values */
 :root {
-  --color-light-gray: #A7A7A7;
-  --color-black: #262626;
-  --color-dark-gray: #3F4246;
-  --color-white: #FFFFFF;
-  --color-accent-blue: #5F8AFA;
-  --color-accent-green: #AAD055;
-  --color-accent-yellow: #FFC860;
-  --color-accent-red: #DB5555;
-  --color-accent-turquoise: #4FD1D9;
-  --color-accent-purple: #6B6EF9;
-  --color-accent-lilac: #A463B0;
-  --color-accent-orange: #E3935B;
+  --color-light-gray: $light-gray;
+  --color-black: $black;
+  --color-dark-gray: $dark-gray;
+  --color-white: $white;
+  --color-accent-blue: $accent-blue;
+  --color-accent-green: $accent-green;
+  --color-accent-yellow: $accent-yellow;
+  --color-accent-red: $accent-red;
+  --color-accent-turquoise: $accent-turquoise;
+  --color-accent-purple: $accent-purple;
+  --color-accent-lilac: $accent-lilac;
+  --color-accent-orange: $accent-orange;
 }
 
 /* theme */
@@ -63,6 +76,11 @@ a:hover {
   box-sizing: border-box;
 }
 
+h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
 .btn-neutral {
   background-color: var(--color-button-neutral-background);
   color: var(--color-button-neutral-text);
@@ -77,3 +95,12 @@ a:hover {
   background-color: var(--color-button-accent);
   color: var(--color-button-accent-text);
 }
+
+.btn {
+  height: 2.625rem;
+}
+
+// define bootstrap overrides
+$primary: $accent-purple;
+
+@import "~bootstrap/scss/bootstrap";

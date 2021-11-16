@@ -40,6 +40,7 @@ const Console: NextPage = () => {
         </Head>
         <div className='temp-buttons'>
             {/* <Button variant='outline-neutral' onClick={() => router.push('/concept')}>Open POC</Button> */}
+            <Button variant='outline-neutral' onClick={() => router.push('/new-project')}>New Project</Button>
             <Button variant='outline-neutral' onClick={() => getIdToken(getAuth().currentUser!).then((token) => console.log(token))}>Print token</Button>
             <Button variant='neutral' onClick={signUserOut}>Sign Out</Button>
             <ThemeToggle />

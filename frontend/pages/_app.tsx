@@ -1,5 +1,16 @@
-import '../styles/globals.css'
+// import '../styles/customBootstrap.scss'
+import '../styles/globals.scss'
+import type { ReactElement, ReactNode } from 'react'
+import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
+
+type NextPageWithLayout = NextPage & {
+  getLayout?: (page: ReactElement) => ReactNode
+}
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout
+}
 
 // initialize Firebase
 import { initializeApp } from 'firebase/app';
@@ -19,8 +30,11 @@ const firebaseConfig = {
 
 initializeApp(firebaseConfig);
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return <SSRProvider><Component {...pageProps} /></SSRProvider>
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  // Use the layout defined at the page level, if available
+  const getLayout = Component.getLayout ?? ((page) => page)
+
+  return <SSRProvider>{getLayout(<Component {...pageProps} />)}</SSRProvider>
 }
 
 import { appWithTranslation } from 'next-i18next';

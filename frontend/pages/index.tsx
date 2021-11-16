@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import dynamic from "next/dynamic";
 import AuthenticationForm from '../components/AuthenticationForm/AuthenticationForm';
+import ConsoleLogo from '../components/ConsoleLogo';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { useRouter } from 'next/router'
 
@@ -15,8 +16,6 @@ import { useTranslation } from 'next-i18next';
 
 // assets
 // import styles from '../styles/Home.module.css'
-import ConsoleMark from '../public/ConsoleMark.svg'
-
 
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
@@ -41,29 +40,13 @@ const Home: NextPage = () => {
       </Head>
 
       <main className='main'>
-        <div className='logoContainer'>
-          <ConsoleMark style={{ width: '100%', height: '100%' }} />
-        </div>
-        <p className='welcomeText'>
-          {t('login')}
-        </p>
+        <ConsoleLogo />
 
         <AuthenticationForm />
       </main>
 
       <Footer />
       <style jsx>{`
-        .logoContainer {
-          width : 40em;
-          max-width: 100vw;
-          padding: 2em;
-        }
-
-        .welcomeText {
-          font-size: 4rem;
-          font-weight: 500;
-        }
-
         .pageContainer {
           height: 100vh;
           display: flex;
