@@ -5,9 +5,10 @@ import { Button } from 'react-bootstrap';
 import NearIcon from '../public/brand/near_icon.svg'
 import { useIdentity } from '../utils/hooks';
 import { getAuth, signOut, getIdToken } from 'firebase/auth';
-import ThemeToggle from './ThemeToggle';
+// import ThemeToggle from './ThemeToggle';
+import type { ReactNode } from 'react';
 
-export default function DashboardLayout({ children }) {
+export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
         <div className='dashbaordContainer'>
             <SideBar />
@@ -71,7 +72,7 @@ function SideBar() {
                 <div className='tempButtons'>
                     <Button variant='neutral' onClick={signUserOut}>Sign Out</Button>
                     <Button variant='outline-neutral' onClick={() => getIdToken(getAuth().currentUser!).then((token) => navigator.clipboard.writeText(token).then(() => alert('Copied')))}>Copy token</Button>
-                    <ThemeToggle />
+                    {/* <ThemeToggle /> */}
                 </div>
             </div>
             <style jsx>{`

@@ -1,6 +1,9 @@
 import { useDashboardLayout } from "../utils/layouts";
-import { Button, Spinner } from 'react-bootstrap';
+import { Button, Spinner, Form } from 'react-bootstrap';
 import useSWR from "swr";
+import { useState } from "react";
+import { Contract, NetOption } from "../utils/interfaces";
+import { authenticatedFetcher } from "../utils/fetchers";
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
@@ -30,28 +33,34 @@ export default function Contracts() {
     )
 }
 
-type NetOption = 'MAINNET' | 'TESTNET';
+
 // TODO extract to central file
-interface Contract {
-    address: string,
-    net: NetOption,
-}
-const testContracts = [
+const testContracts: Contract[] = [
     {
+        id: 1,
         address: 'app.nearcrowd.near',
+        environmentId: 1,
         net: 'MAINNET' as NetOption,
     },
     {
+        id: 2,
         address: 'michaelpeter.near',
+        environmentId: 1,
         net: 'MAINNET' as NetOption,
     },
     {
+        id: 3,
         address: 'bryte.near',
+        environmentId: 1,
         net: 'MAINNET' as NetOption,
     },
 ]
 
 function ContractsTable() {
+    let [showAdd, setShowAdd] = useState<Boolean>(false);
+    // TODO
+    const { data, error }: { data?: Contract[], error?: any } = useSWR([`${BASE_URL}/projects/getContracts`, 'TODO_USER_UID'], authenticatedFetcher)
+
     return (
         <div className='contractsTableContainer'>
             <div className='headerRow'>
@@ -63,6 +72,11 @@ function ContractsTable() {
                 <span className='label'>Account Balance</span>
                 <span className='label'>Storage Used</span>
                 {testContracts.map(contract => <ContractRow key={contract.address} contract={contract} />)}
+                {showAdd && <AddContractForm />}
+            </div>
+            <div className='buttonContainer'>
+                <Button onClick={() => setShowAdd(true)}>{showAdd ? 'Confirm' : 'Add a Contract'}</Button>
+                {showAdd && <Button onClick={() => setShowAdd(false)}>Cancel</Button>}
             </div>
             <style jsx>{`
                 .headerRow {
@@ -74,6 +88,7 @@ function ContractsTable() {
                     display: grid;
                     grid-template-columns: auto 10rem 10rem;
                     row-gap: 0.5rem;
+                    margin: 1rem 0 1rem;
                 }
                 .label {
                     text-align: right;
@@ -81,6 +96,39 @@ function ContractsTable() {
                 }
                 .contractsTableContainer {
                     max-width: 46rem;
+                }
+                .buttonContainer {
+                    display: flex;
+                    flex-direction: row;
+                    column-gap: 0.75rem;
+                }
+            `}</style>
+        </div>
+    );
+}
+
+// TODO make placeholder net sensitive
+function AddContractForm() {
+    let [addInProgress, setAddInProgress] = useState<Boolean>(false);
+    return (
+        <div className='addContainer'>
+            <Form>
+                <Form.Control isValid={true} placeholder="contract.near" />
+                <Form.Control isInvalid={true} placeholder="contract.near" />
+            </Form>
+            <Button onClick={() => setAddInProgress(!addInProgress)}>Add</Button>
+            <div className='loadingContainer'>
+                {addInProgress && <BorderSpinner />}
+            </div>
+            <style jsx>{`
+                .addContainer {
+                    display: flex;
+                    flex-direction: row;
+                    column-gap: 1rem;
+                    align-items: center;
+                }
+                .loadingContainer {
+                    width: 3rem;
                 }
             `}</style>
         </div>
