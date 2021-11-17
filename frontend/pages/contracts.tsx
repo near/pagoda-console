@@ -3,7 +3,7 @@ import { Button, Spinner, Form } from 'react-bootstrap';
 import useSWR from "swr";
 import { useState } from "react";
 import { Contract, NetOption } from "../utils/interfaces";
-import { authenticatedFetcher } from "../utils/fetchers";
+// import { authenticatedFetcher } from "../utils/fetchers";
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
@@ -59,7 +59,7 @@ const testContracts: Contract[] = [
 function ContractsTable() {
     let [showAdd, setShowAdd] = useState<Boolean>(false);
     // TODO
-    const { data, error }: { data?: Contract[], error?: any } = useSWR([`${BASE_URL}/projects/getContracts`, 'TODO_USER_UID'], authenticatedFetcher)
+    // const { data, error }: { data?: Contract[], error?: any } = useSWR([`${BASE_URL}/projects/getContracts`, 'TODO_USER_UID'], authenticatedFetcher)
 
     return (
         <div className='contractsTableContainer'>
