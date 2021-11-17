@@ -10,41 +10,22 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// model User {
-//   id       Int     @id @default(autoincrement())
-//   uid      String  @unique
-//   email    String  @unique
-//   photoUrl String?
-//   name     String?
-//   dapps    Dapp[]
-//   apiKey   String
-//   apiKeyTest String
-// }
-
-// model Dapp {
-//   id      Int    @id @default(autoincrement())
-//   address String
-//   user    User?  @relation(fields: [userId], references: [id])
-//   userId  Int?
-//   net     Net
-// }
-
 model User {
-  id         Int          @id @default(autoincrement())
-  uid        String       @unique
-  email      String       @unique
-  name       String?
-  photoUrl   String?
-  active     Boolean      @default(true)
-  TeamMember TeamMember[]
+  id          Int          @id @default(autoincrement())
+  uid         String       @unique
+  email       String       @unique
+  name        String?
+  photoUrl    String?
+  active      Boolean      @default(true)
+  teamMembers TeamMember[]
 }
 
 model Team {
-  id          Int           @id @default(autoincrement())
-  name        String
-  active      Boolean       @default(true)
-  TeamMember  TeamMember[]
-  TeamProject TeamProject[]
+  id           Int           @id @default(autoincrement())
+  name         String
+  active       Boolean       @default(true)
+  teamMembers  TeamMember[]
+  teamProjects TeamProject[]
 }
 
 model TeamMember {
@@ -58,13 +39,11 @@ model TeamMember {
 }
 
 model Project {
-  id          Int           @id @default(autoincrement())
-  name        String
-  net         Net
-  active      Boolean       @default(true)
-  TeamProject TeamProject[]
-  ApiKey      ApiKey[]
-  Contract    Contract[]
+  id           Int           @id @default(autoincrement())
+  name         String
+  active       Boolean       @default(true)
+  teamProjects TeamProject[]
+  environments Environment[]
 }
 
 model TeamProject {
@@ -83,18 +62,29 @@ enum Net {
 }
 
 model ApiKey {
-  reference String  @id
-  net       Net
-  project   Project @relation(fields: [projectId], references: [id])
+  reference     String      @id
+  net           Net
+  environment   Environment @relation(fields: [environmentId], references: [id])
+  environmentId Int
+  active        Boolean     @default(true)
+}
+
+model Environment {
+  id        Int        @id @default(autoincrement())
+  name      String
+  project   Project    @relation(fields: [projectId], references: [id])
   projectId Int
-  active    Boolean @default(true)
+  net       Net
+  active    Boolean    @default(true)
+  apiKeys   ApiKey[]
+  contracts Contract[]
 }
 
 model Contract {
-  id        Int     @id @default(autoincrement())
-  project   Project @relation(fields: [projectId], references: [id])
-  projectId Int
-  address   String
-  net       Net
-  active    Boolean @default(true)
+  id            Int         @id @default(autoincrement())
+  environment   Environment @relation(fields: [environmentId], references: [id])
+  environmentId Int
+  address       String
+  net           Net
+  active        Boolean     @default(true)
 }

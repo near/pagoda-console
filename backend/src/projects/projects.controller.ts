@@ -21,12 +21,8 @@ export class ProjectsController {
 
   @UseGuards(BearerAuthGuard)
   @Post('create')
-  async create(
-    @Request() req,
-    @Body('name') name: string,
-    @Body('net') net: Net,
-  ) {
-    return this.projectsService.create({ name, net }, req.user);
+  async create(@Request() req, @Body('name') name: string) {
+    return this.projectsService.create({ name }, req.user);
   }
 
   @UseGuards(BearerAuthGuard)
@@ -36,14 +32,7 @@ export class ProjectsController {
     try {
       return await this.projectsService.delete(req.user, { id: projectId });
     } catch (e) {
-      switch (VError.info(e)?.code) {
-        case 'PERMISSION_DENIED':
-          throw new ForbiddenException();
-        case 'BAD_PROJECT':
-          throw new BadRequestException();
-        default:
-          throw e;
-      }
+      throw mapError(e);
     }
   }
 
@@ -51,26 +40,19 @@ export class ProjectsController {
   @Post('addContract')
   async addContract(
     @Request() req,
-    @Body('projectId') projectId: number,
+    @Body('environmentId') environmentId: number,
     @Body('address') address: string,
   ) {
     try {
       return await this.projectsService.addContract(
         req.user,
         {
-          id: projectId,
+          id: environmentId,
         },
         address,
       );
     } catch (e) {
-      switch (VError.info(e)?.code) {
-        case 'PERMISSION_DENIED':
-          throw new ForbiddenException();
-        case 'BAD_PROJECT':
-          throw new BadRequestException();
-        default:
-          throw e;
-      }
+      throw mapError(e);
     }
   }
 
@@ -83,14 +65,7 @@ export class ProjectsController {
         id: contractId,
       });
     } catch (e) {
-      switch (VError.info(e)?.code) {
-        case 'PERMISSION_DENIED':
-          throw new ForbiddenException();
-        case 'BAD_CONTRACT':
-          throw new BadRequestException();
-        default:
-          throw e;
-      }
+      throw mapError(e);
     }
   }
 
@@ -102,14 +77,7 @@ export class ProjectsController {
         id: projectId,
       });
     } catch (e) {
-      switch (VError.info(e)?.code) {
-        case 'PERMISSION_DENIED':
-          throw new ForbiddenException();
-        case 'BAD_PROJECT':
-          throw new BadRequestException();
-        default:
-          throw e;
-      }
+      throw mapError(e);
     }
   }
 
@@ -117,5 +85,30 @@ export class ProjectsController {
   @Post('list')
   async list(@Request() req) {
     return await this.projectsService.list(req.user);
+  }
+
+  @UseGuards(BearerAuthGuard)
+  @Post('getEnvironments')
+  async getEnvironments(@Request() req, @Body('projectId') projectId: number) {
+    try {
+      return await this.projectsService.getEnvironments(req.user, {
+        id: projectId,
+      });
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+}
+
+function mapError(e: Error) {
+  switch (VError.info(e)?.code) {
+    case 'PERMISSION_DENIED':
+      return new ForbiddenException();
+    case 'BAD_PROJECT':
+    case 'BAD_ENVIRONMENT':
+    case 'BAD_CONTRACT':
+      return new BadRequestException();
+    default:
+      return e;
   }
 }

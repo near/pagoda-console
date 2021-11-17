@@ -7,7 +7,8 @@ CREATE TABLE "User" (
     "uid" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "name" TEXT,
-    "active" BOOLEAN NOT NULL,
+    "photoUrl" TEXT,
+    "active" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -16,7 +17,7 @@ CREATE TABLE "User" (
 CREATE TABLE "Team" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "active" BOOLEAN NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "Team_pkey" PRIMARY KEY ("id")
 );
@@ -25,7 +26,7 @@ CREATE TABLE "Team" (
 CREATE TABLE "TeamMember" (
     "userId" INTEGER NOT NULL,
     "teamId" INTEGER NOT NULL,
-    "active" BOOLEAN NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "TeamMember_pkey" PRIMARY KEY ("userId","teamId")
 );
@@ -34,8 +35,7 @@ CREATE TABLE "TeamMember" (
 CREATE TABLE "Project" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "net" "Net" NOT NULL,
-    "active" BOOLEAN NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "Project_pkey" PRIMARY KEY ("id")
 );
@@ -44,7 +44,7 @@ CREATE TABLE "Project" (
 CREATE TABLE "TeamProject" (
     "teamId" INTEGER NOT NULL,
     "projectId" INTEGER NOT NULL,
-    "active" BOOLEAN NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "TeamProject_pkey" PRIMARY KEY ("teamId","projectId")
 );
@@ -53,17 +53,30 @@ CREATE TABLE "TeamProject" (
 CREATE TABLE "ApiKey" (
     "reference" TEXT NOT NULL,
     "net" "Net" NOT NULL,
-    "projectId" INTEGER NOT NULL,
-    "active" BOOLEAN NOT NULL,
+    "environmentId" INTEGER NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "ApiKey_pkey" PRIMARY KEY ("reference")
 );
 
 -- CreateTable
+CREATE TABLE "Environment" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "projectId" INTEGER NOT NULL,
+    "net" "Net" NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "Environment_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Contract" (
     "id" SERIAL NOT NULL,
-    "projectId" INTEGER NOT NULL,
+    "environmentId" INTEGER NOT NULL,
     "address" TEXT NOT NULL,
+    "net" "Net" NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "Contract_pkey" PRIMARY KEY ("id")
 );
@@ -87,7 +100,10 @@ ALTER TABLE "TeamProject" ADD CONSTRAINT "TeamProject_teamId_fkey" FOREIGN KEY (
 ALTER TABLE "TeamProject" ADD CONSTRAINT "TeamProject_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ApiKey" ADD CONSTRAINT "ApiKey_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ApiKey" ADD CONSTRAINT "ApiKey_environmentId_fkey" FOREIGN KEY ("environmentId") REFERENCES "Environment"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Contract" ADD CONSTRAINT "Contract_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Environment" ADD CONSTRAINT "Environment_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Contract" ADD CONSTRAINT "Contract_environmentId_fkey" FOREIGN KEY ("environmentId") REFERENCES "Environment"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

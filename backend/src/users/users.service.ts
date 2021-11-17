@@ -10,11 +10,11 @@ export class UsersService {
     return this.prisma.user.create({
       data: {
         ...data,
-        TeamMember: {
+        teamMembers: {
           create: {
             team: {
               create: {
-                name: 'private',
+                name: 'personal',
               },
             },
           },
