@@ -28,7 +28,7 @@ export async function getStaticProps({ locale }: { locale: string }) {
   };
 }
 
-const Home: NextPage = () => {
+export default function Login() {
   const { t } = useTranslation('login');
 
   return (
@@ -93,5 +93,3 @@ function Footer() {
   `}</style>
   </footer>
 }
-
-export default Home

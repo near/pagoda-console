@@ -30,6 +30,8 @@ export function useIdentity(): User | null {
         const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
             setUser(user);
 
+            // TODO THIS NEEDS TO MOVE TO A GLOBAL LOCATION, IT CURRENTLY WILL NOT FIRE
+            // UNLESS THE HOOK IS ACTIVE
             if(!user) {
                 // user is signed out, clear all data and redirect back to login
                 cache.clear();

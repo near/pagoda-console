@@ -14,20 +14,25 @@ $accent-purple: #6B6EF9;
 $accent-lilac: #A463B0;
 $accent-orange: #E3935B;
 
+// define bootstrap overrides
+$primary: $accent-purple;
+
+@import "~bootstrap/scss/bootstrap";
+
 /* global theme values */
 :root {
-  --color-light-gray: $light-gray;
-  --color-black: $black;
-  --color-dark-gray: $dark-gray;
-  --color-white: $white;
-  --color-accent-blue: $accent-blue;
-  --color-accent-green: $accent-green;
-  --color-accent-yellow: $accent-yellow;
-  --color-accent-red: $accent-red;
-  --color-accent-turquoise: $accent-turquoise;
-  --color-accent-purple: $accent-purple;
-  --color-accent-lilac: $accent-lilac;
-  --color-accent-orange: $accent-orange;
+  --color-light-gray: #{$light-gray};
+  --color-black: #{$black};
+  --color-dark-gray: #{$dark-gray};
+  --color-white: #{$white};
+  --color-accent-blue: #{$accent-blue};
+  --color-accent-green: #{$accent-green};
+  --color-accent-yellow: #{$accent-yellow};
+  --color-accent-red: #{$accent-red};
+  --color-accent-turquoise: #{$accent-turquoise};
+  --color-accent-purple: #{$accent-purple};
+  --color-accent-lilac: #{$accent-lilac};
+  --color-accent-orange: #{$accent-orange};
 }
 
 /* theme */
@@ -57,7 +62,6 @@ body[data-theme="dark"] {
 body {
   padding: 0;
   margin: 0;
-  font-family: 'Manrope', sans-serif;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
 }
@@ -65,7 +69,7 @@ body {
 
 a {
   color: inherit;
-  text-decoration: none;
+  font-family: 'Manrope', sans-serif;
 }
 
 a:hover {
@@ -74,11 +78,21 @@ a:hover {
 
 * {
   box-sizing: border-box;
+  font-family: 'Manrope', sans-serif;
 }
 
 h1 {
-  font-size: 2.5rem;
   font-weight: 600;
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.btn {
+  height: 2.625rem;
 }
 
 .btn-neutral {
@@ -95,12 +109,3 @@ h1 {
   background-color: var(--color-button-accent);
   color: var(--color-button-accent-text);
 }
-
-.btn {
-  height: 2.625rem;
-}
-
-// define bootstrap overrides
-$primary: $accent-purple;
-
-@import "~bootstrap/scss/bootstrap";

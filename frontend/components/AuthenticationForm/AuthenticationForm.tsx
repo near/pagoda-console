@@ -58,7 +58,7 @@ export default function AuthenticationForm() {
     useEffect(() => {
         const unregisterAuthObserver = onAuthStateChanged(getAuth(), user => {
             if (user) {
-                router.push('/console');
+                router.push('/home');
             }
         });
         return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
