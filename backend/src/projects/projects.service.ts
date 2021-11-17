@@ -126,7 +126,7 @@ export class ProjectsService {
       teamProjectFilter = { project: projectWhereUnique };
     } else if (environmentWhereUnique) {
       teamProjectFilter = {
-        project: { environment: { some: environmentWhereUnique } },
+        project: { environments: { some: environmentWhereUnique } },
       };
     }
 
@@ -312,13 +312,19 @@ export class ProjectsService {
     assert = false,
   ) {
     // check that project is active
-    const environment = await this.prisma.environment.findUnique({
-      where: environmentWhereUnique,
-      ...(assert ? { select: { id: true, active: true } } : {}),
-      include: {
-        project: true,
-      },
-    });
+    let environment;
+    if (assert) {
+      // quick check, only return minimal info
+      environment = await this.prisma.environment.findUnique({
+        where: environmentWhereUnique,
+        select: { id: true, active: true, project: true },
+      });
+    } else {
+      environment = await this.prisma.environment.findUnique({
+        where: environmentWhereUnique,
+        include: { project: true },
+      });
+    }
     if (!environment) {
       throw new VError(
         { info: { code: 'BAD_ENVIRONMENT' } },

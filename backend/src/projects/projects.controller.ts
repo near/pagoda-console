@@ -71,10 +71,13 @@ export class ProjectsController {
 
   @UseGuards(BearerAuthGuard)
   @Post('getContracts')
-  async getContracts(@Request() req, @Body('projectId') projectId: number) {
+  async getContracts(
+    @Request() req,
+    @Body('environmentId') environmentId: number,
+  ) {
     try {
       return await this.projectsService.getContracts(req.user, {
-        id: projectId,
+        id: environmentId,
       });
     } catch (e) {
       throw mapError(e);
@@ -101,6 +104,8 @@ export class ProjectsController {
 }
 
 function mapError(e: Error) {
+  // TODO only log in dev
+  console.error(e);
   switch (VError.info(e)?.code) {
     case 'PERMISSION_DENIED':
       return new ForbiddenException();
