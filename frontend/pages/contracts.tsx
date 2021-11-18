@@ -3,7 +3,9 @@ import { Button, Spinner, Form } from 'react-bootstrap';
 import useSWR from "swr";
 import { useState } from "react";
 import { Contract, NetOption } from "../utils/interfaces";
-// import { authenticatedFetcher } from "../utils/fetchers";
+import { internalFetcher, useContracts } from "../utils/fetchers";
+import { getAuth } from 'firebase/auth';
+import { useIdentity } from "../utils/hooks";
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
@@ -12,6 +14,12 @@ const MAIN_NET_RPC = process.env.NEXT_PUBLIC_MAIN_NET_RPC!;
 const TEST_NET_RPC = process.env.NEXT_PUBLIC_TEST_NET_RPC!;
 
 export default function Contracts() {
+
+    let user = useIdentity();
+
+    if (!user) {
+        return <BorderSpinner />;
+    }
 
     return (
         <div id='pageContainer'>
@@ -58,9 +66,25 @@ const testContracts: Contract[] = [
 
 function ContractsTable() {
     let [showAdd, setShowAdd] = useState<Boolean>(false);
-    // TODO
-    // const { data, error }: { data?: Contract[], error?: any } = useSWR([`${BASE_URL}/projects/getContracts`, 'TODO_USER_UID'], authenticatedFetcher)
 
+    // const { data, error }: { data?: Contract[], error?: any } = useSWR([`${BASE_URL}/projects/getContracts`, 'TODO_USER_UID'], internalFetcher)
+    // const { data: testData } = useContracts(1);
+    // console.log(testData);
+    const { data, error }: { data?: Contract[], error?: any } = useContracts(1);
+
+    console.log(data);
+
+    if (!data && !error) {
+        //loading
+        return <BorderSpinner />
+    }
+    if (error) {
+        // TODO
+        return <div>{JSON.stringify(error)}</div>
+    }
+    if (data && !data.length) {
+        return <ContractsEmptyState />
+    }
     return (
         <div className='contractsTableContainer'>
             <div className='headerRow'>
@@ -71,7 +95,7 @@ function ContractsTable() {
                 <span />
                 <span className='label'>Account Balance</span>
                 <span className='label'>Storage Used</span>
-                {testContracts.map(contract => <ContractRow key={contract.address} contract={contract} />)}
+                {data.map(contract => <ContractRow key={contract.address} contract={contract} />)}
                 {showAdd && <AddContractForm />}
             </div>
             <div className='buttonContainer'>
@@ -105,6 +129,10 @@ function ContractsTable() {
             `}</style>
         </div>
     );
+}
+
+function ContractsEmptyState() {
+    return <div>No contracts</div>;
 }
 
 // TODO make placeholder net sensitive

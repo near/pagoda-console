@@ -2,21 +2,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router'
 import useSWR, { useSWRConfig } from 'swr'
 import { getAuth, onAuthStateChanged, User, getIdToken } from "firebase/auth";
+import { internalFetcher } from './fetchers';
 
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
-const fetcher = async (url: string) => {
-    const user = getAuth().currentUser;
-    if (!user) throw new Error('No authenticated user')
-
-    const headers = new Headers({
-        'Authorization': `Bearer ${await getIdToken(user)}`
-    });
-    return fetch(url, {
-        headers
-    }).then((res) => res.json())
-}
 
 export function useIdentity(): User | null {
     const router = useRouter();
@@ -58,7 +48,7 @@ export function useAccount(): [Account?, any?] {
     const identity = useIdentity();
 
     // conditionally fetch if Firebase has loaded the user identity
-    const { data: account, error }: { data?: Account, error?: any } = useSWR(identity ? [`${BASE_URL}/users/getAccountDetails`, identity.uid] : null, fetcher);
+    const { data: account, error }: { data?: Account, error?: any } = useSWR(identity ? [`${BASE_URL}/users/getAccountDetails`, identity.uid] : null, internalFetcher);
 
     return [
         account,
