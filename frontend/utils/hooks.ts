@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router'
 import useSWR, { useSWRConfig } from 'swr'
 import { getAuth, onAuthStateChanged, User, getIdToken } from "firebase/auth";
-import { internalFetcher } from './fetchers';
+import { authenticatedPost } from './fetchers';
 
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
@@ -44,14 +44,14 @@ interface Account {
     photoUrl?: string,
 }
 
-export function useAccount(): [Account?, any?] {
-    const identity = useIdentity();
+// export function useAccount(): [Account?, any?] {
+//     const identity = useIdentity();
 
-    // conditionally fetch if Firebase has loaded the user identity
-    const { data: account, error }: { data?: Account, error?: any } = useSWR(identity ? [`${BASE_URL}/users/getAccountDetails`, identity.uid] : null, internalFetcher);
+//     // conditionally fetch if Firebase has loaded the user identity
+//     const { data: account, error }: { data?: Account, error?: any } = useSWR(identity ? [`/users/getAccountDetails`, identity.uid] : null, authenticatedPost);
 
-    return [
-        account,
-        error
-    ];
-}
+//     return [
+//         account,
+//         error
+//     ];
+// }

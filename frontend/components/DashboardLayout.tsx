@@ -57,13 +57,14 @@ function SideBar() {
         });
     }
 
+    const pageName = router.pathname.split('/')[1];
     return (
         <div className='sidebar'>
             <div className='logoContainer'>
                 <NearIcon />
             </div>
             <div className='linkContainer'>
-                {pages.map((page, index) => <PageLink key={page.route} page={page} isSelected={router.pathname === page.route} isFirst={index === 0} />)}
+                {pages.map((page, index) => <PageLink key={page.route} page={page} isSelected={pageName === page.route.split('/')[1]} isFirst={index === 0} />)}
             </div>
             <div className='footerContainer'>
                 <div className='footerContent'>{identity?.displayName || ''}</div>

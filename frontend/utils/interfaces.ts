@@ -19,5 +19,6 @@ export interface Environment {
     name?: string,
     projectId: number,
     net: NetOption,
-    active?: boolean
+    active?: boolean,
+    project?: Project
 }

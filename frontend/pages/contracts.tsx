@@ -1,32 +1,43 @@
-import { useDashboardLayout } from "../utils/layouts";
+import { useDashboardLayout } from "../../utils/layouts";
 import { Button, Spinner, Form } from 'react-bootstrap';
 import useSWR from "swr";
-import { useState } from "react";
-import { Contract, NetOption } from "../utils/interfaces";
-import { internalFetcher, useContracts } from "../utils/fetchers";
+import { ChangeEvent, useState } from "react";
+import { Contract, NetOption } from "../../utils/interfaces";
+import { authenticatedPost, useContracts, useEnvironment } from "../../utils/fetchers";
 import { getAuth } from 'firebase/auth';
-import { useIdentity } from "../utils/hooks";
+import { useIdentity } from "../../utils/hooks";
+import { useRouter } from "next/router";
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 const MAIN_NET_RPC = process.env.NEXT_PUBLIC_MAIN_NET_RPC!;
 const TEST_NET_RPC = process.env.NEXT_PUBLIC_TEST_NET_RPC!;
 
 export default function Contracts() {
+    const router = useRouter()
+    const { environment: environmentParam } = router.query;
+    let environmentId: number | null = null;
+    if (environmentParam && typeof environmentParam === 'string') {
+        environmentId = parseInt(environmentParam) || null;
+    }
+
+    let { environment, error } = useEnvironment(environmentId);
 
     let user = useIdentity();
+    console.log(user);
 
     if (!user) {
         return <BorderSpinner />;
     }
 
+    // TODO (NTH) lean into automatic static optimization and rework checks so that the
+    // maximum amount of elements can be rendered without environmentId
     return (
         <div id='pageContainer'>
             <div className='titleContainer'>
-                <h1>My Cool Project</h1>
+                <h1>{environment?.project?.name || 'Loading...'}</h1>
             </div>
-            <ContractsTable />
+            {environmentId && <ContractsTable environmentId={environmentId} />}
             <style jsx>{`
                 .pageContainer {
                     display: flex;
@@ -41,48 +52,21 @@ export default function Contracts() {
     )
 }
 
+function ContractsTable(props: { environmentId: number }) {
 
-// TODO extract to central file
-const testContracts: Contract[] = [
-    {
-        id: 1,
-        address: 'app.nearcrowd.near',
-        environmentId: 1,
-        net: 'MAINNET' as NetOption,
-    },
-    {
-        id: 2,
-        address: 'michaelpeter.near',
-        environmentId: 1,
-        net: 'MAINNET' as NetOption,
-    },
-    {
-        id: 3,
-        address: 'bryte.near',
-        environmentId: 1,
-        net: 'MAINNET' as NetOption,
-    },
-]
 
-function ContractsTable() {
-    let [showAdd, setShowAdd] = useState<Boolean>(false);
+    const { contracts, error, mutate: mutateContracts } = useContracts(props.environmentId);
+    // TODO determine how to not retry on 400s
 
-    // const { data, error }: { data?: Contract[], error?: any } = useSWR([`${BASE_URL}/projects/getContracts`, 'TODO_USER_UID'], internalFetcher)
-    // const { data: testData } = useContracts(1);
-    // console.log(testData);
-    const { data, error }: { data?: Contract[], error?: any } = useContracts(1);
-
-    console.log(data);
-
-    if (!data && !error) {
+    if (!contracts && !error) {
         //loading
         return <BorderSpinner />
     }
     if (error) {
         // TODO
-        return <div>{JSON.stringify(error)}</div>
+        return <div>Something went wrong: {error.message}</div>
     }
-    if (data && !data.length) {
+    if (contracts && !contracts.length) {
         return <ContractsEmptyState />
     }
     return (
@@ -95,13 +79,10 @@ function ContractsTable() {
                 <span />
                 <span className='label'>Account Balance</span>
                 <span className='label'>Storage Used</span>
-                {data.map(contract => <ContractRow key={contract.address} contract={contract} />)}
-                {showAdd && <AddContractForm />}
+                {contracts && contracts.map(contract => <ContractRow key={contract.address} contract={contract} />)}
             </div>
-            <div className='buttonContainer'>
-                <Button onClick={() => setShowAdd(true)}>{showAdd ? 'Confirm' : 'Add a Contract'}</Button>
-                {showAdd && <Button onClick={() => setShowAdd(false)}>Cancel</Button>}
-            </div>
+            <AddContractForm environmentId={props.environmentId} onAdd={mutateContracts} />
+
             <style jsx>{`
                 .headerRow {
                     display: flex;
@@ -121,11 +102,7 @@ function ContractsTable() {
                 .contractsTableContainer {
                     max-width: 46rem;
                 }
-                .buttonContainer {
-                    display: flex;
-                    flex-direction: row;
-                    column-gap: 0.75rem;
-                }
+                
             `}</style>
         </div>
     );
@@ -136,20 +113,63 @@ function ContractsEmptyState() {
 }
 
 // TODO make placeholder net sensitive
-function AddContractForm() {
-    let [addInProgress, setAddInProgress] = useState<Boolean>(false);
+function AddContractForm(props: { environmentId: number, onAdd: () => void }) {
+    let [showAdd, setShowAdd] = useState<boolean>(false);
+    let [addInProgress, setAddInProgress] = useState<boolean>(false);
+    let [address, setAddress] = useState<string>('');
+    let [error, setError] = useState<string>('');
+
+    async function submitNewContract() {
+        setAddInProgress(true);
+        let contract: Contract;
+        try {
+            // throw new Error();
+            contract = await authenticatedPost('/projects/addContract', { environmentId: props.environmentId, address });
+            // contract = await authenticatedPost('/projects/addContract', { environmentId: 40, address });
+            props.onAdd();
+            closeAdd();
+            return contract;
+        } catch (e: any) {
+            // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO 
+            // alert(e.message);
+            setError(e.message);
+        } finally {
+            setAddInProgress(false);
+        }
+    }
+
+    function handleAddressChange(e: React.ChangeEvent<HTMLInputElement>) {
+        error && setError('');
+        setAddress(e.target.value);
+    }
+
+    function closeAdd() {
+        setAddress('');
+        setShowAdd(false);
+    }
+
     return (
         <div className='addContainer'>
-            <Form>
-                <Form.Control isValid={true} placeholder="contract.near" />
-                <Form.Control isInvalid={true} placeholder="contract.near" />
-            </Form>
-            <Button onClick={() => setAddInProgress(!addInProgress)}>Add</Button>
-            <div className='loadingContainer'>
-                {addInProgress && <BorderSpinner />}
+            {showAdd && <div className='inputRow'>
+                <Form>
+                    <Form.Control isInvalid={Boolean(error)} disabled={addInProgress} placeholder="contract.near" value={address} onChange={handleAddressChange} />
+                    <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
+                </Form>
+                <div className='loadingContainer'>
+                    {addInProgress && <BorderSpinner />}
+                </div>
+            </div>}
+            <div className='buttonContainer'>
+                <Button disabled={addInProgress} onClick={showAdd ? submitNewContract : () => setShowAdd(true)}>{showAdd ? 'Confirm' : 'Add a Contract'}</Button>
+                {showAdd && <Button disabled={addInProgress} onClick={closeAdd}>Cancel</Button>}
             </div>
             <style jsx>{`
                 .addContainer {
+                    display: flex;
+                    flex-direction: column;
+                    row-gap: 1em;
+                }
+                .inputRow {
                     display: flex;
                     flex-direction: row;
                     column-gap: 1rem;
@@ -157,6 +177,11 @@ function AddContractForm() {
                 }
                 .loadingContainer {
                     width: 3rem;
+                }
+                .buttonContainer {
+                    display: flex;
+                    flex-direction: row;
+                    column-gap: 0.75rem;
                 }
             `}</style>
         </div>
