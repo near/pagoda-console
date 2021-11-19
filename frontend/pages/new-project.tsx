@@ -1,72 +1,57 @@
 import { FormEvent, useState } from 'react';
 import { useSimpleLayout } from "../utils/layouts"
 import { Form, Button, Alert } from 'react-bootstrap'
-import { useIdentity } from '../utils/hooks';
 import { getIdToken } from 'firebase/auth';
-
-type NetOption = 'MAINNET' | 'TESTNET';
+import { useRouter } from 'next/router';
+import { Project } from '../utils/interfaces';
+import { authenticatedPost } from '../utils/fetchers';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!; // TODO extract to config hook
 
 export default function NewProject() {
     let [projectName, setProjectName] = useState<string>('');
-    let [net, setNet] = useState<NetOption>('MAINNET');
     let [formEnabled, setFormEnabled] = useState<boolean>(true);
+    const router = useRouter();
 
     // temp
-    let [success, setSuccess] = useState<boolean | null>(null);
+    let [creationError, setCreationError] = useState<boolean>(false);
 
-    const identity = useIdentity();
     async function createProject(e: FormEvent): Promise<void> {
         e.preventDefault();
-        console.log(projectName, net);
+        console.log(projectName);
         setFormEnabled(false);
         try {
-            const res = await fetch(`${BASE_URL}/projects/create`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${await getIdToken(identity!)}`
-                },
-                body: JSON.stringify({
-                    name: projectName,
-                    net,
-                })
-            });
-            // TODO handle success
-            setSuccess(true);
+            const project: Project = await authenticatedPost('/projects/create', { name: projectName });
+            router.push(`/project/${project.slug}/contracts`);
         } catch (e) {
             setFormEnabled(true);
-            setSuccess(false);
+            setCreationError(true);
             // TODO handle error
         }
     }
 
     return <div className='newProjectContainer'>
         <h1>New Project</h1>
+        <div className='calloutText'>
+            <span className='boldText'>One last thing! </span>
+            Before we let you loose on the Developer Console, you’ll need to create a project. Projects contain API keys and any smart contracts you wish to track.
+        </div>
         <Form className='newProjectForm' onSubmit={createProject}>
             <Form.Group className='formField' controlId="projectNameInput">
                 <Form.Label>Project Name</Form.Label>
                 <Form.Control placeholder="Cool New Project" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
             </Form.Group>
-            <Form.Group className='formField' controlId="networkSelect">
-                <Form.Label>Network</Form.Label>
-                <Form.Select aria-label="Network Select" value={net} onChange={(e) => setNet(e.target.value as NetOption)}>
-                    <option value="MAINNET">Mainnet</option>
-                    <option value="TESTNET">Testnet</option>
-                </Form.Select>
-            </Form.Group>
             <div className='buttonContainer'>
                 <Button variant='primary' type='submit' disabled={!formEnabled}>Create a Project</Button>
             </div>
-            {(success !== null) && <Alert variant={success ? 'success' : 'danger'}>{success ? 'Success' : 'Something went wrong'}</Alert>}
+            {creationError && <Alert variant='danger'>Something went wrong</Alert>}
         </Form>
         <style jsx>{`
             .newProjectContainer {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                width: 22.25rem;
+                width: 34rem;
                 margin: 0 auto;
             }
             .newProjectContainer :global(.newProjectForm) {
@@ -82,6 +67,12 @@ export default function NewProject() {
             h1 {
                 margin-bottom: 1.25rem;
                 width: 100%
+            }
+            .calloutText {
+                margin-bottom: 1rem;
+            }
+            .boldText {
+                font-weight: 700;
             }
             .buttonContainer {
                 width: 100%;

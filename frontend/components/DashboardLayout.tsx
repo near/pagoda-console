@@ -6,7 +6,8 @@ import NearIcon from '../public/brand/near_icon.svg'
 import { useIdentity } from '../utils/hooks';
 import { getAuth, signOut, getIdToken } from 'firebase/auth';
 // import ThemeToggle from './ThemeToggle';
-import type { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
+
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
@@ -33,17 +34,28 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     );
 }
 
+interface PageDefinition {
+    display: string,
+    route: string
+};
+
 const pages = [
-    { text: 'Home', route: '/home' },
-    { text: 'Contracts', route: '/contracts' },
-    // { text: 'RPC', route: '/rpc' },
-    // { text: 'Console', route: '/console' },
-    { text: 'New Project', route: '/new-project' },
-]
+    { display: 'Home', route: '/project/[project]/home' },
+    { display: 'Contracts', route: `/project/[project]/contracts` },
+    { display: 'Projects', route: '/projects' },
+    { display: 'New Project', route: '/new-project' },
+];
 
 function SideBar() {
     const router = useRouter();
     const identity = useIdentity();
+
+    const { project: projectParam } = router.query;
+    let project: string | null = null;
+
+    if (projectParam && typeof projectParam === 'string') {
+        project = projectParam;
+    }
 
     // TODO move to reusable location
     function signUserOut() {
@@ -57,14 +69,14 @@ function SideBar() {
         });
     }
 
-    const pageName = router.pathname.split('/')[1];
+    console.log(project);
     return (
         <div className='sidebar'>
             <div className='logoContainer'>
                 <NearIcon />
             </div>
             <div className='linkContainer'>
-                {pages.map((page, index) => <PageLink key={page.route} page={page} isSelected={pageName === page.route.split('/')[1]} isFirst={index === 0} />)}
+                {pages.map((page, index) => <PageLink key={page.route} page={page} project={project} isSelected={router.pathname === page.route} isFirst={index === 0} />)}
             </div>
             <div className='footerContainer'>
                 <div className='footerContent'>{identity?.displayName || ''}</div>
@@ -118,16 +130,13 @@ function SideBar() {
     );
 }
 
-interface PageData {
-    text: string,
-    route: string,
-}
-
-function PageLink(props: { page: PageData, isSelected?: boolean, isFirst?: boolean }) {
+function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?: boolean, project?: string }) {
+    const linkOut = typeof props.project === 'string' ? props.page.route.replace('[project]', props.project) : '';
+    console.log(linkOut);
     return (
         <div className='linkContainer'>
-            <Link href={props.page.route}>
-                <a>{props.page.text}</a>
+            <Link href={linkOut}>
+                <a>{props.page.display}</a>
             </Link>
             <style jsx>{`
                 a {

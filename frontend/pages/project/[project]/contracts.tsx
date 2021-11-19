@@ -1,11 +1,11 @@
-import { useDashboardLayout } from "../../utils/layouts";
-import { Button, Spinner, Form } from 'react-bootstrap';
+import { useDashboardLayout } from "../../../utils/layouts";
+import { Button, Spinner, Form, Dropdown, DropdownButton } from 'react-bootstrap';
 import useSWR from "swr";
 import { ChangeEvent, useState } from "react";
-import { Contract, NetOption } from "../../utils/interfaces";
-import { authenticatedPost, useContracts, useEnvironment } from "../../utils/fetchers";
+import { Contract, NetOption } from "../../../utils/interfaces";
+import { authenticatedPost, useContracts, useEnvironment, useEnvironments } from "../../../utils/fetchers";
 import { getAuth } from 'firebase/auth';
-import { useIdentity } from "../../utils/hooks";
+import { useIdentity } from "../../../utils/hooks";
 import { useRouter } from "next/router";
 
 // TODO decide proper crash if environment variables are not defined
@@ -15,16 +15,27 @@ const TEST_NET_RPC = process.env.NEXT_PUBLIC_TEST_NET_RPC!;
 
 export default function Contracts() {
     const router = useRouter()
-    const { environment: environmentParam } = router.query;
-    let environmentId: number | null = null;
-    if (environmentParam && typeof environmentParam === 'string') {
-        environmentId = parseInt(environmentParam) || null;
+    let [environmentName, setEnvironmentName] = useState<string>('');
+    // const { environment: environmentParam } = router.query;
+    // let environmentId: number | null = null;
+    // if (environmentParam && typeof environmentParam === 'string') {
+    //     environmentId = parseInt(environmentParam) || null;
+    // }
+
+    const { project: projectParam } = router.query;
+    let project = null;
+
+    if (projectParam && typeof projectParam === 'string') {
+        project = projectParam;
+    }
+    const { environments, error } = useEnvironments(project);
+    if (!environmentName && environments) {
+        setEnvironmentName(environments[0].name)
     }
 
-    let { environment, error } = useEnvironment(environmentId);
+    // let { environment, error } = useEnvironment(environmentId);
 
     let user = useIdentity();
-    console.log(user);
 
     if (!user) {
         return <BorderSpinner />;
@@ -35,9 +46,23 @@ export default function Contracts() {
     return (
         <div id='pageContainer'>
             <div className='titleContainer'>
-                <h1>{environment?.project?.name || 'Loading...'}</h1>
+                {/* <h1>{environment?.project?.name || 'Loading...'}</h1> */}
+                <h1>{project}</h1>
+                {environments && <DropdownButton
+                    variant="outline-secondary"
+                    // menuVariant="dark"
+                    title={environmentName}
+                    onSelect={(eventKey) => {
+                        setEnvironmentName(eventKey);
+                    }}
+                >
+                    {environments.map((env) =>
+                        <Dropdown.Item
+                            key={env.subId} eventKey={env.name}
+                        >{env.name}</Dropdown.Item>)}
+                </DropdownButton>}
             </div>
-            {environmentId && <ContractsTable environmentId={environmentId} />}
+            {/* {environmentId && <ContractsTable environmentId={environmentId} />} */}
             <style jsx>{`
                 .pageContainer {
                     display: flex;

@@ -4,6 +4,15 @@ Built on Next.js
 
 ---
 
+## Environment
+
+This project utilizes vscode dev containers.
+
+Important extensions
+```
+divlo.vscode-styled-jsx-syntax
+```
+
 ## Getting Started
 
 Run the development server:

@@ -1,39 +1,62 @@
 import { useSimpleLayout } from "../utils/layouts";
-import { Button, Badge } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { useRouter } from "next/router";
+import { useProjects } from "../utils/fetchers";
+import { Project } from '../utils/interfaces';
+import Link from 'next/link';
 
-const testProjects = [
-    {
-        id: 1,
-        name: 'My Cool Project',
-        net: 'MAINNET' as NetOption,
-    },
-    {
-        id: 2,
-        name: 'My Cool Project',
-        net: 'MAINNET' as NetOption,
-    },
-    {
-        id: 3,
-        name: 'My Cool Project',
-        net: 'MAINNET' as NetOption,
-    },
-    {
-        id: 4,
-        name: 'My Cool Project',
-        net: 'MAINNET' as NetOption,
-    },
-]
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
+import { useState } from "react";
+
+// const testProjects: Project[] = [
+// {
+//     id: 1,
+//     name: 'My Cool Project',
+//     net: 'MAINNET' as NetOption,
+// },
+// {
+//     id: 2,
+//     name: 'My Cool Project',
+//     net: 'MAINNET' as NetOption,
+// },
+// {
+//     id: 3,
+//     name: 'My Cool Project',
+//     net: 'MAINNET' as NetOption,
+// },
+// {
+//     id: 4,
+//     name: 'My Cool Project',
+//     net: 'MAINNET' as NetOption,
+// },
+// ]
 
 export default function Projects() {
     const router = useRouter();
+    const { projects, error } = useProjects();
+    let [isEditing, setIsEditing] = useState<boolean>(false);
+
+    let body;
+    if (error) {
+        // TODO
+        body = <div>An error occurred</div>;
+    } else if (!projects) {
+        // TODO
+        body = <div>Loading...</div>;
+    } else if (!projects.length) {
+        // TODO
+        body = <div>No projects</div>;
+    } else {
+        body = projects!.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} roundTop={index === 0} roundBottom={index === arr.length - 1} showDelete={isEditing} />);
+    }
     return <div className='projectsContainer'>
         <div className='headerContainer'>
             <h1>Projects</h1>
-            <Button>Edit</Button>
+            <Button onClick={() => setIsEditing(!isEditing)}>{!isEditing ? 'Edit' : 'Done'}</Button>
         </div>
         <div className='listContainer'>
-            {testProjects.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} roundTop={index === 0} roundBottom={index === arr.length - 1} />)}
+            {body}
         </div>
         <div className='footerContainer'>
             <Button onClick={() => router.push('/new-project')}>Create a Project</Button>
@@ -65,21 +88,15 @@ export default function Projects() {
     </div>
 }
 
-type NetOption = 'MAINNET' | 'TESTNET';
-
-interface Project {
-    id: number,
-    name: string,
-    net: NetOption,
-}
-
-function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: boolean }) {
+function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: boolean, showDelete: boolean }) {
     const topRadius = props.roundTop ? '4' : '0';
     const bottomRadius = props.roundBottom ? '4' : '0';
     return (
         <div className='projectRowContainer'>
-            <span>{props.project.name}</span>
-            <Badge pill bg='secondary'>{props.project.net}</Badge>
+            <Link href={`/project/${props.project.slug}/contracts`}>
+                <a className='projectLink'><div className='linkDiv'>{props.project.name}</div></a>
+            </Link>
+            {props.showDelete && <Button><FontAwesomeIcon icon={faTrashAlt} /></Button>}
             <style jsx>{`
                 .projectRowContainer {
                     display: flex;
@@ -90,8 +107,27 @@ function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: b
                     border-right: 1px solid #DEE2E6;
                     border-left: 1px solid #DEE2E6;
                     border-bottom: 1px solid #DEE2E6;
-                    padding: 0 1.5em;
                     align-items: center;
+                }
+                .projectLink:hover {
+                    color: var(--color-accent-purple)
+                }
+                .projectLink {
+                    padding: 0 1.5em;
+                    text-decoration: none;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                }
+                .projectRowContainer :global(.btn) {
+                    margin-right: 0.5rem;
+                    padding-right: 1.25rem;
+                    padding-left: 1.25rem;
+                    background-color: transparent;
+                    color: var(--color-primary);
+                    border: none;
                 }
             `}</style>
             <style jsx>{`
