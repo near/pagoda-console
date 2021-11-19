@@ -18,7 +18,7 @@ const nanoid = customAlphabet(
 
 @Injectable()
 export class ProjectsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(user: User, name: Project['name']): Promise<Project> {
     let teamId;
@@ -404,7 +404,7 @@ export class ProjectsService {
   ) {
     let project;
     try {
-      project = await this.getActiveProject(projectWhereUnique, true);
+      project = await this.getActiveProject(projectWhereUnique);
     } catch (e) {
       throw new VError(
         e,
@@ -417,7 +417,9 @@ export class ProjectsService {
       projectWhereUnique,
     });
 
-    return this.prisma.environment.findMany({
+    // this can be cleaned up, it was changed late to consolidate multiple network
+    // calls
+    const environments = await this.prisma.environment.findMany({
       where: {
         projectId: project.id,
         active: true,
@@ -431,13 +433,21 @@ export class ProjectsService {
         net: true,
         contracts: includeContracts
           ? {
-              where: {
-                active: true,
-              },
-            }
-          : undefined,
+            where: {
+              active: true,
+            },
+          }
+          : false,
       },
     });
+
+    return {
+      project: {
+        name: project.name,
+        slug: project.slug,
+      },
+      environments,
+    };
   }
 
   async getEnvironmentDetails(
