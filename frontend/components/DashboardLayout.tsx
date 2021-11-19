@@ -130,7 +130,7 @@ function SideBar() {
     );
 }
 
-function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?: boolean, project?: string }) {
+function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?: boolean, project: string | null }) {
     const linkOut = typeof props.project === 'string' ? props.page.route.replace('[project]', props.project) : '';
     console.log(linkOut);
     return (
