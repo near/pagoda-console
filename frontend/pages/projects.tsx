@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 import { useState } from "react";
+import BorderSpinner from "../components/BorderSpinner";
 
 // const testProjects: Project[] = [
 // {
@@ -43,10 +44,11 @@ export default function Projects() {
         body = <div>An error occurred</div>;
     } else if (!projects) {
         // TODO
-        body = <div>Loading...</div>;
+        return <BorderSpinner />;
     } else if (!projects.length) {
         // TODO
-        body = <div>No projects</div>;
+        router.push('/new-project');
+        return <></>;
     } else {
         body = projects!.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} roundTop={index === 0} roundBottom={index === arr.length - 1} showDelete={isEditing} />);
     }

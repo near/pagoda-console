@@ -3,11 +3,11 @@ import Head from 'next/head'
 import dynamic from "next/dynamic";
 import { Button } from 'react-bootstrap';
 import { useRouter } from 'next/router'
-import { useAccount } from '../utils/fetchers';
+import { useAccount } from '../../../utils/fetchers';
 import { getAuth, signOut, getIdToken } from "firebase/auth";
-import { useDashboardLayout } from '../utils/layouts';
+import { useDashboardLayout } from '../../../utils/layouts';
 
-const ThemeToggle = dynamic(() => import("../components/ThemeToggle"), {
+const ThemeToggle = dynamic(() => import("../../../components/ThemeToggle"), {
     ssr: false,
 });
 

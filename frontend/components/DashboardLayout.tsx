@@ -27,6 +27,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 /*temp*/
                 border-left: 1px solid var(--color-light-gray);
                 padding-left: 7.5rem;
+                padding-right: 7.5rem;
                 padding-top: 3rem;
             }
         `}</style>
@@ -69,7 +70,6 @@ function SideBar() {
         });
     }
 
-    console.log(project);
     return (
         <div className='sidebar'>
             <div className='logoContainer'>

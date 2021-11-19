@@ -9,8 +9,10 @@ Built on Next.js
 This project utilizes vscode dev containers.
 
 Important extensions
+
 ```
 divlo.vscode-styled-jsx-syntax
+aaron-bond.better-comments
 ```
 
 ## Getting Started
