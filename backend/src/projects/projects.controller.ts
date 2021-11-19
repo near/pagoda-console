@@ -22,15 +22,15 @@ export class ProjectsController {
   @UseGuards(BearerAuthGuard)
   @Post('create')
   async create(@Request() req, @Body('name') name: string) {
-    return this.projectsService.create({ name }, req.user);
+    return this.projectsService.create(req.user, name);
   }
 
   @UseGuards(BearerAuthGuard)
   @HttpCode(204)
   @Post('delete')
-  async delete(@Request() req, @Body('id') projectId: number) {
+  async delete(@Request() req, @Body('slug') slug: string) {
     try {
-      return await this.projectsService.delete(req.user, { id: projectId });
+      return await this.projectsService.delete(req.user, { slug });
     } catch (e) {
       throw mapError(e);
     }
@@ -40,15 +40,15 @@ export class ProjectsController {
   @Post('addContract')
   async addContract(
     @Request() req,
-    @Body('environmentId') environmentId: number,
+    @Body('project') project: string,
+    @Body('environment') environment: number,
     @Body('address') address: string,
   ) {
     try {
       return await this.projectsService.addContract(
         req.user,
-        {
-          id: environmentId,
-        },
+        project,
+        environment,
         address,
       );
     } catch (e) {
@@ -73,12 +73,15 @@ export class ProjectsController {
   @Post('getContracts')
   async getContracts(
     @Request() req,
-    @Body('environmentId') environmentId: number,
+    @Body('project') project: string,
+    @Body('environment') environment: number,
   ) {
     try {
-      return await this.projectsService.getContracts(req.user, {
-        id: environmentId,
-      });
+      return await this.projectsService.getContracts(
+        req.user,
+        project,
+        environment,
+      );
     } catch (e) {
       throw mapError(e);
     }
@@ -92,11 +95,29 @@ export class ProjectsController {
 
   @UseGuards(BearerAuthGuard)
   @Post('getEnvironments')
-  async getEnvironments(@Request() req, @Body('projectId') projectId: number) {
+  async getEnvironments(@Request() req, @Body('project') project: string) {
     try {
       return await this.projectsService.getEnvironments(req.user, {
-        id: projectId,
+        slug: project,
       });
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @UseGuards(BearerAuthGuard)
+  @Post('getEnvironmentDetails')
+  async getEnvironmentDetails(
+    @Request() req,
+    @Body('project') project: string,
+    @Body('environment') environment: number,
+  ) {
+    try {
+      return await this.projectsService.getEnvironmentDetails(
+        req.user,
+        project,
+        environment,
+      );
     } catch (e) {
       throw mapError(e);
     }

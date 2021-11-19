@@ -9,12 +9,18 @@ import {
   Environment,
 } from '@prisma/client';
 import { VError } from 'verror';
+import { customAlphabet } from 'nanoid';
+
+const nanoid = customAlphabet(
+  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+  13,
+);
 
 @Injectable()
 export class ProjectsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: Prisma.ProjectCreateInput, user: User): Promise<Project> {
+  async create(user: User, name: Project['name']): Promise<Project> {
     let teamId;
     try {
       const teamFind = await this.prisma.teamMember.findFirst({
@@ -40,7 +46,8 @@ export class ProjectsService {
     try {
       project = await this.prisma.project.create({
         data: {
-          ...data,
+          slug: nanoid(),
+          name,
           teamProjects: {
             create: {
               teamId,
@@ -49,11 +56,15 @@ export class ProjectsService {
           environments: {
             createMany: {
               data: [
-                { name: 'Mainnet', net: 'MAINNET' },
-                { name: 'Testnet', net: 'TESTNET' },
+                { name: 'Testnet', net: 'TESTNET', subId: 1 },
+                { name: 'Mainnet', net: 'MAINNET', subId: 2 },
               ],
             },
           },
+        },
+        select: {
+          name: true,
+          slug: true,
         },
       });
     } catch (e) {
@@ -156,21 +167,14 @@ export class ProjectsService {
 
   async addContract(
     callingUser: User,
-    environmentWhereUnique: Prisma.EnvironmentWhereUniqueInput,
+    project: Project['slug'],
+    subId: Environment['subId'],
     address: Contract['address'],
   ) {
-    // throw an error if the user doesn't have permission to perform this action
-    await this.checkUserPermission({
-      userId: callingUser.id,
-      environmentWhereUnique,
-    });
-
     let net: Net;
     let environmentId: Environment['id'];
     try {
-      const environment = await this.getActiveEnvironment(
-        environmentWhereUnique,
-      );
+      const environment = await this.getActiveEnvironment(project, subId);
       net = environment.net;
       environmentId = environment.id;
     } catch (e) {
@@ -180,12 +184,23 @@ export class ProjectsService {
       );
     }
 
+    // throw an error if the user doesn't have permission to perform this action
+    await this.checkUserPermission({
+      userId: callingUser.id,
+      environmentWhereUnique: { id: environmentId },
+    });
+
     try {
       return await this.prisma.contract.create({
         data: {
           address,
           environmentId,
           net,
+        },
+        select: {
+          id: true,
+          address: true,
+          net: true,
         },
       });
     } catch (e) {
@@ -247,17 +262,15 @@ export class ProjectsService {
 
   async getContracts(
     callingUser: User,
-    environmentWhereUnique: Prisma.EnvironmentWhereUniqueInput,
+    project: Project['slug'],
+    subId: Environment['subId'],
   ) {
-    const environment = await this.getActiveEnvironment(
-      environmentWhereUnique,
-      true,
-    );
+    const environment = await this.getActiveEnvironment(project, subId, true);
 
     // throw an error if the user doesn't have permission to perform this action
     await this.checkUserPermission({
       userId: callingUser.id,
-      environmentWhereUnique,
+      environmentWhereUnique: { id: environment.id },
     });
 
     try {
@@ -308,20 +321,31 @@ export class ProjectsService {
    * @returns full Prisma.Project is assert is false
    */
   async getActiveEnvironment(
-    environmentWhereUnique: Prisma.EnvironmentWhereUniqueInput,
+    projectSlug: Project['slug'],
+    subId: Environment['subId'],
     assert = false,
   ) {
     // check that project is active
     let environment;
     if (assert) {
       // quick check, only return minimal info
-      environment = await this.prisma.environment.findUnique({
-        where: environmentWhereUnique,
+      environment = await this.prisma.environment.findFirst({
+        where: {
+          subId,
+          project: {
+            slug: projectSlug,
+          },
+        },
         select: { id: true, active: true, project: true },
       });
     } else {
-      environment = await this.prisma.environment.findUnique({
-        where: environmentWhereUnique,
+      environment = await this.prisma.environment.findFirst({
+        where: {
+          subId,
+          project: {
+            slug: projectSlug,
+          },
+        },
         include: { project: true },
       });
     }
@@ -376,12 +400,8 @@ export class ProjectsService {
   async getEnvironments(
     callingUser: User,
     projectWhereUnique: Prisma.ProjectWhereUniqueInput,
+    includeContracts = false,
   ) {
-    await this.checkUserPermission({
-      userId: callingUser.id,
-      projectWhereUnique,
-    });
-
     let project;
     try {
       project = await this.getActiveProject(projectWhereUnique, true);
@@ -392,11 +412,47 @@ export class ProjectsService {
       );
     }
 
+    await this.checkUserPermission({
+      userId: callingUser.id,
+      projectWhereUnique,
+    });
+
     return this.prisma.environment.findMany({
       where: {
         projectId: project.id,
         active: true,
       },
+      orderBy: {
+        id: 'asc',
+      },
+      select: {
+        subId: true,
+        name: true,
+        net: true,
+        contracts: includeContracts
+          ? {
+              where: {
+                active: true,
+              },
+            }
+          : undefined,
+      },
     });
+  }
+
+  async getEnvironmentDetails(
+    callingUser: User,
+    project: Project['slug'],
+    subId: Environment['subId'],
+  ) {
+    const environment = await this.getActiveEnvironment(project, subId);
+
+    // throw an error if the user doesn't have permission to perform this action
+    await this.checkUserPermission({
+      userId: callingUser.id,
+      environmentWhereUnique: { id: environment.id },
+    });
+
+    return environment;
   }
 }

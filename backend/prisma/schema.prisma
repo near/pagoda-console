@@ -41,6 +41,7 @@ model TeamMember {
 model Project {
   id           Int           @id @default(autoincrement())
   name         String
+  slug         String        @unique
   active       Boolean       @default(true)
   teamProjects TeamProject[]
   environments Environment[]
@@ -75,9 +76,12 @@ model Environment {
   project   Project    @relation(fields: [projectId], references: [id])
   projectId Int
   net       Net
+  subId     Int
   active    Boolean    @default(true)
   apiKeys   ApiKey[]
   contracts Contract[]
+
+  @@unique([projectId, subId])
 }
 
 model Contract {
