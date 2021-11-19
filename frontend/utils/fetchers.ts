@@ -163,17 +163,19 @@ export function useProjects(): {
   projects?: Project[];
   error?: any;
   mutate: KeyedMutator<any>;
+  isValidating: boolean,
 } {
   const identity = useIdentity();
   const {
     data: projects,
     error,
     mutate,
+    isValidating
   } = useSWR(
     identity ? ["/projects/list", identity.uid] : null,
     (key: string, project: number) => {
       return authenticatedPost(key);
     }
   );
-  return { projects, error, mutate };
+  return { projects, error, mutate, isValidating };
 }

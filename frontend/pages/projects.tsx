@@ -35,7 +35,7 @@ import BorderSpinner from "../components/BorderSpinner";
 
 export default function Projects() {
     const router = useRouter();
-    const { projects, error } = useProjects();
+    const { projects, error, isValidating } = useProjects();
     let [isEditing, setIsEditing] = useState<boolean>(false);
 
     let body;
@@ -45,7 +45,7 @@ export default function Projects() {
     } else if (!projects) {
         // TODO
         return <BorderSpinner />;
-    } else if (!projects.length) {
+    } else if (!projects.length && !isValidating) {
         // TODO
         router.push('/new-project');
         return <></>;
