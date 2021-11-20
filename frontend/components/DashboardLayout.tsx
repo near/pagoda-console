@@ -5,14 +5,18 @@ import { Button } from 'react-bootstrap';
 import NearIcon from '../public/brand/near_icon.svg'
 import { useIdentity } from '../utils/hooks';
 import { getAuth, signOut, getIdToken } from 'firebase/auth';
-// import ThemeToggle from './ThemeToggle';
 import { ReactNode, useEffect, useState } from 'react';
+
+import Gradient from '../public/dashboardGradient.svg';
 
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
         <div className='dashbaordContainer'>
             <SideBar />
+            <div className='gradientContainer'>
+                <Gradient style={{ width: '100%', height: '100%', preserveAspectRatio: 'false' }} />
+            </div>
             <div className='childContainer'>
                 {children}
             </div>
@@ -25,10 +29,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             .childContainer {
                 flex-grow: 1;
                 /*temp*/
-                border-left: 1px solid var(--color-light-gray);
+                /*border-left: 1px solid var(--color-light-gray);*/
                 padding-left: 7.5rem;
                 padding-right: 7.5rem;
                 padding-top: 3rem;
+            }
+            .gradientContainer {
+                height: 100%;
+                z-index: -1;
+                left: -5rem;
+                position: absolute;
             }
         `}</style>
         </div>
