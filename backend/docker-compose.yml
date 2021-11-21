@@ -3,7 +3,7 @@ services:
   backend:
     image: near-developer-console-api:latest
     ports:
-      - '3001:3001'
+      - '8080:3001'
     env_file:
       - .env
   db:
@@ -15,3 +15,5 @@ services:
       POSTGRES_USER: pguser
       POSTGRES_PASSWORD: pgpass
       POSTGRES_DB: pgdb
+    volumes:
+      - './dbData:/var/lib/postgresql/data'
