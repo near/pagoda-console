@@ -82,21 +82,16 @@ function SideBar() {
 
     return (
         <div className='sidebar'>
-            <div className='logoContainer'>
+            {/* TODO REMOVE CLICK HANDLER */}
+            <div className='logoContainer' onClick={() => getIdToken(getAuth().currentUser!).then((token) => navigator.clipboard.writeText(token).then(() => alert('Copied token to clipboard')))}>
                 <NearIcon />
             </div>
             <div className='linkContainer'>
                 {pages.map((page, index) => <PageLink key={page.route} page={page} project={project} isSelected={router.pathname === page.route} isFirst={index === 0} />)}
             </div>
             <div className='footerContainer'>
-                <div className='footerContent'>{identity?.displayName || ''}</div>
-
-                {/* temp */}
-                <div className='tempButtons'>
-                    <Button variant='neutral' onClick={signUserOut}>Sign Out</Button>
-                    <Button variant='outline-neutral' onClick={() => getIdToken(getAuth().currentUser!).then((token) => navigator.clipboard.writeText(token).then(() => alert('Copied')))}>Copy token</Button>
-                    {/* <ThemeToggle /> */}
-                </div>
+                <Link href='/settings'><a className='footerItem' >{identity?.displayName || ''}</a></Link>
+                <div className='footerItem borderTop' onClick={signUserOut}>Logout</div>
             </div>
             <style jsx>{`
                 .tempButtons {
@@ -113,7 +108,7 @@ function SideBar() {
                     max-width: 11.125rem;
                     background-color: var(--color-bg-primary);
                     align-items: center;
-                    padding: 3rem 1rem 1rem 1rem;
+                    padding-top: 3rem;
                 }
                 .logoContainer {
                     width: 2.625rem;
@@ -123,17 +118,27 @@ function SideBar() {
                     flex-direction: column;
                     width: 100%;
                     margin-top: 3.5rem;
+                    padding: 0 1rem 0;
+                    flex-grow: 1;
                 }
                 .footerContainer {
-                    flex-grow: 1;
                     display: flex;
                     flex-direction: column;
                     justify-content: flex-end;
                     width: 100%;
+                    background-color: #F2F2F2;
+                    padding: 0 1rem 0;
                 }
-                .footerContent {
+                .footerItem {
+                    padding: 1rem 0 1rem;
+                    cursor: pointer;
+                    text-decoration: none;
+                }
+                .footerItem:hover {
+                    color: var(--color-primary)
+                }
+                .borderTop {
                     border-top: 1px solid #ABB5BE;
-                    padding-top: 1rem;
                 }
             `}</style>
         </div>
