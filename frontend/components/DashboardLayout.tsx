@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import NearIcon from '../public/brand/near_icon.svg'
 import { useIdentity, useRouteParam } from '../utils/hooks';
 import { getAuth, signOut, getIdToken } from 'firebase/auth';
-import { NextPageWithLayout } from '../pages/_app';
+import { ReactNode } from 'react';
 
 import Gradient from '../public/dashboardGradient.svg';
 
@@ -20,7 +20,7 @@ const pages = [
     { display: 'New Project', route: '/new-project' },
 ];
 
-export default function DashboardLayout({ children }: { children: NextPageWithLayout }) {
+export default function DashboardLayout({ children }: { children: ReactNode }) {
     const project = useRouteParam('project');
 
     return (
