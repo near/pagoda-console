@@ -4,7 +4,6 @@ import { AppModule } from './app.module';
 
 import { initializeApp } from 'firebase-admin/app';
 import { credential, ServiceAccount } from 'firebase-admin';
-// import serviceAccount from '../near-dev-platform-firebase-adminsdk-7zimk-2208813638.json';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
