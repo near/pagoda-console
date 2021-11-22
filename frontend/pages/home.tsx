@@ -3,18 +3,15 @@ import Head from 'next/head'
 import dynamic from "next/dynamic";
 import { Button } from 'react-bootstrap';
 import { useRouter } from 'next/router'
-import { useAccount } from '../../../utils/fetchers';
+import { useAccount } from '../utils/fetchers';
+import { useRouteParam } from '../utils/hooks';
 import { getAuth, signOut, getIdToken } from "firebase/auth";
-import { useDashboardLayout } from '../../../utils/layouts';
-
-const ThemeToggle = dynamic(() => import("../../../components/ThemeToggle"), {
-    ssr: false,
-});
+import { useDashboardLayout } from '../utils/layouts';
 
 export default function Home() {
-    // temp import for POC redirect
-    const router = useRouter();
+    const project = useRouteParam('project', '/projects');
     const { user, error } = useAccount();
+
 
     function getWelcomeString() {
         if (user) return <h1>Welcome {user!.name}</h1>

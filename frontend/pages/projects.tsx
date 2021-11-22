@@ -95,7 +95,7 @@ function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: b
     const bottomRadius = props.roundBottom ? '4' : '0';
     return (
         <div className='projectRowContainer'>
-            <Link href={`/project/${props.project.slug}/contracts`}>
+            <Link href={`/contracts?project=${props.project.slug}`}>
                 <a className='projectLink'><div className='linkDiv'>{props.project.name}</div></a>
             </Link>
             {props.showDelete && <Button><FontAwesomeIcon icon={faTrashAlt} /></Button>}

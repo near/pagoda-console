@@ -1,19 +1,31 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router';
-import { Button } from 'react-bootstrap';
 
 import NearIcon from '../public/brand/near_icon.svg'
-import { useIdentity } from '../utils/hooks';
+import { useIdentity, useRouteParam } from '../utils/hooks';
 import { getAuth, signOut, getIdToken } from 'firebase/auth';
-import { ReactNode, useEffect, useState } from 'react';
+import { NextPageWithLayout } from '../pages/_app';
 
 import Gradient from '../public/dashboardGradient.svg';
 
+interface PageDefinition {
+    display: string,
+    route: string
+};
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+const pages = [
+    { display: 'Home', route: '/home' },
+    { display: 'Contracts', route: `/contracts` },
+    { display: 'Projects', route: '/projects' },
+    { display: 'New Project', route: '/new-project' },
+];
+
+export default function DashboardLayout({ children }: { children: NextPageWithLayout }) {
+    const project = useRouteParam('project');
+
     return (
         <div className='dashbaordContainer'>
-            <SideBar />
+            <SideBar project={project} />
             <div className='gradientContainer'>
                 <Gradient style={{ width: '100%', height: '100%', preserveAspectRatio: 'false' }} />
             </div>
@@ -45,28 +57,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     );
 }
 
-interface PageDefinition {
-    display: string,
-    route: string
-};
-
-const pages = [
-    { display: 'Home', route: '/project/[project]/home' },
-    { display: 'Contracts', route: `/project/[project]/contracts` },
-    { display: 'Projects', route: '/projects' },
-    { display: 'New Project', route: '/new-project' },
-];
-
-function SideBar() {
+function SideBar({ project }: { project: string | null }) {
     const router = useRouter();
     const identity = useIdentity();
-
-    const { project: projectParam } = router.query;
-    let project: string | null = null;
-
-    if (projectParam && typeof projectParam === 'string') {
-        project = projectParam;
-    }
 
     // TODO move to reusable location
     function signUserOut() {
@@ -90,7 +83,7 @@ function SideBar() {
                 {pages.map((page, index) => <PageLink key={page.route} page={page} project={project} isSelected={router.pathname === page.route} isFirst={index === 0} />)}
             </div>
             <div className='footerContainer'>
-                <Link href='/settings'><a className='footerItem' >{identity?.displayName || ''}</a></Link>
+                <Link href={`/settings${project ? `?project=${project}` : ''}`}><a className='footerItem' >{identity?.displayName || ''}</a></Link>
                 <div className='footerItem borderTop' onClick={signUserOut}>Logout</div>
             </div>
             <style jsx>{`
@@ -146,8 +139,7 @@ function SideBar() {
 }
 
 function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?: boolean, project: string | null }) {
-    const linkOut = typeof props.project === 'string' ? props.page.route.replace('[project]', props.project) : '';
-    console.log(linkOut);
+    const linkOut = props.page.route + (typeof props.project === 'string' ? `?project=${props.project}` : '');
     return (
         <div className='linkContainer'>
             <Link href={linkOut}>

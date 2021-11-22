@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router'
+import router, { useRouter } from 'next/router'
 import useSWR, { useSWRConfig } from 'swr'
 import { getAuth, onAuthStateChanged, User, getIdToken } from "firebase/auth";
 import { authenticatedPost } from './fetchers';
@@ -12,7 +12,7 @@ export function useIdentity(): User | null {
     const router = useRouter();
     // must cast cache to any to work around bug in interface definition
     // https://github.com/vercel/swr/discussions/1494
-    const { cache }: {cache: any} = useSWRConfig()
+    const { cache }: { cache: any } = useSWRConfig()
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
@@ -22,7 +22,7 @@ export function useIdentity(): User | null {
 
             // TODO THIS NEEDS TO MOVE TO A GLOBAL LOCATION, IT CURRENTLY WILL NOT FIRE
             // UNLESS THE HOOK IS ACTIVE
-            if(!user) {
+            if (!user) {
                 // user is signed out, clear all data and redirect back to login
                 cache.clear();
                 console.log('cache cleared');
@@ -36,22 +36,15 @@ export function useIdentity(): User | null {
     return user;
 }
 
-interface Account {
-    id: number,
-    uid: string,
-    email?: string,
-    name?: string,
-    photoUrl?: string,
+export function useRouteParam(paramName: string, redirectIfMissing?: string): string | null {
+    const { query, isReady, pathname } = useRouter();
+    const rawParam = query[paramName];
+    const value = (rawParam && typeof rawParam === 'string') ? rawParam : null
+    useEffect(() => {
+        if (isReady && !value && redirectIfMissing) {
+            router.push(redirectIfMissing);
+        }
+    }, [value, isReady, redirectIfMissing]);
+
+    return value;
 }
-
-// export function useAccount(): [Account?, any?] {
-//     const identity = useIdentity();
-
-//     // conditionally fetch if Firebase has loaded the user identity
-//     const { data: account, error }: { data?: Account, error?: any } = useSWR(identity ? [`/users/getAccountDetails`, identity.uid] : null, authenticatedPost);
-
-//     return [
-//         account,
-//         error
-//     ];
-// }
