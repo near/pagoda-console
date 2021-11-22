@@ -9,8 +9,8 @@ export class UsersController {
 
   @UseGuards(BearerAuthGuard)
   @Post('getAccountDetails')
-  async getAccountDetails(@Request() req): Promise<User> {
-    // return this.usersService.find({ id: req.user.id });
-    return req.user;
+  async getAccountDetails(@Request() req) {
+    const { uid, email, name, photoUrl } = req.user;
+    return { uid, email, name, photoUrl };
   }
 }
