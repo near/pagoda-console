@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { User, Prisma } from '@prisma/client';
+import { getAuth } from 'firebase-admin/auth';
+import { VError } from 'verror';
 
 @Injectable()
 export class UsersService {
@@ -36,5 +38,28 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async updateDetails(uid: User['uid'], { name }: { name: User['name'] }) {
+    try {
+      await getAuth().updateUser(uid, {
+        displayName: name,
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while updating user details in firebase');
+    }
+
+    try {
+      await this.prisma.user.update({
+        where: {
+          uid,
+        },
+        data: {
+          name,
+        },
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while updating user details in database');
+    }
   }
 }

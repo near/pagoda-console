@@ -10,6 +10,7 @@ import {
 } from '@prisma/client';
 import { VError } from 'verror';
 import { customAlphabet } from 'nanoid';
+import { GetProjectDetailsSchema } from './dto';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -464,5 +465,22 @@ export class ProjectsService {
     });
 
     return environment;
+  }
+
+  async getProjectDetails(
+    callingUser: User,
+    projectWhereUnique: Prisma.ProjectWhereUniqueInput,
+  ) {
+    await this.checkUserPermission({
+      userId: callingUser.id,
+      projectWhereUnique,
+    });
+
+    try {
+      const { name, slug } = await this.getActiveProject(projectWhereUnique);
+      return { name, slug };
+    } catch (e) {
+      throw new VError(e, 'Failed while fetching project details');
+    }
   }
 }

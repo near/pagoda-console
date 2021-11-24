@@ -20,6 +20,14 @@ export const DeleteProjectSchema = Joi.object({
   slug: Joi.string().required(),
 });
 
+// get project details
+export interface GetProjectDetailsDto {
+  slug: string;
+}
+export const GetProjectDetailsSchema = Joi.object({
+  slug: Joi.string().required(),
+});
+
 // add contract
 export interface AddContractDto {
   project: string;

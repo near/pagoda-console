@@ -27,6 +27,8 @@ import {
   GetEnvironmentsDetailsSchema,
   GetEnvironmentsDto,
   GetEnvironmentsSchema,
+  GetProjectDetailsDto,
+  GetProjectDetailsSchema,
   RemoveContractDto,
   RemoveContractSchema,
 } from './dto';
@@ -34,7 +36,7 @@ import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 
 @Controller('projects')
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
+  constructor(private readonly projectsService: ProjectsService) { }
 
   @Post('create')
   @UseGuards(BearerAuthGuard)
@@ -50,6 +52,17 @@ export class ProjectsController {
   async delete(@Request() req, @Body() { slug }: DeleteProjectDto) {
     try {
       return await this.projectsService.delete(req.user, { slug });
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('getDetails')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(GetProjectDetailsSchema))
+  async getDetails(@Request() req, @Body() { slug }: GetProjectDetailsDto) {
+    try {
+      return await this.projectsService.getProjectDetails(req.user, { slug });
     } catch (e) {
       throw mapError(e);
     }
