@@ -75,3 +75,11 @@ export const GetEnvironmentsDetailsSchema = Joi.object({
   project: Joi.string().required(),
   environment: Joi.number().integer().required(),
 });
+
+// get environment details
+export interface GetKeysDto {
+  project: string;
+}
+export const GetKeysSchema = Joi.object({
+  project: Joi.string().required(),
+});

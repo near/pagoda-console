@@ -14,6 +14,8 @@ import { AuthModule } from './auth/auth.module';
 // import { UsersController } from './users/users.controller';
 // import { ProjectsService } from './projects/projects.service';
 // import { ProjectsController } from './projects/projects.controller';
+import { KeysService } from './keys/keys.service';
+import { KeysModule } from './keys/keys.module';
 
 @Module({
   imports: [
@@ -24,8 +26,9 @@ import { AuthModule } from './auth/auth.module';
     UsersModule,
     ProjectsModule,
     AuthModule,
+    KeysModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, KeysService],
 })
 export class AppModule {}

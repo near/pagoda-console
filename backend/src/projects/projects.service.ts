@@ -11,6 +11,8 @@ import {
 import { VError } from 'verror';
 import { customAlphabet } from 'nanoid';
 import { GetProjectDetailsSchema } from './dto';
+import { KeysService } from 'src/keys/keys.service';
+import { UserInfo } from 'firebase-admin/auth';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -19,9 +21,12 @@ const nanoid = customAlphabet(
 
 @Injectable()
 export class ProjectsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, private keys: KeysService) {}
 
-  async create(user: User, name: Project['name']): Promise<Project> {
+  async create(
+    user: User,
+    name: Project['name'],
+  ): Promise<{ name: Project['name']; slug: Project['slug'] }> {
     let teamId;
     try {
       const teamFind = await this.prisma.teamMember.findFirst({
@@ -66,12 +71,24 @@ export class ProjectsService {
         select: {
           name: true,
           slug: true,
+          id: true,
         },
       });
     } catch (e) {
       throw new VError(e, 'Failed while executing project creation query');
     }
-    return project;
+
+    // generate RPC keys
+    try {
+      await this.keys.generate(`${project.id}_1`, 'TESTNET');
+      // await this.keys.generate(`${project.id}_2`)
+    } catch (e) {
+      throw new VError(e, 'Failed while generating API keys');
+    }
+    return {
+      name: project.name,
+      slug: project.slug,
+    };
   }
 
   async delete(
@@ -434,21 +451,23 @@ export class ProjectsService {
         net: true,
         contracts: includeContracts
           ? {
-            where: {
-              active: true,
-            },
-          }
+              where: {
+                active: true,
+              },
+            }
           : false,
       },
     });
 
-    return {
-      project: {
-        name: project.name,
-        slug: project.slug,
-      },
-      environments,
-    };
+    // return {
+    // Note: scream test in removing this, can be reverted if necessary
+    // project: {
+    //   name: project.name,
+    //   slug: project.slug,
+    // },
+    // environments,
+    // };
+    return environments;
   }
 
   async getEnvironmentDetails(
@@ -481,6 +500,36 @@ export class ProjectsService {
       return { name, slug };
     } catch (e) {
       throw new VError(e, 'Failed while fetching project details');
+    }
+  }
+
+  async getKeys(
+    callingUser: User,
+    projectWhereUnique: Prisma.ProjectWhereUniqueInput,
+  ) {
+    await this.checkUserPermission({
+      userId: callingUser.id,
+      projectWhereUnique,
+    });
+
+    let project;
+    try {
+      project = await this.getActiveProject(projectWhereUnique, true);
+    } catch (e) {
+      throw new VError(e, 'Failed while checking that project is active');
+    }
+
+    try {
+      // run requests in parallel
+      const testnetKeyPromise = this.keys.fetch(`${project.id}_1`, 'TESTNET');
+      // let mainnetKeyPromise = this.keys.fetch(`${project.id}_2`, 'MAINNET');
+
+      return {
+        TESTNET: await testnetKeyPromise,
+        // MAINNET: await mainnetKeyPromise,
+      };
+    } catch (e) {
+      throw new VError(e, 'Failed to fetch keys from key management API');
     }
   }
 }
