@@ -72,6 +72,10 @@ export default function AuthenticationForm() {
         <div className='socialContainer'>
             {providers.map((provider) => <ProviderButton key={provider.name} provider={provider} active={authActive} setAuthActive={setAuthActive} />)}
         </div>
+        <div className='termsContainer'>
+            <a>Terms and Conditions</a>
+            <a>Privacy Policy</a>
+        </div>
         <style jsx>{`
             .authContainer {
                 display: flex;
@@ -84,6 +88,13 @@ export default function AuthenticationForm() {
                 display: flex;
                 flex-direction: column;
                 row-gap: 1rem;
+            }
+            .termsContainer {
+                margin-top: 1rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                color: var(--color-primary)
             }
         `}</style>
     </div>
