@@ -4,6 +4,7 @@ import { useDashboardLayout } from "../utils/layouts";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEyeSlash, faEye, faCopy } from '@fortawesome/free-regular-svg-icons'
+import { faRedoAlt } from '@fortawesome/free-solid-svg-icons'
 import { Button } from 'react-bootstrap';
 
 export default function ProjectSettings() {
@@ -28,6 +29,9 @@ export default function ProjectSettings() {
                             <FontAwesomeIcon icon={faEye} />
                         </Button>
                         <Button variant='outline-primary'>
+                            <FontAwesomeIcon icon={faRedoAlt} />
+                        </Button>
+                        <Button variant='outline-primary'>
                             <FontAwesomeIcon icon={faCopy} />
                         </Button>
                     </div>
@@ -38,6 +42,9 @@ export default function ProjectSettings() {
                     <div className='buttonsContainer'>
                         <Button variant='outline-primary'>
                             <FontAwesomeIcon icon={faEye} />
+                        </Button>
+                        <Button variant='outline-primary'>
+                            <FontAwesomeIcon icon={faRedoAlt} />
                         </Button>
                         <Button variant='outline-primary'>
                             <FontAwesomeIcon icon={faCopy} />
