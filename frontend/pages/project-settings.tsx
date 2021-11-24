@@ -23,7 +23,7 @@ export default function ProjectSettings() {
             <div className='keysContainer'>
                 <div className='keyRow'>
                     <span className='keyTitle'>Mainnet</span>
-                    <span className='keyField'>{'<api key>'}</span>
+                    <span className='keyField'>f804a789-●●●●-●●●●-●●●●-●●●●●●●●●●●●</span>
                     <div className='buttonsContainer'>
                         <Button variant='outline-primary'>
                             <FontAwesomeIcon icon={faEye} />
