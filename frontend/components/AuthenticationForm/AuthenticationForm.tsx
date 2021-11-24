@@ -4,11 +4,10 @@ import { Button, FloatingLabel, Form, Alert } from 'react-bootstrap';
 import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged, signInWithEmailAndPassword, AuthError, createUserWithEmailAndPassword } from "firebase/auth";
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
 import { useTranslation } from 'next-i18next';
-import styles from './AuthenticationForm.module.css'
+import Link from 'next/link';
 
 // FontAwesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope } from '@fortawesome/free-solid-svg-icons'
 
 interface ProviderDetails {
     name: string,
@@ -18,6 +17,7 @@ interface ProviderDetails {
     image?: string,
     vector?: any,
     icon?: any,
+    border?: boolean,
     hoverBrightness?: number,
 }
 
@@ -33,6 +33,7 @@ const providers: Array<ProviderDetails> = [
     {
         name: 'Google',
         color: '#757575',
+        border: true,
         backgroundColor: 'var(--color-white)',
         providerInstance: new GoogleAuthProvider(),
         image: 'googleMark.png',
@@ -53,11 +54,12 @@ function useRegistrationStatus() {
 export default function AuthenticationForm() {
     const router = useRouter();
     const [authActive, setAuthActive] = useState<boolean>(true);
-    const [isRegistering, setIsRegistering] = useRegistrationStatus();
 
     useEffect(() => {
         const unregisterAuthObserver = onAuthStateChanged(getAuth(), user => {
-            if (user) {
+            if (user && !user.emailVerified && user.providerData.length === 1 && user.providerData[0].providerId === 'password') {
+                router.push('/verification?existing=true');
+            } else if (user) {
                 router.push('/projects');
             }
         });
@@ -66,17 +68,22 @@ export default function AuthenticationForm() {
 
     return <div className='authContainer'>
         <EmailAuth authActive />
-        {!isRegistering && <>
-            <hr />
+        <div className='globalDivider' />
+        <div className='socialContainer'>
             {providers.map((provider) => <ProviderButton key={provider.name} provider={provider} active={authActive} setAuthActive={setAuthActive} />)}
-        </>}
+        </div>
         <style jsx>{`
             .authContainer {
                 display: flex;
                 flex-direction: column;
-                width: 18em;
                 padding: 2em 0;
                 justify-content: center;
+                width: 100%;
+            }
+            .socialContainer {
+                display: flex;
+                flex-direction: column;
+                row-gap: 1rem;
             }
         `}</style>
     </div>
@@ -85,7 +92,6 @@ export default function AuthenticationForm() {
 interface ValidationFailure {
     email?: string,
     password?: string,
-    confirmPassword?: string,
 }
 
 // TODO finalize validations
@@ -95,12 +101,13 @@ const passwordRegex = /.{6,}/;
 function EmailAuth(props: { authActive: boolean }) {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [hasFailedSignIn, setHasFailedSignIn] = useState<boolean>(false);
     const [isRegistering, setIsRegistering] = useRegistrationStatus();
     const [errorAlert, setErrorAlert] = useState<string | null>();
 
     const [validationFail, setValidationFail] = useState<ValidationFailure>({});
+
+    const router = useRouter();
 
     // TODO validation
     async function signInWithEmail(): Promise<void> {
@@ -142,24 +149,6 @@ function EmailAuth(props: { authActive: boolean }) {
         }
     }
 
-    //
-    // TODO validation
-    //
-    async function signUpWithEmail(): Promise<void> {
-        console.log('registering');
-        const auth = getAuth();
-        try {
-            await createUserWithEmailAndPassword(auth, email, password);
-        } catch (e) {
-            const error = e as AuthError;
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            // TODO determine error handling
-            console.error(`${errorCode}: ${errorMessage}`);
-            setErrorAlert(errorMessage);
-        }
-    }
-
     // TODO review validations
     function validate() {
         const validations: ValidationFailure = {};
@@ -174,16 +163,11 @@ function EmailAuth(props: { authActive: boolean }) {
             failed = true;
         }
 
-        if (isRegistering && confirmPassword !== password) {
-            validations.confirmPassword = 'Passwords do not match';
-            failed = true;
-        }
-
         setValidationFail(validations);
         return !failed;
     }
 
-    function handleFormChange(type: 'email' | 'password' | 'confirmPassword', newValue: string): void {
+    function handleFormChange(type: 'email' | 'password', newValue: string): void {
         setValidationFail({});
         errorAlert && setErrorAlert(null);
         hasFailedSignIn && setHasFailedSignIn(false);
@@ -193,9 +177,6 @@ function EmailAuth(props: { authActive: boolean }) {
                 break;
             case 'password':
                 setPassword(newValue);
-                break;
-            case 'confirmPassword':
-                setConfirmPassword(newValue)
                 break;
 
             default:
@@ -211,12 +192,7 @@ function EmailAuth(props: { authActive: boolean }) {
         if (!validate()) {
             return;
         }
-
-        if (isRegistering) {
-            signUpWithEmail();
-        } else {
-            signInWithEmail();
-        }
+        signInWithEmail();
     }
 
     // clear validation errors on switching between sign in and sign up
@@ -228,36 +204,27 @@ function EmailAuth(props: { authActive: boolean }) {
         {errorAlert && <Alert variant='danger'>{errorAlert}</Alert>}
         <Form noValidate onSubmit={handleSubmit}>
             <div className='formFieldsWrapper'>
-                <FloatingLabel
-                    controlId="floatingInput"
-                    label="Email address"
-                >
+                <Form.Group controlId="email">
+                    <Form.Label>Email</Form.Label>
                     <Form.Control type="email" placeholder="name@example.com" value={email} onChange={(e) => handleFormChange('email', e.target.value)} isInvalid={!!validationFail.email} />
                     <Form.Control.Feedback type="invalid">
                         {validationFail.email}
                     </Form.Control.Feedback>
-                </FloatingLabel>
-                <FloatingLabel controlId="floatingPassword" label="Password">
-                    <Form.Control type="password" placeholder={!isRegistering ? 'Password' : 'New Password'} value={password} onChange={(e) => handleFormChange('password', e.target.value)} isInvalid={!!validationFail.password} />
+                </Form.Group>
+                <Form.Group controlId="password" >
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control type="password" placeholder='Password' value={password} onChange={(e) => handleFormChange('password', e.target.value)} isInvalid={!!validationFail.password} />
                     <Form.Control.Feedback type="invalid">
                         {validationFail.password}
                     </Form.Control.Feedback>
-                </FloatingLabel>
-                <div className='confirmField'>
-                    {/* password managers prefer that fields are not added and removed from the DOM, so we add a wrapper div that we can set to display:none */}
-                    <FloatingLabel controlId="floatingConfirmPassword" label="Confirm Password">
-                        <Form.Control type="password" placeholder="Confirm Password" value={confirmPassword} onChange={(e) => handleFormChange('confirmPassword', e.target.value)} isInvalid={!!validationFail.confirmPassword} />
-                        <Form.Control.Feedback type="invalid">
-                            {validationFail.confirmPassword}
-                        </Form.Control.Feedback>
-                    </FloatingLabel>
-                </div>
+                </Form.Group>
             </div>
-            <IconButton type='submit' color='var(--color-white)' backgroundColor='var(--color-accent-purple)' active={props.authActive} text={!isRegistering ? 'Continue' : 'Sign Up'} />
+            <IconButton type='submit' color='var(--color-white)' backgroundColor='var(--color-accent-purple)' active={props.authActive} text='Continue' />
         </Form>
-        {/* <div style={{ margin: 'auto auto' }}>Sign Up</div> */}
+        <Link href='/register' passHref>
+            <Button variant='outline-primary'>Sign Up</Button>
+        </Link>
         <div className='signUpContainer' >
-            <Button onClick={() => setIsRegistering(!isRegistering)}>{!isRegistering ? 'Sign Up' : 'Cancel'}</Button>
         </div>
         <style jsx>{`
             .emailContainer {
@@ -268,10 +235,10 @@ function EmailAuth(props: { authActive: boolean }) {
                 justify-content: center;
             }
             .formFieldsWrapper {
-                margin-bottom: 1em;
-            }
-            .formFieldsWrapper > :global(.form-floating) {
-                margin-bottom: 0.5em;
+                margin-bottom: 1.5rem;
+                row-gap: 1rem;
+                display: flex;
+                flex-direction: column;
             }
             .signUpContainer {
                 margin: auto auto;
@@ -284,10 +251,8 @@ function EmailAuth(props: { authActive: boolean }) {
             .signUpContainer > :global(.btn:hover) {
                 filter: brightness(0.6)
             }
-        `}</style>
-        <style jsx>{`
-            .confirmField {
-                display: ${isRegistering ? 'block' : 'none'};
+            .emailContainer :global(form) {
+                margin-bottom: 1rem;
             }
         `}</style>
     </div>
@@ -324,11 +289,11 @@ function ProviderButton(props: { provider: ProviderDetails, active: boolean, set
     return <IconButton {...props.provider} onClick={() => socialSignIn(props.provider.providerInstance)} text={`${t('continueWith')} ${props.provider.name}`} active={props.active} />
 }
 
-// TODO exract auth active to hook
-function IconButton(props: { onClick?: () => void, image?: string, icon?: any, vector?: any, text: string, backgroundColor: string, color?: string, active: boolean, hoverBrightness?: number, type?: 'submit' | undefined }) {
+// TODO extract auth active to hook
+function IconButton(props: { onClick?: () => void, image?: string, icon?: any, vector?: any, text: string, backgroundColor: string, color?: string, active: boolean, hoverBrightness?: number, type?: 'submit' | undefined, border?: boolean }) {
     const hasIcon = props.vector || props.icon || props.image;
     return <div className='buttonContainer'>
-        <Button className={styles.authButton} variant='neutral' type={props.type || 'button'} onClick={props.onClick} disabled={!props.active}>
+        <Button variant='neutral' type={props.type || 'button'} onClick={props.onClick} disabled={!props.active}>
             <div className='buttonContent'>
                 {hasIcon && <div className='providerMark'>
                     {props.vector || props.icon && <FontAwesomeIcon icon={props.icon} /> || props.image && <img src={props.image} />}
@@ -341,28 +306,29 @@ function IconButton(props: { onClick?: () => void, image?: string, icon?: any, v
                 width: 100%;
                 height: 100%;
             }
+            .buttonContainer :global(.btn) {
+                height: 3rem;
+            }
             .buttonContainer {
                 display: flex;
                 flex-direction: column;
-                margin: 0.5em 0;
                 width: 100%;
-                height: 3rem;
             }
             .providerIcon {
                 width: 100%;
                 height: 100%;
             }
             .providerMark {
-                width: 2em;
-                height: 2em;
-                margin: 0 1.25em;
+                width: 2rem;
+                height: 2rem;
+                margin-right: 1rem;
             }
             .buttonContent {
                 display: flex;
                 flex-direction: row;
-                width: 100%;
-                height: 100%;
+                justify-content: center;
                 align-items: center;
+                margin: auto auto;
             }
             .providerMark > :global(svg) {
                 width: 100%;
@@ -370,15 +336,13 @@ function IconButton(props: { onClick?: () => void, image?: string, icon?: any, v
             }
         `}</style>
         <style jsx>{`
-            .buttonContent {
-                justify-content: ${hasIcon ? 'flex-start' : 'center'};
-            }
             .buttonContainer:hover {
                 filter: brightness(${props.hoverBrightness || 0.9});
             }
             div > :global(.btn) {
                 background-color: ${props.backgroundColor};
                 color: ${props.color};
+                border: ${props.border ? `1px solid ${props.color}` : 'none'}
             }
         `}</style>
     </div >

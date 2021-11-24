@@ -4,27 +4,30 @@ import { useRouter } from 'next/router';
 import NearIcon from '../public/brand/near_icon.svg'
 import { useIdentity, useRouteParam } from '../utils/hooks';
 import { getAuth, signOut, getIdToken } from 'firebase/auth';
-import { ReactNode } from 'react';
+import { ReactNode, useRef, useState } from 'react';
+import { Tooltip, Overlay } from 'react-bootstrap';
 
 import Gradient from '../public/dashboardGradient.svg';
 
 interface PageDefinition {
     display: string,
-    route: string
+    route: string,
+    debug?: boolean
 };
 
 const pages = [
-    { display: 'Home', route: '/home' },
+    { display: 'Analytics', route: '/analytics' },
     { display: 'Contracts', route: `/contracts` },
-    { display: 'Projects', route: '/projects' },
-    { display: 'New Project', route: '/new-project' },
+    { display: 'Settings', route: `/project-settings` },
+    { display: 'Projects', route: '/projects', debug: true },
+    { display: 'New Project', route: '/new-project', debug: true },
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     const project = useRouteParam('project');
 
     return (
-        <div className='dashbaordContainer'>
+        <div className='dashboardContainer'>
             <SideBar project={project} />
             <div className='gradientContainer'>
                 <Gradient style={{ width: '100%', height: '100%', preserveAspectRatio: 'false' }} />
@@ -33,7 +36,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 {children}
             </div>
             <style jsx>{`
-            .dashbaordContainer {
+            .dashboardContainer {
                 display: flex;
                 flex-direction: row;
                 height: 100vh;
@@ -41,9 +44,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             .childContainer {
                 flex-grow: 1;
                 /*temp*/
-                /*border-left: 1px solid var(--color-light-gray);*/
-                padding-left: 7.5rem;
-                padding-right: 7.5rem;
+                max-width: 46rem;
+
+                margin-left: 7.5rem;
+                margin-right: 7.5rem;
                 padding-top: 3rem;
             }
             .gradientContainer {
@@ -61,6 +65,9 @@ function SideBar({ project }: { project: string | null }) {
     const router = useRouter();
     const identity = useIdentity();
 
+    const isOnboardingRaw = useRouteParam('onboarding');
+    const isOnboarding = (isOnboardingRaw === 'true');
+
     // TODO move to reusable location
     function signUserOut() {
         const auth = getAuth();
@@ -73,6 +80,10 @@ function SideBar({ project }: { project: string | null }) {
         });
     }
 
+    function dismissOnboarding() {
+        router.replace(`${router.pathname}?project=${project}`, undefined, { shallow: true });
+    }
+
     return (
         <div className='sidebar'>
             {/* TODO REMOVE CLICK HANDLER */}
@@ -80,10 +91,10 @@ function SideBar({ project }: { project: string | null }) {
                 <NearIcon />
             </div>
             <div className='linkContainer'>
-                {pages.map((page, index) => <PageLink key={page.route} page={page} project={project} isSelected={router.pathname === page.route} isFirst={index === 0} />)}
+                {pages.map((page, index) => <PageLink key={page.route} page={page} project={project} isSelected={router.pathname === page.route} isFirst={index === 0} isOnboarding={isOnboarding} dismissOnboarding={dismissOnboarding} />)}
             </div>
             <div className='footerContainer'>
-                <Link href={`/settings${project ? `?project=${project}` : ''}`}><a className='footerItem' >{identity?.displayName || ''}</a></Link>
+                <Link href={`/settings${project ? `?project=${project}` : ''}`}><a className='footerItem' >{`${identity?.displayName}` || ''}</a></Link>
                 <div className='footerItem borderTop' onClick={signUserOut}>Logout</div>
             </div>
             <style jsx>{`
@@ -138,13 +149,39 @@ function SideBar({ project }: { project: string | null }) {
     );
 }
 
-function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?: boolean, project: string | null }) {
+function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?: boolean, project: string | null, isOnboarding: boolean, dismissOnboarding?: () => void }) {
     const linkOut = props.page.route + (typeof props.project === 'string' ? `?project=${props.project}` : '');
+    const [hideTooltip, setHideTooltip] = useState<boolean>(false);
+
+    const router = useRouter();
+    function closeTooltip() {
+        // debugger;
+        // setHideTooltip(true);
+        if (props.dismissOnboarding) {
+            props.dismissOnboarding();
+        }
+    }
+    if (props.page.display === 'Settings') {
+        // debugger;
+    }
+
+    const target = useRef(null);
+    const popover = props.page.display === 'Settings' ? (
+        <Overlay target={target.current} popperConfig={{ modifiers: [{ name: 'offset', options: { offset: [0, 8] } }] }} show={props.isOnboarding && !hideTooltip} placement="right" rootClose={true} onHide={closeTooltip}>
+            {(props) => (
+                <Tooltip {...props} >
+                    Find your new API keys here!
+                </Tooltip>
+            )}
+        </Overlay>
+    ) : <></>;
+
     return (
         <div className='linkContainer'>
             <Link href={linkOut}>
-                <a>{props.page.display}</a>
+                <a ref={target}>{props.page.display}</a>
             </Link>
+            {popover}
             <style jsx>{`
                 a {
                     font-size: 1.125rem;
@@ -158,6 +195,7 @@ function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?:
             <style jsx>{`
                 a {
                     font-weight: ${props.isSelected ? '800' : '500'};
+                    color: ${props.page.debug ? '#DEDEDE' : 'inherit'}
                 }
                 .linkContainer {
                     padding: 1rem 0rem 1rem;

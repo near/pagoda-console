@@ -47,7 +47,11 @@ export async function authenticatedPost(endpoint: string, body?: Object) {
 
   let resJson;
   try {
-    resJson = await res.json();
+    if (res.status === 204) {
+      resJson = {}
+    } else {
+      resJson = await res.json();
+    }
   } catch (e) {
     if (res.ok) {
       throw new Error("Failed to convert to JSON");
@@ -75,107 +79,66 @@ export async function authenticatedPost(endpoint: string, body?: Object) {
 // TODO: see if throwing useIdentity in here is the most effective way to guarantee firebase auth has
 // loaded the user before attempting fetches which require a token
 
-export function useContracts(
-  project: string | null,
-  environment?: number
-): { contracts?: Contract[]; error?: any; mutate: KeyedMutator<any> } {
+export function useContracts(project: string | null, environment?: number): { contracts?: Contract[]; error?: any; mutate: KeyedMutator<any> } {
   const identity = useIdentity();
-  const {
-    data: contracts,
-    error,
-    mutate,
-  } = useSWR(
-    identity && project && environment
-      ? ["/projects/getContracts", project, environment, identity.uid]
-      : null,
+  const { data: contracts, error, mutate, } = useSWR(identity && project && environment ? ["/projects/getContracts", project, environment, identity.uid] : null,
     (key: string, project: string | null, environment?: number) => {
       return authenticatedPost(key, { project, environment });
-    }
-  );
+    });
+
   return { contracts, error, mutate };
 }
 
-export function useEnvironment(environmentId?: number): {
-  environment?: Environment;
-  error?: any;
-  mutate: KeyedMutator<any>;
-} {
+export function useEnvironment(environmentId?: number): { environment?: Environment; error?: any; mutate: KeyedMutator<any>; } {
   // conditionally fetches if valid environmentId is passed
   const identity = useIdentity();
-  const {
-    data: environment,
-    error,
-    mutate,
-  } = useSWR(
-    identity && environmentId
-      ? ["/projects/getEnvironmentDetails", environmentId, identity.uid]
-      : null,
+  const { data: environment, error, mutate, } = useSWR(identity && environmentId ? ["/projects/getEnvironmentDetails", environmentId, identity.uid] : null,
     (key: string, environmentId: number) => {
       return authenticatedPost(key, { environmentId });
-    }
-  );
+    });
+
   return { environment, error, mutate };
 }
 
 // NOTE: naming here can be cleaned up. The request was changed late in order
 // to consolidate multiple calls. This returns closer to a Project record
-export function useEnvironments(project: string | null): {
-  environmentData?: { project: Project, environments: Environment[] };
-  error?: any;
-  mutate: KeyedMutator<any>;
-} {
+export function useEnvironments(project: string | null): { environmentData?: { project: Project, environments: Environment[] }; error?: any; mutate: KeyedMutator<any>; } {
   const identity = useIdentity();
-  const {
-    data: environmentData,
-    error,
-    mutate,
-  } = useSWR(
-    identity && project
-      ? ["/projects/getEnvironments", project, identity.uid]
-      : null,
+  const { data: environmentData, error, mutate, } = useSWR(identity && project ? ["/projects/getEnvironments", project, identity.uid] : null,
     (key: string, project: number) => {
       return authenticatedPost(key, { project });
     }
   );
+
   return { environmentData, error, mutate };
 }
 
-export function useAccount(): {
-  user?: User;
-  error?: any;
-  mutate: KeyedMutator<any>;
-} {
+export function useAccount(): { user?: User; error?: any; mutate: KeyedMutator<any>; } {
   const identity = useIdentity();
-  const {
-    data: user,
-    error,
-    mutate,
-  } = useSWR(
-    identity ? ["/users/getAccountDetails", identity.uid] : null,
+  const { data: user, error, mutate } = useSWR(identity ? ["/users/getAccountDetails", identity.uid] : null,
     (key: string) => {
       return authenticatedPost(key);
-    }
-  );
+    });
+
   return { user, error, mutate };
 }
 
-export function useProjects(): {
-  projects?: Project[];
-  error?: any;
-  mutate: KeyedMutator<any>;
-  isValidating: boolean,
-} {
+export function useProjects(): { projects?: Project[]; error?: any; mutate: KeyedMutator<any>; isValidating: boolean, } {
   const identity = useIdentity();
-  const {
-    data: projects,
-    error,
-    mutate,
-    isValidating
-  } = useSWR(
-    identity ? ["/projects/list", identity.uid] : null,
+  const { data: projects, error, mutate, isValidating } = useSWR(identity ? ["/projects/list", identity.uid] : null,
     (key: string, project: number) => {
       return authenticatedPost(key);
-    }
-  );
+    });
+
   return { projects, error, mutate, isValidating };
+}
+
+export function useProject(projectSlug: string | null): { project?: Project, error?: any } {
+  const identity = useIdentity();
+  const { data: project, error } = useSWR(identity && projectSlug ? ['/projects/getDetails', projectSlug, identity.uid] : null,
+    (key: string, projectSlug: number) => {
+      return authenticatedPost(key, { slug: projectSlug });
+    });
+
+  return { project, error };
 }

@@ -10,29 +10,6 @@ import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 import { useState } from "react";
 import BorderSpinner from "../components/BorderSpinner";
 
-// const testProjects: Project[] = [
-// {
-//     id: 1,
-//     name: 'My Cool Project',
-//     net: 'MAINNET' as NetOption,
-// },
-// {
-//     id: 2,
-//     name: 'My Cool Project',
-//     net: 'MAINNET' as NetOption,
-// },
-// {
-//     id: 3,
-//     name: 'My Cool Project',
-//     net: 'MAINNET' as NetOption,
-// },
-// {
-//     id: 4,
-//     name: 'My Cool Project',
-//     net: 'MAINNET' as NetOption,
-// },
-// ]
-
 export default function Projects() {
     const router = useRouter();
     const { projects, error, isValidating } = useProjects();
@@ -47,7 +24,7 @@ export default function Projects() {
         return <BorderSpinner />;
     } else if (!projects.length && !isValidating) {
         // TODO
-        router.push('/new-project');
+        router.push('/new-project?onboarding=true');
         return <></>;
     } else {
         body = projects!.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} roundTop={index === 0} roundBottom={index === arr.length - 1} showDelete={isEditing} />);

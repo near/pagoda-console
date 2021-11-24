@@ -1,18 +1,20 @@
 import { useDashboardLayout } from "../utils/layouts";
 import { Button, Form, Dropdown, DropdownButton } from "react-bootstrap";
 import useSWR from "swr";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { Contract, Environment, NetOption } from "../utils/interfaces";
 import {
   authenticatedPost,
   useContracts,
   useEnvironment,
   useEnvironments,
+  useProject
 } from "../utils/fetchers";
 import { getAuth } from "firebase/auth";
 import { useIdentity, useRouteParam } from "../utils/hooks";
 import { useRouter } from "next/router";
 import BorderSpinner from "../components/BorderSpinner";
+import EnvironmentSelector from "../components/EnvironmentSelector";
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
@@ -21,24 +23,15 @@ const TEST_NET_RPC = process.env.NEXT_PUBLIC_TEST_NET_RPC!;
 
 export default function Contracts() {
   const project = useRouteParam('project', '/projects');
-  // const router = useRouter();
+  const { project: projectDetails, error: projectError } = useProject(project);
 
   let [environment, setEnvironment] = useState<Environment>();
 
-  // const { project: projectParam } = router.query;
-  // let project = null;
-
-  // if (projectParam && typeof projectParam === "string") {
-  //   project = projectParam;
-  // }
-  const { environmentData, error } = useEnvironments(project);
+  const { environmentData, error: environmentsError } = useEnvironments(project);
   const environments = environmentData?.environments;
   if (!environment && environments) {
-    // setEnvironmentName(environments[0].name)
     setEnvironment(environments[0]);
   }
-
-  // let { environment, error } = useEnvironment(environmentId);
 
   let user = useIdentity();
 
@@ -49,16 +42,15 @@ export default function Contracts() {
   // TODO (NTH) lean into automatic static optimization and rework checks so that the
   // maximum amount of elements can be rendered without environmentId
   return (
-    <div id="pageContainer">
+    <div className="pageContainer">
       <div className="titleContainer">
-        <h1>{environmentData?.project?.name || 'Loading...'}</h1>
+        {/* <h1>{environmentData?.project?.name || 'Loading...'}</h1> */}
+        <h1>{projectDetails?.name || 'Loading...'}</h1>
         {environment && environments && (
           <DropdownButton
             variant="outline-secondary"
-            // menuVariant="dark"
             title={environment.name}
             onSelect={(eventKey) => {
-              // setEnvironmentName(eventKey); // TODO TODO TODO TODO TODO TODO TODO
               setEnvironment(environments.find((env) => eventKey === env.name));
             }}
           >
@@ -77,7 +69,6 @@ export default function Contracts() {
         .pageContainer {
           display: flex;
           flex-direction: column;
-          padding: 3rem;
         }
         .titleContainer {
           margin-bottom: 2.75rem;
@@ -149,7 +140,7 @@ function ContractsTable(props: { project: string; environment: Environment }) {
           font-weight: 700;
         }
         .contractsTableContainer {
-          max-width: 46rem;
+          /* max-width: 46rem; */
         }
       `}</style>
     </div>
@@ -171,7 +162,10 @@ function AddContractForm(props: {
   let [address, setAddress] = useState<string>("");
   let [error, setError] = useState<string>("");
 
-  async function submitNewContract() {
+  async function submitNewContract(e?: FormEvent) {
+    if (e) {
+      e.preventDefault();
+    }
     setAddInProgress(true);
     let contract: Contract;
     try {
@@ -186,7 +180,7 @@ function AddContractForm(props: {
       closeAdd();
       return contract;
     } catch (e: any) {
-      // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+      // TODO handle error!
       // alert(e.message);
       setError(e.message);
     } finally {
@@ -208,7 +202,7 @@ function AddContractForm(props: {
     <div className="addContainer">
       {showAdd && (
         <div className="inputRow">
-          <Form>
+          <Form onSubmit={submitNewContract}>
             <Form.Control
               isInvalid={Boolean(error)}
               disabled={addInProgress}

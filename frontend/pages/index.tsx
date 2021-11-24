@@ -3,8 +3,6 @@ import Head from 'next/head'
 import dynamic from "next/dynamic";
 import AuthenticationForm from '../components/AuthenticationForm/AuthenticationForm';
 import ConsoleLogo from '../components/ConsoleLogo';
-import LanguageSwitcher from '../components/LanguageSwitcher';
-import { useRouter } from 'next/router'
 
 const ThemeToggle = dynamic(() => import("../components/ThemeToggle"), {
   ssr: false,
@@ -13,11 +11,8 @@ const ThemeToggle = dynamic(() => import("../components/ThemeToggle"), {
 // i18n
 import { useTranslation } from 'next-i18next';
 
-
-// assets
-// import styles from '../styles/Home.module.css'
-
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useSimpleLayout } from '../utils/layouts';
 
 export async function getStaticProps({ locale }: { locale: string }) {
   return {
@@ -39,57 +34,48 @@ export default function Login() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className='main'>
-        <ConsoleLogo />
+      <AuthenticationForm />
 
-        <AuthenticationForm />
-      </main>
-
-      <Footer />
+      {/* <Footer /> */}
       <style jsx>{`
         .pageContainer {
-          height: 100vh;
           display: flex;
           flex-direction: column;
-          justify-content: center;
+          /* justify-content: center; */
           align-items: center;
-        }
-
-        .main {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
+          width: 22.25rem;
         }
       `}</style>
     </div>
   )
 }
 
-function Footer() {
-  return <footer className='footer'>
-    <div className='footerItem'>
-      <a
-        href="https://near.org"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Near Inc.
-      </a>
-    </div>
-    <style jsx>{`
-      .footer {
-        width: 100%;
-        height: 100px;
-        border-top: 1px solid #eaeaea;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      .footerItem {
-        margin: 0 1em;
-      }
-  `}</style>
-  </footer>
-}
+// function Footer() {
+//   return <footer className='footer'>
+//     <div className='footerItem'>
+//       <a
+//         href="https://near.org"
+//         target="_blank"
+//         rel="noopener noreferrer"
+//       >
+//         Near Inc.
+//       </a>
+//     </div>
+//     <style jsx>{`
+//       .footer {
+//         width: 100%;
+//         height: 100px;
+//         border-top: 1px solid #eaeaea;
+//         display: flex;
+//         justify-content: center;
+//         align-items: center;
+//       }
+//       .footerItem {
+//         margin: 0 1em;
+//       }
+//   `}</style>
+//   </footer>
+// }
+
+Login.getLayout = useSimpleLayout;
+// Login.getFooter = Footer;

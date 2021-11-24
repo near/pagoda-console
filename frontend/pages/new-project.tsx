@@ -22,7 +22,7 @@ export default function NewProject() {
         setFormEnabled(false);
         try {
             const project: Project = await authenticatedPost('/projects/create', { name: projectName });
-            router.push(`/contracts?project=${project.slug}`);
+            router.push(`/analytics?project=${project.slug}&onboarding=true`);
         } catch (e) {
             setFormEnabled(true);
             setCreationError(true);

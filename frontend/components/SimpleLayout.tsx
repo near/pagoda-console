@@ -1,13 +1,14 @@
 import ConsoleLogo from '../components/ConsoleLogo';
-import type { ReactNode } from 'react';
+import type { ReactElement } from 'react';
 
-export default function SimpleLayout({ children }: { children: ReactNode }) {
+export default function SimpleLayout({ children, footer = null }: { children: ReactElement, footer: ReactElement | null }) {
     return (
         <div className='centeringContainer'>
             <div className='centeredContainer'>
                 <ConsoleLogo />
                 {/* <main>{children}</main> */}
                 {children}
+                {footer ?? <></>}
             </div>
             <style jsx>{`
                 .centeringContainer {

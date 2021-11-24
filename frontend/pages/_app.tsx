@@ -5,10 +5,11 @@ import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 
 export type NextPageWithLayout = NextPage & {
-  getLayout?: (page: ReactElement) => ReactNode
+  getLayout?: (page: ReactElement, footer: ReactElement | null) => ReactNode,
+  getFooter?: () => ReactElement
 }
 
-type AppPropsWithLayout = AppProps & {
+export type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout
 }
 
@@ -32,9 +33,9 @@ initializeApp(firebaseConfig);
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available
-  const getLayout = Component.getLayout ?? ((page) => page)
-
-  return <SSRProvider>{getLayout(<Component {...pageProps} />)}</SSRProvider>
+  const getLayout = Component.getLayout ?? ((page) => page);
+  const getFooter = Component.getFooter ?? (() => null);
+  return <SSRProvider>{getLayout(<Component {...pageProps} />, getFooter())}</SSRProvider>
 }
 
 import { appWithTranslation } from 'next-i18next';

@@ -111,3 +111,20 @@ h2 {
   background-color: var(--color-button-accent);
   color: var(--color-button-accent-text);
 }
+
+.globalDivider {
+  border-top: 1px solid black;
+  width: 100%;
+  margin: 1.5rem 0;
+}
+
+.tooltip.show {
+  opacity: 1;
+}
+
+.tooltip-inner {
+  background-color: var(--color-accent-lilac);
+}
+.tooltip-arrow::before {
+  border-right-color: var(--color-accent-lilac) !important;
+}
