@@ -1,4 +1,4 @@
-import { useProject } from "../utils/fetchers";
+import { useApiKeys, useProject } from "../utils/fetchers";
 import { useRouteParam } from "../utils/hooks";
 import { useDashboardLayout } from "../utils/layouts";
 
@@ -9,7 +9,8 @@ import { Button } from 'react-bootstrap';
 
 export default function ProjectSettings() {
     const projectSlug = useRouteParam('project', '/projects');
-    const { project, error } = useProject(projectSlug);
+    const { project, error: projectError } = useProject(projectSlug);
+    const { keys, error: keysError } = useApiKeys(projectSlug);
 
     return (
         <div className='pageContainer'>
@@ -38,7 +39,7 @@ export default function ProjectSettings() {
                 </div>
                 <div className='keyRow'>
                     <span className='keyTitle'>Testnet</span>
-                    <span className='keyField'>3a2be6fe-●●●●-●●●●-●●●●-●●●●●●●●●●●●</span>
+                    <span className='keyField'>{keys?.TESTNET || 'Loading...'}</span>
                     <div className='buttonsContainer'>
                         <Button variant='outline-primary'>
                             <FontAwesomeIcon icon={faEye} />

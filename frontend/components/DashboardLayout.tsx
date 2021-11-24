@@ -155,14 +155,10 @@ function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?:
 
     const router = useRouter();
     function closeTooltip() {
-        // debugger;
         // setHideTooltip(true);
         if (props.dismissOnboarding) {
             props.dismissOnboarding();
         }
-    }
-    if (props.page.display === 'Settings') {
-        // debugger;
     }
 
     const target = useRef(null);

@@ -6,8 +6,7 @@ import { useEnvironments } from '../utils/fetchers';
 import { Environment } from "../utils/interfaces";
 
 export default function EnvironmentSelector({ project, environment, setEnvironment }: { project: string | null, environment?: Environment, setEnvironment: Dispatch<SetStateAction<Environment | undefined>> }) {
-    const { environmentData, error } = useEnvironments(project);
-    const environments = environmentData?.environments;
+    const { environmentData: environments, error } = useEnvironments(project);
     if (!environment && environments) {
         setEnvironment(environments[0]);
     }

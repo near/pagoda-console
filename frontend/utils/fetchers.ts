@@ -1,7 +1,7 @@
 import { getAuth, getIdToken } from "firebase/auth";
 import useSWR, { KeyedMutator } from "swr";
 import { useIdentity } from "./hooks";
-import { Contract, Environment, User, Project } from "./interfaces";
+import { Contract, Environment, User, Project, NetOption } from "./interfaces";
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
@@ -102,7 +102,7 @@ export function useEnvironment(environmentId?: number): { environment?: Environm
 
 // NOTE: naming here can be cleaned up. The request was changed late in order
 // to consolidate multiple calls. This returns closer to a Project record
-export function useEnvironments(project: string | null): { environmentData?: { project: Project, environments: Environment[] }; error?: any; mutate: KeyedMutator<any>; } {
+export function useEnvironments(project: string | null): { environmentData?: Environment[], error?: any; mutate: KeyedMutator<any>; } {
   const identity = useIdentity();
   const { data: environmentData, error, mutate, } = useSWR(identity && project ? ["/projects/getEnvironments", project, identity.uid] : null,
     (key: string, project: number) => {
@@ -141,4 +141,15 @@ export function useProject(projectSlug: string | null): { project?: Project, err
     });
 
   return { project, error };
+}
+
+export function useApiKeys(project: string | null): { keys?: Record<NetOption, string>, error?: any; mutate: KeyedMutator<any>; } {
+  const identity = useIdentity();
+  const { data: keys, error, mutate, } = useSWR(identity && project ? ["/projects/getKeys", project, identity.uid] : null,
+    (key: string, project: number) => {
+      return authenticatedPost(key, { project });
+    }
+  );
+
+  return { keys, error, mutate };
 }

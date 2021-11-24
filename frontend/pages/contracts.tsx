@@ -27,8 +27,7 @@ export default function Contracts() {
 
   let [environment, setEnvironment] = useState<Environment>();
 
-  const { environmentData, error: environmentsError } = useEnvironments(project);
-  const environments = environmentData?.environments;
+  const { environmentData: environments, error: environmentsError } = useEnvironments(project);
   if (!environment && environments) {
     setEnvironment(environments[0]);
   }
