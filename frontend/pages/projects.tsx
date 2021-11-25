@@ -1,7 +1,7 @@
 import { useSimpleLayout } from "../utils/layouts";
 import { Button } from 'react-bootstrap';
 import { useRouter } from "next/router";
-import { useProjects } from "../utils/fetchers";
+import { authenticatedPost, useProjects } from "../utils/fetchers";
 import { Project } from '../utils/interfaces';
 import Link from 'next/link';
 
@@ -9,10 +9,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 import { useState } from "react";
 import BorderSpinner from "../components/BorderSpinner";
+import CenterModal from "../components/CenterModal";
 
 export default function Projects() {
     const router = useRouter();
-    const { projects, error, isValidating } = useProjects();
+    const { projects, error, isValidating, mutate: refetchProjects } = useProjects();
     let [isEditing, setIsEditing] = useState<boolean>(false);
 
     let body;
@@ -27,7 +28,7 @@ export default function Projects() {
         router.push('/new-project?onboarding=true');
         return <></>;
     } else {
-        body = projects!.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} roundTop={index === 0} roundBottom={index === arr.length - 1} showDelete={isEditing} />);
+        body = projects!.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} roundTop={index === 0} roundBottom={index === arr.length - 1} showDelete={isEditing} onDelete={() => refetchProjects()} />);
     }
     return <div className='projectsContainer'>
         <div className='headerContainer'>
@@ -67,15 +68,31 @@ export default function Projects() {
     </div>
 }
 
-function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: boolean, showDelete: boolean }) {
+function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: boolean, showDelete: boolean, onDelete: () => void }) {
+    let [showModal, setShowModal] = useState<boolean>(false);
+
+    async function deleteProject() {
+        try {
+            await authenticatedPost('/projects/delete', { slug: props.project.slug });
+            props.onDelete();
+            setShowModal(false);
+        } catch (e) {
+            // TODO
+            console.error('Failed to delete project');
+        }
+    }
+
+    const warning = 'Removing this project may have uninteded consequences, make sure the API keys for this project are no longer in use before removing it.';
+
     const topRadius = props.roundTop ? '4' : '0';
     const bottomRadius = props.roundBottom ? '4' : '0';
     return (
         <div className='projectRowContainer'>
+            <CenterModal show={showModal} title={`Remove ${props.project.name}`} content={warning} onConfirm={deleteProject} confirmText='Remove' onHide={() => setShowModal(false)} />
             <Link href={`/contracts?project=${props.project.slug}`}>
                 <a className='projectLink'><div className='linkDiv'>{props.project.name}</div></a>
             </Link>
-            {props.showDelete && <Button><FontAwesomeIcon icon={faTrashAlt} /></Button>}
+            {props.showDelete && <Button onClick={() => setShowModal(true)}><FontAwesomeIcon icon={faTrashAlt} /></Button>}
             <style jsx>{`
                 .projectRowContainer {
                     display: flex;
