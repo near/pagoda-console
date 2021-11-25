@@ -5,7 +5,8 @@ import { useDashboardLayout } from "../utils/layouts";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEyeSlash, faEye, faCopy } from '@fortawesome/free-regular-svg-icons'
 import { faRedoAlt } from '@fortawesome/free-solid-svg-icons'
-import { Button } from 'react-bootstrap';
+import { Button, Placeholder, Overlay } from 'react-bootstrap';
+import { useState, useRef } from "react";
 
 export default function ProjectSettings() {
     const projectSlug = useRouteParam('project', '/projects');
@@ -22,36 +23,8 @@ export default function ProjectSettings() {
             <h3>API Keys</h3>
 
             <div className='keysContainer'>
-                <div className='keyRow'>
-                    <span className='keyTitle'>Mainnet</span>
-                    <span className='keyField'>f804a789-●●●●-●●●●-●●●●-●●●●●●●●●●●●</span>
-                    <div className='buttonsContainer'>
-                        <Button variant='outline-primary'>
-                            <FontAwesomeIcon icon={faEye} />
-                        </Button>
-                        <Button variant='outline-primary'>
-                            <FontAwesomeIcon icon={faRedoAlt} />
-                        </Button>
-                        <Button variant='outline-primary'>
-                            <FontAwesomeIcon icon={faCopy} />
-                        </Button>
-                    </div>
-                </div>
-                <div className='keyRow'>
-                    <span className='keyTitle'>Testnet</span>
-                    <span className='keyField'>{keys?.TESTNET || 'Loading...'}</span>
-                    <div className='buttonsContainer'>
-                        <Button variant='outline-primary'>
-                            <FontAwesomeIcon icon={faEye} />
-                        </Button>
-                        <Button variant='outline-primary'>
-                            <FontAwesomeIcon icon={faRedoAlt} />
-                        </Button>
-                        <Button variant='outline-primary'>
-                            <FontAwesomeIcon icon={faCopy} />
-                        </Button>
-                    </div>
-                </div>
+                <KeyRow name='Mainnet' token={keys?.MAINNET} />
+                <KeyRow name='Testnet' token={keys?.TESTNET} />
             </div>
             <style jsx>{`
                 .pageContainer {
@@ -73,6 +46,67 @@ export default function ProjectSettings() {
                     row-gap: 1rem;
                     margin-top: 1.5rem;
                 }
+            `}</style>
+        </div>
+    );
+}
+
+function KeyRow(props: { name: string, token?: string }) {
+    let [keyObscured, setKeyObscured] = useState<boolean>(true);
+
+    function getObscuredKey(key: string) {
+        // const obscureChar = '*';
+        // return key.substring(0, 4) + obscureChar.repeat(key.length - 4);
+        return key.substring(0, 8) + `-●●●●-●●●●-●●●●-●●●●●●●●●●●●`
+    }
+
+    const copyRef = useRef(null);
+    let [showCopiedAlert, setShowCopiedAlert] = useState<boolean>(false);
+    const copiedTimer = useRef<NodeJS.Timeout>();
+    function copyKey() {
+        if (copiedTimer.current) {
+            clearTimeout(copiedTimer.current);
+        }
+        props.token && navigator.clipboard.writeText(props.token);
+        setShowCopiedAlert(true);
+        copiedTimer.current = setTimeout(() => {
+            setShowCopiedAlert(false);
+        }, 3000);
+    }
+
+
+    return (
+        <div className='keyRow'>
+            <span className='keyTitle'>{props.name}</span>
+            <span className='keyField'>{props.token ? (keyObscured ? getObscuredKey(props.token) : props.token) : <Placeholder animation='glow'><Placeholder xs={4} size='sm' style={{ borderRadius: '0.5em' }} /></Placeholder>}</span>
+            <div className='buttonsContainer'>
+                <Button variant='outline-primary' onClick={() => setKeyObscured(!keyObscured)} disabled={!props.token}>
+                    <FontAwesomeIcon icon={keyObscured ? faEyeSlash : faEye} />
+                </Button>
+                <Button variant='outline-primary'>
+                    <FontAwesomeIcon icon={faRedoAlt} />
+                </Button>
+                <Button variant='outline-primary' onClick={copyKey} disabled={!props.token} ref={copyRef}>
+                    <FontAwesomeIcon icon={faCopy} />
+                </Button>
+                <Overlay target={copyRef} show={showCopiedAlert} popperConfig={{ modifiers: [{ name: 'offset', options: { offset: [0, 8] } }] }} placement='right'>
+                    {({ placement, arrowProps, show: _show, popper, ...props }) => (
+                        <div
+                            {...props}
+                            style={{
+                                backgroundColor: 'gray',
+                                padding: '0.25em 0.5em',
+                                color: 'white',
+                                borderRadius: 3,
+                                ...props.style,
+                            }}
+                        >
+                            Copied!
+                        </div>
+                    )}
+                </Overlay>
+            </div>
+            <style jsx>{`
                 .keyRow {
                     display: flex;
                     flex-direction: row;
