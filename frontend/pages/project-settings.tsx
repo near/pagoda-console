@@ -1,4 +1,4 @@
-import { useApiKeys, useProject } from "../utils/fetchers";
+import { authenticatedPost, useApiKeys, useProject } from "../utils/fetchers";
 import { useRouteParam } from "../utils/hooks";
 import { useDashboardLayout } from "../utils/layouts";
 
@@ -13,6 +13,16 @@ export default function ProjectSettings() {
     const { project, error: projectError } = useProject(projectSlug);
     const { keys, error: keysError } = useApiKeys(projectSlug);
 
+    async function rotateKey(name: 'Mainnet' | 'Testnet') {
+        const subId = name === 'Mainnet' ? 2 : 1;
+        try {
+            await authenticatedPost('/projects/rotateKey', { project: projectSlug, environment: subId });
+        } catch (e) {
+            // TODO log error
+            throw new Error('Failed to rotate key');
+        }
+    }
+
     return (
         <div className='pageContainer'>
             <div className='titleContainer'>
@@ -23,8 +33,8 @@ export default function ProjectSettings() {
             <h3>API Keys</h3>
 
             <div className='keysContainer'>
-                <KeyRow name='Mainnet' token={keys?.MAINNET} />
-                <KeyRow name='Testnet' token={keys?.TESTNET} />
+                <KeyRow name='Mainnet' token={keys?.MAINNET} onRotateKey={rotateKey} />
+                <KeyRow name='Testnet' token={keys?.TESTNET} onRotateKey={rotateKey} />
             </div>
             <style jsx>{`
                 .pageContainer {
@@ -51,7 +61,7 @@ export default function ProjectSettings() {
     );
 }
 
-function KeyRow(props: { name: string, token?: string }) {
+function KeyRow(props: { name: string, token?: string, onRotateKey: Function }) {
     let [keyObscured, setKeyObscured] = useState<boolean>(true);
 
     function getObscuredKey(key: string) {
@@ -74,7 +84,6 @@ function KeyRow(props: { name: string, token?: string }) {
         }, 3000);
     }
 
-
     return (
         <div className='keyRow'>
             <span className='keyTitle'>{props.name}</span>
@@ -83,7 +92,7 @@ function KeyRow(props: { name: string, token?: string }) {
                 <Button variant='outline-primary' onClick={() => setKeyObscured(!keyObscured)} disabled={!props.token}>
                     <FontAwesomeIcon icon={keyObscured ? faEyeSlash : faEye} />
                 </Button>
-                <Button variant='outline-primary'>
+                <Button variant='outline-primary' onClick={() => props.onRotateKey()}>
                     <FontAwesomeIcon icon={faRedoAlt} />
                 </Button>
                 <Button variant='outline-primary' onClick={copyKey} disabled={!props.token} ref={copyRef}>
