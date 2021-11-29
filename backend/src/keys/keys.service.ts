@@ -49,6 +49,38 @@ export class KeysService {
     return res.data;
   }
 
+  async invalidate(keyId: string, net: Net) {
+    let currentToken;
+    try {
+      currentToken = await this.fetch(keyId, net);
+    } catch (e) {
+      throw new VError(e, 'Failed while fetching current API key');
+    }
+    try {
+      return await this.fetchers[net].post('/token/invalidate', {
+        token: currentToken,
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed on request to invalidate current API key');
+    }
+  }
+
+  async rotate(keyId: string, net: Net) {
+    try {
+      await this.invalidate(keyId, net);
+    } catch (e) {
+      throw new VError(
+        e,
+        'Failed while invalidating current API Key for rotation',
+      );
+    }
+    try {
+      return await this.generate(keyId, net);
+    } catch (e) {
+      throw new VError(e, 'Failed while generating new API key');
+    }
+  }
+
   async fetch(keyId: string, net: Net): Promise<string> {
     const res = await this.fetchers[net].get(`/projects/${keyId}/tokens`);
     if (!Array.isArray(res.data)) {

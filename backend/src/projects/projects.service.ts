@@ -96,8 +96,9 @@ export class ProjectsService {
     projectWhereUnique: Prisma.ProjectWhereUniqueInput,
   ): Promise<void> {
     // check that project is valid for deletion
+    let project;
     try {
-      const project = await this.prisma.project.findUnique({
+      project = await this.prisma.project.findUnique({
         where: projectWhereUnique,
         select: {
           id: true,
@@ -122,6 +123,25 @@ export class ProjectsService {
       userId: callingUser.id,
       projectWhereUnique,
     });
+
+    try {
+      const testnetKeyPromise = this.keys.invalidate(
+        `${project.id}_1`,
+        'TESTNET',
+      );
+      // TODO ENABLE MAINNET KEY INVALIDATION
+      // const mainnetKeyPromise = this.keys.invalidate(
+      //   `${project.id}_2`,
+      //   'MAINNET',
+      // );
+      // await Promise.all([testnetKeyPromise, mainnetKeyPromise]);
+      await Promise.all([testnetKeyPromise]);
+    } catch (e) {
+      throw new VError(
+        e,
+        'Failed to invalidate one or more keys while deleting project',
+      );
+    }
 
     // soft delete the project
     try {
@@ -530,6 +550,28 @@ export class ProjectsService {
       };
     } catch (e) {
       throw new VError(e, 'Failed to fetch keys from key management API');
+    }
+  }
+
+  async rotateKey(
+    callingUser: User,
+    project: Project['slug'],
+    subId: Environment['subId'],
+  ) {
+    const environment = await this.getActiveEnvironment(project, subId);
+
+    // throw an error if the user doesn't have permission to perform this action
+    await this.checkUserPermission({
+      userId: callingUser.id,
+      environmentWhereUnique: { id: environment.id },
+    });
+
+    const keyId = `${environment.projectId}_${subId}`;
+    const net = subId === 2 ? 'MAINNET' : 'TESTNET';
+    try {
+      return await this.keys.rotate(keyId, net);
+    } catch (e) {
+      throw new VError(e, `Failed to rotate key ${keyId} on net ${net}`);
     }
   }
 }

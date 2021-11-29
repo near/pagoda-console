@@ -76,10 +76,20 @@ export const GetEnvironmentsDetailsSchema = Joi.object({
   environment: Joi.number().integer().required(),
 });
 
-// get environment details
+// get keys
 export interface GetKeysDto {
   project: string;
 }
 export const GetKeysSchema = Joi.object({
   project: Joi.string().required(),
+});
+
+// rotate key
+export interface RotateKeyDto {
+  project: string;
+  environment: number;
+}
+export const RotateKeySchema = Joi.object({
+  project: Joi.string().required(),
+  environment: Joi.number().integer().required(),
 });

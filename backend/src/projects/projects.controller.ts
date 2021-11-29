@@ -33,6 +33,8 @@ import {
   GetProjectDetailsSchema,
   RemoveContractDto,
   RemoveContractSchema,
+  RotateKeyDto,
+  RotateKeySchema,
 } from './dto';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 
@@ -167,6 +169,24 @@ export class ProjectsController {
   async getKeys(@Request() req, @Body() { project }: GetKeysDto) {
     try {
       return await this.projectsService.getKeys(req.user, { slug: project });
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('rotateKey')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(RotateKeySchema))
+  async RotateKey(
+    @Request() req,
+    @Body() { project, environment }: RotateKeyDto,
+  ) {
+    try {
+      return await this.projectsService.rotateKey(
+        req.user,
+        project,
+        environment,
+      );
     } catch (e) {
       throw mapError(e);
     }
