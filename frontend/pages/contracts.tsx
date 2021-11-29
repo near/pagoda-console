@@ -1,7 +1,8 @@
+import { debounce } from 'lodash-es';
 import { useDashboardLayout } from "../utils/layouts";
 import { Button, Form, Dropdown, DropdownButton } from "react-bootstrap";
 import useSWR from "swr";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 import { Contract, Environment, NetOption } from "../utils/interfaces";
 import {
   authenticatedPost,
@@ -15,6 +16,11 @@ import { useIdentity, useRouteParam } from "../utils/hooks";
 import { useRouter } from "next/router";
 import BorderSpinner from "../components/BorderSpinner";
 import EnvironmentSelector from "../components/EnvironmentSelector";
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
+
+import Config from '../utils/config';
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
@@ -87,6 +93,7 @@ function ContractsTable(props: { project: string; environment: Environment }) {
     mutate: mutateContracts,
   } = useContracts(props.project, props.environment.subId);
   // TODO determine how to not retry on 400s
+  let [isEditing, setIsEditing] = useState<boolean>(false);
 
   if (!contracts && !error) {
     //loading
@@ -104,15 +111,16 @@ function ContractsTable(props: { project: string; environment: Environment }) {
     <div className="contractsTableContainer">
       <div className="headerRow">
         <h2>Contracts</h2>
-        {hasContracts && <Button>Edit</Button>}
+        {hasContracts && <Button onClick={() => setIsEditing(!isEditing)}>{!isEditing ? 'Edit' : 'Done'}</Button>}
       </div>
       {hasContracts && <div className="tableGrid">
         <span />
         <span className="label">Account Balance</span>
         <span className="label">Storage Used</span>
+        {isEditing && <span></span>}
         {contracts &&
           contracts.map((contract) => (
-            <ContractRow key={contract.address} contract={contract} />
+            <ContractRow key={contract.address} contract={contract} showDelete={isEditing} onDelete={mutateContracts} />
           ))}
       </div>}
       <AddContractForm
@@ -130,9 +138,10 @@ function ContractsTable(props: { project: string; environment: Environment }) {
         }
         .tableGrid {
           display: grid;
-          grid-template-columns: auto 10rem 10rem;
           row-gap: 0.5rem;
           margin: 0 0 1rem;
+          align-items: center;
+          row-gap: 1rem;
         }
         .label {
           text-align: right;
@@ -140,6 +149,17 @@ function ContractsTable(props: { project: string; environment: Environment }) {
         }
         .contractsTableContainer {
           /* max-width: 46rem; */
+        }
+        .tableGrid :global(.btn) {
+            background-color: transparent;
+            color: var(--color-primary);
+            width: 3rem;
+            margin-left: auto;
+        }
+      `}</style>
+      <style jsx>{`
+        .tableGrid {
+          grid-template-columns: auto 10rem 10rem${isEditing ? ' 6rem' : ''};
         }
       `}</style>
     </div>
@@ -256,7 +276,8 @@ function AddContractForm(props: {
   );
 }
 
-function ContractRow(props: { contract: Contract }) {
+function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete: Function }) {
+  let [canDelete, setCanDelete] = useState<boolean>(true);
   const { data, error } = useSWR(
     [props.contract.address, props.contract.net],
     async (address: string) => {
@@ -291,6 +312,22 @@ function ContractRow(props: { contract: Contract }) {
     }
   );
 
+  async function removeContractRaw() {
+    setCanDelete(false);
+    try {
+      await authenticatedPost('/projects/removeContract', {
+        id: props.contract.id
+      });
+      props.onDelete && props.onDelete();
+    } catch (e) {
+      // TODO
+      console.error(e);
+      setCanDelete(true);
+    }
+  }
+
+  const removeContract = useMemo(() => debounce(removeContractRaw, Config.buttonDebounce, { leading: true, trailing: false }), []);
+
   return (
     <>
       <a
@@ -318,6 +355,7 @@ function ContractRow(props: { contract: Contract }) {
       ) : (
         <span className="data">N/A</span>
       )}
+      {props.showDelete && <Button onClick={() => removeContract()} disabled={!canDelete}><FontAwesomeIcon icon={faTrashAlt} /></Button>}
       <style jsx>{`
         .explorerLink {
           font-weight: 600;

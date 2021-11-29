@@ -35,6 +35,8 @@ $primary: $accent-purple;
   --color-accent-orange: #{$accent-orange};
 
   --color-primary: #{$accent-purple};
+
+  --layout-button-height: 2.625rem;
 }
 
 /* theme */
@@ -94,7 +96,7 @@ h2 {
 }
 
 .btn {
-  height: 2.625rem;
+  height: var(--layout-button-height);
 }
 
 .btn-neutral {
