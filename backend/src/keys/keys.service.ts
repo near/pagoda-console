@@ -6,7 +6,7 @@ import { VError } from 'verror';
 import { Net } from '.prisma/client';
 
 interface Key {
-  project_id: string;
+  project_ref: string;
   invalid: boolean;
   created_at: string;
   invalidated_at: string;
@@ -41,9 +41,26 @@ export class KeysService {
     };
   }
 
+  async createProject(keyId: string, net: Net) {
+    try {
+      await this.fetchers[net].post('/projects', {
+        project_ref: keyId,
+        quota: this.quotas[net],
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while sending project creation request');
+    }
+
+    try {
+      return await this.generate(keyId, net);
+    } catch (e) {
+      throw new VError(e, 'Failed while sending token generation request');
+    }
+  }
+
   async generate(keyId: string, net: Net) {
     const res = await this.fetchers[net].post('/token/generate', {
-      project_id: keyId,
+      project_ref: keyId,
       quota: this.quotas[net],
     });
     return res.data;

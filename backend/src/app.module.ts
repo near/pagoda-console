@@ -16,12 +16,13 @@ import { AuthModule } from './auth/auth.module';
 // import { ProjectsController } from './projects/projects.controller';
 import { KeysService } from './keys/keys.service';
 import { KeysModule } from './keys/keys.module';
+import { IndexerService } from './indexer.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      ignoreEnvFile: true // TODO disable only in prod
+      ignoreEnvFile: true, // TODO disable only in prod
     }),
     UsersModule,
     ProjectsModule,
@@ -29,6 +30,6 @@ import { KeysModule } from './keys/keys.module';
     KeysModule,
   ],
   controllers: [AppController],
-  providers: [AppService, KeysService],
+  providers: [AppService, KeysService, IndexerService],
 })
 export class AppModule {}

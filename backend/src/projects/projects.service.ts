@@ -80,8 +80,8 @@ export class ProjectsService {
 
     // generate RPC keys
     try {
-      await this.keys.generate(`${project.id}_1`, 'TESTNET');
-      // await this.keys.generate(`${project.id}_2`)
+      await this.keys.createProject(`${project.id}_1`, 'TESTNET');
+      // await this.keys.createProject(`${project.id}_2`)
     } catch (e) {
       throw new VError(e, 'Failed while generating API keys');
     }
@@ -569,7 +569,7 @@ export class ProjectsService {
     const keyId = `${environment.projectId}_${subId}`;
     const net = subId === 2 ? 'MAINNET' : 'TESTNET';
     try {
-      return await this.keys.rotate(keyId, net);
+      return { [net]: (await this.keys.rotate(keyId, net)).token };
     } catch (e) {
       throw new VError(e, `Failed to rotate key ${keyId} on net ${net}`);
     }

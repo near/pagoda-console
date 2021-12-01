@@ -37,10 +37,14 @@ import {
   RotateKeySchema,
 } from './dto';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
+import { IndexerService } from 'src/indexer.service';
 
 @Controller('projects')
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
+  constructor(
+    private readonly projectsService: ProjectsService,
+    private readonly indexerService: IndexerService,
+  ) {}
 
   @Post('create')
   @UseGuards(BearerAuthGuard)
@@ -190,6 +194,16 @@ export class ProjectsController {
     } catch (e) {
       throw mapError(e);
     }
+  }
+
+  @Post('getTransactions')
+  async getTransactions() {
+    // return this.indexerService.test();
+    return this.indexerService.fetchRecentTransactions(
+      // ['test.testnet', 'test2.testnet', 'sdkugfwebk.testnet', 'swefjyukvg'],
+      ['test.testnet', 'test2.testnet'],
+      'TESTNET',
+    );
   }
 }
 
