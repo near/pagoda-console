@@ -5,7 +5,7 @@ import NearIcon from '../public/brand/near_icon.svg'
 import { useIdentity, useRouteParam } from '../utils/hooks';
 import { getAuth, signOut, getIdToken } from 'firebase/auth';
 import { ReactNode, useRef, useState } from 'react';
-import { Tooltip, Overlay } from 'react-bootstrap';
+import { Tooltip, Overlay, Placeholder } from 'react-bootstrap';
 
 import Gradient from '../public/dashboardGradient.svg';
 
@@ -94,7 +94,7 @@ function SideBar({ project }: { project: string | null }) {
                 {pages.map((page, index) => <PageLink key={page.route} page={page} project={project} isSelected={router.pathname === page.route} isFirst={index === 0} isOnboarding={isOnboarding} dismissOnboarding={dismissOnboarding} />)}
             </div>
             <div className='footerContainer'>
-                <Link href={`/settings${project ? `?project=${project}` : ''}`}><a className='footerItem' >{`${identity?.displayName}` || ''}</a></Link>
+                <Link href={`/settings${project ? `?project=${project}` : ''}`}><a className='footerItem' >{identity?.displayName || <Placeholder animation='glow'><Placeholder size='sm' style={{ borderRadius: '0.5em', width: '100%' }} /></Placeholder>}</a></Link>
                 <div className='footerItem borderTop' onClick={signUserOut}>Logout</div>
             </div>
             <style jsx>{`
