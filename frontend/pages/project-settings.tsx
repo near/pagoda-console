@@ -7,16 +7,24 @@ import { faEyeSlash, faEye, faCopy } from '@fortawesome/free-regular-svg-icons'
 import { faRedoAlt } from '@fortawesome/free-solid-svg-icons'
 import { Button, Placeholder, Overlay } from 'react-bootstrap';
 import { useState, useRef } from "react";
+import { NetOption } from "../utils/interfaces";
+
 
 export default function ProjectSettings() {
     const projectSlug = useRouteParam('project', '/projects');
     const { project, error: projectError } = useProject(projectSlug);
-    const { keys, error: keysError } = useApiKeys(projectSlug);
+    const { keys, error: keysError, mutate: mutateKeys } = useApiKeys(projectSlug);
 
     async function rotateKey(name: 'Mainnet' | 'Testnet') {
         const subId = name === 'Mainnet' ? 2 : 1;
         try {
-            await authenticatedPost('/projects/rotateKey', { project: projectSlug, environment: subId });
+            let newKey = await authenticatedPost('/projects/rotateKey', { project: projectSlug, environment: subId });
+            mutateKeys((cachedKeys: Record<NetOption, string>) => {
+                return {
+                    ...cachedKeys,
+                    ...newKey
+                };
+            }, false);
         } catch (e) {
             // TODO log error
             throw new Error('Failed to rotate key');
@@ -81,7 +89,7 @@ function KeyRow(props: { name: string, token?: string, onRotateKey: Function }) 
         setShowCopiedAlert(true);
         copiedTimer.current = setTimeout(() => {
             setShowCopiedAlert(false);
-        }, 3000);
+        }, 2000);
     }
 
     return (
