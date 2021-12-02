@@ -22,6 +22,7 @@ import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 
 import Config from '../utils/config';
 import ProjectSelector from '../components/ProjectSelector';
+import RecentTransactionList from '../components/RecentTransactionList';
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
@@ -97,6 +98,7 @@ function ContractsTable(props: { project: string; environment: Environment }) {
         environment={props.environment}
         onAdd={mutateContracts}
       />
+      {hasContracts && <div className='transactionsWrapper'><RecentTransactionList contracts={contracts!} net={props.environment.net} /></div>}
 
       <style jsx>{`
         .headerRow {
@@ -124,6 +126,9 @@ function ContractsTable(props: { project: string; environment: Environment }) {
             color: var(--color-primary);
             width: 3rem;
             margin-left: auto;
+        }
+        .transactionsWrapper {
+          margin-top: 3rem;
         }
       `}</style>
       <style jsx>{`

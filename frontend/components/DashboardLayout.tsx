@@ -61,13 +61,9 @@ function SideBar({ project }: { project: string | null }) {
     const isOnboardingRaw = useRouteParam('onboarding');
     const isOnboarding = (isOnboardingRaw === 'true');
 
-    // TODO move to reusable location
     function signUserOut() {
         const auth = getAuth();
-        signOut(auth).then(() => {
-            // Sign-out successful.
-            // TODO
-        }).catch((error) => {
+        signOut(auth).catch((error) => {
             // An error happened.
             // TODO
         });
