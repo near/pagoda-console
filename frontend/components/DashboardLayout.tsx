@@ -46,7 +46,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 /*temp*/
                 max-width: 46rem;
 
-                margin-left: 7.5rem;
+                margin-left: calc(var(--layout-sidebar-width) + 7.5rem);
                 margin-right: 7.5rem;
                 padding-top: 3rem;
             }
@@ -108,11 +108,11 @@ function SideBar({ project }: { project: string | null }) {
                     display: flex;
                     flex-direction: column;
                     height: 100%;
-                    width: 11.125rem;
-                    max-width: 11.125rem;
+                    width: var(--layout-sidebar-width);
                     background-color: var(--color-bg-primary);
                     align-items: center;
                     padding-top: 3rem;
+                    position: absolute;
                 }
                 .logoContainer {
                     width: 2.625rem;
