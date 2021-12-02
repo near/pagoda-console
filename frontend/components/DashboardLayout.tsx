@@ -27,7 +27,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     const project = useRouteParam('project');
 
     return (
-        <div className='dashboardContainer'>
+        <>
             <SideBar project={project} />
             <div className='gradientContainer'>
                 <Gradient style={{ width: '100%', height: '100%', preserveAspectRatio: 'false' }} />
@@ -36,11 +36,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 {children}
             </div>
             <style jsx>{`
-            .dashboardContainer {
-                display: flex;
-                flex-direction: row;
-                height: 100vh;
-            }
             .childContainer {
                 flex-grow: 1;
                 /*temp*/
@@ -54,10 +49,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 height: 100%;
                 z-index: -1;
                 left: -5rem;
-                position: absolute;
+                position: fixed;
             }
         `}</style>
-        </div>
+        </>
     );
 }
 
@@ -107,14 +102,14 @@ function SideBar({ project }: { project: string | null }) {
                 .sidebar {
                     display: flex;
                     flex-direction: column;
-                    height: 100%;
+                    height: 100vh;
                     left: 0;
                     top: 0;
                     width: var(--layout-sidebar-width);
                     background-color: var(--color-bg-primary);
                     align-items: center;
                     padding-top: 3rem;
-                    position: absolute;
+                    position: fixed;
                 }
                 .logoContainer {
                     width: 2.625rem;
