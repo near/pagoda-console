@@ -108,6 +108,8 @@ function SideBar({ project }: { project: string | null }) {
                     display: flex;
                     flex-direction: column;
                     height: 100%;
+                    left: 0;
+                    top: 0;
                     width: var(--layout-sidebar-width);
                     background-color: var(--color-bg-primary);
                     align-items: center;
