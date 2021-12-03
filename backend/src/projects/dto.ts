@@ -2,6 +2,7 @@
 // because class-validator was experiencing issues at the time of implementation
 // and had many unaddressed github issues
 
+import { Net } from '.prisma/client';
 import * as Joi from 'joi';
 
 // create project
@@ -92,4 +93,14 @@ export interface RotateKeyDto {
 export const RotateKeySchema = Joi.object({
   project: Joi.string().required(),
   environment: Joi.number().integer().required(),
+});
+
+// rotate key
+export interface GetTransactionsDto {
+  contracts: string[];
+  net: Net;
+}
+export const GetTransactionsSchema = Joi.object({
+  contracts: Joi.array().items(Joi.string()),
+  net: Joi.string(),
 });

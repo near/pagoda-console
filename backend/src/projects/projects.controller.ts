@@ -31,6 +31,8 @@ import {
   GetKeysSchema,
   GetProjectDetailsDto,
   GetProjectDetailsSchema,
+  GetTransactionsDto,
+  GetTransactionsSchema,
   RemoveContractDto,
   RemoveContractSchema,
   RotateKeyDto,
@@ -197,12 +199,13 @@ export class ProjectsController {
   }
 
   @Post('getTransactions')
-  async getTransactions() {
+  @UsePipes(new JoiValidationPipe(GetTransactionsSchema))
+  async getTransactions(@Body() { contracts, net }: GetTransactionsDto) {
     // return this.indexerService.test();
     return this.indexerService.fetchRecentTransactions(
       // ['test.testnet', 'test2.testnet', 'sdkugfwebk.testnet', 'swefjyukvg'],
-      ['test.testnet', 'test2.testnet'],
-      'TESTNET',
+      contracts,
+      net,
     );
   }
 }

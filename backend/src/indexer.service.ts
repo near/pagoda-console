@@ -7,12 +7,24 @@ import { BN } from 'bn.js';
 
 interface Transaction {
   hash: string;
-  signer_id: string;
-  receiver_id: string;
-  block_hash: string;
-  block_timestamp: string;
-  transaction_index: number;
+  signerId: string;
+  receiverId: string;
+  blockHash: string;
+  blockTimestamp: string;
+  transactionIndex: number;
+  actions?: any[];
 }
+
+const INDEXER_COMPATIBILITY_TRANSACTION_ACTION_KINDS = new Map([
+  ['ADD_KEY', 'AddKey'],
+  ['CREATE_ACCOUNT', 'CreateAccount'],
+  ['DELETE_ACCOUNT', 'DeleteAccount'],
+  ['DELETE_KEY', 'DeleteKey'],
+  ['DEPLOY_CONTRACT', 'DeployContract'],
+  ['FUNCTION_CALL', 'FunctionCall'],
+  ['STAKE', 'Stake'],
+  ['TRANSFER', 'Transfer'],
+]);
 
 const DS_INDEXER_MAINNET = 'DS_INDEXER_MAINNET';
 const DS_INDEXER_TESTNET = 'DS_INDEXER_TESTNET';
@@ -125,12 +137,34 @@ export class IndexerService {
     );
   }
 
+  async queryTransactionsActionsList(transactionHashes, net: Net) {
+    return await this.queryRows(
+      [
+        `SELECT
+          transaction_hash,
+          action_kind AS kind,
+          args
+         FROM transaction_actions
+         WHERE transaction_hash IN (:transaction_hashes)
+         ORDER BY transaction_hash`,
+        { transaction_hashes: transactionHashes },
+      ],
+      {
+        dataSource: net === 'MAINNET' ? DS_INDEXER_MAINNET : DS_INDEXER_TESTNET,
+      },
+    );
+  }
+
   async query([query, replacements], { dataSource }) {
     const sequelize = this.getSequelize(dataSource);
     return await sequelize.query(query, {
       replacements,
       type: QueryTypes.SELECT,
     });
+  }
+
+  async queryRows(args, options) {
+    return await this.query(args, options || {});
   }
 
   getSequelize(dataSource) {
@@ -142,6 +176,70 @@ export class IndexerService {
       default:
         throw new VError('getSequelize() has no default dataSource');
     }
+  }
+
+  // helper function to init transactions list
+  // as we use the same structure but different queries for account, block, txInfo and list
+  async createTransactionsList(transactionsArray, net: Net) {
+    const transactionsHashes = transactionsArray.map(({ hash }) => hash);
+    const transactionsActionsList = await this.getTransactionsActionsList(
+      transactionsHashes,
+      net,
+    );
+
+    return transactionsArray.map((transaction) => ({
+      hash: transaction.hash,
+      signerId: transaction.signer_id,
+      receiverId: transaction.receiver_id,
+      blockHash: transaction.block_hash,
+      blockTimestamp: parseInt(transaction.block_timestamp),
+      transactionIndex: transaction.transaction_index,
+      actions: transactionsActionsList.get(transaction.hash),
+    }));
+  }
+
+  async getTransactionsActionsList(transactionsHashes, net: Net) {
+    const transactionsActionsByHash = new Map();
+    const transactionsActions = await this.queryTransactionsActionsList(
+      transactionsHashes,
+      net,
+    );
+    if (transactionsActions.length === 0) {
+      return transactionsActionsByHash;
+    }
+    transactionsActions.forEach((action: any) => {
+      const txAction =
+        transactionsActionsByHash.get(action.transaction_hash) || [];
+      return transactionsActionsByHash.set(action.transaction_hash, [
+        ...txAction,
+        {
+          kind: INDEXER_COMPATIBILITY_TRANSACTION_ACTION_KINDS.get(action.kind),
+          args:
+            typeof action.args === 'string'
+              ? JSON.parse(action.args)
+              : action.args,
+        },
+      ]);
+    });
+    return transactionsActionsByHash;
+  }
+
+  async getAccountTransactionsList(
+    accountId,
+    limit,
+    paginationIndexer,
+    dataSource,
+  ) {
+    const accountTxList = await this.queryAccountTransactionsList(
+      accountId,
+      limit,
+      paginationIndexer,
+      dataSource, // TODO REMOVE HARDCODING TO TESTNET
+    );
+    if (accountTxList.length === 0) {
+      return undefined;
+    }
+    return await this.createTransactionsList(accountTxList, 'TESTNET');
   }
 
   async test() {
@@ -167,9 +265,9 @@ export class IndexerService {
         transactionIndex: 0,
       };
       promises.push(
-        this.queryAccountTransactionsList(
+        this.getAccountTransactionsList(
           account,
-          this.recentTransactionsCount,
+          this.recentTransactionsCount, // TODO
           paginationIndexer,
           net === 'MAINNET' ? DS_INDEXER_MAINNET : DS_INDEXER_TESTNET,
         ),
@@ -179,25 +277,35 @@ export class IndexerService {
     const results = await Promise.allSettled(promises);
     console.log(results);
     let mergedTransactions = [];
-    for (const result of results) {
-      if (result.status === 'fulfilled') {
-        mergedTransactions = mergedTransactions.concat(result.value);
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
+      if (result.status === 'fulfilled' && result.value?.length) {
+        const resultsWithSource = result.value.map((t) => {
+          return {
+            ...t,
+            sourceContract: accounts[i],
+          };
+        });
+        mergedTransactions = mergedTransactions.concat(resultsWithSource);
       }
     }
 
+    // TODO handle more elegantly in future, but just sort and slice for now
+    /*
     if (!mergedTransactions.length) {
       // TODO handle no transactions
     } else if (mergedTransactions.length <= this.recentTransactionsCount) {
       return mergedTransactions.sort(compareTransactions);
     } else {
-      // TODO
-      //
-      // TEMP SORT ALL
       return mergedTransactions.sort(compareTransactions);
     }
+    */
+    return mergedTransactions
+      .sort(compareTransactions)
+      .slice(0, this.recentTransactionsCount);
   }
 }
 
 function compareTransactions(a: Transaction, b: Transaction) {
-  return new BN(b.block_timestamp).cmp(new BN(a.block_timestamp));
+  return new BN(b.blockTimestamp).cmp(new BN(a.blockTimestamp));
 }
