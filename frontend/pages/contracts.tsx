@@ -2,7 +2,7 @@ import { debounce } from 'lodash-es';
 import { useDashboardLayout } from "../utils/layouts";
 import { Button, Form, Dropdown, DropdownButton } from "react-bootstrap";
 import useSWR from "swr";
-import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useMemo, useState, useEffect } from "react";
 import { Contract, Environment, NetOption } from "../utils/interfaces";
 import {
   authenticatedPost,
@@ -12,8 +12,8 @@ import {
   useProject
 } from "../utils/fetchers";
 import { getAuth } from "firebase/auth";
-import { useIdentity, useRouteParam } from "../utils/hooks";
-import { useRouter } from "next/router";
+import { useIdentity, useProjectAndEnvironment, useRouteParam } from "../utils/hooks";
+import router, { useRouter } from "next/router";
 import BorderSpinner from "../components/BorderSpinner";
 import EnvironmentSelector from "../components/EnvironmentSelector";
 
@@ -21,6 +21,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 
 import Config from '../utils/config';
+import ProjectSelector from '../components/ProjectSelector';
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
@@ -28,15 +29,7 @@ const MAIN_NET_RPC = process.env.NEXT_PUBLIC_MAIN_NET_RPC!;
 const TEST_NET_RPC = process.env.NEXT_PUBLIC_TEST_NET_RPC!;
 
 export default function Contracts() {
-  const project = useRouteParam('project', '/projects');
-  const { project: projectDetails, error: projectError } = useProject(project);
-
-  let [environment, setEnvironment] = useState<Environment>();
-
-  const { environmentData: environments, error: environmentsError } = useEnvironments(project);
-  if (!environment && environments) {
-    setEnvironment(environments[0]);
-  }
+  const { project, environment } = useProjectAndEnvironment();
 
   let user = useIdentity();
 
@@ -48,38 +41,14 @@ export default function Contracts() {
   // maximum amount of elements can be rendered without environmentId
   return (
     <div className="pageContainer">
-      <div className="titleContainer">
-        {/* <h1>{environmentData?.project?.name || 'Loading...'}</h1> */}
-        <h1>{projectDetails?.name || 'Loading...'}</h1>
-        {environment && environments && (
-          <DropdownButton
-            variant="outline-secondary"
-            title={environment.name}
-            onSelect={(eventKey) => {
-              setEnvironment(environments.find((env) => eventKey === env.name));
-            }}
-          >
-            {environments.map((env) => (
-              <Dropdown.Item key={env.subId} eventKey={env.name}>
-                {env.name}
-              </Dropdown.Item>
-            ))}
-          </DropdownButton>
-        )}
-      </div>
+      <ProjectSelector />
       {project && environment && (
-        <ContractsTable project={project} environment={environment} />
+        <ContractsTable project={project.slug} environment={environment} />
       )}
       <style jsx>{`
         .pageContainer {
           display: flex;
           flex-direction: column;
-        }
-        .titleContainer {
-          margin-bottom: 2.75rem;
-          display: flex;
-          flex-direction: row;
-          justify-content: space-between;
         }
       `}</style>
     </div>

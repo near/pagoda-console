@@ -1,31 +1,83 @@
 // TODO convert to HOC and pass down rendering of dropdown
 
-import { Dispatch, SetStateAction } from 'react';
-import { DropdownButton, Dropdown } from 'react-bootstrap';
-import { useEnvironments } from '../utils/fetchers';
-import { Environment } from "../utils/interfaces";
+import { useRouter } from 'next/router';
+import { forwardRef } from 'react';
+import { Dropdown, ButtonProps, Button } from 'react-bootstrap';
+import { useProjectAndEnvironment } from '../utils/hooks';
 
-export default function EnvironmentSelector({ project, environment, setEnvironment }: { project: string | null, environment?: Environment, setEnvironment: Dispatch<SetStateAction<Environment | undefined>> }) {
-    const { environmentData: environments, error } = useEnvironments(project);
-    if (!environment && environments) {
-        setEnvironment(environments[0]);
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCaretDown } from '@fortawesome/free-solid-svg-icons'
+
+export default function EnvironmentSelector() {
+    const router = useRouter();
+    const { project, environment, environments } = useProjectAndEnvironment();
+
+    function changeEnvironment(eventKey: string | null) {
+        if (!environments || !project) {
+            return;
+        }
+        const newEnv = environments.find((env) => eventKey === env.name);
+        if (newEnv) {
+            router.replace(`${router.pathname}?project=${project.slug}&environment=${newEnv.subId}`, undefined, { shallow: true });
+        }
+
     }
 
     return (
         <>
-            {environment && environments && <DropdownButton
-                variant="outline-secondary"
-                title={environment.name}
-                onSelect={(eventKey) => {
-                    setEnvironment(environments.find((env) => eventKey === env.name));
-                }}
-            >
-                {environments.map((env) => (
-                    <Dropdown.Item key={env.subId} eventKey={env.name}>
-                        {env.name}
-                    </Dropdown.Item>
-                ))}
-            </DropdownButton>}
+            {environment && environments && (
+                <Dropdown onSelect={changeEnvironment}>
+                    <Dropdown.Toggle as={CustomToggle}>{environment.name}</Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        {environments.map((env) => (
+                            <Dropdown.Item key={env.subId} eventKey={env.name}>
+                                <span className='coloredIndicator'>●</span>{env.name}
+                                <style jsx>{`
+                            .coloredIndicator {
+                                color: ${getIndicatorColor(env.name)};
+                                margin-right: 0.25rem;
+                            }
+                            `}</style>
+                            </Dropdown.Item>
+                        ))}
+                    </Dropdown.Menu>
+                </Dropdown>
+            )}
         </>
     );
+}
+
+// The forwardRef is important!!
+// Dropdown needs access to the DOM node in order to position the Menu
+const CustomToggle = forwardRef<HTMLButtonElement, ButtonProps>(({ children, onClick }, ref) => (
+    <div className='customToggle'>
+        <Button
+            variant='outline-secondary'
+            ref={ref}
+            onClick={(e) => {
+                e.preventDefault();
+                onClick && onClick(e);
+            }}
+        >
+            <span className='coloredIndicator'>●</span>
+            {children}
+            <FontAwesomeIcon icon={faCaretDown} />
+        </Button>
+        <style jsx>{`
+        .customToggle :global(svg) {
+                margin-left: 3rem;
+            }
+        `}</style>
+        <style jsx>{`
+        .coloredIndicator {
+            color: ${typeof children === 'string' && getIndicatorColor(children)};
+            margin-right: 0.25rem;
+        }
+        `}</style>
+    </div>
+));
+CustomToggle.displayName = 'CustomToggle';
+
+function getIndicatorColor(net: string) {
+    return net === 'Mainnet' ? '#00BF89' : '#e9b870'
 }

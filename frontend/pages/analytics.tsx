@@ -11,6 +11,7 @@ import Image from 'next/image';
 
 //assets
 import AnalyticsPreview from '../public/analyticsPreview.png';
+import ProjectSelector from '../components/ProjectSelector';
 
 export default function Analytics() {
     const projectSlug = useRouteParam('project', '/projects');
@@ -22,9 +23,7 @@ export default function Analytics() {
             <link rel="icon" href="/favicon.ico" />
         </Head>
         <div className='pageContainer'>
-            <div className='titleContainer'>
-                <h1>{project?.name || 'Loading...'}</h1>
-            </div>
+            <ProjectSelector />
             <h2>Analytics</h2>
 
             <h3 className='welcomeText'>&#128075; Welcome to your new project</h3>
@@ -47,12 +46,6 @@ export default function Analytics() {
             .pageContainer {
             display: flex;
             flex-direction: column;
-            }
-            .titleContainer {
-            margin-bottom: 2.75rem;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
             }
             .onboardingContainer {
                 display: flex;

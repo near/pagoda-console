@@ -131,3 +131,7 @@ h2 {
 .tooltip-arrow::before {
   border-right-color: var(--color-accent-lilac) !important;
 }
+
+.hoverPrimary:hover {
+  color: var(--color-primary)
+}
