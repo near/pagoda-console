@@ -8,6 +8,7 @@ import { faRedoAlt } from '@fortawesome/free-solid-svg-icons'
 import { Button, Placeholder, Overlay } from 'react-bootstrap';
 import { useState, useRef } from "react";
 import { NetOption } from "../utils/interfaces";
+import ProjectSelector from "../components/ProjectSelector";
 
 
 export default function ProjectSettings() {
@@ -33,9 +34,7 @@ export default function ProjectSettings() {
 
     return (
         <div className='pageContainer'>
-            <div className='titleContainer'>
-                <h1>{project?.name || 'Loading...'}</h1>
-            </div>
+            <ProjectSelector />
             <h2>Project Settings</h2>
 
             <h3>API Keys</h3>

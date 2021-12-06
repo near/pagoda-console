@@ -59,9 +59,11 @@ const CustomToggle = forwardRef<HTMLButtonElement, ButtonProps>(({ children, onC
                 onClick && onClick(e);
             }}
         >
-            <span className='coloredIndicator'>●</span>
-            {children}
-            <FontAwesomeIcon icon={faCaretDown} />
+            <div className='buttonContainer'>
+                <span className='coloredIndicator'>●</span>
+                {children}
+                <FontAwesomeIcon icon={faCaretDown} />
+            </div>
         </Button>
         <style jsx>{`
         .customToggle :global(svg) {
@@ -72,6 +74,11 @@ const CustomToggle = forwardRef<HTMLButtonElement, ButtonProps>(({ children, onC
         .coloredIndicator {
             color: ${typeof children === 'string' && getIndicatorColor(children)};
             margin-right: 0.25rem;
+        }
+        .buttonContainer {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
         }
         `}</style>
     </div>

@@ -19,8 +19,6 @@ const pages = [
     { display: 'Analytics', route: '/analytics' },
     { display: 'Contracts', route: `/contracts` },
     { display: 'Settings', route: `/project-settings` },
-    { display: 'Projects', route: '/projects', debug: true },
-    { display: 'New Project', route: '/new-project', debug: true },
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -188,7 +186,6 @@ function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?:
             <style jsx>{`
                 a {
                     font-weight: ${props.isSelected ? '800' : '500'};
-                    color: ${props.page.debug ? '#DEDEDE' : 'inherit'}
                 }
                 .linkContainer {
                     padding: 1rem 0rem 1rem;

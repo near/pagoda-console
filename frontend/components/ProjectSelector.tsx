@@ -3,6 +3,7 @@ import { AnchorProps, Dropdown, Placeholder } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useProject, useProjects } from '../utils/fetchers';
 import { useRouteParam } from "../utils/hooks";
+import Link from 'next/link';
 
 import { faCaretDown, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
 import ProjectLink from './ProjectLink';
@@ -28,7 +29,7 @@ export default function ProjectSelector() {
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                     {otherProjects && otherProjects.map(p => <Dropdown.Item key={p.slug} eventKey={p.slug}><ProjectLink project={p} /></Dropdown.Item>)}
-                    <Dropdown.Item style={{ color: 'var(--color-primary)' }} eventKey={'new'}><FontAwesomeIcon icon={faPlusCircle} style={{ marginRight: '0.5rem' }} />Create new project</Dropdown.Item>
+                    <Dropdown.Item style={{ color: 'var(--color-primary)' }} eventKey={'new'}><Link href='new-project'><a><FontAwesomeIcon icon={faPlusCircle} style={{ marginRight: '0.5rem' }} />Create new project</a></Link></Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
             <EnvironmentSelector />
@@ -42,6 +43,12 @@ export default function ProjectSelector() {
                     display: flex;
                     flex-direction: row;
                     justify-content: space-between;
+                }
+                .selectorWrapper a{
+                    text-decoration: none;
+                }
+                .selectorWrapper a:hover{
+                    color: inherit;
                 }
             `}</style>
         </div>
