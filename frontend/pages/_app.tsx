@@ -29,8 +29,9 @@ const firebaseConfig = {
   messagingSenderId: "1082695133360",
   appId: "1:1082695133360:web:3900d42047e8136937f375"
 };
-
 initializeApp(firebaseConfig);
+
+const unauthedPaths = ['/', '/register'];
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
@@ -42,7 +43,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   useEffect(() => {
     const auth = getAuth()
     const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
-      if (!user && router.pathname !== '/') {
+      if (!user && !unauthedPaths.includes(router.pathname)) {
         // user is signed out, clear all data and redirect back to login
         cache.clear();
         console.log('cache cleared');
