@@ -21,7 +21,7 @@ const nanoid = customAlphabet(
 
 @Injectable()
 export class ProjectsService {
-  constructor(private prisma: PrismaService, private keys: KeysService) {}
+  constructor(private prisma: PrismaService, private keys: KeysService) { }
 
   async create(
     user: User,
@@ -81,7 +81,7 @@ export class ProjectsService {
     // generate RPC keys
     try {
       await this.keys.createProject(`${project.id}_1`, 'TESTNET');
-      // await this.keys.createProject(`${project.id}_2`)
+      await this.keys.createProject(`${project.id}_2`, 'MAINNET');
     } catch (e) {
       throw new VError(e, 'Failed while generating API keys');
     }
@@ -471,10 +471,10 @@ export class ProjectsService {
         net: true,
         contracts: includeContracts
           ? {
-              where: {
-                active: true,
-              },
-            }
+            where: {
+              active: true,
+            },
+          }
           : false,
       },
     });
@@ -542,11 +542,11 @@ export class ProjectsService {
     try {
       // run requests in parallel
       const testnetKeyPromise = this.keys.fetch(`${project.id}_1`, 'TESTNET');
-      // let mainnetKeyPromise = this.keys.fetch(`${project.id}_2`, 'MAINNET');
+      const mainnetKeyPromise = this.keys.fetch(`${project.id}_2`, 'MAINNET');
 
       return {
         TESTNET: await testnetKeyPromise,
-        // MAINNET: await mainnetKeyPromise,
+        MAINNET: await mainnetKeyPromise,
       };
     } catch (e) {
       throw new VError(e, 'Failed to fetch keys from key management API');
