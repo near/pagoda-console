@@ -162,19 +162,15 @@ function AddContractForm(props: {
     setAddInProgress(true);
     let contract: Contract;
     try {
-      // throw new Error();
       contract = await authenticatedPost("/projects/addContract", {
         project: props.project,
         environment: props.environment.subId,
         address,
       });
-      // contract = await authenticatedPost('/projects/addContract', { environmentId: 40, address });
       props.onAdd();
       closeAdd();
       return contract;
     } catch (e: any) {
-      // TODO handle error!
-      // alert(e.message);
       setError(e.message);
     } finally {
       setAddInProgress(false);
@@ -199,7 +195,7 @@ function AddContractForm(props: {
             <Form.Control
               isInvalid={Boolean(error)}
               disabled={addInProgress}
-              placeholder="contract.near"
+              placeholder={props.environment.net === 'MAINNET' ? 'contract.near' : 'contract.testnet'}
               value={address}
               onChange={handleAddressChange}
             />

@@ -1,6 +1,6 @@
-import { FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import { useSimpleLayout } from "../utils/layouts"
-import { Form, Button, Alert } from 'react-bootstrap'
+import { Form, Button } from 'react-bootstrap'
 import { getAuth, signOut } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import { Project } from '../utils/interfaces';
@@ -16,11 +16,15 @@ export default function NewProject() {
 
     const isOnboarding = useRouteParam('onboarding');
 
-    // temp
-    let [creationError, setCreationError] = useState<boolean>(false);
+    let [creationError, setCreationError] = useState<string>();
+    let [validationError, setValidationError] = useState<string>();
+
+    function canCreate(): boolean {
+        return formEnabled && !!projectName.trim() && !validationError;
+    }
 
     async function createProject(e: FormEvent): Promise<void> {
-        if (!projectName.trim()) {
+        if (!canCreate()) {
             return;
         }
         e.preventDefault();
@@ -28,19 +32,26 @@ export default function NewProject() {
         try {
             const project: Project = await authenticatedPost('/projects/create', { name: projectName }, { forceRefresh: true });
             router.push(`/analytics?project=${project.slug}&onboarding=true`);
-        } catch (e) {
+        } catch (error: any) {
             setFormEnabled(true);
-            setCreationError(true);
-            // TODO handle error
+            setCreationError('Something went wrong');
         }
     }
 
     function signUserOut() {
         const auth = getAuth();
-        signOut(auth).catch((error) => {
-            // An error happened.
-            // TODO
-        });
+        signOut(auth);
+    }
+
+    function handleChange(e: ChangeEvent<HTMLInputElement>) {
+        setCreationError('');
+        if (e?.target && e.target.value.length > 50) {
+            setValidationError('Project names cannot be longer than 50 characters');
+        } else if (validationError) {
+            setValidationError('');
+        }
+
+        setProjectName(e.target.value)
     }
 
     return <div className='newProjectContainer'>
@@ -52,13 +63,12 @@ export default function NewProject() {
         <Form className='newProjectForm' onSubmit={createProject}>
             <Form.Group className='formField' controlId="projectNameInput">
                 <Form.Label>Project Name</Form.Label>
-                <Form.Control placeholder="Cool New Project" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
+                <Form.Control placeholder="Cool New Project" value={projectName} onChange={handleChange} isInvalid={!!(validationError || creationError)} />
+                <Form.Control.Feedback type='invalid'>{validationError || creationError}</Form.Control.Feedback>
             </Form.Group>
             <div className='buttonContainer'>
-                <Button variant='primary' type='submit' disabled={!formEnabled || !projectName.trim()}>Create a Project</Button>
+                <Button variant='primary' type='submit' disabled={!canCreate()}>Create a Project</Button>
             </div>
-
-            {creationError && <Alert variant='danger'>Something went wrong</Alert>}
         </Form>
         {isOnboarding && <div className='signOut' onClick={signUserOut}>Log Out</div>}
         <style jsx>{`
@@ -74,10 +84,6 @@ export default function NewProject() {
             }
             .newProjectContainer :global(.formField) {
                 margin-bottom: 1rem;
-            }
-            .newProjectContainer :global(.alert) {
-                /* temp */
-                margin-top: 1em;
             }
             h1 {
                 margin-bottom: 1.25rem;

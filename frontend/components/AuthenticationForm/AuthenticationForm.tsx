@@ -1,12 +1,10 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { Button, Modal, Form, Alert } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged, signInWithEmailAndPassword, AuthError, createUserWithEmailAndPassword } from "firebase/auth";
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
-
-// FontAwesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ForgotPasswordModal from '../ForgotPasswordModal';
 import ErrorModal from '../ErrorModal';
@@ -143,17 +141,13 @@ function EmailAuth(props: { authActive: boolean }) {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [hasFailedSignIn, setHasFailedSignIn] = useState<boolean>(false);
-    const [isRegistering, setIsRegistering] = useRegistrationStatus();
-    const [errorAlert, setErrorAlert] = useState<string | null>();
     const [showResetModal, setShowResetModal] = useState<boolean>(false);
 
     const [validationFail, setValidationFail] = useState<ValidationFailure>({});
 
     const router = useRouter();
 
-    // TODO validation
     async function signInWithEmail(): Promise<void> {
-        console.log('signing in');
         setHasFailedSignIn(false);
         const auth = getAuth();
         try {
@@ -164,11 +158,7 @@ function EmailAuth(props: { authActive: boolean }) {
             const error = e as AuthError;
             const errorCode = error.code;
             const errorMessage = error.message;
-            // TODO determine error handling
-            console.error(`${errorCode}: ${errorMessage}`);
             setValidationFail({ password: errorMessage });
-            // setErrorAlert(errorMessage);
-            // TODO REMOVE
 
             let errorValidationFailure: ValidationFailure = {};
             switch (errorCode) {
@@ -211,7 +201,6 @@ function EmailAuth(props: { authActive: boolean }) {
 
     function handleFormChange(type: 'email' | 'password', newValue: string): void {
         setValidationFail({});
-        errorAlert && setErrorAlert(null);
         hasFailedSignIn && setHasFailedSignIn(false);
         switch (type) {
             case 'email':
@@ -237,13 +226,7 @@ function EmailAuth(props: { authActive: boolean }) {
         signInWithEmail();
     }
 
-    // clear validation errors on switching between sign in and sign up
-    useEffect(() => {
-        setValidationFail({});
-    }, [isRegistering]);
-
     return <div className='emailContainer'>
-        {errorAlert && <Alert variant='danger'>{errorAlert}</Alert>}
         <Form noValidate onSubmit={handleSubmit}>
             <div className='formFieldsWrapper'>
                 <Form.Group controlId="email">
