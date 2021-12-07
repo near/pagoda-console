@@ -13,6 +13,7 @@ import { customAlphabet } from 'nanoid';
 import { GetProjectDetailsSchema } from './dto';
 import { KeysService } from 'src/keys/keys.service';
 import { UserInfo } from 'firebase-admin/auth';
+import { ConfigService } from '@nestjs/config';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -21,7 +22,11 @@ const nanoid = customAlphabet(
 
 @Injectable()
 export class ProjectsService {
-  constructor(private prisma: PrismaService, private keys: KeysService) { }
+  constructor(
+    private prisma: PrismaService,
+    private keys: KeysService,
+    private config: ConfigService,
+  ) {}
 
   async create(
     user: User,
@@ -80,8 +85,14 @@ export class ProjectsService {
 
     // generate RPC keys
     try {
-      await this.keys.createProject(`${project.id}_1`, 'TESTNET');
-      await this.keys.createProject(`${project.id}_2`, 'MAINNET');
+      await this.keys.createProject(
+        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_1`,
+        'TESTNET',
+      );
+      await this.keys.createProject(
+        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_2`,
+        'MAINNET',
+      );
     } catch (e) {
       throw new VError(e, 'Failed while generating API keys');
     }
@@ -126,16 +137,14 @@ export class ProjectsService {
 
     try {
       const testnetKeyPromise = this.keys.invalidate(
-        `${project.id}_1`,
+        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_1`,
         'TESTNET',
       );
-      // TODO ENABLE MAINNET KEY INVALIDATION
-      // const mainnetKeyPromise = this.keys.invalidate(
-      //   `${project.id}_2`,
-      //   'MAINNET',
-      // );
-      // await Promise.all([testnetKeyPromise, mainnetKeyPromise]);
-      await Promise.all([testnetKeyPromise]);
+      const mainnetKeyPromise = this.keys.invalidate(
+        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_2`,
+        'MAINNET',
+      );
+      await Promise.all([testnetKeyPromise, mainnetKeyPromise]);
     } catch (e) {
       throw new VError(
         e,
@@ -471,10 +480,10 @@ export class ProjectsService {
         net: true,
         contracts: includeContracts
           ? {
-            where: {
-              active: true,
-            },
-          }
+              where: {
+                active: true,
+              },
+            }
           : false,
       },
     });
@@ -541,8 +550,14 @@ export class ProjectsService {
 
     try {
       // run requests in parallel
-      const testnetKeyPromise = this.keys.fetch(`${project.id}_1`, 'TESTNET');
-      const mainnetKeyPromise = this.keys.fetch(`${project.id}_2`, 'MAINNET');
+      const testnetKeyPromise = this.keys.fetch(
+        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_1`,
+        'TESTNET',
+      );
+      const mainnetKeyPromise = this.keys.fetch(
+        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_2`,
+        'MAINNET',
+      );
 
       return {
         TESTNET: await testnetKeyPromise,
@@ -566,7 +581,9 @@ export class ProjectsService {
       environmentWhereUnique: { id: environment.id },
     });
 
-    const keyId = `${environment.projectId}_${subId}`;
+    const keyId = `${this.config.get('PROJECT_REF_PREFIX') || ''}${
+      environment.projectId
+    }_${subId}`;
     const net = subId === 2 ? 'MAINNET' : 'TESTNET';
     try {
       return { [net]: (await this.keys.rotate(keyId, net)).token };
