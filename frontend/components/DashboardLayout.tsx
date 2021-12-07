@@ -84,7 +84,7 @@ function SideBar({ project }: { project: string | null }) {
             </div>
             <div className='footerContainer'>
                 <Link href={`/settings${project ? `?project=${project}` : ''}`}><a className='footerItem' >{identity?.displayName || <Placeholder animation='glow'><Placeholder size='sm' style={{ borderRadius: '0.5em', width: '100%' }} /></Placeholder>}</a></Link>
-                <div className='footerItem borderTop' onClick={signUserOut}>Logout</div>
+                <div className='footerItem borderTop' onClick={signUserOut}>Log Out</div>
             </div>
             <style jsx>{`
                 .tempButtons {

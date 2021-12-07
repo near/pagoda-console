@@ -27,16 +27,16 @@ function getUID() {
   return user.uid;
 }
 
-// function postFetcher() {
+interface AuthenticatedPostOptions {
+  forceRefresh?: boolean
+}
 
-// }
-
-export async function authenticatedPost(endpoint: string, body?: Object) {
+export async function authenticatedPost(endpoint: string, body?: Object, options?: AuthenticatedPostOptions) {
   const user = getAuth().currentUser;
   if (!user) throw new Error("No authenticated user");
 
   const headers = new Headers({
-    Authorization: `Bearer ${await getIdToken(user)}`,
+    Authorization: `Bearer ${await getIdToken(user, options?.forceRefresh)}`,
     "Content-Type": "application/json",
   });
   const res = await fetch(`${BASE_URL}${endpoint}`, {

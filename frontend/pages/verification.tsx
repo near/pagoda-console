@@ -2,7 +2,7 @@ import router from 'next/router';
 import { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import { useSimpleLayout } from "../utils/layouts";
-import { getAuth, sendEmailVerification } from 'firebase/auth';
+import { getAuth, signOut } from 'firebase/auth';
 import { useRouteParam } from '../utils/hooks';
 
 export default function Verification() {
@@ -29,7 +29,6 @@ export default function Verification() {
                 throw new Error('User not logged in');
             }
             setHasResent(true);
-            // await sendEmailVerification(user);
         } catch (e) {
             // TODO display message that user must log in
             console.error(e);
@@ -41,10 +40,19 @@ export default function Verification() {
         queueVerificationCheck();
     }, []);
 
+    function signUserOut() {
+        const auth = getAuth();
+        signOut(auth).catch((error) => {
+            // An error happened.
+            // TODO
+        });
+    }
+
     return (
         <div className='pageContainer'>
             A verification message {existing ? 'was previously' : 'has been'} sent to your email address
             {!hasResent ? <Button disabled={hasResent} onClick={resendVerification}>Send Again</Button> : <div className='sentContainer'><span>Sent!</span></div>}
+            <div className='signOut' onClick={signUserOut}>Log Out</div>
             <style jsx>{`
                 .pageContainer {
                     display: flex;
@@ -61,6 +69,13 @@ export default function Verification() {
                 }
                 .sentContainer > span {
                     margin: auto auto;
+                }
+                .signOut {
+                    cursor: pointer;
+                    text-decoration: none;
+                }
+                .signOut:hover {
+                    color: var(--color-primary)
                 }
             `}</style>
         </div>

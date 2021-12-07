@@ -1,7 +1,7 @@
 import { Form, Button, Alert } from 'react-bootstrap';
 import { useSimpleLayout } from "../utils/layouts";
 import Link from 'next/link';
-import { getAuth, createUserWithEmailAndPassword, AuthError, onAuthStateChanged, sendEmailVerification } from 'firebase/auth'
+import { getAuth, createUserWithEmailAndPassword, AuthError, onAuthStateChanged, sendEmailVerification, updateProfile } from 'firebase/auth'
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { authenticatedPost } from '../utils/fetchers';
@@ -36,9 +36,10 @@ export default function Register() {
         const unregisterAuthObserver = onAuthStateChanged(getAuth(), async user => {
             if (user && !user.emailVerified) {
                 try {
-                    await authenticatedPost('/users/updateDetails', {
-                        name: displayName
+                    await updateProfile(user, {
+                        displayName
                     });
+
                     await sendEmailVerification(user);
                     router.push('/verification');
                 } catch (e) {
