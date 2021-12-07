@@ -61,12 +61,13 @@ function SideBar({ project }: { project: string | null }) {
     const isOnboardingRaw = useRouteParam('onboarding');
     const isOnboarding = (isOnboardingRaw === 'true');
 
-    function signUserOut() {
+    async function signUserOut() {
         const auth = getAuth();
-        signOut(auth).catch((error) => {
-            // An error happened.
-            // TODO
-        });
+        try {
+            await signOut(auth);
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     function dismissOnboarding() {
@@ -141,9 +142,12 @@ function SideBar({ project }: { project: string | null }) {
 }
 
 function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?: boolean, project: string | null, isOnboarding: boolean, dismissOnboarding?: () => void }) {
-    const linkOut = props.page.route + (typeof props.project === 'string' ? `?project=${props.project}` : '');
-
-    const router = useRouter();
+    const currentProject = useRouteParam('project');
+    const currentEnvironment = useRouteParam('environment');
+    let linkOut = props.page.route;
+    if (typeof currentProject === 'string' && typeof currentEnvironment === 'string') {
+        linkOut += `?project=${props.project}&environment=${currentEnvironment}`;
+    }
 
     // NOTE: this displayed a tooltip to direct the user into the settings page to find their API keys. It was decided
     // to instead show the API keys directly on the empty state of the analytics page. Leaving this here in for the
