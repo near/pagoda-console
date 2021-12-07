@@ -142,33 +142,38 @@ function SideBar({ project }: { project: string | null }) {
 
 function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?: boolean, project: string | null, isOnboarding: boolean, dismissOnboarding?: () => void }) {
     const linkOut = props.page.route + (typeof props.project === 'string' ? `?project=${props.project}` : '');
-    const [hideTooltip, setHideTooltip] = useState<boolean>(false);
 
     const router = useRouter();
-    function closeTooltip() {
-        // setHideTooltip(true);
-        if (props.dismissOnboarding) {
-            props.dismissOnboarding();
-        }
-    }
 
-    const target = useRef(null);
-    const popover = props.page.display === 'Settings' ? (
-        <Overlay target={target.current} popperConfig={{ modifiers: [{ name: 'offset', options: { offset: [0, 8] } }] }} show={props.isOnboarding && !hideTooltip} placement="right" rootClose={true} onHide={closeTooltip}>
-            {(props) => (
-                <Tooltip {...props} >
-                    Find your new API keys here!
-                </Tooltip>
-            )}
-        </Overlay>
-    ) : <></>;
+    // NOTE: this displayed a tooltip to direct the user into the settings page to find their API keys. It was decided
+    // to instead show the API keys directly on the empty state of the analytics page. Leaving this here in for the
+    // short term until that it implemented
+    //
+    // const [hideTooltip, setHideTooltip] = useState<boolean>(false);
+    // function closeTooltip() {
+    //     // setHideTooltip(true);
+    //     if (props.dismissOnboarding) {
+    //         props.dismissOnboarding();
+    //     }
+    // }
+    // const target = useRef(null);
+    // const popover = props.page.display === 'Settings' ? (
+    //     <Overlay target={target.current} popperConfig={{ modifiers: [{ name: 'offset', options: { offset: [0, 8] } }] }} show={props.isOnboarding && !hideTooltip} placement="right" rootClose={true} onHide={closeTooltip}>
+    //         {(props) => (
+    //             <Tooltip {...props} >
+    //                 Find your new API keys here!
+    //             </Tooltip>
+    //         )}
+    //     </Overlay>
+    // ) : <></>;
 
     return (
         <div className='linkContainer'>
             <Link href={linkOut}>
-                <a ref={target}>{props.page.display}</a>
+                {/* <a ref={target}>{props.page.display}</a> */}
+                <a>{props.page.display}</a>
             </Link>
-            {popover}
+            {/* {popover} */}
             <style jsx>{`
                 a {
                     font-size: 1.125rem;
