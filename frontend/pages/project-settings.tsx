@@ -45,9 +45,9 @@ export default function ProjectSettings() {
             <h3>API Keys</h3>
 
             <div className='keysContainer'>
-                <CenterModal show={showMainnetRotationModal} title='API Key Rotation' content={ROTATION_WARNING} onConfirm={() => rotateKey('Mainnet')} confirmText="I'm sure, rotate Mainnet key" onHide={() => setShowMainnetRotationModal(false)} />
+                <CenterModal show={showMainnetRotationModal} title='Rotate Mainnet Key?' content={ROTATION_WARNING} onConfirm={() => rotateKey('Mainnet')} confirmText="Rotate" onHide={() => setShowMainnetRotationModal(false)} />
                 <KeyRow name='Mainnet' token={keys?.MAINNET} onRotateKey={() => setShowMainnetRotationModal(true)} />
-                <CenterModal show={showTestnetRotationModal} title='API Key Rotation' content={ROTATION_WARNING} onConfirm={() => rotateKey('Testnet')} confirmText="I'm sure, rotate Testnet key" onHide={() => setShowTestnetRotationModal(false)} />
+                <CenterModal show={showTestnetRotationModal} title='Rotate Testnet Key?' content={ROTATION_WARNING} onConfirm={() => rotateKey('Testnet')} confirmText="Rotate" onHide={() => setShowTestnetRotationModal(false)} />
                 <KeyRow name='Testnet' token={keys?.TESTNET} onRotateKey={() => setShowTestnetRotationModal(true)} />
             </div>
             <style jsx>{`
@@ -106,12 +106,14 @@ function KeyRow(props: { name: string, token?: string, onRotateKey: Function }) 
                 <Button variant='outline-primary' onClick={() => setKeyObscured(!keyObscured)} disabled={!props.token}>
                     <FontAwesomeIcon icon={keyObscured ? faEyeSlash : faEye} />
                 </Button>
-                <Button variant='outline-primary' onClick={() => props.onRotateKey()}>
-                    <FontAwesomeIcon icon={faRedoAlt} />
-                </Button>
                 <Button variant='outline-primary' onClick={copyKey} disabled={!props.token} ref={copyRef}>
                     <FontAwesomeIcon icon={faCopy} />
                 </Button>
+                <div className='rotateButton'>
+                    <Button variant='outline-danger' onClick={() => props.onRotateKey()}>
+                        Rotate
+                    </Button>
+                </div>
                 <Overlay target={copyRef} show={showCopiedAlert} popperConfig={{ modifiers: [{ name: 'offset', options: { offset: [0, 8] } }] }} placement='right'>
                     {({ placement, arrowProps, show: _show, popper, ...props }) => (
                         <div
@@ -145,6 +147,9 @@ function KeyRow(props: { name: string, token?: string, onRotateKey: Function }) 
                 }
                 .buttonsContainer > :global(.btn) {
                     width: 3rem;
+                }
+                .rotateButton > :global(.btn) {
+                    width: 6rem;
                 }
                 .keyTitle {
                     width: 6rem;
