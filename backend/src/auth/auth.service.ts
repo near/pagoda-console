@@ -10,6 +10,15 @@ export class AuthService {
   async validateUser(token: string): Promise<User> {
     try {
       const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
+
+      // reject users who have not completed email verification
+      if (
+        decodedToken.firebase.sign_in_provider === 'password' &&
+        !decodedToken.email_verified
+      ) {
+        return null;
+      }
+
       const uid = decodedToken.user_id;
       const user = await this.usersService.findActive({ uid });
       if (!user) {
