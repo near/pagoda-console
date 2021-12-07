@@ -24,10 +24,16 @@ export default function ForgotPasswordModal({ show, onHide }: { show: boolean, o
         setIsSending(false);
     }
 
+    function close() {
+        onHide();
+        setHasSent(false);
+        setEmail('');
+    }
+
     return (
         <Modal
             show={show}
-            onHide={onHide}
+            onHide={close}
             size="lg"
             aria-labelledby="contained-modal-title-vcenter"
             centered
@@ -45,7 +51,7 @@ export default function ForgotPasswordModal({ show, onHide }: { show: boolean, o
             </Modal.Body>
             {
                 !hasSent && <Modal.Footer>
-                    <Button onClick={onHide} variant='secondary'>Cancel</Button>
+                    <Button onClick={close} variant='secondary'>Cancel</Button>
                     <Button disabled={isSending} onClick={sendPasswordReset} >Send</Button>
                 </Modal.Footer>
             }

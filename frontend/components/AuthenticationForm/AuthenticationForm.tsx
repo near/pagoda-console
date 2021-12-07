@@ -9,6 +9,7 @@ import Link from 'next/link';
 // FontAwesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ForgotPasswordModal from '../ForgotPasswordModal';
+import ErrorModal from '../ErrorModal';
 
 interface ProviderDetails {
     name: string,
@@ -55,6 +56,7 @@ function useRegistrationStatus() {
 export default function AuthenticationForm() {
     const router = useRouter();
     const [authActive, setAuthActive] = useState<boolean>(true);
+    const [authError, setAuthError] = useState<string>('');
 
     useEffect(() => {
         const unregisterAuthObserver = onAuthStateChanged(getAuth(), user => {
@@ -67,11 +69,38 @@ export default function AuthenticationForm() {
         return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
     }, [router]);
 
+    async function socialSignIn(provider: AuthProvider) {
+        setAuthActive(false);
+        const auth = getAuth();
+        try {
+            await signInWithPopup(auth, provider);
+        } catch (error: any) {
+            setAuthActive(true);
+            const errorCode = error?.code;
+
+            switch (errorCode) {
+                case 'auth/account-exists-with-different-credential':
+                    setAuthError('You already have an account with another sign-in provider');
+                    break;
+                case 'auth/cancelled-popup-request':
+                case 'auth/popup-blocked':
+                case 'auth/popup-closed-by-user':
+                    // do nothing, these can be silent errors
+                    break;
+
+                default:
+                    setAuthError('Something went wrong. Please try again');
+                    break;
+            }
+        }
+    }
+
     return <div className='authContainer'>
         <EmailAuth authActive />
         <div className='globalDivider' />
         <div className='socialContainer'>
-            {providers.map((provider) => <ProviderButton key={provider.name} provider={provider} active={authActive} setAuthActive={setAuthActive} />)}
+            <ErrorModal error={authError} setError={setAuthError} />
+            {providers.map((provider) => <ProviderButton key={provider.name} provider={provider} active={authActive} signInFunction={socialSignIn} />)}
         </div>
         <div className='termsContainer'>
             <a>Terms and Conditions</a>
@@ -270,35 +299,10 @@ function EmailAuth(props: { authActive: boolean }) {
     </div>
 }
 
-function ProviderButton(props: { provider: ProviderDetails, active: boolean, setAuthActive: (setTo: boolean) => void }) {
+function ProviderButton(props: { provider: ProviderDetails, active: boolean, signInFunction: (provider: AuthProvider) => void }) {
     const { t } = useTranslation('login');
-    function socialSignIn(provider: AuthProvider) {
-        props.setAuthActive(false);
-        const auth = getAuth();
-        signInWithPopup(auth, provider)
-            .then((result) => {
-                // This gives you a GitHub Access Token. You can use it to access the GitHub API.
-                // const credential = GithubAuthProvider.credentialFromResult(result);
-                // const token = credential.accessToken;
 
-                // The signed-in user info.
-                const user = result.user;
-                // ...
-            }).catch((error) => {
-                props.setAuthActive(true);
-                console.error(error);
-                // Handle Errors here.
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                // The email of the user's account used.
-                const email = error.email;
-                // The AuthCredential type that was used.
-                const credential = GithubAuthProvider.credentialFromError(error);
-                // ...
-            });
-    }
-
-    return <IconButton {...props.provider} onClick={() => socialSignIn(props.provider.providerInstance)} text={`${t('continueWith')} ${props.provider.name}`} active={props.active} />
+    return <IconButton {...props.provider} onClick={() => props.signInFunction(props.provider.providerInstance)} text={`${t('continueWith')} ${props.provider.name}`} active={props.active} />
 }
 
 // TODO extract auth active to hook

@@ -13,7 +13,6 @@ import ProjectSelector from "../components/ProjectSelector";
 
 export default function ProjectSettings() {
     const projectSlug = useRouteParam('project', '/projects');
-    const { project, error: projectError } = useProject(projectSlug);
     const { keys, error: keysError, mutate: mutateKeys } = useApiKeys(projectSlug);
 
     async function rotateKey(name: 'Mainnet' | 'Testnet') {

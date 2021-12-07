@@ -1,6 +1,6 @@
 import { Modal, Button } from 'react-bootstrap';
 
-export default function CenterModal(props: { title: string, content: string, onConfirm: () => void, confirmText: string, onHide: () => void, show: boolean }) {
+export default function CenterModal(props: { title: string, content: string, onConfirm?: () => void, confirmText?: string, onHide: () => void, show: boolean }) {
     return (
         <Modal
             show={props.show}
@@ -17,10 +17,12 @@ export default function CenterModal(props: { title: string, content: string, onC
             <Modal.Body>
                 <p>{props.content}</p>
             </Modal.Body>
-            <Modal.Footer>
-                <Button onClick={props.onHide} variant='secondary'>Cancel</Button>
-                <Button onClick={props.onConfirm} variant='danger'>{props.confirmText}</Button>
-            </Modal.Footer>
+            {props.onConfirm &&
+                <Modal.Footer>
+                    <Button onClick={props.onHide} variant='secondary'>Cancel</Button>
+                    <Button onClick={props.onConfirm} variant='danger'>{props.confirmText}</Button>
+                </Modal.Footer>
+            }
         </Modal>
     );
 }
