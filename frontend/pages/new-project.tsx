@@ -20,8 +20,10 @@ export default function NewProject() {
     let [creationError, setCreationError] = useState<boolean>(false);
 
     async function createProject(e: FormEvent): Promise<void> {
+        if (!projectName.trim()) {
+            return;
+        }
         e.preventDefault();
-        console.log(projectName);
         setFormEnabled(false);
         try {
             const project: Project = await authenticatedPost('/projects/create', { name: projectName }, { forceRefresh: true });
@@ -53,7 +55,7 @@ export default function NewProject() {
                 <Form.Control placeholder="Cool New Project" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
             </Form.Group>
             <div className='buttonContainer'>
-                <Button variant='primary' type='submit' disabled={!formEnabled}>Create a Project</Button>
+                <Button variant='primary' type='submit' disabled={!formEnabled || !projectName.trim()}>Create a Project</Button>
             </div>
 
             {creationError && <Alert variant='danger'>Something went wrong</Alert>}
