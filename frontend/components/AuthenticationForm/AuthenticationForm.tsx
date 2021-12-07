@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { Button, FloatingLabel, Form, Alert } from 'react-bootstrap';
+import { Button, Modal, Form, Alert } from 'react-bootstrap';
 import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged, signInWithEmailAndPassword, AuthError, createUserWithEmailAndPassword } from "firebase/auth";
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
 import { useTranslation } from 'next-i18next';
@@ -8,6 +8,7 @@ import Link from 'next/link';
 
 // FontAwesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import ForgotPasswordModal from '../ForgotPasswordModal';
 
 interface ProviderDetails {
     name: string,
@@ -115,6 +116,7 @@ function EmailAuth(props: { authActive: boolean }) {
     const [hasFailedSignIn, setHasFailedSignIn] = useState<boolean>(false);
     const [isRegistering, setIsRegistering] = useRegistrationStatus();
     const [errorAlert, setErrorAlert] = useState<string | null>();
+    const [showResetModal, setShowResetModal] = useState<boolean>(false);
 
     const [validationFail, setValidationFail] = useState<ValidationFailure>({});
 
@@ -235,8 +237,10 @@ function EmailAuth(props: { authActive: boolean }) {
         <Link href='/register' passHref>
             <Button variant='outline-primary'>Sign Up</Button>
         </Link>
-        <div className='signUpContainer' >
+        <div onClick={() => setShowResetModal(true)} className='forgotPassword' >
+            Forgot Password?
         </div>
+        <ForgotPasswordModal show={showResetModal} onHide={() => setShowResetModal(false)} />
         <style jsx>{`
             .emailContainer {
                 display: flex;
@@ -251,16 +255,13 @@ function EmailAuth(props: { authActive: boolean }) {
                 display: flex;
                 flex-direction: column;
             }
-            .signUpContainer {
-                margin: auto auto;
+            .forgotPassword {
+                cursor: pointer;
+                text-decoration: none;
+                margin: 1rem auto 0;
             }
-            .signUpContainer > :global(.btn) {
-                background-color: transparent;
-                border-width: 0;
-                color: var(--color-accent-purple)
-            }
-            .signUpContainer > :global(.btn:hover) {
-                filter: brightness(0.6)
+            .forgotPassword:hover {
+                color: var(--color-primary)
             }
             .emailContainer :global(form) {
                 margin-bottom: 1rem;
