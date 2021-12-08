@@ -58,6 +58,7 @@ export default function Analytics() {
                 <a>How do I use my API key?</a>
             </div>
 
+            NEAR CLI:
             <CodeBlock language="bash">{setupCode}</CodeBlock>
 
             <Image src={AnalyticsPreview} alt='Preview of populated analytics page' />

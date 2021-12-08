@@ -144,12 +144,13 @@ export function useProject(projectSlug: string | null): { project?: Project, err
   return { project, error };
 }
 
-export function useApiKeys(project: string | null, swrOptions: SWRConfiguration): { keys?: Record<NetOption, string>, error?: any; mutate: KeyedMutator<any>; } {
+export function useApiKeys(project: string | null, swrOptions?: SWRConfiguration): { keys?: Record<NetOption, string>, error?: any; mutate: KeyedMutator<any>; } {
   const identity = useIdentity();
   const { data: keys, error, mutate, } = useSWR(identity && project ? ["/projects/getKeys", project, identity.uid] : null,
     (key: string, project: number) => {
       return authenticatedPost(key, { project });
-    }
+    },
+    swrOptions
   );
 
   return { keys, error, mutate };
