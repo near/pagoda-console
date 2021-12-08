@@ -1,5 +1,3 @@
-// TODO convert to HOC and pass down rendering of dropdown
-
 import { useRouter } from 'next/router';
 import { forwardRef } from 'react';
 import { Dropdown, ButtonProps, Button } from 'react-bootstrap';
@@ -47,8 +45,9 @@ export default function EnvironmentSelector() {
     );
 }
 
-// The forwardRef is important!!
-// Dropdown needs access to the DOM node in order to position the Menu
+// From react-bootstrap docs:
+// > The forwardRef is important!!
+// > Dropdown needs access to the DOM node in order to position the Menu
 const CustomToggle = forwardRef<HTMLButtonElement, ButtonProps>(({ children, onClick }, ref) => (
     <div className='customToggle'>
         <Button
