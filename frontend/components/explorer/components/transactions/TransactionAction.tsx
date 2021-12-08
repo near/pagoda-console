@@ -12,6 +12,8 @@ import Config from '../../../../utils/config';
 
 // import { Translate } from "react-localize-redux";
 
+import moment from 'moment';
+
 export interface Props {
   transaction: T.Transaction;
   viewMode?: ViewMode;
@@ -67,13 +69,37 @@ class TransactionAction extends PureComponent<Props, State> {
   }
 }
 
-// TODO: this is custom -mp
+// NOTE: this is a custom implementation for console. Explorer requests this status through
+// its backend from dedicated archival nodes
 import { TransactionInfo, ExecutionStatus } from './types';
 import { FinalityStatus } from "../../../RecentTransactionList";
-async function getTransactionStatus(transaction: TransactionInfo, net: NetOption): Promise<any> {
+async function getTransactionStatus(transaction: TransactionInfo, net: NetOption, forceArchival?: boolean): Promise<any> {
+  // TODO replace moment with a modern alternative for better web performance
+  // https://momentjs.com/docs/#/-project-status/
+
+  const defaultNodeUrl = net === "MAINNET" ? Config.url.rpc.mainnet : Config.url.rpc.testnet;
+  const archivalNodeUrl = net === "MAINNET" ? Config.url.rpc.mainnetArchival : Config.url.rpc.testnetArchival;
+
+  let rpcUrl;
+  if (forceArchival) {
+    console.log(`retrying: ${transaction.hash}`);
+    // this is a retry, the default node returned UNKNOWN_TRANSACTION
+    rpcUrl = archivalNodeUrl;
+  } else {
+    const blockMoment = moment(transaction.blockTimestamp);
+    if (blockMoment.isBefore(moment().subtract(2.5, 'days'))) {
+      // send to archival node. From the NEAR RPC docs:
+      // > Querying historical data (older than 5 epochs or ~2.5 days), you
+      // > may get responses that the data is not available anymore. In that
+      // > case, archival RPC nodes will come to your rescue
+      rpcUrl = archivalNodeUrl
+    } else {
+      rpcUrl = defaultNodeUrl;
+    }
+  }
+
   const res = await fetch(
-    // TODO change from locking into archival
-    net === "MAINNET" ? Config.url.rpc.mainnet : Config.url.rpc.testnetArchival,
+    rpcUrl,
     {
       method: "POST",
       headers: {
@@ -90,16 +116,20 @@ async function getTransactionStatus(transaction: TransactionInfo, net: NetOption
       }),
     }
   ).then((res) => res.json());
-  if (res.error) {
-    // TODO decide whether to retry error
-    throw new Error(res.error.name);
+  if (res.error && res.error.cause?.name === 'UNKNOWN_TRANSACTION') {
+    // fallback to archival node
+    return getTransactionStatus(transaction, net, true);
+  } else if (res.error) {
+    // general error
+    // TODO (P2+) handle more elegantly
+    throw new Error('Failed to fetch transaction status');
   }
   const transactionExtraInfo = res.result;
-  // debugger;
   const status = Object.keys(
     transactionExtraInfo.status
   )[0] as ExecutionStatus;
   return status;
 }
+
 
 export default TransactionAction;
