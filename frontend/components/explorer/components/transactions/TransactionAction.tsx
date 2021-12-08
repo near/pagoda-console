@@ -77,14 +77,11 @@ async function getTransactionStatus(transaction: TransactionInfo, net: NetOption
   // TODO replace moment with a modern alternative for better web performance
   // https://momentjs.com/docs/#/-project-status/
 
-  const defaultNodeUrl = net === "MAINNET" ? Config.url.rpc.mainnet : Config.url.rpc.testnet;
-  const archivalNodeUrl = net === "MAINNET" ? Config.url.rpc.mainnetArchival : Config.url.rpc.testnetArchival;
-
   let rpcUrl;
   if (forceArchival) {
     console.log(`retrying: ${transaction.hash}`);
     // this is a retry, the default node returned UNKNOWN_TRANSACTION
-    rpcUrl = archivalNodeUrl;
+    rpcUrl = Config.url.rpc.archival[net];
   } else {
     const blockMoment = moment(transaction.blockTimestamp);
     if (blockMoment.isBefore(moment().subtract(2.5, 'days'))) {
@@ -92,9 +89,9 @@ async function getTransactionStatus(transaction: TransactionInfo, net: NetOption
       // > Querying historical data (older than 5 epochs or ~2.5 days), you
       // > may get responses that the data is not available anymore. In that
       // > case, archival RPC nodes will come to your rescue
-      rpcUrl = archivalNodeUrl
+      rpcUrl = Config.url.rpc.archival[net];
     } else {
-      rpcUrl = defaultNodeUrl;
+      rpcUrl = Config.url.rpc.default[net];
     }
   }
 

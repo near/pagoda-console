@@ -24,10 +24,8 @@ import Config from '../utils/config';
 import ProjectSelector from '../components/ProjectSelector';
 import RecentTransactionList from '../components/RecentTransactionList';
 
-// TODO decide proper crash if environment variables are not defined
-// and remove unsafe type assertion
-const MAIN_NET_RPC = process.env.NEXT_PUBLIC_MAIN_NET_RPC!;
-const TEST_NET_RPC = process.env.NEXT_PUBLIC_TEST_NET_RPC!;
+import Image from 'next/image';
+import ContractsPreview from '../public/contractsPreview.png';
 
 export default function Contracts() {
   const { project, environment } = useProjectAndEnvironment();
@@ -65,6 +63,28 @@ function ContractsTable(props: { project: string; environment: Environment }) {
   // TODO determine how to not retry on 400s
   let [isEditing, setIsEditing] = useState<boolean>(false);
 
+  // these variables might seem redundant, but there are three states we need
+  // to represent
+  // 1. there are contracts being tracked
+  // 2. there are no contracts being tracked
+  // 3. we do not yet know if there are contracts being tracked
+  //
+  // instead of representing this with true/false/null and potentially
+  // slipping up on a falsy check where false and null are mixed up, let's
+  // check truthiness on these two
+  const hasNoContracts = Boolean(contracts && !contracts.length);
+  const hasContracts = Boolean(contracts && contracts.length);
+
+  useEffect(() => {
+    if (hasNoContracts) {
+      setIsEditing(false);
+    }
+  }, [hasNoContracts]);
+
+  if (hasNoContracts) {
+    return <ContractsEmptyState project={props.project} environment={props.environment} mutateContracts={mutateContracts} />;
+  }
+
   if (!contracts && !error) {
     //loading
     return <BorderSpinner />;
@@ -73,10 +93,7 @@ function ContractsTable(props: { project: string; environment: Environment }) {
     // TODO
     return <div>Something went wrong: {error.message}</div>;
   }
-  // if (contracts && !contracts.length) {
-  //   return <ContractsEmptyState />;
-  // }
-  const hasContracts = Boolean(contracts && contracts.length);
+
   return (
     <div className="contractsTableContainer">
       <div className="headerRow">
@@ -140,8 +157,46 @@ function ContractsTable(props: { project: string; environment: Environment }) {
   );
 }
 
-function ContractsEmptyState() {
-  return <div>No contracts</div>;
+function ContractsEmptyState({ project, environment, mutateContracts }: {
+  project: string;
+  environment: Environment;
+  mutateContracts: () => void;
+}) {
+  return (
+    <div className='emptyStateContainer'>
+      <div className='imageContainer'>
+        <Image src={ContractsPreview} alt='Preview of populated contracts page' />
+      </div>
+      <div className='onboarding'>
+        <div className='onboardingText'>
+          <span className='boldText'>To see focused explorer views and aggregate transactions: </span>
+          <span>add contracts to this project. </span>
+          <a>How do I manage projects?</a>
+        </div>
+        <AddContractForm project={project} environment={environment} onAdd={mutateContracts} />
+      </div>
+      <style jsx>{`
+        .emptyStateContainer {
+          display: flex;
+          flex-direction: row;
+          column-gap: 1.5rem;
+          align-items: center;
+        }
+        .onboardingText {
+          margin-bottom: 1.5rem;
+        }
+        .boldText {
+            font-weight: 700;
+        }
+        .imageContainer, .onboarding {
+          width: 50%;
+        }
+        a {
+          color: var(--color-primary)
+        }
+      `}</style>
+    </div>
+  );
 }
 
 // TODO make placeholder net sensitive
@@ -252,7 +307,7 @@ function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete:
     [props.contract.address, props.contract.net],
     async (address: string) => {
       const res = await fetch(
-        props.contract.net === "MAINNET" ? MAIN_NET_RPC : TEST_NET_RPC,
+        Config.url.rpc.default[props.contract.net],
         {
           method: "POST",
           headers: {

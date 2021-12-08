@@ -1,3 +1,5 @@
+import { NetOption } from "./interfaces";
+
 if (
     !process.env.NEXT_PUBLIC_API_BASE_URL ||
     !process.env.NEXT_PUBLIC_MAIN_NET_RPC ||
@@ -9,17 +11,34 @@ if (
     throw new Error('Missing configuration value');
 }
 
-const config = {
+type RpcNets = Record<NetOption, string>
+
+interface AppConfig {
+    url : {
+        api: string,
+        rpc: {
+            default: RpcNets,
+            archival: RpcNets
+        }
+    },
+    buttonDebounce: number
+}
+
+const config: AppConfig = {
     url: {
         api: process.env.NEXT_PUBLIC_API_BASE_URL,
         rpc: {
-            mainnet: process.env.NEXT_PUBLIC_MAIN_NET_RPC,
-            testnet: process.env.NEXT_PUBLIC_TEST_NET_RPC,
-            mainnetArchival: process.env.NEXT_PUBLIC_MAIN_NET_ARCHIVAL_RPC,
-            testnetArchival: process.env.NEXT_PUBLIC_TEST_NET_ARCHIVAL_RPC,
+            default: {
+                MAINNET: process.env.NEXT_PUBLIC_MAIN_NET_RPC,
+                TESTNET: process.env.NEXT_PUBLIC_TEST_NET_RPC,
+            },
+            archival: {
+                MAINNET: process.env.NEXT_PUBLIC_MAIN_NET_ARCHIVAL_RPC,
+                TESTNET: process.env.NEXT_PUBLIC_TEST_NET_ARCHIVAL_RPC,
+            }
         }
     },
-    buttonDebounce: process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE ? parseInt(process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE) : undefined
+    buttonDebounce: parseInt(process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE)
 }
 
 export default config;

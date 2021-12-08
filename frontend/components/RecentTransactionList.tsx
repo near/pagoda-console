@@ -38,8 +38,7 @@ export default function RecentTransactionList({ contracts, net }: { contracts: C
 
     async function fetchFinality(net: NetOption) {
         const res = await fetch(
-            // TODO change from locking into archival
-            net === "MAINNET" ? Config.url.rpc.mainnet : Config.url.rpc.testnetArchival,
+            Config.url.rpc.default[net],
             {
                 method: "POST",
                 headers: {

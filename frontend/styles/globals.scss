@@ -69,6 +69,7 @@ body {
   margin: 0;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
+  font-family: 'Manrope', sans-serif;
 }
 
 
@@ -83,7 +84,6 @@ a:hover {
 
 * {
   box-sizing: border-box;
-  font-family: 'Manrope', sans-serif;
 }
 
 h1 {
@@ -134,4 +134,8 @@ h2 {
 
 .hoverPrimary:hover {
   color: var(--color-primary)
+}
+
+code {
+  font-family: 'Source Code Pro', monospace;
 }
