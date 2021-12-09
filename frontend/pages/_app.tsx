@@ -3,6 +3,11 @@ import '../styles/globals.scss'
 import { ReactElement, ReactNode, useEffect } from 'react'
 import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
+import { useSWRConfig, SWRConfig } from 'swr'
+import { appWithTranslation } from 'next-i18next';
+import { useRouter } from 'next/router'
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth'
+import { customErrorRetry } from '../utils/fetchers'
 
 
 export type NextPageWithLayout = NextPage & {
@@ -57,11 +62,14 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
   const getFooter = Component.getFooter ?? (() => null);
-  return <SSRProvider>{getLayout(<Component {...pageProps} />, getFooter())}</SSRProvider>
+  return <SSRProvider>
+    <SWRConfig
+      value={{
+        onErrorRetry: customErrorRetry
+      }}
+    >
+      {getLayout(<Component {...pageProps} />, getFooter())}
+    </SWRConfig>
+  </SSRProvider>
 }
-
-import { appWithTranslation } from 'next-i18next';
-import { useRouter } from 'next/router'
-import { useSWRConfig } from 'swr'
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth'
 export default appWithTranslation(MyApp);
