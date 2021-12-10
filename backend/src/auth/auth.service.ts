@@ -23,7 +23,6 @@ export class AuthService {
       const user = await this.usersService.findActive({ uid });
       if (!user) {
         // register user
-        console.log('creating user');
         return this.usersService.create({
           uid,
           name: decodedToken.name,
