@@ -159,6 +159,18 @@ export function useApiKeys(project: string | null, swrOptions?: SWRConfiguration
   return { keys, error, mutate };
 }
 
+export function useRpcData(project: string | null, swrOptions?: SWRConfiguration): { keys?: Partial<Record<NetOption, string>>, error?: any; mutate: KeyedMutator<any>; } {
+  const identity = useIdentity();
+  const { data: keys, error, mutate, } = useSWR(identity && project ? ["/projects/getKeys", project, identity.uid] : null,
+    (key: string, project: number) => {
+      return authenticatedPost(key, { project });
+    },
+    swrOptions
+  );
+
+  return { keys, error, mutate };
+}
+
 // * This is a modified version of the onErrorRetry function pulled from SWR source
 // * in order to retain exponential backoff retry while adding custom conditions to
 // * prevent retries such as on 403s. Hopefully the SWR team provides a cleaner solution
