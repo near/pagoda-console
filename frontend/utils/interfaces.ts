@@ -31,3 +31,10 @@ export interface User {
     name?: string,
     photoUrl?: string,
 }
+
+export interface UsageData {
+    methods: Record<string, number>,
+    calls: number,
+    responseCodes: Record<string, number>,
+    fetchedAt: string
+}

@@ -196,8 +196,6 @@ export function customErrorRetry(
     return
   }*/
 
-  console.log('in custom function');
-
   // custom for console
   switch (err.statusCode) {
     case (400):

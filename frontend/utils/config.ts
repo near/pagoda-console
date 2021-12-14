@@ -6,7 +6,8 @@ if (
     !process.env.NEXT_PUBLIC_TEST_NET_RPC ||
     !process.env.NEXT_PUBLIC_MAIN_NET_ARCHIVAL_RPC ||
     !process.env.NEXT_PUBLIC_TEST_NET_ARCHIVAL_RPC ||
-    !process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE
+    !process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE ||
+    !process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES
 ) {
     throw new Error('Missing configuration value');
 }
@@ -14,14 +15,15 @@ if (
 type RpcNets = Record<NetOption, string>
 
 interface AppConfig {
-    url : {
+    url: {
         api: string,
         rpc: {
             default: RpcNets,
             archival: RpcNets
         }
     },
-    buttonDebounce: number
+    buttonDebounce: number,
+    usagePersistenceMinutes: number,
 }
 
 const config: AppConfig = {
@@ -38,7 +40,8 @@ const config: AppConfig = {
             }
         }
     },
-    buttonDebounce: parseInt(process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE)
+    buttonDebounce: parseInt(process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE),
+    usagePersistenceMinutes: parseInt(process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES),
 }
 
 export default config;

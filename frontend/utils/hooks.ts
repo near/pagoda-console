@@ -4,6 +4,7 @@ import useSWR, { useSWRConfig } from 'swr'
 import { getAuth, onAuthStateChanged, User, getIdToken } from "firebase/auth";
 import { authenticatedPost, useEnvironments, useProject } from './fetchers';
 import { Environment } from './interfaces';
+import { updateUserData } from './cache';
 
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
@@ -79,10 +80,11 @@ function setEnvironmentInLocalStorage(user: User, projectSlug: string, environme
   if (!user?.uid) {
     return;
   }
-  const userDataRaw = localStorage.getItem(user.uid)
-  const userData = userDataRaw ? JSON.parse(userDataRaw) as UserData : { selectedEnvironments: {} };
-  userData.selectedEnvironments[projectSlug] = environmentSubId;
-  localStorage.setItem(user.uid, JSON.stringify(userData));
+  // const userDataRaw = localStorage.getItem(user.uid)
+  // const userData = userDataRaw ? JSON.parse(userDataRaw) as UserData : { selectedEnvironments: {} };
+  // userData.selectedEnvironments[projectSlug] = environmentSubId;
+  // localStorage.setItem(user.uid, JSON.stringify(userData));
+  updateUserData(user.uid, { selectedEnvironments: { [projectSlug]: environmentSubId } });
 }
 
 const defaultSubId = 1;
