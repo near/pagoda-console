@@ -14,6 +14,7 @@ import { GetProjectDetailsSchema } from './dto';
 import { KeysService } from 'src/keys/keys.service';
 import { UserInfo } from 'firebase-admin/auth';
 import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -590,5 +591,79 @@ export class ProjectsService {
     } catch (e) {
       throw new VError(e, `Failed to rotate key ${keyId} on net ${net}`);
     }
+  }
+
+  async getRpcUsage(
+    callingUser: User,
+    projectWhereUnique: Prisma.ProjectWhereUniqueInput,
+  ) {
+    let project;
+    try {
+      project = await this.getActiveProject(projectWhereUnique, true);
+    } catch (e) {
+      throw new VError(e, 'Failed while checking that project is active');
+    }
+
+    await this.checkUserPermission({
+      userId: callingUser.id,
+      projectWhereUnique,
+    });
+
+    let keys: Record<Net, Array<string>>;
+    try {
+      // run requests in parallel
+      const testnetKeyPromise = this.keys.fetchAll(
+        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_1`,
+        'TESTNET',
+      );
+      const mainnetKeyPromise = this.keys.fetchAll(
+        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_2`,
+        'MAINNET',
+      );
+
+      keys = {
+        TESTNET: await testnetKeyPromise,
+        MAINNET: await mainnetKeyPromise,
+      };
+    } catch (e) {
+      throw new VError(e, 'Failed to fetch keys from key management API');
+    }
+
+    if (!keys.TESTNET.length) {
+      throw new VError('No testnet keys found');
+    }
+    if (!keys.MAINNET.length) {
+      throw new VError('No mainnet keys found');
+    }
+
+    const endDateObject = new Date();
+    const month = (endDateObject.getMonth() + 1).toString();
+    const endDate = `${endDateObject.getFullYear()}-${
+      month.length === 2 ? month : `0${month}`
+    }-${endDateObject.getDate()}`;
+
+    let usageData;
+    try {
+      const usageRes = await axios.get(this.config.get('MIXPANEL_API'), {
+        params: {
+          where: `properties["$distinct_id"] in ${JSON.stringify(
+            keys.TESTNET.concat(keys.MAINNET),
+          )}`,
+          from_date: '2021-01-01', // safe start date before release of developer console
+          to_date: endDate,
+        },
+        headers: {
+          Authorization: 'Basic OTdjOTg2MzZjMjIzMGY0YzFhNTgxYmVlYjUzM2VjMjM6',
+        },
+      });
+      usageData = usageRes.data;
+    } catch (e) {
+      throw new VError(e, 'Failed while fetching usage data from Mixpanel');
+    }
+
+    return {
+      keys,
+      events: usageData,
+    };
   }
 }

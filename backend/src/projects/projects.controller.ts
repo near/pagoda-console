@@ -31,6 +31,8 @@ import {
   GetKeysSchema,
   GetProjectDetailsDto,
   GetProjectDetailsSchema,
+  GetRpcUsageDto,
+  GetRpcUsageSchema,
   GetTransactionsDto,
   GetTransactionsSchema,
   RemoveContractDto,
@@ -199,14 +201,19 @@ export class ProjectsController {
   }
 
   @Post('getTransactions')
+  @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(GetTransactionsSchema))
   async getTransactions(@Body() { contracts, net }: GetTransactionsDto) {
-    // return this.indexerService.test();
-    return this.indexerService.fetchRecentTransactions(
-      // ['test.testnet', 'test2.testnet', 'sdkugfwebk.testnet', 'swefjyukvg'],
-      contracts,
-      net,
-    );
+    return this.indexerService.fetchRecentTransactions(contracts, net);
+  }
+
+  @Post('getRpcUsage')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(GetRpcUsageSchema))
+  async getRpcUsage(@Request() req, @Body() { project }: GetRpcUsageDto) {
+    return this.projectsService.getRpcUsage(req.user, {
+      slug: project,
+    });
   }
 }
 

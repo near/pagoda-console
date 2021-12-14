@@ -120,4 +120,13 @@ export class KeysService {
 
     return validKey.token;
   }
+
+  async fetchAll(keyId: string, net: Net): Promise<Array<string>> {
+    const res = await this.fetchers[net].get(`/projects/${keyId}/tokens`);
+    if (!Array.isArray(res.data)) {
+      throw new VError('Did not receive key list');
+    }
+    const keyData = res.data as Key[];
+    return keyData.map((k) => k.token);
+  }
 }
