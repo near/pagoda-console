@@ -10,6 +10,7 @@ import { useState, useRef } from "react";
 import { NetOption } from "../utils/interfaces";
 import ProjectSelector from "../components/ProjectSelector";
 import CenterModal from "../components/CenterModal";
+import StarterGuide from "../components/StarterGuide";
 
 const ROTATION_WARNING = 'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';
 
@@ -57,6 +58,7 @@ export default function ProjectSettings() {
                 <CenterModal show={showTestnetRotationModal} title='Rotate Testnet Key?' content={ROTATION_WARNING} onConfirm={() => rotateKey('TESTNET')} confirmText="Rotate" onHide={() => setShowTestnetRotationModal(false)} />
                 <KeyRow name='Testnet' token={keys?.TESTNET} onRotateKey={() => setShowTestnetRotationModal(true)} />
             </div>
+
             <style jsx>{`
                 .pageContainer {
                 display: flex;

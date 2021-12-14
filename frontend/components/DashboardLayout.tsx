@@ -18,6 +18,7 @@ interface PageDefinition {
 const pages = [
     { display: 'Analytics', route: '/analytics' },
     { display: 'Contracts', route: `/contracts` },
+    { display: 'RPC', route: `/rpc` },
     { display: 'Settings', route: `/project-settings` },
 ];
 
@@ -36,12 +37,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <style jsx>{`
             .childContainer {
                 flex-grow: 1;
-                /*temp*/
                 max-width: 46rem;
 
                 margin-left: calc(var(--layout-sidebar-width) + 7.5rem);
                 margin-right: 7.5rem;
                 padding-top: 3rem;
+                padding-bottom: 3rem;
             }
             .gradientContainer {
                 height: 100%;

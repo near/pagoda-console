@@ -13,7 +13,7 @@ import { useCallback, useState } from 'react';
 import AnalyticsPreview from '../public/analyticsPreview.png';
 import ProjectSelector from '../components/ProjectSelector';
 import CodeBlock from '../components/CodeBlock';
-import { NetOption, UsageData } from '../utils/interfaces';
+import { NetOption, NetUsageData, UsageData } from '../utils/interfaces';
 import { useEffect } from 'react';
 import Highcharts from 'highcharts'
 import BorderSpinner from '../components/BorderSpinner';
@@ -33,29 +33,18 @@ export default function Analytics() {
         });
     }, []);
     const identity = useIdentity();
-    // TODO do we need this since it doesnt drive anything? we use the chart option states for rending
-    let [usageData, setUsageData] = useState<UsageData>();
+    let [usageData, setUsageData] = useState<UsageData | null>();
 
     const [methodBreakdownChartOptions, setMethodBreakdownChartOptions] = useState<Highcharts.Options>();
     const [responseCodeChartOptions, setResponseCodeChartOptions] = useState<Highcharts.Options>();
 
     const projectSlug = useRouteParam('project');
-    const { keys } = useApiKeys(projectSlug, {
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-    });
-
     // TODO (P2+) determine net by other means than subId
     const environmentSubIdRaw = useRouteParam('environment');
     const environmentSubId = typeof environmentSubIdRaw === 'string' ? parseInt(environmentSubIdRaw) : null;
+    const net: NetOption = environmentSubId === 2 ? 'MAINNET' : 'TESTNET';
 
-    let setupCode = '';
-    if (environmentSubId) {
-        const net: NetOption = environmentSubId === 2 ? 'MAINNET' : 'TESTNET';
-        setupCode = keys?.TESTNET ? `near set-api-key ${Config.url.rpc.default[net]} ${keys?.[net]}` : '';
-    }
-
-    const processUsageChunk = useCallback(async (usageDataRaw: string, usage: UsageData, start: number): Promise<{ start: number, usage: UsageData }> => {
+    const processUsageChunk = useCallback(async (usageDataRaw: string, keys: Record<NetOption, Array<string>>, usage: UsageData, start: number): Promise<{ start: number, usage: UsageData }> => {
         let processed = 0;
         for (let i = start; i < usageDataRaw.length && processed < 10; i++) {
             if (usageDataRaw[i] === '\n') {
@@ -64,6 +53,23 @@ export default function Analytics() {
                 processed++;
 
                 const event = JSON.parse(eventRaw);
+
+                let net: NetOption | null = null;
+                if (!event?.properties?.distinct_id) {
+                    // could not identify environment
+                    continue;
+                }
+                for (let currentNet in keys) {
+                    if (keys[currentNet as NetOption].includes(event.properties.distinct_id)) {
+                        net = currentNet as NetOption;
+                        break;
+                    }
+                }
+                if (!net) {
+                    // could not identify environment
+                    continue;
+                }
+                // const netUsageRef = usage
 
                 switch (event.event) {
                     case 'request':
@@ -81,14 +87,14 @@ export default function Analytics() {
                                 break;
                         }
 
-                        if (!usage.methods[method]) {
-                            usage.methods[method] = 1;
+                        if (!usage.nets[net].methods[method]) {
+                            usage.nets[net].methods[method] = 1;
                         } else {
-                            usage.methods[method]++;
+                            usage.nets[net].methods[method]++;
                         }
 
                         // total calls
-                        usage.calls++;
+                        usage.nets[net].calls++;
                         break;
                     case 'response':
                         let { status_code } = event.properties;
@@ -100,10 +106,10 @@ export default function Analytics() {
                         //     status_code = '400'
                         // }
 
-                        if (!usage.responseCodes[status_code]) {
-                            usage.responseCodes[status_code] = 1;
+                        if (!usage.nets[net].responseCodes[status_code]) {
+                            usage.nets[net].responseCodes[status_code] = 1;
                         } else {
-                            usage.responseCodes[status_code]++;
+                            usage.nets[net].responseCodes[status_code]++;
                         }
                         break;
                     default:
@@ -114,7 +120,7 @@ export default function Analytics() {
         return { start, usage };
     }, [])
 
-    const loadUsageData = useCallback(async (uid: string, project: string, usageData?: UsageData) => {
+    const loadUsageData = useCallback(async (uid: string, project: string, net: NetOption, usageData?: UsageData) => {
         if (usageData) {
             const previouslyFetchedAt = new Date(usageData.fetchedAt);
             const difference = new Date().valueOf() - previouslyFetchedAt.valueOf();
@@ -125,40 +131,56 @@ export default function Analytics() {
 
         if (!usageData) {
             // fetch from API
-            let { events: usage } = await authenticatedPost('/projects/getRpcUsage', { project });
+            let { events: usage, keys } = await authenticatedPost('/projects/getRpcUsage', { project });
 
             // initialize
             usageData = {
-                methods: {},
-                responseCodes: {},
+                nets: {
+                    'MAINNET': {
+                        methods: {},
+                        responseCodes: {},
+                        calls: 0
+                    },
+                    'TESTNET': {
+                        methods: {},
+                        responseCodes: {},
+                        calls: 0
+                    }
+                },
                 fetchedAt: new Date().toISOString(),
-                calls: 0
             };
 
-            let start = 0;
-            while (start < usage.length) {
-                const { start: newStart } = await processUsageChunk(usage, usageData, start);
-                start = newStart;
+            if (usage) {
+                let start = 0;
+                while (start < usage.length) {
+                    const { start: newStart } = await processUsageChunk(usage, keys, usageData, start);
+                    start = newStart;
+                }
             }
 
-            updateUserData(uid, { usageData });
+
+            updateUserData(uid, { usageData: { [project]: usageData } });
         }
 
         setUsageData(usageData as UsageData);
-        setMethodBreakdownChartOptions(getMethodChartOptions(usageData.methods!));
-        setResponseCodeChartOptions(getResponseChartOptions(usageData.responseCodes!));
+        setMethodBreakdownChartOptions(getMethodChartOptions(usageData.nets[net].methods!));
+        setResponseCodeChartOptions(getResponseChartOptions(usageData.nets[net].responseCodes!));
     }, [processUsageChunk]);
 
     useEffect(() => {
-        if (projectSlug && identity) {
-            const cachedUsageData = getUserData(identity.uid);
-            loadUsageData(identity.uid, projectSlug, cachedUsageData?.usageData);
+        if (usageData !== undefined) {
+            // clear currently loaded data
+            setUsageData(undefined);
         }
-    }, [projectSlug, loadUsageData, identity]);
+        if (projectSlug && identity) {
+            const cachedUserData = getUserData(identity.uid);
+            loadUsageData(identity.uid, projectSlug, net, cachedUserData?.usageData?.[projectSlug]);
+        }
+    }, [projectSlug, loadUsageData, identity, net]);
 
 
     // TODO (P2+) extract to specialized component
-    function getMethodChartOptions(methodBreakdown: UsageData['methods']) {
+    function getMethodChartOptions(methodBreakdown: NetUsageData['methods']) {
         if (methodBreakdown) {
             const options: Highcharts.Options = {
                 title: {
@@ -193,7 +215,7 @@ export default function Analytics() {
         }
     }
 
-    function getResponseChartOptions(responseCodes: UsageData['responseCodes']) {
+    function getResponseChartOptions(responseCodes: NetUsageData['responseCodes']) {
         const options: Highcharts.Options = {
             title: {
                 text: 'Service Response Codes'
@@ -228,41 +250,79 @@ export default function Analytics() {
         }
     }
 
-    return <div>
-        <Head>
-            <title>NEAR Dev Console</title>
-            <meta name="description" content="NEAR Developer Console" />
-            <link rel="icon" href="/favicon.ico" />
-        </Head>
-        <div className='pageContainer'>
-            <ProjectSelector />
-            {usageData ?
-                <div className='analyticsContainer'>
-                    <div className="usageCards">
-                        {methodBreakdownChartOptions && <div className="primary">
-                            <AnalyticsCard
-                                chartOptions={methodBreakdownChartOptions}
-                            />
-                        </div>}
-                        {usageData.calls && <div className="secondary">
-                            <AnalyticsCard simple={{ label: 'Calls', value: formatTotalCalls(usageData.calls) }} />
-                        </div>}
-                        {responseCodeChartOptions && <div className="tertiary">
-                            <AnalyticsCard
-                                chartOptions={responseCodeChartOptions}
-                            />
-                        </div>}
-                    </div>
-                    <div className="lastUpdated">
-                        <span>Last updated at: {new Date(usageData.fetchedAt).toLocaleString()}</span>
-                        <span>Data may be fetched once per hour</span>
-                    </div>
-                </div> : <div className='rpcLoading'>
-                    <div className='spinnerContainer'><BorderSpinner /></div>
-                    Fetching RPC usage data. This may take a few seconds.
+    let content;
+    if (usageData && net && usageData.nets[net].calls > 0) {
+        content = <div className='analyticsContainer'>
+            <div className="usageCards">
+                {methodBreakdownChartOptions && <div className="primary">
+                    <AnalyticsCard
+                        chartOptions={methodBreakdownChartOptions}
+                    />
+                </div>}
+                <div className="secondary">
+                    <AnalyticsCard simple={{ label: 'Calls', value: formatTotalCalls(usageData.nets[net].calls) }} />
                 </div>
-            }
-
+                {responseCodeChartOptions && Object.keys(usageData.nets[net].responseCodes).length > 0 && <div className="tertiary">
+                    <AnalyticsCard
+                        chartOptions={responseCodeChartOptions}
+                    />
+                </div>}
+            </div>
+            <div className="lastUpdated">
+                <span>Last updated at: {new Date(usageData.fetchedAt).toLocaleString()}</span>
+                <span>Data may be fetched once per hour</span>
+            </div>
+            <style jsx>{`
+                .usageCards {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    grid-template-rows: auto;
+                    column-gap: 2rem;
+                    row-gap: 2rem;
+                    grid-template-areas:
+                    "primary primary"
+                    "secondary tertiary";
+                }
+                .primary {
+                    grid-area: primary;
+                }
+                .secondary {
+                    grid-area: secondary;
+                }
+                .tertiary {
+                    grid-area: tertiary;
+                }
+                .lastUpdated {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 0.5rem;
+                    color: var(--color-text-secondary)
+                }
+                .analyticsContainer {
+                    display: flex;
+                    flex-direction: column;
+                }
+            `}</style>
+        </div>;
+    } else if (usageData === undefined) {
+        // loading
+        content = <div className='rpcLoading'>
+            <div className='spinnerContainer'><BorderSpinner /></div>
+            Fetching RPC usage data. This may take a few seconds.
+            <style jsx>{`
+                .rpcLoading {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    margin-top: 1rem;
+                }
+                .spinnerContainer {
+                    margin-right: 1rem;
+                }
+            `}</style>
+        </div>;
+    } else {
+        content = <>
             <h3 className='welcomeText'>&#128075; Welcome to your new project</h3>
             {/* <div className='onboardingContainer'>
                 <Image src={AnalyticsPreview} alt='Preview of populated analytics page' />
@@ -277,73 +337,46 @@ export default function Analytics() {
                 <span>use your new API key with near-cli or near-api-js. </span>
                 <a>How do I use my API key?</a>
             </div>
-
-            NEAR CLI:
-            <CodeBlock language="bash">{setupCode}</CodeBlock>
-
             <Image src={AnalyticsPreview} alt='Preview of populated analytics page' />
+            <style jsx>{`
+                .boldText {
+                    font-weight: 700;
+                }
+                .welcomeText {
+                    margin-top: 2rem;
+                }
+                a {
+                    color: var(--color-primary)
+                }
+                .onboardingText {
+                    margin-bottom: 3rem;
+                    /* max-width: 22.25rem; */
+                }
+                .onboardingContainer {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    column-gap: 1.5rem;
+                }
+            `}</style>
+        </>;
+    }
+
+
+    return <div>
+        <Head>
+            <title>NEAR Dev Console</title>
+            <meta name="description" content="NEAR Developer Console" />
+            <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <div className='pageContainer'>
+            <ProjectSelector />
+            {content}
         </div>
         <style jsx>{`
             .pageContainer {
             display: flex;
             flex-direction: column;
-            }
-            .onboardingContainer {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                column-gap: 1.5rem;
-            }
-            .boldText {
-                font-weight: 700;
-            }
-            .welcomeText {
-                margin-top: 2rem;
-            }
-            a {
-                color: var(--color-primary)
-            }
-            .onboardingText {
-                margin-bottom: 3rem;
-                /* max-width: 22.25rem; */
-            }
-            .usageCards {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: auto;
-                column-gap: 2rem;
-                row-gap: 2rem;
-                grid-template-areas:
-                  "primary primary"
-                  "secondary tertiary";
-            }
-            .primary {
-                grid-area: primary;
-            }
-            .secondary {
-                grid-area: secondary;
-            }
-            .tertiary {
-                grid-area: tertiary;
-            }
-            .rpcLoading {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                margin-top: 1rem;
-            }
-            .spinnerContainer {
-                margin-right: 1rem;
-            }
-            .lastUpdated {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 0.5rem;
-                color: var(--color-text-secondary)
-            }
-            .analyticsContainer {
-                display: flex;
-                flex-direction: column;
             }
         `}</style>
     </div >

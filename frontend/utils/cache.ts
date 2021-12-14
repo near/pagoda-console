@@ -1,10 +1,5 @@
 import { merge } from "lodash-es";
-import { UsageData } from "./interfaces";
-
-interface UserData {
-    selectedEnvironments: Record<string, number>,
-    usageData: UsageData
-}
+import { UserData, UsageData } from "./interfaces";
 
 // this might make more sense as a custom hook
 export function getUserData(uid: string): UserData | null {

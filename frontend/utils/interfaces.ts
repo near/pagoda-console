@@ -32,9 +32,18 @@ export interface User {
     photoUrl?: string,
 }
 
+export interface UserData {
+    selectedEnvironments: Record<string, number>,
+    usageData: Record<string, UsageData>
+}
+
 export interface UsageData {
+    nets: Record<NetOption, NetUsageData>
+    fetchedAt: string
+}
+
+export interface NetUsageData {
     methods: Record<string, number>,
     calls: number,
     responseCodes: Record<string, number>,
-    fetchedAt: string
 }

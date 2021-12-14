@@ -13,8 +13,8 @@ export default function Settings() {
             <div className='titleContainer'>
                 <h1>User Settings</h1>
                 <Button>Edit</Button>
-                {error && <Alert variant='danger'>Something went wrong</Alert>}
             </div>
+            {error && <Alert variant='danger'>Could not fetch account data</Alert>}
             <div className='settingsContainer'>
                 <div className='settingRow'>
                     <span className='settingLabel'>Display Name</span>

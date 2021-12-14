@@ -1,0 +1,142 @@
+import Config from '../utils/config';
+import { Accordion } from "react-bootstrap";
+import { useApiKeys } from "../utils/fetchers";
+import { useRouteParam } from "../utils/hooks";
+import { NetOption } from "../utils/interfaces";
+import CodeBlock from "./CodeBlock";
+import { useEffect, useState } from 'react';
+
+const NAJ_STARTER_TEMPLATE = `const { connect, keyStores } = require("near-api-js");
+
+// Can be an empty object if not signing transactions
+
+const keyStore = new keyStores.BrowserLocalStorageKeyStore();
+
+const RPC_API_ENDPOINT = '<RPC service url>';
+const API_KEY = '<your API Key>';
+
+const ACCOUNT_ID = 'account.near';
+
+const config = {
+    networkId: 'testnet',
+    keyStore,
+    nodeUrl: RPC_API_ENDPOINT,
+    headers: { 'x-api-key': API_KEY },
+};
+
+// Example: Fetching account status
+
+async function getState(accountId) {
+    const near = await connect(config);
+    const account = await near.account(accountId);
+    const state = await account.state();
+    console.log(state);
+}
+
+getState(ACCOUNT_ID);`
+
+const RUST_STARTER_TEMPLATE = `use near_jsonrpc_client::{auth, methods, JsonRpcClient};
+use near_primitives::types::{BlockReference, Finality};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let client = JsonRpcClient::connect("<RPC service url>")
+        .auth(auth::ApiKey::new("<your API Key>"));
+
+    let request = methods::block::RpcBlockRequest {
+        block_reference: BlockReference::Finality(Finality::Final),
+    };
+
+    let response = client.call(request).await?;
+
+    println!("{:?}", response);
+
+    Ok(())
+}`;
+
+const CLI_URL_TEMPLATE = `export NEAR_CLI_TESTNET_RPC_SERVER_URL=<RPC service url>`;
+const CLI_KEY_TEMPLATE = `near set-api-key <RPC service url> <your API Key>`;
+
+
+export default function StarterGuide() {
+    // const [najCode, setNajCode] = useState<string>(NAJ_STARTER_TEMPLATE);
+    // const [rustCode, setRustCode] = useState<string>(RUST_STARTER_TEMPLATE);
+    // const [cliUrlCode, setCliUrlCode] = useState<string>(CLI_URL_TEMPLATE);
+    // const [cliKeyCode, setCliKeyCode] = useState<string>(CLI_KEY_TEMPLATE);
+    const [starterCode, setstarterCode] = useState<{ naj: string, rust: string, cliUrl: string, cliKey: string }>({ naj: NAJ_STARTER_TEMPLATE, rust: RUST_STARTER_TEMPLATE, cliUrl: CLI_URL_TEMPLATE, cliKey: CLI_KEY_TEMPLATE });
+
+
+    const projectSlug = useRouteParam('project');
+    const { keys } = useApiKeys(projectSlug, {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+    });
+
+    // TODO (P2+) determine net by other means than subId
+    const environmentSubIdRaw = useRouteParam('environment');
+    const environmentSubId = typeof environmentSubIdRaw === 'string' ? parseInt(environmentSubIdRaw) : null;
+
+    useEffect(() => {
+        const net: NetOption = environmentSubId === 2 ? 'MAINNET' : 'TESTNET';
+        if (!environmentSubId || !keys || !keys[net]) {
+            return;
+        }
+        // setupCode = keys?.TESTNET ? `near set-api-key ${Config.url.rpc.default[net]} ${keys?.[net]}` : '';
+        setstarterCode({
+            naj: NAJ_STARTER_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.default[net]),
+            rust: RUST_STARTER_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.default[net]),
+            cliUrl: CLI_URL_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.default[net]),
+            cliKey: CLI_KEY_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.default[net]),
+        })
+    }, [keys, environmentSubId]);
+
+    return (
+        <div className="guideContainer">
+            <h2>Using Your API Keys</h2>
+            <Accordion>
+                <Accordion.Item eventKey="0">
+                    <Accordion.Header>Command Line (near-cli)</Accordion.Header>
+                    <Accordion.Body>
+                        <ol>
+                            <li>If you don't yet have near-cli installed on your machine, follow the instructions in the <a href="https://docs.near.org/docs/tools/near-cli#installation">near-cli installation documentation</a>.</li>
+                            <li>Set your RPC URL:</li>
+                            <CodeBlock language="bash">{starterCode.cliUrl}</CodeBlock>
+                            <li>Configure your API key:</li>
+                            <CodeBlock language="bash">{starterCode.cliKey}</CodeBlock>
+                        </ol>
+                    </Accordion.Body>
+                </Accordion.Item>
+            </Accordion>
+            <Accordion>
+                <Accordion.Item eventKey="1">
+                    <Accordion.Header>Frontend (near-api-js)</Accordion.Header>
+                    <Accordion.Body>
+                        <ol>
+                            <li>If you don't yet have near-api-js installed in your project, follow the instructions from the <a href="https://docs.near.org/docs/api/naj-quick-reference#install">near-api-js quick reference guide</a>.</li>
+                            <li>Add the following code to get started:</li>
+                            <CodeBlock language="javascript">{starterCode.naj}</CodeBlock>
+                        </ol>
+                    </Accordion.Body>
+                </Accordion.Item>
+            </Accordion>
+            <Accordion>
+                <Accordion.Item eventKey="2">
+                    <Accordion.Header>Rust Backend (near-api-rs)</Accordion.Header>
+                    <Accordion.Body>
+                        <p>Example of asynchronously fetching the latest block using tokio:</p>
+                        <CodeBlock language="javascript">{starterCode.rust}</CodeBlock>
+                    </Accordion.Body>
+                </Accordion.Item>
+            </Accordion>
+            <style jsx>{`
+              .guideContainer {
+                  display: flex;
+                  flex-direction: column;
+              }
+              li {
+                  margin-bottom: 1rem;
+              }
+            `}</style>
+        </div>
+    );
+}
