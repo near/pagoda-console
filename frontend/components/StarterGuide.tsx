@@ -59,10 +59,6 @@ const CLI_KEY_TEMPLATE = `near set-api-key <RPC service url> <your API Key>`;
 
 
 export default function StarterGuide() {
-    // const [najCode, setNajCode] = useState<string>(NAJ_STARTER_TEMPLATE);
-    // const [rustCode, setRustCode] = useState<string>(RUST_STARTER_TEMPLATE);
-    // const [cliUrlCode, setCliUrlCode] = useState<string>(CLI_URL_TEMPLATE);
-    // const [cliKeyCode, setCliKeyCode] = useState<string>(CLI_KEY_TEMPLATE);
     const [starterCode, setstarterCode] = useState<{ naj: string, rust: string, cliUrl: string, cliKey: string }>({ naj: NAJ_STARTER_TEMPLATE, rust: RUST_STARTER_TEMPLATE, cliUrl: CLI_URL_TEMPLATE, cliKey: CLI_KEY_TEMPLATE });
 
 
@@ -92,46 +88,50 @@ export default function StarterGuide() {
 
     return (
         <div className="guideContainer">
-            <h2>Using Your API Keys</h2>
-            <Accordion>
-                <Accordion.Item eventKey="0">
-                    <Accordion.Header>Command Line (near-cli)</Accordion.Header>
-                    <Accordion.Body>
-                        <ol>
-                            <li>If you don't yet have near-cli installed on your machine, follow the instructions in the <a href="https://docs.near.org/docs/tools/near-cli#installation">near-cli installation documentation</a>.</li>
-                            <li>Set your RPC URL:</li>
-                            <CodeBlock language="bash">{starterCode.cliUrl}</CodeBlock>
-                            <li>Configure your API key:</li>
-                            <CodeBlock language="bash">{starterCode.cliKey}</CodeBlock>
-                        </ol>
-                    </Accordion.Body>
-                </Accordion.Item>
-            </Accordion>
-            <Accordion>
-                <Accordion.Item eventKey="1">
-                    <Accordion.Header>Frontend (near-api-js)</Accordion.Header>
-                    <Accordion.Body>
-                        <ol>
-                            <li>If you don't yet have near-api-js installed in your project, follow the instructions from the <a href="https://docs.near.org/docs/api/naj-quick-reference#install">near-api-js quick reference guide</a>.</li>
-                            <li>Add the following code to get started:</li>
-                            <CodeBlock language="javascript">{starterCode.naj}</CodeBlock>
-                        </ol>
-                    </Accordion.Body>
-                </Accordion.Item>
-            </Accordion>
-            <Accordion>
-                <Accordion.Item eventKey="2">
-                    <Accordion.Header>Rust Backend (near-api-rs)</Accordion.Header>
-                    <Accordion.Body>
-                        <p>Example of asynchronously fetching the latest block using tokio:</p>
-                        <CodeBlock language="javascript">{starterCode.rust}</CodeBlock>
-                    </Accordion.Body>
-                </Accordion.Item>
-            </Accordion>
+            <h4>Using Your API Keys</h4>
+            <div className="intro">Follow the instructions below to get started with making requests to the NEAR RPC service.{keys && ' We\'ve already filled in your API keys in these instructions.'}</div>
+            <div className="examples">
+                <Accordion>
+                    <Accordion.Item eventKey="0">
+                        <Accordion.Header>Command Line (near-cli)</Accordion.Header>
+                        <Accordion.Body>
+                            <ol>
+                                <li>If you don't yet have near-cli installed on your machine, follow the instructions in the <a href="https://docs.near.org/docs/tools/near-cli#installation" target="_blank" rel="noopener noreferrer">near-cli installation documentation</a>.</li>
+                                <li>Set your RPC URL:</li>
+                                <CodeBlock language="bash">{starterCode.cliUrl}</CodeBlock>
+                                <li>Configure your API key:</li>
+                                <CodeBlock language="bash">{starterCode.cliKey}</CodeBlock>
+                            </ol>
+                        </Accordion.Body>
+                    </Accordion.Item>
+                </Accordion>
+                <Accordion>
+                    <Accordion.Item eventKey="1">
+                        <Accordion.Header>Frontend (near-api-js)</Accordion.Header>
+                        <Accordion.Body>
+                            <ol>
+                                <li>If you don't yet have near-api-js installed in your project, follow the instructions from the <a href="https://docs.near.org/docs/api/naj-quick-reference#install" target="_blank" rel="noopener noreferrer">near-api-js quick reference guide</a>.</li>
+                                <li>Add the following code to get started:</li>
+                                <CodeBlock language="javascript">{starterCode.naj}</CodeBlock>
+                            </ol>
+                        </Accordion.Body>
+                    </Accordion.Item>
+                </Accordion>
+                <Accordion>
+                    <Accordion.Item eventKey="2">
+                        <Accordion.Header>Rust Backend (near-api-rs)</Accordion.Header>
+                        <Accordion.Body>
+                            <p>Example of asynchronously fetching the latest block using tokio:</p>
+                            <CodeBlock language="javascript">{starterCode.rust}</CodeBlock>
+                        </Accordion.Body>
+                    </Accordion.Item>
+                </Accordion>
+            </div>
             <style jsx>{`
               .guideContainer {
                   display: flex;
                   flex-direction: column;
+                  row-gap: 1rem;
               }
               li {
                   margin-bottom: 1rem;

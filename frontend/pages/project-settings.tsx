@@ -48,15 +48,15 @@ export default function ProjectSettings() {
     return (
         <div className='pageContainer'>
             <ProjectSelector />
-            <h2>Project Settings</h2>
-
-            <h3>API Keys</h3>
-
-            <div className='keysContainer'>
-                <CenterModal show={showMainnetRotationModal} title='Rotate Mainnet Key?' content={ROTATION_WARNING} onConfirm={() => rotateKey('MAINNET')} confirmText="Rotate" onHide={() => setShowMainnetRotationModal(false)} />
-                <KeyRow name='Mainnet' token={keys?.MAINNET} onRotateKey={() => setShowMainnetRotationModal(true)} />
-                <CenterModal show={showTestnetRotationModal} title='Rotate Testnet Key?' content={ROTATION_WARNING} onConfirm={() => rotateKey('TESTNET')} confirmText="Rotate" onHide={() => setShowTestnetRotationModal(false)} />
-                <KeyRow name='Testnet' token={keys?.TESTNET} onRotateKey={() => setShowTestnetRotationModal(true)} />
+            <div className="content">
+                <div className='keysContainer'>
+                    <h4>API Keys</h4>
+                    <CenterModal show={showMainnetRotationModal} title='Rotate Mainnet Key?' content={ROTATION_WARNING} onConfirm={() => rotateKey('MAINNET')} confirmText="Rotate" onHide={() => setShowMainnetRotationModal(false)} />
+                    <KeyRow name='Mainnet' token={keys?.MAINNET} onRotateKey={() => setShowMainnetRotationModal(true)} />
+                    <CenterModal show={showTestnetRotationModal} title='Rotate Testnet Key?' content={ROTATION_WARNING} onConfirm={() => rotateKey('TESTNET')} confirmText="Rotate" onHide={() => setShowTestnetRotationModal(false)} />
+                    <KeyRow name='Testnet' token={keys?.TESTNET} onRotateKey={() => setShowTestnetRotationModal(true)} />
+                </div>
+                <StarterGuide />
             </div>
 
             <style jsx>{`
@@ -64,20 +64,21 @@ export default function ProjectSettings() {
                 display: flex;
                 flex-direction: column;
                 }
+                .content {
+                    display: flex;
+                    flex-direction: column;
+                    row-gap: 2rem;
+                }
                 .titleContainer {
                 margin-bottom: 2.75rem;
                 display: flex;
                 flex-direction: row;
                 justify-content: space-between;
                 }
-                h3 {
-                    margin-top: 2rem;
-                }
                 .keysContainer {
                     display: flex;
                     flex-direction: column;
                     row-gap: 1rem;
-                    margin-top: 1.5rem;
                 }
             `}</style>
         </div>

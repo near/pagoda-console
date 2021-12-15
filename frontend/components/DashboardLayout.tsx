@@ -18,7 +18,6 @@ interface PageDefinition {
 const pages = [
     { display: 'Analytics', route: '/analytics' },
     { display: 'Contracts', route: `/contracts` },
-    { display: 'RPC', route: `/rpc` },
     { display: 'Settings', route: `/project-settings` },
 ];
 
