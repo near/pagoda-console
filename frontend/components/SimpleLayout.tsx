@@ -22,6 +22,7 @@ export default function SimpleLayout({ children, footer = null }: { children: Re
                     flex-direction: column;
                     align-items: center;
                     margin: auto 0;
+                    padding: 3rem;
                 }
             `}</style>
         </div>
