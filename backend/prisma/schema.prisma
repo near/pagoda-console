@@ -14,8 +14,6 @@ model User {
   id          Int          @id @default(autoincrement())
   uid         String       @unique
   email       String       @unique
-  name        String?
-  photoUrl    String?
   active      Boolean      @default(true)
   teamMembers TeamMember[]
 }

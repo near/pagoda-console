@@ -10,12 +10,12 @@ import {
 import { UsersService } from './users.service';
 import { User } from '@prisma/client';
 import { BearerAuthGuard } from '../auth/bearer-auth.guard';
-import { UpdateDetailsDto, UpdateDetailsSchema } from './dto';
+// import { UpdateDetailsDto, UpdateDetailsSchema } from './dto';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post('getAccountDetails')
   @UseGuards(BearerAuthGuard)
@@ -24,14 +24,14 @@ export class UsersController {
     return { uid, email, name, photoUrl };
   }
 
-  @Post('updateDetails')
-  @HttpCode(204)
-  @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(UpdateDetailsSchema))
-  async updateDetails(@Request() req, @Body() { name }: UpdateDetailsDto) {
-    const { uid } = req.user;
-    await this.usersService.updateDetails(uid, {
-      name,
-    });
-  }
+  // @Post('updateDetails')
+  // @HttpCode(204)
+  // @UseGuards(BearerAuthGuard)
+  // @UsePipes(new JoiValidationPipe(UpdateDetailsSchema))
+  // async updateDetails(@Request() req, @Body() { name }: UpdateDetailsDto) {
+  //   const { uid } = req.user;
+  //   await this.usersService.updateDetails(uid, {
+  //     name,
+  //   });
+  // }
 }

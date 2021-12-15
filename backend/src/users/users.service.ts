@@ -40,26 +40,27 @@ export class UsersService {
     return user;
   }
 
-  async updateDetails(uid: User['uid'], { name }: { name: User['name'] }) {
-    try {
-      await getAuth().updateUser(uid, {
-        displayName: name,
-      });
-    } catch (e) {
-      throw new VError(e, 'Failed while updating user details in firebase');
-    }
+  // ! this does not update Firebase
+  // async updateDetails(uid: User['uid'], { name }: { name: User['name'] }) {
+  //   try {
+  //     await getAuth().updateUser(uid, {
+  //       displayName: name,
+  //     });
+  //   } catch (e) {
+  //     throw new VError(e, 'Failed while updating user details in firebase');
+  //   }
 
-    try {
-      await this.prisma.user.update({
-        where: {
-          uid,
-        },
-        data: {
-          name,
-        },
-      });
-    } catch (e) {
-      throw new VError(e, 'Failed while updating user details in database');
-    }
-  }
+  //   try {
+  //     await this.prisma.user.update({
+  //       where: {
+  //         uid,
+  //       },
+  //       data: {
+  //         name,
+  //       },
+  //     });
+  //   } catch (e) {
+  //     throw new VError(e, 'Failed while updating user details in database');
+  //   }
+  // }
 }
