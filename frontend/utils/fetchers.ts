@@ -1,6 +1,8 @@
 import { getAuth, getIdToken } from "firebase/auth";
 import useSWR, { KeyedMutator } from "swr";
+import useSWRImmutable from 'swr/immutable'
 import { PublicConfiguration, Revalidator, RevalidatorOptions, SWRConfiguration } from "swr/dist/types";
+import { Transaction } from "../components/explorer/components/transactions/types";
 import { useIdentity } from "./hooks";
 import { Contract, Environment, User, Project, NetOption } from "./interfaces";
 
@@ -157,6 +159,22 @@ export function useApiKeys(project: string | null, swrOptions?: SWRConfiguration
   );
 
   return { keys, error, mutate };
+}
+
+export function useRecentTransactions(contracts: string[], net: NetOption): { transactions: Transaction[], error: any } {
+  const identity = useIdentity();
+  // TODO (P2+) look into whether using contracts as part of the SWR key will cause a large
+  // amount of unnecessary caching, since every modification to the contract set will be a
+  // separate key
+  const { data: transactions, error } = useSWR(identity && contracts && net ? ['/projects/getTransactions', contracts.join(','), net, identity.uid] : null,
+    (key: string, contracts: string, net: NetOption) => {
+      return authenticatedPost(key, {
+        contracts: contracts.split(','),
+        net
+      });
+    });
+
+  return { transactions, error };
 }
 
 // * This is a modified version of the onErrorRetry function pulled from SWR source

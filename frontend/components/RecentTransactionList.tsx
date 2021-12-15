@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { authenticatedPost } from "../utils/fetchers";
+import { authenticatedPost, useRecentTransactions } from "../utils/fetchers";
 import { useIdentity } from "../utils/hooks";
 import TransactionAction from "./explorer/components/transactions/TransactionAction";
 import { Transaction } from "./explorer/components/transactions/types";
@@ -13,22 +13,12 @@ export interface FinalityStatus {
 }
 
 export default function RecentTransactionList({ contracts, net }: { contracts: Contract[], net: NetOption }) {
-    let [transactions, setTransactions] = useState<Transaction[]>();
+    // let [transactions, setTransactions] = useState<Transaction[]>();
     const identity = useIdentity();
 
     const [finalityStatus, setFinalityStatus] = useState<FinalityStatus>();
 
-    useEffect(() => {
-        fetchTransactions(contracts.map(c => c.address), net)
-    }, [contracts, net]);
-
-    async function fetchTransactions(contracts: string[], net: NetOption) {
-        let res = await authenticatedPost('/projects/getTransactions', {
-            contracts,
-            net
-        });
-        setTransactions(res);
-    }
+    const { transactions, error } = useRecentTransactions(contracts.map(c => c.address), net);
 
     // fetch finality
     useEffect(() => {

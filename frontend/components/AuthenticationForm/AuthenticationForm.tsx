@@ -295,7 +295,7 @@ function ProviderButton(props: { provider: ProviderDetails, active: boolean, sig
 }
 
 // TODO extract auth active to hook
-function IconButton(props: { onClick?: () => void, image?: string, icon?: any, vector?: any, text: string, backgroundColor: string, color?: string, active: boolean, hoverBrightness?: number, type?: 'submit' | undefined, border?: boolean }) {
+function IconButton(props: { onClick?: () => void, text: string, active: boolean, type?: 'submit' | undefined } & Partial<ProviderDetails>) {
     const hasIcon = props.vector || props.icon || props.image;
     return <div className='buttonContainer'>
         <Button variant='neutral' type={props.type || 'button'} onClick={props.onClick} disabled={!props.active}>
