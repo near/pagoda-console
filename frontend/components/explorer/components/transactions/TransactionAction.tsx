@@ -45,7 +45,7 @@ class TransactionAction extends PureComponent<Props, State> {
   };
 
   render() {
-    const { transaction, viewMode } = this.props;
+    const { transaction, viewMode, net } = this.props;
     const { status } = this.state;
     if (!transaction.actions) {
       return null;
@@ -53,7 +53,7 @@ class TransactionAction extends PureComponent<Props, State> {
     return (
       <ActionGroup
         actionGroup={transaction as T.Transaction}
-        detailsLink={<TransactionLink transactionHash={transaction.hash} />}
+        detailsLink={<TransactionLink transactionHash={transaction.hash} net={net} />}
         status={
           status ? (
             <TransactionExecutionStatus status={status} />
