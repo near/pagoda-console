@@ -168,10 +168,9 @@ export default function Analytics() {
     }, [processUsageChunk]);
 
     useEffect(() => {
-        if (usageData !== undefined) {
-            // clear currently loaded data
-            setUsageData(undefined);
-        }
+        // clear currently loaded data
+        setUsageData(undefined);
+
         if (projectSlug && identity) {
             const cachedUserData = getUserData(identity.uid);
             loadUsageData(identity.uid, projectSlug, net, cachedUserData?.usageData?.[projectSlug]);

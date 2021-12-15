@@ -28,8 +28,8 @@ export default function ProjectSelector() {
                     <span className='toggleText'>{projectDetails ? projectDetails.name : <Placeholder animation='glow'><Placeholder size='sm' style={{ borderRadius: '0.5em', width: '10rem' }} /></Placeholder>}</span>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                    {otherProjects && otherProjects.map(p => <Dropdown.Item key={p.slug} eventKey={p.slug}><ProjectLink project={p} /></Dropdown.Item>)}
-                    <Dropdown.Item style={{ color: 'var(--color-primary)' }} eventKey={'new'}><Link href='new-project'><a><FontAwesomeIcon icon={faPlusCircle} style={{ marginRight: '0.5rem' }} />Create new project</a></Link></Dropdown.Item>
+                    {otherProjects && otherProjects.map(p => <Dropdown.Item as='div' key={p.slug} eventKey={p.slug}><ProjectLink project={p} /></Dropdown.Item>)}
+                    <Dropdown.Item as='div' style={{ color: 'var(--color-primary)' }} eventKey={'new'}><Link href='new-project'><a><FontAwesomeIcon icon={faPlusCircle} style={{ marginRight: '0.5rem' }} />Create new project</a></Link></Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
             <EnvironmentSelector />

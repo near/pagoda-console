@@ -32,7 +32,6 @@ export function useDisplayName(): string | null {
     const auth = getAuth()
     const unsubscribe = onIdTokenChanged(auth, (user: User | null) => {
       if (user?.displayName && displayName !== user?.displayName) {
-        console.log(`updated to ${user.displayName}`);
         setDisplayName(user.displayName);
       }
     });

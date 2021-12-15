@@ -8,13 +8,17 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ForgotPasswordModal from '../ForgotPasswordModal';
 import ErrorModal from '../ErrorModal';
+import Image from 'next/image';
+
+import GithubMark from '../../public/githubMark.png'
+import GoogleMark from '../../public/googleMark.png'
 
 interface ProviderDetails {
     name: string,
     color?: string,
     backgroundColor: string,
     providerInstance: AuthProvider,
-    image?: string,
+    image?: StaticImageData,
     vector?: any,
     icon?: any,
     border?: boolean,
@@ -27,7 +31,8 @@ const providers: Array<ProviderDetails> = [
         color: 'var(--color-white)',
         backgroundColor: 'var(--color-black)',
         providerInstance: new GithubAuthProvider(),
-        image: 'githubMark.png',
+        // image: 'githubMark.png',
+        image: GithubMark,
         hoverBrightness: 1.5
     },
     {
@@ -36,7 +41,8 @@ const providers: Array<ProviderDetails> = [
         border: true,
         backgroundColor: 'var(--color-white)',
         providerInstance: new GoogleAuthProvider(),
-        image: 'googleMark.png',
+        // image: 'googleMark.png',
+        image: GoogleMark,
     },
     // {
     //     name: 'Email',
@@ -295,7 +301,7 @@ function IconButton(props: { onClick?: () => void, image?: string, icon?: any, v
         <Button variant='neutral' type={props.type || 'button'} onClick={props.onClick} disabled={!props.active}>
             <div className='buttonContent'>
                 {hasIcon && <div className='providerMark'>
-                    {props.vector || props.icon && <FontAwesomeIcon icon={props.icon} /> || props.image && <img src={props.image} />}
+                    {props.vector || props.icon && <FontAwesomeIcon icon={props.icon} /> || props.image && <Image src={props.image} alt='sign-in provider icon' />}
                 </div>}
                 <span className='buttonText'>{props.text}</span>
             </div>
