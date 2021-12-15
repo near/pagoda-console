@@ -1,5 +1,4 @@
 Framework for powering the Developer Console Web Application
-
 Built on Next.js
 
 ---
