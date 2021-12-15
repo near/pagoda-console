@@ -96,7 +96,7 @@ export default function StarterGuide() {
                         <Accordion.Header>Command Line (near-cli)</Accordion.Header>
                         <Accordion.Body>
                             <ol>
-                                <li>If you don&apost yet have near-cli installed on your machine, follow the instructions in the <a href="https://docs.near.org/docs/tools/near-cli#installation" target="_blank" rel="noopener noreferrer">near-cli installation documentation</a>.</li>
+                                <li>If you don&#39;t yet have near-cli installed on your machine, follow the instructions in the <a href="https://docs.near.org/docs/tools/near-cli#installation" target="_blank" rel="noopener noreferrer">near-cli installation documentation</a>.</li>
                                 <li>Set your RPC URL:</li>
                                 <CodeBlock language="bash">{starterCode.cliUrl}</CodeBlock>
                                 <li>Configure your API key:</li>
@@ -110,7 +110,7 @@ export default function StarterGuide() {
                         <Accordion.Header>Frontend (near-api-js)</Accordion.Header>
                         <Accordion.Body>
                             <ol>
-                                <li>If you don&apost yet have near-api-js installed in your project, follow the instructions from the <a href="https://docs.near.org/docs/api/naj-quick-reference#install" target="_blank" rel="noopener noreferrer">near-api-js quick reference guide</a>.</li>
+                                <li>If you don&#39;t yet have near-api-js installed in your project, follow the instructions from the <a href="https://docs.near.org/docs/api/naj-quick-reference#install" target="_blank" rel="noopener noreferrer">near-api-js quick reference guide</a>.</li>
                                 <li>Add the following code to get started:</li>
                                 <CodeBlock language="javascript">{starterCode.naj}</CodeBlock>
                             </ol>
