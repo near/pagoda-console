@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import router, { useRouter } from 'next/router'
 import useSWR, { useSWRConfig } from 'swr'
-import { getAuth, onAuthStateChanged, User, getIdToken } from "firebase/auth";
+import { getAuth, onAuthStateChanged, User, getIdToken, onIdTokenChanged } from "firebase/auth";
 import { authenticatedPost, useEnvironments, useProject } from './fetchers';
 import { Environment } from './interfaces';
 import { updateUserData } from './cache';
@@ -19,10 +19,28 @@ export function useIdentity(): User | null {
       setUser(user);
     });
 
-    return () => unsubscribe(); // TODO why lambda function?
+    return () => unsubscribe();
   }, []);
 
   return user;
+}
+
+export function useDisplayName(): string | null {
+  const [displayName, setDisplayName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const auth = getAuth()
+    const unsubscribe = onIdTokenChanged(auth, (user: User | null) => {
+      if (user?.displayName && displayName !== user?.displayName) {
+        console.log(`updated to ${user.displayName}`);
+        setDisplayName(user.displayName);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [displayName]);
+
+  return displayName;
 }
 
 export function useRouteParam(paramName: string, redirectIfMissing?: string): string | null {

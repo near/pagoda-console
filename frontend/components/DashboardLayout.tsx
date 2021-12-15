@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router';
 
 import NearIcon from '../public/brand/near_icon.svg'
-import { useIdentity, useRouteParam } from '../utils/hooks';
+import { useDisplayName, useRouteParam } from '../utils/hooks';
 import { getAuth, signOut, getIdToken } from 'firebase/auth';
 import { ReactNode, useRef, useState } from 'react';
 import { Tooltip, Overlay, Placeholder } from 'react-bootstrap';
@@ -23,11 +23,9 @@ const pages = [
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-    const project = useRouteParam('project');
-
     return (
         <>
-            <SideBar project={project} />
+            <SideBar />
             <div className='gradientContainer'>
                 <Gradient style={{ width: '100%', height: '100%', preserveAspectRatio: 'false' }} />
             </div>
@@ -55,12 +53,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     );
 }
 
-function SideBar({ project }: { project: string | null }) {
+function SideBar() {
     const router = useRouter();
-    const identity = useIdentity();
+    const displayName = useDisplayName();
 
     const isOnboardingRaw = useRouteParam('onboarding');
     const isOnboarding = (isOnboardingRaw === 'true');
+
+    const project = useRouteParam('project');
+    const environment = useRouteParam('environment');
 
     async function signUserOut() {
         const auth = getAuth();
@@ -75,6 +76,14 @@ function SideBar({ project }: { project: string | null }) {
         router.replace(`${router.pathname}?project=${project}`, undefined, { shallow: true });
     }
 
+    function createLink(route: string): string {
+        let linkOut = route;
+        if (typeof project === 'string' && typeof environment === 'string') {
+            linkOut += `?project=${project}&environment=${environment}`;
+        }
+        return linkOut;
+    }
+
     return (
         <div className='sidebar'>
             {/* TODO REMOVE CLICK HANDLER */}
@@ -82,10 +91,10 @@ function SideBar({ project }: { project: string | null }) {
                 <NearIcon />
             </div>
             <div className='linkContainer'>
-                {pages.map((page, index) => <PageLink key={page.route} page={page} project={project} isSelected={router.pathname === page.route} isFirst={index === 0} isOnboarding={isOnboarding} dismissOnboarding={dismissOnboarding} />)}
+                {pages.map((page, index) => <PageLink key={page.route} page={page} link={createLink(page.route)} isSelected={router.pathname === page.route} isFirst={index === 0} isOnboarding={isOnboarding} dismissOnboarding={dismissOnboarding} />)}
             </div>
             <div className='footerContainer'>
-                <Link href={`/settings${project ? `?project=${project}` : ''}`}><a className='footerItem' >{identity?.displayName || <Placeholder animation='glow'><Placeholder size='sm' style={{ borderRadius: '0.5em', width: '100%' }} /></Placeholder>}</a></Link>
+                <Link href={createLink('/settings')}><a className='footerItem' >{displayName || <Placeholder animation='glow'><Placeholder size='sm' style={{ borderRadius: '0.5em', width: '100%' }} /></Placeholder>}</a></Link>
                 <div className='footerItem borderTop' onClick={signUserOut}>Log Out</div>
             </div>
             <style jsx>{`
@@ -143,14 +152,7 @@ function SideBar({ project }: { project: string | null }) {
     );
 }
 
-function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?: boolean, project: string | null, isOnboarding: boolean, dismissOnboarding?: () => void }) {
-    const currentProject = useRouteParam('project');
-    const currentEnvironment = useRouteParam('environment');
-    let linkOut = props.page.route;
-    if (typeof currentProject === 'string' && typeof currentEnvironment === 'string') {
-        linkOut += `?project=${props.project}&environment=${currentEnvironment}`;
-    }
-
+function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?: boolean, link: string, isOnboarding: boolean, dismissOnboarding?: () => void }) {
     // NOTE: this displayed a tooltip to direct the user into the settings page to find their API keys. It was decided
     // to instead show the API keys directly on the empty state of the analytics page. Leaving this here in for the
     // short term until that it implemented
@@ -175,7 +177,7 @@ function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?:
 
     return (
         <div className='linkContainer'>
-            <Link href={linkOut}>
+            <Link href={props.link}>
                 {/* <a ref={target}>{props.page.display}</a> */}
                 <a>{props.page.display}</a>
             </Link>

@@ -51,7 +51,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       if (!user && !unauthedPaths.includes(router.pathname)) {
         // user is signed out, clear all data and redirect back to login
         cache.clear();
-        console.log('cache cleared');
         router.push('/');
       }
     });
