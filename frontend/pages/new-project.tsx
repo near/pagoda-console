@@ -31,7 +31,7 @@ export default function NewProject() {
         setFormEnabled(false);
         try {
             const project: Project = await authenticatedPost('/projects/create', { name: projectName }, { forceRefresh: true });
-            router.push(`/analytics?project=${project.slug}&onboarding=true`);
+            router.push(`/project-settings?project=${project.slug}&onboarding=true`);
         } catch (error: any) {
             setFormEnabled(true);
             setCreationError('Something went wrong');
