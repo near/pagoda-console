@@ -107,7 +107,7 @@ export default function StarterGuide() {
                 </Accordion>
                 <Accordion>
                     <Accordion.Item eventKey="1">
-                        <Accordion.Header>Frontend (near-api-js)</Accordion.Header>
+                        <Accordion.Header>Javascript (near-api-js)</Accordion.Header>
                         <Accordion.Body>
                             <ol>
                                 <li>If you don&#39;t yet have near-api-js installed in your project, follow the instructions from the <a href="https://docs.near.org/docs/api/naj-quick-reference#install" target="_blank" rel="noopener noreferrer">near-api-js quick reference guide</a>.</li>
@@ -119,7 +119,7 @@ export default function StarterGuide() {
                 </Accordion>
                 <Accordion>
                     <Accordion.Item eventKey="2">
-                        <Accordion.Header>Rust Backend (near-api-rs)</Accordion.Header>
+                        <Accordion.Header>Rust (near-jsonrpc-client)</Accordion.Header>
                         <Accordion.Body>
                             <p>Example of asynchronously fetching the latest block using tokio:</p>
                             <CodeBlock language="javascript">{starterCode.rust}</CodeBlock>
