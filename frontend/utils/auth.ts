@@ -5,7 +5,7 @@ export async function logOut() {
     const auth = getAuth();
     try {
         await signOut(auth);
-        mixpanel.track('Logout')
+        mixpanel.track('DC Logout')
     } catch (e) {
         console.error(e);
     }

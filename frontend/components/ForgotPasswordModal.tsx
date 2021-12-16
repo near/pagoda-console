@@ -13,7 +13,7 @@ export default function ForgotPasswordModal({ show, onHide }: { show: boolean, o
     const [hasSent, setHasSent] = useState<boolean>(false);
 
     async function sendPasswordReset() {
-        mixpanel.track('Forgot Password');
+        mixpanel.track('DC Forgot Password');
         setIsSending(true);
         const auth = getAuth();
         try {

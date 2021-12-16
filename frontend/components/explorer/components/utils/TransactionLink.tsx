@@ -1,5 +1,5 @@
 import { NetOption } from "../../../../utils/interfaces";
-import Link from "../utils/Link";
+import mixpanel from 'mixpanel-browser';
 
 export interface Props {
   transactionHash: string;
@@ -16,7 +16,7 @@ export interface Props {
 // );
 
 const TransactionLink = ({ transactionHash, children, net }: Props) => (
-  <a className="transaction-link" href={`https://explorer${net === "TESTNET" ? ".testnet" : ""}.near.org/transactions/${transactionHash}`} target="_blank" rel="noopener noreferrer">
+  <a onClick={() => mixpanel.track('DC Recent transactions tx link')} className="transaction-link" href={`https://explorer${net === "TESTNET" ? ".testnet" : ""}.near.org/transactions/${transactionHash}`} target="_blank" rel="noopener noreferrer">
     {children || `${transactionHash.substring(0, 7)}...`}
   </a>
 );

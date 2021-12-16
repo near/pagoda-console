@@ -1,6 +1,6 @@
-import Link from "../utils/Link";
 import { truncateAccountId } from "../../libraries/formatting";
 import { NetOption } from "../../../../utils/interfaces";
+import mixpanel from 'mixpanel-browser';
 
 export interface Props {
   accountId: string;
@@ -33,7 +33,7 @@ const AccountLink = ({ accountId }: Props) => {
 
   return (
     <>
-      <a className="account-link" href={!net ? undefined : `https://explorer${net === "TESTNET" ? ".testnet" : ""}.near.org/accounts/${accountId}`} target="_blank" rel="noopener noreferrer">{truncateAccountId(accountId)}</a>
+      <a onClick={() => mixpanel.track('DC Recent transactions account link')} className="account-link" href={!net ? undefined : `https://explorer${net === "TESTNET" ? ".testnet" : ""}.near.org/accounts/${accountId}`} target="_blank" rel="noopener noreferrer">{truncateAccountId(accountId)}</a>
       <style jsx>{`
         .account-link {
           white-space: nowrap;

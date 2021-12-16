@@ -32,7 +32,7 @@ export default function ProjectSettings() {
                 return cachedKeys;
             }, false);
             let newKey = await authenticatedPost('/projects/rotateKey', { project: projectSlug, environment: subId });
-            mixpanel.track('Rotate API Key', {
+            mixpanel.track('DC Rotate API Key', {
                 status: 'success'
             });
             mutateKeys((cachedKeys: Record<NetOption, string>) => {
@@ -42,7 +42,7 @@ export default function ProjectSettings() {
                 };
             }, false);
         } catch (e: any) {
-            mixpanel.track('Rotate API Key', {
+            mixpanel.track('DC Rotate API Key', {
                 status: 'failure',
                 error: e.message,
             });
@@ -110,7 +110,7 @@ function KeyRow(props: { name: string, token?: string, onRotateKey: Function }) 
             clearTimeout(copiedTimer.current);
         }
         props.token && navigator.clipboard.writeText(props.token);
-        mixpanel.track('Copy API Key', {
+        mixpanel.track('DC Copy API Key', {
             net: props.name
         });
         setShowCopiedAlert(true);
