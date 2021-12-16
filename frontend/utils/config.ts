@@ -7,7 +7,8 @@ if (
     !process.env.NEXT_PUBLIC_MAIN_NET_ARCHIVAL_RPC ||
     !process.env.NEXT_PUBLIC_TEST_NET_ARCHIVAL_RPC ||
     !process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE ||
-    !process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES
+    !process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES ||
+    !process.env.NEXT_PUBLIC_MIXPANEL_TOKEN
 ) {
     throw new Error('Missing configuration value');
 }
@@ -24,6 +25,7 @@ interface AppConfig {
     },
     buttonDebounce: number,
     usagePersistenceMinutes: number,
+    mixpanelToken: string
 }
 
 const config: AppConfig = {
@@ -42,6 +44,7 @@ const config: AppConfig = {
     },
     buttonDebounce: parseInt(process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE),
     usagePersistenceMinutes: parseInt(process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES),
+    mixpanelToken: process.env.NEXT_PUBLIC_MIXPANEL_TOKEN
 }
 
 export default config;

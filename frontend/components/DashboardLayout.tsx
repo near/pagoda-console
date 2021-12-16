@@ -3,11 +3,13 @@ import { useRouter } from 'next/router';
 
 import NearIcon from '../public/brand/near_icon.svg'
 import { useDisplayName, useRouteParam } from '../utils/hooks';
-import { getAuth, signOut, getIdToken } from 'firebase/auth';
-import { ReactNode, useRef, useState } from 'react';
+import { getAuth, getIdToken } from 'firebase/auth';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { Tooltip, Overlay, Placeholder } from 'react-bootstrap';
+import mixpanel from 'mixpanel-browser';
 
 import Gradient from '../public/dashboardGradient.svg';
+import { logOut } from '../utils/auth';
 
 interface PageDefinition {
     display: string,
@@ -22,6 +24,15 @@ const pages = [
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+    const router = useRouter();
+
+    // * do not add router.pathname to deps because we only want to run this once at load to
+    // show which page the user entered on
+    useEffect(() => {
+        // ! this fires again on Analytics -> Create Project -> Project Settings. move this to App?
+        mixpanel.track(`DC Landed on Dev Console at ${router.pathname.substring(1).toUpperCase()}`);
+    }, []);
+
     return (
         <>
             <SideBar />
@@ -62,15 +73,6 @@ function SideBar() {
     const project = useRouteParam('project');
     const environment = useRouteParam('environment');
 
-    async function signUserOut() {
-        const auth = getAuth();
-        try {
-            await signOut(auth);
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
     function dismissOnboarding() {
         router.replace(`${router.pathname}?project=${project}`, undefined, { shallow: true });
     }
@@ -94,7 +96,7 @@ function SideBar() {
             </div>
             <div className='footerContainer'>
                 <Link href={createLink('/settings')}><a className='footerItem' >{displayName || <Placeholder animation='glow'><Placeholder size='sm' style={{ borderRadius: '0.5em', width: '100%' }} /></Placeholder>}</a></Link>
-                <div className='footerItem borderTop' onClick={signUserOut}>Log Out</div>
+                <div className='footerItem borderTop' onClick={logOut}>Log Out</div>
             </div>
             <style jsx>{`
                 .tempButtons {

@@ -11,6 +11,7 @@ import { NetOption } from "../utils/interfaces";
 import ProjectSelector from "../components/ProjectSelector";
 import CenterModal from "../components/CenterModal";
 import StarterGuide from "../components/StarterGuide";
+import mixpanel from 'mixpanel-browser';
 
 const ROTATION_WARNING = 'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';
 
@@ -31,13 +32,20 @@ export default function ProjectSettings() {
                 return cachedKeys;
             }, false);
             let newKey = await authenticatedPost('/projects/rotateKey', { project: projectSlug, environment: subId });
+            mixpanel.track('Rotate API Key', {
+                status: 'success'
+            });
             mutateKeys((cachedKeys: Record<NetOption, string>) => {
                 return {
                     ...cachedKeys,
                     ...newKey
                 };
             }, false);
-        } catch (e) {
+        } catch (e: any) {
+            mixpanel.track('Rotate API Key', {
+                status: 'failure',
+                error: e.message,
+            });
             // refetch just in case we cleared the old key from the UI but it was not actually rotated
             mutateKeys();
             // TODO log error
@@ -102,6 +110,9 @@ function KeyRow(props: { name: string, token?: string, onRotateKey: Function }) 
             clearTimeout(copiedTimer.current);
         }
         props.token && navigator.clipboard.writeText(props.token);
+        mixpanel.track('Copy API Key', {
+            net: props.name
+        });
         setShowCopiedAlert(true);
         copiedTimer.current = setTimeout(() => {
             setShowCopiedAlert(false);

@@ -1,13 +1,13 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { useSimpleLayout } from "../utils/layouts"
 import { Form, Button } from 'react-bootstrap'
-import { getAuth, signOut } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import { Project } from '../utils/interfaces';
 import { authenticatedPost } from '../utils/fetchers';
 import { useRouteParam } from '../utils/hooks';
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!; // TODO extract to config hook
+import mixpanel from 'mixpanel-browser';
+import { logOut } from '../utils/auth';
 
 export default function NewProject() {
     let [projectName, setProjectName] = useState<string>('');
@@ -31,16 +31,20 @@ export default function NewProject() {
         setFormEnabled(false);
         try {
             const project: Project = await authenticatedPost('/projects/create', { name: projectName }, { forceRefresh: true });
+            mixpanel.track('DC Create New Project', {
+                status: 'success',
+                name: projectName,
+            });
             router.push(`/project-settings?project=${project.slug}&onboarding=true`);
-        } catch (error: any) {
+        } catch (e: any) {
+            mixpanel.track('DC Create New Project', {
+                status: 'failure',
+                name: projectName,
+                error: e.message,
+            });
             setFormEnabled(true);
             setCreationError('Something went wrong');
         }
-    }
-
-    function signUserOut() {
-        const auth = getAuth();
-        signOut(auth);
     }
 
     function handleChange(e: ChangeEvent<HTMLInputElement>) {
@@ -70,7 +74,7 @@ export default function NewProject() {
                 <Button variant='primary' type='submit' disabled={!canCreate()}>Create a Project</Button>
             </div>
         </Form>
-        {isOnboarding && <div className='signOut' onClick={signUserOut}>Log Out</div>}
+        {isOnboarding && <div className='signOut' onClick={logOut}>Log Out</div>}
         <style jsx>{`
             .newProjectContainer {
                 display: flex;

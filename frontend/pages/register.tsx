@@ -5,6 +5,8 @@ import { getAuth, createUserWithEmailAndPassword, AuthError, onAuthStateChanged,
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { authenticatedPost } from '../utils/fetchers';
+import { usePageTracker } from '../utils/hooks';
+import mixpanel from 'mixpanel-browser';
 
 interface ValidationFailure {
     email?: string,
@@ -66,6 +68,7 @@ export default function Register() {
         const auth = getAuth();
         try {
             await createUserWithEmailAndPassword(auth, email, password);
+            mixpanel.track('DC Signed up with email successfully')
         } catch (e) {
             const error = e as AuthError;
             const errorCode = error.code;
@@ -78,9 +81,11 @@ export default function Register() {
 
     function handleSubmit(e: FormEvent): void {
         e.preventDefault();
+        mixpanel.track('DC Submitted email registration form');
 
         // validation has side effect of showing messages
         if (!validate()) {
+            mixpanel.track('DC Registration form validation failed')
             return;
         }
 

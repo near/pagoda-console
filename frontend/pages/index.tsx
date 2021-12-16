@@ -13,6 +13,7 @@ import { useTranslation } from 'next-i18next';
 
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useSimpleLayout } from '../utils/layouts';
+import { usePageTracker } from '../utils/hooks';
 
 export async function getStaticProps({ locale }: { locale: string }) {
   return {

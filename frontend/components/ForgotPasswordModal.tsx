@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
+import mixpanel from 'mixpanel-browser';
 
 export default function ForgotPasswordModal({ show, onHide }: { show: boolean, onHide: () => void }) {
     const [email, setEmail] = useState<string>('');
@@ -12,6 +13,7 @@ export default function ForgotPasswordModal({ show, onHide }: { show: boolean, o
     const [hasSent, setHasSent] = useState<boolean>(false);
 
     async function sendPasswordReset() {
+        mixpanel.track('Forgot Password');
         setIsSending(true);
         const auth = getAuth();
         try {

@@ -2,8 +2,10 @@ import router from 'next/router';
 import { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import { useSimpleLayout } from "../utils/layouts";
-import { getAuth, signOut } from 'firebase/auth';
+import { getAuth, sendEmailVerification, signOut } from 'firebase/auth';
 import { useRouteParam } from '../utils/hooks';
+import mixpanel from 'mixpanel-browser';
+import { logOut } from '../utils/auth';
 
 export default function Verification() {
     let [hasResent, setHasResent] = useState<boolean>(false);
@@ -12,9 +14,9 @@ export default function Verification() {
 
     async function queueVerificationCheck() {
         return setTimeout(async () => {
-            console.log('reloading');
             await getAuth().currentUser?.reload();
             if (getAuth().currentUser?.emailVerified) {
+                mixpanel.track('DC Verify Account');
                 router.push('/new-project?onboarding=true');
             } else {
                 queueVerificationCheck();
@@ -28,9 +30,11 @@ export default function Verification() {
             if (!user) {
                 throw new Error('User not logged in');
             }
+            await sendEmailVerification(user);
+            mixpanel.track('DC Resent verification email');
             setHasResent(true);
         } catch (e) {
-            // TODO display message that user must log in
+            // TODO display error
             console.error(e);
         }
     }
@@ -40,19 +44,11 @@ export default function Verification() {
         queueVerificationCheck();
     }, []);
 
-    function signUserOut() {
-        const auth = getAuth();
-        signOut(auth).catch((error) => {
-            // An error happened.
-            // TODO
-        });
-    }
-
     return (
         <div className='pageContainer'>
             A verification message {existing ? 'was previously' : 'has been'} sent to your email address
             {!hasResent ? <Button disabled={hasResent} onClick={resendVerification}>Send Again</Button> : <div className='sentContainer'><span>Sent!</span></div>}
-            <div className='signOut' onClick={signUserOut}>Log Out</div>
+            <div className='signOut' onClick={logOut}>Log Out</div>
             <style jsx>{`
                 .pageContainer {
                     display: flex;

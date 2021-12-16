@@ -16,16 +16,14 @@ import { useIdentity, useProjectAndEnvironment, useRouteParam } from "../utils/h
 import router, { useRouter } from "next/router";
 import BorderSpinner from "../components/BorderSpinner";
 import EnvironmentSelector from "../components/EnvironmentSelector";
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
-
 import Config from '../utils/config';
 import ProjectSelector from '../components/ProjectSelector';
 import RecentTransactionList from '../components/RecentTransactionList';
-
 import Image from 'next/image';
 import ContractsPreview from '../public/contractsPreview.png';
+import mixpanel from 'mixpanel-browser';
 
 export default function Contracts() {
   const { project, environment } = useProjectAndEnvironment();
@@ -199,7 +197,6 @@ function ContractsEmptyState({ project, environment, mutateContracts }: {
   );
 }
 
-// TODO make placeholder net sensitive
 function AddContractForm(props: {
   project: string;
   environment: Environment;
@@ -222,10 +219,21 @@ function AddContractForm(props: {
         environment: props.environment.subId,
         address,
       });
+      mixpanel.track('Add Contract', {
+        status: 'success',
+        contractId: address,
+        net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
+      });
       props.onAdd();
       closeAdd();
       return contract;
     } catch (e: any) {
+      mixpanel.track('Add Contract', {
+        status: 'failure',
+        error: e.message,
+        contractId: address,
+        net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
+      });
       setError(e.message);
     } finally {
       setAddInProgress(false);
@@ -343,8 +351,17 @@ function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete:
       await authenticatedPost('/projects/removeContract', {
         id: props.contract.id
       });
+      mixpanel.track('Remove Contract', {
+        status: 'success',
+        contractId: props.contract.address,
+      });
       props.onDelete && props.onDelete();
-    } catch (e) {
+    } catch (e: any) {
+      mixpanel.track('Remove Contract', {
+        status: 'failure',
+        contractId: props.contract.address,
+        error: e.message
+      });
       // TODO
       console.error(e);
       setCanDelete(true);
@@ -356,6 +373,7 @@ function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete:
   return (
     <>
       <a
+        onClick={() => mixpanel.track('DC View contract in Explorer')} // TODO CHECK
         className="explorerLink"
         href={`https://explorer${props.contract.net === "TESTNET" ? ".testnet" : ""
           }.near.org/accounts/${props.contract.address}`}

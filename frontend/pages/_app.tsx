@@ -8,6 +8,7 @@ import { appWithTranslation } from 'next-i18next';
 import { useRouter } from 'next/router'
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth'
 import { customErrorRetry } from '../utils/fetchers'
+import config from '../utils/config';
 
 
 export type NextPageWithLayout = NextPage & {
@@ -36,20 +37,32 @@ const firebaseConfig = {
 };
 initializeApp(firebaseConfig);
 
+// mixpanel initialization
+import mixpanel from 'mixpanel-browser';
+import { usePageTracker } from '../utils/hooks'
+
+// Enabling the debug mode flag is useful during implementation,
+// but it's recommended you remove it for production
+mixpanel.init(config.mixpanelToken, { debug: true }); // ! TODO remove debug flag
+
 const unauthedPaths = ['/', '/register'];
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   // redirect to login if user is not signed in
   const router = useRouter();
+  usePageTracker();
   // must cast cache to any to work around bug in interface definition
   // https://github.com/vercel/swr/discussions/1494
   const { cache }: { cache: any } = useSWRConfig();
   useEffect(() => {
     const auth = getAuth()
     const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
-      if (!user && !unauthedPaths.includes(router.pathname)) {
+      if (user) {
+        mixpanel.identify(user.uid);
+      } else if (!user && !unauthedPaths.includes(router.pathname)) {
         // user is signed out, clear all data and redirect back to login
+        mixpanel.reset();
         cache.clear();
         router.push('/');
       }

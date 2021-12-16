@@ -4,12 +4,12 @@ import { useRouter } from "next/router";
 import { authenticatedPost, useProjects } from "../utils/fetchers";
 import { Project } from '../utils/interfaces';
 import Link from 'next/link';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 import { useState } from "react";
 import BorderSpinner from "../components/BorderSpinner";
 import CenterModal from "../components/CenterModal";
+import mixpanel from 'mixpanel-browser';
 
 export default function Projects() {
     const router = useRouter();
@@ -74,9 +74,18 @@ function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: b
     async function deleteProject() {
         try {
             await authenticatedPost('/projects/delete', { slug: props.project.slug });
+            mixpanel.track('DC Remove Project', {
+                status: 'success',
+                name: props.project.name
+            });
             props.onDelete();
             setShowModal(false);
-        } catch (e) {
+        } catch (e: any) {
+            mixpanel.track('DC Remove Project', {
+                status: 'failure',
+                name: props.project.name,
+                error: e.message,
+            });
             // TODO
             console.error('Failed to delete project');
         }

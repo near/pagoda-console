@@ -5,6 +5,7 @@ import { getAuth, onAuthStateChanged, User, getIdToken, onIdTokenChanged } from 
 import { authenticatedPost, useEnvironments, useProject } from './fetchers';
 import { Environment } from './interfaces';
 import { updateUserData } from './cache';
+import mixpanel from 'mixpanel-browser';
 
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
@@ -71,8 +72,7 @@ export function useProjectAndEnvironment() {
     }
 
     if (!environmentSubId && environments) {
-      // if we have loaded the environments but non was selected in query params, default to the
-      // first environment which should be Testnet
+      // no environment was selected in query params, try to load from local storage or fallback to default
       const defaultEnvironment = getDefaultEnvironment(currentUser, projectSlug, environments);
       router.replace(`${router.pathname}?project=${projectSlug}&environment=${defaultEnvironment}`, undefined, { shallow: true });
     } else if (!environment && environments && environmentSubId) {
@@ -83,6 +83,7 @@ export function useProjectAndEnvironment() {
       // new environment selected
       setEnvironment(environments.find(e => e.subId === environmentSubId));
       setEnvironmentInLocalStorage(currentUser, projectSlug, environmentSubId);
+      mixpanel.track('DC Switch Network');
     }
   }, [environmentSubId, projectSlug, environments, environment, currentUser]);
 
@@ -118,4 +119,21 @@ function getDefaultEnvironment(user: User, projectSlug: string, environments: En
     return previouslySelectedEnv;
   }
   return defaultSubId;
+}
+
+export function usePageTracker() {
+  const router = useRouter();
+  // TODO check if we should user router.pathname in effects deps
+  // or if it would run twice on transition, once in previous route
+  // and once on new route
+  useEffect(() => {
+    let page;
+    if (router.pathname === '/') {
+      page = 'login';
+    } else {
+      page = router.pathname.substring(1);
+    }
+    page = page.toUpperCase();
+    mixpanel.track(`DC View ${page} Page`);
+  }, [router.pathname]);
 }

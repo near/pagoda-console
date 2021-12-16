@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ForgotPasswordModal from '../ForgotPasswordModal';
 import ErrorModal from '../ErrorModal';
 import Image from 'next/image';
+import mixpanel from 'mixpanel-browser';
 
 import GithubMark from '../../public/githubMark.png'
 import GoogleMark from '../../public/googleMark.png'
@@ -78,6 +79,11 @@ export default function AuthenticationForm() {
         const auth = getAuth();
         try {
             await signInWithPopup(auth, provider);
+            try {
+                mixpanel.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);
+            } catch (e) {
+                // silently fail
+            }
         } catch (error: any) {
             setAuthActive(true);
             const errorCode = error?.code;
@@ -158,13 +164,20 @@ function EmailAuth(props: { authActive: boolean }) {
         const auth = getAuth();
         try {
             await signInWithEmailAndPassword(auth, email, password);
+            mixpanel.track('DC Login using name + password', {
+                status: 'success',
+            });
             setHasFailedSignIn(false);
         } catch (e) {
             setHasFailedSignIn(true);
             const error = e as AuthError;
             const errorCode = error.code;
             const errorMessage = error.message;
-            setValidationFail({ password: errorMessage });
+
+            mixpanel.track('DC Login using name + password', {
+                status: 'failure',
+                error: errorCode
+            });
 
             let errorValidationFailure: ValidationFailure = {};
             switch (errorCode) {
@@ -253,7 +266,7 @@ function EmailAuth(props: { authActive: boolean }) {
             <IconButton type='submit' color='var(--color-white)' backgroundColor='var(--color-accent-purple)' active={props.authActive} text='Continue' />
         </Form>
         <Link href='/register' passHref>
-            <Button variant='outline-primary'>Sign Up</Button>
+            <Button onClick={() => mixpanel.track('DC Clicked Sign Up on Login')} variant='outline-primary'>Sign Up</Button>
         </Link>
         <div onClick={() => setShowResetModal(true)} className='forgotPassword' >
             Forgot Password?
