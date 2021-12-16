@@ -29,12 +29,6 @@ export default function Login() {
 
   return (
     <div className='pageContainer'>
-      <Head>
-        <title>NEAR Dev Console</title>
-        <meta name="description" content="NEAR Developer Console" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
       <AuthenticationForm />
 
       {/* <Footer /> */}

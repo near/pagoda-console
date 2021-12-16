@@ -9,6 +9,7 @@ import { useRouter } from 'next/router'
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth'
 import { customErrorRetry } from '../utils/fetchers'
 import config from '../utils/config';
+import Head from 'next/head'
 
 
 export type NextPageWithLayout = NextPage & {
@@ -80,6 +81,11 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         onErrorRetry: customErrorRetry
       }}
     >
+      <Head>
+        <title>NEAR Developer Console</title>
+        <meta name="description" content="NEAR Developer Console" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       {getLayout(<Component {...pageProps} />, getFooter())}
     </SWRConfig>
   </SSRProvider>

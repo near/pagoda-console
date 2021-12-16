@@ -1,5 +1,4 @@
 import type { NextPage } from 'next'
-import Head from 'next/head'
 import dynamic from "next/dynamic";
 import { Button } from 'react-bootstrap';
 import { useRouter } from 'next/router'
@@ -20,6 +19,7 @@ import BorderSpinner from '../components/BorderSpinner';
 import AnalyticsCard from '../components/AnalyticsCard';
 import { getUserData, updateUserData } from '../utils/cache';
 import config from '../utils/config';
+import PageLink from '../components/PageLink';
 
 
 export default function Analytics() {
@@ -321,53 +321,11 @@ export default function Analytics() {
             `}</style>
         </div>;
     } else {
-        content = <>
-            <h3 className='welcomeText'>&#128075; Welcome to your new project</h3>
-            {/* <div className='onboardingContainer'>
-                <Image src={AnalyticsPreview} alt='Preview of populated analytics page' />
-                <div className='onboardingText'>
-                    <span className='boldText'>To see usage data, including breakdowns by method call: </span>
-                    <span>use your new API key with near-cli or near-api-js. </span>
-                    <a>How do I use my API key?</a>
-                </div>
-            </div> */}
-            <div className='onboardingText'>
-                <span className='boldText'>To see usage data, including breakdowns by method call: </span>
-                <span>use your new API key with near-cli or near-api-js. </span>
-                <a>How do I use my API key?</a>
-            </div>
-            <Image src={AnalyticsPreview} alt='Preview of populated analytics page' />
-            <style jsx>{`
-                .boldText {
-                    font-weight: 700;
-                }
-                .welcomeText {
-                    margin-top: 2rem;
-                }
-                a {
-                    color: var(--color-primary)
-                }
-                .onboardingText {
-                    margin-bottom: 3rem;
-                    /* max-width: 22.25rem; */
-                }
-                .onboardingContainer {
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    column-gap: 1.5rem;
-                }
-            `}</style>
-        </>;
+        content = <AnalyticsEmptyState />
     }
 
 
     return <div>
-        <Head>
-            <title>NEAR Dev Console</title>
-            <meta name="description" content="NEAR Developer Console" />
-            <link rel="icon" href="/favicon.ico" />
-        </Head>
         <div className='pageContainer'>
             <ProjectSelector />
             {content}
@@ -379,6 +337,50 @@ export default function Analytics() {
             }
         `}</style>
     </div >
+}
+
+function AnalyticsEmptyState() {
+    return (
+        <div className='emptyStateWrapper'>
+            <h3 className='welcomeText'>&#128075; Welcome to your new project</h3>
+            <div className='emptyStateContainer'>
+                <div className='imageContainer'>
+                    <Image src={AnalyticsPreview} alt='Preview of populated analytics page' />
+                </div>
+                <div className='onboarding'>
+                    <div className='onboardingText'>
+                        <p>Follow the instructions on the <PageLink route='/project-settings'>Project Settings screen</PageLink> (&#34;Settings&#34; in the navbar) to get started with making requests to the NEAR RPC service.</p>
+                        <span>Once you make some requests you’ll see usage data populate here.</span>
+                    </div>
+                </div>
+            </div>
+            <style jsx>{`
+                .emptyStateContainer {
+                    display: flex;
+                    flex-direction: row;
+                    column-gap: 1.5rem;
+                    align-items: center;
+                }
+                .imageContainer, .onboarding {
+                    width: 50%;
+                }
+                .welcomeText {
+                        margin-top: 2rem;
+                }
+                .onboardingText {
+                    margin-bottom: 3rem;
+                }
+                .boldText {
+                    font-weight: 700;
+                }
+              .emptyStateWrapper {
+                  display: flex;
+                  flex-direction: column;
+                  row-gap: 1.5rem;
+              }
+            `}</style>
+        </div>
+    );
 }
 
 Analytics.getLayout = useDashboardLayout;
