@@ -85,8 +85,8 @@ function SideBar() {
 
     return (
         <div className='sidebar'>
-            {/* TODO REMOVE CLICK HANDLER */}
-            <div className='logoContainer' onClick={() => getIdToken(getAuth().currentUser!).then((token) => navigator.clipboard.writeText(token).then(() => alert('Copied token to clipboard')))}>
+            {/* <div className='logoContainer' onClick={() => getIdToken(getAuth().currentUser!).then((token) => navigator.clipboard.writeText(token).then(() => alert('Copied token to clipboard')))}> */}
+            <div className='logoContainer'>
                 <NearIcon />
             </div>
             <div className='linkContainer'>

@@ -116,11 +116,11 @@ function KeyRow(props: { name: string, token?: string, onRotateKey: Function }) 
                 <Button variant='outline-primary' onClick={() => setKeyObscured(!keyObscured)} disabled={!props.token}>
                     <FontAwesomeIcon icon={keyObscured ? faEyeSlash : faEye} />
                 </Button>
-                <Button variant='outline-primary' onClick={copyKey} disabled={!props.token} ref={copyRef}>
+                <Button variant='outline-primary' onClick={copyKey} disabled={!props.token}>
                     <FontAwesomeIcon icon={faCopy} />
                 </Button>
                 <div className='rotateButton'>
-                    <Button variant='outline-danger' onClick={() => props.onRotateKey()} disabled={!props.token}>
+                    <Button variant='outline-danger' onClick={() => props.onRotateKey()} disabled={!props.token} ref={copyRef}>
                         Rotate
                     </Button>
                 </div>
