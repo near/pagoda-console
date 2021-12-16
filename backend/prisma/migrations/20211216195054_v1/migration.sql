@@ -6,8 +6,6 @@ CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "uid" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "name" TEXT,
-    "photoUrl" TEXT,
     "active" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -35,6 +33,7 @@ CREATE TABLE "TeamMember" (
 CREATE TABLE "Project" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "Project_pkey" PRIMARY KEY ("id")
@@ -65,6 +64,7 @@ CREATE TABLE "Environment" (
     "name" TEXT NOT NULL,
     "projectId" INTEGER NOT NULL,
     "net" "Net" NOT NULL,
+    "subId" INTEGER NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "Environment_pkey" PRIMARY KEY ("id")
@@ -86,6 +86,12 @@ CREATE UNIQUE INDEX "User_uid_key" ON "User"("uid");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_slug_key" ON "Project"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Environment_projectId_subId_key" ON "Environment"("projectId", "subId");
 
 -- AddForeignKey
 ALTER TABLE "TeamMember" ADD CONSTRAINT "TeamMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
