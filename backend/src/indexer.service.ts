@@ -45,14 +45,14 @@ import { Net } from '.prisma/client';
 const dbConfig = {
   indexerDatabaseTestnet: {
     dialect: 'postgres' as Dialect,
-    host: '35.184.214.98',
+    host: 'testnet.db.explorer.indexer.near.dev',
     database: 'testnet_explorer',
     username: 'public_readonly',
     password: 'nearprotocol',
   },
   indexerDatabaseMainnet: {
     dialect: 'postgres' as Dialect,
-    host: '104.199.89.51',
+    host: 'mainnet.db.explorer.indexer.near.dev',
     database: 'mainnet_explorer',
     username: 'public_readonly',
     password: 'nearprotocol',
@@ -105,9 +105,8 @@ export class IndexerService {
                 DIV(transactions.block_timestamp, 1000 * 1000) AS block_timestamp,
                 transactions.index_in_chunk AS transaction_index
         FROM transactions
-        ${
-          paginationIndexer
-            ? `WHERE (transaction_hash IN
+        ${paginationIndexer
+          ? `WHERE (transaction_hash IN
                 (SELECT originated_from_transaction_hash
                 FROM receipts
                 WHERE receipts.predecessor_account_id = :account_id
@@ -115,7 +114,7 @@ export class IndexerService {
         AND (transactions.block_timestamp < :end_timestamp
               OR (transactions.block_timestamp = :end_timestamp
                   AND transactions.index_in_chunk < :transaction_index))`
-            : `WHERE transaction_hash IN
+          : `WHERE transaction_hash IN
               (SELECT originated_from_transaction_hash
               FROM receipts
               WHERE receipts.predecessor_account_id = :account_id
@@ -229,32 +228,20 @@ export class IndexerService {
     limit,
     paginationIndexer,
     dataSource,
+    net: Net,
   ) {
     const accountTxList = await this.queryAccountTransactionsList(
       accountId,
       limit,
       paginationIndexer,
-      dataSource, // TODO REMOVE HARDCODING TO TESTNET
+      dataSource,
     );
     if (accountTxList.length === 0) {
       return undefined;
     }
-    return await this.createTransactionsList(accountTxList, 'TESTNET');
+    return await this.createTransactionsList(accountTxList, net);
   }
 
-  async test() {
-    const paginationIndexer = {
-      endTimestamp: Date.now(),
-      transactionIndex: 0,
-    };
-    const res = await this.queryAccountTransactionsList(
-      'serhii.testnet',
-      2,
-      paginationIndexer,
-      DS_INDEXER_TESTNET,
-    );
-    console.log(res);
-  }
 
   async fetchRecentTransactions(accounts: string[], net: Net) {
     const promises = [];
@@ -270,6 +257,7 @@ export class IndexerService {
           this.recentTransactionsCount, // TODO
           paginationIndexer,
           net === 'MAINNET' ? DS_INDEXER_MAINNET : DS_INDEXER_TESTNET,
+          net,
         ),
       );
       // console.log(res);
