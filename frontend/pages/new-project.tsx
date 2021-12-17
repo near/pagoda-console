@@ -8,6 +8,7 @@ import { authenticatedPost } from '../utils/fetchers';
 import { useRouteParam } from '../utils/hooks';
 import mixpanel from 'mixpanel-browser';
 import { logOut } from '../utils/auth';
+import BorderSpinner from '../components/BorderSpinner';
 
 export default function NewProject() {
     let [projectName, setProjectName] = useState<string>('');
@@ -18,6 +19,7 @@ export default function NewProject() {
 
     let [creationError, setCreationError] = useState<string>();
     let [validationError, setValidationError] = useState<string>();
+    const [createInProgress, setCreateInProgress] = useState<boolean>(false);
 
     function canCreate(): boolean {
         return formEnabled && !!projectName.trim() && !validationError;
@@ -30,6 +32,7 @@ export default function NewProject() {
         e.preventDefault();
         setFormEnabled(false);
         try {
+            setCreateInProgress(true);
             const project: Project = await authenticatedPost('/projects/create', { name: projectName }, { forceRefresh: true });
             mixpanel.track('DC Create New Project', {
                 status: 'success',
@@ -44,6 +47,8 @@ export default function NewProject() {
             });
             setFormEnabled(true);
             setCreationError('Something went wrong');
+        } finally {
+            setCreateInProgress(false);
         }
     }
 
@@ -70,8 +75,11 @@ export default function NewProject() {
                 <Form.Control placeholder="Cool New Project" value={projectName} onChange={handleChange} isInvalid={!!(validationError || creationError)} />
                 <Form.Control.Feedback type='invalid'>{validationError || creationError}</Form.Control.Feedback>
             </Form.Group>
-            <div className='buttonContainer'>
-                <Button variant='primary' type='submit' disabled={!canCreate()}>Create a Project</Button>
+            <div className="submitRow">
+                <div className='submitContainer'>
+                    {createInProgress && <BorderSpinner />}
+                    <Button variant='primary' type='submit' disabled={!canCreate()}>Create a Project</Button>
+                </div>
             </div>
         </Form>
         {isOnboarding && <div className='signOut' onClick={logOut}>Log Out</div>}
@@ -99,18 +107,26 @@ export default function NewProject() {
             .boldText {
                 font-weight: 700;
             }
-            .buttonContainer {
+            .submitRow {
                 width: 100%;
                 display: flex;
                 justify-content: flex-end;
             }
+            .submitContainer {
+                display: flex;
+                flex-direction: row;
+                column-gap: 1rem;
+            }
             .signOut {
                     cursor: pointer;
                     text-decoration: none;
+                    position: absolute;
+                    left: 3rem;
+                    bottom: 3rem;
                 }
-                .signOut:hover {
-                    color: var(--color-primary)
-                }
+            .signOut:hover {
+                color: var(--color-primary)
+            }
         `}</style>
     </div >
 }

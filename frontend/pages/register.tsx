@@ -68,7 +68,9 @@ export default function Register() {
         const auth = getAuth();
         try {
             await createUserWithEmailAndPassword(auth, email, password);
-            mixpanel.track('DC Signed up with email successfully')
+            mixpanel.track('DC Signed up with email', {
+                status: 'success'
+            });
         } catch (e) {
             const error = e as AuthError;
             const errorCode = error.code;
@@ -76,6 +78,10 @@ export default function Register() {
             // TODO determine error handling
             console.error(`${errorCode}: ${errorMessage}`);
             setErrorAlert(errorMessage);
+            mixpanel.track('DC Signed up with email', {
+                status: 'failure',
+                error: errorCode
+            });
         }
     }
 

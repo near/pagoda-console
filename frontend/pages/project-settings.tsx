@@ -33,7 +33,8 @@ export default function ProjectSettings() {
             }, false);
             let newKey = await authenticatedPost('/projects/rotateKey', { project: projectSlug, environment: subId });
             mixpanel.track('DC Rotate API Key', {
-                status: 'success'
+                status: 'success',
+                net: net,
             });
             mutateKeys((cachedKeys: Record<NetOption, string>) => {
                 return {
@@ -44,6 +45,7 @@ export default function ProjectSettings() {
         } catch (e: any) {
             mixpanel.track('DC Rotate API Key', {
                 status: 'failure',
+                net: net,
                 error: e.message,
             });
             // refetch just in case we cleared the old key from the UI but it was not actually rotated

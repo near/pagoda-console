@@ -16,9 +16,16 @@ export interface Props {
 // );
 
 const TransactionLink = ({ transactionHash, children, net }: Props) => (
-  <a onClick={() => mixpanel.track('DC Recent transactions tx link')} className="transaction-link" href={`https://explorer${net === "TESTNET" ? ".testnet" : ""}.near.org/transactions/${transactionHash}`} target="_blank" rel="noopener noreferrer">
-    {children || `${transactionHash.substring(0, 7)}...`}
-  </a>
+  <>
+    <a onClick={() => mixpanel.track('DC Recent transactions tx link')} className="transaction-link" href={`https://explorer${net === "TESTNET" ? ".testnet" : ""}.near.org/transactions/${transactionHash}`} target="_blank" rel="noopener noreferrer">
+      {children || `${transactionHash.substring(0, 7)}...`}
+    </a>
+    <style jsx>{`
+      a {
+        color: var(--color-primary)
+      }
+    `}</style>
+  </>
 );
 
 export default TransactionLink;

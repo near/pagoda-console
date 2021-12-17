@@ -26,13 +26,6 @@ const pages = [
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     const router = useRouter();
 
-    // * do not add router.pathname to deps because we only want to run this once at load to
-    // show which page the user entered on
-    useEffect(() => {
-        // ! this fires again on Analytics -> Create Project -> Project Settings. move this to App?
-        mixpanel.track(`DC Landed on Dev Console at ${router.pathname.substring(1).toUpperCase()}`);
-    }, []);
-
     return (
         <>
             <SideBar />
