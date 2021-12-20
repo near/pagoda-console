@@ -1,7 +1,7 @@
-import type { NextPage } from 'next'
+import type { NextPage } from 'next';
 import dynamic from "next/dynamic";
 import { Button } from 'react-bootstrap';
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/router';
 import { authenticatedPost, useAccount, useApiKeys, useProject } from '../utils/fetchers';
 import { useIdentity, useRouteParam } from '../utils/hooks';
 import { getAuth, signOut, getIdToken } from "firebase/auth";
@@ -14,7 +14,7 @@ import ProjectSelector from '../components/ProjectSelector';
 import CodeBlock from '../components/CodeBlock';
 import { NetOption, NetUsageData, UsageData } from '../utils/interfaces';
 import { useEffect } from 'react';
-import Highcharts from 'highcharts'
+import Highcharts from 'highcharts';
 import BorderSpinner from '../components/BorderSpinner';
 import AnalyticsCard from '../components/AnalyticsCard';
 import { getUserData, updateUserData } from '../utils/cache';
@@ -44,7 +44,7 @@ export default function Analytics() {
     const environmentSubId = typeof environmentSubIdRaw === 'string' ? parseInt(environmentSubIdRaw) : null;
     const net: NetOption = environmentSubId === 2 ? 'MAINNET' : 'TESTNET';
 
-    const processUsageChunk = useCallback(async (usageDataRaw: string, keys: Record<NetOption, Array<string>>, usage: UsageData, start: number): Promise<{ start: number, usage: UsageData }> => {
+    const processUsageChunk = useCallback(async (usageDataRaw: string, keys: Record<NetOption, Array<string>>, usage: UsageData, start: number): Promise<{ start: number, usage: UsageData; }> => {
         let processed = 0;
         for (let i = start; i < usageDataRaw.length && processed < 10; i++) {
             if (usageDataRaw[i] === '\n') {
@@ -77,11 +77,11 @@ export default function Analytics() {
                         let { method } = event.properties.body;
                         switch (method) {
                             case 'query':
-                                method = `query/${event.properties.body.params.request_type}`
+                                method = `query/${event.properties.body.params.request_type}`;
                                 break;
                             case 'block':
                                 // TODO (P2+) make this handle params dynamically so it wont break if rpc is updated
-                                method = `block/${event.properties.body.params.finality ? 'finality' : 'block_id'}`
+                                method = `block/${event.properties.body.params.finality ? 'finality' : 'block_id'}`;
                                 break;
                             default:
                                 break;
@@ -118,7 +118,7 @@ export default function Analytics() {
             }
         }
         return { start, usage };
-    }, [])
+    }, []);
 
     const loadUsageData = useCallback(async (uid: string, project: string, net: NetOption, usageData?: UsageData) => {
         if (usageData) {
@@ -267,10 +267,7 @@ export default function Analytics() {
                     />
                 </div>}
             </div>
-            <div className="lastUpdated">
-                <span>Last updated at: {new Date(usageData.fetchedAt).toLocaleString()}</span>
-                <span>Data may be fetched once per hour</span>
-            </div>
+            <LastFetchedInfo fetchedAt={usageData.fetchedAt} />
             <style jsx>{`
                 .usageCards {
                     display: grid;
@@ -290,12 +287,6 @@ export default function Analytics() {
                 }
                 .tertiary {
                     grid-area: tertiary;
-                }
-                .lastUpdated {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-top: 0.5rem;
-                    color: var(--color-text-secondary)
                 }
                 .analyticsContainer {
                     display: flex;
@@ -321,7 +312,7 @@ export default function Analytics() {
             `}</style>
         </div>;
     } else {
-        content = <AnalyticsEmptyState />
+        content = <AnalyticsEmptyState fetchedAt={usageData?.fetchedAt} />;
     }
 
 
@@ -336,10 +327,10 @@ export default function Analytics() {
             flex-direction: column;
             }
         `}</style>
-    </div >
+    </div >;
 }
 
-function AnalyticsEmptyState() {
+function AnalyticsEmptyState({ fetchedAt }: { fetchedAt?: string; }) {
     return (
         <div className='emptyStateWrapper'>
             <h3 className='welcomeText'>&#128075; Welcome to your new project</h3>
@@ -354,6 +345,7 @@ function AnalyticsEmptyState() {
                     </div>
                 </div>
             </div>
+            {fetchedAt && <LastFetchedInfo fetchedAt={fetchedAt} />}
             <style jsx>{`
                 .emptyStateContainer {
                     display: flex;
@@ -378,6 +370,23 @@ function AnalyticsEmptyState() {
                   flex-direction: column;
                   row-gap: 1.5rem;
               }
+            `}</style>
+        </div>
+    );
+}
+
+function LastFetchedInfo({ fetchedAt }: { fetchedAt: string; }) {
+    return (
+        <div className="lastUpdated">
+            <span>Last updated at: {new Date(fetchedAt).toLocaleString()}</span>
+            <span>Data may be fetched once per hour</span>
+            <style jsx>{`
+                .lastUpdated {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 0.5rem;
+                    color: var(--color-text-secondary)
+                }
             `}</style>
         </div>
     );
