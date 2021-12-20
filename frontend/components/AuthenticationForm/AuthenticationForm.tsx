@@ -1,5 +1,5 @@
-import { FormEvent, useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
+import { FormEvent, useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { Button, Form } from 'react-bootstrap';
 import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged, signInWithEmailAndPassword, AuthError, createUserWithEmailAndPassword } from "firebase/auth";
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
@@ -11,8 +11,8 @@ import ErrorModal from '../ErrorModal';
 import Image from 'next/image';
 import mixpanel from 'mixpanel-browser';
 
-import GithubMark from '../../public/githubMark.png'
-import GoogleMark from '../../public/googleMark.png'
+import GithubMark from '../../public/githubMark.png';
+import GoogleMark from '../../public/googleMark.png';
 
 interface ProviderDetails {
     name: string,
@@ -52,7 +52,7 @@ const providers: Array<ProviderDetails> = [
     //     providerInstance: new EmailAuthProvider(),
     //     icon: faEnvelope,
     // },
-]
+];
 //share reg status
 function useRegistrationStatus() {
     return useState<boolean>(false);
@@ -113,8 +113,9 @@ export default function AuthenticationForm() {
             {providers.map((provider) => <ProviderButton key={provider.name} provider={provider} active={authActive} signInFunction={socialSignIn} />)}
         </div>
         <div className='termsContainer'>
-            <a>Terms and Conditions</a>
-            <a>Privacy Policy</a>
+            <div dangerouslySetInnerHTML={{
+                __html: '<a href="https://www.iubenda.com/terms-and-conditions/37325399" class="iubenda-white no-brand iubenda-noiframe iubenda-embed iubenda-noiframe " title="Terms and Conditions ">Terms and Conditions</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>'
+            }} />
         </div>
         <style jsx>{`
             .authContainer {
@@ -137,7 +138,7 @@ export default function AuthenticationForm() {
                 color: var(--color-primary)
             }
         `}</style>
-    </div>
+    </div>;
 }
 
 interface ValidationFailure {
@@ -149,7 +150,7 @@ interface ValidationFailure {
 const emailRegex = /\w+@\w+\.\w+/;
 const passwordRegex = /.{6,}/;
 
-function EmailAuth(props: { authActive: boolean }) {
+function EmailAuth(props: { authActive: boolean; }) {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [hasFailedSignIn, setHasFailedSignIn] = useState<boolean>(false);
@@ -206,7 +207,7 @@ function EmailAuth(props: { authActive: boolean }) {
         let failed = false;
         if (!emailRegex.test(email)) {
             validations.email = 'Please enter a valid email address';
-            failed = true
+            failed = true;
         }
 
         if (!passwordRegex.test(password)) {
@@ -298,17 +299,17 @@ function EmailAuth(props: { authActive: boolean }) {
                 margin-bottom: 1rem;
             }
         `}</style>
-    </div>
+    </div>;
 }
 
-function ProviderButton(props: { provider: ProviderDetails, active: boolean, signInFunction: (provider: AuthProvider) => void }) {
+function ProviderButton(props: { provider: ProviderDetails, active: boolean, signInFunction: (provider: AuthProvider) => void; }) {
     const { t } = useTranslation('login');
 
-    return <IconButton {...props.provider} onClick={() => props.signInFunction(props.provider.providerInstance)} text={`${t('continueWith')} ${props.provider.name}`} active={props.active} />
+    return <IconButton {...props.provider} onClick={() => props.signInFunction(props.provider.providerInstance)} text={`${t('continueWith')} ${props.provider.name}`} active={props.active} />;
 }
 
 // TODO extract auth active to hook
-function IconButton(props: { onClick?: () => void, text: string, active: boolean, type?: 'submit' | undefined } & Partial<ProviderDetails>) {
+function IconButton(props: { onClick?: () => void, text: string, active: boolean, type?: 'submit' | undefined; } & Partial<ProviderDetails>) {
     const hasIcon = props.vector || props.icon || props.image;
     return <div className='buttonContainer'>
         <Button variant='neutral' type={props.type || 'button'} onClick={props.onClick} disabled={!props.active}>
@@ -363,5 +364,5 @@ function IconButton(props: { onClick?: () => void, text: string, active: boolean
                 border: ${props.border ? `1px solid ${props.color}` : 'none'}
             }
         `}</style>
-    </div >
+    </div >;
 }
