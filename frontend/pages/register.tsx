@@ -163,7 +163,7 @@ export default function Register() {
 
                     <Form.Group controlId="formBasicPassword">
                         <Form.Label>Password</Form.Label>
-                        <Form.Control type="password" onChange={(e) => handleFormChange('password', e.target.value)} isInvalid={!!validationFail.password} placeholder='>6 characters' />
+                        <Form.Control type="password" onChange={(e) => handleFormChange('password', e.target.value)} isInvalid={!!validationFail.password} placeholder='6+ characters' />
                         <Form.Control.Feedback type="invalid">
                             {validationFail.password}
                         </Form.Control.Feedback>
