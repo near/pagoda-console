@@ -113,7 +113,7 @@ async function getTransactionStatus(transaction: TransactionInfo, net: NetOption
       }),
     }
   ).then((res) => res.json());
-  if (res.error && res.error.cause?.name === 'UNKNOWN_TRANSACTION') {
+  if (res.error && res.error.cause?.name === 'UNKNOWN_TRANSACTION' && !forceArchival) {
     // fallback to archival node
     return getTransactionStatus(transaction, net, true);
   } else if (res.error) {
