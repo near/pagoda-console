@@ -28,14 +28,15 @@ import { initializeApp } from 'firebase/app';
 // https://github.com/react-bootstrap/react-bootstrap/issues/6026
 import { SSRProvider } from '@restart/ui/ssr';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCzJ0RAnGO4aQXkoZOSJH6b9psFU9DpQfE",
-  authDomain: "near-dev-platform.firebaseapp.com",
-  projectId: "near-dev-platform",
-  storageBucket: "near-dev-platform.appspot.com",
-  messagingSenderId: "1082695133360",
-  appId: "1:1082695133360:web:3900d42047e8136937f375"
-};
+// ! TODO change firebase config for non-Prod
+// const firebaseConfig = {
+//   apiKey: "AIzaSyCzJ0RAnGO4aQXkoZOSJH6b9psFU9DpQfE",
+//   authDomain: "near-dev-platform.firebaseapp.com",
+//   projectId: "near-dev-platform",
+//   storageBucket: "near-dev-platform.appspot.com",
+//   messagingSenderId: "1082695133360",
+//   appId: "1:1082695133360:web:3900d42047e8136937f375"
+// };
 initializeApp(firebaseConfig);
 
 // mixpanel initialization
