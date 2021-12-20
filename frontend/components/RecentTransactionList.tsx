@@ -12,7 +12,7 @@ export interface FinalityStatus {
     finalBlockTimestampNanosecond: BN;
 }
 
-export default function RecentTransactionList({ contracts, net }: { contracts: Contract[], net: NetOption }) {
+export default function RecentTransactionList({ contracts, net }: { contracts: Contract[], net: NetOption; }) {
     // let [transactions, setTransactions] = useState<Transaction[]>();
     const identity = useIdentity();
 
@@ -57,12 +57,6 @@ export default function RecentTransactionList({ contracts, net }: { contracts: C
         setFinalityStatus(newStatus);
     }
 
-    // TODO temporarily hardcoded to testnet
-    // return (
-    //     <div>
-    //         {transactions && transactions.map(t => <TransactionAction key={t.hash} transaction={t} net={'TESTNET'} />)}
-    //     </div>
-    // )
     return (
         <div>
             <h2>Recent Transactions</h2>
@@ -70,7 +64,7 @@ export default function RecentTransactionList({ contracts, net }: { contracts: C
                 return (
                     <div key={t.hash} style={{ display: 'flex', flexDirection: 'row' }}>
                         <div style={{ flexGrow: 1 }}>
-                            <TransactionAction transaction={t} net={'TESTNET'} finalityStatus={finalityStatus} />
+                            <TransactionAction transaction={t} net={net} finalityStatus={finalityStatus} />
                         </div>
                         <span style={{ marginTop: 'auto', marginBottom: 'auto', color: 'var(--color-text-secondary)', paddingLeft: '1rem' }}>{t.sourceContract}</span>
                     </div>
