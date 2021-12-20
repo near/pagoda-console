@@ -33,7 +33,7 @@ async function getState(accountId) {
     console.log(state);
 }
 
-getState(ACCOUNT_ID);`
+getState(ACCOUNT_ID);`;
 
 const RUST_STARTER_TEMPLATE = `use near_jsonrpc_client::{auth, methods, JsonRpcClient};
 use near_primitives::types::{BlockReference, Finality};
@@ -59,7 +59,7 @@ const CLI_KEY_TEMPLATE = `near set-api-key <RPC service url> <your API Key>`;
 
 
 export default function StarterGuide() {
-    const [starterCode, setstarterCode] = useState<{ naj: string, rust: string, cliUrl: string, cliKey: string }>({ naj: NAJ_STARTER_TEMPLATE, rust: RUST_STARTER_TEMPLATE, cliUrl: CLI_URL_TEMPLATE, cliKey: CLI_KEY_TEMPLATE });
+    const [starterCode, setstarterCode] = useState<{ naj: string, rust: string, cliUrl: string, cliKey: string; }>({ naj: NAJ_STARTER_TEMPLATE, rust: RUST_STARTER_TEMPLATE, cliUrl: CLI_URL_TEMPLATE, cliKey: CLI_KEY_TEMPLATE });
 
 
     const projectSlug = useRouteParam('project');
@@ -79,11 +79,11 @@ export default function StarterGuide() {
         }
         // setupCode = keys?.TESTNET ? `near set-api-key ${Config.url.rpc.default[net]} ${keys?.[net]}` : '';
         setstarterCode({
-            naj: NAJ_STARTER_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.default[net]),
-            rust: RUST_STARTER_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.default[net]),
-            cliUrl: CLI_URL_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.default[net]),
-            cliKey: CLI_KEY_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.default[net]),
-        })
+            naj: NAJ_STARTER_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.recommended[net]),
+            rust: RUST_STARTER_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.recommended[net]),
+            cliUrl: CLI_URL_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.recommended[net]),
+            cliKey: CLI_KEY_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.recommended[net]),
+        });
     }, [keys, environmentSubId]);
 
     return (

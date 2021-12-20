@@ -6,6 +6,8 @@ if (
     !process.env.NEXT_PUBLIC_TEST_NET_RPC ||
     !process.env.NEXT_PUBLIC_MAIN_NET_ARCHIVAL_RPC ||
     !process.env.NEXT_PUBLIC_TEST_NET_ARCHIVAL_RPC ||
+    !process.env.NEXT_PUBLIC_RECOMMENDED_MAIN_NET_RPC ||
+    !process.env.NEXT_PUBLIC_RECOMMENDED_TEST_NET_RPC ||
     !process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE ||
     !process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES ||
     !process.env.NEXT_PUBLIC_MIXPANEL_TOKEN
@@ -13,19 +15,20 @@ if (
     throw new Error('Missing configuration value');
 }
 
-type RpcNets = Record<NetOption, string>
+type RpcNets = Record<NetOption, string>;
 
 interface AppConfig {
     url: {
         api: string,
         rpc: {
             default: RpcNets,
-            archival: RpcNets
-        }
+            archival: RpcNets;
+            recommended: RpcNets;
+        };
     },
     buttonDebounce: number,
     usagePersistenceMinutes: number,
-    mixpanelToken: string
+    mixpanelToken: string;
 }
 
 const config: AppConfig = {
@@ -39,12 +42,16 @@ const config: AppConfig = {
             archival: {
                 MAINNET: process.env.NEXT_PUBLIC_MAIN_NET_ARCHIVAL_RPC,
                 TESTNET: process.env.NEXT_PUBLIC_TEST_NET_ARCHIVAL_RPC,
-            }
+            },
+            recommended: {
+                MAINNET: process.env.NEXT_PUBLIC_RECOMMENDED_MAIN_NET_RPC,
+                TESTNET: process.env.NEXT_PUBLIC_RECOMMENDED_TEST_NET_RPC,
+            },
         }
     },
     buttonDebounce: parseInt(process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE),
     usagePersistenceMinutes: parseInt(process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES),
     mixpanelToken: process.env.NEXT_PUBLIC_MIXPANEL_TOKEN
-}
+};
 
 export default config;
