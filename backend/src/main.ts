@@ -24,6 +24,6 @@ async function bootstrap() {
     credential: credential.cert(sa),
   });
 
-  await app.listen(configService.get('PORT'));
+  await app.listen(configService.get('PORT'), '0.0.0.0');
 }
 bootstrap();
