@@ -32,7 +32,7 @@ export class ProjectsService {
   async create(
     user: User,
     name: Project['name'],
-  ): Promise<{ name: Project['name']; slug: Project['slug'] }> {
+  ): Promise<{ name: Project['name']; slug: Project['slug']; }> {
     let teamId;
     try {
       const teamFind = await this.prisma.teamMember.findFirst({
@@ -95,19 +95,7 @@ export class ProjectsService {
         'MAINNET',
       );
     } catch (e) {
-      try {
-        await this.prisma.project.delete({
-          where: {
-            id: project.id,
-          },
-        });
-      } catch (e) {
-        throw new VError(
-          e,
-          'Failed to delete project after failure to generate API keys',
-        );
-      }
-
+      // ! TODO clean up project since it did not create successfully, or at least set inactive
       throw new VError(e, 'Failed while generating API keys');
     }
     return {

@@ -6,12 +6,17 @@ WORKDIR /usr/src/app
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json ./
 
+RUN npm install -g prisma
+
 # Install app dependencies
 RUN npm install
 
 COPY . ./
 
-CMD ["npm", "run", "build"]
+RUN prisma generate
+
+RUN npm run prebuild
+RUN npm run build
 
 FROM node:16-alpine as runner
 
