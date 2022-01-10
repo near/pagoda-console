@@ -1,3 +1,4 @@
+import { FirebaseOptions } from "firebase/app";
 import { NetOption } from "./interfaces";
 
 if (
@@ -10,7 +11,8 @@ if (
     !process.env.NEXT_PUBLIC_RECOMMENDED_TEST_NET_RPC ||
     !process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE ||
     !process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES ||
-    !process.env.NEXT_PUBLIC_MIXPANEL_TOKEN
+    !process.env.NEXT_PUBLIC_MIXPANEL_TOKEN ||
+    !process.env.NEXT_PUBLIC_FIREBASE_CONFIG
 ) {
     throw new Error('Missing configuration value');
 }
@@ -28,7 +30,8 @@ interface AppConfig {
     },
     buttonDebounce: number,
     usagePersistenceMinutes: number,
-    mixpanelToken: string;
+    mixpanelToken: string,
+    firebaseConfig: FirebaseOptions
 }
 
 const config: AppConfig = {
@@ -51,7 +54,8 @@ const config: AppConfig = {
     },
     buttonDebounce: parseInt(process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE),
     usagePersistenceMinutes: parseInt(process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES),
-    mixpanelToken: process.env.NEXT_PUBLIC_MIXPANEL_TOKEN
+    mixpanelToken: process.env.NEXT_PUBLIC_MIXPANEL_TOKEN,
+    firebaseConfig: JSON.parse(process.env.NEXT_PUBLIC_FIREBASE_CONFIG)
 };
 
 export default config;
