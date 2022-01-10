@@ -12,6 +12,16 @@ Identity Management: [Firebase Auth](https://firebase.google.com/docs/auth)
 
 # Usage
 
+## Local Environment Variables
+
+Environment variables are loaded for a `.env` file at the root of the project. These are not currently tracked in git, so you will need to obtain them from a fellow developer. In the future, the goal would be to have three files
+
+1. Secrets file: not tracked in git, must be obtained from another developer
+2. Base environment file: tracked in git, contains default settings for environment variables
+3. Local overrides: not tracked in git, allows overriding specific environment variables as needed for development
+
+For the most part, the project should be able to run without overrides, however there will be exceptions. For example, in order to avoid conflicts in the API key management service, each developer will need to have a different value for `PROJECT_REF_PREFIX`
+
 ## Database
 
 Initialize database with Prisma models
@@ -65,6 +75,18 @@ This is an RPC-style API. All endpoints are POSTs and all bodies are JSON. This 
 ## Input Validation
 
 All endpoints which accept input (JSON bodies) should validate that input with [Joi](https://joi.dev/). The best way to learn how to do this is to inspect an existing endpoint.
+
+## Authentication
+
+Users tokens are verified with Firebase in [src/auth/auth.service.ts](src/auth/auth.service.ts). The authenticated user details are attached in the request object and accessible in endpoint handlers as seen below
+
+```ts
+@Post('exampleHandler')
+@UseGuards(BearerAuthGuard)
+async exampleHandler(@Request() req) {
+  console.log(req.user);
+}
+```
 
 ## Comments
 
