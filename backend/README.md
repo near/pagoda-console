@@ -1,4 +1,14 @@
-NestJS API for the NEAR developer console
+## **Backend Service for the NEAR Developer Console**
+
+# Stack
+
+Language: Typescript
+
+Framework: [Nest.js](https://nestjs.com/)
+
+ORM: [Prisma](https://www.prisma.io/)
+
+Identity Management: [Firebase Auth](https://firebase.google.com/docs/auth)
 
 # Usage
 
@@ -10,7 +20,7 @@ Initialize database with Prisma models
 npx prisma migrate dev
 ```
 
-Wipe the contents of the database
+Wipe the contents of the database (as needed)
 
 ```
 npx prisma migrate reset
@@ -18,7 +28,7 @@ npx prisma migrate reset
 
 ### Update models
 
-Whenever models are changed, a new Prisma client must be generated
+Whenever models are changed,even locally, a new Prisma client must be generated
 
 ```
 npx prisma generate
@@ -36,7 +46,29 @@ $ npm run start:dev
 $ npm run start
 ```
 
+## Debugging
+
+If using VS Code, you can copy the [devResources/launch.json](devResources/launch.json) file to your `.vscode` directory to get a working debugging configuration. Hit F5 to run it and use breakpoints in the gutter of the editor window
+
 # Contributing
+
+The recommended way to run a development instance of this project is with VS Code and Dev Containers. The container definitions are part of this repository (`.devcontainer/`), so using dev containers will allow you to easily keep your environment in sync with other team members.
+
+If VS Code is not your preferred development environment, you are more than welcome to stray from this recommendation and run the containers with Docker directly.
+
+> TODO: Define a docker-compose stack for running without VS Code
+
+## Endpoints
+
+This is an RPC-style API. All endpoints are POSTs and all bodies are JSON. This style was chosen since the API is serving a specific frontend client and set of features.
+
+## Input Validation
+
+All endpoints which accept input (JSON bodies) should validate that input with [Joi](https://joi.dev/). The best way to learn how to do this is to inspect an existing endpoint.
+
+## Comments
+
+Where helpful, utilize [Better Comments](https://marketplace.visualstudio.com/items?itemName=aaron-bond.better-comments) syntax to add context to your comments
 
 ## Errors
 
