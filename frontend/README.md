@@ -26,6 +26,10 @@ The recommended way to run a development instance of this project is with VS Cod
 
 If VS Code is not your preferred development environment, you are more than welcome to stray from this recommendation and run the containers with Docker directly.
 
+## Config
+
+All environment variables are read into a config object in [utils/config.ts](utils/config.ts). This allows casting the values to their desired types in a central location and early process termination if any values were not defined
+
 ## CSS-in-JS
 
 This project uses [styled-jsx](https://github.com/vercel/styled-jsx). This remains open to evaluation. See [this issue](https://github.com/near/developer-console-framework/issues/7) for context

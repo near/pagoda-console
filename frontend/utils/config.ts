@@ -1,6 +1,9 @@
 import { FirebaseOptions } from "firebase/app";
 import { NetOption } from "./interfaces";
 
+// TODO clean up, most likely using an array or required variables and 
+// node's assert. The error should print which specific variable
+// was not defined
 if (
     !process.env.NEXT_PUBLIC_API_BASE_URL ||
     !process.env.NEXT_PUBLIC_MAIN_NET_RPC ||
