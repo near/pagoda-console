@@ -130,8 +130,21 @@ h2 {
 .tooltip-inner {
   background-color: var(--color-accent-lilac);
 }
-.tooltip-arrow::before {
-  border-right-color: var(--color-accent-lilac) !important;
+
+.bs-tooltip-bottom .tooltip-arrow::before {
+	border-bottom-color: var(--color-accent-lilac);
+}
+
+.bs-tooltip-top .tooltip-arrow::before {
+	border-top-color: var(--color-accent-lilac);
+}
+
+.bs-tooltip-left .tooltip-arrow::before {
+	border-left-color: var(--color-accent-lilac);
+}
+
+.bs-tooltip-right .tooltip-arrow::before {
+	border-right-color: var(--color-accent-lilac);
 }
 
 .hoverPrimary:hover {
