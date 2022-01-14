@@ -74,6 +74,11 @@ export default function AuthenticationForm() {
         return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
     }, [router]);
 
+    useEffect(() => {
+        router.prefetch('/projects');
+        router.prefetch('/verification?existing=true');
+    });
+
     async function socialSignIn(provider: AuthProvider) {
         setAuthActive(false);
         const auth = getAuth();
