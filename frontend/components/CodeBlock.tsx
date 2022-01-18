@@ -1,15 +1,29 @@
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FC } from "react";
+import { FC, useRef, useState } from "react";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { LightAsync as SyntaxHighlighter, SyntaxHighlighterProps } from 'react-syntax-highlighter';
 import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
 
 const CodeBlock: FC<SyntaxHighlighterProps> = function ({ children, ...passedProps }) {
     const isChildString = typeof children === 'string';
+
+    let [showCopiedAlert, setShowCopiedAlert] = useState<boolean>(false);
+    const copiedTimer = useRef<NodeJS.Timeout>();
+
     function copyKey() {
+        if (copiedTimer.current) {
+            clearTimeout(copiedTimer.current);
+        }
+
         isChildString && navigator.clipboard.writeText(children);
+
+        setShowCopiedAlert(true);
+        copiedTimer.current = setTimeout(() => {
+            setShowCopiedAlert(false);
+        }, 2000);
     }
+
     return (
         <div className="codeContainer">
             <SyntaxHighlighter style={atomOneDark} customStyle={{
@@ -22,6 +36,7 @@ const CodeBlock: FC<SyntaxHighlighterProps> = function ({ children, ...passedPro
                 <FontAwesomeIcon icon={faCopy} />
             </Button>
             <OverlayTrigger
+                show={showCopiedAlert}
                 placement="top"
                 trigger="click"
                 rootClose={true}
