@@ -1,5 +1,3 @@
-// TODO (P2+) get copy button working cleanly for single line snippets so that it can be enabled
-
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FC } from "react";
