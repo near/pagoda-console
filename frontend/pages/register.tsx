@@ -58,6 +58,11 @@ export default function Register() {
     }, [router, displayName]);
 
     useEffect(() => {
+        router.prefetch('/verification');
+        router.prefetch('/new-project');
+    }, []);
+
+    useEffect(() => {
         window.addEventListener('focus', onFocus);
         return () => {
             window.removeEventListener('focus', onFocus);

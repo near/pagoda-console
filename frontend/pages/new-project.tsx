@@ -44,6 +44,7 @@ export default function NewProject() {
         e.preventDefault();
         setFormEnabled(false);
         try {
+            router.prefetch('/project-settings');
             setCreateInProgress(true);
             const project: Project = await authenticatedPost('/projects/create', { name: projectName }, { forceRefresh: true });
             mixpanel.track('DC Create New Project', {

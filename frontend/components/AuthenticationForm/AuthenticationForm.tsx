@@ -76,7 +76,7 @@ export default function AuthenticationForm() {
 
     useEffect(() => {
         router.prefetch('/projects');
-        router.prefetch('/verification?existing=true');
+        router.prefetch('/verification');
     });
 
     async function socialSignIn(provider: AuthProvider) {
