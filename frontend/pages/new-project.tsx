@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { useSimpleLayout } from "../utils/layouts"
 import { Form, Button } from 'react-bootstrap'
 import { getAuth } from 'firebase/auth';
@@ -14,6 +14,18 @@ export default function NewProject() {
     let [projectName, setProjectName] = useState<string>('');
     let [formEnabled, setFormEnabled] = useState<boolean>(true);
     const router = useRouter();
+
+    let [lastVisitedPath, setLastVisitedPath] = useState<string>('');
+    useEffect(() => {
+        let path = window.sessionStorage.getItem("lastVisitedPath");
+
+        // Don't show the back button if we will nav to this same page.
+        if (path && path !== router.asPath) {
+            setLastVisitedPath(path);
+        }
+        // The router path only needs to be verified once. Disabling eslint rule.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const isOnboarding = useRouteParam('onboarding');
 
@@ -78,6 +90,7 @@ export default function NewProject() {
             <div className="submitRow">
                 <div className='submitContainer'>
                     {createInProgress && <BorderSpinner />}
+                    {!isOnboarding && lastVisitedPath && <Button onClick={() => router.push(lastVisitedPath)}>Back</Button>}
                     <Button variant='primary' type='submit' disabled={!canCreate()}>Create a Project</Button>
                 </div>
             </div>
