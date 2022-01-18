@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { useSimpleLayout } from "../utils/layouts"
 import { Form, Button } from 'react-bootstrap'
 import { getAuth } from 'firebase/auth';
@@ -14,6 +14,9 @@ export default function NewProject() {
     let [projectName, setProjectName] = useState<string>('');
     let [formEnabled, setFormEnabled] = useState<boolean>(true);
     const router = useRouter();
+
+    let [lastVisitedPath, setLastVisitedPath] = useState<string>('');
+    useEffect(() => setLastVisitedPath(window.sessionStorage.getItem("lastVisitedPath") || ''), []);
 
     const isOnboarding = useRouteParam('onboarding');
 
@@ -78,7 +81,7 @@ export default function NewProject() {
             <div className="submitRow">
                 <div className='submitContainer'>
                     {createInProgress && <BorderSpinner />}
-                    {!isOnboarding && <Button onClick={() => router.back()}>Back</Button>}
+                    {!isOnboarding && lastVisitedPath && <Button onClick={() => router.push(lastVisitedPath)}>Back</Button>}
                     <Button variant='primary' type='submit' disabled={!canCreate()}>Create a Project</Button>
                 </div>
             </div>
