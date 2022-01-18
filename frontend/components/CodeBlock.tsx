@@ -14,7 +14,7 @@ const CodeBlock: FC<SyntaxHighlighterProps> = function ({ children, ...passedPro
         <div className="codeContainer">
             <SyntaxHighlighter style={atomOneDark} customStyle={{
                 borderRadius: '0.5rem',
-                padding: '1rem 0.5rem'
+                padding: '1rem 3rem 1rem 0.5rem'
             }} {...passedProps}>
                 {children}
             </SyntaxHighlighter>
