@@ -16,7 +16,16 @@ export default function NewProject() {
     const router = useRouter();
 
     let [lastVisitedPath, setLastVisitedPath] = useState<string>('');
-    useEffect(() => setLastVisitedPath(window.sessionStorage.getItem("lastVisitedPath") || ''), []);
+    useEffect(() => {
+        let path = window.sessionStorage.getItem("lastVisitedPath");
+
+        // Don't show the back button if we will nav to this same page.
+        if (path && path !== router.asPath) {
+            setLastVisitedPath(path);
+        }
+        // The router path only needs to be verified once. Disabling eslint rule.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const isOnboarding = useRouteParam('onboarding');
 
