@@ -5,6 +5,7 @@ import { PublicConfiguration, Revalidator, RevalidatorOptions, SWRConfiguration 
 import { Transaction } from "../components/explorer/components/transactions/types";
 import { useIdentity } from "./hooks";
 import { Contract, Environment, User, Project, NetOption } from "./interfaces";
+import router, { useRouter } from "next/router";
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
@@ -192,7 +193,7 @@ export function useRecentTransactions(contracts: string[], net: NetOption): { tr
 // * This is a great candidate for making a PR back to an open source repo :)
 export function customErrorRetry(
   err: any,
-  __: string,
+  key: string,
   config: Readonly<PublicConfiguration>,
   revalidate: Revalidator,
   opts: Required<RevalidatorOptions>
@@ -207,6 +208,8 @@ export function customErrorRetry(
     case (400):
     case (401):
     case (403):
+      console.log(`redirecting to projects because of 403: ${key}`);
+      return;
     case (404):
       console.log(`breaking for status code of ${err.status}`);
       return;
