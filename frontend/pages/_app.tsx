@@ -47,6 +47,10 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const router = useRouter();
 
   useEffect(() => {
+    router.prefetch('/');
+  }, []);
+
+  useEffect(() => {
     //* Note: this is saving the current path + query params on unmount of the current component.
     return () => window.sessionStorage.setItem("lastVisitedPath", router.asPath);
   }, [router.asPath]);

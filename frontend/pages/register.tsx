@@ -49,13 +49,19 @@ export default function Register() {
                     console.error(e);
                 }
             } else if (user) {
-                // TODO check if this can happen
+                // If the user is already verified and they go to /register, let's reroute them.
                 router.push('/new-project');
                 console.log('verified');
             }
         });
         return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
     }, [router, displayName]);
+
+    useEffect(() => {
+        router.prefetch('/verification');
+        router.prefetch('/new-project');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         window.addEventListener('focus', onFocus);

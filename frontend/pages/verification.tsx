@@ -44,6 +44,10 @@ export default function Verification() {
         queueVerificationCheck();
     }, []);
 
+    useEffect(() => {
+        router.prefetch('/new-project');
+    }, []);
+
     return (
         <div className='pageContainer'>
             A verification message {existing ? 'was previously' : 'has been'} sent to your email address

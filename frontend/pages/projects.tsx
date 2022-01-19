@@ -6,7 +6,7 @@ import { Project } from '../utils/interfaces';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BorderSpinner from "../components/BorderSpinner";
 import CenterModal from "../components/CenterModal";
 import mixpanel from 'mixpanel-browser';
@@ -15,6 +15,12 @@ export default function Projects() {
     const router = useRouter();
     const { projects, error, isValidating, mutate: refetchProjects } = useProjects();
     let [isEditing, setIsEditing] = useState<boolean>(false);
+
+    useEffect(() => {
+        router.prefetch('/new-project');
+        // Prefetch only needs to happen once. Disabling rule.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     let body;
     if (error) {

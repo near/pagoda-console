@@ -10,6 +10,9 @@ import mixpanel from 'mixpanel-browser';
 import { logOut } from '../utils/auth';
 import BorderSpinner from '../components/BorderSpinner';
 
+// Don't show the back button if we are going back to these specific routes.
+const EXCLUDED_BACK_PATHS = ['/register', '/verification'];
+
 export default function NewProject() {
     let [projectName, setProjectName] = useState<string>('');
     let [formEnabled, setFormEnabled] = useState<boolean>(true);
@@ -20,7 +23,7 @@ export default function NewProject() {
         let path = window.sessionStorage.getItem("lastVisitedPath");
 
         // Don't show the back button if we will nav to this same page.
-        if (path && path !== router.asPath) {
+        if (path && path !== router.asPath && !EXCLUDED_BACK_PATHS.includes(path)) {
             setLastVisitedPath(path);
         }
         // The router path only needs to be verified once. Disabling eslint rule.
@@ -44,6 +47,7 @@ export default function NewProject() {
         e.preventDefault();
         setFormEnabled(false);
         try {
+            router.prefetch('/project-settings');
             setCreateInProgress(true);
             const project: Project = await authenticatedPost('/projects/create', { name: projectName }, { forceRefresh: true });
             mixpanel.track('DC Create New Project', {
