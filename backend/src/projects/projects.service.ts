@@ -27,12 +27,12 @@ export class ProjectsService {
     private prisma: PrismaService,
     private keys: KeysService,
     private config: ConfigService,
-  ) { }
+  ) {}
 
   async create(
     user: User,
     name: Project['name'],
-  ): Promise<{ name: Project['name']; slug: Project['slug']; }> {
+  ): Promise<{ name: Project['name']; slug: Project['slug'] }> {
     let teamId;
     try {
       const teamFind = await this.prisma.teamMember.findFirst({
@@ -481,10 +481,10 @@ export class ProjectsService {
         net: true,
         contracts: includeContracts
           ? {
-            where: {
-              active: true,
-            },
-          }
+              where: {
+                active: true,
+              },
+            }
           : false,
       },
     });
@@ -582,8 +582,9 @@ export class ProjectsService {
       environmentWhereUnique: { id: environment.id },
     });
 
-    const keyId = `${this.config.get('PROJECT_REF_PREFIX') || ''}${environment.projectId
-      }_${subId}`;
+    const keyId = `${this.config.get('PROJECT_REF_PREFIX') || ''}${
+      environment.projectId
+    }_${subId}`;
     const net = subId === 2 ? 'MAINNET' : 'TESTNET';
     try {
       return { [net]: (await this.keys.rotate(keyId, net)).token };
@@ -637,8 +638,9 @@ export class ProjectsService {
 
     const endDateObject = new Date();
     const month = (endDateObject.getMonth() + 1).toString();
-    const endDate = `${endDateObject.getFullYear()}-${month.length === 2 ? month : `0${month}`
-      }-${endDateObject.getDate()}`;
+    const endDate = `${endDateObject.getFullYear()}-${
+      month.length === 2 ? month : `0${month}`
+    }-${endDateObject.getDate()}`;
 
     let usageData;
     try {
