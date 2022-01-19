@@ -49,7 +49,7 @@ export default function Register() {
                     console.error(e);
                 }
             } else if (user) {
-                // TODO check if this can happen
+                // If the user is already verified and they go to /register, let's reroute them.
                 router.push('/new-project');
                 console.log('verified');
             }
