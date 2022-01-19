@@ -127,13 +127,6 @@ h2 {
   opacity: 1;
 }
 
-.tooltip-inner {
-  background-color: var(--color-accent-lilac);
-}
-.tooltip-arrow::before {
-  border-right-color: var(--color-accent-lilac) !important;
-}
-
 .hoverPrimary:hover {
   color: var(--color-primary)
 }
