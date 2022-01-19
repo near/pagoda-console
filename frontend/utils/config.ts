@@ -1,9 +1,13 @@
 import { FirebaseOptions } from "firebase/app";
 import { NetOption } from "./interfaces";
 
-// TODO clean up, most likely using an array or required variables and 
-// node's assert. The error should print which specific variable
-// was not defined
+// * NOTE: This is ugly, but we are limited in how we can
+// * implement this check. Due to the way Next.js loads
+// * environment variables, we cannot access the variables
+// * with object destructuring. We also need to explicitly
+// * check each variable to make TypeScript happy further
+// * down, or add non-null assertion on every usage.
+// * https://nextjs.org/docs/basic-features/environment-variables#loading-environment-variables
 if (
     !process.env.NEXT_PUBLIC_API_BASE_URL ||
     !process.env.NEXT_PUBLIC_MAIN_NET_RPC ||

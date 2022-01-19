@@ -15,7 +15,6 @@ interface ValidationFailure {
     displayName?: string,
 }
 
-// TODO finalize validations
 const emailRegex = /\w+@\w+\.\w+/;
 const passwordRegex = /.{6,}/;
 

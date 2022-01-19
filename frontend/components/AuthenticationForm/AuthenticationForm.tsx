@@ -152,7 +152,6 @@ interface ValidationFailure {
     password?: string,
 }
 
-// TODO finalize validations
 const emailRegex = /\w+@\w+\.\w+/;
 const passwordRegex = /.{6,}/;
 
@@ -207,7 +206,6 @@ function EmailAuth(props: { authActive: boolean; }) {
         }
     }
 
-    // TODO review validations
     function validate() {
         const validations: ValidationFailure = {};
         let failed = false;
@@ -314,7 +312,6 @@ function ProviderButton(props: { provider: ProviderDetails, active: boolean, sig
     return <IconButton {...props.provider} onClick={() => props.signInFunction(props.provider.providerInstance)} text={`${t('continueWith')} ${props.provider.name}`} active={props.active} />;
 }
 
-// TODO extract auth active to hook
 function IconButton(props: { onClick?: () => void, text: string, active: boolean, type?: 'submit' | undefined; } & Partial<ProviderDetails>) {
     const hasIcon = props.vector || props.icon || props.image;
     return <div className='buttonContainer'>
