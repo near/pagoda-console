@@ -60,6 +60,7 @@ export default function Register() {
     useEffect(() => {
         router.prefetch('/verification');
         router.prefetch('/new-project');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
