@@ -73,6 +73,7 @@ export class ProjectsService {
               ],
             },
           },
+          active: false,
         },
         select: {
           name: true,
@@ -95,9 +96,51 @@ export class ProjectsService {
         'MAINNET',
       );
     } catch (e) {
-      // ! TODO clean up project since it did not create successfully, or at least set inactive
+      // Attempt to delete the project, since API keys failed to generate.
+      try {
+        const deleteTeamProject = this.prisma.teamProject.deleteMany({
+          where: {
+            projectId: project.id,
+          },
+        });
+        const deleteEnv = this.prisma.environment.deleteMany({
+          where: {
+            projectId: project.id,
+          },
+        });
+        const deleteProject = this.prisma.project.delete({
+          where: {
+            id: project.id,
+          },
+        });
+        await this.prisma.$transaction([
+          deleteTeamProject,
+          deleteEnv,
+          deleteProject,
+        ]);
+      } catch (e) {
+        console.error(
+          'Failed to delete project after API keys failed to generate',
+          e,
+        );
+      }
       throw new VError(e, 'Failed while generating API keys');
     }
+
+    // If project creation worked fully, set the project to active.
+    try {
+      await this.prisma.project.update({
+        where: {
+          id: project.id,
+        },
+        data: {
+          active: true,
+        },
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while setting project to active');
+    }
+
     return {
       name: project.name,
       slug: project.slug,
