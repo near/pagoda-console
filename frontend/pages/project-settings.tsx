@@ -1,10 +1,9 @@
-import { authenticatedPost, useApiKeys, useProject } from "../utils/fetchers";
+import { authenticatedPost, useApiKeys } from "../utils/fetchers";
 import { useRouteParam } from "../utils/hooks";
 import { useDashboardLayout } from "../utils/layouts";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEyeSlash, faEye, faCopy } from '@fortawesome/free-regular-svg-icons'
-import { faRedoAlt } from '@fortawesome/free-solid-svg-icons'
 import { Button, Placeholder, Overlay } from 'react-bootstrap';
 import { useState, useRef } from "react";
 import { NetOption } from "../utils/interfaces";
