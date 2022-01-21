@@ -77,7 +77,7 @@ export default function AuthenticationForm() {
     useEffect(() => {
         router.prefetch('/projects');
         router.prefetch('/verification');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     async function socialSignIn(provider: AuthProvider) {
