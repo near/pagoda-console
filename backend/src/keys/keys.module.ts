@@ -10,7 +10,7 @@ const keysFactory = {
       configService.get<string>('MOCK_KEY_SERVICE') === 'true';
     if (useKeysServiceMock) {
       console.log('MOCKING KEYS SERVICE');
-      return new MockKeysService();
+      return new MockKeysService(configService);
     }
     return new KeysService(configService);
   },
