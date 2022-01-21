@@ -15,6 +15,15 @@ export default function Projects() {
     const router = useRouter();
     const { projects, error, isValidating, mutate: refetchProjects } = useProjects();
     let [isEditing, setIsEditing] = useState<boolean>(false);
+    const [redirected, setRedirected] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (window.sessionStorage.getItem('redirected') === 'true') {
+            setRedirected(true);
+            // Reset global state.
+            window.sessionStorage.setItem('redirected', '');
+        }
+    }, []);
 
     useEffect(() => {
         router.prefetch('/new-project');
@@ -37,6 +46,7 @@ export default function Projects() {
         body = projects!.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} roundTop={index === 0} roundBottom={index === arr.length - 1} showDelete={isEditing} onDelete={() => refetchProjects()} />);
     }
     return <div className='projectsContainer'>
+        {redirected && <p>You were redirected</p>}
         <div className='headerContainer'>
             <h1>Projects</h1>
             <Button onClick={() => setIsEditing(!isEditing)}>{!isEditing ? 'Edit' : 'Done'}</Button>

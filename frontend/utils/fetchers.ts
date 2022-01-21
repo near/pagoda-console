@@ -11,6 +11,11 @@ import router, { useRouter } from "next/router";
 // and remove unsafe type assertion
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
+// The following table is used to redirect the user in case of any unretryable API errors.
+const REDIRECT_RULES_TABLE = [
+  { path: '/projects/getDetails', statusCodes: [400, 403], redirect: '/projects' }
+];
+
 // export async function internalFetcher(url: string) {
 //     const user = getAuth().currentUser;
 //     if (!user) throw new Error('No authenticated user')
@@ -208,8 +213,6 @@ export function customErrorRetry(
     case (400):
     case (401):
     case (403):
-      console.log(`redirecting to projects because of 403: ${key}`);
-      return;
     case (404):
       console.log(`breaking for status code of ${err.status}`);
       return;
@@ -230,4 +233,23 @@ export function customErrorRetry(
   }
 
   setTimeout(revalidate, timeout, opts)
+}
+
+// * This is an implementation of the onError function to be used with SWR.
+// * Additional info: https://swr.vercel.app/docs/error-handling#global-error-report
+export function onError(
+  err: any,
+  key: string,
+  config: Readonly<PublicConfiguration>,
+): void {
+  if (window.sessionStorage.getItem('redirectPath')) {
+    return;
+  }
+
+  for (const rule of REDIRECT_RULES_TABLE) {
+    if (key.startsWith(`arg\$"${rule.path}"\$`) && rule.statusCodes.includes(err.statusCode)) {
+      window.sessionStorage.setItem('redirectPath', rule.redirect);
+      break;
+    }
+  }
 }

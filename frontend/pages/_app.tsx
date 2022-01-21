@@ -7,7 +7,7 @@ import { useSWRConfig, SWRConfig } from 'swr'
 import { appWithTranslation } from 'next-i18next';
 import { useRouter } from 'next/router'
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth'
-import { customErrorRetry } from '../utils/fetchers'
+import { customErrorRetry, onError } from '../utils/fetchers'
 import config from '../utils/config';
 import Head from 'next/head'
 
@@ -75,13 +75,27 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     return () => unsubscribe(); // TODO why lambda function?
   }, [router, cache]);
 
+  // Redirect on API errors.
+  useEffect(() => {
+    window.sessionStorage.setItem('redirected', 'true');
+    const redirect = window.sessionStorage.getItem('redirectPath');
+    if (redirect) {
+      window.sessionStorage.setItem('redirectPath', '');
+      // Redirected component can use redirected to display a notification.
+      window.sessionStorage.setItem('redirected', 'true');
+      router.push(redirect);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
   const getFooter = Component.getFooter ?? (() => null);
   return <SSRProvider>
     <SWRConfig
       value={{
-        onErrorRetry: customErrorRetry
+        onErrorRetry: customErrorRetry,
+        onError
       }}
     >
       <Head>
