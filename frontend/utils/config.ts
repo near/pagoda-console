@@ -37,7 +37,10 @@ interface AppConfig {
     },
     buttonDebounce: number,
     usagePersistenceMinutes: number,
-    mixpanelToken: string,
+    mixpanel: {
+        token: string,
+        debug: boolean
+    },
     firebaseConfig: FirebaseOptions
 }
 
@@ -61,7 +64,10 @@ const config: AppConfig = {
     },
     buttonDebounce: parseInt(process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE),
     usagePersistenceMinutes: parseInt(process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES),
-    mixpanelToken: process.env.NEXT_PUBLIC_MIXPANEL_TOKEN,
+    mixpanel: {
+        token: process.env.NEXT_PUBLIC_MIXPANEL_TOKEN,
+        debug: process.env.NEXT_PUBLIC_MIXPANEL_DEBUG === 'true',
+    },
     firebaseConfig: JSON.parse(process.env.NEXT_PUBLIC_FIREBASE_CONFIG)
 };
 

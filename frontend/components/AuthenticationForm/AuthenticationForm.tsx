@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Form } from 'react-bootstrap';
-import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged, signInWithEmailAndPassword, AuthError, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged, signInWithEmailAndPassword, AuthError, getAdditionalUserInfo } from "firebase/auth";
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
@@ -77,15 +77,19 @@ export default function AuthenticationForm() {
     useEffect(() => {
         router.prefetch('/projects');
         router.prefetch('/verification');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     async function socialSignIn(provider: AuthProvider) {
         setAuthActive(false);
         const auth = getAuth();
         try {
-            await signInWithPopup(auth, provider);
+            let socialResult = await signInWithPopup(auth, provider);
+            const additional = getAdditionalUserInfo(socialResult);
             try {
+                if (additional?.isNewUser) {
+                    mixpanel.alias(socialResult.user.uid);
+                }
                 mixpanel.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);
             } catch (e) {
                 // silently fail

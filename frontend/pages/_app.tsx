@@ -36,8 +36,9 @@ import { usePageTracker } from '../utils/hooks'
 
 // Enabling the debug mode flag is useful during implementation,
 // but it's recommended you remove it for production
-// mixpanel.init(config.mixpanelToken, { debug: true }); // TODO (P2+) enable debug mode in non-prod envs
-mixpanel.init(config.mixpanelToken);
+mixpanel.init(config.mixpanel.token, {
+  debug: config.mixpanel.debug
+});
 
 const unauthedPaths = ['/', '/register'];
 

@@ -72,10 +72,16 @@ export default function Register() {
     async function signUpWithEmail(): Promise<void> {
         const auth = getAuth();
         try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            mixpanel.track('DC Signed up with email', {
-                status: 'success'
-            });
+            const registerResult = await createUserWithEmailAndPassword(auth, email, password);
+
+            try {
+                mixpanel.alias(registerResult.user.uid);
+                mixpanel.track('DC Signed up with email', {
+                    status: 'success'
+                });
+            } catch (e) {
+                // silently fail
+            }
         } catch (e) {
             const error = e as AuthError;
             const errorCode = error.code;
