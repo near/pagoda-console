@@ -1,5 +1,5 @@
 import { useSimpleLayout } from "../utils/layouts";
-import { Button } from 'react-bootstrap';
+import { Alert, Button } from 'react-bootstrap';
 import { useRouter } from "next/router";
 import { authenticatedPost, useProjects } from "../utils/fetchers";
 import { Project } from '../utils/interfaces';
@@ -10,16 +10,17 @@ import { useEffect, useState } from "react";
 import BorderSpinner from "../components/BorderSpinner";
 import CenterModal from "../components/CenterModal";
 import mixpanel from 'mixpanel-browser';
+import { faExclamationCircle, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 export default function Projects() {
     const router = useRouter();
     const { projects, error, isValidating, mutate: refetchProjects } = useProjects();
     let [isEditing, setIsEditing] = useState<boolean>(false);
-    const [redirected, setRedirected] = useState<boolean>(false);
+    const [showRedirectAlert, setShowRedirectAlert] = useState<boolean>(false);
 
     useEffect(() => {
         if (window.sessionStorage.getItem('redirected') === 'true') {
-            setRedirected(true);
+            setShowRedirectAlert(true);
             // Reset global state.
             window.sessionStorage.setItem('redirected', '');
         }
@@ -46,11 +47,11 @@ export default function Projects() {
         body = projects!.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} roundTop={index === 0} roundBottom={index === arr.length - 1} showDelete={isEditing} onDelete={() => refetchProjects()} />);
     }
     return <div className='projectsContainer'>
-        {redirected && <p>You were redirected</p>}
         <div className='headerContainer'>
             <h1>Projects</h1>
             <Button onClick={() => setIsEditing(!isEditing)}>{!isEditing ? 'Edit' : 'Done'}</Button>
         </div>
+        {showRedirectAlert && <div className="alertContainer"><RedirectAlert onClick={() => setShowRedirectAlert(false)}></RedirectAlert></div>}
         <div className='listContainer'>
             {body}
         </div>
@@ -67,6 +68,9 @@ export default function Projects() {
                 justify-content: space-between;
                 align-items: center;
             }
+            .alertContainer {
+                margin-top: 1.25rem;
+            }
             .listContainer {
                 margin-top: 1.25rem;
                 /*TODO review styling for very long list */
@@ -81,7 +85,30 @@ export default function Projects() {
                 align-items: center;
             }
         `}</style>
-    </div>
+    </div >
+}
+
+function RedirectAlert(props: { onClick: () => void }) {
+    return <Alert variant='danger'>
+        <p className='alertContent' style={{ fontSize: '12px', lineHeight: '14px', margin: '0px' }}>
+            <FontAwesomeIcon icon={faExclamationCircle}></FontAwesomeIcon> <b>Error: </b>{"That project does not exist or you don't have permission to access it."} <span className="dismissIcon" onClick={() => props.onClick()}><FontAwesomeIcon icon={faTimes}></FontAwesomeIcon></span>
+        </p>
+        <style jsx>{`
+            .alertContent {
+                font-size: 12px;
+                line-height: 14px;
+                margin: 0px;
+            }
+            .dismissIcon {
+                cursor: pointer;
+                position: absolute;
+                top: 0;
+                right: 0;
+                z-index: 2;
+                padding: 1rem;
+            }
+        `}</style>
+    </Alert>;
 }
 
 function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: boolean, showDelete: boolean, onDelete: () => void }) {
