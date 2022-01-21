@@ -135,14 +135,9 @@ export default function NewProject() {
                 column-gap: 1rem;
             }
             .signOut {
-                    cursor: pointer;
-                    text-decoration: none;
-                    position: absolute;
-                    left: 3rem;
-                    bottom: 3rem;
-                }
-            .signOut:hover {
-                color: var(--color-primary)
+                position: absolute;
+                left: 3rem;
+                bottom: 3rem;
             }
         `}</style>
     </div >

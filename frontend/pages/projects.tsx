@@ -73,14 +73,9 @@ export default function Projects() {
                 align-items: center;
             }
             .signOut {
-                cursor: pointer;
-                text-decoration: none;
                 position: absolute;
                 left: 3rem;
                 bottom: 3rem;
-            }
-            .signOut:hover {
-                color: var(--color-primary)
             }
         `}</style>
     </div>
