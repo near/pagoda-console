@@ -99,7 +99,7 @@ export default function NewProject() {
                 </div>
             </div>
         </Form>
-        {isOnboarding && <div className='signOut' onClick={logOut}>Log Out</div>}
+        {isOnboarding && <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>}
         <style jsx>{`
             .newProjectContainer {
                 display: flex;

@@ -48,7 +48,7 @@ export default function Projects() {
         <div className='footerContainer'>
             <Button onClick={() => router.push('/new-project')}>Create a Project</Button>
         </div>
-        <div className='signOut' onClick={logOut}>Log Out</div>
+        <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>
         <style jsx>{`
             .projectsContainer {
                 width: 34.125rem;
