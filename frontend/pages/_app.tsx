@@ -77,7 +77,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   // Redirect on API errors.
   useEffect(() => {
-    window.sessionStorage.setItem('redirected', 'true');
     const redirect = window.sessionStorage.getItem('redirectPath');
     if (redirect) {
       window.sessionStorage.setItem('redirectPath', '');
