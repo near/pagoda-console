@@ -206,7 +206,7 @@ export function useRecentTransactions(contracts: string[], net: NetOption): { tr
 // * This is a great candidate for making a PR back to an open source repo :)
 export function customErrorRetry(
   err: any,
-  key: string,
+  __: string,
   config: Readonly<PublicConfiguration>,
   revalidate: Revalidator,
   opts: Required<RevalidatorOptions>

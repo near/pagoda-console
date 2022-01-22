@@ -7,7 +7,7 @@ import { useSWRConfig, SWRConfig } from 'swr'
 import { appWithTranslation } from 'next-i18next';
 import { useRouter } from 'next/router'
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth'
-import { customErrorRetry, onError } from '../utils/fetchers'
+import { customErrorRetry } from '../utils/fetchers'
 import config from '../utils/config';
 import Head from 'next/head'
 
