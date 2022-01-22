@@ -6,15 +6,11 @@ import { Transaction } from "../components/explorer/components/transactions/type
 import { useIdentity } from "./hooks";
 import { Contract, Environment, User, Project, NetOption } from "./interfaces";
 import router, { useRouter } from "next/router";
+import { useEffect } from "react";
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
-
-// The following table is used to redirect the user in case of any unretryable API errors.
-const REDIRECT_RULES_TABLE = [
-  { path: '/projects/getDetails', statusCodes: [400, 403], redirect: '/projects' }
-];
 
 // export async function internalFetcher(url: string) {
 //     const user = getAuth().currentUser;
@@ -146,11 +142,23 @@ export function useProjects(): { projects?: Project[]; error?: any; mutate: Keye
 }
 
 export function useProject(projectSlug: string | null): { project?: Project, error?: any } {
+  const router = useRouter();
   const identity = useIdentity();
+
+  useEffect(() => {
+    router.prefetch('/projects');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const { data: project, error } = useSWR(identity && projectSlug ? ['/projects/getDetails', projectSlug, identity.uid] : null,
     (key: string, projectSlug: number) => {
       return authenticatedPost(key, { slug: projectSlug });
     });
+
+  if ([400, 403].includes(error?.statusCode)) {
+    window.sessionStorage.setItem('redirected', 'true');
+    router.push('/projects');
+  }
 
   return { project, error };
 }
@@ -233,23 +241,4 @@ export function customErrorRetry(
   }
 
   setTimeout(revalidate, timeout, opts)
-}
-
-// * This is an implementation of the onError function to be used with SWR.
-// * Additional info: https://swr.vercel.app/docs/error-handling#global-error-report
-export function onError(
-  err: any,
-  key: string,
-  config: Readonly<PublicConfiguration>,
-): void {
-  if (window.sessionStorage.getItem('redirectPath')) {
-    return;
-  }
-
-  for (const rule of REDIRECT_RULES_TABLE) {
-    if (key.startsWith(`arg\$"${rule.path}"\$`) && rule.statusCodes.includes(err.statusCode)) {
-      window.sessionStorage.setItem('redirectPath', rule.redirect);
-      break;
-    }
-  }
 }

@@ -75,26 +75,13 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     return () => unsubscribe(); // TODO why lambda function?
   }, [router, cache]);
 
-  // Redirect on API errors.
-  useEffect(() => {
-    const redirect = window.sessionStorage.getItem('redirectPath');
-    if (redirect) {
-      window.sessionStorage.setItem('redirectPath', '');
-      // Redirected component can use redirected to display a notification.
-      window.sessionStorage.setItem('redirected', 'true');
-      router.push(redirect);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
   const getFooter = Component.getFooter ?? (() => null);
   return <SSRProvider>
     <SWRConfig
       value={{
-        onErrorRetry: customErrorRetry,
-        onError
+        onErrorRetry: customErrorRetry
       }}
     >
       <Head>
