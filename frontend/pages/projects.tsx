@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import BorderSpinner from "../components/BorderSpinner";
 import CenterModal from "../components/CenterModal";
 import mixpanel from 'mixpanel-browser';
+import { logOut } from "../utils/auth";
 
 export default function Projects() {
     const router = useRouter();
@@ -47,6 +48,7 @@ export default function Projects() {
         <div className='footerContainer'>
             <Button onClick={() => router.push('/new-project')}>Create a Project</Button>
         </div>
+        <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>
         <style jsx>{`
             .projectsContainer {
                 width: 34.125rem;
@@ -69,6 +71,11 @@ export default function Projects() {
                 flex-direction: row;
                 justify-content: flex-end;
                 align-items: center;
+            }
+            .signOut {
+                position: absolute;
+                left: 3rem;
+                bottom: 3rem;
             }
         `}</style>
     </div>
