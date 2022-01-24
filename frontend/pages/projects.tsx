@@ -23,7 +23,7 @@ export default function Projects() {
         if (window.sessionStorage.getItem('redirected') === 'true') {
             setShowRedirectAlert(true);
             // Reset global state.
-            window.sessionStorage.setItem('redirected', '');
+            window.sessionStorage.removeItem('redirected');
         }
     }, []);
 
