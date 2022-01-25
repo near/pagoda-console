@@ -18,12 +18,13 @@ interface PageDefinition {
 };
 
 const pages = [
-    { display: 'Analytics', route: '/analytics' },
+    { display: '<< Console', route: '/analytics' }, // Go to /analytics page for the tutorial project the user created.
+    { display: 'Analytics', route: '/analytics' }, // Inject the different sections of 
     { display: 'Contracts', route: `/contracts` },
     { display: 'Settings', route: `/project-settings` },
 ];
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+export default function TutorialLayout({ children }: { children: ReactNode }) {
     const router = useRouter();
 
     return (
