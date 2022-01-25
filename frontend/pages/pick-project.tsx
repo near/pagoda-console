@@ -31,7 +31,7 @@ export default function PickProject() {
     useEffect(() => {
         router.prefetch('/new-project');
         // TODO router.prefetch('/nft-market-tutorial');
-    })
+    }, [])
 
     const isOnboarding = useRouteParam('onboarding');
 
