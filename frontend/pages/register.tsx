@@ -49,7 +49,7 @@ export default function Register() {
                 }
             } else if (user) {
                 // If the user is already verified and they go to /register, let's reroute them.
-                router.push('/new-project');
+                router.push('/pick-project');
                 console.log('verified');
             }
         });
@@ -58,7 +58,7 @@ export default function Register() {
 
     useEffect(() => {
         router.prefetch('/verification');
-        router.prefetch('/new-project');
+        router.prefetch('/pick-project');
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

@@ -18,7 +18,7 @@ export default function Projects() {
     let [isEditing, setIsEditing] = useState<boolean>(false);
 
     useEffect(() => {
-        router.prefetch('/new-project');
+        router.prefetch('/pick-project');
         // Prefetch only needs to happen once. Disabling rule.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -32,7 +32,7 @@ export default function Projects() {
         return <BorderSpinner />;
     } else if (!projects.length && !isValidating) {
         // TODO
-        router.push('/new-project?onboarding=true');
+        router.push('/pick-project?onboarding=true');
         return <></>;
     } else {
         body = projects!.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} roundTop={index === 0} roundBottom={index === arr.length - 1} showDelete={isEditing} onDelete={() => refetchProjects()} />);
@@ -46,7 +46,7 @@ export default function Projects() {
             {body}
         </div>
         <div className='footerContainer'>
-            <Button onClick={() => router.push('/new-project')}>Create a Project</Button>
+            <Button onClick={() => router.push('/pick-project')}>Create a Project</Button>
         </div>
         <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>
         <style jsx>{`
