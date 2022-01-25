@@ -1,16 +1,17 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSimpleLayout } from "../utils/layouts"
-import { Form, Button } from 'react-bootstrap'
+import { Button, Row, Col, Card } from 'react-bootstrap'
 import { useRouter } from 'next/router';
-import { Project } from '../utils/interfaces';
-import { authenticatedPost } from '../utils/fetchers';
 import { useRouteParam } from '../utils/hooks';
-import mixpanel from 'mixpanel-browser';
 import { logOut } from '../utils/auth';
-import BorderSpinner from '../components/BorderSpinner';
 
 // Don't show the back button if we are going back to these specific routes.
 const EXCLUDED_BACK_PATHS = ['/register', '/verification'];
+
+const projects = [
+    { title: 'Blank', image: 'static/images/blank.png', path: '/new-project' },
+    { title: 'Tutorial', image: 'static/images/builder.png', path: '/nft-market-tutorial' }
+]
 
 export default function PickProject() {
     const router = useRouter();
@@ -28,7 +29,7 @@ export default function PickProject() {
     }, []);
 
     useEffect(() => {
-        router.prefetch('/pick-project');
+        router.prefetch('/new-project');
         // TODO router.prefetch('/nft-market-tutorial');
     })
 
@@ -44,8 +45,27 @@ export default function PickProject() {
             Start with a blank project or get some guidance with a tutorial.
         </div>}
 
+        <Row xs={1} md={2} className="g-4">
+            {projects.map((project, idx) => (
+                <Col key={idx}>
+                    <div className="projectCardWrapper">
+                        <Card onClick={() => router.push(project.path)}>
+                            <Card.Img variant="top" src={project.image} />
+                            <Card.Body>
+                                <Card.Title>{project.title + ' >>'}</Card.Title>
+                            </Card.Body>
+                        </Card>
+                    </div>
+                </Col>
+            ))}
+        </Row>
+        {/** // TODO add back button */}
+        {/* {!isOnboarding && lastVisitedPath && <Button onClick={() => router.push(lastVisitedPath)}>Back</Button>} */}
         {isOnboarding && <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>}
         <style jsx>{`
+            .projectCardWrapper {
+                cursor: pointer;
+            }
             .newProjectContainer {
                 display: flex;
                 flex-direction: column;
