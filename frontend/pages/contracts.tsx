@@ -1,21 +1,15 @@
 import { debounce } from 'lodash-es';
 import { useDashboardLayout } from "../utils/layouts";
-import { Button, Form, Dropdown, DropdownButton } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import useSWR from "swr";
-import { ChangeEvent, FormEvent, useMemo, useState, useEffect } from "react";
-import { Contract, Environment, NetOption } from "../utils/interfaces";
+import { FormEvent, useMemo, useState, useEffect } from "react";
+import { Contract, Environment } from "../utils/interfaces";
 import {
   authenticatedPost,
   useContracts,
-  useEnvironment,
-  useEnvironments,
-  useProject
 } from "../utils/fetchers";
-import { getAuth } from "firebase/auth";
-import { useIdentity, useProjectAndEnvironment, useRouteParam } from "../utils/hooks";
-import router, { useRouter } from "next/router";
+import { useIdentity, useProjectAndEnvironment } from "../utils/hooks";
 import BorderSpinner from "../components/BorderSpinner";
-import EnvironmentSelector from "../components/EnvironmentSelector";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 import Config from '../utils/config';
