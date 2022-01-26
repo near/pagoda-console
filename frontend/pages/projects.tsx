@@ -97,13 +97,13 @@ export default function Projects() {
 
 function RedirectAlert(props: { onClick: () => void }) {
     return <Alert variant='danger'>
-        <p className='alertContent' style={{ fontSize: '12px', lineHeight: '14px', margin: '0px' }}>
+        <p className='alertContent'>
             <FontAwesomeIcon icon={faExclamationCircle}></FontAwesomeIcon> <b>Error: </b>{"That project does not exist or you don't have permission to access it."} <span className="dismissIcon" onClick={() => props.onClick()}><FontAwesomeIcon icon={faTimes}></FontAwesomeIcon></span>
         </p>
         <style jsx>{`
             .alertContent {
-                font-size: 12px;
-                line-height: 14px;
+                font-size: 0.75rem;
+                line-height: 1rem;
                 margin: 0px;
             }
             .dismissIcon {
