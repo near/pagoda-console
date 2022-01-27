@@ -88,7 +88,15 @@ export default function Register() {
             const errorMessage = error.message;
             // TODO determine error handling
             console.error(`${errorCode}: ${errorMessage}`);
-            setErrorAlert(errorMessage);
+
+            switch (errorCode) {
+                case 'auth/email-already-in-use':
+                    setErrorAlert('Email is already in use');
+                    break;
+                default:
+                    setErrorAlert(errorMessage);
+            }
+
             mixpanel.track('DC Signed up with email', {
                 status: 'failure',
                 error: errorCode
@@ -200,7 +208,7 @@ export default function Register() {
                     Sign Up
                 </Button>
             </Form>
-            {errorAlert && <Alert variant='danger'>{errorAlert}</Alert>}
+            {errorAlert && <div className="alertContainer"><Alert variant='danger'>{errorAlert}</Alert></div>}
             <hr />
             <Link href='/'><a>I already have an account</a></Link>
             <style jsx>{`
@@ -220,6 +228,9 @@ export default function Register() {
             }
             a {
                 margin: 0 auto;
+            }
+            .alertContainer {
+                margin-top: 1.25rem;
             }
         `}</style>
         </div>
