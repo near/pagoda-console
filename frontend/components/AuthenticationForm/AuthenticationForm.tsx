@@ -109,7 +109,7 @@ export default function AuthenticationForm() {
                     } else {
                         // Get sign-in methods for this email.
                         let methods = await fetchSignInMethodsForEmail(auth, email);
-                        setAuthError(`You already have an account with the email ${email}. Try logging in with ${methods.join(' or ')}. After logging in, go to your user settings to link to other auth providers.`);
+                        setAuthError(`You already have an account with the email ${email}. Try logging in with ${methods.join(' or ')}.`);
                     }
                     break;
                 case 'auth/cancelled-popup-request':
