@@ -1,4 +1,4 @@
-import { useTutorialLayout } from "../utils/layouts"
+import { useDashboardLayout } from "../utils/layouts"
 
 export default function NftMarketTutorial() {
     return <div>
@@ -6,4 +6,4 @@ export default function NftMarketTutorial() {
     </div>
 }
 
-NftMarketTutorial.getLayout = useTutorialLayout;
+NftMarketTutorial.getLayout = useDashboardLayout;
