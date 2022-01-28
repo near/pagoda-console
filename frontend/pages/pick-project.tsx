@@ -4,9 +4,7 @@ import { Button, Row, Col, Card } from 'react-bootstrap'
 import { useRouter } from 'next/router';
 import { useRouteParam } from '../utils/hooks';
 import { logOut } from '../utils/auth';
-
-// Don't show the back button if we are going back to these specific routes.
-const EXCLUDED_BACK_PATHS = ['/register', '/verification'];
+import BackButton from '../components/BackButton';
 
 const projects = [
     { title: 'Blank', image: 'static/images/blank.png', path: '/new-project' },
@@ -16,22 +14,10 @@ const projects = [
 export default function PickProject() {
     const router = useRouter();
 
-    let [lastVisitedPath, setLastVisitedPath] = useState<string>('');
-    useEffect(() => {
-        let path = window.sessionStorage.getItem("lastVisitedPath");
-
-        // Don't show the back button if we will nav to this same page.
-        if (path && path !== router.asPath && !EXCLUDED_BACK_PATHS.includes(path)) {
-            setLastVisitedPath(path);
-        }
-        // The router path only needs to be verified once. Disabling eslint rule.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
     useEffect(() => {
         router.prefetch('/new-project');
         router.prefetch('/nft-market-tutorial');
-    }, [])
+    }, []);
 
     const isOnboarding = useRouteParam('onboarding');
 
@@ -59,8 +45,7 @@ export default function PickProject() {
                 </Col>
             ))}
         </Row>
-        {/** // TODO add back button */}
-        {/* {!isOnboarding && lastVisitedPath && <Button onClick={() => router.push(lastVisitedPath)}>Back</Button>} */}
+        {!isOnboarding && <BackButton />}
         {isOnboarding && <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>}
         <style jsx>{`
             .projectCardWrapper {
