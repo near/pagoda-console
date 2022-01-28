@@ -8,29 +8,21 @@ import BackButton from '../components/BackButton';
 import ProjectCard from '../components/ProjectCard';
 
 const projects = [
-    { title: 'Blank', image: 'static/images/blank.png', path: '/new-project' },
-    { title: 'Tutorial', image: 'static/images/builder.png', path: '/pick-tutorial' }
+    { title: 'NFT Market', image: 'static/images/blank.png', path: '/nft-market-tutorial' },
+    { title: 'Crossword', image: 'static/images/builder.png' }
 ]
 
 export default function PickProject() {
     const router = useRouter();
 
     useEffect(() => {
-        router.prefetch('/new-project');
-        router.prefetch('/pick-tutorial');
+        router.prefetch('/nft-market-tutorial');
     }, []);
 
     const isOnboarding = useRouteParam('onboarding');
 
     return <div className='newProjectContainer'>
-        <h1 className="pageTitle">New Project</h1>
-        {isOnboarding && <div className='calloutText'>
-            <span className='boldText'>One last thing! </span>
-            Before we let you loose on the Developer Console, you’ll need to create a blank project or get some guidance with a tutorial. Projects contain API keys and any smart contracts you wish to track.
-        </div>}
-        {!isOnboarding && <div className='calloutText'>
-            Start with a blank project or get some guidance with a tutorial.
-        </div>}
+        <h1 className="pageTitle">Select Tutorial</h1>
         <Row xs={1} md={2} className="g-4">
             {projects.map((project, idx) => (
                 <Col key={idx}>
@@ -38,12 +30,12 @@ export default function PickProject() {
                 </Col>
             ))}
         </Row>
-        {/* // TODO adding a back button here might require having a stack to store a history of paths instead of just the last path */}
         {/* {!isOnboarding && <BackButton />} */}
         {isOnboarding && <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>}
         <style jsx>{`
             .pageTitle {
                 text-align: center;
+                margin-bottom: 2rem;
             }
             h1 {
                 margin-bottom: 1.25rem;

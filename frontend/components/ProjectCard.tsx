@@ -3,22 +3,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/router";
 import { Card } from "react-bootstrap";
 
-export default function ProjectCard(props: { path: string, image: string, title: string }) {
+export default function ProjectCard(props: { path?: string, image: string, title: string }) {
     const router = useRouter();
-
+    const opacity = props.path ? 1 : .5;
+    const cursor = props.path ? 'pointer' : 'auto';
     return <>
-        <div className="projectCardWrapper">
-            <Card style={{ minWidth: '18rem', borderRadius: '6rem', backgroundColor: '#C4C4C4', borderColor: 'none' }} onClick={() => router.push(props.path)}>
+        <div style={{ cursor }}>
+            <Card style={{ opacity, minWidth: '18rem', borderRadius: '6rem', backgroundColor: '#C4C4C4', borderColor: 'none' }} onClick={() => props.path && router.push(props.path)}>
                 <Card.Img style={{ padding: '1rem' }} variant="top" src={props.image} />
                 <Card.Body>
                     <Card.Title style={{ textAlign: 'center', fontSize: '2rem' }}><b>{props.title}  </b><FontAwesomeIcon icon={faAngleDoubleRight} /></Card.Title>
                 </Card.Body>
             </Card>
         </div>
-        <style jsx>{`
-            .projectCardWrapper {
-                cursor: pointer;
-            }
-        `}</style>
     </>;
 }
