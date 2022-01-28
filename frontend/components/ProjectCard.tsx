@@ -8,7 +8,7 @@ export default function ProjectCard(props: { path: string, image: string, title:
 
     return <>
         <div className="projectCardWrapper">
-            <Card style={{ borderRadius: '6rem', backgroundColor: '#C4C4C4', borderColor: 'none' }} onClick={() => router.push(props.path)}>
+            <Card style={{ minWidth: '18rem', borderRadius: '6rem', backgroundColor: '#C4C4C4', borderColor: 'none' }} onClick={() => router.push(props.path)}>
                 <Card.Img style={{ padding: '1rem' }} variant="top" src={props.image} />
                 <Card.Body>
                     <Card.Title style={{ textAlign: 'center', fontSize: '2rem' }}><b>{props.title}  </b><FontAwesomeIcon icon={faAngleDoubleRight} /></Card.Title>
