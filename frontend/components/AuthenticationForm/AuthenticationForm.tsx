@@ -97,7 +97,6 @@ export default function AuthenticationForm() {
         } catch (error: any) {
             setAuthActive(true);
             const errorCode = error?.code;
-            console.log('pickles', error.email, JSON.stringify(error));
 
             switch (errorCode) {
                 case 'auth/account-exists-with-different-credential':
