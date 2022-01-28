@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { useRouteParam } from '../utils/hooks';
 import { logOut } from '../utils/auth';
 import BackButton from '../components/BackButton';
+import ProjectCard from '../components/ProjectCard';
 
 const projects = [
     { title: 'Blank', image: 'static/images/blank.png', path: '/new-project' },
@@ -22,7 +23,7 @@ export default function PickProject() {
     const isOnboarding = useRouteParam('onboarding');
 
     return <div className='newProjectContainer'>
-        <h1>New Project</h1>
+        <h1 className="pageTitle">New Project</h1>
         {isOnboarding && <div className='calloutText'>
             <span className='boldText'>One last thing! </span>
             Before we let you loose on the Developer Console, you’ll need to create a blank project or get some guidance with a tutorial. Projects contain API keys and any smart contracts you wish to track.
@@ -30,46 +31,27 @@ export default function PickProject() {
         {!isOnboarding && <div className='calloutText'>
             Start with a blank project or get some guidance with a tutorial.
         </div>}
-
         <Row xs={1} md={2} className="g-4">
             {projects.map((project, idx) => (
                 <Col key={idx}>
-                    <div className="projectCardWrapper">
-                        <Card onClick={() => router.push(project.path)}>
-                            <Card.Img variant="top" src={project.image} />
-                            <Card.Body>
-                                <Card.Title>{project.title + ' >>'}</Card.Title>
-                            </Card.Body>
-                        </Card>
-                    </div>
+                    <ProjectCard path={project.path} image={project.image} title={project.title} />
                 </Col>
             ))}
         </Row>
-        {!isOnboarding && <BackButton />}
+        {/* // TODO adding a back button here might require having a stack to store a history of paths instead of just the last path */}
+        {/* {!isOnboarding && <BackButton />} */}
         {isOnboarding && <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>}
         <style jsx>{`
-            .projectCardWrapper {
-                cursor: pointer;
-            }
-            .newProjectContainer {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                width: 34rem;
-                margin: 0 auto;
-            }
-            .newProjectContainer :global(.newProjectForm) {
-                width: 100%;
-            }
-            .newProjectContainer :global(.formField) {
-                margin-bottom: 1rem;
+            .pageTitle {
+                text-align: center;
             }
             h1 {
                 margin-bottom: 1.25rem;
                 width: 100%
             }
             .calloutText {
-                margin-bottom: 1rem;
+                margin-bottom: 2rem;
+                text-align: center;
             }
             .boldText {
                 font-weight: 700;
