@@ -12,7 +12,7 @@ import mixpanel from 'mixpanel-browser';
 
 // Not including a path attribute will grey-out the tile and it will not be clickable.
 const projects = [
-    { title: 'NFT Market', image: 'static/images/blank.png', path: '/nft-market-tutorial' },
+    { title: 'NFT Market', image: 'static/images/blank.png', path: '/tutorial/nft-market/overview' },
     { title: 'Crossword', image: 'static/images/builder.png' }
 ]
 
