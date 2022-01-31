@@ -16,8 +16,9 @@ export default function PickProject() {
     const router = useRouter();
 
     useEffect(() => {
-        router.prefetch('/new-project');
-        router.prefetch('/pick-tutorial');
+        projects.forEach(p => router.prefetch(p.path));
+        // It is not expected for the list of projects or the router to change during runtime.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const isOnboarding = useRouteParam('onboarding');
@@ -34,7 +35,7 @@ export default function PickProject() {
         <Row xs={1} md={2} className="g-4">
             {projects.map((project, idx) => (
                 <Col key={idx}>
-                    <ProjectCard path={project.path} image={project.image} title={project.title} />
+                    <ProjectCard path={project.path} image={project.image} title={project.title} onClick={() => router.push(project.path)} />
                 </Col>
             ))}
         </Row>

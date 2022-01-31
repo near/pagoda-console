@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useSimpleLayout } from "../utils/layouts"
-import { Button, Row, Col, Card } from 'react-bootstrap'
+import { Button, Row, Col, Card, Alert } from 'react-bootstrap'
 import { useRouter } from 'next/router';
 import { useRouteParam } from '../utils/hooks';
 import { logOut } from '../utils/auth';
 import BackButton from '../components/BackButton';
 import ProjectCard from '../components/ProjectCard';
+import { authenticatedPost } from '../utils/fetchers';
+import { Project } from '../utils/interfaces';
+import mixpanel from 'mixpanel-browser';
 
+// Not including a path attribute will grey-out the tile and it will not be clickable.
 const projects = [
     { title: 'NFT Market', image: 'static/images/blank.png', path: '/nft-market-tutorial' },
     { title: 'Crossword', image: 'static/images/builder.png' }
@@ -14,22 +18,46 @@ const projects = [
 
 export default function PickProject() {
     const router = useRouter();
-
-    useEffect(() => {
-        router.prefetch('/nft-market-tutorial');
-    }, []);
-
     const isOnboarding = useRouteParam('onboarding');
+    const [createInProgress, setCreateInProgress] = useState<boolean>(false);
+    const [creationError, setCreationError] = useState<string>('');
+
+    // Project name is tutorial name. Path is the mdx file for the tutorial.
+    async function createProject(name: string, path: string): Promise<void> {
+        if (createInProgress) {
+            return;
+        }
+        setCreateInProgress(true);
+        try {
+            router.prefetch(path);
+            const project: Project = await authenticatedPost('/projects/create', { name }, { forceRefresh: true });
+            mixpanel.track('DC Create New Tutorial Project', {
+                status: 'success',
+                name,
+            });
+            router.push(`${path}?project=${project.slug}&onboarding=true`);
+        } catch (e: any) {
+            mixpanel.track('DC Create New Tutorial Project', {
+                status: 'failure',
+                name,
+                error: e.message,
+            });
+            setCreationError('Something went wrong');
+        } finally {
+            setCreateInProgress(false);
+        }
+    }
 
     return <div className='newProjectContainer'>
         <h1 className="pageTitle">Select Tutorial</h1>
         <Row xs={1} md={2} className="g-4">
             {projects.map((project, idx) => (
                 <Col key={idx}>
-                    <ProjectCard path={project.path} image={project.image} title={project.title} />
+                    <ProjectCard path={project.path} image={project.image} title={project.title} onClick={() => project.path && createProject(project.title, project.path)} />
                 </Col>
             ))}
         </Row>
+        {creationError && <Alert variant='danger'>{creationError}</Alert>}
         {/* {!isOnboarding && <BackButton />} */}
         {isOnboarding && <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>}
         <style jsx>{`
