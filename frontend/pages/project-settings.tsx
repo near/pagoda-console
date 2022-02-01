@@ -61,6 +61,7 @@ export default function ProjectSettings() {
             <div className="content">
                 <div className='keysContainer'>
                     <h4>API Keys</h4>
+                    {/** // TODO hide mainnet key if mainnet env does not exist on the project */}
                     <CenterModal show={showMainnetRotationModal} title='Rotate Mainnet Key?' content={ROTATION_WARNING} onConfirm={() => rotateKey('MAINNET')} confirmText="Rotate" onHide={() => setShowMainnetRotationModal(false)} />
                     <KeyRow name='Mainnet' token={keys?.MAINNET} onRotateKey={() => setShowMainnetRotationModal(true)} />
                     <CenterModal show={showTestnetRotationModal} title='Rotate Testnet Key?' content={ROTATION_WARNING} onConfirm={() => rotateKey('TESTNET')} confirmText="Rotate" onHide={() => setShowTestnetRotationModal(false)} />
