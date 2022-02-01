@@ -11,14 +11,14 @@ import { Project } from '../utils/interfaces';
 import mixpanel from 'mixpanel-browser';
 
 enum Tutorial {
-    NFT_MARKET,
-    CROSSWORD
+    NftMarket = 'NFT_MARKET',
+    Crossword = 'CROSSWORD',
 }
 
 // Not including a path attribute will grey-out the tile and it will not be clickable.
 const projects = [
-    { tutorial: Tutorial.NFT_MARKET, title: 'NFT Market', image: 'static/images/blank.png', path: '/tutorial/nft-market/overview' },
-    { tutorial: Tutorial.CROSSWORD, title: 'Crossword', image: 'static/images/builder.png' },
+    { tutorial: Tutorial.NftMarket, title: 'NFT Market', image: 'static/images/blank.png', path: '/tutorial/nft-market/overview' },
+    { tutorial: Tutorial.Crossword, title: 'Crossword', image: 'static/images/builder.png' },
 ];
 
 export default function PickProject() {
@@ -58,7 +58,7 @@ export default function PickProject() {
         <Row xs={1} md={2} className="g-4">
             {projects.map((project, idx) => (
                 <Col key={idx}>
-                    <ProjectCard path={project.path} image={project.image} title={project.title} onClick={() => project.path && createProject(project.title, project.path)} />
+                    <ProjectCard path={project.path} image={project.image} title={project.title} onClick={() => project.path && createProject(project.tutorial, project.title, project.path)} />
                 </Col>
             ))}
         </Row>
