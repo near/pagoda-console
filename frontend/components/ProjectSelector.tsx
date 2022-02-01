@@ -30,7 +30,7 @@ export default function ProjectSelector() {
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                     {otherProjects && otherProjects.map(p => <Dropdown.Item as='div' onClick={() => mixpanel.track('DC Switch Project')} key={p.slug} eventKey={p.slug}><ProjectLink project={p} /></Dropdown.Item>)}
-                    <Dropdown.Item as='div' style={{ color: 'var(--color-primary)' }} eventKey={'new'}><Link href='pick-project'><a><FontAwesomeIcon icon={faPlusCircle} style={{ marginRight: '0.5rem' }} />Create new project</a></Link></Dropdown.Item>
+                    <Dropdown.Item as='div' style={{ color: 'var(--color-primary)' }} eventKey={'new'}><Link href='/pick-project'><a><FontAwesomeIcon icon={faPlusCircle} style={{ marginRight: '0.5rem' }} />Create new project</a></Link></Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
             <EnvironmentSelector />
