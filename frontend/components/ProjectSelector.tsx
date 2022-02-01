@@ -8,6 +8,7 @@ import { faCaretDown, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
 import ProjectLink from './ProjectLink';
 import EnvironmentSelector from './EnvironmentSelector';
 import mixpanel from 'mixpanel-browser';
+import TutorialBadge from './TutorialBadge';
 
 export default function ProjectSelector() {
     // perform redirect to project selection page if no project param is provided
@@ -25,6 +26,7 @@ export default function ProjectSelector() {
             <Dropdown>
                 <Dropdown.Toggle as={CustomToggle}>
                     <span className='toggleText'>{projectDetails ? projectDetails.name : <Placeholder animation='glow'><Placeholder size='sm' style={{ borderRadius: '0.5em', width: '10rem' }} /></Placeholder>}</span>
+                    {projectDetails?.tutorial && <span className='tutorialBadge'><TutorialBadge /></span>}
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                     {otherProjects && otherProjects.map(p => <Dropdown.Item as='div' onClick={() => mixpanel.track('DC Switch Project')} key={p.slug} eventKey={p.slug}><ProjectLink project={p} /></Dropdown.Item>)}
@@ -36,6 +38,9 @@ export default function ProjectSelector() {
                 .toggleText {
                     font-size: 1.5rem;
                     font-weight: 800;
+                }
+                .tutorialBadge {
+                    font-size: 1rem;
                 }
                 .selectorWrapper {
                     margin-bottom: 2.75rem;
@@ -53,7 +58,6 @@ export default function ProjectSelector() {
         </div>
     );
 }
-
 
 // The forwardRef is important!!
 // Dropdown needs access to the DOM node in order to position the Menu
