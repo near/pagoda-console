@@ -33,7 +33,7 @@ function useProjectPages(): PageDefinition[] {
     const { project, error: projectError } = useProject(projectSlug);
 
     if (project?.tutorial === 'NFT_MARKET') {
-        pages.push({ display: 'Tutorial', route: '/tutorial/nft-market/overview' });
+        pages.push({ display: 'Tutorial', route: '/tutorials/nfts/overview' });
     }
 
     // If custom outline is injected, use that, else use this.
