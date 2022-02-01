@@ -595,8 +595,10 @@ export class ProjectsService {
     });
 
     try {
-      const { name, slug } = await this.getActiveProject(projectWhereUnique);
-      return { name, slug };
+      const { name, slug, tutorial } = await this.getActiveProject(
+        projectWhereUnique,
+      );
+      return { name, slug, tutorial };
     } catch (e) {
       throw new VError(e, 'Failed while fetching project details');
     }
