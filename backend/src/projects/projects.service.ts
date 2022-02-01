@@ -7,6 +7,7 @@ import {
   User,
   Contract,
   Environment,
+  ProjectTutorial,
 } from '@prisma/client';
 import { VError } from 'verror';
 import { customAlphabet } from 'nanoid';
@@ -32,6 +33,7 @@ export class ProjectsService {
   async create(
     user: User,
     name: Project['name'],
+    tutorial: Project['tutorial'],
   ): Promise<{ name: Project['name']; slug: Project['slug'] }> {
     let teamId;
     try {
@@ -60,6 +62,7 @@ export class ProjectsService {
         data: {
           slug: nanoid(),
           name,
+          tutorial,
           teamProjects: {
             create: {
               teamId,

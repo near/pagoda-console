@@ -37,12 +37,13 @@ model TeamMember {
 }
 
 model Project {
-  id           Int           @id @default(autoincrement())
+  id           Int              @id @default(autoincrement())
   name         String
-  slug         String        @unique
-  active       Boolean       @default(true)
+  slug         String           @unique
+  active       Boolean          @default(true)
   teamProjects TeamProject[]
   environments Environment[]
+  tutorial     ProjectTutorial?
 }
 
 model TeamProject {
@@ -89,4 +90,9 @@ model Contract {
   address       String
   net           Net
   active        Boolean     @default(true)
+}
+
+enum ProjectTutorial {
+  NFT_MARKET
+  CROSSWORD
 }
