@@ -5,6 +5,7 @@ import TableOfContents from "../../../components/tutorials/TableOfContents";
 import TutorialFooter from "../../../components/tutorials/TutorialFooter";
 import { useDashboardLayout } from "../../../utils/layouts";
 import Content from '../../../tutorials/nfts/md/2-minting.mdx';
+import NftInfoCard from '../../../components/NftInfoCard';
 
 export default function Overview() {
     return <>

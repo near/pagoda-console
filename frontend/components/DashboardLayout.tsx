@@ -11,6 +11,7 @@ import mixpanel from 'mixpanel-browser';
 import Gradient from '../public/dashboardGradient.svg';
 import { logOut } from '../utils/auth';
 import { useProject } from '../utils/fetchers';
+import NftInfoCard from './NftInfoCard';
 
 interface PageDefinition {
     display: string,
@@ -34,6 +35,7 @@ function useProjectPages(): PageDefinition[] {
     pages.push({ display: 'Analytics', route: '/analytics' });
     pages.push({ display: 'Contracts', route: `/contracts` });
     pages.push({ display: 'Settings', route: `/project-settings` });
+    pages.push({ display: 'NFT', route: `/nft` }); // ! TODO: TEMPORARY
 
     return pages;
 }
@@ -48,6 +50,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 <Gradient style={{ width: '100%', height: '100%', preserveAspectRatio: 'false' }} />
             </div>
             <div className='childContainer'>
+                {router.pathname.startsWith('/tutorials/') && <NftInfoCard />}
                 {children}
             </div>
             <style jsx>{`

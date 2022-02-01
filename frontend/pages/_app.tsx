@@ -33,6 +33,7 @@ initializeApp(config.firebaseConfig);
 // mixpanel initialization
 import mixpanel from 'mixpanel-browser';
 import { usePageTracker } from '../utils/hooks'
+import { initializeNaj } from '../utils/chainData'
 
 // Enabling the debug mode flag is useful during implementation,
 // but it's recommended you remove it for production
@@ -75,6 +76,11 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
     return () => unsubscribe(); // TODO why lambda function?
   }, [router, cache]);
+
+  // always initialize naj on app load
+  useEffect(() => {
+    initializeNaj();
+  }, []);
 
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
