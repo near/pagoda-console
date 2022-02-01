@@ -10,11 +10,16 @@ import { authenticatedPost } from '../utils/fetchers';
 import { Project } from '../utils/interfaces';
 import mixpanel from 'mixpanel-browser';
 
+enum Tutorial {
+    NFT_MARKET,
+    CROSSWORD
+}
+
 // Not including a path attribute will grey-out the tile and it will not be clickable.
 const projects = [
-    { title: 'NFT Market', image: 'static/images/blank.png', path: '/tutorial/nft-market/overview' },
-    { title: 'Crossword', image: 'static/images/builder.png' }
-]
+    { tutorial: Tutorial.NFT_MARKET, title: 'NFT Market', image: 'static/images/blank.png', path: '/tutorial/nft-market/overview' },
+    { tutorial: Tutorial.CROSSWORD, title: 'Crossword', image: 'static/images/builder.png' },
+];
 
 export default function PickProject() {
     const router = useRouter();
@@ -23,19 +28,19 @@ export default function PickProject() {
     const [creationError, setCreationError] = useState<string>('');
 
     // Project name is tutorial name. Path is the mdx file for the tutorial.
-    async function createProject(name: string, path: string): Promise<void> {
+    async function createProject(tutorial: Tutorial, name: string, path: string): Promise<void> {
         if (createInProgress) {
             return;
         }
         setCreateInProgress(true);
         try {
             router.prefetch(path);
-            const project: Project = await authenticatedPost('/projects/create', { name }, { forceRefresh: true });
+            const project: Project = await authenticatedPost('/projects/create', { name, tutorial }, { forceRefresh: true });
             mixpanel.track('DC Create New Tutorial Project', {
                 status: 'success',
                 name,
             });
-            router.push(`${path}?project=${project.slug}&onboarding=true`);
+            router.push(`${path}?project=${project.slug}`);
         } catch (e: any) {
             mixpanel.track('DC Create New Tutorial Project', {
                 status: 'failure',
@@ -57,13 +62,16 @@ export default function PickProject() {
                 </Col>
             ))}
         </Row>
-        {creationError && <Alert variant='danger'>{creationError}</Alert>}
+        {creationError && <div className='errorContainer'><Alert variant='danger'>{creationError}</Alert></div>}
         {/* {!isOnboarding && <BackButton />} */}
         {isOnboarding && <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>}
         <style jsx>{`
             .pageTitle {
                 text-align: center;
                 margin-bottom: 2rem;
+            }
+            .errorContainer {
+                margin-top: 1rem;
             }
             h1 {
                 margin-bottom: 1.25rem;
