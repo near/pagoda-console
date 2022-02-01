@@ -117,10 +117,12 @@ export class ProjectsService {
         `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_1`,
         'TESTNET',
       );
-      await this.keys.createProject(
-        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_2`,
-        'MAINNET',
-      );
+      if (!tutorial) {
+        await this.keys.createProject(
+          `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_2`,
+          'MAINNET',
+        );
+      }
     } catch (e) {
       // Attempt to delete the project, since API keys failed to generate.
       try {
