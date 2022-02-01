@@ -17,7 +17,7 @@ enum Tutorial {
 
 // Not including a path attribute will grey-out the tile and it will not be clickable.
 const projects = [
-    { tutorial: Tutorial.NftMarket, title: 'NFT Market', image: 'static/images/blank.png', path: '/tutorials/nfts/overview' },
+    { tutorial: Tutorial.NftMarket, title: 'NFT Market', projectName: 'NFT Marketplace', image: 'static/images/blank.png', path: '/tutorials/nfts/overview' },
     { tutorial: Tutorial.Crossword, title: 'Crossword', image: 'static/images/builder.png' },
 ];
 
@@ -58,7 +58,7 @@ export default function PickProject() {
         <Row xs={1} md={2} className="g-4">
             {projects.map((project, idx) => (
                 <Col key={idx}>
-                    <ProjectCard path={project.path} image={project.image} title={project.title} onClick={() => project.path && createProject(project.tutorial, project.title, project.path)} />
+                    <ProjectCard path={project.path} image={project.image} title={project.title} onClick={() => project.path && createProject(project.tutorial, project.projectName, project.path)} />
                 </Col>
             ))}
         </Row>
