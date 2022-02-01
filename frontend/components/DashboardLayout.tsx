@@ -10,18 +10,39 @@ import mixpanel from 'mixpanel-browser';
 
 import Gradient from '../public/dashboardGradient.svg';
 import { logOut } from '../utils/auth';
+import { useProject } from '../utils/fetchers';
 
 interface PageDefinition {
     display: string,
     route: string,
+    // Note children are not the same type as parent in order to allow only one level of nesting.
+    children?: ChildPageDefinition[]
     debug?: boolean
 };
 
-const pages = [
-    { display: 'Analytics', route: '/analytics' },
-    { display: 'Contracts', route: `/contracts` },
-    { display: 'Settings', route: `/project-settings` },
-];
+interface ChildPageDefinition {
+    display: string,
+    route: string,
+};
+
+// We may change which pages display depending on the type of project.
+function useProjectPages(): PageDefinition[] {
+    const pages = [];
+
+    const projectSlug = useRouteParam('project');
+    const { project, error: projectError } = useProject(projectSlug);
+
+    if (project?.tutorial === 'NFT_MARKET') {
+        pages.push({ display: 'Tutorial', route: '/tutorial/nft-market/overview' });
+    }
+
+    // If custom outline is injected, use that, else use this.
+    pages.push({ display: 'Analytics', route: '/analytics' });
+    pages.push({ display: 'Contracts', route: `/contracts` });
+    pages.push({ display: 'Settings', route: `/project-settings` });
+
+    return pages;
+}
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     const router = useRouter();
@@ -59,6 +80,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 function SideBar() {
     const router = useRouter();
     const displayName = useDisplayName();
+    const pages = useProjectPages();
 
     const isOnboardingRaw = useRouteParam('onboarding');
     const isOnboarding = (isOnboardingRaw === 'true');
