@@ -40,7 +40,7 @@ export default function PickProject() {
                 status: 'success',
                 name,
             });
-            router.push(`${path}?project=${project.slug}`);
+            router.push(`${path}?project=${project.slug}&environment=1`);
         } catch (e: any) {
             mixpanel.track('DC Create New Tutorial Project', {
                 status: 'failure',
