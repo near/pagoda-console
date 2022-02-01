@@ -57,12 +57,31 @@ export class ProjectsService {
     }
 
     let project;
+
     try {
-      project = await this.prisma.project.create({
-        data: {
+      let projectInput: Prisma.ProjectCreateInput;
+
+      if (tutorial) {
+        projectInput = {
           slug: nanoid(),
           name,
           tutorial,
+          teamProjects: {
+            create: {
+              teamId,
+            },
+          },
+          environments: {
+            createMany: {
+              data: [{ name: 'Testnet', net: 'TESTNET', subId: 1 }],
+            },
+          },
+          active: false,
+        };
+      } else {
+        projectInput = {
+          slug: nanoid(),
+          name,
           teamProjects: {
             create: {
               teamId,
@@ -77,7 +96,11 @@ export class ProjectsService {
             },
           },
           active: false,
-        },
+        };
+      }
+
+      project = await this.prisma.project.create({
+        data: projectInput,
         select: {
           name: true,
           slug: true,
