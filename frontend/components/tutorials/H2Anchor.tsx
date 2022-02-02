@@ -1,8 +1,8 @@
-export default function H2Anchor({ children }: { children: any }) {
-    const anchor = '#' + children.toLowerCase().replace(' ', '-');
+export default function H2Anchor(props: any) {
+    const anchor = '#' + props.children.toLowerCase().replace(' ', '-');
 
     return <>
-        <h2>{children} <a href={anchor} title="Direct link to heading">#</a></h2>
+        <h2>{props.children} <a href={anchor} title="Direct link to heading">#</a></h2>
         <style jsx>{`
             h2 a { 
                 visibility: hidden;
