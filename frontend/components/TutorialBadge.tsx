@@ -7,7 +7,7 @@ export default function TutorialBadge() {
         </div>
         <style jsx>{`
         .badgeContainer {
-            padding: 0 .5rem;
+            padding: 0 0 0 .5rem;
             display: inline-block;
             vertical-align: middle;
         }
