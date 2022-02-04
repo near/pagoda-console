@@ -14,7 +14,9 @@ const components = {
     Info: Note,
     Tip: Note,
     Note: Note,
-    Table: Table
+    Table: (props: any) => {
+        return <Table>{props.children}</Table>;
+    }
 };
 
 export default components;
