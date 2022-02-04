@@ -110,7 +110,7 @@ Here are the changes that need to occur to each .md file that comes from @near/d
 * Create a top h1 using # in markdown
     * the title can be found in the frontmatter at the top of the file
 * Remove frontmatter. This is the --- section at the top of each file.
-* Replace :::note, :::tip with the applicable JSX component
+* Replace :::note, :::tip, etc with the applicable JSX component
     :::note -> <Note></Note>
     :::tip -> <Tip></Tip>
     :::info -> <Info></Info>
@@ -118,6 +118,8 @@ Here are the changes that need to occur to each .md file that comes from @near/d
 * Acorn # in headers need to be removed
     e.g. ## Viewing NFTs in the wallet {#viewing-nfts-in-wallet}
     the {#...} needs to be removed
+* Review code blocks to ensure they meet styling guidelines (search for ` and ```)
+    Code blocks that look like ```rust reference will need to be changed to a code block with an anchor tag with the text **See full example on GitHub**
 
 V2 docs: https://mdxjs.com/
 V1 docs: https://v1.mdxjs.com/
