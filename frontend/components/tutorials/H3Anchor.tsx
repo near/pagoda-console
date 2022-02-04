@@ -1,6 +1,6 @@
 import { ReactElement } from "react";
 
-export default function H2Anchor(props: any) {
+export default function H3Anchor(props: any) {
     function getAnchor(el: ReactElement | string): string {
         if (typeof el === 'string') {
             return '#' + el.toLowerCase().replaceAll(' ', '-')
@@ -16,13 +16,13 @@ export default function H2Anchor(props: any) {
     const anchor = getAnchor(props.children);
 
     return <>
-        <h2>{props.children} <a href={anchor} title="Direct link to heading">#</a></h2>
+        <h3>{props.children} <a href={anchor} title="Direct link to heading">#</a></h3>
         <style jsx>{`
-            h2 a { 
+            h3 a { 
                 visibility: hidden;
                 text-decoration: none;
             }
-            h2:hover a {
+            h3:hover a {
                 visibility: visible;
             }
         `}</style>

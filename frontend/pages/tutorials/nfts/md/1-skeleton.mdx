@@ -3,9 +3,11 @@
 > In this article, you'll learn about the basic architecture behind the NFT contract that you'll develop while following this _"Zero to Hero"_ series.
 > You'll discover the contract's layout and you'll see how the Rust files are structured in order to build a feature-complete smart contract.
 
-:::info New to Rust?
+<Info>
+**NEW TO RUST?**
+
 If you are new to Rust and want to dive into smart contract development, our [Quick-start guide](/docs/develop/contracts/rust/intro) is a great place to start.
-:::
+</Info>
 
 ---
 
@@ -112,9 +114,11 @@ You'll learn more about these functions in the [enumeration section](/docs/tutor
 | **new_default_meta** | Initializes the contract with default `metadata` so the user doesn't have to provide any input. |
 | **new**              | Initializes the contract with the user-provided `metadata`.                                     |
 
-:::info Keep in mind
+<Info>
+**KEEP IN MIND**
+
 The initialization functions (`new`, `new_default_meta`) can only be called once.
-:::
+</Info>
 
 ```rust reference
 https://github.com/near-examples/nft-tutorial/tree/1.skeleton/nft-contract/src/lib.rs#L45-L68
@@ -211,12 +215,12 @@ git switch 1.skeleton
 yarn build
 ```
 
-:::info
+<Info>
 
 As mentioned previously, none of the functions listed in this tutorial have return values.
 All the return values have been stripped away so the contract can be compiled.
 
-:::
+</Info>
 
 Since this source is just a skeleton you'll get many warnings about unused code, such as:
 

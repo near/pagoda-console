@@ -226,9 +226,9 @@ There will be a list of warnings on your console, but as the tutorial progresses
 
 For deployment, you will need a NEAR account with the keys stored on your local machine. Navigate to the [NEAR wallet](https://wallet.testnet.near.org/) site and create an account.
 
-:::info
+<Info>
 Please ensure that you deploy the contract to an account with no pre-existing contracts. It's easiest to simply create a new account or create a sub-account for this tutorial.
-:::
+</Info
 
 Log in to your newly created account with `near-cli` by running the following command in your terminal.
 
@@ -312,9 +312,9 @@ Let's mint an NFT with a title, description, and media to start. The media field
 near call $NFT_CONTRACT_ID nft_mint '{"token_id": "token-1", "metadata": {"title": "My Non Fungible Team Token", "description": "The Team Most Certainly Goes :)", "media": "https://bafybeiftczwrtyr3k7a2k4vutd3amkwsmaqyhrdzlhvpt33dyjivufqusq.ipfs.dweb.link/goteam-gif.gif"}, "receiver_id": "'$NFT_CONTRACT_ID'"}' --accountId $NFT_CONTRACT_ID --amount 0.1
 ```
 
-:::info
+<Info>
 The `amount` flag is specifying how much NEAR to attach to the call. Since you need to pay for storage, 0.1 NEAR is attached and you'll get refunded any excess that is unused at the end.
-:::
+</Info>
 
 ### Viewing information about the NFT
 
