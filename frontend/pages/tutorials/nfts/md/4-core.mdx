@@ -24,9 +24,9 @@ With that being said, the final process for when an owner transfers a token to a
 - Add the token to the receiver's set.
 - Map a token ID to a new `Token` object containing the correct owner.
 
-:::note
+<Note>
 You might be curious as to why we don't edit the `token_metadata_by_id` field. This is because no matter who owns the token, the token ID will always map to the same metadata. The metadata should never change and so we can just leave it alone.
-:::
+</Note>
 
 At this point, you're ready to move on and make the necessary modifications to your smart contract.
 
@@ -160,9 +160,9 @@ Let's test this out by transferring an NFT to the account `benjiman.testnet` and
 
 ### Testing the transfer function
 
-:::note
+<Note>
 This means that the NFT won't be recoverable unless the account `benjiman.testnet` transfers it back to you. If you don't want your NFT lost, make a new account and transfer the token to that account instead.
-:::
+</Note>
 
 If you run the following command, it will transfer the token `"token-1"` to the account `benjiman.testnet` with the memo `"Go Team :)"`. Take note that you're also attaching exactly 1 yoctoNEAR by using the `--depositYocto` flag. 
 
