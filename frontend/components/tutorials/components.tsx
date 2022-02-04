@@ -1,3 +1,4 @@
+import { Table } from "react-bootstrap";
 import CodeBlock from "./CodeBlock";
 import H2Anchor from "./H2Anchor";
 import H3Anchor from "./H3Anchor";
@@ -12,7 +13,8 @@ const components = {
     code: CodeBlock,
     Info: Note,
     Tip: Note,
-    Note: Note
+    Note: Note,
+    Table: Table
 };
 
 export default components;
