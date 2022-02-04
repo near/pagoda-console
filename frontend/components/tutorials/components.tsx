@@ -1,6 +1,6 @@
-import { Alert } from "react-bootstrap";
 import H2Anchor from "./H2Anchor";
 import H3Anchor from "./H3Anchor";
+import Note from "./Note";
 
 // A component map between markdown syntax and custom JSX components.
 // This allows customizing the markdown output while the leaving customizations outside of markdown itself.
@@ -13,15 +13,9 @@ const components = {
     //     // console.log('code block', props.children, props.className === 'language-rust', props.className === 'language-bash');
     //     return <code>{props.children}</code>;
     // },
-    Info: (props: any) => {
-        return <Alert>{props.children}</Alert>;
-    },
-    Tip: (props: any) => {
-        return <Alert>{props.children}</Alert>;
-    },
-    Note: (props: any) => {
-        return <Alert>{props.children}</Alert>;
-    }
+    Info: Note,
+    Tip: Note,
+    Note: Note
 };
 
 export default components;
