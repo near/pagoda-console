@@ -95,11 +95,11 @@ The purpose of the `JsonToken` is to hold all the information for an NFT that yo
 https://github.com/near-examples/nft-tutorial/blob/2.minting/nft-contract/src/metadata.rs#L45-L55
 ```
 
-:::tip
+<Tip>
 Some of you might be thinking _"how come we don't just store all the information in the `Token` struct?"_.
 The reason behind this is that it's actually more efficient to construct the JSON token on the fly only when you need it rather than storing all the information in the token struct.
 In addition, some operations might only need the metadata for a token and so having the metadata in a separate data structure is more optimal.
-:::
+</Tip>
 
 #### Function for querying contract metadata
 
@@ -111,9 +111,9 @@ https://github.com/near-examples/nft-tutorial/blob/2.minting/nft-contract/src/me
 
 This function will get the `metadata` object from the contract which is of type `NFTContractMetadata` and will return it.
 
-:::tip
+<Tip>
 Don't forget to add the return type `--> NFTContractMetadata` to the trait and implementation.
-:::
+</Tip>
 
 Just like that, you've completed the first two tasks and are ready to move onto last part of the tutorial.
 

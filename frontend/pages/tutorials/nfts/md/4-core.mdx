@@ -148,9 +148,9 @@ This should output a warning saying that the account has a deployed contract and
 This account already has a deployed contract [ AKJK7sCysrWrFZ976YVBnm6yzmJuKLzdAyssfzK9yLsa ]. Do you want to proceed? (y/n)
 ```
 
-:::tip
+<Tip>
 If you haven't completed the previous tutorials and are just following along with this one, simply create an account and login with your CLI using `near login`. You can then export an environment variable `export NFT_CONTRACT_ID=YOUR_ACCOUNT_ID_HERE`.
-:::
+</Tip>
 
 ## Testing the new changes {#testing-changes}
 
@@ -166,9 +166,9 @@ This means that the NFT won't be recoverable unless the account `benjiman.testne
 
 If you run the following command, it will transfer the token `"token-1"` to the account `benjiman.testnet` with the memo `"Go Team :)"`. Take note that you're also attaching exactly 1 yoctoNEAR by using the `--depositYocto` flag. 
 
-:::tip
+<Tip>
 If you used a different token ID in the previous tutorials, replace `token-1` with your token ID.
-:::
+</Tip>
 
 ```bash
 near call $NFT_CONTRACT_ID nft_transfer '{"receiver_id": "benjiman.testnet", "token_id": "token-1", "memo": "Go Team :)"}' --accountId $NFT_CONTRACT_ID --depositYocto 1

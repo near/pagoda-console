@@ -14,9 +14,9 @@ If you haven't cloned it yet, refer to the [Contract Architecture](/docs/tutoria
 git checkout 2.minting
 ```
 
-:::tip
+<Tip>
 If you wish to see the finished code for this _Enumeration_ tutorial, you can find it on the `3.enumeration` branch.
-:::
+</Tip>
 
 ## Modifications to the contract
 
@@ -35,9 +35,9 @@ https://github.com/near-examples/nft-tutorial/blob/3.enumeration/nft-contract/sr
 This function should return a paginated list of `JsonTokens` that are stored on the contract regardless of their owners.
 If the user provides a `from_index` parameter, you should use that as the starting point for which to start iterating through tokens; otherwise it should start from the beginning. Likewise, if the user provides a `limit` parameter, the function shall stop after reaching either the limit or the end of the list.
 
-:::tip
+<Tip>
 Rust has useful methods for pagination, allowing you to skip to a starting index and taking the first `n` elements of an iterator.
-:::
+</Tip>
 
 ```rust reference
 https://github.com/near-examples/nft-tutorial/blob/3.enumeration/nft-contract/src/enumeration.rs#L11-L29
