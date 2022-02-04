@@ -115,6 +115,9 @@ Here are the changes that need to occur to each .md file that comes from @near/d
     :::tip -> <Tip></Tip>
     :::info -> <Info></Info>
 * Replace urls as necessary to match routes in the DC
+* Acorn # in headers need to be removed
+    e.g. ## Viewing NFTs in the wallet {#viewing-nfts-in-wallet}
+    the {#...} needs to be removed
 
 V2 docs: https://mdxjs.com/
 V1 docs: https://v1.mdxjs.com/

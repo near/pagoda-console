@@ -1,11 +1,15 @@
 import ProjectSelector from "../../../components/ProjectSelector";
+import components from "../../../components/tutorials/components";
+import NextStepButton from "../../../components/tutorials/NextStepButton";
+import TutorialFooter from "../../../components/tutorials/TutorialFooter";
 import { useDashboardLayout } from "../../../utils/layouts";
-import Content from './pre-deployed-contract.mdx';
+import Content from './md/0-predeployed.mdx';
 
 export default function Overview() {
     return <>
         <ProjectSelector />
-        <Content></Content>
+        <Content components={components} />
+        <TutorialFooter><NextStepButton path="/tutorials/nfts/contract-architecture" label="Step 2: Contract Architecture" /></TutorialFooter>
     </>;
 }
 
