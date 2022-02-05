@@ -19,25 +19,19 @@ export default function CodeBlock(props: any) {
     // It's currently the only way for us to guess if the .mdx is using a single tick (`) vs three ticks (```).
     // Another way around this would be to call the component directly in Markdown.
     useEffect(() => {
-        if (!props.className) {
+        if (!isGithubReference(props)) {
             return;
         }
-
-        if (typeof props.children !== 'string') {
-            setContent(props.children);
-        } else if (isGithubReference(props)) {
-            const url = props.children;
-            // Render the github content in OtherCodeBlock
-            const codeSnippetDetails = parseReference(url);
-            // This isn't getting the line numbers correctly.
-            fetchCode(codeSnippetDetails, setContent);
-        } else {
-            setContent(props.children.slice(0, props.children.length - 1));
-        }
+        const url = props.children;
+        // Render the github content in OtherCodeBlock
+        const codeSnippetDetails = parseReference(url);
+        // This isn't getting the line numbers correctly.
+        fetchCode(codeSnippetDetails, setContent);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     if (props.className) {
+        // Handles "```rust reference" code blocks
         return <>
             <OtherCodeBlock language={props.className.replace('language-', '')}>{content}</OtherCodeBlock>
             {isGithubReference(props) && <div className="githubLink"><a href={props.children.slice(0, -1)}>See full example on Github</a></div>}
@@ -47,7 +41,11 @@ export default function CodeBlock(props: any) {
                 }
             `}</style>
         </>;
+    } else if (props.children.split('\n').length > 1) {
+        // Handles code blocks without a language specified but has multiple lines.
+        return <OtherCodeBlock language="text">{props.children.slice(0, -1)}</OtherCodeBlock>;
     }
+    // Single tick code blocks that do not require a whole highlight block.
     return <code>{props.children}</code>;
 }
 
