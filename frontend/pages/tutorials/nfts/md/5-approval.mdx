@@ -385,7 +385,6 @@ near call $APPROVAL_NFT_CONTRACT_ID nft_transfer '{"receiver_id": "'$NFT_CONTRAC
 
 <details>
 <summary>Example response: </summary>
-<p>
 
 ```bash
 kind: {
@@ -395,7 +394,6 @@ kind: {
   },
 ```
 
-</p>
 </details>
 
 If you pass the correct approval ID which is `0`, everything should work fine.
@@ -444,7 +442,6 @@ near view $APPROVAL_NFT_CONTRACT_ID nft_tokens_for_owner '{"account_id": "'$NFT_
 
 <details>
 <summary>Example response: </summary>
-<p>
 
 ```json
 [
@@ -470,7 +467,6 @@ near view $APPROVAL_NFT_CONTRACT_ID nft_tokens_for_owner '{"account_id": "'$NFT_
 ]
 ```
 
-</p>
 </details>
 
 With the testing finished, you've successfully implemented the approvals extension to the standard!

@@ -120,6 +120,8 @@ Here are the changes that need to occur to each .md file that comes from @near/d
     the {#...} needs to be removed
 * Review code blocks to ensure they meet styling guidelines (search for ` and ```)
     Code blocks that look like ```rust reference will need to be changed to a code block with an anchor tag with the text **See full example on GitHub**
+* Any relative or absolute links will need to be updated
+* Search for <details> tags and make sure no ``` code blocks are inside of <p> tags, if they are, remove the <p> surrounding the code block.
 
 V2 docs: https://mdxjs.com/
 V1 docs: https://v1.mdxjs.com/
