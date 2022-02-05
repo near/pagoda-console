@@ -11,8 +11,12 @@ const components = {
     h2: H2Anchor,
     h3: H3Anchor,
     code: CodeBlock,
-    Info: Note,
-    Tip: Note,
+    Info: (props: any) => {
+        return <Note type="info">{props.children}</Note>;
+    },
+    Tip: (props: any) => {
+        return <Note type="tip">{props.children}</Note>;
+    },
     Note: Note,
     Table: (props: any) => {
         return <Table>{props.children}</Table>;
