@@ -15,14 +15,8 @@ import { useProject } from '../utils/fetchers';
 interface PageDefinition {
     display: string,
     route: string,
-    // Note children are not the same type as parent in order to allow only one level of nesting.
-    children?: ChildPageDefinition[]
+    routeMatchPattern?: string,
     debug?: boolean
-};
-
-interface ChildPageDefinition {
-    display: string,
-    route: string,
 };
 
 // We may change which pages display depending on the type of project.
@@ -33,7 +27,7 @@ function useProjectPages(): PageDefinition[] {
     const { project, error: projectError } = useProject(projectSlug);
 
     if (project?.tutorial === 'NFT_MARKET') {
-        pages.push({ display: 'Tutorial', route: '/tutorials/nfts/overview' });
+        pages.push({ display: 'Tutorial', route: '/tutorials/nfts/overview', routeMatchPattern: '/tutorials/' });
     }
 
     // If custom outline is injected, use that, else use this.
@@ -100,6 +94,11 @@ function SideBar() {
         return linkOut;
     }
 
+    function isLinkSelected(page: PageDefinition): boolean {
+        const matchesPattern = page.routeMatchPattern ? router.pathname.startsWith(page.routeMatchPattern) : false;
+        return router.pathname === page.route || matchesPattern;
+    }
+
     return (
         <div className='sidebar'>
             {/* <div className='logoContainer' onClick={() => getIdToken(getAuth().currentUser!).then((token) => navigator.clipboard.writeText(token).then(() => alert('Copied token to clipboard')))}> */}
@@ -107,7 +106,7 @@ function SideBar() {
                 <NearIcon />
             </div>
             <div className='linkContainer'>
-                {pages.map((page, index) => <PageLink key={page.route} page={page} link={createLink(page.route)} isSelected={router.pathname === page.route} isFirst={index === 0} isOnboarding={isOnboarding} dismissOnboarding={dismissOnboarding} />)}
+                {pages.map((page, index) => <PageLink key={page.route} page={page} link={createLink(page.route)} isSelected={isLinkSelected(page)} isFirst={index === 0} isOnboarding={isOnboarding} dismissOnboarding={dismissOnboarding} />)}
             </div>
             <div className='footerContainer'>
                 <Link href={createLink('/settings')}><a className='footerItem' >{displayName || <Placeholder animation='glow'><Placeholder size='sm' style={{ borderRadius: '0.5em', width: '100%' }} /></Placeholder>}</a></Link>
