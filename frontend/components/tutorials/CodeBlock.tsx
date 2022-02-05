@@ -30,17 +30,20 @@ export default function CodeBlock(props: any) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    if (props.className) {
+    if (isGithubReference(props)) {
         // Handles "```rust reference" code blocks
         return <>
             <OtherCodeBlock language={props.className.replace('language-', '')}>{content}</OtherCodeBlock>
-            {isGithubReference(props) && <div className="githubLink"><a href={props.children.slice(0, -1)}>See full example on Github</a></div>}
+            <div className="githubLink"><a href={props.children.slice(0, -1)}>See full example on Github</a></div>
             <style jsx>{`
                 .githubLink {
                     text-align: center;
                 }
             `}</style>
         </>;
+    } else if (props.className) {
+        // Handle code blocks with a language set.
+        return <><OtherCodeBlock language={props.className.replace('language-', '')}>{props.children.slice(0, -1)}</OtherCodeBlock></>;
     } else if (props.children.split('\n').length > 1) {
         // Handles code blocks without a language specified but has multiple lines.
         return <OtherCodeBlock language="text">{props.children.slice(0, -1)}</OtherCodeBlock>;
