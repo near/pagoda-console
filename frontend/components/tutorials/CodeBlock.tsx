@@ -39,7 +39,7 @@ export default function CodeBlock(props: any) {
 
     if (props.className) {
         return <>
-            <OtherCodeBlock>{content}</OtherCodeBlock>
+            <OtherCodeBlock language={props.className.replace('language-', '')}>{content}</OtherCodeBlock>
             {isGithubReference(props) && <div className="githubLink"><a href={props.children.slice(0, -1)}>See full example on Github</a></div>}
             <style jsx>{`
                 .githubLink {
