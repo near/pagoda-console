@@ -19,7 +19,7 @@ const components = {
     },
     Note: Note,
     Table: (props: any) => {
-        return <Table>{props.children}</Table>;
+        return <Table striped bordered hover responsive>{props.children}</Table>;
     }
 };
 
