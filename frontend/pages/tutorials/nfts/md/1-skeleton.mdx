@@ -32,15 +32,7 @@ Following a regular [Rust](https://www.rust-lang.org/) project, the file structu
 
 ### Source files
 
-| File                             | Description                                                                      |
-| -------------------------------- | -------------------------------------------------------------------------------- |
-| [approval.rs](#approvalrs)       | Has the functions that controls the access and transfers of non-fungible tokens. |
-| [enumeration.rs](#enumerationrs) | Contains the methods to list NFT tokens and their owners.                        |
-| [lib.rs](#librs)                 | Holds the smart contract initialization functions.                               |
-| [metadata.rs](#metadatars)       | Defines the token and metadata structure.                                        |
-| [mint.rs](#mintrs)               | Contains token minting logic.                                                    |
-| [nft_core.rs](#nft_corers)       | Core logic that allows you to transfer NFTs between users.                       |
-| [royalty.rs](#royaltyrs)         | Contains payout-related functions.                                               |
+<Table><thead><tr><th>File</th><th>Description</th></tr></thead><tbody><tr><td><a href="#approvalrs">approval.rs</a></td><td>Has the functions that controls the access and transfers of non-fungible tokens.</td></tr><tr><td><a href="#enumerationrs">enumeration.rs</a></td><td>Contains the methods to list NFT tokens and their owners.</td></tr><tr><td><a href="#librs">lib.rs</a></td><td>Holds the smart contract initialization functions.</td></tr><tr><td><a href="#metadatars">metadata.rs</a></td><td>Defines the token and metadata structure.</td></tr><tr><td><a href="#mintrs">mint.rs</a></td><td>Contains token minting logic.</td></tr><tr><td><a href="#nft_corers">nft_core.rs</a></td><td>Core logic that allows you to transfer NFTs between users.</td></tr><tr><td><a href="#royaltyrs">royalty.rs</a></td><td>Contains payout-related functions.</td></tr></tbody></Table>
 
 ```
 nft-contract
@@ -70,13 +62,7 @@ Explore the code in our [GitHub repository](https://github.com/near-examples/nft
 
 This file contains the logic that complies with the standard's [approvals management](https://nomicon.io/Standards/NonFungibleToken/ApprovalManagement.html) extension. Here is a breakdown of the methods and their functions:
 
-| Method              | Description                                                                                               |
-| ------------------- | --------------------------------------------------------------------------------------------------------- |
-| **nft_approve**     | Approves an account ID to transfer a token on your behalf.                                                |
-| **nft_is_approved** | Checks if the input account has access to approve the token ID.                                           |
-| **nft_revoke**      | Revokes a specific account from transferring the token on your behalf.                                    |
-| **nft_revoke_all**  | Revokes all accounts from transferring the token on your behalf.                                          |
-| **nft_on_approve**  | This callback function, initiated during `nft_approve`, is a cross contract call to an external contract. |
+<Table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><strong>nft_approve</strong></td><td>Approves an account ID to transfer a token on your behalf.</td></tr><tr><td><strong>nft_is_approved</strong></td><td>Checks if the input account has access to approve the token ID.</td></tr><tr><td><strong>nft_revoke</strong></td><td>Revokes a specific account from transferring the token on your behalf.</td></tr><tr><td><strong>nft_revoke_all</strong></td><td>Revokes all accounts from transferring the token on your behalf.</td></tr><tr><td><strong>nft_on_approve</strong></td><td>This callback function, initiated during <code>nft_approve</code>, is a cross contract call to an external contract.</td></tr></tbody></Table>
 
 ```rust reference
 https://github.com/near-examples/nft-tutorial/tree/1.skeleton/nft-contract/src/approval.rs#L7-L36
@@ -90,12 +76,7 @@ You'll learn more about these functions in the [approvals section](/docs/tutoria
 
 > This file provides the functions needed to view information about NFTs, and follows the standard's [enumeration](https://nomicon.io/Standards/NonFungibleToken/Enumeration.html) extension.
 
-| Method                   | Description                                                                        |
-| ------------------------ | ---------------------------------------------------------------------------------- |
-| **nft_total_supply**           | Returns the total amount of NFTs stored on the contract |
-| **nft_tokens**           | Returns a paginated list of NFTs stored on the contract regardless of their owner. |
-| **nft_supply_for_owner** | Allows you view the total number of NFTs owned by any given user.                  |
-| **nft_tokens_for_owner** | Returns a paginated list of NFTs owned by any given user.                          |
+<Table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><strong>nft_total_supply</strong></td><td>Returns the total amount of NFTs stored on the contract</td></tr><tr><td><strong>nft_tokens</strong></td><td>Returns a paginated list of NFTs stored on the contract regardless of their owner.</td></tr><tr><td><strong>nft_supply_for_owner</strong></td><td>Allows you view the total number of NFTs owned by any given user.</td></tr><tr><td><strong>nft_tokens_for_owner</strong></td><td>Returns a paginated list of NFTs owned by any given user.</td></tr></tbody></Table>
 
 ```rust reference
 https://github.com/near-examples/nft-tutorial/blob/1.skeleton/nft-contract/src/enumeration.rs#L4-L40
@@ -109,10 +90,7 @@ You'll learn more about these functions in the [enumeration section](/docs/tutor
 
 > This file outlines what information the contract stores and keeps track of.
 
-| Method               | Description                                                                                     |
-| -------------------- | ----------------------------------------------------------------------------------------------- |
-| **new_default_meta** | Initializes the contract with default `metadata` so the user doesn't have to provide any input. |
-| **new**              | Initializes the contract with the user-provided `metadata`.                                     |
+<Table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><strong>new_default_meta</strong></td><td>Initializes the contract with default <code>metadata</code> so the user doesn't have to provide any input.</td></tr><tr><td><strong>new</strong></td><td>Initializes the contract with the user-provided <code>metadata</code>.</td></tr></tbody></Table>
 
 <Info>
 **KEEP IN MIND**
@@ -133,12 +111,7 @@ You'll learn more about these functions in the [minting section](/docs/tutorials
 > This file is used to keep track of the information to be stored for tokens, and metadata.
 > In addition, you can define a function to view the contract's metadata which is part of the standard's [metadata](https://nomicon.io/Standards/NonFungibleToken/Metadata.html) extension.
 
-| Name              | Description                                                                                                   |
-| ----------------- | ------------------------------------------------------------------------------------------------------------- |
-| **TokenMetadata** | This structure defines the metadata that can be stored for each token. (title, description, media, etc.       |
-| **Token**         | This structure outlines what information will be stored on the contract for each token.                       |
-| **JsonToken**     | When querying information about NFTs through view calls, the return information is stored in this JSON token. |
-| **nft_metadata**  | This function allows users to query for the contact's internal metadata.                                      |
+<Table><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody><tr><td><strong>TokenMetadata</strong></td><td>This structure defines the metadata that can be stored for each token. (title, description, media, etc.</td></tr><tr><td><strong>Token</strong></td><td>This structure outlines what information will be stored on the contract for each token.</td></tr><tr><td><strong>JsonToken</strong></td><td>When querying information about NFTs through view calls, the return information is stored in this JSON token.</td></tr><tr><td><strong>nft_metadata</strong></td><td>This function allows users to query for the contact's internal metadata.</td></tr></tbody></Table>
 
 ```rust reference
 https://github.com/near-examples/nft-tutorial/blob/1.skeleton/nft-contract/src/metadata.rs#L10-L54
@@ -152,9 +125,7 @@ You'll learn more about these functions in the [minting section](/docs/tutorials
 
 > Contains token minting logic.
 
-| Method       | Description                               |
-| ------------ | ----------------------------------------- |
-| **nft_mint** | This function mints a non-fungible token. |
+<Table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><strong>nft_mint</strong></td><td>This function mints a non-fungible token.</td></tr></tbody></Table>
 
 ```rust reference
 https://github.com/near-examples/nft-tutorial/tree/1.skeleton/nft-contract/src/mint.rs#L4-L16
@@ -166,13 +137,7 @@ https://github.com/near-examples/nft-tutorial/tree/1.skeleton/nft-contract/src/m
 
 > Core logic that allows you to transfer NFTs between users.
 
-| Method                   | Description                                                                                                                                                                                                                                                                                   |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **nft_transfer**         | Transfers an NFT to a receiver ID.                                                                                                                                                                                                                                                            |
-| **nft_transfer_call**    | Transfers an NFT to a receiver and calls a function on the receiver ID's contract. The function returns `true` if the token was transferred from the sender's account.                                                                                                                        |
-| **nft_token**            | Allows users to query for the information about a specific NFT.                                                                                                                                                                                                                               |
-| **nft_on_transfer**      | Called by other contracts when an NFT is transferred to your contract account via the `nft_transfer_call` method. It returns `true` if the token should be returned back to the sender.                                                                                                       |
-| **nft_resolve_transfer** | When you start the `nft_transfer_call` and transfer an NFT, the standard also calls a method on the receiver's contract. If the receiver needs you to return the NFT to the sender (as per the return value of the `nft_on_transfer` method), this function allows you to execute that logic. |
+<Table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><strong>nft_transfer</strong></td><td>Transfers an NFT to a receiver ID.</td></tr><tr><td><strong>nft_transfer_call</strong></td><td>Transfers an NFT to a receiver and calls a function on the receiver ID's contract. The function returns <code>true</code> if the token was transferred from the sender's account.</td></tr><tr><td><strong>nft_token</strong></td><td>Allows users to query for the information about a specific NFT.</td></tr><tr><td><strong>nft_on_transfer</strong></td><td>Called by other contracts when an NFT is transferred to your contract account via the <code>nft_transfer_call</code> method. It returns <code>true</code> if the token should be returned back to the sender.</td></tr><tr><td><strong>nft_resolve_transfer</strong></td><td>When you start the <code>nft_transfer_call</code> and transfer an NFT, the standard also calls a method on the receiver's contract. If the receiver needs you to return the NFT to the sender (as per the return value of the <code>nft_on_transfer</code> method), this function allows you to execute that logic.</td></tr></tbody></Table>
 
 ```rust reference
 https://github.com/near-examples/nft-tutorial/tree/1.skeleton/nft-contract/src/nft_core.rs#L8-L57
@@ -186,10 +151,7 @@ You'll learn more about these functions in the [minting section](/docs/tutorials
 
 > Contains payout-related functions.
 
-| Method                  | Description                                                                                                   |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------- |
-| **nft_payout**          | This view method calculates the payout for a given token.                                                     |
-| **nft_transfer_payout** | Transfers the token to the receiver ID and returns the payout object that should be paid for a given balance. |
+<Table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><strong>nft_payout</strong></td><td>This view method calculates the payout for a given token.</td></tr><tr><td><strong>nft_transfer_payout</strong></td><td>Transfers the token to the receiver ID and returns the payout object that should be paid for a given balance.</td></tr></tbody></Table>
 
 ```rust reference
 https://github.com/near-examples/nft-tutorial/tree/1.skeleton/nft-contract/src/royalty.rs#L3-L17
