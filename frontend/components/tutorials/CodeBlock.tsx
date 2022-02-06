@@ -49,7 +49,20 @@ export default function CodeBlock(props: any) {
         return <OtherCodeBlock language="text">{props.children.slice(0, -1)}</OtherCodeBlock>;
     }
     // Single tick code blocks that do not require a whole highlight block.
-    return <code>{props.children}</code>;
+    return <>
+        <code>{props.children}</code>
+        <style jsx>{`
+            code {
+                border-style: solid;
+                border-width: .1rem;
+                border-radius: .4rem;
+                border-color: var(--color-light-gray);
+                background-color: var(--color-white);
+                padding: .1rem;
+                margin: .1rem;
+            }
+        `}</style>
+    </>;
 }
 
 // Similar to what near/docs are doing with this docusaurus theme: https://github.com/saucelabs/docusaurus-theme-github-codeblock#readme
