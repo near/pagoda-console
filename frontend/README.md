@@ -123,6 +123,7 @@ Here are the changes that need to occur to each .md file that comes from @near/d
 * Any relative or absolute links will need to be updated
 * Search for <details> tags and make sure no ``` code blocks are inside of <p> tags, if they are, remove the <p> surrounding the code block.
 * Replace ```sh with ```bash
+* MDX isn't formatting ``` and <code> the same way so replace <code> with ``` if needed to get the styling
 
 V2 docs: https://mdxjs.com/
 V1 docs: https://v1.mdxjs.com/
