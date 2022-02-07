@@ -17,7 +17,7 @@ enum Tutorial {
 
 // Not including a path attribute will grey-out the tile and it will not be clickable.
 const projects = [
-    { tutorial: Tutorial.NftMarket, title: 'NFT Market', projectName: 'NFT Marketplace', image: 'static/images/blank.png', path: '/tutorials/nfts/overview' },
+    { tutorial: Tutorial.NftMarket, title: 'NFT Market', projectName: 'NFT Marketplace', image: 'static/images/blank.png', path: '/tutorials/nfts/introduction' },
     { tutorial: Tutorial.Crossword, title: 'Crossword', image: 'static/images/builder.png' },
 ];
 
