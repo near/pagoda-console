@@ -9,7 +9,7 @@ export default function Overview() {
     return <>
         <ProjectSelector />
         <Content components={components} />
-        <TutorialFooter><NextStepButton path="/tutorials/nfts/contract-architecture" label="Step 2: Contract Architecture" /></TutorialFooter>
+        <TutorialFooter><NextStepButton path="/tutorials/nfts/skeleton" label="Step 2: Contract Architecture" /></TutorialFooter>
     </>;
 }
 
