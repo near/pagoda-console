@@ -43,10 +43,24 @@ export default function CodeBlock(props: any) {
         </>;
     } else if (props.className) {
         // Handle code blocks with a language set.
-        return <><OtherCodeBlock language={props.className.replace('language-', '')}>{props.children.slice(0, -1)}</OtherCodeBlock></>;
+        return <>
+            <div className="codeWrapper"><OtherCodeBlock language={props.className.replace('language-', '')}>{props.children.slice(0, -1)}</OtherCodeBlock></div>
+            <style jsx>{`
+                .codeWrapper {
+                    margin-bottom: -1rem;
+                }
+            `}</style>
+        </>;
     } else if (props.children.split('\n').length > 1) {
         // Handles code blocks without a language specified but has multiple lines.
-        return <OtherCodeBlock language="text">{props.children.slice(0, -1)}</OtherCodeBlock>;
+        return <>
+            <div className="codeWrapper"><OtherCodeBlock language="text">{props.children.slice(0, -1)}</OtherCodeBlock></div>
+            <style jsx>{`
+                .codeWrapper {
+                    margin-bottom: -1rem;
+                }   
+            `}</style>
+        </>;
     }
     // Single tick code blocks that do not require a whole highlight block.
     return <>

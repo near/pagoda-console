@@ -53,6 +53,7 @@ const CodeBlock: FC<SyntaxHighlighterProps> = function ({ children, ...passedPro
             <style jsx>{`
                 .codeContainer {
                     position: relative;
+                    font-size: var(--bs-body-font-size);
                 }
                 .codeContainer :global(.btn) {
                     position: absolute;
