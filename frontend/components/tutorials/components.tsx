@@ -1,7 +1,6 @@
 import { Table } from "react-bootstrap";
 import CodeBlock from "./CodeBlock";
-import H2Anchor from "./H2Anchor";
-import H3Anchor from "./H3Anchor";
+import { H2Anchor, H3Anchor } from "./Anchors";
 import Note from "./Note";
 
 // A component map between markdown syntax and custom JSX components.
