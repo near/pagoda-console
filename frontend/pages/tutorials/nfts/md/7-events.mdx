@@ -14,17 +14,17 @@ git checkout 6.royalty
 If you're joining us for the first time, feel free to clone [this repository](https://github.com/near-examples/nft-tutorial/) and checkout the `6.royalty` branch to follow along.
 </Tip>
 
-## Understanding the use case {#understanding-the-use-case}
+## Understanding the use case
 
 Have you ever wondered how the wallet knows which NFTs you own and how it can display them in the [collectibles tab](https://wallet.testnet.near.org/?tab=collectibles)? Originally, an [indexer](/docs/tutorials/near-indexer) was used and it listened for any functions starting with `nft_` on your account. These contracts were then flagged on your account as likely NFT contracts. 
 
 When you navigated to your collectibles tab, the wallet would then query all those contracts for the list of NFTs you owned using the `nft_tokens_for_owner` function you saw in the [enumeration tutorial](/docs/tutorials/contracts/nfts/enumeration).
 
-### The problem {#the-problem}
+### The problem
 
 This method of flagging contracts was not reliable as each NFT-driven application might have its own way of minting or transferring NFTs. In addition, it's common for apps to transfer or mint many tokens at a time using batch functions. 
 
-### The solution {#the-solution}
+### The solution
 
 A standard was introduced so that smart contracts could emit an event anytime NFTs were transferred, minted, or burnt. This event was in the form of a log. No matter how a contract implemented the functionality, an indexer could now listen for those standardized logs.
 
@@ -50,7 +50,7 @@ The event interface differs based on whether you're recording transfers or mints
 - **token_ids**: a list of NFTs being transferred.
 - *Optional* - **memo**: an optional message to include with the event.
 
-### Examples {#examples}
+### Examples
 
 In order to solidify your understanding of the standard, let's walk through three scenarios and see what the logs should look like.
 
@@ -103,11 +103,11 @@ EVENT_JSON:{
 }
 ```
 
-## Modifications to the contract {#modifications-to-the-contract}
+## Modifications to the contract
 
 At this point, you should have a good understanding of what the end goal should be so let's get to work! Open the repository and create a new file in the `nft-contract/src` directory called `events.rs`. This is where your log structs will live.
 
-### Creating the events file {#events-rs}
+### Creating the events file
 
 Copy the following into your file. This will outline the structs for your `EventLog`, `NftMintLog`, and `NftTransferLog`. In addition, we've added a way for `EVENT_JSON:` to be prefixed whenever you log the `EventLog`. 
 
@@ -121,7 +121,7 @@ This requires the `serde_json` package which you can easily add to your `nft-con
 https://github.com/near-examples/nft-tutorial/blob/7.events/nft-contract/Cargo.toml#L1-L20
 ```
 
-### Adding modules and constants {#lib-rs}
+### Adding modules and constants
 
 Now that you've created a new file, you need to add the module to the `lib.rs` file. In addition, you can define two constants for the standard and version that will be used across our contract.
 
@@ -129,7 +129,7 @@ Now that you've created a new file, you need to add the module to the `lib.rs` f
 https://github.com/near-examples/nft-tutorial/blob/7.events/nft-contract/src/lib.rs#L10-L30
 ```
 
-### Logging minted tokens {#logging-minted-tokens}
+### Logging minted tokens
 
 Now that all the tools are set in place, you can now implement the actual logging functionality. Since the contract will only be minting tokens in one place, it's trivial where you should place the log. Open the `nft-contract/src/mint.rs` file and navigate to the bottom of the file. This is where you'll construct the log for minting. Anytime someone successfully mints an NFT, it will now correctly emit a log.
 
@@ -137,7 +137,7 @@ Now that all the tools are set in place, you can now implement the actual loggin
 https://github.com/near-examples/nft-tutorial/blob/7.events/nft-contract/src/mint.rs#L52-L81
 ```
 
-### Logging transfers {#logging-transfers}
+### Logging transfers
 
 Let's open the `nft-contract/src/internal.rs` file and navigate to the `internal_transfer` function. This is the location where you'll build your transfer logs. Whenever an NFT is transferred, this function is called and so you'll correctly be logging the transfers.
 
@@ -180,7 +180,7 @@ https://github.com/near-examples/nft-tutorial/blob/7.events/nft-contract/src/nft
 
 With that finished, you've successfully implemented the events standard and it's time to start testing.
 
-## Deploying the contract {#redeploying-contract}
+## Deploying the contract
 
 For the purpose of readability and ease of development, instead of redeploying the contract to the same account, let's create a sub-account and deploy to that instead. You could have deployed to the same account as none of the changes you implemented in this tutorial would have caused errors.
 
@@ -204,7 +204,7 @@ Using the build script, build the deploy the contract as you did in the previous
 yarn build && near deploy --wasmFile out/main.wasm --accountId $EVENTS_NFT_CONTRACT_ID
 ```
 
-### Initialization and minting {#initialization-and-minting}
+### Initialization and minting
 
 Since this is a new contract, you'll need to initialize and mint a token. Use the following command to initialize the contract:
 
@@ -232,7 +232,7 @@ https://explorer.testnet.near.org/transactions/4Wy2KQVTuAWQHw5jXcRAbrz7bNyZBoiPE
 
 You can see that the event was properly logged!
 
-### Transferring {#transferring}
+### Transferring
 
 You can now test if your transfer log works as expected by sending `benjiman.testnet` your NFT.
 

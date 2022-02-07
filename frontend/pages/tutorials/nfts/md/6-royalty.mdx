@@ -128,7 +128,7 @@ Once that's finished, move to the `nft-contract/src/nft_core.rs` file. You need 
 https://github.com/near-examples/nft-tutorial/blob/6.royalty/nft-contract/src/nft_core.rs#L163-L179
 ```
 
-## Deploying the contract {#redeploying-contract}
+## Deploying the contract
 
 As you saw in the previous tutorial, adding changes like these will cause problems when redeploying. Since these changes affect all the other tokens and the state won't be able to automatically be inherited by the new code, simply redeploying the contract will lead to errors. For this reason, you'll create a new sub-account again.
 
@@ -152,7 +152,7 @@ Using the build script, build the deploy the contract as you did in the previous
 yarn build && near deploy --wasmFile out/main.wasm --accountId $ROYALTY_NFT_CONTRACT_ID
 ```
 
-### Initialization and minting {#initialization-and-minting}
+### Initialization and minting
 
 Since this is a new contract, you'll need to initialize and mint a token. Use the following command to initialize the contract:
 

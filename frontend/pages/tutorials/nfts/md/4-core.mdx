@@ -2,7 +2,7 @@
 
 In this tutorial you'll learn how to implement the [core standards](https://nomicon.io/Standards/NonFungibleToken/Core.html) into your smart contract. If you're joining us for the first time, feel free to clone [this repo](https://github.com/near-examples/nft-tutorial) and checkout the `3.enumeration` branch to follow along.
 
-## Introduction {#introduction}
+## Introduction
 
 Up until this point, you've created a simple NFT smart contract that allows users to mint tokens and view information using the [enumeration standards](https://nomicon.io/Standards/NonFungibleToken/Enumeration.html). Today, you'll expand your smart contract to allow for users to not only mint tokens, but transfer them as well.
 
@@ -38,7 +38,7 @@ Let's start our journey in the `nft-contract/src/nft_core.rs` file. The first th
 https://github.com/near-examples/nft-tutorial/blob/4.core/nft-contract/src/nft_core.rs#L1-L71
 ```
 
-### Transfer function {#transfer-function}
+### Transfer function
 
 It's now time to implement the `nft_transfer` logic. This function will transfer the specified `token_id` to the `receiver_id` with an optional `memo` such as `"Happy Birthday Mike!"`.
 
@@ -108,7 +108,7 @@ internal.rs
 
 With these internal functions complete, the logic for transferring NFTs is finished. It's now time to move on and implement `nft_transfer_call`, one of the most integral yet complicated functions of the standard.
 
-### Transfer call function {#transfer-call-function}
+### Transfer call function
 
 Let's consider the following scenario. An account wants to transfer an NFT to a smart contract for performing a service. The traditional approach would be to use an approval management system, where the receiving contract is granted the ability to transfer the NFT to themselves after completion. You'll learn more about the approval management system in the [approvals section](/docs/tutorials/contracts/nfts/approvals) of the tutorial series.
 
@@ -134,7 +134,7 @@ This means that if `nft_on_transfer` returned true, you should return false. Thi
 
 With that finished, you've now successfully added the necessary logic to allow users to transfer NFTs. It's now time to deploy and do some testing.
 
-## Redeploying the contract {#redeploying-contract}
+## Redeploying the contract
 
 Using the build script, build and deploy the contract as you did in the previous tutorials:
 
@@ -152,7 +152,7 @@ This account already has a deployed contract [ AKJK7sCysrWrFZ976YVBnm6yzmJuKLzdA
 If you haven't completed the previous tutorials and are just following along with this one, simply create an account and login with your CLI using `near login`. You can then export an environment variable `export NFT_CONTRACT_ID=YOUR_ACCOUNT_ID_HERE`.
 </Tip>
 
-## Testing the new changes {#testing-changes}
+## Testing the new changes
 
 Now that you've deployed a patch fix to the contract, it's time to move onto testing. Using the previous NFT contract where you had minted a token to yourself, you can test the `nft_transfer` method. If you transfer the NFT, it should be removed from your account's collectibles displayed in the wallet. In addition, if you query any of the enumeration functions, it should show that you are no longer the owner.
 

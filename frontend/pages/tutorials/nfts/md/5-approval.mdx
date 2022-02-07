@@ -21,7 +21,7 @@ The simplest way that you can achieve this is to add a list of approved accounts
 
 Before transferring, you would need to clear the list of approved accounts since the new owner wouldn't expect the accounts approved by the original owner to still have access to transfer their new NFT.
 
-### The problem {#the-problem}
+### The problem
 
 On the surface, this would work, but if you start thinking about the edge cases, some problems arise. Often times when doing development, a common approach is to think about the easiest and most straightforward solution. Once you've figured it out, you can start to branch off and think about optimizations and edge cases.
 
@@ -56,7 +56,7 @@ Token: {
 
 If Mike then comes along and purchases the NFT for only 1 NEAR on marketplace B, the marketplace would go to try and transfer the NFT and since technically, Josh approved the marketplace and it's in the list of approved accounts, the transaction would go through properly.
 
-### The solution {#the-solution}
+### The solution
 
 Now that we've identified a problem with the original solution, let's think about ways that we can fix it. What would happen now if, instead of just keeping track of a list of approved accounts, you introduced a specific ID that went along with each approved account. The new approved accounts would now be a map instead of a list. It would map an account to it's `approval id`.
 
@@ -131,7 +131,7 @@ You then calculate how much storage is being used by adding that new account to 
 
 You'll notice that the function contains an optional `msg` parameter. This message is actually the foundation of all NFT marketplaces on NEAR.
 
-#### Marketplace Integrations {#marketplace-integrations}
+#### Marketplace Integrations
 
 If a message was provided into the function, you're going to perform a cross contract call to the account being given access. This cross contract call will invoke the `nft_on_approve` function which will parse the message and act accordingly. Let's consider a general use case.
 
@@ -261,11 +261,11 @@ https://github.com/near-examples/nft-tutorial/blob/5.approval/nft-contract/src/a
 
 With that finished, it's time to deploy and start testing the contract.
 
-## Testing the new changes {#testing-changes}
+## Testing the new changes
 
 Since these changes affect all the other tokens and the state won't be able to automatically be inherited by the new code, simply redeploying the contract will lead to errors. For this reason, it's best practice to create a sub-account and deploy the contract there.
 
-### Creating a sub-account {#creating-sub-account}
+### Creating a sub-account
 
 Run the following command to create a sub-account `approval` of your main account with an initial balance of 25 NEAR which will be transferred from the original to your new account.
 
@@ -285,7 +285,7 @@ Using the build script, build the deploy the contract as you did in the previous
 yarn build && near deploy --wasmFile out/main.wasm --accountId $APPROVAL_NFT_CONTRACT_ID
 ```
 
-### Initialization and minting {#initialization-and-minting}
+### Initialization and minting
 
 Since this is a new contract, you'll need to initialize and mint a token. Use the following command to initialize the contract:
 
@@ -333,7 +333,7 @@ This should return an output similar to the following:
 
 Notice how the approved account IDs are now being returned from the function? This is a great sign! You're now ready to move on and approve an account to have access to your token.
 
-### Approving an account {#approving-an-account}
+### Approving an account
 
 At this point, you should have two accounts. One stored under `$NFT_CONTRACT_ID` and the other under the `$APPROVAL_NFT_CONTRACT_ID` environment variable. You can use both of these accounts to test things out. If you approve your old account, it should have the ability to transfer the NFT to itself.
 
@@ -375,7 +375,7 @@ This should return an output similar to the following:
 ]
 ```
 
-### Transferring an NFT as an approved account {#transferring-the-nft}
+### Transferring an NFT as an approved account
 
 Now that you've approved another account to transfer the token, you can test that behavior. You should be able to use the other account to transfer the NFT to itself by which the approved account IDs should be reset. Let's test transferring the NFT with the wrong approval ID:
 
