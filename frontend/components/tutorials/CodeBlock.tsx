@@ -34,7 +34,7 @@ export default function CodeBlock(props: any) {
         // Handles "```rust reference" code blocks
         return <>
             <OtherCodeBlock language={props.className.replace('language-', '')}>{content}</OtherCodeBlock>
-            <div className="githubLink"><a href={props.children.slice(0, -1)}>See full example on Github</a></div>
+            <div className="githubLink"><a href={props.children.slice(0, -1)} target="_blank" rel="noreferrer">See full example on Github</a></div>
             <style jsx>{`
                 .githubLink {
                     text-align: center;
