@@ -655,9 +655,9 @@ export default function TableOfContents() {
                 border-left: 1px solid #ABB5BE;
                 font-size: 1rem;
                 text-decoration: none;
-                position: absolute;
-                top: 5rem;
-                min-width: 5rem;
+                position: fixed;
+                top: 8rem;
+                margin-right: 2rem;
                 left: calc(var(--layout-sidebar-width) + 7.5rem + 46rem + 2rem);
             }
             .routeWrapper :global(ul) {
