@@ -139,10 +139,11 @@ export function usePageTracker() {
 }
 
 export function useMediaQueries(minWidth: string) {
-  const [isLarge, setIsLarge] = useState<boolean>(true);
+  const mediaQuery = `(min-width: ${minWidth})`;
+  const [isLarge, setIsLarge] = useState<boolean>(window.matchMedia(mediaQuery).matches);
 
   useEffect(() => {
-      const listeners = window.matchMedia(`(min-width: ${minWidth})`);
+      const listeners = window.matchMedia(mediaQuery);
       const handler = (e: any) => setIsLarge(e.matches);
       listeners.addEventListener('change', handler);
       return () => listeners.removeEventListener('change', handler);
