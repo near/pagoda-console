@@ -25,7 +25,6 @@ function getAnchor(el: ReactElement | string): string {
 }
 
 export function H2Anchor(props: any) {
-    console.log('what is going on?', props);
     const anchor = getAnchor(props.children);
 
     return <>
