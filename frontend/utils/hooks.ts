@@ -137,3 +137,16 @@ export function usePageTracker() {
     mixpanel.track(`DC View ${page} Page`);
   }, [router.pathname]);
 }
+
+export function useMediaQueries(minWidth: string) {
+  const [isLarge, setIsLarge] = useState<boolean>(true);
+
+  useEffect(() => {
+      const listeners = window.matchMedia(`(min-width: ${minWidth})`);
+      const handler = (e: any) => setIsLarge(e.matches);
+      listeners.addEventListener('change', handler);
+      return () => listeners.removeEventListener('change', handler);
+  }, []);
+
+  return isLarge;
+}

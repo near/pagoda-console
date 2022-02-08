@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useRouteParam } from "../../utils/hooks";
+import { useMediaQueries, useRouteParam } from "../../utils/hooks";
 
 interface Route {
     label: string;
@@ -635,6 +635,7 @@ function RouteItem({ route }: { route: Route }) {
     </>;
 }
 
+// TODO make this component dynamic based on tutorial project
 export default function TableOfContents() {
     const router = useRouter();
 
@@ -645,7 +646,13 @@ export default function TableOfContents() {
         });
     }, []);
 
-    // TODO make this component dynamic based on tutorial project
+    const isDesktop = useMediaQueries('80rem');
+
+    if (!isDesktop) {
+        // TODO add a mobile view
+        return <></>;
+    }
+
     return <>
         <div className="routeWrapper">
             <RouteList routes={ROUTES} />
