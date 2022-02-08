@@ -10,18 +10,33 @@ import mixpanel from 'mixpanel-browser';
 
 import Gradient from '../public/dashboardGradient.svg';
 import { logOut } from '../utils/auth';
+import { useProject } from '../utils/fetchers';
 
 interface PageDefinition {
     display: string,
     route: string,
+    routeMatchPattern?: string,
     debug?: boolean
 };
 
-const pages = [
-    { display: 'Analytics', route: '/analytics' },
-    { display: 'Contracts', route: `/contracts` },
-    { display: 'Settings', route: `/project-settings` },
-];
+// We may change which pages display depending on the type of project.
+function useProjectPages(): PageDefinition[] {
+    const pages = [];
+
+    const projectSlug = useRouteParam('project');
+    const { project, error: projectError } = useProject(projectSlug);
+
+    if (project?.tutorial === 'NFT_MARKET') {
+        pages.push({ display: 'Tutorial', route: '/tutorials/nfts/introduction', routeMatchPattern: '/tutorials/' });
+    }
+
+    // If custom outline is injected, use that, else use this.
+    pages.push({ display: 'Analytics', route: '/analytics' });
+    pages.push({ display: 'Contracts', route: `/contracts` });
+    pages.push({ display: 'Settings', route: `/project-settings` });
+
+    return pages;
+}
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     const router = useRouter();
@@ -59,6 +74,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 function SideBar() {
     const router = useRouter();
     const displayName = useDisplayName();
+    const pages = useProjectPages();
 
     const isOnboardingRaw = useRouteParam('onboarding');
     const isOnboarding = (isOnboardingRaw === 'true');
@@ -78,6 +94,11 @@ function SideBar() {
         return linkOut;
     }
 
+    function isLinkSelected(page: PageDefinition): boolean {
+        const matchesPattern = page.routeMatchPattern ? router.pathname.startsWith(page.routeMatchPattern) : false;
+        return router.pathname === page.route || matchesPattern;
+    }
+
     return (
         <div className='sidebar'>
             {/* <div className='logoContainer' onClick={() => getIdToken(getAuth().currentUser!).then((token) => navigator.clipboard.writeText(token).then(() => alert('Copied token to clipboard')))}> */}
@@ -85,7 +106,7 @@ function SideBar() {
                 <NearIcon />
             </div>
             <div className='linkContainer'>
-                {pages.map((page, index) => <PageLink key={page.route} page={page} link={createLink(page.route)} isSelected={router.pathname === page.route} isFirst={index === 0} isOnboarding={isOnboarding} dismissOnboarding={dismissOnboarding} />)}
+                {pages.map((page, index) => <PageLink key={page.route} page={page} link={createLink(page.route)} isSelected={isLinkSelected(page)} isFirst={index === 0} isOnboarding={isOnboarding} dismissOnboarding={dismissOnboarding} />)}
             </div>
             <div className='footerContainer'>
                 <Link href={createLink('/settings')}><a className='footerItem' >{displayName || <Placeholder animation='glow'><Placeholder size='sm' style={{ borderRadius: '0.5em', width: '100%' }} /></Placeholder>}</a></Link>

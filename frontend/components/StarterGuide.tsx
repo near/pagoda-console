@@ -122,7 +122,7 @@ export default function StarterGuide() {
                         <Accordion.Header>Rust (near-jsonrpc-client)</Accordion.Header>
                         <Accordion.Body>
                             <p>Example of asynchronously fetching the latest block using tokio:</p>
-                            <CodeBlock language="javascript">{starterCode.rust}</CodeBlock>
+                            <CodeBlock language="rust">{starterCode.rust}</CodeBlock>
                         </Accordion.Body>
                     </Accordion.Item>
                 </Accordion>

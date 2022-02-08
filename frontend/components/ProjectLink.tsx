@@ -1,6 +1,7 @@
 import { Project } from "../utils/interfaces";
 import Link from 'next/link';
 import { useRouter } from "next/router";
+import TutorialBadge from "./TutorialBadge";
 
 export default function ProjectLink({ project }: { project: Project }) {
     const router = useRouter();
@@ -9,7 +10,7 @@ export default function ProjectLink({ project }: { project: Project }) {
     return (
         <>
             <Link href={`${router.pathname}?project=${project.slug}`}>
-                <a className='hoverPrimary projectLink'><div>{project.name}</div></a>
+                <a className='hoverPrimary projectLink'><div>{project.name}{project.tutorial && <TutorialBadge />}</div></a>
             </Link>
             <style jsx>{`
             .projectLink {

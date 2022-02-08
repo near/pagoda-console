@@ -1,4 +1,5 @@
 export type NetOption = 'MAINNET' | 'TESTNET';
+export type TutorialOption = 'NFT_MARKET' | 'CROSSWORD';
 
 export interface Contract {
     id: number,
@@ -12,6 +13,7 @@ export interface Project {
     id: number,
     name: string,
     slug: string,
+    tutorial: TutorialOption,
     active?: boolean
 }
 

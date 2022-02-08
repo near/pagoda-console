@@ -9,6 +9,7 @@ import { useRouteParam } from '../utils/hooks';
 import mixpanel from 'mixpanel-browser';
 import { logOut } from '../utils/auth';
 import BorderSpinner from '../components/BorderSpinner';
+import BackButton from '../components/BackButton';
 
 // Don't show the back button if we are going back to these specific routes.
 const EXCLUDED_BACK_PATHS = ['/register', '/verification'];
@@ -94,7 +95,7 @@ export default function NewProject() {
             <div className="submitRow">
                 <div className='submitContainer'>
                     {createInProgress && <BorderSpinner />}
-                    {!isOnboarding && lastVisitedPath && <Button onClick={() => router.push(lastVisitedPath)}>Back</Button>}
+                    {!isOnboarding && <BackButton />}
                     <Button variant='primary' type='submit' disabled={!canCreate()}>Create a Project</Button>
                 </div>
             </div>
