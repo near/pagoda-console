@@ -14,7 +14,7 @@ export function H1Anchor(props: any) {
 function getAnchor(el: ReactElement | string): string {
     if (typeof el === 'string') {
         // This replacement is trying to mimic the behavior of hash urls in docusaurus on docs.near.org.
-        return el.toLowerCase().replaceAll(' ', '-').replaceAll('.', '');
+        return el.toLowerCase().replaceAll(' ', '-').replaceAll('.', '').replaceAll('\'', '');
     }
 
     if (el.props) {
