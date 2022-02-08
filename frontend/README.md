@@ -118,6 +118,8 @@ Here are the changes that need to occur to each .md file that comes from @near/d
     * Any relative or absolute links will need to be updated
     * image links that are used with ![ may need to be updated
         * you may also be able to search for "/docs/assets"
+    * links that start with **](/docs/tutorials/contracts** may just need to be updated to **](/tutorials**
+    * remaining links that start with **](/docs/** may need to be changed to **](https://docs.near.org/docs/**
 * Acorn # in headers need to be removed
     e.g. ## Viewing NFTs in the wallet {#viewing-nfts-in-wallet}
     the {#...} needs to be removed
