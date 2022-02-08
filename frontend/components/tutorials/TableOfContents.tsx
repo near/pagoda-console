@@ -204,7 +204,7 @@ const ROUTES: Route[] = [
             },
             {
                 label: 'Viewing NFTs in the wallet',
-                path: '#viewing-NFTs-in-the-wallet'
+                path: '#viewing-nfts-in-the-wallet'
             },
             {
                 label: 'Conclusion',
@@ -349,8 +349,8 @@ const ROUTES: Route[] = [
                 path: '#revoke-all-accounts'
             },
             {
-                label: 'Testing the changes',
-                path: '#testing-the-changes',
+                label: 'Testing the new changes',
+                path: '#testing-the-new-changes',
                 children: [
                     {
                         label: 'Creating a sub-account',
@@ -642,7 +642,7 @@ export default function TableOfContents() {
     // Prefetch top-level pages.
     useEffect(() => {
         ROUTES.forEach(route => {
-            router.prefetch(route.path);
+            router.prefetch(`${BASE_PATH}${route.path}`);
         });
     }, []);
 
