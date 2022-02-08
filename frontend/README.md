@@ -115,10 +115,10 @@ Here are the changes that need to occur to each .md file that comes from @near/d
     :::tip -> <Tip></Tip>
     :::info -> <Info></Info>
 * Replace urls as necessary to match routes in the DC
+    * Any relative or absolute links will need to be updated
 * Acorn # in headers need to be removed
     e.g. ## Viewing NFTs in the wallet {#viewing-nfts-in-wallet}
     the {#...} needs to be removed
-* Any relative or absolute links will need to be updated
 * Search for <details> tags and make sure no ``` code blocks are inside of <p> tags, if they are, remove the <p> surrounding the code block.
 * Replace ```sh with ```bash
 * MDX isn't formatting ``` and <code> the same way so replace <code> with ``` if needed to get the styling
