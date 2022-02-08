@@ -667,11 +667,15 @@ export default function TableOfContents() {
                 margin-right: 2rem;
                 left: calc(var(--layout-sidebar-width) + 7.5rem + 46rem + 2rem);
             }
+            .routeWrapper :global(li) {
+                padding-bottom: .25rem;
+            }
             .routeWrapper :global(ul) {
                 list-style-type: none;
             }
             .routeWrapper :global(ul) :global(ul) {
                 color: var(--color-primary);
+                padding-top: .25rem;
                 padding-left: 1rem;
             }
         `}</style>
