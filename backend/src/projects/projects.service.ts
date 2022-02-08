@@ -7,6 +7,7 @@ import {
   User,
   Contract,
   Environment,
+  ProjectTutorial,
 } from '@prisma/client';
 import { VError } from 'verror';
 import { customAlphabet } from 'nanoid';
@@ -32,6 +33,7 @@ export class ProjectsService {
   async create(
     user: User,
     name: Project['name'],
+    tutorial: Project['tutorial'],
   ): Promise<{ name: Project['name']; slug: Project['slug'] }> {
     let teamId;
     try {
@@ -55,9 +57,29 @@ export class ProjectsService {
     }
 
     let project;
+
     try {
-      project = await this.prisma.project.create({
-        data: {
+      let projectInput: Prisma.ProjectCreateInput;
+
+      if (tutorial) {
+        projectInput = {
+          slug: nanoid(),
+          name,
+          tutorial,
+          teamProjects: {
+            create: {
+              teamId,
+            },
+          },
+          environments: {
+            createMany: {
+              data: [{ name: 'Testnet', net: 'TESTNET', subId: 1 }],
+            },
+          },
+          active: false,
+        };
+      } else {
+        projectInput = {
           slug: nanoid(),
           name,
           teamProjects: {
@@ -74,7 +96,11 @@ export class ProjectsService {
             },
           },
           active: false,
-        },
+        };
+      }
+
+      project = await this.prisma.project.create({
+        data: projectInput,
         select: {
           name: true,
           slug: true,
@@ -91,10 +117,12 @@ export class ProjectsService {
         `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_1`,
         'TESTNET',
       );
-      await this.keys.createProject(
-        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_2`,
-        'MAINNET',
-      );
+      if (!tutorial) {
+        await this.keys.createProject(
+          `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_2`,
+          'MAINNET',
+        );
+      }
     } catch (e) {
       // Attempt to delete the project, since API keys failed to generate.
       try {
@@ -569,8 +597,10 @@ export class ProjectsService {
     });
 
     try {
-      const { name, slug } = await this.getActiveProject(projectWhereUnique);
-      return { name, slug };
+      const { name, slug, tutorial } = await this.getActiveProject(
+        projectWhereUnique,
+      );
+      return { name, slug, tutorial };
     } catch (e) {
       throw new VError(e, 'Failed while fetching project details');
     }

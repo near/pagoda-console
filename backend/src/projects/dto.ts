@@ -2,15 +2,17 @@
 // because class-validator was experiencing issues at the time of implementation
 // and had many unaddressed github issues
 
-import { Net } from '.prisma/client';
+import { Net, ProjectTutorial } from '.prisma/client';
 import * as Joi from 'joi';
 
 // create project
 export interface CreateProjectDto {
   name: string;
+  tutorial?: ProjectTutorial;
 }
 export const CreateProjectSchema = Joi.object({
   name: Joi.string().required().max(50),
+  tutorial: Joi.string(),
 });
 
 // delete project

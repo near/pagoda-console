@@ -53,8 +53,8 @@ export class ProjectsController {
   @Post('create')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(CreateProjectSchema))
-  async create(@Request() req, @Body() { name }: CreateProjectDto) {
-    return this.projectsService.create(req.user, name.trim());
+  async create(@Request() req, @Body() { name, tutorial }: CreateProjectDto) {
+    return this.projectsService.create(req.user, name.trim(), tutorial);
   }
 
   @Post('delete')
