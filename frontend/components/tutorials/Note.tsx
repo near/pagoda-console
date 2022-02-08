@@ -14,15 +14,17 @@ export default function Note(props: any) {
 
     return <>
         <Alert>
-            <p><span className="iconWrapper"><FontAwesomeIcon icon={icon} /></span>{props.children[0] ? props.children[0].props.children : props.children.props.children}</p>
-            {props.children[0] && props.children.slice(1)}
+            <div className="childrenWrapper">
+                <p><span className="iconWrapper"><FontAwesomeIcon icon={icon} /></span>{props.children[0] ? props.children[0].props.children : props.children.props.children}</p>
+                {props.children[0] && props.children.slice(1)}
+            </div>
         </Alert>
         <style jsx>{`
             .iconWrapper {
                 margin-right: .5rem;
             }
-            :global(*):last-child {
-                margin-bottom: 0;
+            .childrenWrapper :global(p):last-child {
+                margin-bottom: 0rem;
             }
         `}</style>
     </>;
