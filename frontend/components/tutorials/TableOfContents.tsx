@@ -184,7 +184,7 @@ const ROUTES: Route[] = [
     },
     {
         label: '4. Upgrade a Contract',
-        path: '/upgrade-a-contract',
+        path: '/upgrade-contract',
         children: [
             {
                 label: 'Introduction',

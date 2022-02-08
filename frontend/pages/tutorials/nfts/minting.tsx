@@ -11,7 +11,7 @@ export default function Overview() {
         <ProjectSelector />
         <TableOfContents />
         <Content components={components} />
-        <TutorialFooter><NextStepButton path="/tutorials/nfts/upgrade-a-contract" label="Step 4: Upgrade a Contract" /></TutorialFooter>
+        <TutorialFooter><NextStepButton path="/tutorials/nfts/upgrade-contract" label="Step 4: Upgrade a Contract" /></TutorialFooter>
     </>;
 }
 
