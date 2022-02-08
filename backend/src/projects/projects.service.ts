@@ -615,28 +615,41 @@ export class ProjectsService {
       projectWhereUnique,
     });
 
-    let project;
+    let project: Project;
     try {
-      project = await this.getActiveProject(projectWhereUnique, true);
+      project = await this.getActiveProject(projectWhereUnique);
     } catch (e) {
       throw new VError(e, 'Failed while checking that project is active');
     }
 
     try {
-      // run requests in parallel
-      const testnetKeyPromise = this.keys.fetch(
-        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_1`,
-        'TESTNET',
-      );
-      const mainnetKeyPromise = this.keys.fetch(
-        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_2`,
-        'MAINNET',
+      // Array of key names/ids to fetch from key service.
+      const fetchKeys: [Net, number][] = [['TESTNET', 1]];
+
+      // Tutorial projects have no Mainnet key.
+      if (!project.tutorial) {
+        fetchKeys.push(['MAINNET', 2]);
+      }
+
+      const keys = await Promise.all(
+        fetchKeys.map((keyId) =>
+          this.keys.fetch(
+            `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_${
+              keyId[1]
+            }`,
+            keyId[0],
+          ),
+        ),
       );
 
-      return {
-        TESTNET: await testnetKeyPromise,
-        MAINNET: await mainnetKeyPromise,
-      };
+      // Builds an object of the form:
+      // {
+      //   TESTNET: '{api_key}',
+      //   MAINNET: '{api_key}'
+      // }
+      return Object.fromEntries(
+        fetchKeys.map((keyId, i) => [keyId[0], keys[i]]),
+      );
     } catch (e) {
       throw new VError(e, 'Failed to fetch keys from key management API');
     }
