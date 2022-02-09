@@ -441,7 +441,7 @@ const ROUTES: Route[] = [
         ]
     },
     {
-        label: 'Events',
+        label: '9. Events',
         path: '/events',
         children: [
             {
@@ -513,7 +513,7 @@ const ROUTES: Route[] = [
         ]
     },
     {
-        label: 'Marketplace',
+        label: '10. Marketplace',
         path: '/marketplace',
         children: [
             {
