@@ -13,27 +13,32 @@ To complete this tutorial successfully, you'll need:
 
 ### Setup
 
-- Before we run any commands, we'll need to tell the CLI which API service we're using by providing its URL and an access key. RPC stands for Remote Procedure Call, and is how we communicate with the NEAR blockchain. Set the RPC URL with an environment variable:
+<ol>
+<li>
+Before we run any commands, we'll need to tell the CLI which API service we're using by providing its URL and an access key. RPC stands for Remote Procedure Call, and is how we communicate with the NEAR blockchain. Set the RPC URL with an environment variable:
 
 ```bash
 export NEAR_CLI_TESTNET_RPC_SERVER_URL=https://testnet.rpc.near.dev/
 ```
-
-- Then, configure your API key:
+</li>
+<li>
+Then, configure your API key:
 
 <SetApiKey />
 
 <Info>
 You can find your API keys at any time on the [Project Settings](/project-settings) screen.
 </Info>
-
-- With the RPC credentials in place, log in to your newly created account with `near-cli` by running the following command in your terminal:
+</li>
+<li>
+With the RPC credentials in place, log in to your newly created account with `near-cli` by running the following command in your terminal:
 
 ```bash
 near login
 ```
-
-- Set an environment variable for your account ID to make it easy to copy and paste commands from this tutorial:
+</li>
+<li>
+Set an environment variable for your account ID to make it easy to copy and paste commands from this tutorial:
 
 ```bash
 export NEARID=YOUR_ACCOUNT_NAME
@@ -42,12 +47,15 @@ export NEARID=YOUR_ACCOUNT_NAME
 <Note>
 Be sure to replace `YOUR_ACCOUNT_NAME` with the account name you just logged in with including the `.testnet` (or `.near` for `mainnet`).
 </Note>
-
-- Test that the environment variable is set correctly by running:
+</li>
+<li>
+Test that the environment variable is set correctly by running:
   
 ```bash
 echo $NEARID
 ```
+</li>
+</ol>
 
 ### Minting your NFTs
 
