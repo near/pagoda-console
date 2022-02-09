@@ -61,8 +61,9 @@ echo $NEARID
 
 NEAR has deployed an NFT contract to the account `nfts.examples.testnet` which allows users to freely mint tokens. Using this pre-deployed contract, let's mint our first token! 
 
-
-- Run this command in your terminal, however you **must replace the `token_id` value with an UNIQUE string**.
+<ol>
+<li>
+Run this command in your terminal, however you **must replace the `token_id` value with an UNIQUE string**.
 
 ```bash
 near call example-nft.testnet nft_mint '{"token_id": "TYPE_A_UNIQUE_VALUE_HERE", "receiver_id": "'$NEARID'", "token_metadata": { "title": "GO TEAM", "description": "The Team Goes", "media": "https://bafybeidl4hjbpdr6u6xvlrizwxbrfcyqurzvcnn5xoilmcqbxfbdwrmp5m.ipfs.dweb.link/", "copies": 1}}' --accountId $NEARID --deposit 0.1
@@ -98,8 +99,10 @@ You can also replace the `media` URL with a link to any image file hosted on you
 ```
 
 </details>
-
-- To view tokens owned by an account you can call the NFT contract with the following `near-cli` command:
+<br />
+</li>
+<li>
+To view tokens owned by an account you can call the NFT contract with the following `near-cli` command:
 
 ```bash
 near view example-nft.testnet nft_tokens_for_owner '{"account_id": "'$NEARID'"}'
@@ -133,6 +136,10 @@ near view example-nft.testnet nft_tokens_for_owner '{"account_id": "'$NEARID'"}'
 ```
 
 </details>
+<br />
+
+</li>
+</ol>
 
 ***Congratulations! You just minted your first NFT token on the NEAR blockchain!*** 🎉
 
@@ -153,5 +160,5 @@ Now that you're familiar with the process, you can jump to [Contract Architectur
 
 At the time of this writing, this example works with the following versions:
 
-- near-cli: `3.0.0`
+- near-cli: `3.0.0` or above
 </Note>
