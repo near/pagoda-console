@@ -604,13 +604,14 @@ const ROUTES: Route[] = [
     }
 ];
 
-function RouteList({ routes }: { routes: Route[] }) {
+// Top-level links are not children but every link under the top-level is considered a child link.
+function RouteList({ routes, isChild = false }: { routes: Route[], isChild: boolean }) {
     return <ul>
-        {routes.map(route => <RouteItem key={route.path} route={route} />)}
+        {routes.map(route => <RouteItem key={route.path} route={route} isChild={isChild} />)}
     </ul>
 }
 
-function RouteItem({ route }: { route: Route }) {
+function RouteItem({ route, isChild }: { route: Route, isChild: boolean }) {
     const router = useRouter();
     const project = useRouteParam('project');
     let path;
@@ -626,7 +627,7 @@ function RouteItem({ route }: { route: Route }) {
         <li>
             {path.startsWith('#') && <a href={path}>{route.label}</a>}
             {!path.startsWith('#') && <Link href={path}><a>{route.label}</a></Link>}
-            {isCurrentRoute && route.children && <RouteList routes={route.children} />}
+            {(isCurrentRoute || isChild) && route.children && <RouteList routes={route.children} isChild={true} />}
         </li>
         <style jsx>{`
             a {
