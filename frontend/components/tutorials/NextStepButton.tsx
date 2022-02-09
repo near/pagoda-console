@@ -7,6 +7,6 @@ export default function NextStepButton({ label, path }: { label: string, path: s
     const environment = useRouteParam('environment');
 
     return <Link passHref href={`${path}?project=${project}&environment=${environment}`}>
-        <Button as="a" variant='primary'>{label}</Button>
+        <Button variant='primary'>{label}</Button>
     </Link>;
 }

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ReactElement } from "react";
 import { useRouteParam } from "../../utils/hooks";
 
@@ -18,7 +19,10 @@ export function Anchor(props: any) {
         path = `${props.href}?project=${project}&environment=1`;
     }
 
-    return <a href={path}>{props.children}</a>;
+    return <>
+        {path.startsWith('#') && <a href={path}>{props.children}</a>}
+        {!path.startsWith('#') && <Link href={path}><a>{props.children}</a></Link>}
+    </>;
 }
 
 export function H1Anchor(props: any) {

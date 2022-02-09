@@ -3,7 +3,7 @@ import { useRouteParam } from "../../utils/hooks";
 import CodeBlock from "../CodeBlock";
 
 export default function ApiKey() {
-    const projectSlug = useRouteParam('project', '/projects');
+    const projectSlug = useRouteParam('project');
     const { keys, error: keysError, mutate: mutateKeys } = useApiKeys(projectSlug);
     const key = keys?.TESTNET!;
     return <>
