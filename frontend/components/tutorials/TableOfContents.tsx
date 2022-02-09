@@ -1,5 +1,5 @@
+import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
 import { useMediaQueries, useRouteParam } from "../../utils/hooks";
 
 interface Route {
@@ -624,7 +624,8 @@ function RouteItem({ route }: { route: Route }) {
 
     return <>
         <li>
-            <a href={path}>{route.label}</a>
+            {path.startsWith('#') && <a href={path}>{route.label}</a>}
+            {!path.startsWith('#') && <Link href={path}><a>{route.label}</a></Link>}
             {isCurrentRoute && route.children && <RouteList routes={route.children} />}
         </li>
         <style jsx>{`
@@ -632,20 +633,11 @@ function RouteItem({ route }: { route: Route }) {
                 text-decoration: none;
             }
         `}</style>
-    </>;
+    </>
 }
 
 // TODO make this component dynamic based on tutorial project
 export default function TableOfContents() {
-    const router = useRouter();
-
-    // Prefetch top-level pages.
-    useEffect(() => {
-        ROUTES.forEach(route => {
-            router.prefetch(`${BASE_PATH}${route.path}`);
-        });
-    }, []);
-
     const isDesktop = useMediaQueries('80rem');
 
     if (!isDesktop) {
