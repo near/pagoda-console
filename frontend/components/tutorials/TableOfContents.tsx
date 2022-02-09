@@ -605,7 +605,7 @@ const ROUTES: Route[] = [
 ];
 
 // Top-level links are not children but every link under the top-level is considered a child link.
-function RouteList({ routes, isChild = false }: { routes: Route[], isChild: boolean }) {
+function RouteList({ routes, isChild = false }: { routes: Route[], isChild?: boolean }) {
     return <ul>
         {routes.map(route => <RouteItem key={route.path} route={route} isChild={isChild} />)}
     </ul>
