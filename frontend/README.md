@@ -114,6 +114,7 @@ Here are the changes that need to occur to each .md file that comes from @near/d
     :::note -> <Note></Note>
     :::tip -> <Tip></Tip>
     :::info -> <Info></Info>
+* Replace tables with <Table> component - Any html elements in the table like <a> or <code> tags will not use the components.tsx mapping. Html elements should either directly call the component within the components.tsx mapping or use markdown syntax.
 * Replace urls as necessary to match routes in the DC
     * Any relative or absolute links will need to be updated
     * image links that are used with ![ may need to be updated

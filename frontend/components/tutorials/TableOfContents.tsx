@@ -1,5 +1,5 @@
+import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
 import { useMediaQueries, useRouteParam } from "../../utils/hooks";
 
 interface Route {
@@ -160,7 +160,7 @@ const ROUTES: Route[] = [
                     },
                     {
                         label: 'Minting our first NFT',
-                        path: '#minting-out-first-nft'
+                        path: '#minting-our-first-nft'
                     },
                     {
                         label: 'Viewing information about the NFT',
@@ -441,7 +441,7 @@ const ROUTES: Route[] = [
         ]
     },
     {
-        label: 'Events',
+        label: '9. Events',
         path: '/events',
         children: [
             {
@@ -513,7 +513,7 @@ const ROUTES: Route[] = [
         ]
     },
     {
-        label: 'Marketplace',
+        label: '10. Marketplace',
         path: '/marketplace',
         children: [
             {
@@ -604,13 +604,14 @@ const ROUTES: Route[] = [
     }
 ];
 
-function RouteList({ routes }: { routes: Route[] }) {
+// Top-level links are not children but every link under the top-level is considered a child link.
+function RouteList({ routes, isChild = false }: { routes: Route[], isChild?: boolean }) {
     return <ul>
-        {routes.map(route => <RouteItem key={route.path} route={route} />)}
+        {routes.map(route => <RouteItem key={route.path} route={route} isChild={isChild} />)}
     </ul>
 }
 
-function RouteItem({ route }: { route: Route }) {
+function RouteItem({ route, isChild }: { route: Route, isChild: boolean }) {
     const router = useRouter();
     const project = useRouteParam('project');
     let path;
@@ -624,28 +625,20 @@ function RouteItem({ route }: { route: Route }) {
 
     return <>
         <li>
-            <a href={path}>{route.label}</a>
-            {isCurrentRoute && route.children && <RouteList routes={route.children} />}
+            {path.startsWith('#') && <a href={path}>{route.label}</a>}
+            {!path.startsWith('#') && <Link href={path}><a>{route.label}</a></Link>}
+            {(isCurrentRoute || isChild) && route.children && <RouteList routes={route.children} isChild={true} />}
         </li>
         <style jsx>{`
             a {
                 text-decoration: none;
             }
         `}</style>
-    </>;
+    </>
 }
 
 // TODO make this component dynamic based on tutorial project
 export default function TableOfContents() {
-    const router = useRouter();
-
-    // Prefetch top-level pages.
-    useEffect(() => {
-        ROUTES.forEach(route => {
-            router.prefetch(`${BASE_PATH}${route.path}`);
-        });
-    }, []);
-
     const isDesktop = useMediaQueries('80rem');
 
     if (!isDesktop) {

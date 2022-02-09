@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSimpleLayout } from "../utils/layouts"
-import { Button, Row, Col, Card } from 'react-bootstrap'
+import { Button, Row, Col } from 'react-bootstrap'
 import { useRouter } from 'next/router';
 import { useRouteParam } from '../utils/hooks';
 import { logOut } from '../utils/auth';
-import BackButton from '../components/BackButton';
 import ProjectCard from '../components/ProjectCard';
 
 const projects = [
@@ -39,8 +38,6 @@ export default function PickProject() {
                 </Col>
             ))}
         </Row>
-        {/* // TODO adding a back button here might require having a stack to store a history of paths instead of just the last path */}
-        {/* {!isOnboarding && <BackButton />} */}
         {isOnboarding && <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>}
         <style jsx>{`
             .pageTitle {
