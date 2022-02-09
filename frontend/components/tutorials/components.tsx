@@ -1,6 +1,6 @@
 import { Table } from "react-bootstrap";
 import CodeBlock from "./CodeBlock";
-import { H1Anchor, H2Anchor, H3Anchor } from "./Anchors";
+import { Anchor, H1Anchor, H2Anchor, H3Anchor } from "./Anchors";
 import Note from "./Note";
 import Blockquote from "./Blockquote";
 
@@ -11,13 +11,8 @@ const components = {
     h1: H1Anchor,
     h2: H2Anchor,
     h3: H3Anchor,
-    a: (props: any) => {
-        const isExternal = props.href.startsWith('http');
-        if (isExternal) {
-            return <a href={props.href} target="_blank" rel="noreferrer">{props.children}</a>;
-        }
-        return <a href={props.href}>{props.children}</a>;
-    },
+    a: Anchor,
+    Anchor: Anchor,
     code: CodeBlock,
     Info: (props: any) => {
         return <Note type="info">{props.children}</Note>;

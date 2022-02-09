@@ -1,4 +1,25 @@
 import { ReactElement } from "react";
+import { useRouteParam } from "../../utils/hooks";
+
+export function Anchor(props: any) {
+    const project = useRouteParam('project');
+
+    // External links should open a new tab.
+    const isExternal = props.href.startsWith('http');
+    if (isExternal) {
+        return <a href={props.href} target="_blank" rel="noreferrer">{props.children}</a>;
+    }
+
+    let path;
+    if (props.href.startsWith('#')) {
+        path = props.href;
+    } else {
+        // Internal links should include project and environment.
+        path = `${props.href}?project=${project}&environment=1`;
+    }
+
+    return <a href={path}>{props.children}</a>;
+}
 
 export function H1Anchor(props: any) {
     return <>
