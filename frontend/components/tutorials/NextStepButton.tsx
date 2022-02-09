@@ -1,11 +1,12 @@
-import { useRouter } from "next/router";
+import Link from "next/link";
 import { Button } from "react-bootstrap";
 import { useRouteParam } from "../../utils/hooks";
 
 export default function NextStepButton({ label, path }: { label: string, path: string }) {
-    const router = useRouter();
     const project = useRouteParam('project');
     const environment = useRouteParam('environment');
 
-    return <Button onClick={() => router.push(`${path}?project=${project}&environment=${environment}`)} variant='primary'>{label}</Button>;
+    return <Link passHref href={`${path}?project=${project}&environment=${environment}`}>
+        <Button as="a" variant='primary'>{label}</Button>
+    </Link>;
 }
