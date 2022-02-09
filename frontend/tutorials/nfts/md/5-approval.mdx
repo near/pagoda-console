@@ -101,7 +101,7 @@ Token: {
 
 The marketplace is inserted into the map and the next approval ID is incremented. From marketplace B's perspective it stores it's original approval ID from when Benji put the NFT up for sale which has a value of 1. If Mike were to go and purchase the NFT on marketplace B for the original 1 NEAR sale price, the NFT contract should panic. This is because the marketplace is trying to transfer the NFT with an approval ID 1 but the token struct shows that it **should** have an approval ID of 2.
 
-### Expanding the `Token` and `JsonToken` structs
+### Expanding the Token and JsonToken structs
 
 Now that you understand the proposed solution to the original problem of allowing an account to transfer your NFT, it's time to implement some of the logic. The first thing you should do is modify the `Token` and `JsonToken` structs to reflect the new changes. Let's switch over to the `nft-contract/src/metadata.rs` file:
 
@@ -185,7 +185,7 @@ https://github.com/near-examples/nft-tutorial/blob/5.approval/nft-contract/src/i
 
 These will be useful in the next section where you'll be changing the `nft_core` functions to include the new approval logic.
 
-### Changes to `nft_core.rs`
+### Changes to nft_core.rs
 
 Head over to the `nft-contract/src/nft_core.rs` file and the first change that you'll want to make is to add an `approval_id` to both the `nft_transfer` and `nft_transfer_call` functions. This is so that anyone trying to transfer the token that isn't the owner must pass in an approval ID to address the problem seen earlier. If they are the owner, the approval ID won't be used as we saw in the `internal_transfer` function.
 

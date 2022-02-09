@@ -160,7 +160,7 @@ const ROUTES: Route[] = [
                     },
                     {
                         label: 'Minting our first NFT',
-                        path: '#minting-out-first-nft'
+                        path: '#minting-our-first-nft'
                     },
                     {
                         label: 'Viewing information about the NFT',

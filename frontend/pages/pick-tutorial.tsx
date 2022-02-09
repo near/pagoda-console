@@ -4,7 +4,6 @@ import { Button, Row, Col, Card, Alert } from 'react-bootstrap'
 import { useRouter } from 'next/router';
 import { useRouteParam } from '../utils/hooks';
 import { logOut } from '../utils/auth';
-import BackButton from '../components/BackButton';
 import ProjectCard from '../components/ProjectCard';
 import { authenticatedPost } from '../utils/fetchers';
 import { Project } from '../utils/interfaces';
@@ -63,7 +62,6 @@ export default function PickProject() {
             ))}
         </Row>
         {creationError && <div className='errorContainer'><Alert variant='danger'>{creationError}</Alert></div>}
-        {/* {!isOnboarding && <BackButton />} */}
         {isOnboarding && <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>}
         <style jsx>{`
             .pageTitle {
