@@ -18,7 +18,6 @@ $accent-dark-orange: #8C6963;
 
 // define bootstrap overrides
 $primary: $accent-green;
-$badge-color: $accent-orange;
 
 @import "~bootstrap/scss/bootstrap";
 
@@ -36,6 +35,7 @@ $badge-color: $accent-orange;
   --color-accent-purple: #{$accent-purple};
   --color-accent-lilac: #{$accent-lilac};
   --color-accent-orange: #{$accent-orange};
+  --color-accent-dark-orange: #{$accent-dark-orange};
 
   --color-primary: #{$accent-green};
 
@@ -102,6 +102,10 @@ h2 {
 
 .btn {
   height: var(--layout-button-height);
+}
+
+.btn-primary {
+  color: var(--color-white);
 }
 
 .btn-neutral {
