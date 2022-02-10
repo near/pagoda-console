@@ -93,7 +93,7 @@ export default function NewProject() {
             <div className="submitRow">
                 <div className='submitContainer'>
                     {createInProgress && <BorderSpinner />}
-                    {!isOnboarding && <BackButton />}
+                    {/* {!isOnboarding && <BackButton />} */}
                     <Button variant='primary' type='submit' disabled={!canCreate()}>Create a Project</Button>
                 </div>
             </div>
