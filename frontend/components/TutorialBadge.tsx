@@ -12,7 +12,7 @@ export default function TutorialBadge() {
         .badgeContainer :global(span) {
             align-items: center;
             font-weight: bold;
-            font-size: .7rem;
+            font-size: .688rem;
             display: inline-block;
             height: 100%;
             white-space: nowrap;
