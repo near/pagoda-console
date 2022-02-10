@@ -1,4 +1,4 @@
-import { useSimpleLayout } from "../utils/layouts";
+import { useSimpleLogoutLayout } from "../utils/layouts";
 import { Alert, Button } from 'react-bootstrap';
 import { useRouter } from "next/router";
 import { authenticatedPost, useProjects } from "../utils/fetchers";
@@ -11,7 +11,6 @@ import BorderSpinner from "../components/BorderSpinner";
 import CenterModal from "../components/CenterModal";
 import mixpanel from 'mixpanel-browser';
 import { faExclamationCircle, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { logOut } from "../utils/auth";
 
 export default function Projects() {
     const router = useRouter();
@@ -59,7 +58,6 @@ export default function Projects() {
         <div className='footerContainer'>
             <Button onClick={() => router.push('/pick-project')}>Create a Project</Button>
         </div>
-        <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>
         <style jsx>{`
             .projectsContainer {
                 width: 34.125rem;
@@ -85,11 +83,6 @@ export default function Projects() {
                 flex-direction: row;
                 justify-content: flex-end;
                 align-items: center;
-            }
-            .signOut {
-                position: absolute;
-                left: 3rem;
-                bottom: 3rem;
             }
         `}</style>
     </div >
@@ -195,4 +188,4 @@ function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: b
     )
 }
 
-Projects.getLayout = useSimpleLayout;
+Projects.getLayout = useSimpleLogoutLayout;
