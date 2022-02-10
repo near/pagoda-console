@@ -23,3 +23,5 @@ npm run dev
 ```
 
 View at [http://localhost:3000](http://localhost:3000)
+
+View at [http://console.pagoda.co]
