@@ -3,12 +3,9 @@ import { useRouter } from 'next/router';
 
 import PagodaIcon from '../public/brand/pagoda_icon_small.svg'
 import { useDisplayName, useRouteParam } from '../utils/hooks';
-import { getAuth, getIdToken } from 'firebase/auth';
-import { ReactNode, useEffect, useRef, useState } from 'react';
-import { Tooltip, Overlay, Placeholder } from 'react-bootstrap';
-import mixpanel from 'mixpanel-browser';
+import { ReactNode } from 'react';
+import { Placeholder } from 'react-bootstrap';
 
-import Gradient from '../public/dashboardGradient.svg';
 import { logOut } from '../utils/auth';
 import { useProject } from '../utils/fetchers';
 
@@ -47,9 +44,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
         <>
             <SideBar />
-            <div className='gradientContainer'>
-                <Gradient style={{ width: '100%', height: '100%', preserveAspectRatio: 'false' }} />
-            </div>
             <div className='childContainer'>
                 {children}
             </div>
@@ -62,12 +56,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 margin-right: 7.5rem;
                 padding-top: 3rem;
                 padding-bottom: 3rem;
-            }
-            .gradientContainer {
-                height: 100%;
-                z-index: -1;
-                left: -5rem;
-                position: fixed;
             }
         `}</style>
         </>
@@ -130,7 +118,7 @@ function SideBar() {
                     left: 0;
                     top: 0;
                     width: var(--layout-sidebar-width);
-                    background-color: var(--color-bg-primary);
+                    background-color: #F2F2F2;
                     align-items: center;
                     padding-top: 3rem;
                     position: fixed;
@@ -151,7 +139,6 @@ function SideBar() {
                     flex-direction: column;
                     justify-content: flex-end;
                     width: 100%;
-                    background-color: #F2F2F2;
                     padding: 0 1rem 0;
                 }
                 .footerItem {
