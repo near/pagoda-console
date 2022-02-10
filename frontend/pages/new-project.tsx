@@ -1,13 +1,11 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-import { useSimpleLayout } from "../utils/layouts"
+import { useSimpleLogoutLayout } from "../utils/layouts"
 import { Form, Button } from 'react-bootstrap'
-import { getAuth } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import { Project } from '../utils/interfaces';
 import { authenticatedPost } from '../utils/fetchers';
 import { useRouteParam } from '../utils/hooks';
 import mixpanel from 'mixpanel-browser';
-import { logOut } from '../utils/auth';
 import BorderSpinner from '../components/BorderSpinner';
 import BackButton from '../components/BackButton';
 
@@ -100,7 +98,6 @@ export default function NewProject() {
                 </div>
             </div>
         </Form>
-        {isOnboarding && <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>}
         <style jsx>{`
             .newProjectContainer {
                 display: flex;
@@ -135,13 +132,8 @@ export default function NewProject() {
                 flex-direction: row;
                 column-gap: 1rem;
             }
-            .signOut {
-                position: absolute;
-                left: 3rem;
-                bottom: 3rem;
-            }
         `}</style>
     </div >
 }
 
-NewProject.getLayout = useSimpleLayout;
+NewProject.getLayout = useSimpleLogoutLayout;
