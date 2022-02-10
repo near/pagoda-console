@@ -104,7 +104,7 @@ h2 {
   height: var(--layout-button-height);
 }
 
-.btn-primary {
+.btn-primary, .btn-primary:hover, .btn-primary:disabled, .btn-outline-primary:hover {
   color: var(--color-white);
 }
 
