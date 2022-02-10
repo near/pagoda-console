@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router';
 
-import NearIcon from '../public/brand/near_icon.svg'
+import PagodaIcon from '../public/brand/pagoda_icon_small.svg'
 import { useDisplayName, useRouteParam } from '../utils/hooks';
 import { getAuth, getIdToken } from 'firebase/auth';
 import { ReactNode, useEffect, useRef, useState } from 'react';
@@ -16,7 +16,8 @@ interface PageDefinition {
     display: string,
     route: string,
     routeMatchPattern?: string,
-    debug?: boolean
+    debug?: boolean,
+    isComingSoon?: boolean,
 };
 
 // We may change which pages display depending on the type of project.
@@ -33,6 +34,8 @@ function useProjectPages(): PageDefinition[] {
     // If custom outline is injected, use that, else use this.
     pages.push({ display: 'Analytics', route: '/analytics' });
     pages.push({ display: 'Contracts', route: `/contracts` });
+    // pages.push({ display: 'Deploys', route: '', isComingSoon: true });
+    // pages.push({ display: 'Alerts', route: '', isComingSoon: true });
     pages.push({ display: 'Settings', route: `/project-settings` });
 
     return pages;
@@ -103,7 +106,7 @@ function SideBar() {
         <div className='sidebar'>
             {/* <div className='logoContainer' onClick={() => getIdToken(getAuth().currentUser!).then((token) => navigator.clipboard.writeText(token).then(() => alert('Copied token to clipboard')))}> */}
             <div className='logoContainer'>
-                <NearIcon />
+                <PagodaIcon />
             </div>
             <div className='linkContainer'>
                 {pages.map((page, index) => <PageLink key={page.route} page={page} link={createLink(page.route)} isSelected={isLinkSelected(page)} isFirst={index === 0} isOnboarding={isOnboarding} dismissOnboarding={dismissOnboarding} />)}

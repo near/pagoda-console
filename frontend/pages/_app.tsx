@@ -86,8 +86,8 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       }}
     >
       <Head>
-        <title>NEAR Developer Console</title>
-        <meta name="description" content="NEAR Developer Console" />
+        <title>Pagoda Developer Console</title>
+        <meta name="description" content="Pagoda Developer Console" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       {getLayout(<Component {...pageProps} />, getFooter())}

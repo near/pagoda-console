@@ -2,20 +2,23 @@
 /* @import '~bootstrap/dist/css/bootstrap.min.css'; */
 
 $light-gray: #A7A7A7;
-$black: #262626;
+$black: #000000;
 $dark-gray: #3F4246;
 $white: #FFFFFF;
 $accent-blue: #5F8AFA;
-$accent-green: #AAD055;
+$accent-green: #87BB81;
+;
 $accent-yellow: #FFC860;
 $accent-red: #DB5555;
 $accent-turquoise: #4FD1D9;
 $accent-purple: #6B6EF9;
 $accent-lilac: #A463B0;
-$accent-orange: #E3935B;
+$accent-orange: #F3CFB5;
+$accent-dark-orange: #8C6963;
 
 // define bootstrap overrides
-$primary: $accent-purple;
+$primary: $accent-green;
+$badge-color: $accent-orange;
 
 @import "~bootstrap/scss/bootstrap";
 
@@ -34,7 +37,7 @@ $primary: $accent-purple;
   --color-accent-lilac: #{$accent-lilac};
   --color-accent-orange: #{$accent-orange};
 
-  --color-primary: #{$accent-purple};
+  --color-primary: #{$accent-green};
 
   --layout-button-height: 2.625rem;
   --layout-sidebar-width: 11.125rem;
