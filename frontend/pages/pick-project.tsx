@@ -1,9 +1,8 @@
 import { useEffect } from 'react';
-import { useSimpleLayout } from "../utils/layouts"
-import { Button, Row, Col } from 'react-bootstrap'
+import { useSimpleLogoutLayout } from "../utils/layouts"
+import { Row, Col } from 'react-bootstrap'
 import { useRouter } from 'next/router';
 import { useRouteParam } from '../utils/hooks';
-import { logOut } from '../utils/auth';
 import ProjectCard from '../components/ProjectCard';
 
 const projects = [
@@ -38,7 +37,6 @@ export default function PickProject() {
                 </Col>
             ))}
         </Row>
-        {isOnboarding && <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>}
         <style jsx>{`
             .pageTitle {
                 text-align: center;
@@ -64,13 +62,8 @@ export default function PickProject() {
                 flex-direction: row;
                 column-gap: 1rem;
             }
-            .signOut {
-                position: absolute;
-                left: 3rem;
-                bottom: 3rem;
-            }
         `}</style>
     </div >
 }
 
-PickProject.getLayout = useSimpleLayout;
+PickProject.getLayout = useSimpleLogoutLayout;
