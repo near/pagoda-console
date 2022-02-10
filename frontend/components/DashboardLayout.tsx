@@ -35,7 +35,6 @@ function useProjectPages(): PageDefinition[] {
     pages.push({ display: 'Analytics', route: '/analytics' });
     pages.push({ display: 'Contracts', route: `/contracts` });
     pages.push({ display: 'Settings', route: `/project-settings` });
-    pages.push({ display: 'NFT', route: `/nft` }); // ! TODO: TEMPORARY
 
     return pages;
 }
