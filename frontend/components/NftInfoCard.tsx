@@ -3,7 +3,8 @@ import { Accordion, Form, Button, InputGroup } from "react-bootstrap";
 import IconButton from "./IconButton";
 import CodeBlock from "./CodeBlock";
 
-import { faPen } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPen, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import { useContractInfo, useMetadata } from "../utils/chainData";
 
 import { ContractMetadata, NftData, Token, TokenMetadata } from "../utils/chainData"
@@ -15,6 +16,8 @@ export default function NftInfoCard() {
     const [isEditing, setIsEditing] = useState<boolean>(true);
     const [contractAddress, setContractAddress] = useState<string | null>(null);
     const [addressInputValue, setAddressInputValue] = useState<string>('');
+
+    const [showQuickInfo, setShowQuickInfo] = useState<boolean | null>(true);
 
     // fetch NFT contract address from local storage at startup
     const project = useRouteParam('project');
@@ -86,39 +89,62 @@ export default function NftInfoCard() {
         return '?????'; // TODO
     }
 
-    return <div className={`nftContractCard${nftData?.metadata ? ' openNftCard' : ''}`}>
-        <h2 className="quickInfoHeader">Live Contract Data</h2>
-        {!contractAddress && <span className="quickInfoInstructions">I’ll show you contract metrics here. Paste in your NFT contract address below and info will update here as you progress through the tutorial.</span>}
-        {isEditing || !contractAddress ? <Form className="contractForm" onSubmit={saveAddressChange}>
-            <InputGroup>
-                <Form.Control
-                    //   isInvalid={Boolean(error)}
-                    placeholder='contract.testnet'
-                    value={addressInputValue}
-                    onChange={handleAddressChange}
-                />
-                <Button type='submit'>Save</Button>
-            </InputGroup>
-        </Form>
-            : <div className="address">
-                <span className="addressText">{contractAddress}</span>
-                <IconButton onClick={() => { setIsEditing(true) }} icon={faPen} />
-            </div>}
-        {contractAddress && <span className="status">{getStatusText()}</span>}
-        <div className="metaFlex">{nftData?.metadata && <NftBasicInfo metadata={nftData.metadata} supply={nftData.supply} />}</div>
-        {nftData?.tokenJson && <TokenList tokenJson={nftData.tokenJson} />}
-        {/* <pre><code>basics: {JSON.stringify(contractBasics, null, 4)}</code></pre> */}
-        {/* {basicsError && <pre><code>basicsError: {JSON.stringify(basicsError, null, 4)}</code></pre>} */}
-        {/* {basicsError?.cause?.message && <pre><code>basicsError.cause: {JSON.stringify(basicsError.cause.message, null, 4)}</code></pre>} */}
-        {/* {typeof basicsError?.cause} */}
-        {/* <pre><code>data: {JSON.stringify(nftData, null, 4)}</code></pre> */}
-        {/* <p>error: {JSON.stringify(nftError)}</p> */}
+    function toggleQuickInfo() {
+        // console.log(`setting to ${!!(showQuickInfo || showQuickInfo === null)}`);
+        // setShowQuickInfo(!!(showQuickInfo || showQuickInfo === null));
+        if (showQuickInfo || showQuickInfo === null) {
+            setShowQuickInfo(false);
+        } else {
+            setShowQuickInfo(true);
+        }
+    }
+
+    // NOTE: intentionally leaving in commented out versions of nftContractCard and toggle as stub for animation work. Animation
+    // works for a static height but does not properly handle the different states of the card and their respective heights
+
+    // return <div className={`nftContractCard${nftData?.metadata ? ' openNftCard' : ''}${showQuickInfo !== null ? (showQuickInfo ? ' animateDown' : ' animateUp') : ''}`}>
+    return <div className={`nftContractCard${showQuickInfo ? ' openNftCard' : ' closedNftCard'}`}>
+        <div className="titleRow">
+            <h2 className="quickInfoHeader">Live Contract Data</h2>
+            {/* <div onClick={toggleQuickInfo} className={showQuickInfo !== null ? (showQuickInfo ? 'animateClosed' : 'animateOpen') : ''}>
+                <FontAwesomeIcon icon={faChevronUp} size='2x' />
+            </div> */}
+            <div onClick={toggleQuickInfo} className={showQuickInfo ? '' : 'collapsedToggle'}>
+                <FontAwesomeIcon icon={faChevronUp} size='2x' />
+            </div>
+        </div>
+        <div className="infoCardContent">
+            {!contractAddress && <span className="quickInfoInstructions">I’ll show you contract metrics here. Paste in your NFT contract address below and info will update here as you progress through the tutorial.</span>}
+            {isEditing || !contractAddress ? <Form className="contractForm" onSubmit={saveAddressChange}>
+                <InputGroup>
+                    <Form.Control
+                        //   isInvalid={Boolean(error)}
+                        placeholder='contract.testnet'
+                        value={addressInputValue}
+                        onChange={handleAddressChange}
+                    />
+                    <Button type='submit'>Save</Button>
+                </InputGroup>
+            </Form>
+                : <div className="address">
+                    <span className="addressText">{contractAddress}</span>
+                    <IconButton onClick={() => { setIsEditing(true) }} icon={faPen} />
+                </div>}
+            {contractAddress && <span className="status">{getStatusText()}</span>}
+            <div className="metaFlex">{nftData?.metadata && <NftBasicInfo metadata={nftData.metadata} supply={nftData.supply} />}</div>
+            {nftData?.tokenJson && <TokenList tokenJson={nftData.tokenJson} />}
+            {/* <pre><code>basics: {JSON.stringify(contractBasics, null, 4)}</code></pre> */}
+            {/* {basicsError && <pre><code>basicsError: {JSON.stringify(basicsError, null, 4)}</code></pre>} */}
+            {/* {basicsError?.cause?.message && <pre><code>basicsError.cause: {JSON.stringify(basicsError.cause.message, null, 4)}</code></pre>} */}
+            {/* {typeof basicsError?.cause} */}
+            {/* <pre><code>data: {JSON.stringify(nftData, null, 4)}</code></pre> */}
+            {/* <p>error: {JSON.stringify(nftError)}</p> */}
+        </div>
         <style jsx>{`
           .nftContractCard {
               position: fixed;
               z-index: 2;
               right: 2rem;
-              bottom: 2rem;
               width: 30rem;
               border-radius: 0.5rem;
               background-color: var(--color-bg-primary);
@@ -129,8 +155,80 @@ export default function NftInfoCard() {
               box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
               overflow-y: auto;
               max-height: 40rem;
-              transition: max-height 0.2s ease-out;
           }
+          .infoCardContent {
+              display: flex;
+              flex-direction: column;
+              row-gap: 1rem;
+              transition: display 250ms;
+          }
+
+          .openNftCard {
+            bottom: 2rem;
+          }
+          .closedNftCard {
+            top: calc(100vh - 4.5rem);
+            overflow-y: hidden;
+          }
+
+          .collapsedToggle {
+              transform: rotate(180deg);
+          }
+
+          /* .animateUp {
+            animation: slide-up 0.7s both;
+          }
+          @keyframes slide-up {
+            0% {
+                transform: translateY(38rem);
+            }
+            100% {
+                transform: translateY(0rem);
+            }
+          }
+          .animateDown {
+            animation: slide-down 0.7s both;
+          }
+          @keyframes slide-down {
+            0% {
+                transform: translateY(0);
+            }
+              
+            100% {
+                transform: translateY(38rem);
+            }
+          }
+          .animateOpen {
+            animation: spin-open 0.7s both;
+          }
+          @keyframes spin-open {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(180deg);
+            }
+          }
+          .animateClosed {
+            animation: spin-closed 0.7s both;
+          }
+          @keyframes spin-closed {
+            0% {
+                transform: rotate(180deg);
+            }
+              
+            100% {
+                transform: rotate(0deg);
+            }
+          } */
+
+          .titleRow {
+              display: flex;
+              flex-direction: row;
+              justify-content: space-between;
+              align-items: center;
+          }
+
           .metaFlex {
               flex: 0;
           }
@@ -150,8 +248,6 @@ export default function NftInfoCard() {
           }
           .status {
               align-self: flex-end;
-          }
-          .openNftCard {
           }
         `}</style>
     </div>
