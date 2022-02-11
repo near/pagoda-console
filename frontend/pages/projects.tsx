@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import BorderSpinner from "../components/BorderSpinner";
 import CenterModal from "../components/CenterModal";
 import mixpanel from 'mixpanel-browser';
-import { faExclamationCircle, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faAngleDoubleRight, faExclamationCircle, faTimes } from "@fortawesome/free-solid-svg-icons";
 import TutorialBadge from "../components/TutorialBadge";
 
 export default function Projects() {
@@ -140,6 +140,7 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
                 <a className='projectLink'><div className='linkDiv'>{props.project.name} {props.project.tutorial && <TutorialBadge size="md" />}</div></a>
             </Link>
             {props.showDelete && <Button onClick={() => setShowModal(true)}><FontAwesomeIcon icon={faTrashAlt} /></Button>}
+            {!props.showDelete && <div className="projectIcon"><FontAwesomeIcon icon={faAngleDoubleRight} /></div>}
             <style jsx>{`
                 .projectRowContainer {
                     display: flex;
@@ -169,6 +170,9 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
                     background-color: transparent;
                     color: var(--color-primary);
                     border: none;
+                }
+                .projectIcon {
+                    font-size: 2rem;
                 }
             `}</style>
         </div>
