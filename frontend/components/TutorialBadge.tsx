@@ -16,15 +16,11 @@ export default function TutorialBadge() {
             display: inline-block;
             height: 100%;
             white-space: nowrap;
-            width: auto;
             position: relative;
             border-radius: 3rem;
-            line-height: 1;
             overflow: hidden;
             padding: .25rem .5rem;
             text-overflow: ellipsis;
-            line-height: 1rem;
-            word-break: break-word;
             color: var(--color-accent-dark-orange);
             background: var(--color-accent-orange);
         }
