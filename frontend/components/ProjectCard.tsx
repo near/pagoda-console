@@ -1,6 +1,40 @@
 import { faAngleDoubleRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
+function ComingSoonBadge() {
+    return <>
+        <div className="badgeContainer">
+            <span>Coming Soon</span>
+        </div>
+        <style jsx>{`
+        .badgeContainer {
+            padding: 0 0 0 .5rem;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .badgeContainer :global(span) {
+            align-items: center;
+            font-weight: bold;
+            font-size: 1rem;
+            display: inline-block;
+            height: 100%;
+            white-space: nowrap;
+            width: auto;
+            position: relative;
+            border-radius: 3rem;
+            line-height: 1;
+            overflow: hidden;
+            padding: .25rem .5rem;
+            text-overflow: ellipsis;
+            line-height: 1rem;
+            word-break: break-word;
+            color: var(--color-black);
+            background: var(--color-white);
+        }
+        `}</style>
+    </>;
+}
+
 export default function ProjectCard(props: { path?: string, title: string, description: string, onClick: () => void }) {
     const isComingSoon = !props.path;
     const opacity = !isComingSoon ? 1 : .5;
@@ -9,6 +43,7 @@ export default function ProjectCard(props: { path?: string, title: string, descr
     return <>
         <div className="projectCard" style={{ cursor, opacity }} onClick={() => props.onClick()}>
             <div className="projectTitleWrapper">
+                {isComingSoon && <div style={{ position: 'absolute', top: '2.375rem', left: '2.375rem' }}><ComingSoonBadge /></div>}
                 <div className="projectTitle"><b>{props.title}</b></div>
                 {!isComingSoon && <div className="titleIcon"><FontAwesomeIcon icon={faAngleDoubleRight} /></div>}
             </div>
@@ -22,6 +57,7 @@ export default function ProjectCard(props: { path?: string, title: string, descr
                 background-color: #C4C4C4;
             }
             .projectTitleWrapper {
+                position: relative;
                 padding-top: 50%;
                 padding: 50% 2.375rem .625rem 2.375rem; 
                 display: flex;
