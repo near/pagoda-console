@@ -32,7 +32,7 @@ export default function NftInfoCard() {
         let userData;
         try {
             userData = getUserData(identity.uid);
-            let cachedContractAddress = userData?.projectData[project]?.nftContract;
+            let cachedContractAddress = userData?.projectData?.[project]?.nftContract;
             if (cachedContractAddress) {
                 setContractAddress(cachedContractAddress)
                 setIsEditing(false);
