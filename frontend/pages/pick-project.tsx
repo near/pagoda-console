@@ -37,9 +37,8 @@ export default function PickProject() {
             ))}
         </Row>
         <style jsx>{`
-            h1 {
+            .pageTitle {
                 margin-bottom: 1.25rem;
-                width: 100%
             }
             .calloutText {
                 margin-bottom: 2rem;

@@ -51,6 +51,9 @@ export default function PickProject() {
 
     return <div className='newProjectContainer'>
         <h1 className="pageTitle">Select Tutorial</h1>
+        <div className='calloutText'>
+            Choose from a variety of interactive tutorials. Each one ends with a production-ready project.
+        </div>
         <Row xs={1} md={2} className="g-4">
             {projects.map((project, idx) => (
                 <Col key={idx}>
@@ -61,8 +64,7 @@ export default function PickProject() {
         {creationError && <div className='errorContainer'><Alert variant='danger'>{creationError}</Alert></div>}
         <style jsx>{`
             .pageTitle {
-                text-align: center;
-                margin-bottom: 2rem;
+                margin-bottom: 1.25rem;
             }
             .errorContainer {
                 margin-top: 1rem;
@@ -73,7 +75,6 @@ export default function PickProject() {
             }
             .calloutText {
                 margin-bottom: 2rem;
-                text-align: center;
             }
             .boldText {
                 font-weight: 700;
