@@ -29,10 +29,13 @@ export default function SimpleLogoutLayout({ children, footer = null }: { childr
         </div>
         <div className='centeringContainer'>
             <div className='centeredContainer'>
-                {children}
+                <div className="contentContainer">{children}</div>
                 {footer ?? <></>}
             </div>
             <style jsx>{`
+                .contentContainer {
+                    max-width: 44rem;
+                }
                 .centeringContainer {
                     display: flex;
                     flex-direction: column;
