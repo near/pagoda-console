@@ -64,7 +64,7 @@ export default function PickProject() {
         {creationError && <div className='errorContainer'><Alert variant='danger'>{creationError}</Alert></div>}
         <style jsx>{`
             .pageTitle {
-                margin-bottom: 1.25rem;
+                margin-bottom: 2.625rem;
             }
             .errorContainer {
                 margin-top: 1rem;

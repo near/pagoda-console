@@ -45,7 +45,7 @@ export default function PickProject() {
         </Row>
         <style jsx>{`
             .pageTitle {
-                margin-bottom: 1.25rem;
+                margin-bottom: 2.625rem;
             }
             .calloutText {
                 margin-bottom: 2rem;
