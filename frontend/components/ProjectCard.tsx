@@ -28,20 +28,23 @@ function ComingSoonBadge() {
             text-overflow: ellipsis;
             line-height: 1rem;
             word-break: break-word;
-            color: var(--color-black);
-            background: var(--color-white);
+            color: #54595E;
+            background: #F8F9FA;
         }
         `}</style>
     </>;
 }
 
-export default function ProjectCard(props: { path?: string, title: string, description: string, onClick: () => void }) {
+export type ProjectCardColor = 'orange' | 'green';
+
+export default function ProjectCard(props: { path?: string, title: string, description: string, color: ProjectCardColor, onClick: () => void }) {
     const isComingSoon = !props.path;
-    const opacity = !isComingSoon ? 1 : .5;
     const cursor = !isComingSoon ? 'pointer' : 'auto';
+    const iconColor = props.color === 'green' ? 'var(--color-accent-dark-green)' : 'var(--color-accent-dark-orange)';
+    const cardColor = props.color === 'green' ? 'var(--color-accent-light-green)' : 'var(--color-accent-orange)';
 
     return <>
-        <div className="projectCard" style={{ cursor, opacity }} onClick={() => props.onClick()}>
+        <div className="projectCard" onClick={() => props.onClick()}>
             <div className="projectTitleWrapper">
                 {isComingSoon && <div style={{ position: 'absolute', top: '2.375rem', left: '2.375rem' }}><ComingSoonBadge /></div>}
                 <div className="projectTitle"><b>{props.title}</b></div>
@@ -51,10 +54,11 @@ export default function ProjectCard(props: { path?: string, title: string, descr
         </div>
         <style jsx>{`
             .projectCard {
+                cursor: ${cursor};
                 width: 21rem;
                 height: 21rem;
                 border-radius: 2.625rem;
-                background-color: #C4C4C4;
+                background-color: ${isComingSoon ? '#DEE2E6' : cardColor};
             }
             .projectTitleWrapper {
                 position: relative;
@@ -66,7 +70,9 @@ export default function ProjectCard(props: { path?: string, title: string, descr
                 font-size: 2rem;
             }
             .projectTitle {}
-            .titleIcon {}
+            .titleIcon {
+                ${!isComingSoon && `color:${iconColor}`};
+            }
             .projectDescription {
                 padding: 0 2.375rem;
                 text-overflow: ellipsis;

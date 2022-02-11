@@ -57,7 +57,7 @@ export default function PickProject() {
         <Row xs={1} md={2} className="g-4">
             {projects.map((project, idx) => (
                 <Col key={idx}>
-                    <ProjectCard path={project.path} title={project.title} description={project.description} onClick={() => project.path && createProject(project.tutorial, project.projectName, project.path)} />
+                    <ProjectCard path={project.path} title={project.title} description={project.description} color="orange" onClick={() => project.path && createProject(project.tutorial, project.projectName, project.path)} />
                 </Col>
             ))}
         </Row>

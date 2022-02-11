@@ -3,11 +3,18 @@ import { useSimpleLogoutLayout } from "../utils/layouts"
 import { Row, Col } from 'react-bootstrap'
 import { useRouter } from 'next/router';
 import { useRouteParam } from '../utils/hooks';
-import ProjectCard from '../components/ProjectCard';
+import ProjectCard, { ProjectCardColor } from '../components/ProjectCard';
 
-const projects = [
-    { title: 'Blank', path: '/new-project', description: 'A blank project with mainnet and testnet API keys.' },
-    { title: 'Tutorial', path: '/pick-tutorial', description: 'Choose from a variety of interactive tutorials. Each one ends with a production-ready project.' }
+interface Project {
+    title: string;
+    path: string;
+    description: string;
+    color: ProjectCardColor;
+}
+
+const projects: Project[] = [
+    { title: 'Blank', path: '/new-project', description: 'A blank project with mainnet and testnet API keys.', color: 'green' },
+    { title: 'Tutorial', path: '/pick-tutorial', description: 'Choose from a variety of interactive tutorials. Each one ends with a production-ready project.', color: 'orange' }
 ]
 
 export default function PickProject() {
@@ -32,7 +39,7 @@ export default function PickProject() {
         <Row xs={1} md={2} className="g-4">
             {projects.map((project, idx) => (
                 <Col key={idx}>
-                    <ProjectCard path={project.path} title={project.title} description={project.description} onClick={() => router.push(project.path)} />
+                    <ProjectCard path={project.path} title={project.title} description={project.description} color={project.color} onClick={() => router.push(project.path)} />
                 </Col>
             ))}
         </Row>
