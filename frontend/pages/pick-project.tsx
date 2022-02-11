@@ -6,8 +6,8 @@ import { useRouteParam } from '../utils/hooks';
 import ProjectCard from '../components/ProjectCard';
 
 const projects = [
-    { title: 'Blank', image: 'static/images/blank.png', path: '/new-project' },
-    { title: 'Tutorial', image: 'static/images/builder.png', path: '/pick-tutorial' }
+    { title: 'Blank', path: '/new-project', description: 'A blank project with mainnet and testnet API keys.' },
+    { title: 'Tutorial', path: '/pick-tutorial', description: 'Choose from a variety of interactive tutorials. Each one ends with a production-ready project.' }
 ]
 
 export default function PickProject() {
@@ -24,8 +24,7 @@ export default function PickProject() {
     return <div className='newProjectContainer'>
         <h1 className="pageTitle">New Project</h1>
         {isOnboarding && <div className='calloutText'>
-            <span className='boldText'>One last thing! </span>
-            Before we let you loose on the Developer Console, you’ll need to create a blank project or get some guidance with a tutorial. Projects contain API keys and any smart contracts you wish to track.
+            One last thing! Before we let you loose on the Developer Console, you’ll need to create a blank project or get some guidance with a tutorial. Projects contain API keys and any smart contracts you wish to track.
         </div>}
         {!isOnboarding && <div className='calloutText'>
             Start with a blank project or get some guidance with a tutorial.
@@ -33,24 +32,17 @@ export default function PickProject() {
         <Row xs={1} md={2} className="g-4">
             {projects.map((project, idx) => (
                 <Col key={idx}>
-                    <ProjectCard path={project.path} image={project.image} title={project.title} onClick={() => router.push(project.path)} />
+                    <ProjectCard path={project.path} title={project.title} description={project.description} onClick={() => router.push(project.path)} />
                 </Col>
             ))}
         </Row>
         <style jsx>{`
-            .pageTitle {
-                text-align: center;
-            }
             h1 {
                 margin-bottom: 1.25rem;
                 width: 100%
             }
             .calloutText {
                 margin-bottom: 2rem;
-                text-align: center;
-            }
-            .boldText {
-                font-weight: 700;
             }
             .submitRow {
                 width: 100%;
