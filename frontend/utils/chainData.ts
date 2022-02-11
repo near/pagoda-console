@@ -1,4 +1,5 @@
 import * as nearAPI from "near-api-js";
+import { AccountView } from 'near-api-js/lib/providers/provider';
 import useSWR from "swr";
 
 const RPC_API_ENDPOINT = 'https://rpc.testnet.near.org'; // TODO
@@ -18,13 +19,15 @@ export interface ContractMetadata {
 
 export interface NftData {
     errors: {
-        metadata: boolean,
-        supply: boolean,
-        tokenJson: boolean,
+        metadata: string | null,
+        supply: string | null,
+        tokenJson: string | null,
     }
     metadata?: ContractMetadata,
     supply?: number,
     tokenJson?: any,
+    claimsSpec: boolean,
+    initialized: boolean
 }
 
 export interface Token {
@@ -50,9 +53,15 @@ export interface TokenMetadata {
 }
 
 const nftMetaFetcher = async (_: any, contractAddress: any) => {
+
+    const rando = Math.random();
+    if (rando < 0.2) {
+        throw new Error();
+    }
+
     // have to cast contract to any so that we can call the dynamically generated methods on it
     const contract = new nearAPI.Contract(
-        await near.account('michaelpeter.testnet'), // the account object that is connecting
+        await near.account('michaelpeter.testnet'), // the account object that is connecting // TODO TODO TODO TODO
         contractAddress,
         {
             // name of contract you're connecting to
@@ -66,40 +75,59 @@ const nftMetaFetcher = async (_: any, contractAddress: any) => {
 
     let nftData: NftData = {
         errors: {
-            metadata: false,
-            supply: false,
-            tokenJson: false,
-        }
+            metadata: null,
+            supply: null,
+            tokenJson: null,
+        },
+        claimsSpec: false,
+        initialized: false,
     };
 
     try {
         nftData.metadata = await contract.nft_metadata();
-    } catch (e) {
-        // TODO exit here, maybe return. It is likely this is not an NFT contract if this function fails
-        nftData.errors.metadata = true;
+    } catch (e: any) {
+        if (typeof e.message === 'string' && (e.message as string).includes('MethodNotFound')) {
+            nftData.errors.metadata = 'METHOD_NOT_IMPLEMENTED';
+        } else if (typeof e.message === 'string' && (e.message as string).includes('contract is not initialized')) {
+            nftData.errors.metadata = 'CONTRACT_NOT_INITIALIZED';
+        } else {
+            // generic error for now
+            throw new Error('metadata');
+        }
         return nftData;
     }
+
+    // successfully requested metadata, contract must be initialized
+    nftData.initialized = true;
 
     if (!nftData.metadata?.spec || !/^nft-\d+\.\d+\.\d+$/.test(nftData.metadata.spec)) {
         // contract does not have appropriate metadata stating that it conforms to nft spec. skip further calls
         return nftData;
     }
 
+    // contract claims to conform to NFT spec
+    nftData.claimsSpec = true;
 
-    type FetchPromise = [keyof NftData['errors'], Promise<any>];
+    // this section could likely be cleaned up
+    type dataKeys = keyof NftData['errors'];
+    let dataNames: dataKeys[] = ['supply', 'tokenJson'];
+    let dataFetches = [contract.nft_total_supply(), contract.nft_tokens({ limit: 30 })];
 
-    // kick off both promises so they can be fetched in parallel
-    let dataPromises: FetchPromise[] = [
-        ['supply', contract.nft_total_supply()],
-        ['tokenJson', contract.nft_tokens({ limit: 30 })],
-    ];
+    const fetchResults = await Promise.allSettled(dataFetches);
 
-    for (let [key, promise] of dataPromises) {
-        try {
-            nftData[key] = await promise;
-        } catch (e) {
-            nftData.errors[key] = true; // TODO expose error?
-            console.error(e); // TODO do not log
+    for (let i = 0; i < fetchResults.length; i++) {
+        // create direct ref to result to make typescript happy
+        const currentResult = fetchResults[i];
+        if (currentResult.status === 'fulfilled') {
+            nftData[dataNames[i]] = currentResult.value;
+        } else if (typeof currentResult.reason.message === 'string' && currentResult.reason.message.includes('MethodNotFound')) {
+            console.error(currentResult.reason);
+            nftData.errors[dataNames[i]] = 'METHOD_NOT_IMPLEMENTED';
+        } else {
+            // unexpected error. We throw even if only one call failed like this because
+            // handling errors for each fetch seperately was adding a lot of undue complexity
+            // to the UI
+            throw new Error(dataNames[i]);
         }
     }
 
@@ -121,11 +149,26 @@ export async function initializeNaj() {
     near = await nearAPI.connect(nearConfig);
 }
 
+type ContractInfo = Partial<AccountView> & { codeDeployed?: boolean, accountExists?: boolean };
 export function useContractInfo(contractAddress: string | null) {
     return useSWR(contractAddress ? ['state', contractAddress] : null, async (_, address: string) => {
-        // const e = new Error('original'); // TODO test error causes
-        // throw new Error('Custom', { cause: e });
-        return (await near.account(address)).state();
+        // throw new Error(); // TODO remove debugging
+        let contractInfo: ContractInfo;
+        try {
+            let account = await near.account(address);
+            contractInfo = await account.state();
+        } catch (e: any) {
+            if (e?.type === 'AccountDoesNotExist') {
+                return { accountExists: false };
+            }
+            throw e;
+        }
+
+        contractInfo.accountExists = true;
+        contractInfo.codeDeployed = Boolean(contractInfo.code_hash && contractInfo.code_hash !== '11111111111111111111111111111111');
+        return contractInfo;
+    }, {
+        refreshInterval: 3000
     });
 }
 
