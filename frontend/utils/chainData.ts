@@ -1,9 +1,9 @@
 import * as nearAPI from "near-api-js";
 import { AccountView } from 'near-api-js/lib/providers/provider';
 import useSWR from "swr";
+import Config from '../utils/config';
 
-const RPC_API_ENDPOINT = 'https://rpc.testnet.near.org'; // TODO
-const ACCOUNT_ID = 'michaelpeter.testnet'; // TODO
+const RPC_API_ENDPOINT = Config.url.rpc.default.TESTNET;
 
 let near: nearAPI.Near;
 
@@ -55,7 +55,7 @@ export interface TokenMetadata {
 const nftMetaFetcher = async (_: any, contractAddress: any) => {
     // have to cast contract to any so that we can call the dynamically generated methods on it
     const contract = new nearAPI.Contract(
-        await near.account('michaelpeter.testnet'), // the account object that is connecting // TODO TODO TODO TODO
+        await near.account(''), // the account object that is connecting. None for now
         contractAddress,
         {
             // name of contract you're connecting to
@@ -150,7 +150,6 @@ export async function initializeNaj() {
 type ContractInfo = Partial<AccountView> & { codeDeployed?: boolean, accountExists?: boolean };
 export function useContractInfo(contractAddress: string | null) {
     return useSWR(contractAddress ? ['state', contractAddress] : null, async (_, address: string) => {
-        // throw new Error(); // TODO remove debugging
         let contractInfo: ContractInfo;
         try {
             let account = await near.account(address);

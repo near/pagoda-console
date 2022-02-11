@@ -242,7 +242,7 @@ function NftInfo({ nftData }: { nftData: NftData }) {
 }
 
 // displays metadata and total supply
-function NftOverview({ metadata, supply, supplyError }: { metadata: ContractMetadata, supply?: number, supplyError: boolean }) { // TODO metadata interface
+function NftOverview({ metadata, supply, supplyError }: { metadata: ContractMetadata, supply?: number, supplyError: boolean }) {
     return <div className="infoGrid">
         <span className="label">Name</span><span className="name"> {metadata.name}</span>
         <span className="label">Spec</span><span className="spec"> {metadata.spec ?? 'unknown'}</span>
