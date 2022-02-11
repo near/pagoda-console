@@ -5,7 +5,7 @@ import { logOut } from '../utils/auth';
 export default function SimpleLogoutLayout({ children, footer = null }: { children: ReactElement, footer: ReactElement | null }) {
     return <>
         <div className="topBar">
-            <div className="logo"><ConsoleLogo /></div>
+            <div><ConsoleLogo /></div>
             <div className='logout'><a onClick={logOut}>Log Out</a></div>
             <style jsx>{`
                 .topBar {
@@ -15,11 +15,7 @@ export default function SimpleLogoutLayout({ children, footer = null }: { childr
                     width: 100%;
                     padding: 1.25rem;
                 }
-                .logo {
-                    flex-align: left;
-                }
                 .logout {
-                    flex-align: right;
                     align-self: flex-end;
                 }
                 .logout a {
