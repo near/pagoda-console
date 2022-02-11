@@ -76,7 +76,7 @@ export default function Projects() {
                 margin-top: 1.25rem;
             }
             .listContainer {
-                margin-top: 1.25rem;
+                margin-top: 2.625rem;
                 /*TODO review styling for very long list */
                 overflow-y: auto;
                 max-height: 40rem;
@@ -137,10 +137,12 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
         <div className='projectRowContainer'>
             <CenterModal show={showModal} title={`Remove ${props.project.name}`} content={warning} onConfirm={deleteProject} confirmText='Remove' onHide={() => setShowModal(false)} />
             <Link href={`/analytics?project=${props.project.slug}`}>
-                <a className='projectLink'><div className='linkDiv'>{props.project.name} {props.project.tutorial && <TutorialBadge size="md" />}</div></a>
+                <a className='projectLink'>
+                    <div className='linkDiv'>{props.project.name} {props.project.tutorial && <TutorialBadge size="md" />}</div>
+                    {!props.showDelete && <div className="projectIcon"><FontAwesomeIcon icon={faAngleDoubleRight} /></div>}
+                </a>
             </Link>
             {props.showDelete && <Button onClick={() => setShowModal(true)}><FontAwesomeIcon icon={faTrashAlt} /></Button>}
-            {!props.showDelete && <div className="projectIcon"><FontAwesomeIcon icon={faAngleDoubleRight} /></div>}
             <style jsx>{`
                 .projectRowContainer {
                     display: flex;
@@ -150,6 +152,7 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
                     width: 100%;
                     border-top: ${!props.isTop ? '1px solid #DEE2E6' : '0'};
                     align-items: center;
+                    position: relative;
                 }
                 .projectLink:hover {
                     color: var(--color-accent-purple)
@@ -173,6 +176,9 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
                 }
                 .projectIcon {
                     font-size: 2rem;
+                    position: absolute;
+                    right: 1rem;
+                    top: 1rem;
                 }
             `}</style>
         </div>
