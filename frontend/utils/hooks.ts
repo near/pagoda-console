@@ -104,7 +104,7 @@ function getDefaultEnvironment(user: User, projectSlug: string, environments: En
   }
   const userDataRaw = localStorage.getItem(user.uid);
   const userData = userDataRaw ? JSON.parse(userDataRaw) as UserData : null;
-  const previouslySelectedEnv = userData?.projectData[projectSlug]?.selectedEnvironment;
+  const previouslySelectedEnv = userData?.projectData?.[projectSlug]?.selectedEnvironment;
 
   // ensure that the previously selected environment is still valid
   if (previouslySelectedEnv && environments.find(e => e.subId === previouslySelectedEnv)) {
