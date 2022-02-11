@@ -45,10 +45,10 @@ export default function PickProject() {
         </Row>
         <style jsx>{`
             .pageTitle {
-                margin-bottom: 2.625rem;
+                margin-bottom: 1.25rem;
             }
             .calloutText {
-                margin-bottom: 2rem;
+                margin-bottom: 2.625rem;
             }
             .submitRow {
                 width: 100%;

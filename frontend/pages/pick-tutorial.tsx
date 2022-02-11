@@ -64,17 +64,13 @@ export default function PickProject() {
         {creationError && <div className='errorContainer'><Alert variant='danger'>{creationError}</Alert></div>}
         <style jsx>{`
             .pageTitle {
-                margin-bottom: 2.625rem;
+                margin-bottom: 1.25rem;
             }
             .errorContainer {
                 margin-top: 1rem;
             }
-            h1 {
-                margin-bottom: 1.25rem;
-                width: 100%
-            }
             .calloutText {
-                margin-bottom: 2rem;
+                margin-bottom: 2.625rem;
             }
             .boldText {
                 font-weight: 700;
