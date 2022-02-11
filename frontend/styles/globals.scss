@@ -103,7 +103,7 @@ h2 {
   height: var(--layout-button-height);
 }
 
-.btn-primary, .btn-primary:hover, .btn-primary:disabled, .btn-outline-primary:hover {
+.btn-primary, .btn-primary:hover, .btn-primary:focus, .btn-primary:disabled, .btn-outline-primary:hover, .btn-outline-primary:disabled, .btn-outline-primary:focus {
   color: var(--color-white);
 }
 
