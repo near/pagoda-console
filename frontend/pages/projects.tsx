@@ -137,7 +137,7 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
         <div className='projectRowContainer'>
             <CenterModal show={showModal} title={`Remove ${props.project.name}`} content={warning} onConfirm={deleteProject} confirmText='Remove' onHide={() => setShowModal(false)} />
             <Link href={`/analytics?project=${props.project.slug}`}>
-                <a className='projectLink'><div className='linkDiv'>{props.project.name} {props.project.tutorial && <TutorialBadge />}</div></a>
+                <a className='projectLink'><div className='linkDiv'>{props.project.name} {props.project.tutorial && <TutorialBadge size="md" />}</div></a>
             </Link>
             {props.showDelete && <Button onClick={() => setShowModal(true)}><FontAwesomeIcon icon={faTrashAlt} /></Button>}
             <style jsx>{`
@@ -145,7 +145,7 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
                     display: flex;
                     flex-direction: row;
                     justify-content: space-between;
-                    height: 3.125rem;
+                    height: 5rem;
                     width: 100%;
                     border-top: ${!props.isTop ? '1px solid #DEE2E6' : '0'};
                     align-items: center;
@@ -154,18 +154,18 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
                     color: var(--color-accent-purple)
                 }
                 .projectLink {
-                    padding: 0 1.5em;
+                    padding: 0;
                     text-decoration: none;
                     width: 100%;
                     height: 100%;
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
+                    font-size: 2rem;
+                    font-weight: bold;
                 }
                 .projectRowContainer :global(.btn) {
                     margin-right: 0.5rem;
-                    padding-right: 1.25rem;
-                    padding-left: 1.25rem;
                     background-color: transparent;
                     color: var(--color-primary);
                     border: none;

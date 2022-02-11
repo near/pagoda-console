@@ -1,4 +1,4 @@
-export default function TutorialBadge() {
+export default function TutorialBadge({ size }: { size?: string }) {
     return <>
         <div className="badgeContainer">
             <span>Tutorial</span>
@@ -12,7 +12,7 @@ export default function TutorialBadge() {
         .badgeContainer :global(span) {
             align-items: center;
             font-weight: bold;
-            font-size: .688rem;
+            font-size: ${size === 'md' ? '1rem' : '.688rem'};
             display: inline-block;
             height: 100%;
             white-space: nowrap;
