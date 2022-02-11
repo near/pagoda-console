@@ -1,4 +1,4 @@
-## **NEAR Developer Console Frontend**
+## **Pagoda Developer Console Frontend**
 
 # Stack
 

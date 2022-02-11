@@ -1,5 +1,6 @@
 import { ReactElement } from "react"
 import SimpleLayout from "../components/SimpleLayout"
+import SimpleLogoutLayout from "../components/SimpleLogoutLayout"
 import DashboardLayout from "../components/DashboardLayout"
 
 export function useSimpleLayout(page: ReactElement, footer: ReactElement | null) {
@@ -7,6 +8,14 @@ export function useSimpleLayout(page: ReactElement, footer: ReactElement | null)
         <SimpleLayout footer={footer}>
             {page}
         </SimpleLayout>
+    )
+}
+
+export function useSimpleLogoutLayout(page: ReactElement, footer: ReactElement | null) {
+    return (
+        <SimpleLogoutLayout footer={footer}>
+            {page}
+        </SimpleLogoutLayout>
     )
 }
 

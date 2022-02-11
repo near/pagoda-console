@@ -32,7 +32,8 @@ initializeApp(config.firebaseConfig);
 
 // mixpanel initialization
 import mixpanel from 'mixpanel-browser';
-import { usePageTracker } from '../utils/hooks'
+import { useMediaQueries, usePageTracker } from '../utils/hooks'
+import SmallScreenNotice from '../components/SmallScreenNotice'
 
 // Enabling the debug mode flag is useful during implementation,
 // but it's recommended you remove it for production
@@ -76,6 +77,8 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     return () => unsubscribe(); // TODO why lambda function?
   }, [router, cache]);
 
+  const isLargeScreen = useMediaQueries('62rem');
+
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
   const getFooter = Component.getFooter ?? (() => null);
@@ -90,7 +93,8 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         <meta name="description" content="NEAR Developer Console" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {getLayout(<Component {...pageProps} />, getFooter())}
+      {isLargeScreen && getLayout(<Component {...pageProps} />, getFooter())}
+      {!isLargeScreen && <SmallScreenNotice />}
     </SWRConfig>
   </SSRProvider>
 }

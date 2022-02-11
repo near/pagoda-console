@@ -272,7 +272,7 @@ function EmailAuth(props: { authActive: boolean; }) {
                     </Form.Control.Feedback>
                 </Form.Group>
             </div>
-            <IconButton type='submit' color='var(--color-white)' backgroundColor='var(--color-accent-purple)' active={props.authActive} text='Continue' />
+            <IconButton type='submit' color='var(--color-white)' backgroundColor='var(--color-accent-green)' active={props.authActive} text='Continue' />
         </Form>
         <Link href='/register' passHref>
             <Button onClick={() => mixpanel.track('DC Clicked Sign Up on Login')} variant='outline-primary'>Sign Up</Button>
