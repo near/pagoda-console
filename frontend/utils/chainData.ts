@@ -53,12 +53,6 @@ export interface TokenMetadata {
 }
 
 const nftMetaFetcher = async (_: any, contractAddress: any) => {
-
-    // const rando = Math.random();
-    // if (rando < 0.2) {
-    //     throw new Error();
-    // }
-
     // have to cast contract to any so that we can call the dynamically generated methods on it
     const contract = new nearAPI.Contract(
         await near.account('michaelpeter.testnet'), // the account object that is connecting // TODO TODO TODO TODO
@@ -129,6 +123,10 @@ const nftMetaFetcher = async (_: any, contractAddress: any) => {
             // to the UI
             throw new Error(dataNames[i]);
         }
+    }
+
+    if (typeof nftData.supply === 'string') {
+        nftData.supply = parseInt(nftData.supply);
     }
 
     return nftData;

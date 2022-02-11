@@ -2,15 +2,8 @@ import { getAuth } from 'firebase/auth';
 import { merge } from "lodash-es";
 import { UserData, UsageData } from "./interfaces";
 
-export function getCurrentUserData(): UserData | null {
-    const user = getAuth().currentUser?.uid;
-    if (!user) {
-        throw new Error('No authed user');
-    }
-    return getUserData(user);
-}
-
-// this might make more sense as a custom hook
+// this might make more sense as a custom hook. it would need to be dynamic and leverage
+// useIdentity since the firebase user is undefined at page load
 export function getUserData(uid: string): UserData | null {
     if (!uid) {
         throw new Error('No uid provided to cache');
@@ -18,15 +11,6 @@ export function getUserData(uid: string): UserData | null {
     const userDataRaw = localStorage.getItem(uid);
     const userData = userDataRaw ? JSON.parse(userDataRaw) as UserData : null;
     return userData;
-}
-
-// TODO (post ETHDenver) clean up these methods, we shouldnt need a version for current and a generic version
-export function updateCurrentUserData(update: Partial<Record<keyof UserData, any>>): void {
-    const user = getAuth().currentUser?.uid;
-    if (!user) {
-        throw new Error('No authed user');
-    }
-    return updateUserData(user, update);
 }
 
 // TODO (P2+) see if we can do type checking on newData based on updateKey

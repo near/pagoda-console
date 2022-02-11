@@ -10,8 +10,8 @@ import { faCircle } from "@fortawesome/free-regular-svg-icons";
 import { useContractInfo, useMetadata } from "../utils/chainData";
 
 import { ContractMetadata, NftData, Token, TokenMetadata } from "../utils/chainData"
-import { getCurrentUserData, updateCurrentUserData, updateUserData } from '../utils/cache';
-import { useRouteParam } from '../utils/hooks';
+import { getUserData, updateUserData } from '../utils/cache';
+import { useIdentity, useRouteParam } from '../utils/hooks';
 
 
 export default function NftInfoCard() {
@@ -20,19 +20,20 @@ export default function NftInfoCard() {
     const [addressInputValue, setAddressInputValue] = useState<string>('');
     const [showQuickInfo, setShowQuickInfo] = useState<boolean>(true);
 
+    const identity = useIdentity();
+
     // fetch NFT contract address from local storage at startup
     const project = useRouteParam('project');
     useEffect(() => {
-        if (!project) {
+        if (!project || !identity?.uid) {
             return;
         }
 
         let userData;
         try {
-            userData = getCurrentUserData();
+            userData = getUserData(identity.uid);
             let cachedContractAddress = userData?.projectData[project]?.nftContract;
             if (cachedContractAddress) {
-                console.log(`loaded cached contract address`)
                 setContractAddress(cachedContractAddress)
                 setIsEditing(false);
                 setAddressInputValue(cachedContractAddress);
@@ -41,7 +42,7 @@ export default function NftInfoCard() {
             // silently fail
             console.error(e);
         }
-    }, [project]);
+    }, [identity, project]);
 
     // fetch basic account info for the NFT contract
     const { data: contractBasics, error: basicsError, isValidating: basicsLoading } = useContractInfo(contractAddress);
@@ -60,8 +61,8 @@ export default function NftInfoCard() {
         setContractAddress(addressInputValue);
         setIsEditing(false);
 
-        if (project) {
-            updateCurrentUserData({ projectData: { [project]: { nftContract: addressInputValue } } })
+        if (project && identity?.uid) {
+            updateUserData(identity.uid, { projectData: { [project]: { nftContract: addressInputValue } } })
         }
         mixpanel.track('DC Set NFT quick info card address');
     }
@@ -73,12 +74,9 @@ export default function NftInfoCard() {
     let metadataError;
     if (nftData?.errors.metadata === 'METHOD_NOT_IMPLEMENTED') {
         metadataError = 'Function nft_metadata() not implemented';
-    } else if (nftData?.errors.metadata) {
+    } else if (nftData?.initialized && nftData?.errors.metadata) {
         metadataError = 'Couldn\'t fetch metadata from nft_metadata()';
     }
-
-    // NOTE: intentionally leaving in commented out versions of nftContractCard and toggle as stub for animation work. Animation
-    // works for a static height but does not properly handle the different states of the card and their respective heights
 
     return <div className={`nftContractCard${showQuickInfo ? ' openNftCard' : ''}`}>
         <div className="titleRow">
@@ -207,8 +205,8 @@ export default function NftInfoCard() {
     </div>
 }
 
+// wrapper component for the metadata and token list sections
 function NftInfo({ nftData }: { nftData: NftData }) {
-
     let tokenError;
     if (nftData?.errors.tokenJson === 'METHOD_NOT_IMPLEMENTED') {
         tokenError = 'Function nft_tokens() not implemented';
@@ -243,6 +241,7 @@ function NftInfo({ nftData }: { nftData: NftData }) {
     </>
 }
 
+// displays metadata and total supply
 function NftOverview({ metadata, supply, supplyError }: { metadata: ContractMetadata, supply?: number, supplyError: boolean }) { // TODO metadata interface
     return <div className="infoGrid">
         <span className="label">Name</span><span className="name"> {metadata.name}</span>
@@ -266,16 +265,19 @@ function NftOverview({ metadata, supply, supplyError }: { metadata: ContractMeta
     </div>
 }
 
+// list of minted tokens
 function TokenList({ tokenJson }: { tokenJson: Token[] }) {
     return (
         <div className='tokenList'>
             <Accordion>
                 {tokenJson.map((token: Token) => {
+                    // ? should we display some sort of error to help new users debug accidentally
+                    // ? minting without an id
                     if (!token.token_id) {
                         return;
                     }
                     return <Accordion.Item eventKey={token.token_id} key={token.token_id}>
-                        <Accordion.Header>{token?.metadata?.title || `ID: ${token.token_id}`}</Accordion.Header>
+                        <Accordion.Header><span className="title">{token?.metadata?.title || `ID: ${token.token_id}`}</span></Accordion.Header>
                         <Accordion.Body>
                             <div className="nftContent">
                                 <NftPreview title={token.metadata?.title} url={token.metadata?.media} id={token.token_id} owner={token.owner_id} />
@@ -294,13 +296,18 @@ function TokenList({ tokenJson }: { tokenJson: Token[] }) {
               .tokenList :global(.accordion-item) {
                   background-color: transparent;
               }
+              .title {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
             `}</style>
         </div>
     )
 }
 
+// displays basic information for a single NFT
 function NftPreview({ url, title, id, owner }: { url?: string | null, title?: string | null, id?: string | null, owner?: string | null }) {
-
     return <div className="previewContainer">
         <div className="imageWrapper">
             {url ? <img src={url} alt="Preview of NFT media" /> : '??'}
@@ -350,6 +357,7 @@ function NftPreview({ url, title, id, owner }: { url?: string | null, title?: st
     </div>
 }
 
+// set of status checks on the contract
 function StatusRow({ accountExists, codeDeployed, contractInitialized }: { accountExists: boolean, codeDeployed: boolean, contractInitialized: boolean }) {
     return <div className="statusRow">
         <StatusItem title='Account' value={accountExists} />
@@ -365,6 +373,7 @@ function StatusRow({ accountExists, codeDeployed, contractInitialized }: { accou
     </div>
 }
 
+// displays a check mark and label for a specific status check
 function StatusItem({ title, value }: { title: string, value: boolean }) {
     return <div className="item">
         <FontAwesomeIcon icon={value ? faCheckCircle : faCircle} color={value ? '#28A745' : 'black'} />
@@ -380,6 +389,7 @@ function StatusItem({ title, value }: { title: string, value: boolean }) {
     </div>
 }
 
+// indicator that there has been an error fetching data from RPC
 function ErrorIndicator() {
     return (
         <OverlayTrigger
