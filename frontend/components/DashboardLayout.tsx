@@ -14,7 +14,6 @@ interface PageDefinition {
     route: string,
     routeMatchPattern?: string,
     debug?: boolean,
-    isComingSoon?: boolean,
 };
 
 // We may change which pages display depending on the type of project.
@@ -31,8 +30,8 @@ function useProjectPages(): PageDefinition[] {
     // If custom outline is injected, use that, else use this.
     pages.push({ display: 'Analytics', route: '/analytics' });
     pages.push({ display: 'Contracts', route: `/contracts` });
-    // pages.push({ display: 'Deploys', route: '', isComingSoon: true });
-    // pages.push({ display: 'Alerts', route: '', isComingSoon: true });
+    pages.push({ display: 'Deploys', route: '' });
+    pages.push({ display: 'Alerts', route: '' });
     pages.push({ display: 'Settings', route: `/project-settings` });
 
     return pages;
@@ -97,7 +96,12 @@ function SideBar() {
                 <PagodaIcon />
             </div>
             <div className='linkContainer'>
-                {pages.map((page, index) => <PageLink key={page.route} page={page} link={createLink(page.route)} isSelected={isLinkSelected(page)} isFirst={index === 0} isOnboarding={isOnboarding} dismissOnboarding={dismissOnboarding} />)}
+                {pages.map((page, index) => {
+                    if (!page.route) {
+                        return <ComingSoonPageLink key={page.display} page={page} />;
+                    }
+                    return <PageLink key={page.route} page={page} link={createLink(page.route)} isSelected={isLinkSelected(page)} isFirst={index === 0} isOnboarding={isOnboarding} dismissOnboarding={dismissOnboarding} />;
+                })}
             </div>
             <div className='footerContainer'>
                 <Link href={createLink('/settings')}><a className='footerItem' >{displayName || <Placeholder animation='glow'><Placeholder size='sm' style={{ borderRadius: '0.5em', width: '100%' }} /></Placeholder>}</a></Link>
@@ -155,6 +159,58 @@ function SideBar() {
             `}</style>
         </div>
     );
+}
+
+
+function SoonBadge() {
+    return <>
+        <div className="badgeContainer">
+            <span>Soon</span>
+        </div>
+        <style jsx>{`
+        .badgeContainer {
+            padding: 0 0 0 .5rem;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .badgeContainer :global(span) {
+            align-items: center;
+            font-weight: bold;
+            font-size: 1rem;
+            display: inline-block;
+            height: 100%;
+            white-space: nowrap;
+            position: relative;
+            border-radius: 3rem;
+            overflow: hidden;
+            padding: .25rem .5rem;
+            text-overflow: ellipsis;
+            color: var(--color-white);
+            background: var(--color-black);
+        }
+        `}</style>
+    </>;
+
+}
+
+function ComingSoonPageLink({ page }: { page: PageDefinition }) {
+    return <div className="disabledLinkContainer">
+        <span>{page.display}<span style={{ position: 'absolute', top: '0.75rem', right: '.5rem' }}><SoonBadge /></span></span>
+        <style jsx>{`
+                .disabledLinkContainer span {
+                    font-size: 1.125rem;
+                    text-decoration: none;
+                    color: var(--color-black);
+                    font-weight: '500';
+                    opacity: 50%;
+                }
+                .disabledLinkContainer {
+                    padding: 1rem 0rem 1rem;
+                    position: relative;
+                    border-top: 1px solid #ABB5BE;
+                }
+            `}</style>
+    </div>;
 }
 
 function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?: boolean, link: string, isOnboarding: boolean, dismissOnboarding?: () => void }) {
