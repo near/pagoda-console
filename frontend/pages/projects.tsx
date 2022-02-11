@@ -11,6 +11,7 @@ import BorderSpinner from "../components/BorderSpinner";
 import CenterModal from "../components/CenterModal";
 import mixpanel from 'mixpanel-browser';
 import { faExclamationCircle, faTimes } from "@fortawesome/free-solid-svg-icons";
+import TutorialBadge from "../components/TutorialBadge";
 
 export default function Projects() {
     const router = useRouter();
@@ -142,7 +143,7 @@ function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: b
         <div className='projectRowContainer'>
             <CenterModal show={showModal} title={`Remove ${props.project.name}`} content={warning} onConfirm={deleteProject} confirmText='Remove' onHide={() => setShowModal(false)} />
             <Link href={`/analytics?project=${props.project.slug}`}>
-                <a className='projectLink'><div className='linkDiv'>{props.project.name}</div></a>
+                <a className='projectLink'><div className='linkDiv'>{props.project.name} {props.project.tutorial && <TutorialBadge />}</div></a>
             </Link>
             {props.showDelete && <Button onClick={() => setShowModal(true)}><FontAwesomeIcon icon={faTrashAlt} /></Button>}
             <style jsx>{`
