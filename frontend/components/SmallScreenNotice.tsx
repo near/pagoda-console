@@ -1,5 +1,8 @@
+import Circles from '../public/circles.svg'
+
 export default function SmallScreenNotice() {
     return <div className="smallScreenOverlay">
+        <Circles style={{ position: 'absolute', top: 0, right: 0 }} />
         <div className="centeredContainer">
             <div className="contentContainer">
                 <h1>See you on the big screen!</h1>
@@ -10,6 +13,7 @@ export default function SmallScreenNotice() {
             .smallScreenOverlay {
                 width: 100%;
                 height: 100vh;
+                background: var(--color-accent-light-green);
             }
             .centeredContainer {
                 display: flex;
