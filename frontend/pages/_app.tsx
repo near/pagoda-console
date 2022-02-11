@@ -89,8 +89,8 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       }}
     >
       <Head>
-        <title>Pagoda Developer Console</title>
-        <meta name="description" content="Pagoda Developer Console" />
+        <title>NEAR Developer Console</title>
+        <meta name="description" content="NEAR Developer Console" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       {isLargeScreen && getLayout(<Component {...pageProps} />, getFooter())}
