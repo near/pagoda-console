@@ -230,6 +230,7 @@ function ComingSoonPageLink({ page }: { page: PageDefinition }) {
                     padding: 1rem 0rem 1rem;
                     position: relative;
                     border-top: 1px solid #ABB5BE;
+                    user-select: none;
                 }
             `}</style>
     </div>;
