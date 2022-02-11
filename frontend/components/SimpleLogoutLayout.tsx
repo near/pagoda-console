@@ -20,6 +20,7 @@ export default function SimpleLogoutLayout({ children, footer = null }: { childr
                 }
                 .logout {
                     flex-align: right;
+                    align-self: flex-end;
                 }
                 .logout a {
                     text-decoration: none;
