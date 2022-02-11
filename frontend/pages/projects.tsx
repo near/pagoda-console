@@ -50,14 +50,14 @@ export default function Projects() {
     return <div className='projectsContainer'>
         <div className='headerContainer'>
             <h1>Projects</h1>
-            <Button onClick={() => setIsEditing(!isEditing)}>{!isEditing ? 'Edit' : 'Done'}</Button>
+            <div className="buttonContainer">
+                <Button onClick={() => router.push('/pick-project')}>Create</Button>
+                <Button onClick={() => setIsEditing(!isEditing)}>{!isEditing ? 'Edit' : 'Done'}</Button>
+            </div>
         </div>
         {showRedirectAlert && <div className="alertContainer"><RedirectAlert onClick={() => setShowRedirectAlert(false)}></RedirectAlert></div>}
         <div className='listContainer'>
             {body}
-        </div>
-        <div className='footerContainer'>
-            <Button onClick={() => router.push('/pick-project')}>Create a Project</Button>
         </div>
         <style jsx>{`
             .projectsContainer {
@@ -69,6 +69,9 @@ export default function Projects() {
                 justify-content: space-between;
                 align-items: center;
             }
+            .buttonContainer :global(button) {
+                margin-left: 0.688rem;
+            }
             .alertContainer {
                 margin-top: 1.25rem;
             }
@@ -77,13 +80,6 @@ export default function Projects() {
                 /*TODO review styling for very long list */
                 overflow-y: auto;
                 max-height: 40rem;
-            }
-            .footerContainer {
-                margin-top: 1.25rem;
-                display: flex;
-                flex-direction: row;
-                justify-content: flex-end;
-                align-items: center;
             }
         `}</style>
     </div >
