@@ -56,7 +56,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 padding-top: 3rem;
                 padding-bottom: 3rem;
             }
-        `}</style>
+            `}</style>
         </>
     );
 }
@@ -89,7 +89,7 @@ function SideBar() {
         return router.pathname === page.route || matchesPattern;
     }
 
-    return (
+    return (<>
         <div className='sidebar'>
             {/* <div className='logoContainer' onClick={() => getIdToken(getAuth().currentUser!).then((token) => navigator.clipboard.writeText(token).then(() => alert('Copied token to clipboard')))}> */}
             <div className='logoContainer'>
@@ -158,7 +158,30 @@ function SideBar() {
                 }
             `}</style>
         </div>
-    );
+        <div className="sideBarExtended"></div>
+        <div className="sideBarRounded"></div>
+        <style>{`
+            .sideBarExtended {
+                position: fixed;
+                top: 0;
+                left: var(--layout-sidebar-width);
+                width: 2.625rem;
+                background: #F2F2F2;
+                height: 100%;
+            }
+            .sideBarRounded {
+                z-index: 1;
+                position: fixed;
+                top: 0;
+                left: var(--layout-sidebar-width);
+                width: 2.625rem;
+                background: var(--color-white);
+                height: 100%;
+                border-top-left-radius: 2.625rem;
+                border-bottom-left-radius: 2.625rem;
+            }
+        `}</style>
+    </>);
 }
 
 
