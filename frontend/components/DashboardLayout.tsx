@@ -209,7 +209,7 @@ function SoonBadge() {
             padding: .25rem .5rem;
             text-overflow: ellipsis;
             color: var(--color-white);
-            background: var(--color-black);
+            background: #ABB5BE;
         }
         `}</style>
     </>;
@@ -223,9 +223,8 @@ function ComingSoonPageLink({ page }: { page: PageDefinition }) {
                 .disabledLinkContainer span {
                     font-size: 1.125rem;
                     text-decoration: none;
-                    color: var(--color-black);
+                    color: #6C757D;
                     font-weight: '500';
-                    opacity: 50%;
                 }
                 .disabledLinkContainer {
                     padding: 1rem 0rem 1rem;
