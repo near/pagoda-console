@@ -149,3 +149,9 @@ code {
   border-radius: 0.5rem;
   background-color: white;
 }
+
+.alert.alert-primary {
+  background: var(--color-accent-light-green);
+  color: var(--color-accent-dark-green);
+  border: 1px solid var(--color-accent-dark-green);
+}
