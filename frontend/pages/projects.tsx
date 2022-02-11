@@ -45,7 +45,7 @@ export default function Projects() {
         router.push('/pick-project?onboarding=true');
         return <></>;
     } else {
-        body = projects!.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} roundTop={index === 0} roundBottom={index === arr.length - 1} showDelete={isEditing} onDelete={() => refetchProjects()} />);
+        body = projects!.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} showDelete={isEditing} isTop={index === 0} onDelete={() => refetchProjects()} />);
     }
     return <div className='projectsContainer'>
         <div className='headerContainer'>
@@ -61,7 +61,7 @@ export default function Projects() {
         </div>
         <style jsx>{`
             .projectsContainer {
-                width: 34.125rem;
+                width: 44rem;
             }
             .headerContainer {
                 display: flex;
@@ -108,7 +108,7 @@ function RedirectAlert(props: { onClick: () => void }) {
     </Alert>;
 }
 
-function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: boolean, showDelete: boolean, onDelete: () => void }) {
+function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boolean, onDelete: () => void }) {
     let [showModal, setShowModal] = useState<boolean>(false);
 
     async function deleteProject() {
@@ -131,10 +131,8 @@ function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: b
         }
     }
 
-    const warning = 'Removing this project may have uninteded consequences, make sure the API keys for this project are no longer in use before removing it.';
+    const warning = 'Removing this project may have unintended consequences, make sure the API keys for this project are no longer in use before removing it.';
 
-    const topRadius = props.roundTop ? '4' : '0';
-    const bottomRadius = props.roundBottom ? '4' : '0';
     return (
         <div className='projectRowContainer'>
             <CenterModal show={showModal} title={`Remove ${props.project.name}`} content={warning} onConfirm={deleteProject} confirmText='Remove' onHide={() => setShowModal(false)} />
@@ -149,9 +147,7 @@ function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: b
                     justify-content: space-between;
                     height: 3.125rem;
                     width: 100%;
-                    border-right: 1px solid #DEE2E6;
-                    border-left: 1px solid #DEE2E6;
-                    border-bottom: 1px solid #DEE2E6;
+                    border-top: ${!props.isTop ? '1px solid #DEE2E6' : '0'};
                     align-items: center;
                 }
                 .projectLink:hover {
@@ -173,12 +169,6 @@ function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: b
                     background-color: transparent;
                     color: var(--color-primary);
                     border: none;
-                }
-            `}</style>
-            <style jsx>{`
-                .projectRowContainer {
-                    border-radius: ${topRadius}px ${topRadius}px ${bottomRadius}px ${bottomRadius}px;
-                    border-top: ${props.roundTop ? '1px solid #DEE2E6' : '0px'};
                 }
             `}</style>
         </div>
