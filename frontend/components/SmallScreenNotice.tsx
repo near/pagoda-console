@@ -1,4 +1,5 @@
 import Circles from '../public/circles.svg'
+import Logo from '../public/Pagoda Logo.svg';
 
 export default function SmallScreenNotice() {
     return <div className="smallScreenOverlay">
@@ -7,6 +8,7 @@ export default function SmallScreenNotice() {
             <div className="contentContainer">
                 <h1>See you on the big screen!</h1>
                 <p>We’re working to deliver the best mobile experience possible. In the meantime, please visit us on a device with a larger screen.</p>
+                <Logo style={{ marginTop: '2.5rem' }} />
             </div>
         </div>
         <style jsx>{`
