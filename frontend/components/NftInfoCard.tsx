@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { Accordion, Form, Button, InputGroup, OverlayTrigger, Tooltip } from "react-bootstrap";
 import IconButton from "./IconButton";
 import CodeBlock from "./CodeBlock";
+import mixpanel from 'mixpanel-browser';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faChevronUp, faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
@@ -61,6 +62,7 @@ export default function NftInfoCard() {
         if (project) {
             updateCurrentUserData({ projectData: { [project]: { nftContract: addressInputValue } } })
         }
+        mixpanel.track('DC Set NFT quick info card address');
     }
 
     function toggleQuickInfo() {

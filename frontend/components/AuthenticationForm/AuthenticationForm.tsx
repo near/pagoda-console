@@ -89,8 +89,10 @@ export default function AuthenticationForm() {
             try {
                 if (additional?.isNewUser) {
                     mixpanel.alias(socialResult.user.uid);
+                    mixpanel.track(`DC Signed up with ${provider.providerId.split('.')[0].toUpperCase()}`);
+                } else {
+                    mixpanel.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);
                 }
-                mixpanel.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);
             } catch (e) {
                 // silently fail
             }
