@@ -54,10 +54,10 @@ export interface TokenMetadata {
 
 const nftMetaFetcher = async (_: any, contractAddress: any) => {
 
-    const rando = Math.random();
-    if (rando < 0.2) {
-        throw new Error();
-    }
+    // const rando = Math.random();
+    // if (rando < 0.2) {
+    //     throw new Error();
+    // }
 
     // have to cast contract to any so that we can call the dynamically generated methods on it
     const contract = new nearAPI.Contract(

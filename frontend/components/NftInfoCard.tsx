@@ -18,7 +18,7 @@ export default function NftInfoCard() {
     const [isEditing, setIsEditing] = useState<boolean>(true);
     const [contractAddress, setContractAddress] = useState<string | null>(null);
     const [addressInputValue, setAddressInputValue] = useState<string>('');
-    const [showQuickInfo, setShowQuickInfo] = useState<boolean | null>(true);
+    const [showQuickInfo, setShowQuickInfo] = useState<boolean>(true);
 
     // fetch NFT contract address from local storage at startup
     const project = useRouteParam('project');
@@ -39,6 +39,7 @@ export default function NftInfoCard() {
             }
         } catch (e) {
             // silently fail
+            console.error(e);
         }
     }, [project]);
 
@@ -79,15 +80,11 @@ export default function NftInfoCard() {
     // NOTE: intentionally leaving in commented out versions of nftContractCard and toggle as stub for animation work. Animation
     // works for a static height but does not properly handle the different states of the card and their respective heights
 
-    // return <div className={`nftContractCard${nftData?.metadata ? ' openNftCard' : ''}${showQuickInfo !== null ? (showQuickInfo ? ' animateDown' : ' animateUp') : ''}`}>
-    return <div className={`nftContractCard${showQuickInfo ? ' openNftCard' : ' closedNftCard'}`}>
+    return <div className={`nftContractCard${showQuickInfo ? ' openNftCard' : ''}`}>
         <div className="titleRow">
             <h2 className="quickInfoHeader">Live Contract Data</h2>
             {(basicsError || nftError) && <ErrorIndicator />}
-            {/* <div onClick={toggleQuickInfo} className={showQuickInfo !== null ? (showQuickInfo ? 'animateClosed' : 'animateOpen') : ''}>
-                <FontAwesomeIcon icon={faChevronUp} size='2x' />
-            </div> */}
-            <div onClick={toggleQuickInfo} className={showQuickInfo ? '' : 'collapsedToggle'}>
+            <div onClick={toggleQuickInfo} className={showQuickInfo ? 'animateOpen' : 'animateClosed'}>
                 <FontAwesomeIcon icon={faChevronUp} size='2x' />
             </div>
         </div>
@@ -130,20 +127,21 @@ export default function NftInfoCard() {
               box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
               overflow-y: auto;
               max-height: 40rem;
+              top: 100vh;
+              transition: all 250ms ease-in-out;
+              transform: translateY(-4.5rem);
+              overflow-y: hidden;
           }
+
+          .openNftCard {
+            transform: translateY(calc(-100% - 2rem));
+            overflow-y: auto;
+          }
+
           .infoCardContent {
               display: flex;
               flex-direction: column;
               row-gap: 1rem;
-              transition: display 250ms;
-          }
-
-          .openNftCard {
-            bottom: 2rem;
-          }
-          .closedNftCard {
-            top: calc(100vh - 4.5rem);
-            overflow-y: hidden;
           }
 
           .collapsedToggle {
@@ -154,31 +152,8 @@ export default function NftInfoCard() {
               color: #DC3545;
           }
 
-          /* .animateUp {
-            animation: slide-up 0.7s both;
-          }
-          @keyframes slide-up {
-            0% {
-                transform: translateY(38rem);
-            }
-            100% {
-                transform: translateY(0rem);
-            }
-          }
-          .animateDown {
-            animation: slide-down 0.7s both;
-          }
-          @keyframes slide-down {
-            0% {
-                transform: translateY(0);
-            }
-              
-            100% {
-                transform: translateY(38rem);
-            }
-          }
           .animateOpen {
-            animation: spin-open 0.7s both;
+            animation: spin-open 250ms both;
           }
           @keyframes spin-open {
             0% {
@@ -189,7 +164,7 @@ export default function NftInfoCard() {
             }
           }
           .animateClosed {
-            animation: spin-closed 0.7s both;
+            animation: spin-closed 250ms both;
           }
           @keyframes spin-closed {
             0% {
@@ -199,7 +174,7 @@ export default function NftInfoCard() {
             100% {
                 transform: rotate(0deg);
             }
-          } */
+          }
 
           .titleRow {
               display: flex;
