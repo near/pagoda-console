@@ -41,7 +41,7 @@ use near_primitives::types::{BlockReference, Finality};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = JsonRpcClient::connect("<RPC service url>")
-        .auth(auth::ApiKey::new("<your API Key>"));
+        .header(auth::ApiKey::new("<your API key>")?);
 
     let request = methods::block::RpcBlockRequest {
         block_reference: BlockReference::Finality(Finality::Final),

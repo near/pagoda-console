@@ -32,6 +32,7 @@ initializeApp(config.firebaseConfig);
 
 // mixpanel initialization
 import mixpanel from 'mixpanel-browser';
+import { initializeNaj } from '../utils/chainData'
 import { useMediaQueries, usePageTracker } from '../utils/hooks'
 import SmallScreenNotice from '../components/SmallScreenNotice'
 
@@ -76,6 +77,11 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
     return () => unsubscribe(); // TODO why lambda function?
   }, [router, cache]);
+
+  // always initialize naj on app load
+  useEffect(() => {
+    initializeNaj();
+  }, []);
 
   const isLargeScreen = useMediaQueries('62rem');
 

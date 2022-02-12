@@ -35,8 +35,13 @@ export interface User {
 }
 
 export interface UserData {
-    selectedEnvironments: Record<string, number>,
+    projectData: Record<string, UserProjectData>,
     usageData: Record<string, UsageData>
+}
+
+export interface UserProjectData {
+    selectedEnvironment: number,
+    nftContract?: string,
 }
 
 export interface UsageData {

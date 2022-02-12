@@ -3,7 +3,7 @@ import router, { useRouter } from 'next/router'
 import useSWR, { useSWRConfig } from 'swr'
 import { getAuth, onAuthStateChanged, User, getIdToken, onIdTokenChanged } from "firebase/auth";
 import { authenticatedPost, useEnvironments, useProject } from './fetchers';
-import { Environment } from './interfaces';
+import { Environment, UserData } from './interfaces';
 import { updateUserData } from './cache';
 import mixpanel from 'mixpanel-browser';
 
@@ -90,19 +90,11 @@ export function useProjectAndEnvironment() {
   return { environment, project, environments };
 }
 
-interface UserData {
-  selectedEnvironments: Record<string, number>
-}
-
 function setEnvironmentInLocalStorage(user: User, projectSlug: string, environmentSubId: number) {
   if (!user?.uid) {
     return;
   }
-  // const userDataRaw = localStorage.getItem(user.uid)
-  // const userData = userDataRaw ? JSON.parse(userDataRaw) as UserData : { selectedEnvironments: {} };
-  // userData.selectedEnvironments[projectSlug] = environmentSubId;
-  // localStorage.setItem(user.uid, JSON.stringify(userData));
-  updateUserData(user.uid, { selectedEnvironments: { [projectSlug]: environmentSubId } });
+  updateUserData(user.uid, { projectData: { [projectSlug]: { selectedEnvironment: environmentSubId } } });
 }
 
 const defaultSubId = 1;
@@ -112,7 +104,7 @@ function getDefaultEnvironment(user: User, projectSlug: string, environments: En
   }
   const userDataRaw = localStorage.getItem(user.uid);
   const userData = userDataRaw ? JSON.parse(userDataRaw) as UserData : null;
-  const previouslySelectedEnv = userData?.selectedEnvironments?.[projectSlug];
+  const previouslySelectedEnv = userData?.projectData?.[projectSlug]?.selectedEnvironment;
 
   // ensure that the previously selected environment is still valid
   if (previouslySelectedEnv && environments.find(e => e.subId === previouslySelectedEnv)) {
@@ -143,11 +135,11 @@ export function useMediaQueries(minWidth: string) {
   const [isLarge, setIsLarge] = useState<boolean>(true);
 
   useEffect(() => {
-      setIsLarge(window.matchMedia(mediaQuery).matches);
-      const listeners = window.matchMedia(mediaQuery);
-      const handler = (e: any) => setIsLarge(e.matches);
-      listeners.addEventListener('change', handler);
-      return () => listeners.removeEventListener('change', handler);
+    setIsLarge(window.matchMedia(mediaQuery).matches);
+    const listeners = window.matchMedia(mediaQuery);
+    const handler = (e: any) => setIsLarge(e.matches);
+    listeners.addEventListener('change', handler);
+    return () => listeners.removeEventListener('change', handler);
   }, []);
 
   return isLarge;
