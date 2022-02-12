@@ -198,9 +198,6 @@ export default function NftInfoCard() {
           .addressText {
               overflow-wrap: anywhere;
           }
-          .status {
-              align-self: flex-end;
-          }
         `}</style>
     </div>
 }
