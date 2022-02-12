@@ -5,6 +5,8 @@ import { PublicConfiguration, Revalidator, RevalidatorOptions, SWRConfiguration 
 import { Transaction } from "../components/explorer/components/transactions/types";
 import { useIdentity } from "./hooks";
 import { Contract, Environment, User, Project, NetOption } from "./interfaces";
+import router, { useRouter } from "next/router";
+import { useEffect } from "react";
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
@@ -140,11 +142,23 @@ export function useProjects(): { projects?: Project[]; error?: any; mutate: Keye
 }
 
 export function useProject(projectSlug: string | null): { project?: Project, error?: any } {
+  const router = useRouter();
   const identity = useIdentity();
+
+  useEffect(() => {
+    router.prefetch('/projects');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const { data: project, error } = useSWR(identity && projectSlug ? ['/projects/getDetails', projectSlug, identity.uid] : null,
     (key: string, projectSlug: number) => {
       return authenticatedPost(key, { slug: projectSlug });
     });
+
+  if ([400, 403].includes(error?.statusCode)) {
+    window.sessionStorage.setItem('redirected', 'true');
+    router.push('/projects');
+  }
 
   return { project, error };
 }

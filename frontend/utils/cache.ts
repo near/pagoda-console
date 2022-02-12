@@ -1,7 +1,9 @@
+import { getAuth } from 'firebase/auth';
 import { merge } from "lodash-es";
 import { UserData, UsageData } from "./interfaces";
 
-// this might make more sense as a custom hook
+// this might make more sense as a custom hook. it would need to be dynamic and leverage
+// useIdentity since the firebase user is undefined at page load
 export function getUserData(uid: string): UserData | null {
     if (!uid) {
         throw new Error('No uid provided to cache');
@@ -12,7 +14,7 @@ export function getUserData(uid: string): UserData | null {
 }
 
 // TODO (P2+) see if we can do type checking on newData based on updateKey
-export function updateUserData(uid: string, update: Partial<Record<keyof UserData, any>>) {
+export function updateUserData(uid: string, update: Partial<Record<keyof UserData, any>>): void {
     if (!uid) {
         throw new Error('No uid provided to cache');
     }

@@ -1,19 +1,33 @@
-import { ChangeEvent, FormEvent, useState } from 'react';
-import { useSimpleLayout } from "../utils/layouts"
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { useSimpleLogoutLayout } from "../utils/layouts"
 import { Form, Button } from 'react-bootstrap'
-import { getAuth } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import { Project } from '../utils/interfaces';
 import { authenticatedPost } from '../utils/fetchers';
 import { useRouteParam } from '../utils/hooks';
 import mixpanel from 'mixpanel-browser';
-import { logOut } from '../utils/auth';
 import BorderSpinner from '../components/BorderSpinner';
+import BackButton from '../components/BackButton';
+
+// Don't show the back button if we are going back to these specific routes.
+const EXCLUDED_BACK_PATHS = ['/register', '/verification'];
 
 export default function NewProject() {
     let [projectName, setProjectName] = useState<string>('');
     let [formEnabled, setFormEnabled] = useState<boolean>(true);
     const router = useRouter();
+
+    let [lastVisitedPath, setLastVisitedPath] = useState<string>('');
+    useEffect(() => {
+        let path = window.sessionStorage.getItem("lastVisitedPath");
+
+        // Don't show the back button if we will nav to this same page.
+        if (path && path !== router.asPath && !EXCLUDED_BACK_PATHS.includes(path)) {
+            setLastVisitedPath(path);
+        }
+        // The router path only needs to be verified once. Disabling eslint rule.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const isOnboarding = useRouteParam('onboarding');
 
@@ -32,6 +46,7 @@ export default function NewProject() {
         e.preventDefault();
         setFormEnabled(false);
         try {
+            router.prefetch('/project-settings');
             setCreateInProgress(true);
             const project: Project = await authenticatedPost('/projects/create', { name: projectName }, { forceRefresh: true });
             mixpanel.track('DC Create New Project', {
@@ -78,11 +93,11 @@ export default function NewProject() {
             <div className="submitRow">
                 <div className='submitContainer'>
                     {createInProgress && <BorderSpinner />}
+                    {/* {!isOnboarding && <BackButton />} */}
                     <Button variant='primary' type='submit' disabled={!canCreate()}>Create a Project</Button>
                 </div>
             </div>
         </Form>
-        {isOnboarding && <div className='signOut' onClick={logOut}>Log Out</div>}
         <style jsx>{`
             .newProjectContainer {
                 display: flex;
@@ -117,18 +132,8 @@ export default function NewProject() {
                 flex-direction: row;
                 column-gap: 1rem;
             }
-            .signOut {
-                    cursor: pointer;
-                    text-decoration: none;
-                    position: absolute;
-                    left: 3rem;
-                    bottom: 3rem;
-                }
-            .signOut:hover {
-                color: var(--color-primary)
-            }
         `}</style>
     </div >
 }
 
-NewProject.getLayout = useSimpleLayout;
+NewProject.getLayout = useSimpleLogoutLayout;

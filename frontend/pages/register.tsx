@@ -15,7 +15,6 @@ interface ValidationFailure {
     displayName?: string,
 }
 
-// TODO finalize validations
 const emailRegex = /\w+@\w+\.\w+/;
 const passwordRegex = /.{6,}/;
 
@@ -49,13 +48,19 @@ export default function Register() {
                     console.error(e);
                 }
             } else if (user) {
-                // TODO check if this can happen
-                router.push('/new-project');
+                // If the user is already verified and they go to /register, let's reroute them.
+                router.push('/pick-project');
                 console.log('verified');
             }
         });
         return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
     }, [router, displayName]);
+
+    useEffect(() => {
+        router.prefetch('/verification');
+        router.prefetch('/pick-project');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         window.addEventListener('focus', onFocus);
@@ -67,17 +72,31 @@ export default function Register() {
     async function signUpWithEmail(): Promise<void> {
         const auth = getAuth();
         try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            mixpanel.track('DC Signed up with email', {
-                status: 'success'
-            });
+            const registerResult = await createUserWithEmailAndPassword(auth, email, password);
+
+            try {
+                mixpanel.alias(registerResult.user.uid);
+                mixpanel.track('DC Signed up with email', {
+                    status: 'success'
+                });
+            } catch (e) {
+                // silently fail
+            }
         } catch (e) {
             const error = e as AuthError;
             const errorCode = error.code;
             const errorMessage = error.message;
             // TODO determine error handling
             console.error(`${errorCode}: ${errorMessage}`);
-            setErrorAlert(errorMessage);
+
+            switch (errorCode) {
+                case 'auth/email-already-in-use':
+                    setErrorAlert('Email is already in use');
+                    break;
+                default:
+                    setErrorAlert(errorMessage);
+            }
+
             mixpanel.track('DC Signed up with email', {
                 status: 'failure',
                 error: errorCode
@@ -189,7 +208,7 @@ export default function Register() {
                     Sign Up
                 </Button>
             </Form>
-            {errorAlert && <Alert variant='danger'>{errorAlert}</Alert>}
+            {errorAlert && <div className="alertContainer"><Alert variant='danger'>{errorAlert}</Alert></div>}
             <hr />
             <Link href='/'><a>I already have an account</a></Link>
             <style jsx>{`
@@ -209,6 +228,9 @@ export default function Register() {
             }
             a {
                 margin: 0 auto;
+            }
+            .alertContainer {
+                margin-top: 1.25rem;
             }
         `}</style>
         </div>

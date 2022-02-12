@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Form } from 'react-bootstrap';
-import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged, signInWithEmailAndPassword, AuthError, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged, signInWithEmailAndPassword, AuthError, getAdditionalUserInfo, fetchSignInMethodsForEmail } from "firebase/auth";
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
@@ -74,13 +74,25 @@ export default function AuthenticationForm() {
         return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
     }, [router]);
 
+    useEffect(() => {
+        router.prefetch('/projects');
+        router.prefetch('/verification');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     async function socialSignIn(provider: AuthProvider) {
         setAuthActive(false);
         const auth = getAuth();
         try {
-            await signInWithPopup(auth, provider);
+            let socialResult = await signInWithPopup(auth, provider);
+            const additional = getAdditionalUserInfo(socialResult);
             try {
-                mixpanel.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);
+                if (additional?.isNewUser) {
+                    mixpanel.alias(socialResult.user.uid);
+                    mixpanel.track(`DC Signed up with ${provider.providerId.split('.')[0].toUpperCase()}`);
+                } else {
+                    mixpanel.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);
+                }
             } catch (e) {
                 // silently fail
             }
@@ -90,7 +102,17 @@ export default function AuthenticationForm() {
 
             switch (errorCode) {
                 case 'auth/account-exists-with-different-credential':
-                    setAuthError('You already have an account with another sign-in provider');
+                    // The provider account's email address.
+                    const email = error?.email || error?.customData?.email;
+
+                    if (!email) {
+                        // Couldn't get the email for some reason.
+                        setAuthError('There is already an account associated with that email.');
+                    } else {
+                        // Get sign-in methods for this email.
+                        let methods = await fetchSignInMethodsForEmail(auth, email);
+                        setAuthError(`You already have an account with the email ${email}. Try logging in with ${methods.join(' or ')}.`);
+                    }
                     break;
                 case 'auth/cancelled-popup-request':
                 case 'auth/popup-blocked':
@@ -146,7 +168,6 @@ interface ValidationFailure {
     password?: string,
 }
 
-// TODO finalize validations
 const emailRegex = /\w+@\w+\.\w+/;
 const passwordRegex = /.{6,}/;
 
@@ -201,7 +222,6 @@ function EmailAuth(props: { authActive: boolean; }) {
         }
     }
 
-    // TODO review validations
     function validate() {
         const validations: ValidationFailure = {};
         let failed = false;
@@ -264,7 +284,7 @@ function EmailAuth(props: { authActive: boolean; }) {
                     </Form.Control.Feedback>
                 </Form.Group>
             </div>
-            <IconButton type='submit' color='var(--color-white)' backgroundColor='var(--color-accent-purple)' active={props.authActive} text='Continue' />
+            <IconButton type='submit' color='var(--color-white)' backgroundColor='var(--color-accent-green)' active={props.authActive} text='Continue' />
         </Form>
         <Link href='/register' passHref>
             <Button onClick={() => mixpanel.track('DC Clicked Sign Up on Login')} variant='outline-primary'>Sign Up</Button>
@@ -308,7 +328,6 @@ function ProviderButton(props: { provider: ProviderDetails, active: boolean, sig
     return <IconButton {...props.provider} onClick={() => props.signInFunction(props.provider.providerInstance)} text={`${t('continueWith')} ${props.provider.name}`} active={props.active} />;
 }
 
-// TODO extract auth active to hook
 function IconButton(props: { onClick?: () => void, text: string, active: boolean, type?: 'submit' | undefined; } & Partial<ProviderDetails>) {
     const hasIcon = props.vector || props.icon || props.image;
     return <div className='buttonContainer'>

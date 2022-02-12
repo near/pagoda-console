@@ -17,7 +17,7 @@ export default function Verification() {
             await getAuth().currentUser?.reload();
             if (getAuth().currentUser?.emailVerified) {
                 mixpanel.track('DC Verify Account');
-                router.push('/new-project?onboarding=true');
+                router.push('/pick-project?onboarding=true');
             } else {
                 queueVerificationCheck();
             }
@@ -42,6 +42,10 @@ export default function Verification() {
     // only run once since it will re-queue itself
     useEffect(() => {
         queueVerificationCheck();
+    }, []);
+
+    useEffect(() => {
+        router.prefetch('/pick-project');
     }, []);
 
     return (

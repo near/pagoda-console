@@ -1,10 +1,9 @@
-import { authenticatedPost, useApiKeys, useProject } from "../utils/fetchers";
+import { authenticatedPost, useApiKeys } from "../utils/fetchers";
 import { useRouteParam } from "../utils/hooks";
 import { useDashboardLayout } from "../utils/layouts";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEyeSlash, faEye, faCopy } from '@fortawesome/free-regular-svg-icons'
-import { faRedoAlt } from '@fortawesome/free-solid-svg-icons'
 import { Button, Placeholder, Overlay } from 'react-bootstrap';
 import { useState, useRef } from "react";
 import { NetOption } from "../utils/interfaces";
@@ -20,6 +19,9 @@ export default function ProjectSettings() {
     const { keys, error: keysError, mutate: mutateKeys } = useApiKeys(projectSlug);
     const [showMainnetRotationModal, setShowMainnetRotationModal] = useState<boolean>(false);
     const [showTestnetRotationModal, setShowTestnetRotationModal] = useState<boolean>(false);
+
+    // Tutorial projects do not have MAINNET keys.
+    const hasMainnetKey = !!keys?.MAINNET;
 
     async function rotateKey(net: NetOption) {
         showMainnetRotationModal && setShowMainnetRotationModal(false);
@@ -61,8 +63,8 @@ export default function ProjectSettings() {
             <div className="content">
                 <div className='keysContainer'>
                     <h4>API Keys</h4>
-                    <CenterModal show={showMainnetRotationModal} title='Rotate Mainnet Key?' content={ROTATION_WARNING} onConfirm={() => rotateKey('MAINNET')} confirmText="Rotate" onHide={() => setShowMainnetRotationModal(false)} />
-                    <KeyRow name='Mainnet' token={keys?.MAINNET} onRotateKey={() => setShowMainnetRotationModal(true)} />
+                    {hasMainnetKey && <CenterModal show={showMainnetRotationModal} title='Rotate Mainnet Key?' content={ROTATION_WARNING} onConfirm={() => rotateKey('MAINNET')} confirmText="Rotate" onHide={() => setShowMainnetRotationModal(false)} />}
+                    {hasMainnetKey && <KeyRow name='Mainnet' token={keys?.MAINNET} onRotateKey={() => setShowMainnetRotationModal(true)} />}
                     <CenterModal show={showTestnetRotationModal} title='Rotate Testnet Key?' content={ROTATION_WARNING} onConfirm={() => rotateKey('TESTNET')} confirmText="Rotate" onHide={() => setShowTestnetRotationModal(false)} />
                     <KeyRow name='Testnet' token={keys?.TESTNET} onRotateKey={() => setShowTestnetRotationModal(true)} />
                 </div>

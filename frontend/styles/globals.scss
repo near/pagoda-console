@@ -2,20 +2,23 @@
 /* @import '~bootstrap/dist/css/bootstrap.min.css'; */
 
 $light-gray: #A7A7A7;
-$black: #262626;
+$black: #000000;
 $dark-gray: #3F4246;
 $white: #FFFFFF;
 $accent-blue: #5F8AFA;
-$accent-green: #AAD055;
+$accent-green: #87BB81;
+$accent-light-green: #DFE9DE;
+$accent-dark-green: #5B6E5A;
 $accent-yellow: #FFC860;
 $accent-red: #DB5555;
 $accent-turquoise: #4FD1D9;
 $accent-purple: #6B6EF9;
 $accent-lilac: #A463B0;
-$accent-orange: #E3935B;
+$accent-orange: #F3CFB5;
+$accent-dark-orange: #8C6963;
 
 // define bootstrap overrides
-$primary: $accent-purple;
+$primary: $accent-green;
 
 @import "~bootstrap/scss/bootstrap";
 
@@ -27,14 +30,17 @@ $primary: $accent-purple;
   --color-white: #{$white};
   --color-accent-blue: #{$accent-blue};
   --color-accent-green: #{$accent-green};
+  --color-accent-light-green: #{$accent-light-green};
+  --color-accent-dark-green: #{$accent-dark-green};
   --color-accent-yellow: #{$accent-yellow};
   --color-accent-red: #{$accent-red};
   --color-accent-turquoise: #{$accent-turquoise};
   --color-accent-purple: #{$accent-purple};
   --color-accent-lilac: #{$accent-lilac};
   --color-accent-orange: #{$accent-orange};
+  --color-accent-dark-orange: #{$accent-dark-orange};
 
-  --color-primary: #{$accent-purple};
+  --color-primary: #{$accent-green};
 
   --layout-button-height: 2.625rem;
   --layout-sidebar-width: 11.125rem;
@@ -52,7 +58,6 @@ body[data-theme="light"] {
   --color-button-accent: var(--color-accent-blue);
   --color-button-accent-text: var(--color-white);
 }
-/* TODO evaluate these colors */
 body[data-theme="dark"] {
   --color-text-primary: var(--color-white);
   --color-text-secondary: var(--color-light-gray);
@@ -70,7 +75,6 @@ body {
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-family: 'Manrope', sans-serif;
-  min-width: 62.5rem;
   height: 100%;
 }
 
@@ -89,8 +93,8 @@ a:hover {
 }
 
 h1 {
-  font-weight: 600;
   font-size: 2.5rem;
+  font-family: 'Martel', serif;
 }
 
 h2 {
@@ -100,6 +104,10 @@ h2 {
 
 .btn {
   height: var(--layout-button-height);
+}
+
+.btn-primary, .btn-primary:hover, .btn-primary:focus, .btn-primary:disabled, .btn-outline-primary:hover, .btn-outline-primary:disabled, .btn-outline-primary:focus {
+  color: var(--color-white);
 }
 
 .btn-neutral {
@@ -127,13 +135,6 @@ h2 {
   opacity: 1;
 }
 
-.tooltip-inner {
-  background-color: var(--color-accent-lilac);
-}
-.tooltip-arrow::before {
-  border-right-color: var(--color-accent-lilac) !important;
-}
-
 .hoverPrimary:hover {
   color: var(--color-primary)
 }
@@ -147,4 +148,10 @@ code {
   border: 1px solid #ABB5BE;
   border-radius: 0.5rem;
   background-color: white;
+}
+
+.alert.alert-primary {
+  background: var(--color-accent-light-green);
+  color: var(--color-accent-dark-green);
+  border: 1px solid var(--color-accent-dark-green);
 }

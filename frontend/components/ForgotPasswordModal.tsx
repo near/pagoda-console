@@ -7,12 +7,19 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 import mixpanel from 'mixpanel-browser';
 
+
 export default function ForgotPasswordModal({ show, onHide }: { show: boolean, onHide: () => void; }) {
     const [email, setEmail] = useState<string>('');
     const [isSending, setIsSending] = useState<boolean>(false);
     const [hasSent, setHasSent] = useState<boolean>(false);
+    const [validationFail, setValidationFail] = useState<string>('');
 
     async function sendPasswordReset() {
+        if (!email.trim()) {
+            setValidationFail('Please enter a valid email address');
+            return;
+        }
+
         setIsSending(true);
         const auth = getAuth();
         try {
@@ -22,12 +29,25 @@ export default function ForgotPasswordModal({ show, onHide }: { show: boolean, o
             });
             setHasSent(true);
         } catch (e: any) {
+            console.error(e);
+
             mixpanel.track('DC Forgot Password', {
                 status: 'failure',
                 error: e.code
             });
-            // TODO error handling
-            console.error(e);
+
+            switch (e.code) {
+                case 'auth/missing-email':
+                case 'auth/invalid-email':
+                    setValidationFail('Please enter a valid email address');
+                    break;
+                case 'auth/user-not-found':
+                    setValidationFail('User not found');
+                    break;
+                default:
+                    setValidationFail('Something went wrong');
+                    break;
+            }
         }
         setIsSending(false);
     }
@@ -36,6 +56,7 @@ export default function ForgotPasswordModal({ show, onHide }: { show: boolean, o
         onHide();
         setHasSent(false);
         setEmail('');
+        setValidationFail('');
     }
 
     return (
@@ -53,8 +74,11 @@ export default function ForgotPasswordModal({ show, onHide }: { show: boolean, o
             </Modal.Header>
             <Modal.Body>
                 {!hasSent ? <>Please enter your email address
-                    < Form onSubmit={sendPasswordReset}>
-                        <Form.Control value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <Form onSubmit={sendPasswordReset}>
+                        <Form.Control value={email} onChange={(e) => setEmail(e.target.value)} isInvalid={!!validationFail} />
+                        <Form.Control.Feedback type="invalid">
+                            {validationFail}
+                        </Form.Control.Feedback>
                     </Form></> : 'Sent!'}
             </Modal.Body>
             {

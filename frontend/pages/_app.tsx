@@ -28,24 +28,19 @@ import { initializeApp } from 'firebase/app';
 // https://github.com/react-bootstrap/react-bootstrap/issues/6026
 import { SSRProvider } from '@restart/ui/ssr';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCzJ0RAnGO4aQXkoZOSJH6b9psFU9DpQfE",
-  authDomain: "near-dev-platform.firebaseapp.com",
-  projectId: "near-dev-platform",
-  storageBucket: "near-dev-platform.appspot.com",
-  messagingSenderId: "1082695133360",
-  appId: "1:1082695133360:web:3900d42047e8136937f375"
-};
-initializeApp(firebaseConfig);
+initializeApp(config.firebaseConfig);
 
 // mixpanel initialization
 import mixpanel from 'mixpanel-browser';
-import { usePageTracker } from '../utils/hooks'
+import { initializeNaj } from '../utils/chainData'
+import { useMediaQueries, usePageTracker } from '../utils/hooks'
+import SmallScreenNotice from '../components/SmallScreenNotice'
 
 // Enabling the debug mode flag is useful during implementation,
 // but it's recommended you remove it for production
-// mixpanel.init(config.mixpanelToken, { debug: true }); // TODO (P2+) enable debug mode in non-prod envs
-mixpanel.init(config.mixpanelToken);
+mixpanel.init(config.mixpanel.token, {
+  debug: config.mixpanel.debug
+});
 
 const unauthedPaths = ['/', '/register'];
 
@@ -53,6 +48,16 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   // redirect to login if user is not signed in
   const router = useRouter();
+
+  useEffect(() => {
+    router.prefetch('/');
+  }, []);
+
+  useEffect(() => {
+    //* Note: this is saving the current path + query params on unmount of the current component.
+    return () => window.sessionStorage.setItem("lastVisitedPath", router.asPath);
+  }, [router.asPath]);
+
   usePageTracker();
   // must cast cache to any to work around bug in interface definition
   // https://github.com/vercel/swr/discussions/1494
@@ -73,6 +78,13 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     return () => unsubscribe(); // TODO why lambda function?
   }, [router, cache]);
 
+  // always initialize naj on app load
+  useEffect(() => {
+    initializeNaj();
+  }, []);
+
+  const isLargeScreen = useMediaQueries('62rem');
+
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
   const getFooter = Component.getFooter ?? (() => null);
@@ -87,7 +99,8 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         <meta name="description" content="NEAR Developer Console" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {getLayout(<Component {...pageProps} />, getFooter())}
+      {isLargeScreen && getLayout(<Component {...pageProps} />, getFooter())}
+      {!isLargeScreen && <SmallScreenNotice />}
     </SWRConfig>
   </SSRProvider>
 }
