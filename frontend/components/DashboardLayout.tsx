@@ -1,14 +1,11 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router';
 
-import NearIcon from '../public/brand/near_icon.svg'
+import ConsoleIcon from '../public/brand/near_icon.svg'
 import { useDisplayName, useRouteParam } from '../utils/hooks';
-import { getAuth, getIdToken } from 'firebase/auth';
-import { ReactNode, useEffect, useRef, useState } from 'react';
-import { Tooltip, Overlay, Placeholder } from 'react-bootstrap';
-import mixpanel from 'mixpanel-browser';
+import { ReactNode } from 'react';
+import { Placeholder } from 'react-bootstrap';
 
-import Gradient from '../public/dashboardGradient.svg';
 import { logOut } from '../utils/auth';
 import { useProject } from '../utils/fetchers';
 import NftInfoCard from './NftInfoCard';
@@ -17,7 +14,7 @@ interface PageDefinition {
     display: string,
     route: string,
     routeMatchPattern?: string,
-    debug?: boolean
+    debug?: boolean,
 };
 
 // We may change which pages display depending on the type of project.
@@ -34,6 +31,8 @@ function useProjectPages(): PageDefinition[] {
     // If custom outline is injected, use that, else use this.
     pages.push({ display: 'Analytics', route: '/analytics' });
     pages.push({ display: 'Contracts', route: `/contracts` });
+    pages.push({ display: 'Deploys', route: '' });
+    pages.push({ display: 'Alerts', route: '' });
     pages.push({ display: 'Settings', route: `/project-settings` });
 
     return pages;
@@ -45,9 +44,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
         <>
             <SideBar />
-            <div className='gradientContainer'>
-                <Gradient style={{ width: '100%', height: '100%', preserveAspectRatio: 'false' }} />
-            </div>
             <div className='childContainer'>
                 {router.pathname.startsWith('/tutorials/') && <NftInfoCard />}
                 {children}
@@ -62,13 +58,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 padding-top: 3rem;
                 padding-bottom: 3rem;
             }
-            .gradientContainer {
-                height: 100%;
-                z-index: -1;
-                left: -5rem;
-                position: fixed;
-            }
-        `}</style>
+            `}</style>
         </>
     );
 }
@@ -101,14 +91,19 @@ function SideBar() {
         return router.pathname === page.route || matchesPattern;
     }
 
-    return (
+    return (<>
         <div className='sidebar'>
             {/* <div className='logoContainer' onClick={() => getIdToken(getAuth().currentUser!).then((token) => navigator.clipboard.writeText(token).then(() => alert('Copied token to clipboard')))}> */}
             <div className='logoContainer'>
-                <NearIcon />
+                <ConsoleIcon />
             </div>
             <div className='linkContainer'>
-                {pages.map((page, index) => <PageLink key={page.route} page={page} link={createLink(page.route)} isSelected={isLinkSelected(page)} isFirst={index === 0} isOnboarding={isOnboarding} dismissOnboarding={dismissOnboarding} />)}
+                {pages.map((page, index) => {
+                    if (!page.route) {
+                        return <ComingSoonPageLink key={page.display} page={page} />;
+                    }
+                    return <PageLink key={page.route} page={page} link={createLink(page.route)} isSelected={isLinkSelected(page)} isFirst={index === 0} isOnboarding={isOnboarding} dismissOnboarding={dismissOnboarding} />;
+                })}
             </div>
             <div className='footerContainer'>
                 <Link href={createLink('/settings')}><a className='footerItem' >{displayName || <Placeholder animation='glow'><Placeholder size='sm' style={{ borderRadius: '0.5em', width: '100%' }} /></Placeholder>}</a></Link>
@@ -129,7 +124,7 @@ function SideBar() {
                     left: 0;
                     top: 0;
                     width: var(--layout-sidebar-width);
-                    background-color: var(--color-bg-primary);
+                    background-color: #F2F2F2;
                     align-items: center;
                     padding-top: 3rem;
                     position: fixed;
@@ -150,7 +145,6 @@ function SideBar() {
                     flex-direction: column;
                     justify-content: flex-end;
                     width: 100%;
-                    background-color: #F2F2F2;
                     padding: 0 1rem 0;
                 }
                 .footerItem {
@@ -166,7 +160,82 @@ function SideBar() {
                 }
             `}</style>
         </div>
-    );
+        <div className="sideBarExtended"></div>
+        <div className="sideBarRounded"></div>
+        <style>{`
+            .sideBarExtended {
+                position: fixed;
+                top: 0;
+                left: var(--layout-sidebar-width);
+                width: 2.625rem;
+                background: #F2F2F2;
+                height: 100%;
+            }
+            .sideBarRounded {
+                z-index: 1;
+                position: fixed;
+                top: 0;
+                left: var(--layout-sidebar-width);
+                width: 2.625rem;
+                background: var(--color-white);
+                height: 100%;
+                border-top-left-radius: 2.625rem;
+                border-bottom-left-radius: 2.625rem;
+            }
+        `}</style>
+    </>);
+}
+
+
+function SoonBadge() {
+    return <>
+        <div className="badgeContainer">
+            <span>Soon</span>
+        </div>
+        <style jsx>{`
+        .badgeContainer {
+            padding: 0 0 0 .5rem;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .badgeContainer :global(span) {
+            align-items: center;
+            font-weight: bold;
+            font-size: 1rem;
+            display: inline-block;
+            height: 100%;
+            white-space: nowrap;
+            position: relative;
+            border-radius: 3rem;
+            overflow: hidden;
+            padding: .25rem .5rem;
+            text-overflow: ellipsis;
+            color: var(--color-white);
+            background: #ABB5BE;
+        }
+        `}</style>
+    </>;
+
+}
+
+function ComingSoonPageLink({ page }: { page: PageDefinition }) {
+    return <div className="disabledLinkContainer">
+        <span>{page.display}<span style={{ position: 'absolute', top: '0.75rem', right: '.5rem' }}><SoonBadge /></span></span>
+        <style jsx>{`
+                .disabledLinkContainer span {
+                    font-size: 1.125rem;
+                    text-decoration: none;
+                    color: #6C757D;
+                    font-weight: '500';
+                }
+                .disabledLinkContainer {
+                    padding: 1rem 0rem 1rem;
+                    position: relative;
+                    border-top: 1px solid #ABB5BE;
+                    user-select: none;
+                }
+            `}</style>
+    </div>;
 }
 
 function PageLink(props: { page: PageDefinition, isSelected?: boolean, isFirst?: boolean, link: string, isOnboarding: boolean, dismissOnboarding?: () => void }) {

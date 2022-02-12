@@ -1,9 +1,7 @@
-import { Badge } from "react-bootstrap";
-
-export default function TutorialBadge() {
+export default function TutorialBadge({ size }: { size?: string }) {
     return <>
         <div className="badgeContainer">
-            <Badge pill bg="info">Tutorial</Badge>
+            <span>Tutorial</span>
         </div>
         <style jsx>{`
         .badgeContainer {
@@ -12,8 +10,19 @@ export default function TutorialBadge() {
             vertical-align: middle;
         }
         .badgeContainer :global(span) {
-            vertical-align: middle;
-            margin-top: -0.5rem;
+            align-items: center;
+            font-weight: bold;
+            font-size: ${size === 'md' ? '1rem' : '.688rem'};
+            display: inline-block;
+            height: 100%;
+            white-space: nowrap;
+            position: relative;
+            border-radius: 3rem;
+            overflow: hidden;
+            padding: .25rem .5rem;
+            text-overflow: ellipsis;
+            color: var(--color-accent-dark-orange);
+            background: var(--color-accent-orange);
         }
         `}</style>
     </>;

@@ -1,4 +1,4 @@
-import { useSimpleLayout } from "../utils/layouts";
+import { useSimpleLogoutLayout } from "../utils/layouts";
 import { Alert, Button } from 'react-bootstrap';
 import { useRouter } from "next/router";
 import { authenticatedPost, useProjects } from "../utils/fetchers";
@@ -10,8 +10,8 @@ import { useEffect, useState } from "react";
 import BorderSpinner from "../components/BorderSpinner";
 import CenterModal from "../components/CenterModal";
 import mixpanel from 'mixpanel-browser';
-import { faExclamationCircle, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { logOut } from "../utils/auth";
+import { faAngleDoubleRight, faExclamationCircle, faTimes } from "@fortawesome/free-solid-svg-icons";
+import TutorialBadge from "../components/TutorialBadge";
 
 export default function Projects() {
     const router = useRouter();
@@ -45,24 +45,23 @@ export default function Projects() {
         router.push('/pick-project?onboarding=true');
         return <></>;
     } else {
-        body = projects!.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} roundTop={index === 0} roundBottom={index === arr.length - 1} showDelete={isEditing} onDelete={() => refetchProjects()} />);
+        body = projects!.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} showDelete={isEditing} isTop={index === 0} onDelete={() => refetchProjects()} />);
     }
     return <div className='projectsContainer'>
         <div className='headerContainer'>
             <h1>Projects</h1>
-            <Button onClick={() => setIsEditing(!isEditing)}>{!isEditing ? 'Edit' : 'Done'}</Button>
+            <div className="buttonContainer">
+                <Button onClick={() => router.push('/pick-project')}>Create</Button>
+                <Button onClick={() => setIsEditing(!isEditing)}>{!isEditing ? 'Edit' : 'Done'}</Button>
+            </div>
         </div>
         {showRedirectAlert && <div className="alertContainer"><RedirectAlert onClick={() => setShowRedirectAlert(false)}></RedirectAlert></div>}
         <div className='listContainer'>
             {body}
         </div>
-        <div className='footerContainer'>
-            <Button onClick={() => router.push('/pick-project')}>Create a Project</Button>
-        </div>
-        <div className='signOut'><Button variant="outline-secondary" onClick={logOut}>Log Out</Button></div>
         <style jsx>{`
             .projectsContainer {
-                width: 34.125rem;
+                width: 44rem;
             }
             .headerContainer {
                 display: flex;
@@ -70,26 +69,17 @@ export default function Projects() {
                 justify-content: space-between;
                 align-items: center;
             }
+            .buttonContainer :global(button) {
+                margin-left: 0.688rem;
+            }
             .alertContainer {
                 margin-top: 1.25rem;
             }
             .listContainer {
-                margin-top: 1.25rem;
+                margin-top: 2.625rem;
                 /*TODO review styling for very long list */
                 overflow-y: auto;
                 max-height: 40rem;
-            }
-            .footerContainer {
-                margin-top: 1.25rem;
-                display: flex;
-                flex-direction: row;
-                justify-content: flex-end;
-                align-items: center;
-            }
-            .signOut {
-                position: absolute;
-                left: 3rem;
-                bottom: 3rem;
             }
         `}</style>
     </div >
@@ -118,7 +108,7 @@ function RedirectAlert(props: { onClick: () => void }) {
     </Alert>;
 }
 
-function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: boolean, showDelete: boolean, onDelete: () => void }) {
+function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boolean, onDelete: () => void }) {
     let [showModal, setShowModal] = useState<boolean>(false);
 
     async function deleteProject() {
@@ -141,15 +131,16 @@ function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: b
         }
     }
 
-    const warning = 'Removing this project may have uninteded consequences, make sure the API keys for this project are no longer in use before removing it.';
+    const warning = 'Removing this project may have unintended consequences, make sure the API keys for this project are no longer in use before removing it.';
 
-    const topRadius = props.roundTop ? '4' : '0';
-    const bottomRadius = props.roundBottom ? '4' : '0';
     return (
         <div className='projectRowContainer'>
             <CenterModal show={showModal} title={`Remove ${props.project.name}`} content={warning} onConfirm={deleteProject} confirmText='Remove' onHide={() => setShowModal(false)} />
             <Link href={`/analytics?project=${props.project.slug}`}>
-                <a className='projectLink'><div className='linkDiv'>{props.project.name}</div></a>
+                <a className='projectLink'>
+                    <div className='linkDiv'>{props.project.name} {props.project.tutorial && <TutorialBadge size="md" />}</div>
+                    {!props.showDelete && <div className="projectIcon"><FontAwesomeIcon icon={faAngleDoubleRight} /></div>}
+                </a>
             </Link>
             {props.showDelete && <Button onClick={() => setShowModal(true)}><FontAwesomeIcon icon={faTrashAlt} /></Button>}
             <style jsx>{`
@@ -157,42 +148,41 @@ function ProjectRow(props: { project: Project, roundTop: boolean, roundBottom: b
                     display: flex;
                     flex-direction: row;
                     justify-content: space-between;
-                    height: 3.125rem;
+                    height: 5rem;
                     width: 100%;
-                    border-right: 1px solid #DEE2E6;
-                    border-left: 1px solid #DEE2E6;
-                    border-bottom: 1px solid #DEE2E6;
+                    border-top: ${!props.isTop ? '1px solid #DEE2E6' : '0'};
                     align-items: center;
+                    position: relative;
                 }
                 .projectLink:hover {
                     color: var(--color-accent-purple)
                 }
                 .projectLink {
-                    padding: 0 1.5em;
+                    padding: 0;
                     text-decoration: none;
                     width: 100%;
                     height: 100%;
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
+                    font-size: 2rem;
+                    font-weight: bold;
                 }
                 .projectRowContainer :global(.btn) {
                     margin-right: 0.5rem;
-                    padding-right: 1.25rem;
-                    padding-left: 1.25rem;
                     background-color: transparent;
                     color: var(--color-primary);
                     border: none;
                 }
-            `}</style>
-            <style jsx>{`
-                .projectRowContainer {
-                    border-radius: ${topRadius}px ${topRadius}px ${bottomRadius}px ${bottomRadius}px;
-                    border-top: ${props.roundTop ? '1px solid #DEE2E6' : '0px'};
+                .projectIcon {
+                    font-size: 2rem;
+                    position: absolute;
+                    right: 1rem;
+                    top: 1rem;
                 }
             `}</style>
         </div>
     )
 }
 
-Projects.getLayout = useSimpleLayout;
+Projects.getLayout = useSimpleLogoutLayout;

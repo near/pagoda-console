@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Form } from 'react-bootstrap';
-import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged, signInWithEmailAndPassword, AuthError, getAdditionalUserInfo } from "firebase/auth";
+import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged, signInWithEmailAndPassword, AuthError, getAdditionalUserInfo, fetchSignInMethodsForEmail } from "firebase/auth";
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
@@ -102,7 +102,17 @@ export default function AuthenticationForm() {
 
             switch (errorCode) {
                 case 'auth/account-exists-with-different-credential':
-                    setAuthError('You already have an account with another sign-in provider');
+                    // The provider account's email address.
+                    const email = error?.email || error?.customData?.email;
+
+                    if (!email) {
+                        // Couldn't get the email for some reason.
+                        setAuthError('There is already an account associated with that email.');
+                    } else {
+                        // Get sign-in methods for this email.
+                        let methods = await fetchSignInMethodsForEmail(auth, email);
+                        setAuthError(`You already have an account with the email ${email}. Try logging in with ${methods.join(' or ')}.`);
+                    }
                     break;
                 case 'auth/cancelled-popup-request':
                 case 'auth/popup-blocked':
@@ -274,7 +284,7 @@ function EmailAuth(props: { authActive: boolean; }) {
                     </Form.Control.Feedback>
                 </Form.Group>
             </div>
-            <IconButton type='submit' color='var(--color-white)' backgroundColor='var(--color-accent-purple)' active={props.authActive} text='Continue' />
+            <IconButton type='submit' color='var(--color-white)' backgroundColor='var(--color-accent-green)' active={props.authActive} text='Continue' />
         </Form>
         <Link href='/register' passHref>
             <Button onClick={() => mixpanel.track('DC Clicked Sign Up on Login')} variant='outline-primary'>Sign Up</Button>
