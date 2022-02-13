@@ -105,6 +105,7 @@ const nftMetaFetcher = async (_: any, contractAddress: any) => {
     // this section could likely be cleaned up
     type dataKeys = keyof NftData['errors'];
     let dataNames: dataKeys[] = ['supply', 'tokenJson'];
+    // TODO extract limit to environment variable
     let dataFetches = [contract.nft_total_supply(), contract.nft_tokens({ limit: 30 })];
 
     const fetchResults = await Promise.allSettled(dataFetches);
@@ -165,6 +166,7 @@ export function useContractInfo(contractAddress: string | null) {
         contractInfo.codeDeployed = Boolean(contractInfo.code_hash && contractInfo.code_hash !== '11111111111111111111111111111111');
         return contractInfo;
     }, {
+        // TODO extract to environment variable
         refreshInterval: 3000
     });
 }
@@ -174,6 +176,7 @@ export function useMetadata(contractType: 'NFT' | 'FT', contractAddress: string 
         throw new Error('FT not yet supported');
     }
     return useSWR(contractAddress ? ['nftData', contractAddress] : null, nftMetaFetcher, {
+        // TODO extract to environment variable
         refreshInterval: 3000
     });
 }

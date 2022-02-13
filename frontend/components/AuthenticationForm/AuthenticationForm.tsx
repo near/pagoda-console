@@ -135,9 +135,8 @@ export default function AuthenticationForm() {
             {providers.map((provider) => <ProviderButton key={provider.name} provider={provider} active={authActive} signInFunction={socialSignIn} />)}
         </div>
         <div className='termsContainer'>
-            <div dangerouslySetInnerHTML={{
-                __html: '<a href="https://www.iubenda.com/terms-and-conditions/37325399" class="iubenda-white no-brand iubenda-noiframe iubenda-embed iubenda-noiframe " title="Terms and Conditions ">Terms and Conditions</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>'
-            }} />
+            <a href='/Terms.pdf' target="_blank" rel="noopener noreferrer">Terms of Use</a>
+            <a href='/PrivacyPolicy.pdf' target="_blank" rel="noopener noreferrer">Privacy Policy</a>
         </div>
         <style jsx>{`
             .authContainer {
