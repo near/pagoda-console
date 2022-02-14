@@ -131,8 +131,6 @@ function ContractsTable(props: { project: string; environment: Environment }) {
           /* max-width: 46rem; */
         }
         .tableGrid :global(.btn) {
-            background-color: transparent;
-            color: var(--color-primary);
             width: 3rem;
             margin-left: auto;
         }
@@ -391,7 +389,7 @@ function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete:
       ) : (
         <span className="data">N/A</span>
       )}
-      {props.showDelete && <Button onClick={() => removeContract()} disabled={!canDelete}><FontAwesomeIcon icon={faTrashAlt} /></Button>}
+      {props.showDelete && <Button variant="outline-danger" onClick={() => removeContract()} disabled={!canDelete}><FontAwesomeIcon icon={faTrashAlt} /></Button>}
       <style jsx>{`
         .explorerLink {
           font-weight: 600;
