@@ -8,6 +8,6 @@ export default function ApiKey() {
     const { keys, error: keysError, mutate: mutateKeys } = useApiKeys(projectSlug);
     const key = keys?.TESTNET!;
     return <>
-        <CodeBlock language="bash">{`near set-api-key ${Config.url.rpc.recommended} ${key}`}</CodeBlock>
+        <CodeBlock language="bash">{`near set-api-key ${Config.url.rpc.recommended.TESTNET} ${key}`}</CodeBlock>
     </>;
 }
