@@ -14,7 +14,7 @@ interface Project {
 
 const projects: Project[] = [
     { title: 'Blank', path: '/new-project', description: 'A blank project with mainnet and testnet API keys.', color: 'green' },
-    { title: 'Tutorial', path: '/pick-tutorial', description: 'Choose from a variety of interactive tutorials. Each one ends with a production-ready project.', color: 'orange' }
+    { title: 'Tutorial', path: '/pick-tutorial', description: 'Choose from a variety of interactive tutorials.', color: 'orange' }
 ]
 
 export default function PickProject() {

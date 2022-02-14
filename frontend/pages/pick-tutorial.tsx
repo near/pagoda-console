@@ -52,7 +52,8 @@ export default function PickProject() {
     return <div className='newProjectContainer'>
         <h1 className="pageTitle">Select Tutorial</h1>
         <div className='calloutText'>
-            Choose from a variety of interactive tutorials. Each one ends with a production-ready project.
+            {/** // TODO once we have the ability to eject a tutorial, add this text in */}
+            {/* Choose from a variety of interactive tutorials. Each one ends with a production-ready project. */}
         </div>
         <Row xs={1} md={2} className="g-4">
             {projects.map((project, idx) => (

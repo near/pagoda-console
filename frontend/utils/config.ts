@@ -44,6 +44,7 @@ interface AppConfig {
     firebaseConfig: FirebaseOptions
 }
 
+// TODO remove recommended RPC since there is no longer a separate URL from default
 const config: AppConfig = {
     url: {
         api: process.env.NEXT_PUBLIC_API_BASE_URL,
