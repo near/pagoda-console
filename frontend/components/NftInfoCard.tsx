@@ -12,6 +12,7 @@ import { useContractInfo, useMetadata } from "../utils/chainData";
 import { ContractMetadata, NftData, Token, TokenMetadata } from "../utils/chainData"
 import { getUserData, updateUserData } from '../utils/cache';
 import { useIdentity, useRouteParam } from '../utils/hooks';
+import PageLink from './PageLink';
 
 
 export default function NftInfoCard() {
@@ -221,7 +222,7 @@ function NftInfo({ nftData }: { nftData: NftData }) {
         {/* token list */}
         <div className='tokensTitle'>Tokens</div>
         {tokenError && <div className="errorText">{tokenError}</div>}
-        {nftData?.tokenJson && <TokenList tokenJson={nftData.tokenJson} />}
+        {nftData?.tokenJson && <TokenList tokenJson={nftData.tokenJson} listCapped={typeof nftData?.supply === 'number' && nftData?.supply > 30} />}
         {nftData?.supply === 0 && <div>Mint an NFT to see it here!</div>}
         <style jsx>{`
           .metaFlex {
@@ -263,7 +264,7 @@ function NftOverview({ metadata, supply, supplyError }: { metadata: ContractMeta
 }
 
 // list of minted tokens
-function TokenList({ tokenJson }: { tokenJson: Token[] }) {
+function TokenList({ tokenJson, listCapped = false }: { tokenJson: Token[], listCapped?: boolean }) {
     return (
         <div className='tokenList'>
             <Accordion>
@@ -284,11 +285,18 @@ function TokenList({ tokenJson }: { tokenJson: Token[] }) {
                     </Accordion.Item>
                 })}
             </Accordion>
+            <div>There’s more where that came from! We can only show 30 tokens here at a time, but you can query the rest as shown in the <PageLink route='/tutorials/nfts/enumeration' anchor='nft-tokens'><i>{'Enumerating tokens > NFT tokens'}</i></PageLink> section.</div>
             <style jsx>{`
               .nftContent {
                   display: flex;
                   flex-direction: column;
                   row-gap: 1rem;
+              }
+              .tokenList {
+                  display: flex;
+                  flex-direction: column;
+                  row-gap: 1rem;
+                  padding-bottom: 1rem;
               }
               .tokenList :global(.accordion-item) {
                   background-color: transparent;
