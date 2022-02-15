@@ -114,7 +114,6 @@ const nftMetaFetcher = async (_: any, contractAddress: any) => {
         // create direct ref to result to make typescript happy
         const currentResult = fetchResults[i];
         if (currentResult.status === 'fulfilled' && currentResult.value) {
-            console.log(JSON.stringify(currentResult, null, 4));
             nftData[dataNames[i]] = currentResult.value;
         } else if (currentResult.status === 'fulfilled') {
             // TODO review this in depth. Is this always valid?
