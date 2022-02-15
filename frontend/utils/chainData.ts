@@ -113,8 +113,13 @@ const nftMetaFetcher = async (_: any, contractAddress: any) => {
     for (let i = 0; i < fetchResults.length; i++) {
         // create direct ref to result to make typescript happy
         const currentResult = fetchResults[i];
-        if (currentResult.status === 'fulfilled') {
+        if (currentResult.status === 'fulfilled' && currentResult.value) {
+            console.log(JSON.stringify(currentResult, null, 4));
             nftData[dataNames[i]] = currentResult.value;
+        } else if (currentResult.status === 'fulfilled') {
+            // TODO review this in depth. Is this always valid?
+            // fulfilled but no value. Assume not implemented
+            nftData.errors[dataNames[i]] = 'METHOD_NOT_IMPLEMENTED';
         } else if (typeof currentResult.reason.message === 'string' && currentResult.reason.message.includes('MethodNotFound')) {
             console.error(currentResult.reason);
             nftData.errors[dataNames[i]] = 'METHOD_NOT_IMPLEMENTED';
