@@ -718,8 +718,14 @@ export class ProjectsService {
     if (!keys.TESTNET.length) {
       throw new VError('No testnet keys found');
     }
+
+    let keyList = keys.TESTNET;
     if (!keys.MAINNET.length) {
-      throw new VError('No mainnet keys found');
+      // TODO check this does not cause issues for normal projects by being removed. It is
+      // being removed last minute to fix tutorial projects
+      //   throw new VError('No mainnet keys found');
+    } else {
+      keyList = keyList.concat(keys.MAINNET);
     }
 
     const endDateObject = new Date();
@@ -733,7 +739,7 @@ export class ProjectsService {
       const usageRes = await axios.get(this.config.get('MIXPANEL_API'), {
         params: {
           where: `properties["$distinct_id"] in ${JSON.stringify(
-            keys.TESTNET.concat(keys.MAINNET),
+            keyList,
           )}`,
           from_date: '2021-01-01', // safe start date before release of developer console
           to_date: endDate,
