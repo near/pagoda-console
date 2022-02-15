@@ -215,7 +215,7 @@ function NftInfo({ nftData }: { nftData: NftData }) {
     return <>
         {/* metadata */}
         <div className="metaFlex">
-            {nftData?.metadata && <NftOverview metadata={nftData.metadata} supply={nftData.supply} supplyError={!!nftData.errors.supply} />}
+            {nftData?.metadata && <NftOverview metadata={nftData.metadata} supply={nftData.supply} supplyError={!!nftData.errors.supply} supplyNotImplemented={nftData.errors.supply === 'METHOD_NOT_IMPLEMENTED'} />}
             {nftData?.errors.metadata && <div className="errorText">Couldn&#39;t fetch contract metadata from nft_metadata()</div>}
         </div>
 
@@ -240,12 +240,16 @@ function NftInfo({ nftData }: { nftData: NftData }) {
 }
 
 // displays metadata and total supply
-function NftOverview({ metadata, supply, supplyError }: { metadata: ContractMetadata, supply?: number, supplyError: boolean }) {
+// TODO clean up supplyNotImplemented. It's not efficient and was added in last minute
+function NftOverview({ metadata, supply, supplyError, supplyNotImplemented = false }: { metadata: ContractMetadata, supply?: number, supplyError: boolean, supplyNotImplemented?: boolean }) {
+
+    const supplyErrorMessage = supplyNotImplemented ? 'Function nft_total_supply() not implemented' : (supplyError ? 'Couldn\'t fetch count of minted tokens from nft_total_supply()' : null);
+
     return <div className="infoGrid">
         <span className="label">Name</span><span className="name"> {metadata.name}</span>
         <span className="label">Spec</span><span className="spec"> {metadata.spec ?? 'unknown'}</span>
         <span className="label">Symbol</span><span className="symbol">{metadata.symbol}</span>
-        <span className="label">Minted</span><span className="supply">{supplyError ? <span className="errorText">Couldn&#39;t fetch count of minted tokens from nft_total_supply()</span> : supply}</span>
+        <span className="label">Minted</span><span className="supply">{supplyErrorMessage ? <span className="errorText">{supplyErrorMessage}</span> : supply}</span>
         <style jsx>{`
           .infoGrid {
               display: grid;
