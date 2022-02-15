@@ -83,7 +83,7 @@ export default function NftInfoCard() {
         <div className="titleRow">
             <h2 className="quickInfoHeader">Live Contract Data</h2>
             {(basicsError || nftError) && <ErrorIndicator />}
-            <div onClick={toggleQuickInfo} className={showQuickInfo ? 'animateOpen' : 'animateClosed'}>
+            <div onClick={toggleQuickInfo} className={showQuickInfo ? 'animateOpen' : 'animateClosed'} style={{ cursor: 'pointer' }}>
                 <FontAwesomeIcon icon={faChevronUp} size='2x' />
             </div>
         </div>
@@ -148,7 +148,7 @@ export default function NftInfoCard() {
           }
 
           .errorText {
-              color: #DC3545;
+              color: #A37800;
           }
 
           .animateOpen {
@@ -233,7 +233,7 @@ function NftInfo({ nftData }: { nftData: NftData }) {
             font-weight: 700;
           }
           .errorText {
-            color: #DC3545;
+            color: #A37800;
           }
         `}</style>
     </>
@@ -261,7 +261,7 @@ function NftOverview({ metadata, supply, supplyError, supplyNotImplemented = fal
               font-weight: 600;
           }
           .errorText {
-            color: #DC3545;
+            color: #A37800;
           }
         `}</style>
     </div>
@@ -411,7 +411,7 @@ function ErrorIndicator() {
             }
         >
             <div>
-                <FontAwesomeIcon icon={faExclamationCircle} size='lg' style={{ color: '#FFC10A' }} />
+                <FontAwesomeIcon icon={faExclamationCircle} size='lg' style={{ color: '#A37800' }} />
             </div>
         </OverlayTrigger>
     );
