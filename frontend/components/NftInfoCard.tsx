@@ -289,7 +289,7 @@ function TokenList({ tokenJson, listCapped = false }: { tokenJson: Token[], list
                     </Accordion.Item>
                 })}
             </Accordion>
-            <div>There’s more where that came from! We can only show 30 tokens here at a time, but you can query the rest as shown in the <PageLink route='/tutorials/nfts/enumeration' anchor='nft-tokens'><i>{'Enumerating tokens > NFT tokens'}</i></PageLink> section.</div>
+            {listCapped && <div>There’s more where that came from! We can only show 30 tokens here at a time, but you can query the rest as shown in the <PageLink route='/tutorials/nfts/enumeration' anchor='nft-tokens'><i>{'Enumerating tokens > NFT tokens'}</i></PageLink> section.</div>}
             <style jsx>{`
               .nftContent {
                   display: flex;
