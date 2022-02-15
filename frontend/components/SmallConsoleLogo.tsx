@@ -1,4 +1,4 @@
-import ConsoleLogoImage from '../public/Dev Console Logo.svg'
+import ConsoleLogoImage from '../public/brand/pagoda_dc_2.svg'
 
 function SmallConsoleLogo() {
 
