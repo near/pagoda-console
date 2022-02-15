@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router';
 
-import ConsoleIcon from '../public/brand/near_icon.svg'
+import PagodaIcon from '../public/brand/pagoda_icon_small.svg'
 import { useDisplayName, useRouteParam } from '../utils/hooks';
 import { ReactNode } from 'react';
 import { Placeholder } from 'react-bootstrap';
@@ -93,7 +93,7 @@ function SideBar() {
         <div className='sidebar'>
             {/* <div className='logoContainer' onClick={() => getIdToken(getAuth().currentUser!).then((token) => navigator.clipboard.writeText(token).then(() => alert('Copied token to clipboard')))}> */}
             <div className='logoContainer'>
-                <ConsoleIcon />
+                <PagodaIcon />
             </div>
             <div className='linkContainer'>
                 {pages.map((page, index) => {
