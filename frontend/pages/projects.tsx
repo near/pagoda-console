@@ -142,7 +142,7 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
                     {!props.showDelete && <div className="projectIcon"><FontAwesomeIcon icon={faAngleDoubleRight} /></div>}
                 </a>
             </Link>
-            {props.showDelete && <Button onClick={() => setShowModal(true)}><FontAwesomeIcon icon={faTrashAlt} /></Button>}
+            {props.showDelete && <Button variant="outline-danger" onClick={() => setShowModal(true)}><FontAwesomeIcon icon={faTrashAlt} /></Button>}
             <style jsx>{`
                 .projectRowContainer {
                     display: flex;
@@ -155,7 +155,7 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
                     position: relative;
                 }
                 .projectLink:hover {
-                    color: var(--color-accent-purple)
+                    color: var(--color-accent-green)
                 }
                 .projectLink {
                     padding: 0;
@@ -170,9 +170,6 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
                 }
                 .projectRowContainer :global(.btn) {
                     margin-right: 0.5rem;
-                    background-color: transparent;
-                    color: var(--color-primary);
-                    border: none;
                 }
                 .projectIcon {
                     font-size: 2rem;

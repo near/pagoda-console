@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Form } from 'react-bootstrap';
-import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged, signInWithEmailAndPassword, AuthError, getAdditionalUserInfo } from "firebase/auth";
+import { getAuth, signInWithPopup, AuthProvider, onAuthStateChanged, signInWithEmailAndPassword, AuthError, getAdditionalUserInfo, fetchSignInMethodsForEmail } from "firebase/auth";
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
@@ -89,8 +89,10 @@ export default function AuthenticationForm() {
             try {
                 if (additional?.isNewUser) {
                     mixpanel.alias(socialResult.user.uid);
+                    mixpanel.track(`DC Signed up with ${provider.providerId.split('.')[0].toUpperCase()}`);
+                } else {
+                    mixpanel.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);
                 }
-                mixpanel.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);
             } catch (e) {
                 // silently fail
             }
@@ -100,7 +102,17 @@ export default function AuthenticationForm() {
 
             switch (errorCode) {
                 case 'auth/account-exists-with-different-credential':
-                    setAuthError('You already have an account with another sign-in provider');
+                    // The provider account's email address.
+                    const email = error?.email || error?.customData?.email;
+
+                    if (!email) {
+                        // Couldn't get the email for some reason.
+                        setAuthError('There is already an account associated with that email.');
+                    } else {
+                        // Get sign-in methods for this email.
+                        let methods = await fetchSignInMethodsForEmail(auth, email);
+                        setAuthError(`You already have an account with the email ${email}. Try logging in with ${methods.join(' or ')}.`);
+                    }
                     break;
                 case 'auth/cancelled-popup-request':
                 case 'auth/popup-blocked':
@@ -123,9 +135,8 @@ export default function AuthenticationForm() {
             {providers.map((provider) => <ProviderButton key={provider.name} provider={provider} active={authActive} signInFunction={socialSignIn} />)}
         </div>
         <div className='termsContainer'>
-            <div dangerouslySetInnerHTML={{
-                __html: '<a href="https://www.iubenda.com/terms-and-conditions/37325399" class="iubenda-white no-brand iubenda-noiframe iubenda-embed iubenda-noiframe " title="Terms and Conditions ">Terms and Conditions</a><script type="text/javascript">(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);</script>'
-            }} />
+            <a href='/Terms.pdf' target="_blank" rel="noopener noreferrer">Terms of Use</a>
+            <a href='/PrivacyPolicy.pdf' target="_blank" rel="noopener noreferrer">Privacy Policy</a>
         </div>
         <style jsx>{`
             .authContainer {

@@ -8,6 +8,7 @@ import { Placeholder } from 'react-bootstrap';
 
 import { logOut } from '../utils/auth';
 import { useProject } from '../utils/fetchers';
+import NftInfoCard from './NftInfoCard';
 
 interface PageDefinition {
     display: string,
@@ -44,6 +45,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <>
             <SideBar />
             <div className='childContainer'>
+                {router.pathname.startsWith('/tutorials/') && <NftInfoCard />}
                 {children}
             </div>
             <style jsx>{`
