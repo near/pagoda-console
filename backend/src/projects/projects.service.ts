@@ -187,6 +187,7 @@ export class ProjectsService {
         select: {
           id: true,
           active: true,
+          tutorial: true,
         },
       });
       if (!project || !project.active) {
@@ -209,15 +210,24 @@ export class ProjectsService {
     });
 
     try {
-      const testnetKeyPromise = this.keys.invalidate(
-        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_1`,
-        'TESTNET',
+      // Array of key names/ids to fetch from key service.
+      const deleteKeys: [Net, number][] = [['TESTNET', 1]];
+
+      // Tutorial projects have no Mainnet key.
+      if (!project.tutorial) {
+        deleteKeys.push(['MAINNET', 2]);
+      }
+
+      await Promise.all(
+        deleteKeys.map((keyId) =>
+          this.keys.invalidate(
+            `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_${
+              keyId[1]
+            }`,
+            keyId[0],
+          ),
+        ),
       );
-      const mainnetKeyPromise = this.keys.invalidate(
-        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_2`,
-        'MAINNET',
-      );
-      await Promise.all([testnetKeyPromise, mainnetKeyPromise]);
     } catch (e) {
       throw new VError(
         e,
@@ -738,9 +748,7 @@ export class ProjectsService {
     try {
       const usageRes = await axios.get(this.config.get('MIXPANEL_API'), {
         params: {
-          where: `properties["$distinct_id"] in ${JSON.stringify(
-            keyList,
-          )}`,
+          where: `properties["$distinct_id"] in ${JSON.stringify(keyList)}`,
           from_date: '2021-01-01', // safe start date before release of developer console
           to_date: endDate,
         },
