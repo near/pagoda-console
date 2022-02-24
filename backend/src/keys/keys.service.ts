@@ -73,7 +73,7 @@ export class KeysService {
     } catch (e) {
       // If there are no valid keys with the given keyId, then it was probably already invalidated.
       // Attempting to invalidate again will result in a 400 error.
-      if (VError.info(e)?.errorType === 'NO_VALID_KEYS') {
+      if (VError.info(e)?.code === 'NO_VALID_KEYS') {
         return;
       }
       throw new VError(e, 'Failed while fetching current API key');
@@ -114,7 +114,7 @@ export class KeysService {
       validKey = keyData.find((key) => !key.invalid);
       if (!validKey) {
         throw new VError(
-          { info: { errorType: 'NO_VALID_KEYS' } },
+          { info: { code: 'NO_VALID_KEYS' } },
           `No keys valid in list${
             keyData.length ? ` of ${keyData.length} keys` : ''
           }`,
