@@ -69,19 +69,41 @@ export default function Analytics() {
                     // could not identify environment
                     continue;
                 }
-                // const netUsageRef = usage
 
                 switch (event.event) {
                     case 'request':
+                        let requestBody = event.properties.body;
+
+                        if (typeof requestBody === 'string') {
+                            try {
+                                requestBody = JSON.parse(requestBody);
+                            } catch {
+                                // not prepared to handle strings that aren't json
+                                requestBody = null;
+                            }
+                        }
+
+                        // if we do not have a request body that we can extract meaningful data from, then
+                        // we will default to an empty object so we can at least count this call in the charts
+                        if (!requestBody) {
+                            requestBody = {};
+                        }
+
                         //calls for this method
-                        let { method } = event.properties.body;
+                        let { method } = requestBody;
+
                         switch (method) {
                             case 'query':
-                                method = `query/${event.properties.body.params.request_type}`;
+                                method = `query/${requestBody.params.request_type}`;
                                 break;
                             case 'block':
                                 // TODO (P2+) make this handle params dynamically so it wont break if rpc is updated
-                                method = `block/${event.properties.body.params.finality ? 'finality' : 'block_id'}`;
+                                if (requestBody.params) {
+                                    method = `block/${requestBody.params.finality ? 'finality' : 'block_id'}`;
+                                }
+                                break;
+                            case undefined:
+                                method = 'N/A';
                                 break;
                             default:
                                 break;
