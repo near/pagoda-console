@@ -4,8 +4,10 @@ import { PrismaClient } from '@prisma/client';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
+    // TODO enable query+ in local
     super({
-      log: ['query', 'info', 'warn', 'error'],
+      // log: ['query', 'info', 'warn', 'error'],
+      log: ['info', 'warn', 'error'],
     });
   }
 
