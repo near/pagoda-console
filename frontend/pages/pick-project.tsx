@@ -36,13 +36,13 @@ export default function PickProject() {
         {!isOnboarding && <div className='calloutText'>
             Start with a blank project or get some guidance with a tutorial.
         </div>}
-        <Row xs={1} md={2} className="g-4">
+        <div className="cardsContainer">
             {projects.map((project, idx) => (
-                <Col key={idx}>
+                <div key={idx}>
                     <ProjectCard path={project.path} title={project.title} description={project.description} color={project.color} onClick={() => router.push(project.path)} />
-                </Col>
+                </div>
             ))}
-        </Row>
+        </div>
         <style jsx>{`
             .pageTitle {
                 margin-bottom: 1.25rem;
@@ -50,15 +50,11 @@ export default function PickProject() {
             .calloutText {
                 margin-bottom: 2.625rem;
             }
-            .submitRow {
-                width: 100%;
-                display: flex;
-                justify-content: flex-end;
-            }
-            .submitContainer {
+            .cardsContainer {
                 display: flex;
                 flex-direction: row;
-                column-gap: 1rem;
+                flex-wrap: wrap;
+                column-gap: 1.5rem;
             }
         `}</style>
     </div >
