@@ -53,11 +53,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     router.prefetch('/');
   }, []);
 
-  useEffect(() => {
-    //* Note: this is saving the current path + query params on unmount of the current component.
-    return () => window.sessionStorage.setItem("lastVisitedPath", router.asPath);
-  }, [router.asPath]);
-
   usePageTracker();
   // must cast cache to any to work around bug in interface definition
   // https://github.com/vercel/swr/discussions/1494
