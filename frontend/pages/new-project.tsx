@@ -7,28 +7,11 @@ import { authenticatedPost } from '../utils/fetchers';
 import { useRouteParam } from '../utils/hooks';
 import mixpanel from 'mixpanel-browser';
 import BorderSpinner from '../components/BorderSpinner';
-import BackButton from '../components/BackButton';
-
-// Don't show the back button if we are going back to these specific routes.
-const EXCLUDED_BACK_PATHS = ['/register', '/verification'];
 
 export default function NewProject() {
     let [projectName, setProjectName] = useState<string>('');
     let [formEnabled, setFormEnabled] = useState<boolean>(true);
     const router = useRouter();
-
-    let [lastVisitedPath, setLastVisitedPath] = useState<string>('');
-    useEffect(() => {
-        let path = window.sessionStorage.getItem("lastVisitedPath");
-
-        // Don't show the back button if we will nav to this same page.
-        if (path && path !== router.asPath && !EXCLUDED_BACK_PATHS.includes(path)) {
-            setLastVisitedPath(path);
-        }
-        // The router path only needs to be verified once. Disabling eslint rule.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
     const isOnboarding = useRouteParam('onboarding');
 
     let [creationError, setCreationError] = useState<string>();
@@ -93,7 +76,6 @@ export default function NewProject() {
             <div className="submitRow">
                 <div className='submitContainer'>
                     {createInProgress && <BorderSpinner />}
-                    {/* {!isOnboarding && <BackButton />} */}
                     <Button variant='primary' type='submit' disabled={!canCreate()}>Create a Project</Button>
                 </div>
             </div>
