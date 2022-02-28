@@ -1,5 +1,5 @@
 import { Table } from "react-bootstrap";
-import CodeBlock from "./CodeBlock";
+import MdxCodeBlock from "./MdxCodeBlock";
 import { Anchor, H1Anchor, H2Anchor, H3Anchor } from "./Anchors";
 import Note from "./Note";
 import Blockquote from "./Blockquote";
@@ -14,7 +14,7 @@ const components = {
     h3: H3Anchor,
     a: Anchor,
     Anchor: Anchor,
-    code: CodeBlock,
+    code: MdxCodeBlock,
     Info: (props: any) => {
         return <Note type="info">{props.children}</Note>;
     },
