@@ -55,7 +55,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }`;
 
 const CLI_URL_TEMPLATE = `export NEAR_CLI_TESTNET_RPC_SERVER_URL=<RPC service url>`;
-const CLI_KEY_TEMPLATE = `near set-api-key <RPC service url> <your API Key>`;
+const CLI_KEY_TEMPLATE = `near set-api-key $NEAR_CLI_TESTNET_RPC_SERVER_URL <your API Key>`;
 
 
 export default function StarterGuide() {
@@ -82,7 +82,7 @@ export default function StarterGuide() {
             naj: NAJ_STARTER_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.recommended[net]),
             rust: RUST_STARTER_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.recommended[net]),
             cliUrl: CLI_URL_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.recommended[net]),
-            cliKey: CLI_KEY_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(/<RPC service url>/, Config.url.rpc.recommended[net]),
+            cliKey: CLI_KEY_TEMPLATE.replace(/<your API Key>/, keys[net]!),
         });
     }, [keys, environmentSubId]);
 
