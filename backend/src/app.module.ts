@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { ProjectsModule } from './projects/projects.module';
 import { AuthModule } from './auth/auth.module';
+import configuration from './config/configuration';
 
 // TODO determine if these should be included in controllers
 // and providers
@@ -22,7 +23,7 @@ import { IndexerService } from './indexer.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      ignoreEnvFile: true, // TODO disable only in prod
+      load: [configuration],
     }),
     UsersModule,
     ProjectsModule,
