@@ -7,7 +7,8 @@
     "build": "next build",
     "export": "next build && next export",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
@@ -37,6 +38,7 @@
     "@mdx-js/loader": "^2.0.0",
     "@mdx-js/mdx": "^2.0.0",
     "@next/mdx": "^12.0.10",
+    "@playwright/test": "^1.19.2",
     "@svgr/webpack": "^5.5.0",
     "@types/bn.js": "^5.1.0",
     "@types/lodash-es": "^4.17.5",
