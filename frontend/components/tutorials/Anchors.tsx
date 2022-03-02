@@ -16,7 +16,9 @@ export function Anchor(props: any) {
         path = props.href;
     } else {
         // Internal links should include project and environment.
-        path = `${props.href}?project=${project}&environment=1`;
+        const splitUrl = props.href.split('#');
+        const anchor = splitUrl[1] ? '#' + splitUrl[1] : '';
+        path = `${splitUrl[0]}?project=${project}&environment=1${anchor}`;
     }
 
     return <>
