@@ -140,9 +140,9 @@ V1 docs: https://v1.mdxjs.com/
 
 ### e2e
 
-e2e tests are written in [Playwright](https://playwright.dev). See `/e2e` folder for examples. 
+e2e tests are written in [Playwright](https://playwright.dev). See `/e2e` folder for examples. The tests are configurable via a `.env.test.local` file. Please ask the team for an example.
 
-We also have screenshot tests for testing tutorial pages that have dynamic content that could potentially change outside of our team (coming soon).
+We also have screenshot tests for testing tutorial pages that have dynamic content that could potentially change outside of our team (e2e/snapshot.spec.ts).
 
 If you want to run these tests in your local, make sure you install the dependencies:
 
@@ -150,3 +150,5 @@ If you want to run these tests in your local, make sure you install the dependen
 npx playwright install
 npx playwright install-deps
 ```
+
+then run `npm run test:e2e`.
