@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { ProjectsModule } from './projects/projects.module';
 import { AuthModule } from './auth/auth.module';
-import configuration from './config/configuration';
+import validate from './config/validate';
 
 // TODO determine if these should be included in controllers
 // and providers
@@ -23,7 +23,8 @@ import { IndexerService } from './indexer.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [configuration],
+      cache: true,
+      validate,
     }),
     UsersModule,
     ProjectsModule,

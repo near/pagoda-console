@@ -88,6 +88,23 @@ async exampleHandler(@Request() req) {
 }
 ```
 
+## Configuration
+
+See [./src/config/validate.ts](./src/config/validate.ts)
+
+Always set the type of ConfigService in the constructor and use `{infer: true}` in getter for proper typing and nested access
+
+constructor example:
+```ts
+private config: ConfigService<AppConfig>
+```
+
+getter example:
+```ts
+this.config.get('analytics.url', {infer: true});
+```
+In the future, the need to add infer to ever call could be removed by extending `ConfigService` [as suggested by a contributor](https://github.com/nestjs/config/issues/636#issuecomment-889168693)
+
 ## Comments
 
 Where helpful, utilize [Better Comments](https://marketplace.visualstudio.com/items?itemName=aaron-bond.better-comments) syntax to add context to your comments
