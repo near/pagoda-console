@@ -9,9 +9,9 @@ import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 import { useEffect, useState } from "react";
 import BorderSpinner from "../components/BorderSpinner";
 import CenterModal from "../components/CenterModal";
-import mixpanel from 'mixpanel-browser';
 import { faAngleDoubleRight, faExclamationCircle, faTimes } from "@fortawesome/free-solid-svg-icons";
 import TutorialBadge from "../components/TutorialBadge";
+import { deleteProject as postDeleteProject } from "../utils/fetchers";
 
 export default function Projects() {
     const router = useRouter();
@@ -112,22 +112,9 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
     let [showModal, setShowModal] = useState<boolean>(false);
 
     async function deleteProject() {
-        try {
-            await authenticatedPost('/projects/delete', { slug: props.project.slug });
-            mixpanel.track('DC Remove Project', {
-                status: 'success',
-                name: props.project.name
-            });
+        const success = await postDeleteProject(props.project.slug, props.project.name);
+        if (success) {
             props.onDelete();
-            setShowModal(false);
-        } catch (e: any) {
-            mixpanel.track('DC Remove Project', {
-                status: 'failure',
-                name: props.project.name,
-                error: e.message,
-            });
-            // TODO
-            console.error('Failed to delete project');
         }
     }
 
