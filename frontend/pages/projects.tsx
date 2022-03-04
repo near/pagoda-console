@@ -1,17 +1,17 @@
 import { useSimpleLogoutLayout } from "../utils/layouts";
 import { Alert, Button } from 'react-bootstrap';
 import { useRouter } from "next/router";
-import { authenticatedPost, useProjects } from "../utils/fetchers";
+import { useProjects } from "../utils/fetchers";
 import { Project } from '../utils/interfaces';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 import { useEffect, useState } from "react";
 import BorderSpinner from "../components/BorderSpinner";
-import CenterModal from "../components/CenterModal";
 import { faAngleDoubleRight, faExclamationCircle, faTimes } from "@fortawesome/free-solid-svg-icons";
 import TutorialBadge from "../components/TutorialBadge";
 import { deleteProject as postDeleteProject } from "../utils/fetchers";
+import DeleteProjectModal from "../components/DeleteProjectModal";
 
 export default function Projects() {
     const router = useRouter();
@@ -118,11 +118,9 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
         }
     }
 
-    const warning = 'Removing this project may have unintended consequences, make sure the API keys for this project are no longer in use before removing it.';
-
     return (
         <div className='projectRowContainer'>
-            <CenterModal show={showModal} title={`Remove ${props.project.name}`} content={warning} onConfirm={deleteProject} confirmText='Remove' onHide={() => setShowModal(false)} />
+            <DeleteProjectModal name={props.project.name} show={showModal} setShow={setShowModal} onConfirm={deleteProject} />
             <Link href={`/analytics?project=${props.project.slug}`}>
                 <a className='projectLink'>
                     <div className='linkDiv'>{props.project.name} {props.project.tutorial && <TutorialBadge size="md" />}</div>
