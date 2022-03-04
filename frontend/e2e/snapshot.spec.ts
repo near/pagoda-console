@@ -1,5 +1,14 @@
 // example.spec.ts
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
+
+async function login(page: Page) {
+  await page.goto("/", { waitUntil: "networkidle" });
+  await page.fill('input[id="email"]', process.env.TEST_EMAIL);
+  await page.fill('input[id="password"]', process.env.TEST_PASSWORD);
+  await page.click("text=Continue");
+
+  await page.locator("text=Projects").waitFor({ state: "visible" });
+}
 
 test("login test", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });
@@ -19,13 +28,7 @@ test("login test", async ({ page }) => {
   test(`NFT tutorial ${path} snapshot test`, async ({ page }) => {
     const project = process.env.TEST_NFT_TUTORIAL_PROJECT;
 
-    // sign in
-    await page.goto("/", { waitUntil: "networkidle" });
-    await page.fill('input[id="email"]', process.env.TEST_EMAIL);
-    await page.fill('input[id="password"]', process.env.TEST_PASSWORD);
-    await page.click("text=Continue");
-
-    await page.locator("text=Projects").waitFor({ state: "visible" });
+    await login(page);
 
     await page.goto(
       `/tutorials/nfts/${path}?project=${project}&environment=1`,
@@ -56,12 +59,7 @@ test("login test", async ({ page }) => {
       const project = process.env.TEST_NFT_TUTORIAL_PROJECT;
 
       // sign in
-      await page.goto("/", { waitUntil: "networkidle" });
-      await page.fill('input[id="email"]', process.env.TEST_EMAIL);
-      await page.fill('input[id="password"]', process.env.TEST_PASSWORD);
-      await page.click("text=Continue");
-
-      await page.locator("text=Projects").waitFor({ state: "visible" });
+      await login(page);
 
       await page.goto(
         `/tutorials/nfts/${path}?project=${project}&environment=1`,
