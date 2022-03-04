@@ -135,7 +135,6 @@ Here are the changes that need to occur to each .md file that comes from @near/d
 V2 docs: https://mdxjs.com/
 V1 docs: https://v1.mdxjs.com/
 
-
 ## Testing
 
 ### e2e
