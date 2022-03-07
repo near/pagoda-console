@@ -10,7 +10,7 @@ import { NetOption } from "../utils/interfaces";
 import ProjectSelector from "../components/ProjectSelector";
 import CenterModal from "../components/CenterModal";
 import StarterGuide from "../components/StarterGuide";
-import mixpanel from 'mixpanel-browser';
+import analytics from '../utils/analytics';
 
 const ROTATION_WARNING = 'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';
 
@@ -34,7 +34,7 @@ export default function ProjectSettings() {
                 return cachedKeys;
             }, false);
             let newKey = await authenticatedPost('/projects/rotateKey', { project: projectSlug, environment: subId });
-            mixpanel.track('DC Rotate API Key', {
+            analytics.track('DC Rotate API Key', {
                 status: 'success',
                 net: net,
             });
@@ -45,7 +45,7 @@ export default function ProjectSettings() {
                 };
             }, false);
         } catch (e: any) {
-            mixpanel.track('DC Rotate API Key', {
+            analytics.track('DC Rotate API Key', {
                 status: 'failure',
                 net: net,
                 error: e.message,
@@ -114,7 +114,7 @@ function KeyRow(props: { name: string, token?: string, onRotateKey: Function }) 
             clearTimeout(copiedTimer.current);
         }
         props.token && navigator.clipboard.writeText(props.token);
-        mixpanel.track('DC Copy API Key', {
+        analytics.track('DC Copy API Key', {
             net: props.name
         });
         setShowCopiedAlert(true);
