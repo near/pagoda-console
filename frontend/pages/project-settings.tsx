@@ -102,7 +102,6 @@ export default function ProjectSettings() {
 
 function DeleteProject() {
     let [showModal, setShowModal] = useState<boolean>(false);
-
     const projectSlug = useRouteParam('project', '/projects');
     const { project } = useProject(projectSlug);
     const router = useRouter();
@@ -111,19 +110,9 @@ function DeleteProject() {
         return <></>;
     }
 
-    async function confirmDelete() {
-        if (!project) {
-            return;
-        }
-        const success = await deleteProject(project.slug, project.name);
-        if (success) {
-            router.push('/projects');
-        }
-    }
-
     return <>
         <div className="deleteContainer">
-            <DeleteProjectModal name={project.name} show={showModal} setShow={setShowModal} onConfirm={confirmDelete} />
+            <DeleteProjectModal slug={project.slug} name={project.name} show={showModal} setShow={setShowModal} onDelete={() => router.push('/projects')} />
             <h4>Delete</h4>
             <Button
                 variant='danger'

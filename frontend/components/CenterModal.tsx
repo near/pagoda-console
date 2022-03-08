@@ -1,6 +1,6 @@
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Alert } from 'react-bootstrap';
 
-export default function CenterModal(props: { title: string, content: string, onConfirm?: () => void, confirmText?: string, onHide: () => void, show: boolean }) {
+export default function CenterModal(props: { title: string, content: string, onConfirm?: () => void, confirmDisabled?: boolean, confirmText?: string, onHide: () => void, show: boolean, errorText?: string | undefined }) {
     return (
         <Modal
             show={props.show}
@@ -18,11 +18,23 @@ export default function CenterModal(props: { title: string, content: string, onC
                 <p>{props.content}</p>
             </Modal.Body>
             {props.onConfirm &&
-                <Modal.Footer>
-                    <Button onClick={props.onHide} variant='secondary'>Cancel</Button>
-                    <Button onClick={props.onConfirm} variant='danger'>{props.confirmText}</Button>
-                </Modal.Footer>
+                <>
+                    <Modal.Footer>
+                        <Button onClick={props.onHide} variant='secondary'>Cancel</Button>
+                        <Button disabled={props.confirmDisabled} onClick={props.onConfirm} variant='danger'>{props.confirmText}</Button>
+                    </Modal.Footer>
+                    {props.errorText &&
+                        <>
+                            <div className="alertContainer"><Alert variant='danger'>{props.errorText}</Alert></div>
+                            <style jsx>{`
+                                .alertContainer {
+                                    padding: 0 1rem 0 1rem;
+                                }
+                            `}</style>
+                        </>
+                    }
+                </>
             }
-        </Modal>
+        </Modal >
     );
 }
