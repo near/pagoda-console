@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
-import analytics from '../utils/analytics';
+import analytics from '../../utils/analytics';
 
 
 export default function ForgotPasswordModal({ show, onHide }: { show: boolean, onHide: () => void; }) {
