@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 import { useEffect, useState } from "react";
 import BorderSpinner from "../components/BorderSpinner";
+import analytics from '../utils/analytics';
 import { faAngleDoubleRight, faExclamationCircle, faTimes } from "@fortawesome/free-solid-svg-icons";
 import TutorialBadge from "../components/TutorialBadge";
 import DeleteProjectModal from "../components/modals/DeleteProjectModal";

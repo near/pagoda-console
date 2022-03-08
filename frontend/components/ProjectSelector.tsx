@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { faCaretDown, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
 import ProjectLink from './ProjectLink';
 import EnvironmentSelector from './EnvironmentSelector';
-import mixpanel from 'mixpanel-browser';
+import analytics from '../utils/analytics';
 import TutorialBadge from './TutorialBadge';
 
 export default function ProjectSelector() {
@@ -29,7 +29,7 @@ export default function ProjectSelector() {
                     {projectDetails?.tutorial && <span className='tutorialBadge'><TutorialBadge /></span>}
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                    {otherProjects && otherProjects.map(p => <Dropdown.Item as='div' onClick={() => mixpanel.track('DC Switch Project')} key={p.slug} eventKey={p.slug}><ProjectLink project={p} /></Dropdown.Item>)}
+                    {otherProjects && otherProjects.map(p => <Dropdown.Item as='div' onClick={() => analytics.track('DC Switch Project')} key={p.slug} eventKey={p.slug}><ProjectLink project={p} /></Dropdown.Item>)}
                     <Dropdown.Item as='div' style={{ color: 'var(--color-primary)' }} eventKey={'new'}><Link href='/pick-project'><a><FontAwesomeIcon icon={faPlusCircle} style={{ marginRight: '0.5rem' }} />Create new project</a></Link></Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
