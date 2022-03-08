@@ -136,7 +136,7 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
     return (
         <div className='projectRowContainer'>
             <CenterModal show={showModal} title={`Remove ${props.project.name}`} content={warning} onConfirm={deleteProject} confirmText='Remove' onHide={() => setShowModal(false)} />
-            <Link href={`/analytics?project=${props.project.slug}`}>
+            <Link href={`/project-analytics?project=${props.project.slug}`}>
                 <a className='projectLink'>
                     <div className='linkDiv'>{props.project.name} {props.project.tutorial && <TutorialBadge size="md" />}</div>
                     {!props.showDelete && <div className="projectIcon"><FontAwesomeIcon icon={faAngleDoubleRight} /></div>}

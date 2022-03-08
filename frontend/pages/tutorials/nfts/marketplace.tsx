@@ -11,7 +11,7 @@ export default function Overview() {
         <ProjectSelector />
         <TableOfContents />
         <Content components={components} />
-        <TutorialFooter><NextStepButton path="/analytics" label="Complete Tutorial" /></TutorialFooter>
+        <TutorialFooter><NextStepButton path="/project-analytics" label="Complete Tutorial" /></TutorialFooter>
     </>;
 }
 

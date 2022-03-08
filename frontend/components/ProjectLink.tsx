@@ -13,7 +13,7 @@ export default function ProjectLink({ project }: { project: Project }) {
     // Otherwise, stay on the same page
     // TODO handle switching between different tutorials
     if (router.pathname.startsWith('/tutorials/') && !project.tutorial) {
-        destinationPath = '/analytics'
+        destinationPath = '/project-analytics'
     } else {
         destinationPath = router.pathname;
     }

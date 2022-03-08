@@ -29,7 +29,7 @@ function useProjectPages(): PageDefinition[] {
     }
 
     // If custom outline is injected, use that, else use this.
-    pages.push({ display: 'Analytics', route: '/analytics' });
+    pages.push({ display: 'Analytics', route: '/project-analytics' });
     pages.push({ display: 'Contracts', route: `/contracts` });
     pages.push({ display: 'Deploys', route: '' });
     pages.push({ display: 'Alerts', route: '' });
