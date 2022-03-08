@@ -7,6 +7,7 @@ import { useIdentity } from "./hooks";
 import { Contract, Environment, User, Project, NetOption } from "./interfaces";
 import router, { useRouter } from "next/router";
 import { useEffect } from "react";
+import mixpanel from "mixpanel-browser";
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
@@ -189,6 +190,26 @@ export function useRecentTransactions(contracts: string[], net: NetOption): { tr
     });
 
   return { transactions, error };
+}
+
+export async function deleteProject(slug: string, name: string) {
+  try {
+      await authenticatedPost('/projects/delete', { slug });
+      mixpanel.track('DC Remove Project', {
+          status: 'success',
+          name
+      });
+      return true;
+  } catch (e: any) {
+      mixpanel.track('DC Remove Project', {
+          status: 'failure',
+          name,
+          error: e.message,
+      });
+      // TODO
+      console.error('Failed to delete project');
+  }
+  return false;
 }
 
 // * This is a modified version of the onErrorRetry function pulled from SWR source

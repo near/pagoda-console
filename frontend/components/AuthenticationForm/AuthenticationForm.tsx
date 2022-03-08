@@ -6,8 +6,8 @@ import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import ForgotPasswordModal from '../ForgotPasswordModal';
-import ErrorModal from '../ErrorModal';
+import ForgotPasswordModal from '../modals/ForgotPasswordModal';
+import ErrorModal from '../modals/ErrorModal';
 import Image from 'next/image';
 import mixpanel from 'mixpanel-browser';
 

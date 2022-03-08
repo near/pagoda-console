@@ -1,4 +1,4 @@
-import { authenticatedPost, useApiKeys } from "../utils/fetchers";
+import { authenticatedPost, deleteProject, useApiKeys, useProject } from "../utils/fetchers";
 import { useRouteParam } from "../utils/hooks";
 import { useDashboardLayout } from "../utils/layouts";
 
@@ -8,9 +8,11 @@ import { Button, Placeholder, Overlay } from 'react-bootstrap';
 import { useState, useRef } from "react";
 import { NetOption } from "../utils/interfaces";
 import ProjectSelector from "../components/ProjectSelector";
-import CenterModal from "../components/CenterModal";
+import CenterModal from "../components/modals/CenterModal";
 import StarterGuide from "../components/StarterGuide";
 import mixpanel from 'mixpanel-browser';
+import DeleteProjectModal from "../components/modals/DeleteProjectModal";
+import { useRouter } from "next/router";
 
 const ROTATION_WARNING = 'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';
 
@@ -69,12 +71,13 @@ export default function ProjectSettings() {
                     <KeyRow name='Testnet' token={keys?.TESTNET} onRotateKey={() => setShowTestnetRotationModal(true)} />
                 </div>
                 <StarterGuide />
+                <DeleteProject />
             </div>
 
             <style jsx>{`
                 .pageContainer {
-                display: flex;
-                flex-direction: column;
+                    display: flex;
+                    flex-direction: column;
                 }
                 .content {
                     display: flex;
@@ -82,10 +85,10 @@ export default function ProjectSettings() {
                     row-gap: 2rem;
                 }
                 .titleContainer {
-                margin-bottom: 2.75rem;
-                display: flex;
-                flex-direction: row;
-                justify-content: space-between;
+                    margin-bottom: 2.75rem;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
                 }
                 .keysContainer {
                     display: flex;
@@ -95,6 +98,37 @@ export default function ProjectSettings() {
             `}</style>
         </div>
     );
+}
+
+function DeleteProject() {
+    let [showModal, setShowModal] = useState<boolean>(false);
+    const projectSlug = useRouteParam('project', '/projects');
+    const { project } = useProject(projectSlug);
+    const router = useRouter();
+
+    if (!project) {
+        return <></>;
+    }
+
+    return <>
+        <div className="deleteContainer">
+            <DeleteProjectModal slug={project.slug} name={project.name} show={showModal} setShow={setShowModal} onDelete={() => router.push('/projects')} />
+            <h4>Delete</h4>
+            <Button
+                variant='danger'
+                onClick={() => setShowModal(true)}
+            >
+                Remove Project
+            </Button>
+        </div>
+        <style jsx>{`
+            .deleteContainer {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        `}</style>
+    </>;
 }
 
 function KeyRow(props: { name: string, token?: string, onRotateKey: Function }) {
