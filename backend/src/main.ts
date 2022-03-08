@@ -10,6 +10,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors(); // TODO re-evaluate need for CORS once we have domains
 
+  // TODO remove these after testing config file loading
+  // use a non-typed config object to access arbitrary environment variables
+  // const genericConfigService: ConfigService = app.get(ConfigService);
+  // console.log(genericConfigService.get('PRIORITY_ENV_FILE'));
+
   const configService: ConfigService<AppConfig> = app.get(ConfigService);
   console.log(
     `Launching w/ deploy env: ${configService.get('deployEnv', {
@@ -18,11 +23,6 @@ async function bootstrap() {
   );
 
   // initialize Firebase
-
-  // initializeApp({
-  //   credential: credential.cert(serviceAccount as ServiceAccount),
-  // });
-  // console.log(configService.get('FIREBASE_CREDENTIALS'));
   const sa = JSON.parse(
     configService.get('firebase.credentials', { infer: true }),
   ) as ServiceAccount;

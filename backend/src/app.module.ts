@@ -23,6 +23,7 @@ import { IndexerService } from './indexer.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
       cache: true,
       validate,
     }),
