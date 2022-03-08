@@ -8,10 +8,10 @@ import { Button, Placeholder, Overlay } from 'react-bootstrap';
 import { useState, useRef } from "react";
 import { NetOption } from "../utils/interfaces";
 import ProjectSelector from "../components/ProjectSelector";
-import CenterModal from "../components/CenterModal";
+import CenterModal from "../components/modals/CenterModal";
 import StarterGuide from "../components/StarterGuide";
 import mixpanel from 'mixpanel-browser';
-import DeleteProjectModal from "../components/DeleteProjectModal";
+import DeleteProjectModal from "../components/modals/DeleteProjectModal";
 import { useRouter } from "next/router";
 
 const ROTATION_WARNING = 'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';

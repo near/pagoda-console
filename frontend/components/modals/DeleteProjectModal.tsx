@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { deleteProject } from "../utils/fetchers";
+import { deleteProject } from "../../utils/fetchers";
 import CenterModal from "./CenterModal";
 
 export default function DeleteProjectModal({ slug, name, show, setShow, onDelete }: { slug: string, name: string, show: boolean, setShow: (show: boolean) => void, onDelete: () => void }) {

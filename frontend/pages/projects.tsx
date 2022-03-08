@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import BorderSpinner from "../components/BorderSpinner";
 import { faAngleDoubleRight, faExclamationCircle, faTimes } from "@fortawesome/free-solid-svg-icons";
 import TutorialBadge from "../components/TutorialBadge";
-import DeleteProjectModal from "../components/DeleteProjectModal";
+import DeleteProjectModal from "../components/modals/DeleteProjectModal";
 
 export default function Projects() {
     const router = useRouter();
