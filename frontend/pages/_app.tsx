@@ -31,16 +31,12 @@ import { SSRProvider } from '@restart/ui/ssr';
 initializeApp(config.firebaseConfig);
 
 // mixpanel initialization
-import mixpanel from 'mixpanel-browser';
+import analytics from '../utils/analytics';
 import { initializeNaj } from '../utils/chainData'
 import { useMediaQueries, usePageTracker } from '../utils/hooks'
 import SmallScreenNotice from '../components/SmallScreenNotice'
 
-// Enabling the debug mode flag is useful during implementation,
-// but it's recommended you remove it for production
-mixpanel.init(config.mixpanel.token, {
-  debug: config.mixpanel.debug
-});
+analytics.init();
 
 const unauthedPaths = ['/', '/register'];
 
@@ -61,10 +57,10 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     const auth = getAuth()
     const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
       if (user) {
-        mixpanel.identify(user.uid);
+        analytics.identify(user.uid);
       } else if (!user && !unauthedPaths.includes(router.pathname)) {
         // user is signed out, clear all data and redirect back to login
-        mixpanel.reset();
+        analytics.reset();
         cache.clear();
         router.push('/');
       }

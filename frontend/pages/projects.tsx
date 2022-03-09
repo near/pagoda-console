@@ -1,17 +1,17 @@
 import { useSimpleLogoutLayout } from "../utils/layouts";
 import { Alert, Button } from 'react-bootstrap';
 import { useRouter } from "next/router";
-import { authenticatedPost, useProjects } from "../utils/fetchers";
+import { useProjects } from "../utils/fetchers";
 import { Project } from '../utils/interfaces';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
 import { useEffect, useState } from "react";
 import BorderSpinner from "../components/BorderSpinner";
-import CenterModal from "../components/CenterModal";
-import mixpanel from 'mixpanel-browser';
+import analytics from '../utils/analytics';
 import { faAngleDoubleRight, faExclamationCircle, faTimes } from "@fortawesome/free-solid-svg-icons";
 import TutorialBadge from "../components/TutorialBadge";
+import DeleteProjectModal from "../components/modals/DeleteProjectModal";
 
 export default function Projects() {
     const router = useRouter();
@@ -111,31 +111,9 @@ function RedirectAlert(props: { onClick: () => void }) {
 function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boolean, onDelete: () => void }) {
     let [showModal, setShowModal] = useState<boolean>(false);
 
-    async function deleteProject() {
-        try {
-            await authenticatedPost('/projects/delete', { slug: props.project.slug });
-            mixpanel.track('DC Remove Project', {
-                status: 'success',
-                name: props.project.name
-            });
-            props.onDelete();
-            setShowModal(false);
-        } catch (e: any) {
-            mixpanel.track('DC Remove Project', {
-                status: 'failure',
-                name: props.project.name,
-                error: e.message,
-            });
-            // TODO
-            console.error('Failed to delete project');
-        }
-    }
-
-    const warning = 'Removing this project may have unintended consequences, make sure the API keys for this project are no longer in use before removing it.';
-
     return (
         <div className='projectRowContainer'>
-            <CenterModal show={showModal} title={`Remove ${props.project.name}`} content={warning} onConfirm={deleteProject} confirmText='Remove' onHide={() => setShowModal(false)} />
+            <DeleteProjectModal slug={props.project.slug} name={props.project.name} show={showModal} setShow={setShowModal} onDelete={props.onDelete} />
             <Link href={`/project-analytics?project=${props.project.slug}`}>
                 <a className='projectLink'>
                     <div className='linkDiv'>{props.project.name} {props.project.tutorial && <TutorialBadge size="md" />}</div>

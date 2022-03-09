@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { Project } from '../utils/interfaces';
 import { authenticatedPost } from '../utils/fetchers';
 import { useRouteParam } from '../utils/hooks';
-import mixpanel from 'mixpanel-browser';
+import analytics from '../utils/analytics';
 import BorderSpinner from '../components/BorderSpinner';
 
 export default function NewProject() {
@@ -32,13 +32,13 @@ export default function NewProject() {
             router.prefetch('/project-settings');
             setCreateInProgress(true);
             const project: Project = await authenticatedPost('/projects/create', { name: projectName }, { forceRefresh: true });
-            mixpanel.track('DC Create New Project', {
+            analytics.track('DC Create New Project', {
                 status: 'success',
                 name: projectName,
             });
             router.push(`/project-settings?project=${project.slug}&onboarding=true`);
         } catch (e: any) {
-            mixpanel.track('DC Create New Project', {
+            analytics.track('DC Create New Project', {
                 status: 'failure',
                 name: projectName,
                 error: e.message,
