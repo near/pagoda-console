@@ -89,7 +89,6 @@ export class IndexerService {
     this.recentTransactionsCount = this.config.get('recentTransactionsCount', {
       infer: true,
     });
-    console.log(`RECENT ${this.recentTransactionsCount}`);
   }
 
   async queryAccountTransactionsList(
