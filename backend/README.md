@@ -95,28 +95,37 @@ See [./src/config/validate.ts](./src/config/validate.ts)
 Always set the type of ConfigService in the constructor and use `{infer: true}` in getter for proper typing and nested access
 
 constructor example:
+
 ```ts
 private config: ConfigService<AppConfig>
 ```
 
 getter example:
+
 ```ts
-this.config.get('analytics.url', {infer: true});
+this.config.get('analytics.url', { infer: true });
 ```
+
 In the future, the need to add infer to ever call could be removed by extending `ConfigService` [as suggested by a contributor](https://github.com/nestjs/config/issues/636#issuecomment-889168693)
 
 ### Local Config
-During local development, Nest loads config from dotenv files. There are two to use  
 
-`.env`  
-Default and nonsensitive environment variables. This is tracked in git so that when new config values are added other developers do not need to manually make changes on their end  
+During local development, Nest loads config from dotenv files. There are three to use
 
-`.env.local`  
-Secrets and overrides. Easily override defaults from `.env` by defining a different value for that variable in `.env.local`. Not tracked by git so secrets aren't leaked and you don't constantly create diffs when changing values for your own dev purposes. To start, copy `.env.local.example` to `.env.local` and ask a fellow developer for existing secrets
+`.env.nest`  
+Default and nonsensitive environment variables. This is tracked in git so that when new config values are added other developers do not need to manually make changes on their end.
+
+`.env.nest.local`  
+Secrets and overrides. Easily override defaults from `.env.nest` by defining a different value for that variable in `.env.nest.local`. Not tracked by git so secrets aren't leaked and you don't constantly create diffs when changing values for your own dev purposes. To start, copy `.env.nest.local.example` to `.env.nest.local` and ask a fellow developer for existing secrets.
+
+`./prisma/.env`
+Prisma loads this file using dotenv. Both PrismaClient and CLI will use this file.
+
+Note: PrismaClient loads its `.env` file first before NestJS ConfigService. Make sure you don't have conflicting key names between the `./prisma/.env` and `.env.nest` or `.env.nest.local` files!
 
 ## Comments
 
-Where helpful, utilize [Better Comments](https://marketplace.visualstudio.com/items?itemName=aaron-bond.better-comments) syntax to add context to your comments
+Where helpful, utilize [Better Comments](https://marketplace.visualstudio.com/items?itemName=aaron-bond.better-comments) syntax to add context to your comments.
 
 ## Errors
 
