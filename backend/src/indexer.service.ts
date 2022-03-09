@@ -264,7 +264,7 @@ export class IndexerService {
       // console.log(res);
     }
     const results = await Promise.allSettled(promises);
-    console.log(results);
+    // console.log(results);
     let mergedTransactions = [];
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
