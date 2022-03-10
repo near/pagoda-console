@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import ProjectCard from '../components/ProjectCard';
 import { authenticatedPost } from '../utils/fetchers';
 import { Project } from '../utils/interfaces';
-import mixpanel from 'mixpanel-browser';
+import analytics from '../utils/analytics';
 
 enum Tutorial {
     NftMarket = 'NFT_MARKET',
@@ -32,13 +32,13 @@ export default function PickProject() {
         try {
             router.prefetch(path);
             const project: Project = await authenticatedPost('/projects/create', { name, tutorial }, { forceRefresh: true });
-            mixpanel.track('DC Create New Tutorial Project', {
+            analytics.track('DC Create New Tutorial Project', {
                 status: 'success',
                 name,
             });
             router.push(`${path}?project=${project.slug}&environment=1`);
         } catch (e: any) {
-            mixpanel.track('DC Create New Tutorial Project', {
+            analytics.track('DC Create New Tutorial Project', {
                 status: 'failure',
                 name,
                 error: e.message,

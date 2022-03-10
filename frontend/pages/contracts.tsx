@@ -17,7 +17,7 @@ import ProjectSelector from '../components/ProjectSelector';
 import RecentTransactionList from '../components/RecentTransactionList';
 import Image from 'next/image';
 import ContractsPreview from '../public/contractsPreview.png';
-import mixpanel from 'mixpanel-browser';
+import analytics from '../utils/analytics';
 
 export default function Contracts() {
   const { project, environment } = useProjectAndEnvironment();
@@ -210,7 +210,7 @@ function AddContractForm(props: {
         environment: props.environment.subId,
         address,
       });
-      mixpanel.track('DC Add Contract', {
+      analytics.track('DC Add Contract', {
         status: 'success',
         contractId: address,
         net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
@@ -219,7 +219,7 @@ function AddContractForm(props: {
       closeAdd();
       return contract;
     } catch (e: any) {
-      mixpanel.track('DC Add Contract', {
+      analytics.track('DC Add Contract', {
         status: 'failure',
         error: e.message,
         contractId: address,
@@ -342,13 +342,13 @@ function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete:
       await authenticatedPost('/projects/removeContract', {
         id: props.contract.id
       });
-      mixpanel.track('DC Remove Contract', {
+      analytics.track('DC Remove Contract', {
         status: 'success',
         contractId: props.contract.address,
       });
       props.onDelete && props.onDelete();
     } catch (e: any) {
-      mixpanel.track('DC Remove Contract', {
+      analytics.track('DC Remove Contract', {
         status: 'failure',
         contractId: props.contract.address,
         error: e.message
@@ -364,7 +364,7 @@ function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete:
   return (
     <>
       <a
-        onClick={() => mixpanel.track('DC View contract in Explorer')} // TODO CHECK
+        onClick={() => analytics.track('DC View contract in Explorer')} // TODO CHECK
         className="explorerLink"
         href={`https://explorer${props.contract.net === "TESTNET" ? ".testnet" : ""
           }.near.org/accounts/${props.contract.address}`}

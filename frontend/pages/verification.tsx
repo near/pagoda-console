@@ -4,7 +4,7 @@ import { Button } from 'react-bootstrap';
 import { useSimpleLayout } from "../utils/layouts";
 import { getAuth, sendEmailVerification, signOut } from 'firebase/auth';
 import { useRouteParam } from '../utils/hooks';
-import mixpanel from 'mixpanel-browser';
+import analytics from '../utils/analytics';
 import { logOut } from '../utils/auth';
 
 export default function Verification() {
@@ -16,7 +16,7 @@ export default function Verification() {
         return setTimeout(async () => {
             await getAuth().currentUser?.reload();
             if (getAuth().currentUser?.emailVerified) {
-                mixpanel.track('DC Verify Account');
+                analytics.track('DC Verify Account');
                 router.push('/pick-project?onboarding=true');
             } else {
                 queueVerificationCheck();
@@ -31,7 +31,7 @@ export default function Verification() {
                 throw new Error('User not logged in');
             }
             await sendEmailVerification(user);
-            mixpanel.track('DC Resent verification email');
+            analytics.track('DC Resent verification email');
             setHasResent(true);
         } catch (e) {
             // TODO display error
