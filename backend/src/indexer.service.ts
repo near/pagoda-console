@@ -41,6 +41,7 @@ const DS_INDEXER_TESTNET = 'DS_INDEXER_TESTNET';
 
 import { Sequelize, Dialect, QueryTypes } from 'sequelize';
 import { Net } from '.prisma/client';
+import { AppConfig } from './config/validate';
 
 const dbConfig = {
   indexerDatabaseTestnet: {
@@ -84,10 +85,10 @@ const db = {
 @Injectable()
 export class IndexerService {
   private recentTransactionsCount;
-  constructor(private config: ConfigService) {
-    this.recentTransactionsCount = parseInt(
-      this.config.get('RECENT_TRANSACTIONS_COUNT'),
-    );
+  constructor(private config: ConfigService<AppConfig>) {
+    this.recentTransactionsCount = this.config.get('recentTransactionsCount', {
+      infer: true,
+    });
   }
 
   async queryAccountTransactionsList(
@@ -263,7 +264,7 @@ export class IndexerService {
       // console.log(res);
     }
     const results = await Promise.allSettled(promises);
-    console.log(results);
+    // console.log(results);
     let mergedTransactions = [];
     for (let i = 0; i < results.length; i++) {
       const result = results[i];

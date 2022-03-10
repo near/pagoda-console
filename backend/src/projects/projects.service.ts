@@ -16,6 +16,7 @@ import { KeysService } from 'src/keys/keys.service';
 import { UserInfo } from 'firebase-admin/auth';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { AppConfig } from 'src/config/validate';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -24,11 +25,16 @@ const nanoid = customAlphabet(
 
 @Injectable()
 export class ProjectsService {
+  private projectRefPrefix: string;
   constructor(
     private prisma: PrismaService,
     private keys: KeysService,
-    private config: ConfigService,
-  ) {}
+    private config: ConfigService<AppConfig>,
+  ) {
+    this.projectRefPrefix = this.config.get('projectRefPrefix', {
+      infer: true,
+    });
+  }
 
   async create(
     user: User,
@@ -114,12 +120,12 @@ export class ProjectsService {
     // generate RPC keys
     try {
       await this.keys.createProject(
-        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_1`,
+        `${this.projectRefPrefix || ''}${project.id}_1`,
         'TESTNET',
       );
       if (!tutorial) {
         await this.keys.createProject(
-          `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_2`,
+          `${this.projectRefPrefix || ''}${project.id}_2`,
           'MAINNET',
         );
       }
@@ -221,9 +227,7 @@ export class ProjectsService {
       await Promise.all(
         deleteKeys.map((keyId) =>
           this.keys.invalidate(
-            `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_${
-              keyId[1]
-            }`,
+            `${this.projectRefPrefix || ''}${project.id}_${keyId[1]}`,
             keyId[0],
           ),
         ),
@@ -644,9 +648,7 @@ export class ProjectsService {
       const keys = await Promise.all(
         fetchKeys.map((keyId) =>
           this.keys.fetch(
-            `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_${
-              keyId[1]
-            }`,
+            `${this.projectRefPrefix || ''}${project.id}_${keyId[1]}`,
             keyId[0],
           ),
         ),
@@ -678,7 +680,7 @@ export class ProjectsService {
       environmentWhereUnique: { id: environment.id },
     });
 
-    const keyId = `${this.config.get('PROJECT_REF_PREFIX') || ''}${
+    const keyId = `${this.projectRefPrefix || ''}${
       environment.projectId
     }_${subId}`;
     const net = subId === 2 ? 'MAINNET' : 'TESTNET';
@@ -709,11 +711,11 @@ export class ProjectsService {
     try {
       // run requests in parallel
       const testnetKeyPromise = this.keys.fetchAll(
-        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_1`,
+        `${this.projectRefPrefix || ''}${project.id}_1`,
         'TESTNET',
       );
       const mainnetKeyPromise = this.keys.fetchAll(
-        `${this.config.get('PROJECT_REF_PREFIX') || ''}${project.id}_2`,
+        `${this.projectRefPrefix || ''}${project.id}_2`,
         'MAINNET',
       );
 
@@ -746,16 +748,19 @@ export class ProjectsService {
 
     let usageData;
     try {
-      const usageRes = await axios.get(this.config.get('MIXPANEL_API'), {
-        params: {
-          where: `properties["$distinct_id"] in ${JSON.stringify(keyList)}`,
-          from_date: '2021-01-01', // safe start date before release of developer console
-          to_date: endDate,
+      const usageRes = await axios.get(
+        this.config.get('analytics.url', { infer: true }),
+        {
+          params: {
+            where: `properties["$distinct_id"] in ${JSON.stringify(keyList)}`,
+            from_date: '2021-01-01', // safe start date before release of developer console
+            to_date: endDate,
+          },
+          headers: {
+            Authorization: 'Basic OTdjOTg2MzZjMjIzMGY0YzFhNTgxYmVlYjUzM2VjMjM6',
+          },
         },
-        headers: {
-          Authorization: 'Basic OTdjOTg2MzZjMjIzMGY0YzFhNTgxYmVlYjUzM2VjMjM6',
-        },
-      });
+      );
       usageData = usageRes.data;
     } catch (e) {
       throw new VError(e, 'Failed while fetching usage data from Mixpanel');
