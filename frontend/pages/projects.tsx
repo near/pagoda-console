@@ -44,6 +44,8 @@ export default function Projects() {
         // TODO
         router.push('/pick-project?onboarding=true');
         return <></>;
+    } else if (!projects.length && isValidating) {
+        return <BorderSpinner />;
     } else {
         body = projects!.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} showDelete={isEditing} isTop={index === 0} onDelete={() => refetchProjects()} />);
     }

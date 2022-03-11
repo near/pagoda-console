@@ -1,5 +1,5 @@
 import { getAuth, getIdToken } from "firebase/auth";
-import useSWR, { KeyedMutator } from "swr";
+import useSWR, { KeyedMutator, mutate } from "swr";
 import useSWRImmutable from 'swr/immutable'
 import { PublicConfiguration, Revalidator, RevalidatorOptions, SWRConfiguration } from "swr/dist/types";
 import { Transaction } from "../components/explorer/components/transactions/types";
@@ -192,12 +192,16 @@ export function useRecentTransactions(contracts: string[], net: NetOption): { tr
   return { transactions, error };
 }
 
-export async function deleteProject(slug: string, name: string) {
+export async function deleteProject(userId: string | null, slug: string, name: string) {
   try {
       await authenticatedPost('/projects/delete', { slug });
       mixpanel.track('DC Remove Project', {
           status: 'success',
           name
+      });
+      // Update the SWR cache before a refetch for better UX.
+      mutate<Project[]>(userId ? ["/projects/list", userId] : null, async projects => {
+        return projects?.filter(p => p.slug !== slug);
       });
       return true;
   } catch (e: any) {
