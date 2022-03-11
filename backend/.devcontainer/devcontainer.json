@@ -20,7 +20,20 @@
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
+		"terminal.integrated.shell.linux": "zsh",
 		"terminal.integrated.defaultProfile.linux": "zsh",
+		"terminal.integrated.profiles.linux": {
+			"zsh": {
+				"path": "/usr/bin/zsh"
+			}
+		},
+		"terminal.integrated.shell.osx": "zsh",
+		"terminal.integrated.defaultProfile.osx": "zsh",
+		"terminal.integrated.profiles.osx": {
+			"zsh": {
+				"path": "/usr/bin/zsh"
+			}
+		}
 	},
 
 	// Add the IDs of extensions you want installed when the container is created.
