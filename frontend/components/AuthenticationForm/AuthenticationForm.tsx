@@ -142,7 +142,6 @@ export default function AuthenticationForm() {
             .authContainer {
                 display: flex;
                 flex-direction: column;
-                padding: 2em 0;
                 justify-content: center;
                 width: 100%;
             }
