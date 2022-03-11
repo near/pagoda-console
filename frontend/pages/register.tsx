@@ -30,6 +30,7 @@ export default function Register() {
     const [displayName, setDisplayName] = useState<string>('');
     const [validationFail, setValidationFail] = useState<ValidationFailure>({});
     const [errorAlert, setErrorAlert] = useState<string | null>();
+    const [submitDisabled, setSubmitDisabled] = useState<boolean>(false);
 
     const router = useRouter();
 
@@ -104,17 +105,17 @@ export default function Register() {
         }
     }
 
-    function handleSubmit(e: FormEvent): void {
+    async function handleSubmit(e: FormEvent) {
         e.preventDefault();
+        setSubmitDisabled(true);
         analytics.track('DC Submitted email registration form');
-
         // validation has side effect of showing messages
         if (!validate()) {
             analytics.track('DC Registration form validation failed')
+            setSubmitDisabled(false);
             return;
         }
-
-        signUpWithEmail();
+        await signUpWithEmail();
     }
 
     function validate() {
@@ -204,7 +205,7 @@ export default function Register() {
                         </Form.Control.Feedback>
                     </Form.Group>
                 </div>
-                <Button variant="primary" type="submit">
+                <Button variant="primary" type="submit" disabled={submitDisabled} >
                     Sign Up
                 </Button>
             </Form>
