@@ -8,7 +8,8 @@
     "export": "next build && next export",
     "start": "next start",
     "lint": "next lint",
-    "test:e2e": "playwright test",
+    "test:snapshot": "playwright test tests/playwright/snapshot/",
+    "test:e2e": "playwright test tests/playwright/e2e/",
     "test": "jest --watch",
     "test:ci": "jest --ci"
   },
