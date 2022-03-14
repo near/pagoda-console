@@ -26,5 +26,14 @@ module.exports = {
     return config;
   },
   i18n,
-  swcMinify: true
+  swcMinify: true,
+  async redirects() {
+    return [
+      {
+        source: "/analytics",
+        destination: "/project-analytics",
+        permanent: false,
+      },
+    ];
+  },
 };

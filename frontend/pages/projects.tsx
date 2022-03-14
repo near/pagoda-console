@@ -44,6 +44,8 @@ export default function Projects() {
         // TODO
         router.push('/pick-project?onboarding=true');
         return <></>;
+    } else if (!projects.length && isValidating) {
+        return <BorderSpinner />;
     } else {
         body = projects!.map((proj, index, arr) => <ProjectRow key={proj.id} project={proj} showDelete={isEditing} isTop={index === 0} onDelete={() => refetchProjects()} />);
     }
@@ -114,7 +116,7 @@ function ProjectRow(props: { project: Project, showDelete: boolean, isTop: boole
     return (
         <div className='projectRowContainer'>
             <DeleteProjectModal slug={props.project.slug} name={props.project.name} show={showModal} setShow={setShowModal} onDelete={props.onDelete} />
-            <Link href={`/analytics?project=${props.project.slug}`}>
+            <Link href={`/project-analytics?project=${props.project.slug}`}>
                 <a className='projectLink'>
                     <div className='linkDiv'>{props.project.name} {props.project.tutorial && <TutorialBadge size="md" />}</div>
                     {!props.showDelete && <div className="projectIcon"><FontAwesomeIcon icon={faAngleDoubleRight} /></div>}
