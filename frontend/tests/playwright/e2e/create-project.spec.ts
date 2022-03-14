@@ -2,70 +2,47 @@
 import { test, expect, Page } from "@playwright/test";
 import { login } from "../login";
 
-test("login test", async ({ page }) => {
-  await page.goto("/", { waitUntil: "networkidle" });
-  expect(await page.screenshot()).toMatchSnapshot("login.png");
+test(`create blank project test`, async ({ page }) => {
+  const projectName = "Test Create Project";
+
+  await login(page);
+
+  await page.click("text=Create");
+  await page.locator("text=New Project").waitFor({ state: "visible" });
+
+  await page
+    .locator(
+      "text=BlankA blank project with mainnet and testnet API keys. >> div"
+    )
+    .first()
+    .click();
+
+  await expect(page).toHaveURL("https://dev.console.pagoda.co/new-project");
+
+  await page.locator('[placeholder="Cool New Project"]').fill(projectName);
+
+  await Promise.all([
+    page.locator("text=Create a Project").click(),
+    page.waitForNavigation({
+      url: "https://dev.console.pagoda.co/project-settings?project=**&environment=1",
+    }),
+  ]);
 });
 
-[
-  "introduction",
-  "predeployed-contract",
-  "skeleton",
-  "upgrade-contract",
-  "enumeration",
-  "core",
-  "royalty",
-  "marketplace",
-].forEach((path) => {
-  test(`NFT tutorial ${path} snapshot test`, async ({ page }) => {
-    const project = process.env.TEST_NFT_TUTORIAL_PROJECT;
+test(`create tutorial project test`, async ({ page }) => {
+  await login(page);
 
-    await login(page);
+  await page.click("text=Create");
+  await page.locator("text=New Project").waitFor({ state: "visible" });
 
-    await page.goto(
-      `/tutorials/nfts/${path}?project=${project}&environment=1`,
-      {
-        waitUntil: "networkidle",
-      }
-    );
+  await page.click("text=Choose from a variety of interactive tutorials.");
 
-    expect(await page.screenshot({ fullPage: true })).toMatchSnapshot(
-      `nft_tutorial_page_${path}.png`
-    );
-  });
-});
+  await expect(page).toHaveURL("https://dev.console.pagoda.co/pick-tutorial");
 
-// These pages are extremely long and so we will breakup the screenshots in 10k px chunks because there are loading problems trying to screenshot the whole page at once.
-// Note: `chunks` represent the # of 10k px chunks it would take to render the whole page.
-[
-  { path: "minting", chunks: 2 },
-  { path: "approvals", chunks: 3 },
-  { path: "events", chunks: 2 },
-].forEach(({ path, chunks }) => {
-  for (let i = 0; i < chunks; i++) {
-    const from = i * 10000;
-    const to = from + 10000;
-    test(`NFT tutorial ${path} snapshot - ${from}-${to}k px - test`, async ({
-      page,
-    }) => {
-      const project = process.env.TEST_NFT_TUTORIAL_PROJECT;
-
-      // sign in
-      await login(page);
-
-      await page.goto(
-        `/tutorials/nfts/${path}?project=${project}&environment=1`,
-        {
-          waitUntil: "networkidle",
-        }
-      );
-
-      expect(
-        await page.screenshot({
-          fullPage: true,
-          clip: { height: 10000, width: 1280, x: 0, y: from },
-        })
-      ).toMatchSnapshot(`nft_tutorial_page_${path}_${i}.png`);
-    });
-  }
+  await Promise.all([
+    page.click("text=NFT Market"),
+    page.waitForNavigation({
+      url: "https://dev.console.pagoda.co/tutorials/nfts/introduction?project=**&environment=1",
+    }),
+  ]);
 });
