@@ -1,14 +1,6 @@
 // example.spec.ts
 import { test, expect, Page } from "@playwright/test";
-
-async function login(page: Page) {
-  await page.goto("/", { waitUntil: "networkidle" });
-  await page.fill('input[id="email"]', process.env.TEST_EMAIL);
-  await page.fill('input[id="password"]', process.env.TEST_PASSWORD);
-  await page.click("text=Continue");
-
-  await page.locator("text=Projects").waitFor({ state: "visible" });
-}
+import { login } from "../login";
 
 test("login test", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });

@@ -3,7 +3,11 @@ import { test, expect, Page } from "@playwright/test";
 import { login } from "../login";
 
 test(`create blank project test`, async ({ page }) => {
-  const projectName = "Test Create Project";
+  if (!process.env.TEST_CREATE_BLANK_PROJECT) {
+    throw "missing env variables";
+  }
+
+  const project = process.env.TEST_CREATE_BLANK_PROJECT;
 
   await login(page);
 
@@ -19,7 +23,7 @@ test(`create blank project test`, async ({ page }) => {
 
   await expect(page).toHaveURL("https://dev.console.pagoda.co/new-project");
 
-  await page.locator('[placeholder="Cool New Project"]').fill(projectName);
+  await page.locator('[placeholder="Cool New Project"]').fill(project);
 
   await Promise.all([
     page.locator("text=Create a Project").click(),
