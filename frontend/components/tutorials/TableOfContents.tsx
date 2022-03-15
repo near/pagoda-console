@@ -651,7 +651,7 @@ export default function TableOfContents() {
                 display: none;
             }
             
-            @media only screen and (max-width: 80rem) {
+            @media only screen and (max-width: 79.9rem) {
                 .largeScreen {
                     display: none;
                 }

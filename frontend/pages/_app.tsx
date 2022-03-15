@@ -100,7 +100,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
           display: none;
         }
         
-        @media only screen and (max-width: 62rem) {
+        @media only screen and (max-width: 61.9rem) {
           .largeScreen {
             display: none;
           }

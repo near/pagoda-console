@@ -1,11 +1,5 @@
-// example.spec.ts
-import { test, expect, Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import { login } from "../login";
-
-test("login test", async ({ page }) => {
-  await page.goto("/", { waitUntil: "networkidle" });
-  expect(await page.screenshot()).toMatchSnapshot("login.png");
-});
 
 [
   "introduction",
