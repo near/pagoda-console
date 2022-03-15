@@ -38,7 +38,7 @@ initializeApp(config.firebaseConfig);
 // mixpanel initialization
 import analytics from '../utils/analytics';
 import { initializeNaj } from '../utils/chainData'
-import { useMediaQueries, usePageTracker } from '../utils/hooks'
+import { usePageTracker } from '../utils/hooks'
 import SmallScreenNotice from '../components/SmallScreenNotice'
 
 analytics.init();
@@ -79,8 +79,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     initializeNaj();
   }, []);
 
-  const isLargeScreen = useMediaQueries('62rem');
-
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
   const getFooter = Component.getFooter ?? (() => null);
@@ -95,8 +93,22 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         <meta name="description" content="Pagoda Developer Console" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {isLargeScreen && getLayout(<Component {...pageProps} />, getFooter())}
-      {!isLargeScreen && <SmallScreenNotice />}
+      <div className="largeScreen">{getLayout(<Component {...pageProps} />, getFooter())}</div>
+      <div className="smallScreen"><SmallScreenNotice /></div>
+      <style jsx>{`
+        .smallScreen {
+          display: none;
+        }
+        
+        @media only screen and (max-width: 62rem) {
+          .largeScreen {
+            display: none;
+          }
+          .smallScreen {
+            display: block;
+          }
+        }
+      `}</style>
     </SWRConfig>
   </SSRProvider>
 }
