@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useMediaQueries, useRouteParam } from "../../utils/hooks";
+import { useRouteParam } from "../../utils/hooks";
 
 interface Route {
     label: string;
@@ -639,18 +639,26 @@ function RouteItem({ route, isChild }: { route: Route, isChild: boolean }) {
 
 // TODO make this component dynamic based on tutorial project
 export default function TableOfContents() {
-    const isDesktop = useMediaQueries('80rem');
-
-    if (!isDesktop) {
-        // TODO add a mobile view
-        return <></>;
-    }
-
     return <>
-        <div className="routeWrapper">
-            <RouteList routes={ROUTES} />
+        <div className="smallScreen"></div>
+        <div className="largeScreen">
+            <div className="routeWrapper">
+                <RouteList routes={ROUTES} />
+            </div>
         </div>
         <style jsx>{`
+            .smallScreen {
+                display: none;
+            }
+            
+            @media only screen and (max-width: 80rem) {
+                .largeScreen {
+                    display: none;
+                }
+                .smallScreen {
+                    display: block;
+                }
+            }
             .routeWrapper {
                 border-left: 1px solid #ABB5BE;
                 font-size: 1rem;

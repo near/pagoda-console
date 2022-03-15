@@ -129,18 +129,3 @@ export function usePageTracker() {
     analytics.track(`DC View ${page} Page`);
   }, [router.pathname]);
 }
-
-export function useMediaQueries(minWidth: string) {
-  const mediaQuery = `(min-width: ${minWidth})`;
-  const [isLarge, setIsLarge] = useState<boolean>(true);
-
-  useEffect(() => {
-    setIsLarge(window.matchMedia(mediaQuery).matches);
-    const listeners = window.matchMedia(mediaQuery);
-    const handler = (e: any) => setIsLarge(e.matches);
-    listeners.addEventListener('change', handler);
-    return () => listeners.removeEventListener('change', handler);
-  }, []);
-
-  return isLarge;
-}
