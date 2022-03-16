@@ -18,4 +18,10 @@ test("test", async ({ page }) => {
       "text=We’re working to deliver the best mobile experience possible. In the meantime, please visit us on a device with a larger screen."
     )
     .waitFor({ state: "visible" });
+
+  // It would be nice if we could screenshot this page. Since some of our fonts are optionally loaded, our screenshot tests would not be reliable.
+  // See `_document.js` and fonts that are `display=optional`
+  // expect(await page.screenshot({ fullPage: true })).toMatchSnapshot(
+  //   `small_screen.png`
+  // );
 });
