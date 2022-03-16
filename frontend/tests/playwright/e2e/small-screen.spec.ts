@@ -18,8 +18,4 @@ test("test", async ({ page }) => {
       "text=We’re working to deliver the best mobile experience possible. In the meantime, please visit us on a device with a larger screen."
     )
     .waitFor({ state: "visible" });
-
-  expect(await page.screenshot({ fullPage: true })).toMatchSnapshot(
-    `small_screen.png`
-  );
 });
