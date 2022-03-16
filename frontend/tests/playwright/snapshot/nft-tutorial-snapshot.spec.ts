@@ -23,9 +23,12 @@ import { login } from "../login";
       }
     );
 
-    expect(await page.screenshot({ fullPage: true })).toMatchSnapshot(
-      `nft_tutorial_page_${path}.png`
-    );
+    expect(
+      await page.screenshot({
+        fullPage: true,
+        mask: [page.locator(".animateOpen")],
+      })
+    ).toMatchSnapshot(`nft_tutorial_page_${path}.png`);
   });
 });
 
@@ -58,6 +61,7 @@ const CHUNK = 10000;
       expect(
         await page.screenshot({
           fullPage: true,
+          mask: [page.locator(".animateOpen")],
           clip: { height: CHUNK, width: 1280, x: 0, y: from },
         })
       ).toMatchSnapshot(`nft_tutorial_page_${path}_${i}.png`);
