@@ -29,16 +29,17 @@ import { login } from "../login";
   });
 });
 
-// These pages are extremely long and so we will breakup the screenshots in 10k px chunks because there are loading problems trying to screenshot the whole page at once.
-// Note: `chunks` represent the # of 10k px chunks it would take to render the whole page.
+// These pages are extremely long and so we will breakup the screenshots in X px chunks because there are loading problems trying to screenshot the whole page at once.
+// Note: `chunks` represent the # of X px chunks it would take to render the whole page.
+const CHUNK = 10000;
 [
   { path: "minting", chunks: 2 },
   { path: "approvals", chunks: 3 },
   { path: "events", chunks: 2 },
 ].forEach(({ path, chunks }) => {
   for (let i = 0; i < chunks; i++) {
-    const from = i * 10000;
-    const to = from + 10000;
+    const from = i * CHUNK;
+    const to = from + CHUNK;
     test(`NFT tutorial ${path} snapshot - ${from}-${to}k px - test`, async ({
       page,
     }) => {
@@ -57,7 +58,7 @@ import { login } from "../login";
       expect(
         await page.screenshot({
           fullPage: true,
-          clip: { height: 10000, width: 1280, x: 0, y: from },
+          clip: { height: CHUNK, width: 1280, x: 0, y: from },
         })
       ).toMatchSnapshot(`nft_tutorial_page_${path}_${i}.png`);
     });
