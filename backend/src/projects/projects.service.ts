@@ -7,13 +7,10 @@ import {
   User,
   Contract,
   Environment,
-  ProjectTutorial,
 } from '@prisma/client';
 import { VError } from 'verror';
 import { customAlphabet } from 'nanoid';
-import { GetProjectDetailsSchema } from './dto';
 import { KeysService } from 'src/keys/keys.service';
-import { UserInfo } from 'firebase-admin/auth';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { AppConfig } from 'src/config/validate';
@@ -64,6 +61,11 @@ export class ProjectsService {
 
     let project;
 
+    const metadata = {
+      createdBy: user.id,
+      updatedBy: user.id,
+    };
+
     try {
       let projectInput: Prisma.ProjectCreateInput;
 
@@ -79,10 +81,18 @@ export class ProjectsService {
           },
           environments: {
             createMany: {
-              data: [{ name: 'Testnet', net: 'TESTNET', subId: 1 }],
+              data: [
+                {
+                  name: 'Testnet',
+                  net: 'TESTNET',
+                  subId: 1,
+                  ...metadata,
+                },
+              ],
             },
           },
           active: false,
+          ...metadata,
         };
       } else {
         projectInput = {
@@ -96,12 +106,23 @@ export class ProjectsService {
           environments: {
             createMany: {
               data: [
-                { name: 'Testnet', net: 'TESTNET', subId: 1 },
-                { name: 'Mainnet', net: 'MAINNET', subId: 2 },
+                {
+                  name: 'Testnet',
+                  net: 'TESTNET',
+                  subId: 1,
+                  ...metadata,
+                },
+                {
+                  name: 'Mainnet',
+                  net: 'MAINNET',
+                  subId: 2,
+                  ...metadata,
+                },
               ],
             },
           },
           active: false,
+          ...metadata,
         };
       }
 
@@ -245,6 +266,11 @@ export class ProjectsService {
         where: projectWhereUnique,
         data: {
           active: false,
+          updatedByUser: {
+            connect: {
+              id: callingUser.id,
+            },
+          },
         },
       });
     } catch (e) {
@@ -328,8 +354,22 @@ export class ProjectsService {
       return await this.prisma.contract.create({
         data: {
           address,
-          environmentId,
+          environment: {
+            connect: {
+              id: environmentId,
+            },
+          },
           net,
+          createdByUser: {
+            connect: {
+              id: callingUser.id,
+            },
+          },
+          updatedByUser: {
+            connect: {
+              id: callingUser.id,
+            },
+          },
         },
         select: {
           id: true,
@@ -387,6 +427,11 @@ export class ProjectsService {
         where: contractWhereUnique,
         data: {
           active: false,
+          updatedByUser: {
+            connect: {
+              id: callingUser.id,
+            },
+          },
         },
       });
     } catch (e) {
