@@ -106,32 +106,48 @@ For ETHDenver, it was easier to get MDX v2 working (without plugins) in the next
 
 Here are the changes that need to occur to each .md file that comes from @near/docs:
 
-* Remove <!-- --> html comments or comment them in JSX
+* Remove `<!-- -->` html comments or comment them in JSX
     * html comments are valid in mdx v1 but not in v2
     * In v2, you will get a compile error that says ! is not allowed
-* Create a top h1 using # in markdown
+* Create a top h1 using `#` in markdown
     * the title can be found in the frontmatter at the top of the file
-* Remove frontmatter. This is the --- section at the top of each file.
-* Replace :::note, :::tip, etc with the applicable JSX component
+* Remove frontmatter. This is the `---` section at the top of each file.
+* Replace `:::note`, `:::tip`, etc with the applicable JSX component
+    ```
     :::note -> <Note></Note>
     :::tip -> <Tip></Tip>
     :::info -> <Info></Info>
-* Replace tables with <Table> component - Any html elements in the table like <a> or <code> tags will not use the components.tsx mapping. Html elements should either directly call the component within the components.tsx mapping or use markdown syntax.
+    ```
+* Replace tables with `<Table>` component. Any html elements in the table like `<a>` or `<code>` tags will not use the `components.tsx` mapping. Html elements should either directly call the component within the `components.tsx` mapping or use markdown syntax.
 * Replace urls as necessary to match routes in the DC
     * Any relative or absolute links will need to be updated
-    * image links that are used with ![ may need to be updated
-        * you may also be able to search for "/docs/assets"
-    * links that start with **](/docs/tutorials/contracts** may just need to be updated to **](/tutorials**
-    * remaining links that start with **](/docs/** may need to be changed to **](https://docs.near.org/docs/**
-    * any links that start with **](#** and contain a ".", remove the "."
-* Acorn # in headers need to be removed
-    e.g. ## Viewing NFTs in the wallet {#viewing-nfts-in-wallet}
-    the {#...} needs to be removed
-* Search for <details> tags and make sure no ``` code blocks are inside of <p> tags, if they are, remove the <p> surrounding the code block.
-* Replace ```sh with ```bash
-* MDX isn't formatting ``` and <code> the same way so replace <code> with ``` if needed to get the styling
+    * image links that are used with `![` may need to be updated
+        * you may also be able to search for `/docs/assets`
+    * links that start with `](/docs/tutorials/contracts` may just need to be updated to `](/tutorials`
+    * remaining links that start with `](/docs/` may need to be changed to `](https://docs.near.org/docs/`
+    * any links that start with `](#` and contain a `.`, remove the `.`
+* Acorn `#` in headers need to be removed
+    e.g. In `## Viewing NFTs in the wallet {#viewing-nfts-in-wallet}`, the `{#...}` needs to be removed
+* Search for `<details>` tags and make sure no ` ``` ` code blocks are inside of `<p>` tags, if they are, remove the `<p>` surrounding the code block.
+* Replace ` ```sh ` with ` ```bash `
+* MDX isn't formatting ` ``` ` and `<code>` the same way so replace `<code>` with ` ``` `, if needed, to get the styling
 
 V2 docs: https://mdxjs.com/
 V1 docs: https://v1.mdxjs.com/
 
-    
+## Testing
+
+### e2e
+
+e2e tests are written in [Playwright](https://playwright.dev). See `/e2e` folder for examples. The tests are configurable via a `.env.test.local` file. Please ask the team for an example.
+
+We also have screenshot tests for testing tutorial pages that have dynamic content that could potentially change outside of our team (e2e/snapshot.spec.ts).
+
+If you want to run these tests in your local, make sure you install the dependencies:
+
+```bash
+npx playwright install
+npx playwright install-deps
+```
+
+then run `npm run test:e2e`.
