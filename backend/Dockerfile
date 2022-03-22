@@ -33,5 +33,6 @@ COPY prisma ./prisma
 # Install optimized dependencies, running after having all files
 RUN npm ci
 
+ENV NODE_ENV=production
 
 CMD ["npm", "run", "start:prod"]

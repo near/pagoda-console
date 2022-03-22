@@ -18,3 +18,5 @@ RUN su node -c "npm i -g @nestjs/cli"
 # install bat (https://github.com/sharkdp/bat) for printing inspecting files from terminal w/ syntax highlighting
 RUN wget https://github.com/sharkdp/bat/releases/download/v0.18.3/bat_0.18.3_amd64.deb
 RUN dpkg -i bat_0.18.3_amd64.deb
+
+ENV NODE_ENV=development
