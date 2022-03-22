@@ -5,7 +5,7 @@ import { getAuth, onAuthStateChanged, User, getIdToken, onIdTokenChanged } from 
 import { authenticatedPost, useEnvironments, useProject } from './fetchers';
 import { Environment, UserData } from './interfaces';
 import { updateUserData } from './cache';
-import mixpanel from 'mixpanel-browser';
+import analytics from './analytics';
 
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
@@ -83,7 +83,7 @@ export function useProjectAndEnvironment() {
       // new environment selected
       setEnvironment(environments.find(e => e.subId === environmentSubId));
       setEnvironmentInLocalStorage(currentUser, projectSlug, environmentSubId);
-      mixpanel.track('DC Switch Network');
+      analytics.track('DC Switch Network');
     }
   }, [environmentSubId, projectSlug, environments, environment, currentUser]);
 
@@ -126,21 +126,6 @@ export function usePageTracker() {
       page = router.pathname.substring(1);
     }
     page = page.toUpperCase();
-    mixpanel.track(`DC View ${page} Page`);
+    analytics.track(`DC View ${page} Page`);
   }, [router.pathname]);
-}
-
-export function useMediaQueries(minWidth: string) {
-  const mediaQuery = `(min-width: ${minWidth})`;
-  const [isLarge, setIsLarge] = useState<boolean>(true);
-
-  useEffect(() => {
-    setIsLarge(window.matchMedia(mediaQuery).matches);
-    const listeners = window.matchMedia(mediaQuery);
-    const handler = (e: any) => setIsLarge(e.matches);
-    listeners.addEventListener('change', handler);
-    return () => listeners.removeEventListener('change', handler);
-  }, []);
-
-  return isLarge;
 }

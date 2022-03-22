@@ -5,12 +5,15 @@ export default function SimpleLayout({ children, footer = null }: { children: Re
     return (
         <div className='centeringContainer'>
             <div className='centeredContainer'>
-                <ConsoleLogo />
+                <div className='logoContainer'><ConsoleLogo /></div>
                 {/* <main>{children}</main> */}
                 {children}
                 {footer ?? <></>}
             </div>
             <style jsx>{`
+                .logoContainer {
+                    margin-bottom: 2rem;
+                }
                 .centeringContainer {
                     display: flex;
                     flex-direction: column;

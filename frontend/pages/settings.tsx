@@ -1,7 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 import BorderSpinner from '../components/BorderSpinner';
-import ErrorModal from '../components/ErrorModal';
+import ErrorModal from '../components/modals/ErrorModal';
 import { authenticatedPost, useAccount } from '../utils/fetchers';
 import { useDashboardLayout } from "../utils/layouts";
 import { getAuth, getIdToken, updateProfile } from 'firebase/auth'

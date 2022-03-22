@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { faCaretDown, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import ProjectLink from './ProjectLink';
 import EnvironmentSelector from './EnvironmentSelector';
-import mixpanel from 'mixpanel-browser';
+import analytics from '../utils/analytics';
 import TutorialBadge from './TutorialBadge';
 
 export default function ProjectSelector() {
@@ -45,7 +45,7 @@ export default function ProjectSelector() {
             otherProjects.map((p) => (
               <Dropdown.Item
                 as="div"
-                onClick={() => mixpanel.track('DC Switch Project')}
+                onClick={() => analytics.track('DC Switch Project')}
                 key={p.slug}
                 eventKey={p.slug}
               >

@@ -6,10 +6,10 @@ import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import ForgotPasswordModal from '../ForgotPasswordModal';
-import ErrorModal from '../ErrorModal';
+import ForgotPasswordModal from '../modals/ForgotPasswordModal';
+import ErrorModal from '../modals/ErrorModal';
 import Image from 'next/image';
-import mixpanel from 'mixpanel-browser';
+import analytics from '../../utils/analytics';
 
 import GithubMark from '../../public/githubMark.png';
 import GoogleMark from '../../public/googleMark.png';
@@ -88,10 +88,10 @@ export default function AuthenticationForm() {
             const additional = getAdditionalUserInfo(socialResult);
             try {
                 if (additional?.isNewUser) {
-                    mixpanel.alias(socialResult.user.uid);
-                    mixpanel.track(`DC Signed up with ${provider.providerId.split('.')[0].toUpperCase()}`);
+                    analytics.alias(socialResult.user.uid);
+                    analytics.track(`DC Signed up with ${provider.providerId.split('.')[0].toUpperCase()}`);
                 } else {
-                    mixpanel.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);
+                    analytics.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);
                 }
             } catch (e) {
                 // silently fail
@@ -142,7 +142,6 @@ export default function AuthenticationForm() {
             .authContainer {
                 display: flex;
                 flex-direction: column;
-                padding: 2em 0;
                 justify-content: center;
                 width: 100%;
             }
@@ -185,7 +184,7 @@ function EmailAuth(props: { authActive: boolean; }) {
         const auth = getAuth();
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            mixpanel.track('DC Login using name + password', {
+            analytics.track('DC Login using name + password', {
                 status: 'success',
             });
             setHasFailedSignIn(false);
@@ -195,7 +194,7 @@ function EmailAuth(props: { authActive: boolean; }) {
             const errorCode = error.code;
             const errorMessage = error.message;
 
-            mixpanel.track('DC Login using name + password', {
+            analytics.track('DC Login using name + password', {
                 status: 'failure',
                 error: errorCode
             });
@@ -286,7 +285,7 @@ function EmailAuth(props: { authActive: boolean; }) {
             <IconButton type='submit' color='var(--color-white)' backgroundColor='var(--color-accent-green)' active={props.authActive} text='Continue' />
         </Form>
         <Link href='/register' passHref>
-            <Button onClick={() => mixpanel.track('DC Clicked Sign Up on Login')} variant='outline-primary'>Sign Up</Button>
+            <Button onClick={() => analytics.track('DC Clicked Sign Up on Login')} variant='outline-primary'>Sign Up</Button>
         </Link>
         <div onClick={() => setShowResetModal(true)} className='forgotPassword' >
             Forgot Password?
