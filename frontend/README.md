@@ -135,13 +135,11 @@ Here are the changes that need to occur to each .md file that comes from @near/d
 V2 docs: https://mdxjs.com/
 V1 docs: https://v1.mdxjs.com/
 
-## Testing
+## E2E Testing
 
-### e2e
+Tests are written in [Playwright](https://playwright.dev). See `/tests/playwright` folder for examples. The tests are configurable via a `.env.test.local` file. Please ask the team for an example.
 
-e2e tests are written in [Playwright](https://playwright.dev). See `/e2e` folder for examples. The tests are configurable via a `.env.test.local` file. Please ask the team for an example.
-
-We also have screenshot tests for testing tutorial pages that have dynamic content that could potentially change outside of our team (e2e/snapshot.spec.ts).
+The screenshot tests are used for testing tutorial pages that have dynamic content that could potentially change outside of our team (tests/playwright/snapshot/nft-tutorial-snapshot.spec.ts).
 
 If you want to run these tests in your local, make sure you install the dependencies:
 
@@ -150,4 +148,11 @@ npx playwright install
 npx playwright install-deps
 ```
 
-then run `npm run test:e2e`.
+then run `npm run test:e2e` for integration tests or `npm run test:snapshot` for snapshot tests.
+
+### Initial console setup for e2e tests
+
+Go to the url of the environment you want to test:
+
+1. Setup a user with email and password. Store these in your `.env.test.local`.
+2. Create a tutorial project. Copy the slug from the url and set `TEST_NFT_TUTORIAL_PROJECT` in `.env.test.local`. This is important for both e2e and snapshot tests.
