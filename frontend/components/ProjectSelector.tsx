@@ -17,15 +17,9 @@ export default function ProjectSelector() {
   // separately
   const { project: projectDetails, error: projectError } = useProject(project);
 
-  const {
-    projects,
-    error,
-    isValidating,
-    mutate: refetchProjects,
-  } = useProjects();
+  const { projects, error, isValidating, mutate: refetchProjects } = useProjects();
 
-  const otherProjectsList =
-    projects && projects.filter((p) => p.slug !== project);
+  const otherProjectsList = projects && projects.filter((p) => p.slug !== project);
   const otherProjects = otherProjectsList?.length ? otherProjectsList : null;
   return (
     <div className="selectorWrapper">
@@ -36,10 +30,7 @@ export default function ProjectSelector() {
               projectDetails.name
             ) : (
               <Placeholder animation="glow">
-                <Placeholder
-                  size="sm"
-                  style={{ borderRadius: '0.5em', width: '10rem' }}
-                />
+                <Placeholder size="sm" style={{ borderRadius: '0.5em', width: '10rem' }} />
               </Placeholder>
             )}
           </span>
@@ -61,17 +52,10 @@ export default function ProjectSelector() {
                 <ProjectLink project={p} />
               </Dropdown.Item>
             ))}
-          <Dropdown.Item
-            as="div"
-            style={{ color: 'var(--color-primary)' }}
-            eventKey={'new'}
-          >
+          <Dropdown.Item as="div" style={{ color: 'var(--color-primary)' }} eventKey={'new'}>
             <Link href="/pick-project">
               <a>
-                <FontAwesomeIcon
-                  icon={faPlusCircle}
-                  style={{ marginRight: '0.5rem' }}
-                />
+                <FontAwesomeIcon icon={faPlusCircle} style={{ marginRight: '0.5rem' }} />
                 Create new project
               </a>
             </Link>
@@ -106,28 +90,26 @@ export default function ProjectSelector() {
 
 // The forwardRef is important!!
 // Dropdown needs access to the DOM node in order to position the Menu
-const CustomToggle = forwardRef<HTMLAnchorElement, AnchorProps>(
-  ({ children, onClick }, ref) => (
-    <a
-      href=""
-      ref={ref}
-      onClick={(e) => {
-        e.preventDefault();
-        onClick && onClick(e);
-      }}
-    >
-      {children}
-      <FontAwesomeIcon icon={faCaretDown} />
-      <style jsx>{`
-        a {
-          text-decoration: none;
-          font-size: 1.5rem;
-        }
-        a > :global(svg) {
-          margin-left: 0.5rem;
-        }
-      `}</style>
-    </a>
-  ),
-);
+const CustomToggle = forwardRef<HTMLAnchorElement, AnchorProps>(({ children, onClick }, ref) => (
+  <a
+    href=""
+    ref={ref}
+    onClick={(e) => {
+      e.preventDefault();
+      onClick && onClick(e);
+    }}
+  >
+    {children}
+    <FontAwesomeIcon icon={faCaretDown} />
+    <style jsx>{`
+      a {
+        text-decoration: none;
+        font-size: 1.5rem;
+      }
+      a > :global(svg) {
+        margin-left: 0.5rem;
+      }
+    `}</style>
+  </a>
+));
 CustomToggle.displayName = 'CustomToggle';
