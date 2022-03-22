@@ -43,6 +43,10 @@ export interface AppConfig {
       rpcAuthErrors: boolean;
     };
   };
+  log: {
+    queries: boolean;
+    indexer: boolean;
+  };
 }
 
 // Joi docs: https://joi.dev/api
@@ -98,6 +102,10 @@ const appConfigSchema = Joi.object({
       rpcAuthErrors: Joi.boolean().optional().default(false),
     },
   },
+  log: {
+    queries: Joi.boolean().optional().default(false),
+    indexer: Joi.boolean().optional().default(false),
+  },
 });
 
 export default function validate(config: Record<string, unknown>): AppConfig {
@@ -134,6 +142,10 @@ export default function validate(config: Record<string, unknown>): AppConfig {
         rpcAuth: config.MOCK_KEY_SERVICE,
         rpcAuthErrors: config.MOCK_KEY_SERVICE_WITH_ERRORS,
       },
+    },
+    log: {
+      queries: config.LOG_QUERIES,
+      indexer: config.LOG_INDEXER,
     },
   };
 

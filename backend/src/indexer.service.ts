@@ -60,27 +60,7 @@ const dbConfig = {
   },
 };
 
-const db = {
-  sequelizeIndexerBackendMainnetReadOnly: new Sequelize(
-    dbConfig.indexerDatabaseMainnet.database,
-    dbConfig.indexerDatabaseMainnet.username,
-    dbConfig.indexerDatabaseMainnet.password,
-    {
-      host: dbConfig.indexerDatabaseMainnet.host,
-      dialect: dbConfig.indexerDatabaseMainnet.dialect,
-    },
-  ),
-  sequelizeIndexerBackendTestnetReadOnly: new Sequelize(
-    dbConfig.indexerDatabaseTestnet.database,
-    dbConfig.indexerDatabaseTestnet.username,
-    dbConfig.indexerDatabaseTestnet.password,
-    {
-      host: dbConfig.indexerDatabaseTestnet.host,
-      dialect: dbConfig.indexerDatabaseTestnet.dialect,
-    },
-  ),
-  Sequelize,
-};
+let db;
 
 @Injectable()
 export class IndexerService {
@@ -89,6 +69,33 @@ export class IndexerService {
     this.recentTransactionsCount = this.config.get('recentTransactionsCount', {
       infer: true,
     });
+    db = {
+      sequelizeIndexerBackendMainnetReadOnly: new Sequelize(
+        dbConfig.indexerDatabaseMainnet.database,
+        dbConfig.indexerDatabaseMainnet.username,
+        dbConfig.indexerDatabaseMainnet.password,
+        {
+          host: dbConfig.indexerDatabaseMainnet.host,
+          dialect: dbConfig.indexerDatabaseMainnet.dialect,
+          logging: this.config.get('log.indexer', { infer: true })
+            ? console.log
+            : false,
+        },
+      ),
+      sequelizeIndexerBackendTestnetReadOnly: new Sequelize(
+        dbConfig.indexerDatabaseTestnet.database,
+        dbConfig.indexerDatabaseTestnet.username,
+        dbConfig.indexerDatabaseTestnet.password,
+        {
+          host: dbConfig.indexerDatabaseTestnet.host,
+          dialect: dbConfig.indexerDatabaseTestnet.dialect,
+          logging: this.config.get('log.indexer', { infer: true })
+            ? console.log
+            : false,
+        },
+      ),
+      Sequelize,
+    };
   }
 
   async queryAccountTransactionsList(
