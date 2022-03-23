@@ -146,6 +146,9 @@ export default function Register() {
     if (!displayName) {
       validations.displayName = 'Please enter a display name';
       failed = true;
+    } else if (displayName.length > 50) {
+      validations.displayName = 'Display name must be 50 characters or less';
+      failed = true;
     }
 
     setValidationFail(validations);
