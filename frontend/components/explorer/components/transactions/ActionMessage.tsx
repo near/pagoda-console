@@ -1,10 +1,10 @@
-import { hexy } from "hexy";
+import { hexy } from 'hexy';
 
-import AccountLink from "../utils/AccountLink";
-import Balance from "../utils/Balance";
-import CodePreview from "../utils/CodePreview";
+import AccountLink from '../utils/AccountLink';
+import Balance from '../utils/Balance';
+import CodePreview from '../utils/CodePreview';
 
-import * as T from "./types";
+import * as T from './types';
 
 // import { Translate } from "react-localize-redux";
 import Translate from './Translate';
@@ -38,19 +38,19 @@ interface TransactionMessageRenderers {
 }
 
 export const displayArgs = (args: string) => {
-  const decodedArgs = Buffer.from(args, "base64");
+  const decodedArgs = Buffer.from(args, 'base64');
   let prettyArgs: string;
   try {
     const parsedJSONArgs = JSON.parse(decodedArgs.toString());
     prettyArgs = JSON.stringify(parsedJSONArgs, null, 2);
   } catch {
-    prettyArgs = hexy(decodedArgs, { format: "twos" });
+    prettyArgs = hexy(decodedArgs, { format: 'twos' });
   }
   return (
     <CodePreview
       collapseOptions={{
-        collapseText: "button.show_more", // TODO
-        expandText: "button.show_less", // TODO
+        collapseText: 'button.show_more', // TODO
+        expandText: 'button.show_less', // TODO
         minHeight: 200,
         maxHeight: 600,
       }}
@@ -80,19 +80,12 @@ const transactionMessageRenderers: TransactionMessageRenderers = {
       <AccountLink accountId={receiverId} />
     </>
   ),
-  FunctionCall: ({
-    receiverId,
-    actionArgs,
-    showDetails,
-  }: Props<T.FunctionCall>) => {
+  FunctionCall: ({ receiverId, actionArgs, showDetails }: Props<T.FunctionCall>) => {
     let args;
     if (showDetails) {
-      if (typeof actionArgs.args === "undefined") {
+      if (typeof actionArgs.args === 'undefined') {
         args = <p>Loading...</p>;
-      } else if (
-        (typeof actionArgs.args === "string" && actionArgs.args.length === 0) ||
-        !actionArgs.args
-      ) {
+      } else if ((typeof actionArgs.args === 'string' && actionArgs.args.length === 0) || !actionArgs.args) {
         args = <p>The arguments are empty</p>;
       } else {
         args = displayArgs(actionArgs.args);
@@ -124,13 +117,12 @@ const transactionMessageRenderers: TransactionMessageRenderers = {
   Stake: ({ actionArgs: { stake, public_key } }: Props<T.Stake>) => (
     <>
       <>Staked: </>
-      <Balance amount={stake} />{" "}
-      <>with ${public_key.substring(0, 15)}...</>
+      <Balance amount={stake} /> <>with ${public_key.substring(0, 15)}...</>
     </>
   ),
   AddKey: ({ receiverId, actionArgs }: Props<T.AddKey>) => (
     <>
-      {typeof actionArgs.access_key.permission === "object" ? (
+      {typeof actionArgs.access_key.permission === 'object' ? (
         actionArgs.access_key.permission.permission_kind ? (
           <>
             <>New key added for </>
@@ -143,19 +135,14 @@ const transactionMessageRenderers: TransactionMessageRenderers = {
         ) : (
           <>
             <>Access key added for contract </>
-            <AccountLink
-              accountId={
-                actionArgs.access_key.permission.FunctionCall.receiver_id
-              }
-            />
+            <AccountLink accountId={actionArgs.access_key.permission.FunctionCall.receiver_id} />
             {`: ${actionArgs.public_key.substring(0, 15)}...`}
             <p>
-              {`with permission to call ${actionArgs.access_key.permission.FunctionCall
-                .method_names.length > 0
-                ? `(${actionArgs.access_key.permission.FunctionCall.method_names.join(
-                  ", "
-                )})`
-                : 'any'} methods`}
+              {`with permission to call ${
+                actionArgs.access_key.permission.FunctionCall.method_names.length > 0
+                  ? `(${actionArgs.access_key.permission.FunctionCall.method_names.join(', ')})`
+                  : 'any'
+              } methods`}
             </p>
           </>
         )
@@ -185,9 +172,7 @@ const ActionMessage = (props: Props<AnyAction>) => {
       </>
     );
   }
-  return (
-    <MessageRenderer {...(props as any)} showDetails={props.showDetails} />
-  );
+  return <MessageRenderer {...(props as any)} showDetails={props.showDetails} />;
 };
 
 export default ActionMessage;

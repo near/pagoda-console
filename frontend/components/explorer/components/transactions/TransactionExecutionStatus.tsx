@@ -1,4 +1,4 @@
-import { ExecutionStatus } from "./types";
+import { ExecutionStatus } from './types';
 // import { Translate } from "react-localize-redux";
 
 export interface Props {
@@ -7,17 +7,17 @@ export interface Props {
 const TransactionExecutionStatusComponent = ({ status }: Props) => {
   let statusText;
   switch (status) {
-    case ('NotStarted'):
-      statusText = "Not started";
+    case 'NotStarted':
+      statusText = 'Not started';
       break;
-    case ('Started'):
-      statusText = "Started";
+    case 'Started':
+      statusText = 'Started';
       break;
-    case ('Failure'):
-      statusText = "Failed";
+    case 'Failure':
+      statusText = 'Failed';
       break;
-    case ('SuccessValue'):
-      statusText = "Succeeded";
+    case 'SuccessValue':
+      statusText = 'Succeeded';
       break;
   }
   return <>{statusText}</>;

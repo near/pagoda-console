@@ -1,21 +1,19 @@
 import { useState, useEffect } from 'react';
-import router, { useRouter } from 'next/router'
-import useSWR, { useSWRConfig } from 'swr'
-import { getAuth, onAuthStateChanged, User, getIdToken, onIdTokenChanged } from "firebase/auth";
+import router, { useRouter } from 'next/router';
+import useSWR, { useSWRConfig } from 'swr';
+import { getAuth, onAuthStateChanged, User, getIdToken, onIdTokenChanged } from 'firebase/auth';
 import { authenticatedPost, useEnvironments, useProject } from './fetchers';
 import { Environment, UserData } from './interfaces';
 import { updateUserData } from './cache';
 import analytics from './analytics';
 
-
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
-
 
 export function useIdentity(): User | null {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const auth = getAuth()
+    const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
       setUser(user);
     });
@@ -30,7 +28,7 @@ export function useDisplayName(): string | null {
   const [displayName, setDisplayName] = useState<string | null>(null);
 
   useEffect(() => {
-    const auth = getAuth()
+    const auth = getAuth();
     const unsubscribe = onIdTokenChanged(auth, (user: User | null) => {
       if (user?.displayName && displayName !== user?.displayName) {
         setDisplayName(user.displayName);
@@ -46,7 +44,7 @@ export function useDisplayName(): string | null {
 export function useRouteParam(paramName: string, redirectIfMissing?: string): string | null {
   const { query, isReady, pathname } = useRouter();
   const rawParam = query[paramName];
-  const value = (rawParam && typeof rawParam === 'string') ? rawParam : null
+  const value = rawParam && typeof rawParam === 'string' ? rawParam : null;
   useEffect(() => {
     if (isReady && !value && redirectIfMissing) {
       router.push(redirectIfMissing);
@@ -74,14 +72,16 @@ export function useProjectAndEnvironment() {
     if (!environmentSubId && environments) {
       // no environment was selected in query params, try to load from local storage or fallback to default
       const defaultEnvironment = getDefaultEnvironment(currentUser, projectSlug, environments);
-      router.replace(`${router.pathname}?project=${projectSlug}&environment=${defaultEnvironment}`, undefined, { shallow: true });
+      router.replace(`${router.pathname}?project=${projectSlug}&environment=${defaultEnvironment}`, undefined, {
+        shallow: true,
+      });
     } else if (!environment && environments && environmentSubId) {
       // environment selected in query params, now load it into state
-      setEnvironment(environments.find(e => e.subId === environmentSubId));
+      setEnvironment(environments.find((e) => e.subId === environmentSubId));
       setEnvironmentInLocalStorage(currentUser, projectSlug, environmentSubId);
     } else if (environments && environmentSubId && environment?.subId !== environmentSubId) {
       // new environment selected
-      setEnvironment(environments.find(e => e.subId === environmentSubId));
+      setEnvironment(environments.find((e) => e.subId === environmentSubId));
       setEnvironmentInLocalStorage(currentUser, projectSlug, environmentSubId);
       analytics.track('DC Switch Network');
     }
@@ -103,11 +103,11 @@ function getDefaultEnvironment(user: User, projectSlug: string, environments: En
     return defaultSubId;
   }
   const userDataRaw = localStorage.getItem(user.uid);
-  const userData = userDataRaw ? JSON.parse(userDataRaw) as UserData : null;
+  const userData = userDataRaw ? (JSON.parse(userDataRaw) as UserData) : null;
   const previouslySelectedEnv = userData?.projectData?.[projectSlug]?.selectedEnvironment;
 
   // ensure that the previously selected environment is still valid
-  if (previouslySelectedEnv && environments.find(e => e.subId === previouslySelectedEnv)) {
+  if (previouslySelectedEnv && environments.find((e) => e.subId === previouslySelectedEnv)) {
     return previouslySelectedEnv;
   }
   return defaultSubId;

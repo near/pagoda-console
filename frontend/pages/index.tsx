@@ -1,10 +1,10 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import dynamic from "next/dynamic";
+import type { NextPage } from 'next';
+import Head from 'next/head';
+import dynamic from 'next/dynamic';
 import AuthenticationForm from '../components/AuthenticationForm/AuthenticationForm';
 import ConsoleLogo from '../components/ConsoleLogo';
 
-const ThemeToggle = dynamic(() => import("../components/ThemeToggle"), {
+const ThemeToggle = dynamic(() => import('../components/ThemeToggle'), {
   ssr: false,
 });
 
@@ -28,7 +28,7 @@ export default function Login() {
   const { t } = useTranslation('login');
 
   return (
-    <div className='pageContainer'>
+    <div className="pageContainer">
       <AuthenticationForm />
 
       {/* <Footer /> */}
@@ -42,7 +42,7 @@ export default function Login() {
         }
       `}</style>
     </div>
-  )
+  );
 }
 
 // function Footer() {

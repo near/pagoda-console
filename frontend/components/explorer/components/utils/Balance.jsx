@@ -1,8 +1,8 @@
 /// Copied from near-wallet project:
-import BN from "bn.js";
-import { PureComponent } from "react";
+import BN from 'bn.js';
+import { PureComponent } from 'react';
 // import { utils } from "near-api-js";
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 class Balance extends PureComponent {
   render() {
@@ -16,20 +16,15 @@ class Balance extends PureComponent {
     } = this.props;
 
     if (!amount) {
-      throw new Error("amount property should not be null");
+      throw new Error('amount property should not be null');
     }
 
-    const defaultLabel = "Ⓝ";
+    const defaultLabel = 'Ⓝ';
 
-    let amountShow = !formulatedAmount
-      ? formatNEAR(amount, fracDigits)
-      : formulatedAmount;
+    let amountShow = !formulatedAmount ? formatNEAR(amount, fracDigits) : formulatedAmount;
     let amountPrecise = showInYocto(amount);
     return (
-      <OverlayTrigger
-        placement={"bottom"}
-        overlay={<Tooltip>{amountPrecise}</Tooltip>}
-      >
+      <OverlayTrigger placement={'bottom'} overlay={<Tooltip>{amountPrecise}</Tooltip>}>
         <span className={className}>
           {amountShow}
           {suffix}
@@ -45,22 +40,22 @@ export const formatNEAR = (amount, fracDigits = 5) => {
   // custom for console
   let ret = formatNearAmount(amount.toString(), fracDigits);
 
-  if (amount === "0") {
+  if (amount === '0') {
     return amount;
-  } else if (ret === "0") {
-    return `<${!fracDigits ? `0` : `0.${"0".repeat((fracDigits || 1) - 1)}1`}`;
+  } else if (ret === '0') {
+    return `<${!fracDigits ? `0` : `0.${'0'.repeat((fracDigits || 1) - 1)}1`}`;
   }
   return ret;
 };
 
 export const showInYocto = (amountStr) => {
-  return formatWithCommas(amountStr) + " yoctoⓃ";
+  return formatWithCommas(amountStr) + ' yoctoⓃ';
 };
 
 export const formatWithCommas = (value) => {
   const pattern = /(-?\d+)(\d{3})/;
   while (pattern.test(value)) {
-    value = value.toString().replace(pattern, "$1,$2");
+    value = value.toString().replace(pattern, '$1,$2');
   }
   return value;
 };
@@ -106,8 +101,10 @@ export function formatNearAmount(balance, fracDigits = NEAR_NOMINATION_EXP) {
 
   balance = balanceBN.toString();
   const wholeStr = balance.substring(0, balance.length - NEAR_NOMINATION_EXP) || '0';
-  const fractionStr = balance.substring(balance.length - NEAR_NOMINATION_EXP)
-    .padStart(NEAR_NOMINATION_EXP, '0').substring(0, fracDigits);
+  const fractionStr = balance
+    .substring(balance.length - NEAR_NOMINATION_EXP)
+    .padStart(NEAR_NOMINATION_EXP, '0')
+    .substring(0, fracDigits);
 
   return trimTrailingZeroes(`${formatWithCommas(wholeStr)}.${fractionStr}`);
 }
