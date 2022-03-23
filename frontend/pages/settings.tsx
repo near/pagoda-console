@@ -7,6 +7,10 @@ import { useDashboardLayout } from '../utils/layouts';
 import { getAuth, getIdToken, updateProfile } from 'firebase/auth';
 import { useIdentity } from '../utils/hooks';
 
+interface ValidationFailure {
+  displayName?: string;
+}
+
 export default function Settings() {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [updateInProgress, setUpdateInProgress] = useState<boolean>(false);
@@ -14,13 +18,32 @@ export default function Settings() {
   const { user, error, mutate } = useAccount();
   const identity = useIdentity();
   const [updateError, setUpdateError] = useState<string>('');
+  const [validationFail, setValidationFail] = useState<ValidationFailure>({});
+
+  function handleFormChange(type: 'displayName', newValue: string): void {
+    setValidationFail({});
+
+    switch (type) {
+      case 'displayName':
+        setDisplayName(newValue);
+        break;
+
+      default:
+        const _exhaustiveCheck: never = type;
+        break;
+    }
+  }
 
   async function toggleEditMode(e: FormEvent): Promise<void> {
     e.preventDefault();
     if (isEditing) {
-      if (identity && displayName && displayName !== user?.name) {
+      if (identity) {
         //an update was made
         try {
+          if (!validate()) {
+            return;
+          }
+
           setUpdateInProgress(true);
           await updateProfile(identity, {
             displayName,
@@ -46,37 +69,62 @@ export default function Settings() {
     }
   }
 
+  function validate() {
+    const validations: ValidationFailure = {};
+    let failed = false;
+
+    if (!displayName) {
+      validations.displayName = 'Please enter a display name';
+      failed = true;
+    } else if (displayName.length > 50) {
+      validations.displayName = 'Display name must be 50 characters or less';
+      failed = true;
+    }
+
+    setValidationFail(validations);
+    return !failed;
+  }
+
   const isLoading = !user && !error;
   // TODO handle error
   return (
     <div className="pageContainer">
       <ErrorModal error={updateError} setError={setUpdateError} />
+
       <div className="titleContainer">
         <h1>User Settings</h1>
         <Button onClick={toggleEditMode} disabled={!user?.name || updateInProgress}>
           {!isEditing ? 'Edit' : 'Done'}
         </Button>
       </div>
+
       {error && <Alert variant="danger">Could not fetch account data</Alert>}
-      <div className="settingsContainer">
-        <div className="settingRow">
-          <span className="settingLabel">Display Name</span>
-          {!isEditing && <span className="settingValue">{isLoading ? <BorderSpinner /> : user && user.name}</span>}
-          {isEditing && (
-            <Form onSubmit={toggleEditMode}>
-              <Form.Control
-                value={displayName}
-                disabled={updateInProgress}
-                onChange={(e) => setDisplayName(e.target.value)}
-              />
-            </Form>
-          )}
+
+      <Form noValidate onSubmit={toggleEditMode}>
+        <div className="settingsContainer">
+          <div className="settingRow">
+            <span className="settingLabel">Display Name</span>
+            {!isEditing && <span className="settingValue">{isLoading ? <BorderSpinner /> : user && user.name}</span>}
+            {isEditing && (
+              <Form.Group controlId="formBasicDisplayName">
+                <Form.Control
+                  value={displayName}
+                  onChange={(e) => handleFormChange('displayName', e.target.value)}
+                  isInvalid={!!validationFail.displayName}
+                  placeholder="John Nearian"
+                />
+                <Form.Control.Feedback type="invalid">{validationFail.displayName}</Form.Control.Feedback>
+              </Form.Group>
+            )}
+          </div>
+
+          <div className="settingRow">
+            <span className="settingLabel">Email Address</span>
+            <span className="settingValue">{isLoading ? <BorderSpinner /> : user && user.email}</span>
+          </div>
         </div>
-        <div className="settingRow">
-          <span className="settingLabel">Email Address</span>
-          <span className="settingValue">{isLoading ? <BorderSpinner /> : user && user.email}</span>
-        </div>
-      </div>
+      </Form>
+
       <style jsx>{`
         .pageContainer {
           display: flex;
@@ -98,7 +146,6 @@ export default function Settings() {
           display: flex;
           flex-direction: row;
           justify-content: space-between;
-          height: 2.5rem;
           align-items: center;
         }
         .settingLabel {
