@@ -1,8 +1,7 @@
-import Document, { Html, Head, Main, NextScript } from 'next/document'
+import Document, { Html, Head, Main, NextScript } from 'next/document';
 
 class MyDocument extends Document {
   render() {
-
     // Use this version once it is desired that theme defaults to user's OS-level preference
     // const setInitialTheme = `
     //   function getUserPreference() {
@@ -28,18 +27,12 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <link
-            href="https://fonts.googleapis.com/css2?family=Martel&display=swap"
-            rel="stylesheet"
-          />
+          <link href="https://fonts.googleapis.com/css2?family=Martel&display=swap" rel="stylesheet" />
           <link
             href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=optional"
             rel="stylesheet"
           />
-          <link
-            href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=optional"
-            rel="stylesheet"
-          />
+          <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=optional" rel="stylesheet" />
         </Head>
         <body>
           <script dangerouslySetInnerHTML={{ __html: setInitialTheme }} />
@@ -47,8 +40,8 @@ class MyDocument extends Document {
           <NextScript />
         </body>
       </Html>
-    )
+    );
   }
 }
 
-export default MyDocument
+export default MyDocument;

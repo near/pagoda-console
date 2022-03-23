@@ -1,5 +1,5 @@
-import Link from "next/link";
-import React from "react";
+import Link from 'next/link';
+import React from 'react';
 interface Props {
   href: string;
   as?: string;
@@ -14,7 +14,7 @@ const LinkWrapper = ({ href, as, children }: Props) => {
     //   }
     // >
     // <Link href={href} as={as}>
-    <Link href={href} as={as ? as : ""}>
+    <Link href={href} as={as ? as : ''}>
       {children}
     </Link>
     // </span>

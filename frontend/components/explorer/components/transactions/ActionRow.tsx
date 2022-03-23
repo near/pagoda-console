@@ -1,8 +1,8 @@
-import { PureComponent } from "react";
+import { PureComponent } from 'react';
 
-import actionIcons from "./ActionIcons";
-import ActionMessage from "./ActionMessage";
-import ActionRowBlock, { ViewMode, DetalizationMode } from "./ActionRowBlock";
+import actionIcons from './ActionIcons';
+import ActionMessage from './ActionMessage';
+import ActionRowBlock, { ViewMode, DetalizationMode } from './ActionRowBlock';
 // import * as T from "../../libraries/explorer-wamp/transactions";
 import * as T from './types';
 
@@ -22,9 +22,9 @@ export interface Props {
 
 class ActionRow extends PureComponent<Props> {
   static defaultProps = {
-    viewMode: "sparse",
-    detalizationMode: "detailed",
-    className: "",
+    viewMode: 'sparse',
+    detalizationMode: 'detailed',
+    className: '',
     showDetails: false,
   };
 

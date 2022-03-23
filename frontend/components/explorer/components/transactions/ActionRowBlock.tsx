@@ -1,14 +1,14 @@
-import { Component } from "react";
-import { Row, Col } from "react-bootstrap";
+import { Component } from 'react';
+import { Row, Col } from 'react-bootstrap';
 
-import AccountLink from "../utils/AccountLink";
-import Timer from "../utils/Timer";
+import AccountLink from '../utils/AccountLink';
+import Timer from '../utils/Timer';
 
 // import { Translate } from "react-localize-redux";
-import Translate from './Translate'
+import Translate from './Translate';
 
-export type ViewMode = "sparse" | "compact";
-export type DetalizationMode = "detailed" | "minimal";
+export type ViewMode = 'sparse' | 'compact';
+export type DetalizationMode = 'detailed' | 'minimal';
 export interface Props {
   signerId: string;
   blockTimestamp?: number;
@@ -25,9 +25,9 @@ export interface Props {
 
 class ActionRowBlock extends Component<Props> {
   static defaultProps = {
-    viewMode: "sparse",
-    detalizationMode: "detailed",
-    className: "",
+    viewMode: 'sparse',
+    detalizationMode: 'detailed',
+    className: '',
   };
 
   render() {
@@ -47,29 +47,25 @@ class ActionRowBlock extends Component<Props> {
 
     return (
       <>
-        <Row
-
-          className={`action-${viewMode}-row mx-0 ${className}`}
-        >
+        <Row className={`action-${viewMode}-row mx-0 ${className}`}>
           <Col xs="auto">
             <div className="action-row-img">{icon}</div>
           </Col>
           <Col className="action-row-details">
             <Row className="action-row-message">
               <Col md="8" xs="7">
-                <Row >
+                <Row>
                   <Col className="action-row-title">{title}</Col>
                 </Row>
-                {detalizationMode === "detailed" ? (
-                  <Row >
+                {detalizationMode === 'detailed' ? (
+                  <Row>
                     <Col className="action-row-text">
-                      <>by</>{" "}
-                      <AccountLink accountId={signerId} />
+                      <>by</> <AccountLink accountId={signerId} />
                     </Col>
                   </Row>
                 ) : null}
               </Col>
-              {detalizationMode === "detailed" ? (
+              {detalizationMode === 'detailed' ? (
                 <Col md="4" xs="5" className="ml-auto text-right">
                   <Row>
                     <Col className="action-row-txid">{detailsLink}</Col>
@@ -77,20 +73,13 @@ class ActionRowBlock extends Component<Props> {
                   <Row>
                     <Col className="action-row-timer">
                       <span className="action-row-timer-status">
-                        {status ?? (
-                          <>
-                            Fetching Status...
-                          </>
-                        )}
+                        {status ?? <>Fetching Status...</>}
                         {isFinal === undefined
-                          ? "/" +
-                          "Checking Finality..."
+                          ? '/' + 'Checking Finality...'
                           : isFinal === true
-                            ? ""
-                            : "/" +
-                            "Finalizing"
-                        }
-                      </span>{" "}
+                          ? ''
+                          : '/' + 'Finalizing'}
+                      </span>{' '}
                       {blockTimestamp && <Timer time={blockTimestamp} />}
                     </Col>
                   </Row>

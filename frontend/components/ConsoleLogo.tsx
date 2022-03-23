@@ -1,15 +1,16 @@
-import ConsoleLogoImage from '../public/brand/pagoda_dc.svg'
+import ConsoleLogoImage from '../public/brand/pagoda_dc.svg';
 
 function ConsoleLogo() {
-
-    return <div className='logoContainer'>
-        <ConsoleLogoImage style={{ width: '100%', height: '100%' }} />
-        <style jsx>{`
+  return (
+    <div className="logoContainer">
+      <ConsoleLogoImage style={{ width: '100%', height: '100%' }} />
+      <style jsx>{`
         .logoContainer {
-            max-width: 100vw;
+          max-width: 100vw;
         }
-        `}</style>
+      `}</style>
     </div>
+  );
 }
 
-export default ConsoleLogo
+export default ConsoleLogo;

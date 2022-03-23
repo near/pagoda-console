@@ -2,12 +2,12 @@ const { i18n } = require('./next-i18next.config');
 
 /** @type {import('next').NextConfig} */
 module.exports = {
-  experimental: {esmExternals: true},
+  experimental: { esmExternals: true },
   reactStrictMode: true,
   webpack(config, options) {
     config.module.rules.push({
       test: /\.svg$/,
-      use: ["@svgr/webpack"]
+      use: ['@svgr/webpack'],
     });
 
     config.module.rules.push({
@@ -18,10 +18,12 @@ module.exports = {
         {
           loader: '@mdx-js/loader',
           /** @type {import('@mdx-js/loader').Options} */
-          options: {/* jsxImportSource: …, otherOptions… */}
-        }
-      ]
-    })
+          options: {
+            /* jsxImportSource: …, otherOptions… */
+          },
+        },
+      ],
+    });
 
     return config;
   },
@@ -30,8 +32,8 @@ module.exports = {
   async redirects() {
     return [
       {
-        source: "/analytics",
-        destination: "/project-analytics",
+        source: '/analytics',
+        destination: '/project-analytics',
         permanent: false,
       },
     ];
