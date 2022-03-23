@@ -2,9 +2,9 @@ import { FormEvent, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 import BorderSpinner from '../components/BorderSpinner';
 import ErrorModal from '../components/modals/ErrorModal';
-import { authenticatedPost, useAccount } from '../utils/fetchers';
+import { useAccount } from '../utils/fetchers';
 import { useDashboardLayout } from '../utils/layouts';
-import { getAuth, getIdToken, updateProfile } from 'firebase/auth';
+import { getIdToken, updateProfile } from 'firebase/auth';
 import { useIdentity } from '../utils/hooks';
 
 interface ValidationFailure {
@@ -34,34 +34,34 @@ export default function Settings() {
     }
   }
 
+  async function submitForm() {
+    try {
+      if (!identity) return;
+      if (!validate()) return;
+
+      setUpdateInProgress(true);
+      await updateProfile(identity, {
+        displayName,
+      });
+
+      // force token refresh since that is where the backend gets user details
+      await getIdToken(identity, true);
+
+      mutate({
+        ...user,
+        name: displayName,
+      });
+    } catch (e) {
+      setUpdateError('Something went wrong while attempting to update display name');
+    } finally {
+      setUpdateInProgress(false);
+    }
+  }
+
   async function toggleEditMode(e: FormEvent): Promise<void> {
     e.preventDefault();
     if (isEditing) {
-      if (identity) {
-        //an update was made
-        try {
-          if (!validate()) {
-            return;
-          }
-
-          setUpdateInProgress(true);
-          await updateProfile(identity, {
-            displayName,
-          });
-
-          // force token refresh since that is where the backend gets user details
-          await getIdToken(identity, true);
-
-          mutate({
-            ...user,
-            name: displayName,
-          });
-        } catch (e) {
-          setUpdateError('Something went wrong while attempting to update display name');
-        } finally {
-          setUpdateInProgress(false);
-        }
-      }
+      await submitForm();
       setIsEditing(false);
     } else {
       setDisplayName(user!.name!);
