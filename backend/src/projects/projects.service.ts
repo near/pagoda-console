@@ -77,6 +77,7 @@ export class ProjectsService {
           teamProjects: {
             create: {
               teamId,
+              ...metadata,
             },
           },
           environments: {
@@ -101,6 +102,7 @@ export class ProjectsService {
           teamProjects: {
             create: {
               teamId,
+              ...metadata,
             },
           },
           environments: {
