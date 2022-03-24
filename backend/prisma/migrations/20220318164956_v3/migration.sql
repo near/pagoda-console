@@ -29,6 +29,12 @@ ADD COLUMN     "updatedAt" TIMESTAMP(3),
 ADD COLUMN     "updatedBy" INTEGER;
 
 -- AlterTable
+ALTER TABLE "TeamProject" ADD COLUMN     "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "createdBy" INTEGER,
+ADD COLUMN     "updatedAt" TIMESTAMP(3),
+ADD COLUMN     "updatedBy" INTEGER;
+
+-- AlterTable
 ALTER TABLE "User" ADD COLUMN     "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
 ADD COLUMN     "updatedAt" TIMESTAMP(3);
 
@@ -61,3 +67,9 @@ ALTER TABLE "Contract" ADD CONSTRAINT "Contract_createdBy_fkey" FOREIGN KEY ("cr
 
 -- AddForeignKey
 ALTER TABLE "Contract" ADD CONSTRAINT "Contract_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TeamProject" ADD CONSTRAINT "TeamProject_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TeamProject" ADD CONSTRAINT "TeamProject_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

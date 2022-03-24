@@ -28,6 +28,8 @@ model User {
   updatedEnvironments Environment[] @relation("UserUpdatedEnvironment")
   createdContracts    Contract[]    @relation("UserCreatedContract")
   updatedContracts    Contract[]    @relation("UserUpdatedContract")
+  createdTeamProject  TeamProject[] @relation("UserCreatedTeamProject")
+  updatedTeamProject  TeamProject[] @relation("UserUpdatedTeamProject")
 }
 
 model Team {
@@ -77,11 +79,17 @@ model Project {
 }
 
 model TeamProject {
-  team      Team    @relation(fields: [teamId], references: [id])
-  teamId    Int
-  project   Project @relation(fields: [projectId], references: [id])
-  projectId Int
-  active    Boolean @default(true)
+  team          Team      @relation(fields: [teamId], references: [id])
+  teamId        Int
+  project       Project   @relation(fields: [projectId], references: [id])
+  projectId     Int
+  active        Boolean   @default(true)
+  createdAt     DateTime? @default(now())
+  createdByUser User?     @relation(name: "UserCreatedTeamProject", fields: [createdBy], references: [id])
+  createdBy     Int?
+  updatedByUser User?     @relation(name: "UserUpdatedTeamProject", fields: [updatedBy], references: [id])
+  updatedAt     DateTime? @updatedAt
+  updatedBy     Int?
 
   @@id([teamId, projectId])
 }
