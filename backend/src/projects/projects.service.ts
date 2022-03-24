@@ -730,6 +730,17 @@ export class ProjectsService {
     }_${subId}`;
     const net = subId === 2 ? 'MAINNET' : 'TESTNET';
     try {
+      // Track the user's action.
+      await this.prisma.userAction.create({
+        data: {
+          action: 'ROTATE_API_KEY',
+          data: {
+            net,
+            keyId,
+          },
+          userId: callingUser.id,
+        },
+      });
       return { [net]: (await this.keys.rotate(keyId, net)).token };
     } catch (e) {
       throw new VError(e, `Failed to rotate key ${keyId} on net ${net}`);
