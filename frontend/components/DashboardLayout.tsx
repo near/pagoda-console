@@ -172,6 +172,8 @@ function SideBar() {
             padding: 1rem 0 1rem;
             cursor: pointer;
             text-decoration: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
           .footerItem:hover {
             color: var(--color-primary);
