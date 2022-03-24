@@ -35,10 +35,10 @@ export default function Settings() {
   }
 
   async function submitForm() {
-    try {
-      if (!identity) return;
-      if (!validate()) return;
+    if (!identity) return;
+    if (!validate()) return;
 
+    try {
       setUpdateInProgress(true);
       await updateProfile(identity, {
         displayName,
@@ -55,6 +55,7 @@ export default function Settings() {
       setUpdateError('Something went wrong while attempting to update display name');
     } finally {
       setUpdateInProgress(false);
+      setIsEditing(false);
     }
   }
 
@@ -62,7 +63,6 @@ export default function Settings() {
     e.preventDefault();
     if (isEditing) {
       await submitForm();
-      setIsEditing(false);
     } else {
       setDisplayName(user!.name!);
       setIsEditing(true);
