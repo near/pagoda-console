@@ -1,3 +1,4 @@
+import { NextPageWithLayout } from '../utils/types';
 import { debounce } from 'lodash-es';
 import { useDashboardLayout } from '../utils/layouts';
 import { Button, Form } from 'react-bootstrap';
@@ -16,7 +17,7 @@ import Image from 'next/image';
 import ContractsPreview from '../public/contractsPreview.png';
 import analytics from '../utils/analytics';
 
-export default function Contracts() {
+const Contracts: NextPageWithLayout = () => {
   const { project, environment } = useProjectAndEnvironment();
 
   let user = useIdentity();
@@ -39,7 +40,7 @@ export default function Contracts() {
       `}</style>
     </div>
   );
-}
+};
 
 function ContractsTable(props: { project: string; environment: Environment }) {
   const { contracts, error, mutate: mutateContracts } = useContracts(props.project, props.environment.subId);
@@ -400,3 +401,5 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
 }
 
 Contracts.getLayout = useDashboardLayout;
+
+export default Contracts;

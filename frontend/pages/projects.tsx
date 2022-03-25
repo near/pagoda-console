@@ -1,3 +1,4 @@
+import { NextPageWithLayout } from '../utils/types';
 import { useSimpleLogoutLayout } from '../utils/layouts';
 import { Alert, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
@@ -8,12 +9,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { useEffect, useState } from 'react';
 import BorderSpinner from '../components/BorderSpinner';
-import analytics from '../utils/analytics';
 import { faAngleDoubleRight, faExclamationCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
 import TutorialBadge from '../components/TutorialBadge';
 import DeleteProjectModal from '../components/modals/DeleteProjectModal';
 
-export default function Projects() {
+const Projects: NextPageWithLayout = () => {
   const router = useRouter();
   const { projects, error, isValidating, mutate: refetchProjects } = useProjects();
   let [isEditing, setIsEditing] = useState<boolean>(false);
@@ -97,7 +97,7 @@ export default function Projects() {
       `}</style>
     </div>
   );
-}
+};
 
 function RedirectAlert(props: { onClick: () => void }) {
   return (
@@ -197,3 +197,5 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
 }
 
 Projects.getLayout = useSimpleLogoutLayout;
+
+export default Projects;

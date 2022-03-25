@@ -1,3 +1,4 @@
+import { NextPageWithLayout } from '../utils/types';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { useSimpleLogoutLayout } from '../utils/layouts';
 import { Form, Button } from 'react-bootstrap';
@@ -8,7 +9,7 @@ import { useRouteParam } from '../utils/hooks';
 import analytics from '../utils/analytics';
 import BorderSpinner from '../components/BorderSpinner';
 
-export default function NewProject() {
+const NewProject: NextPageWithLayout = () => {
   let [projectName, setProjectName] = useState<string>('');
   let [formEnabled, setFormEnabled] = useState<boolean>(true);
   const router = useRouter();
@@ -132,6 +133,8 @@ export default function NewProject() {
       `}</style>
     </div>
   );
-}
+};
 
 NewProject.getLayout = useSimpleLogoutLayout;
+
+export default NewProject;

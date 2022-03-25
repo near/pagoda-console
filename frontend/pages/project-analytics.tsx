@@ -1,17 +1,11 @@
-import type { NextPage } from 'next';
-import dynamic from 'next/dynamic';
-import { Button } from 'react-bootstrap';
-import { useRouter } from 'next/router';
-import { authenticatedPost, useAccount, useApiKeys, useProject } from '../utils/fetchers';
+import { NextPageWithLayout } from '../utils/types';
+import { authenticatedPost } from '../utils/fetchers';
 import { useIdentity, useRouteParam } from '../utils/hooks';
-import { getAuth, signOut, getIdToken } from 'firebase/auth';
 import { useDashboardLayout } from '../utils/layouts';
 import Image from 'next/image';
-import Config from '../utils/config';
 import { useCallback, useState } from 'react';
 import AnalyticsPreview from '../public/analyticsPreview.png';
 import ProjectSelector from '../components/ProjectSelector';
-import CodeBlock from '../components/CodeBlock';
 import { NetOption, NetUsageData, UsageData } from '../utils/interfaces';
 import { useEffect } from 'react';
 import Highcharts from 'highcharts';
@@ -21,7 +15,7 @@ import { getUserData, updateUserData } from '../utils/cache';
 import config from '../utils/config';
 import PageLink from '../components/PageLink';
 
-export default function Analytics() {
+const ProjectAnalytics: NextPageWithLayout = () => {
   useEffect(() => {
     Highcharts.setOptions({
       chart: {
@@ -369,7 +363,7 @@ export default function Analytics() {
       `}</style>
     </div>
   );
-}
+};
 
 function AnalyticsEmptyState({ fetchedAt }: { fetchedAt?: string }) {
   return (
@@ -437,4 +431,6 @@ function LastFetchedInfo({ fetchedAt }: { fetchedAt: string }) {
   );
 }
 
-Analytics.getLayout = useDashboardLayout;
+ProjectAnalytics.getLayout = useDashboardLayout;
+
+export default ProjectAnalytics;

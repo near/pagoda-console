@@ -1,4 +1,5 @@
-import { authenticatedPost, deleteProject, useApiKeys, useProject } from '../utils/fetchers';
+import { NextPageWithLayout } from '../utils/types';
+import { authenticatedPost, useApiKeys, useProject } from '../utils/fetchers';
 import { useRouteParam } from '../utils/hooks';
 import { useDashboardLayout } from '../utils/layouts';
 
@@ -17,7 +18,7 @@ import { useRouter } from 'next/router';
 const ROTATION_WARNING =
   'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';
 
-export default function ProjectSettings() {
+const ProjectSettings: NextPageWithLayout = () => {
   const projectSlug = useRouteParam('project', '/projects');
   const { keys, error: keysError, mutate: mutateKeys } = useApiKeys(projectSlug);
   const [showMainnetRotationModal, setShowMainnetRotationModal] = useState<boolean>(false);
@@ -117,7 +118,7 @@ export default function ProjectSettings() {
       `}</style>
     </div>
   );
-}
+};
 
 function DeleteProject() {
   let [showModal, setShowModal] = useState<boolean>(false);
@@ -261,3 +262,5 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: Function }) 
 }
 
 ProjectSettings.getLayout = useDashboardLayout;
+
+export default ProjectSettings;

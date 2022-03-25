@@ -1,14 +1,15 @@
+import { NextPageWithLayout } from '../utils/types';
 import router from 'next/router';
 import { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import { useSimpleLayout } from '../utils/layouts';
-import { getAuth, sendEmailVerification, signOut } from 'firebase/auth';
+import { getAuth, sendEmailVerification } from 'firebase/auth';
 import { useRouteParam } from '../utils/hooks';
 import analytics from '../utils/analytics';
 import { logOut } from '../utils/auth';
 
-export default function Verification() {
-  let [hasResent, setHasResent] = useState<boolean>(false);
+const Verification: NextPageWithLayout = () => {
+  let [hasResent, setHasResent] = useState(false);
 
   const existing = useRouteParam('existing') === 'true';
 
@@ -90,6 +91,8 @@ export default function Verification() {
       `}</style>
     </div>
   );
-}
+};
 
 Verification.getLayout = useSimpleLayout;
+
+export default Verification;

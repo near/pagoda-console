@@ -1,6 +1,6 @@
+import { NextPageWithLayout } from '../utils/types';
 import { useEffect } from 'react';
 import { useSimpleLogoutLayout } from '../utils/layouts';
-import { Row, Col } from 'react-bootstrap';
 import { useRouter } from 'next/router';
 import { useRouteParam } from '../utils/hooks';
 import ProjectCard, { ProjectCardColor } from '../components/ProjectCard';
@@ -27,7 +27,7 @@ const projects: Project[] = [
   },
 ];
 
-export default function PickProject() {
+const PickProject: NextPageWithLayout = () => {
   const router = useRouter();
 
   useEffect(() => {
@@ -79,6 +79,8 @@ export default function PickProject() {
       `}</style>
     </div>
   );
-}
+};
 
 PickProject.getLayout = useSimpleLogoutLayout;
+
+export default PickProject;
