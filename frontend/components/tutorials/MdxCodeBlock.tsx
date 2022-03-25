@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import OtherCodeBlock from '../CodeBlock';
+import CodeBlock from '../CodeBlock';
 
 export interface GitHubReference {
     url: string
@@ -8,7 +8,7 @@ export interface GitHubReference {
     title: string
 }
 
-export default function CodeBlock(props: any) {
+export default function MdxCodeBlock(props: any) {
     let [content, setContent] = useState<string>('');
 
     function isGithubReference(props: any) {
@@ -33,7 +33,7 @@ export default function CodeBlock(props: any) {
     if (isGithubReference(props)) {
         // Handles "```rust reference" code blocks
         return <>
-            <OtherCodeBlock language={props.className.replace('language-', '')}>{content}</OtherCodeBlock>
+            <CodeBlock language={props.className.replace('language-', '')}>{content}</CodeBlock>
             <div className="githubLink"><a href={props.children.slice(0, -1)} target="_blank" rel="noreferrer">See full example on Github</a></div>
             <style jsx>{`
                 .githubLink {
@@ -44,7 +44,7 @@ export default function CodeBlock(props: any) {
     } else if (props.className) {
         // Handle code blocks with a language set.
         return <>
-            <div className="codeWrapper"><OtherCodeBlock language={props.className.replace('language-', '')}>{props.children.slice(0, -1)}</OtherCodeBlock></div>
+            <div className="codeWrapper"><CodeBlock language={props.className.replace('language-', '')}>{props.children.slice(0, -1)}</CodeBlock></div>
             <style jsx>{`
                 .codeWrapper {
                     margin-bottom: -1rem;
@@ -54,7 +54,7 @@ export default function CodeBlock(props: any) {
     } else if (props.children.split('\n').length > 1) {
         // Handles code blocks without a language specified but has multiple lines.
         return <>
-            <div className="codeWrapper"><OtherCodeBlock language="text">{props.children.slice(0, -1)}</OtherCodeBlock></div>
+            <div className="codeWrapper"><CodeBlock language="text">{props.children.slice(0, -1)}</CodeBlock></div>
             <style jsx>{`
                 .codeWrapper {
                     margin-bottom: -1rem;

@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import ProjectCard from '../components/ProjectCard';
 import { authenticatedPost } from '../utils/fetchers';
 import { Project } from '../utils/interfaces';
-import mixpanel from 'mixpanel-browser';
+import analytics from '../utils/analytics';
 
 enum Tutorial {
     NftMarket = 'NFT_MARKET',
@@ -32,13 +32,13 @@ export default function PickProject() {
         try {
             router.prefetch(path);
             const project: Project = await authenticatedPost('/projects/create', { name, tutorial }, { forceRefresh: true });
-            mixpanel.track('DC Create New Tutorial Project', {
+            analytics.track('DC Create New Tutorial Project', {
                 status: 'success',
                 name,
             });
             router.push(`${path}?project=${project.slug}&environment=1`);
         } catch (e: any) {
-            mixpanel.track('DC Create New Tutorial Project', {
+            analytics.track('DC Create New Tutorial Project', {
                 status: 'failure',
                 name,
                 error: e.message,
@@ -55,13 +55,13 @@ export default function PickProject() {
             {/** // TODO once we have the ability to eject a tutorial, add this text in */}
             {/* Choose from a variety of interactive tutorials. Each one ends with a production-ready project. */}
         </div>
-        <Row xs={1} md={2} className="g-4">
+        <div className="cardsContainer">
             {projects.map((project, idx) => (
-                <Col key={idx}>
+                <div key={idx}>
                     <ProjectCard path={project.path} title={project.title} description={project.description} color="orange" onClick={() => project.path && createProject(project.tutorial, project.projectName, project.path)} />
-                </Col>
+                </div>
             ))}
-        </Row>
+        </div>
         {creationError && <div className='errorContainer'><Alert variant='danger'>{creationError}</Alert></div>}
         <style jsx>{`
             .pageTitle {
@@ -76,15 +76,11 @@ export default function PickProject() {
             .boldText {
                 font-weight: 700;
             }
-            .submitRow {
-                width: 100%;
-                display: flex;
-                justify-content: flex-end;
-            }
-            .submitContainer {
+            .cardsContainer {
                 display: flex;
                 flex-direction: row;
-                column-gap: 1rem;
+                flex-wrap: wrap;
+                column-gap: 1.5rem;
             }
         `}</style>
     </div >

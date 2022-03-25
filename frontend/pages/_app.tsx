@@ -1,15 +1,20 @@
-// import '../styles/customBootstrap.scss'
-import '../styles/globals.scss'
-import { ReactElement, ReactNode, useEffect } from 'react'
-import type { NextPage } from 'next'
-import type { AppProps } from 'next/app'
-import { useSWRConfig, SWRConfig } from 'swr'
+// import '../styles/customBootstrap.scss';
+import '../styles/globals.scss';
+
+import '@fortawesome/fontawesome-svg-core/styles.css';
+import { config as svgConfig } from '@fortawesome/fontawesome-svg-core';
+svgConfig.autoAddCss = false;
+
+import { ReactElement, ReactNode, useEffect } from 'react';
+import type { NextPage } from 'next';
+import type { AppProps } from 'next/app';
+import { useSWRConfig, SWRConfig } from 'swr';
 import { appWithTranslation } from 'next-i18next';
-import { useRouter } from 'next/router'
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth'
-import { customErrorRetry } from '../utils/fetchers'
+import { useRouter } from 'next/router';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+import { customErrorRetry } from '../utils/fetchers';
 import config from '../utils/config';
-import Head from 'next/head'
+import Head from 'next/head';
 
 
 export type NextPageWithLayout = NextPage & {
@@ -31,16 +36,12 @@ import { SSRProvider } from '@restart/ui/ssr';
 initializeApp(config.firebaseConfig);
 
 // mixpanel initialization
-import mixpanel from 'mixpanel-browser';
+import analytics from '../utils/analytics';
 import { initializeNaj } from '../utils/chainData'
-import { useMediaQueries, usePageTracker } from '../utils/hooks'
+import { usePageTracker } from '../utils/hooks'
 import SmallScreenNotice from '../components/SmallScreenNotice'
 
-// Enabling the debug mode flag is useful during implementation,
-// but it's recommended you remove it for production
-mixpanel.init(config.mixpanel.token, {
-  debug: config.mixpanel.debug
-});
+analytics.init();
 
 const unauthedPaths = ['/', '/register'];
 
@@ -53,11 +54,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     router.prefetch('/');
   }, []);
 
-  useEffect(() => {
-    //* Note: this is saving the current path + query params on unmount of the current component.
-    return () => window.sessionStorage.setItem("lastVisitedPath", router.asPath);
-  }, [router.asPath]);
-
   usePageTracker();
   // must cast cache to any to work around bug in interface definition
   // https://github.com/vercel/swr/discussions/1494
@@ -66,10 +62,10 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     const auth = getAuth()
     const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
       if (user) {
-        mixpanel.identify(user.uid);
+        analytics.identify(user.uid);
       } else if (!user && !unauthedPaths.includes(router.pathname)) {
         // user is signed out, clear all data and redirect back to login
-        mixpanel.reset();
+        analytics.reset();
         cache.clear();
         router.push('/');
       }
@@ -82,8 +78,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   useEffect(() => {
     initializeNaj();
   }, []);
-
-  const isLargeScreen = useMediaQueries('62rem');
 
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
@@ -99,8 +93,22 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         <meta name="description" content="Pagoda Developer Console" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {isLargeScreen && getLayout(<Component {...pageProps} />, getFooter())}
-      {!isLargeScreen && <SmallScreenNotice />}
+      <div className="largeScreen">{getLayout(<Component {...pageProps} />, getFooter())}</div>
+      <div className="smallScreen"><SmallScreenNotice /></div>
+      <style jsx>{`
+        .smallScreen {
+          display: none;
+        }
+        
+        @media only screen and (max-width: 62rem) {
+          .largeScreen {
+            display: none;
+          }
+          .smallScreen {
+            display: block;
+          }
+        }
+      `}</style>
     </SWRConfig>
   </SSRProvider>
 }

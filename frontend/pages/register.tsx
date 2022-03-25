@@ -6,7 +6,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { authenticatedPost } from '../utils/fetchers';
 import { usePageTracker } from '../utils/hooks';
-import mixpanel from 'mixpanel-browser';
+import analytics from '../utils/analytics';
 
 interface ValidationFailure {
     email?: string,
@@ -30,6 +30,7 @@ export default function Register() {
     const [displayName, setDisplayName] = useState<string>('');
     const [validationFail, setValidationFail] = useState<ValidationFailure>({});
     const [errorAlert, setErrorAlert] = useState<string | null>();
+    const [submitDisabled, setSubmitDisabled] = useState<boolean>(false);
 
     const router = useRouter();
 
@@ -75,8 +76,8 @@ export default function Register() {
             const registerResult = await createUserWithEmailAndPassword(auth, email, password);
 
             try {
-                mixpanel.alias(registerResult.user.uid);
-                mixpanel.track('DC Signed up with email', {
+                analytics.alias(registerResult.user.uid);
+                analytics.track('DC Signed up with email', {
                     status: 'success'
                 });
             } catch (e) {
@@ -97,24 +98,24 @@ export default function Register() {
                     setErrorAlert(errorMessage);
             }
 
-            mixpanel.track('DC Signed up with email', {
+            analytics.track('DC Signed up with email', {
                 status: 'failure',
                 error: errorCode
             });
         }
     }
 
-    function handleSubmit(e: FormEvent): void {
+    async function handleSubmit(e: FormEvent) {
         e.preventDefault();
-        mixpanel.track('DC Submitted email registration form');
-
+        setSubmitDisabled(true);
+        analytics.track('DC Submitted email registration form');
         // validation has side effect of showing messages
         if (!validate()) {
-            mixpanel.track('DC Registration form validation failed')
+            analytics.track('DC Registration form validation failed')
+            setSubmitDisabled(false);
             return;
         }
-
-        signUpWithEmail();
+        await signUpWithEmail();
     }
 
     function validate() {
@@ -204,7 +205,7 @@ export default function Register() {
                         </Form.Control.Feedback>
                     </Form.Group>
                 </div>
-                <Button variant="primary" type="submit">
+                <Button variant="primary" type="submit" disabled={submitDisabled} >
                     Sign Up
                 </Button>
             </Form>

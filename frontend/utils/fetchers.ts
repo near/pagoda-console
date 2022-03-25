@@ -1,5 +1,5 @@
 import { getAuth, getIdToken } from "firebase/auth";
-import useSWR, { KeyedMutator } from "swr";
+import useSWR, { KeyedMutator, mutate } from "swr";
 import useSWRImmutable from 'swr/immutable'
 import { PublicConfiguration, Revalidator, RevalidatorOptions, SWRConfiguration } from "swr/dist/types";
 import { Transaction } from "../components/explorer/components/transactions/types";
@@ -7,6 +7,7 @@ import { useIdentity } from "./hooks";
 import { Contract, Environment, User, Project, NetOption } from "./interfaces";
 import router, { useRouter } from "next/router";
 import { useEffect } from "react";
+import mixpanel from "mixpanel-browser";
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
@@ -189,6 +190,30 @@ export function useRecentTransactions(contracts: string[], net: NetOption): { tr
     });
 
   return { transactions, error };
+}
+
+export async function deleteProject(userId: string | null, slug: string, name: string) {
+  try {
+      await authenticatedPost('/projects/delete', { slug });
+      mixpanel.track('DC Remove Project', {
+          status: 'success',
+          name
+      });
+      // Update the SWR cache before a refetch for better UX.
+      mutate<Project[]>(userId ? ["/projects/list", userId] : null, async projects => {
+        return projects?.filter(p => p.slug !== slug);
+      });
+      return true;
+  } catch (e: any) {
+      mixpanel.track('DC Remove Project', {
+          status: 'failure',
+          name,
+          error: e.message,
+      });
+      // TODO
+      console.error('Failed to delete project');
+  }
+  return false;
 }
 
 // * This is a modified version of the onErrorRetry function pulled from SWR source

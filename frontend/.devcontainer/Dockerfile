@@ -2,7 +2,7 @@
 
 # [Choice] Node.js version: 16, 14, 12, 16-bullseye, 14-bullseye, 12-bullseye, 16-buster, 14-buster, 12-buster
 ARG VARIANT="16-bullseye"
-FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:0-${VARIANT}
+FROM --platform=linux/amd64 mcr.microsoft.com/vscode/devcontainers/typescript-node:0-${VARIANT}
 
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
