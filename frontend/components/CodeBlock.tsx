@@ -1,11 +1,11 @@
 import { faCopy } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { FC, useRef, useState } from 'react';
+import { ReactElement, useRef, useState } from 'react';
 import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { LightAsync as SyntaxHighlighter, SyntaxHighlighterProps } from 'react-syntax-highlighter';
 import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
 
-const CodeBlock: FC<SyntaxHighlighterProps> = function ({ children, ...passedProps }) {
+export default function CodeBlock({ children, ...passedProps }: { children: ReactElement; language: string }) {
   const isChildString = typeof children === 'string';
 
   let [showCopiedAlert, setShowCopiedAlert] = useState(false);
@@ -64,6 +64,4 @@ const CodeBlock: FC<SyntaxHighlighterProps> = function ({ children, ...passedPro
       `}</style>
     </div>
   );
-};
-
-export default CodeBlock;
+}
