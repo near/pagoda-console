@@ -32,8 +32,8 @@ const projects = [
 
 const PickTutorial: NextPageWithLayout = () => {
   const router = useRouter();
-  const [createInProgress, setCreateInProgress] = useState<boolean>(false);
-  const [creationError, setCreationError] = useState<string>('');
+  const [createInProgress, setCreateInProgress] = useState(false);
+  const [creationError, setCreationError] = useState('');
 
   // Project name is tutorial name. Path is the mdx file for the tutorial.
   async function createProject(tutorial: Tutorial, name: string, path: string): Promise<void> {

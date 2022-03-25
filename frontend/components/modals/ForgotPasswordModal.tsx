@@ -8,10 +8,10 @@ import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 import analytics from '../../utils/analytics';
 
 export default function ForgotPasswordModal({ show, onHide }: { show: boolean; onHide: () => void }) {
-  const [email, setEmail] = useState<string>('');
-  const [isSending, setIsSending] = useState<boolean>(false);
-  const [hasSent, setHasSent] = useState<boolean>(false);
-  const [validationFail, setValidationFail] = useState<string>('');
+  const [email, setEmail] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [hasSent, setHasSent] = useState(false);
+  const [validationFail, setValidationFail] = useState('');
 
   async function sendPasswordReset() {
     if (!email.trim()) {

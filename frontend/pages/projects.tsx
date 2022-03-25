@@ -16,8 +16,8 @@ import DeleteProjectModal from '../components/modals/DeleteProjectModal';
 const Projects: NextPageWithLayout = () => {
   const router = useRouter();
   const { projects, error, isValidating, mutate: refetchProjects } = useProjects();
-  let [isEditing, setIsEditing] = useState<boolean>(false);
-  const [showRedirectAlert, setShowRedirectAlert] = useState<boolean>(false);
+  let [isEditing, setIsEditing] = useState(false);
+  const [showRedirectAlert, setShowRedirectAlert] = useState(false);
 
   useEffect(() => {
     if (window.sessionStorage.getItem('redirected') === 'true') {
@@ -129,7 +129,7 @@ function RedirectAlert(props: { onClick: () => void }) {
 }
 
 function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boolean; onDelete: () => void }) {
-  let [showModal, setShowModal] = useState<boolean>(false);
+  let [showModal, setShowModal] = useState(false);
 
   return (
     <div className="projectRowContainer">

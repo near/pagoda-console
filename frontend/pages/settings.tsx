@@ -13,12 +13,12 @@ interface ValidationFailure {
 }
 
 const Settings: NextPageWithLayout = () => {
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [updateInProgress, setUpdateInProgress] = useState<boolean>(false);
-  const [displayName, setDisplayName] = useState<string>('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [updateInProgress, setUpdateInProgress] = useState(false);
+  const [displayName, setDisplayName] = useState('');
   const { user, error, mutate } = useAccount();
   const identity = useIdentity();
-  const [updateError, setUpdateError] = useState<string>('');
+  const [updateError, setUpdateError] = useState('');
   const [validationFail, setValidationFail] = useState<ValidationFailure>({});
 
   function handleFormChange(type: 'displayName', newValue: string): void {

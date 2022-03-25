@@ -8,7 +8,7 @@ import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
 const CodeBlock: FC<SyntaxHighlighterProps> = function ({ children, ...passedProps }) {
   const isChildString = typeof children === 'string';
 
-  let [showCopiedAlert, setShowCopiedAlert] = useState<boolean>(false);
+  let [showCopiedAlert, setShowCopiedAlert] = useState(false);
   const copiedTimer = useRef<NodeJS.Timeout>();
 
   function copyKey() {

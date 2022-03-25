@@ -9,7 +9,7 @@ import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 // it uses browser APIs
 
 export default function ThemeToggle() {
-  const [activeTheme, setActiveTheme] = useState<string>(document.body.dataset.theme || 'light');
+  const [activeTheme, setActiveTheme] = useState(document.body.dataset.theme || 'light');
   const inactiveTheme = activeTheme === 'light' ? 'dark' : 'light';
 
   useEffect(() => {

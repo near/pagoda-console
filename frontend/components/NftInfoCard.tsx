@@ -15,10 +15,10 @@ import { useIdentity, useRouteParam } from '../utils/hooks';
 import PageLink from './PageLink';
 
 export default function NftInfoCard() {
-  const [isEditing, setIsEditing] = useState<boolean>(true);
+  const [isEditing, setIsEditing] = useState(true);
   const [contractAddress, setContractAddress] = useState<string | null>(null);
-  const [addressInputValue, setAddressInputValue] = useState<string>('');
-  const [showQuickInfo, setShowQuickInfo] = useState<boolean>(true);
+  const [addressInputValue, setAddressInputValue] = useState('');
+  const [showQuickInfo, setShowQuickInfo] = useState(true);
 
   const identity = useIdentity();
 

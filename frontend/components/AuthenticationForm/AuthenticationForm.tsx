@@ -64,13 +64,13 @@ const providers: Array<ProviderDetails> = [
 ];
 //share reg status
 function useRegistrationStatus() {
-  return useState<boolean>(false);
+  return useState(false);
 }
 
 export default function AuthenticationForm() {
   const router = useRouter();
-  const [authActive, setAuthActive] = useState<boolean>(true);
-  const [authError, setAuthError] = useState<string>('');
+  const [authActive, setAuthActive] = useState(true);
+  const [authError, setAuthError] = useState('');
 
   useEffect(() => {
     const unregisterAuthObserver = onAuthStateChanged(getAuth(), (user) => {
@@ -194,10 +194,10 @@ const emailRegex = /\w+@\w+\.\w+/;
 const passwordRegex = /.{6,}/;
 
 function EmailAuth(props: { authActive: boolean }) {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [hasFailedSignIn, setHasFailedSignIn] = useState<boolean>(false);
-  const [showResetModal, setShowResetModal] = useState<boolean>(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [hasFailedSignIn, setHasFailedSignIn] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
 
   const [validationFail, setValidationFail] = useState<ValidationFailure>({});
 

@@ -45,7 +45,7 @@ const Contracts: NextPageWithLayout = () => {
 function ContractsTable(props: { project: string; environment: Environment }) {
   const { contracts, error, mutate: mutateContracts } = useContracts(props.project, props.environment.subId);
   // TODO determine how to not retry on 400s
-  let [isEditing, setIsEditing] = useState<boolean>(false);
+  let [isEditing, setIsEditing] = useState(false);
 
   // these variables might seem redundant, but there are three states we need
   // to represent
@@ -195,10 +195,10 @@ function ContractsEmptyState({
 }
 
 function AddContractForm(props: { project: string; environment: Environment; onAdd: () => void }) {
-  let [showAdd, setShowAdd] = useState<boolean>(false);
-  let [addInProgress, setAddInProgress] = useState<boolean>(false);
-  let [address, setAddress] = useState<string>('');
-  let [error, setError] = useState<string>('');
+  let [showAdd, setShowAdd] = useState(false);
+  let [addInProgress, setAddInProgress] = useState(false);
+  let [address, setAddress] = useState('');
+  let [error, setError] = useState('');
 
   async function submitNewContract(e?: FormEvent) {
     if (e) {
@@ -296,7 +296,7 @@ function AddContractForm(props: { project: string; environment: Environment; onA
 }
 
 function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete: Function }) {
-  let [canDelete, setCanDelete] = useState<boolean>(true);
+  let [canDelete, setCanDelete] = useState(true);
   const { data, error } = useSWR(
     [props.contract.address, props.contract.net],
     async (address: string) => {

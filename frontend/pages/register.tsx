@@ -30,13 +30,13 @@ const onFocus = () => {
 };
 
 const Register: NextPageWithLayout = () => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [displayName, setDisplayName] = useState<string>('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [validationFail, setValidationFail] = useState<ValidationFailure>({});
   const [errorAlert, setErrorAlert] = useState<string | null>();
-  const [submitDisabled, setSubmitDisabled] = useState<boolean>(false);
+  const [submitDisabled, setSubmitDisabled] = useState(false);
 
   const router = useRouter();
 

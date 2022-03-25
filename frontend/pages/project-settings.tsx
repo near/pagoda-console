@@ -21,8 +21,8 @@ const ROTATION_WARNING =
 const ProjectSettings: NextPageWithLayout = () => {
   const projectSlug = useRouteParam('project', '/projects');
   const { keys, error: keysError, mutate: mutateKeys } = useApiKeys(projectSlug);
-  const [showMainnetRotationModal, setShowMainnetRotationModal] = useState<boolean>(false);
-  const [showTestnetRotationModal, setShowTestnetRotationModal] = useState<boolean>(false);
+  const [showMainnetRotationModal, setShowMainnetRotationModal] = useState(false);
+  const [showTestnetRotationModal, setShowTestnetRotationModal] = useState(false);
 
   // Tutorial projects do not have MAINNET keys.
   const hasMainnetKey = !!keys?.MAINNET;
@@ -121,7 +121,7 @@ const ProjectSettings: NextPageWithLayout = () => {
 };
 
 function DeleteProject() {
-  let [showModal, setShowModal] = useState<boolean>(false);
+  let [showModal, setShowModal] = useState(false);
   const projectSlug = useRouteParam('project', '/projects');
   const { project } = useProject(projectSlug);
   const router = useRouter();
@@ -157,7 +157,7 @@ function DeleteProject() {
 }
 
 function KeyRow(props: { name: string; token?: string; onRotateKey: Function }) {
-  let [keyObscured, setKeyObscured] = useState<boolean>(true);
+  let [keyObscured, setKeyObscured] = useState(true);
 
   function getObscuredKey(key: string) {
     // const obscureChar = '*';
@@ -166,7 +166,7 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: Function }) 
   }
 
   const copyRef = useRef(null);
-  let [showCopiedAlert, setShowCopiedAlert] = useState<boolean>(false);
+  let [showCopiedAlert, setShowCopiedAlert] = useState(false);
   const copiedTimer = useRef<NodeJS.Timeout>();
   function copyKey() {
     if (copiedTimer.current) {

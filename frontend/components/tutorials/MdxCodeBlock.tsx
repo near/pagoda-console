@@ -9,7 +9,7 @@ export interface GitHubReference {
 }
 
 export default function MdxCodeBlock(props: any) {
-  let [content, setContent] = useState<string>('');
+  let [content, setContent] = useState('');
 
   function isGithubReference(props: any) {
     return props.className === 'language-rust' && props.children.startsWith('https://github.com/near-examples');
