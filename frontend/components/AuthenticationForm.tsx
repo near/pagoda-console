@@ -15,13 +15,13 @@ import { GithubAuthProvider, GoogleAuthProvider } from 'firebase/auth';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import ForgotPasswordModal from '../modals/ForgotPasswordModal';
-import ErrorModal from '../modals/ErrorModal';
+import ForgotPasswordModal from './modals/ForgotPasswordModal';
+import ErrorModal from './modals/ErrorModal';
 import Image from 'next/image';
-import analytics from '../../utils/analytics';
+import analytics from '../utils/analytics';
 
-import GithubMark from '../../public/githubMark.png';
-import GoogleMark from '../../public/googleMark.png';
+import GithubMark from '../public/githubMark.png';
+import GoogleMark from '../public/googleMark.png';
 
 interface ProviderDetails {
   name: string;

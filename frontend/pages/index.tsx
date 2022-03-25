@@ -1,5 +1,5 @@
 import { NextPageWithLayout } from '../utils/types';
-import AuthenticationForm from '../components/AuthenticationForm/AuthenticationForm';
+import AuthenticationForm from '../components/AuthenticationForm';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useSimpleLayout } from '../utils/layouts';
