@@ -16,7 +16,7 @@ import config from '../utils/config';
 import Head from 'next/head';
 import { NextPageWithLayout } from '../utils/types';
 
-export type AppPropsWithLayout = AppProps & {
+type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
