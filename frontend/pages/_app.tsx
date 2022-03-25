@@ -5,7 +5,7 @@ import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config as svgConfig } from '@fortawesome/fontawesome-svg-core';
 svgConfig.autoAddCss = false;
 
-import { FC, useEffect } from 'react';
+import { useEffect } from 'react';
 import { AppProps } from 'next/app';
 import { useSWRConfig, SWRConfig } from 'swr';
 import { appWithTranslation } from 'next-i18next';
