@@ -39,7 +39,7 @@ analytics.init();
 
 const unauthedPaths = ['/', '/register'];
 
-const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps }) => {
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // redirect to login if user is not signed in
   const router = useRouter();
 
@@ -109,6 +109,6 @@ const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps }) => {
       </SWRConfig>
     </SSRProvider>
   );
-};
+}
 
 export default appWithTranslation(MyApp);
