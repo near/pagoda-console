@@ -15,8 +15,8 @@ const NewProject: NextPageWithLayout = () => {
   const router = useRouter();
   const isOnboarding = useRouteParam('onboarding');
 
-  let [creationError, setCreationError] = useState();
-  let [validationError, setValidationError] = useState();
+  let [creationError, setCreationError] = useState('');
+  let [validationError, setValidationError] = useState('');
   const [createInProgress, setCreateInProgress] = useState(false);
 
   function canCreate(): boolean {
