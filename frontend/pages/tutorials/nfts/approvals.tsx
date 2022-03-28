@@ -1,3 +1,4 @@
+import { NextPageWithLayout } from '../../../utils/types';
 import ProjectSelector from '../../../components/ProjectSelector';
 import components from '../../../components/tutorials/components';
 import NextStepButton from '../../../components/tutorials/NextStepButton';
@@ -6,7 +7,7 @@ import TutorialFooter from '../../../components/tutorials/TutorialFooter';
 import { useDashboardLayout } from '../../../utils/layouts';
 import Content from '../../../tutorials/nfts/md/5-approval.mdx';
 
-export default function Overview() {
+const Approvals: NextPageWithLayout = () => {
   return (
     <>
       <ProjectSelector />
@@ -17,6 +18,8 @@ export default function Overview() {
       </TutorialFooter>
     </>
   );
-}
+};
 
-Overview.getLayout = useDashboardLayout;
+Approvals.getLayout = useDashboardLayout;
+
+export default Approvals;

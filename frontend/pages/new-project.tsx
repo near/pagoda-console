@@ -1,3 +1,4 @@
+import { NextPageWithLayout } from '../utils/types';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { useSimpleLogoutLayout } from '../utils/layouts';
 import { Form, Button } from 'react-bootstrap';
@@ -8,15 +9,15 @@ import { useRouteParam } from '../utils/hooks';
 import analytics from '../utils/analytics';
 import BorderSpinner from '../components/BorderSpinner';
 
-export default function NewProject() {
-  let [projectName, setProjectName] = useState<string>('');
-  let [formEnabled, setFormEnabled] = useState<boolean>(true);
+const NewProject: NextPageWithLayout = () => {
+  let [projectName, setProjectName] = useState('');
+  let [formEnabled, setFormEnabled] = useState(true);
   const router = useRouter();
   const isOnboarding = useRouteParam('onboarding');
 
-  let [creationError, setCreationError] = useState<string>();
-  let [validationError, setValidationError] = useState<string>();
-  const [createInProgress, setCreateInProgress] = useState<boolean>(false);
+  let [creationError, setCreationError] = useState('');
+  let [validationError, setValidationError] = useState('');
+  const [createInProgress, setCreateInProgress] = useState(false);
 
   function canCreate(): boolean {
     return formEnabled && !!projectName.trim() && !validationError;
@@ -132,6 +133,8 @@ export default function NewProject() {
       `}</style>
     </div>
   );
-}
+};
 
 NewProject.getLayout = useSimpleLogoutLayout;
+
+export default NewProject;

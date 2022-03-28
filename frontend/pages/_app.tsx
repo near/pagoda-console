@@ -5,9 +5,8 @@ import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config as svgConfig } from '@fortawesome/fontawesome-svg-core';
 svgConfig.autoAddCss = false;
 
-import { ReactElement, ReactNode, useEffect } from 'react';
-import type { NextPage } from 'next';
-import type { AppProps } from 'next/app';
+import { useEffect } from 'react';
+import { AppProps } from 'next/app';
 import { useSWRConfig, SWRConfig } from 'swr';
 import { appWithTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
@@ -15,13 +14,9 @@ import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { customErrorRetry } from '../utils/fetchers';
 import config from '../utils/config';
 import Head from 'next/head';
+import { NextPageWithLayout } from '../utils/types';
 
-export type NextPageWithLayout = NextPage & {
-  getLayout?: (page: ReactElement, footer: ReactElement | null) => ReactNode;
-  getFooter?: () => ReactElement;
-};
-
-export type AppPropsWithLayout = AppProps & {
+type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
@@ -80,6 +75,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
   const getFooter = Component.getFooter ?? (() => null);
+
   return (
     <SSRProvider>
       <SWRConfig
@@ -114,4 +110,5 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     </SSRProvider>
   );
 }
+
 export default appWithTranslation(MyApp);

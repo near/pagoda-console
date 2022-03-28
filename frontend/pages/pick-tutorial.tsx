@@ -1,6 +1,7 @@
+import { NextPageWithLayout } from '../utils/types';
 import { useState } from 'react';
 import { useSimpleLogoutLayout } from '../utils/layouts';
-import { Row, Col, Alert } from 'react-bootstrap';
+import { Alert } from 'react-bootstrap';
 import { useRouter } from 'next/router';
 import ProjectCard from '../components/ProjectCard';
 import { authenticatedPost } from '../utils/fetchers';
@@ -29,10 +30,10 @@ const projects = [
   },
 ];
 
-export default function PickProject() {
+const PickTutorial: NextPageWithLayout = () => {
   const router = useRouter();
-  const [createInProgress, setCreateInProgress] = useState<boolean>(false);
-  const [creationError, setCreationError] = useState<string>('');
+  const [createInProgress, setCreateInProgress] = useState(false);
+  const [creationError, setCreationError] = useState('');
 
   // Project name is tutorial name. Path is the mdx file for the tutorial.
   async function createProject(tutorial: Tutorial, name: string, path: string): Promise<void> {
@@ -107,6 +108,8 @@ export default function PickProject() {
       `}</style>
     </div>
   );
-}
+};
 
-PickProject.getLayout = useSimpleLogoutLayout;
+PickTutorial.getLayout = useSimpleLogoutLayout;
+
+export default PickTutorial;

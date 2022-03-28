@@ -1,3 +1,4 @@
+import { NextPageWithLayout } from '../utils/types';
 import { FormEvent, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 import BorderSpinner from '../components/BorderSpinner';
@@ -11,13 +12,13 @@ interface ValidationFailure {
   displayName?: string;
 }
 
-export default function Settings() {
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [updateInProgress, setUpdateInProgress] = useState<boolean>(false);
-  const [displayName, setDisplayName] = useState<string>('');
+const Settings: NextPageWithLayout = () => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [updateInProgress, setUpdateInProgress] = useState(false);
+  const [displayName, setDisplayName] = useState('');
   const { user, error, mutate } = useAccount();
   const identity = useIdentity();
-  const [updateError, setUpdateError] = useState<string>('');
+  const [updateError, setUpdateError] = useState('');
   const [validationFail, setValidationFail] = useState<ValidationFailure>({});
 
   function handleFormChange(type: 'displayName', newValue: string): void {
@@ -158,6 +159,8 @@ export default function Settings() {
       `}</style>
     </div>
   );
-}
+};
 
 Settings.getLayout = useDashboardLayout;
+
+export default Settings;

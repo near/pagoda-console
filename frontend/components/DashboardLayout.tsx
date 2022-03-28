@@ -281,7 +281,7 @@ function PageLink(props: {
   // to instead show the API keys directly on the empty state of the analytics page. Leaving this here in for the
   // short term until that it implemented
   //
-  // const [hideTooltip, setHideTooltip] = useState<boolean>(false);
+  // const [hideTooltip, setHideTooltip] = useState(false);
   // function closeTooltip() {
   //     // setHideTooltip(true);
   //     if (props.dismissOnboarding) {

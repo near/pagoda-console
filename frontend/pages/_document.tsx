@@ -14,6 +14,7 @@ class MyDocument extends Document {
     //   }
     //   document.body.dataset.theme = getUserPreference();
     // `;
+
     const setInitialTheme = `
       function getUserPreference() {
         if(window.localStorage.getItem('theme')) {

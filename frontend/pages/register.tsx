@@ -1,3 +1,4 @@
+import { NextPageWithLayout } from '../utils/types';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { useSimpleLayout } from '../utils/layouts';
 import Link from 'next/link';
@@ -11,8 +12,6 @@ import {
 } from 'firebase/auth';
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { authenticatedPost } from '../utils/fetchers';
-import { usePageTracker } from '../utils/hooks';
 import analytics from '../utils/analytics';
 
 interface ValidationFailure {
@@ -30,14 +29,14 @@ const onFocus = () => {
   getAuth().currentUser?.reload();
 };
 
-export default function Register() {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [displayName, setDisplayName] = useState<string>('');
+const Register: NextPageWithLayout = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [validationFail, setValidationFail] = useState<ValidationFailure>({});
   const [errorAlert, setErrorAlert] = useState<string | null>();
-  const [submitDisabled, setSubmitDisabled] = useState<boolean>(false);
+  const [submitDisabled, setSubmitDisabled] = useState(false);
 
   const router = useRouter();
 
@@ -262,6 +261,8 @@ export default function Register() {
       `}</style>
     </div>
   );
-}
+};
 
 Register.getLayout = useSimpleLayout;
+
+export default Register;

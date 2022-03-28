@@ -1,3 +1,4 @@
+import { NextPageWithLayout } from '../../../utils/types';
 import ProjectSelector from '../../../components/ProjectSelector';
 import components from '../../../components/tutorials/components';
 import TableOfContents from '../../../components/tutorials/TableOfContents';
@@ -6,7 +7,7 @@ import Content from '../../../tutorials/nfts/md/8-marketplace.mdx';
 import TutorialFooter from '../../../components/tutorials/TutorialFooter';
 import NextStepButton from '../../../components/tutorials/NextStepButton';
 
-export default function Overview() {
+const Marketplace: NextPageWithLayout = () => {
   return (
     <>
       <ProjectSelector />
@@ -17,6 +18,8 @@ export default function Overview() {
       </TutorialFooter>
     </>
   );
-}
+};
 
-Overview.getLayout = useDashboardLayout;
+Marketplace.getLayout = useDashboardLayout;
+
+export default Marketplace;
