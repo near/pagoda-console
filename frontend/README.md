@@ -56,13 +56,16 @@ To style third party components which do not accept a custom `className` (e.g. R
 Pages take advantage of the Next.js [layouts](https://nextjs.org/docs/basic-features/layouts) feature. Currently there are two layouts: DashboardLayout and SimpleLayout. Choose a layout by setting the `getLayout` to the appropriate value from the [utils/layouts.tsx](utils/layouts.tsx) file
 
 ```tsx
+import { NextPageWithLayout } from '../utils/types';
 import { useSimpleLayout } from '../utils/layouts';
 
-export default function NewPage() {
+const NewPage: NextPageWithLayout = () => {
   // page content
-}
+};
 
 NewPage.getLayout = useSimpleLayout;
+
+export default NewPage;
 ```
 
 ## Data Fetching
