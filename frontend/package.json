@@ -8,6 +8,7 @@
     "export": "next build && next export",
     "start": "next start",
     "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "test:e2e": "playwright test",
     "test": "jest --watch",
     "test:ci": "jest --ci",
