@@ -19,6 +19,7 @@ import ForgotPasswordModal from './modals/ForgotPasswordModal';
 import ErrorModal from './modals/ErrorModal';
 import Image from 'next/image';
 import analytics from '../utils/analytics';
+import { assertUnreachable } from '../utils/helpers';
 
 import GithubMark from '../public/githubMark.png';
 import GoogleMark from '../public/googleMark.png';
@@ -41,7 +42,6 @@ const providers: Array<ProviderDetails> = [
     color: 'var(--color-white)',
     backgroundColor: 'var(--color-black)',
     providerInstance: new GithubAuthProvider(),
-    // image: 'githubMark.png',
     image: GithubMark,
     hoverBrightness: 1.5,
   },
@@ -51,21 +51,9 @@ const providers: Array<ProviderDetails> = [
     border: true,
     backgroundColor: 'var(--color-white)',
     providerInstance: new GoogleAuthProvider(),
-    // image: 'googleMark.png',
     image: GoogleMark,
   },
-  // {
-  //     name: 'Email',
-  //     color: 'var(--color-white)',
-  //     backgroundColor: 'var(--color-accent-purple)',
-  //     providerInstance: new EmailAuthProvider(),
-  //     icon: faEnvelope,
-  // },
 ];
-//share reg status
-function useRegistrationStatus() {
-  return useState(false);
-}
 
 export default function AuthenticationForm() {
   const router = useRouter();
@@ -98,8 +86,9 @@ export default function AuthenticationForm() {
     setAuthActive(false);
     const auth = getAuth();
     try {
-      let socialResult = await signInWithPopup(auth, provider);
+      const socialResult = await signInWithPopup(auth, provider);
       const additional = getAdditionalUserInfo(socialResult);
+
       try {
         if (additional?.isNewUser) {
           analytics.alias(socialResult.user.uid);
@@ -124,7 +113,7 @@ export default function AuthenticationForm() {
             setAuthError('There is already an account associated with that email.');
           } else {
             // Get sign-in methods for this email.
-            let methods = await fetchSignInMethodsForEmail(auth, email);
+            const methods = await fetchSignInMethodsForEmail(auth, email);
             setAuthError(
               `You already have an account with the email ${email}. Try logging in with ${methods.join(' or ')}.`,
             );
@@ -201,8 +190,6 @@ function EmailAuth(props: { authActive: boolean }) {
 
   const [validationFail, setValidationFail] = useState<ValidationFailure>({});
 
-  const router = useRouter();
-
   async function signInWithEmail(): Promise<void> {
     setHasFailedSignIn(false);
     const auth = getAuth();
@@ -216,14 +203,13 @@ function EmailAuth(props: { authActive: boolean }) {
       setHasFailedSignIn(true);
       const error = e as AuthError;
       const errorCode = error.code;
-      const errorMessage = error.message;
 
       analytics.track('DC Login using name + password', {
         status: 'failure',
         error: errorCode,
       });
 
-      let errorValidationFailure: ValidationFailure = {};
+      const errorValidationFailure: ValidationFailure = {};
       switch (errorCode) {
         case 'auth/user-not-found':
           errorValidationFailure.email = 'User not found';
@@ -272,10 +258,8 @@ function EmailAuth(props: { authActive: boolean }) {
       case 'password':
         setPassword(newValue);
         break;
-
       default:
-        const _exhaustiveCheck: never = type;
-        break;
+        assertUnreachable(type);
     }
   }
 

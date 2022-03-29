@@ -1,5 +1,5 @@
 import { NextPageWithLayout } from '../utils/types';
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import { useSimpleLogoutLayout } from '../utils/layouts';
 import { Form, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
@@ -10,13 +10,13 @@ import analytics from '../utils/analytics';
 import BorderSpinner from '../components/BorderSpinner';
 
 const NewProject: NextPageWithLayout = () => {
-  let [projectName, setProjectName] = useState('');
-  let [formEnabled, setFormEnabled] = useState(true);
+  const [projectName, setProjectName] = useState('');
+  const [formEnabled, setFormEnabled] = useState(true);
   const router = useRouter();
   const isOnboarding = useRouteParam('onboarding');
 
-  let [creationError, setCreationError] = useState('');
-  let [validationError, setValidationError] = useState('');
+  const [creationError, setCreationError] = useState('');
+  const [validationError, setValidationError] = useState('');
   const [createInProgress, setCreateInProgress] = useState(false);
 
   function canCreate(): boolean {

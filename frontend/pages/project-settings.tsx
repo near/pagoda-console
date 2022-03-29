@@ -20,7 +20,7 @@ const ROTATION_WARNING =
 
 const ProjectSettings: NextPageWithLayout = () => {
   const projectSlug = useRouteParam('project', '/projects');
-  const { keys, error: keysError, mutate: mutateKeys } = useApiKeys(projectSlug);
+  const { keys, mutate: mutateKeys } = useApiKeys(projectSlug);
   const [showMainnetRotationModal, setShowMainnetRotationModal] = useState(false);
   const [showTestnetRotationModal, setShowTestnetRotationModal] = useState(false);
 
@@ -37,7 +37,7 @@ const ProjectSettings: NextPageWithLayout = () => {
         delete cachedKeys[net];
         return cachedKeys;
       }, false);
-      let newKey = await authenticatedPost('/projects/rotateKey', { project: projectSlug, environment: subId });
+      const newKey = await authenticatedPost('/projects/rotateKey', { project: projectSlug, environment: subId });
       analytics.track('DC Rotate API Key', {
         status: 'success',
         net: net,
@@ -121,7 +121,7 @@ const ProjectSettings: NextPageWithLayout = () => {
 };
 
 function DeleteProject() {
-  let [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const projectSlug = useRouteParam('project', '/projects');
   const { project } = useProject(projectSlug);
   const router = useRouter();
@@ -156,8 +156,8 @@ function DeleteProject() {
   );
 }
 
-function KeyRow(props: { name: string; token?: string; onRotateKey: Function }) {
-  let [keyObscured, setKeyObscured] = useState(true);
+function KeyRow(props: { name: string; token?: string; onRotateKey: () => void }) {
+  const [keyObscured, setKeyObscured] = useState(true);
 
   function getObscuredKey(key: string) {
     // const obscureChar = '*';
@@ -166,7 +166,7 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: Function }) 
   }
 
   const copyRef = useRef(null);
-  let [showCopiedAlert, setShowCopiedAlert] = useState(false);
+  const [showCopiedAlert, setShowCopiedAlert] = useState(false);
   const copiedTimer = useRef<NodeJS.Timeout>();
   function copyKey() {
     if (copiedTimer.current) {
@@ -216,7 +216,10 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: Function }) 
           popperConfig={{ modifiers: [{ name: 'offset', options: { offset: [0, 8] } }] }}
           placement="right"
         >
-          {({ placement, arrowProps, show: _show, popper, ...props }) => (
+          {(
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            { placement, arrowProps, show, popper, ...props },
+          ) => (
             <div
               {...props}
               style={{

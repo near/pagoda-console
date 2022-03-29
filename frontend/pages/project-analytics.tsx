@@ -26,7 +26,7 @@ const ProjectAnalytics: NextPageWithLayout = () => {
     });
   }, []);
   const identity = useIdentity();
-  let [usageData, setUsageData] = useState<UsageData | null>();
+  const [usageData, setUsageData] = useState<UsageData | null>();
 
   const [methodBreakdownChartOptions, setMethodBreakdownChartOptions] = useState<Highcharts.Options>();
   const [responseCodeChartOptions, setResponseCodeChartOptions] = useState<Highcharts.Options>();
@@ -58,7 +58,7 @@ const ProjectAnalytics: NextPageWithLayout = () => {
             // could not identify environment
             continue;
           }
-          for (let currentNet in keys) {
+          for (const currentNet in keys) {
             if (keys[currentNet as NetOption].includes(event.properties.distinct_id)) {
               net = currentNet as NetOption;
               break;
@@ -118,7 +118,7 @@ const ProjectAnalytics: NextPageWithLayout = () => {
               usage.nets[net].calls++;
               break;
             case 'response':
-              let { status_code } = event.properties;
+              const { status_code } = event.properties;
 
               // DEBUGGING - view all codes in pie chart
               // if (Math.random() > 0.8) {
@@ -155,7 +155,7 @@ const ProjectAnalytics: NextPageWithLayout = () => {
 
       if (!usageData) {
         // fetch from API
-        let { events: usage, keys } = await authenticatedPost('/projects/getRpcUsage', { project });
+        const { events: usage, keys } = await authenticatedPost('/projects/getRpcUsage', { project });
 
         // initialize
         usageData = {

@@ -16,7 +16,7 @@ import DeleteProjectModal from '../components/modals/DeleteProjectModal';
 const Projects: NextPageWithLayout = () => {
   const router = useRouter();
   const { projects, error, isValidating, mutate: refetchProjects } = useProjects();
-  let [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [showRedirectAlert, setShowRedirectAlert] = useState(false);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const Projects: NextPageWithLayout = () => {
   } else if (!projects.length && isValidating) {
     return <BorderSpinner />;
   } else {
-    body = projects!.map((proj, index, arr) => (
+    body = projects!.map((proj, index) => (
       <ProjectRow
         key={proj.id}
         project={proj}
@@ -129,7 +129,7 @@ function RedirectAlert(props: { onClick: () => void }) {
 }
 
 function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boolean; onDelete: () => void }) {
-  let [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <div className="projectRowContainer">

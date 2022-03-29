@@ -16,9 +16,9 @@ export default function DeleteProjectModal({
   setShow: (show: boolean) => void;
   onDelete: () => void;
 }) {
-  let identity = useIdentity();
-  let [errorText, setErrorText] = useState<string | undefined>();
-  let [confirmDisabled, setConfirmDisabled] = useState(false);
+  const identity = useIdentity();
+  const [errorText, setErrorText] = useState<string | undefined>();
+  const [confirmDisabled, setConfirmDisabled] = useState(false);
   const warning =
     'Removing this project may have unintended consequences, make sure the API keys for this project are no longer in use before removing it.';
 

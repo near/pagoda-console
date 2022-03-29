@@ -7,6 +7,7 @@ import { useAccount } from '../utils/fetchers';
 import { useDashboardLayout } from '../utils/layouts';
 import { getIdToken, updateProfile } from 'firebase/auth';
 import { useIdentity } from '../utils/hooks';
+import { assertUnreachable } from '../utils/helpers';
 
 interface ValidationFailure {
   displayName?: string;
@@ -28,10 +29,8 @@ const Settings: NextPageWithLayout = () => {
       case 'displayName':
         setDisplayName(newValue);
         break;
-
       default:
-        const _exhaustiveCheck: never = type;
-        break;
+        assertUnreachable(type);
     }
   }
 

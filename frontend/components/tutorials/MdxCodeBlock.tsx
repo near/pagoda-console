@@ -9,7 +9,7 @@ export interface GitHubReference {
 }
 
 export default function MdxCodeBlock(props: any) {
-  let [content, setContent] = useState('');
+  const [content, setContent] = useState('');
 
   function isGithubReference(props: any) {
     return props.className === 'language-rust' && props.children.startsWith('https://github.com/near-examples');
@@ -100,7 +100,7 @@ export function parseReference(ref: string): GitHubReference {
   const fullUrl = ref.slice(ref.indexOf('https'), -1);
   const [url, loc] = fullUrl.split('#');
 
-  const [org, repo, blob, branch, ...pathSeg] = new URL(url).pathname.split('/').slice(1);
+  const [org, repo, branch, ...pathSeg] = new URL(url).pathname.split('/').slice(1);
   const [fromLine, toLine] = loc ? loc.split('-').map((lineNr) => parseInt(lineNr.slice(1), 10) - 1) : [0, Infinity];
 
   return {

@@ -9,7 +9,7 @@ import analytics from '../utils/analytics';
 import { logOut } from '../utils/auth';
 
 const Verification: NextPageWithLayout = () => {
-  let [hasResent, setHasResent] = useState(false);
+  const [hasResent, setHasResent] = useState(false);
 
   const existing = useRouteParam('existing') === 'true';
 
@@ -43,6 +43,7 @@ const Verification: NextPageWithLayout = () => {
   // only run once since it will re-queue itself
   useEffect(() => {
     queueVerificationCheck();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

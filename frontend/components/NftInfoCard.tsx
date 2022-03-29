@@ -1,18 +1,18 @@
-import { FormEvent, useEffect, useRef, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Accordion, Form, Button, InputGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import IconButton from './IconButton';
 import CodeBlock from './CodeBlock';
 import analytics from '../utils/analytics';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPen, faChevronUp, faCheckCircle, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faChevronUp, faCheckCircle, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { faCircle } from '@fortawesome/free-regular-svg-icons';
 import { useContractInfo, useMetadata } from '../utils/chainData';
 
-import { ContractMetadata, NftData, Token, TokenMetadata } from '../utils/chainData';
+import { ContractMetadata, NftData, Token } from '../utils/chainData';
 import { getUserData, updateUserData } from '../utils/cache';
 import { useIdentity, useRouteParam } from '../utils/hooks';
 import PageLink from './PageLink';
+import Image from 'next/image';
 
 export default function NftInfoCard() {
   const [isEditing, setIsEditing] = useState(true);
@@ -32,7 +32,7 @@ export default function NftInfoCard() {
     let userData;
     try {
       userData = getUserData(identity.uid);
-      let cachedContractAddress = userData?.projectData?.[project]?.nftContract;
+      const cachedContractAddress = userData?.projectData?.[project]?.nftContract;
       if (cachedContractAddress) {
         setContractAddress(cachedContractAddress);
         setIsEditing(false);
@@ -45,7 +45,7 @@ export default function NftInfoCard() {
   }, [identity, project]);
 
   // fetch basic account info for the NFT contract
-  const { data: contractBasics, error: basicsError, isValidating: basicsLoading } = useContractInfo(contractAddress);
+  const { data: contractBasics, error: basicsError } = useContractInfo(contractAddress);
 
   // fetch full NFT contract data based on functions required by nft-1.0.0
   const { data: nftData, error: nftError } = useMetadata(
@@ -411,7 +411,7 @@ function NftPreview({
 }) {
   return (
     <div className="previewContainer">
-      <div className="imageWrapper">{url ? <img src={url} alt="Preview of NFT media" /> : '??'}</div>
+      <div className="imageWrapper">{url ? <Image src={url} alt="Preview of NFT media" /> : '??'}</div>
       <div className="infoWrapper">
         <div className="infoGrid">
           <span className="label">Title</span>

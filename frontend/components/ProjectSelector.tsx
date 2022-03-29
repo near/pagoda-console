@@ -1,4 +1,4 @@
-import { ReactNode, forwardRef } from 'react';
+import { forwardRef } from 'react';
 import { AnchorProps, Dropdown, Placeholder } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useProject, useProjects } from '../utils/fetchers';
@@ -15,9 +15,9 @@ export default function ProjectSelector() {
   const project = useRouteParam('project', '/projects');
   // TODO (P2+) this could probably be pulled from the useProjects call instead of fetched
   // separately
-  const { project: projectDetails, error: projectError } = useProject(project);
+  const { project: projectDetails } = useProject(project);
 
-  const { projects, error, isValidating, mutate: refetchProjects } = useProjects();
+  const { projects } = useProjects();
 
   const otherProjectsList = projects && projects.filter((p) => p.slug !== project);
   const otherProjects = otherProjectsList?.length ? otherProjectsList : null;

@@ -20,7 +20,7 @@ import analytics from '../utils/analytics';
 const Contracts: NextPageWithLayout = () => {
   const { project, environment } = useProjectAndEnvironment();
 
-  let user = useIdentity();
+  const user = useIdentity();
 
   if (!user) {
     return <BorderSpinner />;
@@ -45,7 +45,7 @@ const Contracts: NextPageWithLayout = () => {
 function ContractsTable(props: { project: string; environment: Environment }) {
   const { contracts, error, mutate: mutateContracts } = useContracts(props.project, props.environment.subId);
   // TODO determine how to not retry on 400s
-  let [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   // these variables might seem redundant, but there are three states we need
   // to represent
@@ -195,10 +195,10 @@ function ContractsEmptyState({
 }
 
 function AddContractForm(props: { project: string; environment: Environment; onAdd: () => void }) {
-  let [showAdd, setShowAdd] = useState(false);
-  let [addInProgress, setAddInProgress] = useState(false);
-  let [address, setAddress] = useState('');
-  let [error, setError] = useState('');
+  const [showAdd, setShowAdd] = useState(false);
+  const [addInProgress, setAddInProgress] = useState(false);
+  const [address, setAddress] = useState('');
+  const [error, setError] = useState('');
 
   async function submitNewContract(e?: FormEvent) {
     if (e) {
@@ -295,8 +295,8 @@ function AddContractForm(props: { project: string; environment: Environment; onA
   );
 }
 
-function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete: Function }) {
-  let [canDelete, setCanDelete] = useState(true);
+function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete: () => void }) {
+  const [canDelete, setCanDelete] = useState(true);
   const { data, error } = useSWR(
     [props.contract.address, props.contract.net],
     async (address: string) => {
@@ -353,6 +353,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
 
   const removeContract = useMemo(
     () => debounce(removeContractRaw, Config.buttonDebounce, { leading: true, trailing: false }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 

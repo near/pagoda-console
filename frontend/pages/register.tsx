@@ -13,6 +13,7 @@ import {
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import analytics from '../utils/analytics';
+import { assertUnreachable } from '../utils/helpers';
 
 interface ValidationFailure {
   email?: string;
@@ -171,10 +172,8 @@ const Register: NextPageWithLayout = () => {
       case 'displayName':
         setDisplayName(newValue);
         break;
-
       default:
-        const _exhaustiveCheck: never = type;
-        break;
+        assertUnreachable(type);
     }
   }
 

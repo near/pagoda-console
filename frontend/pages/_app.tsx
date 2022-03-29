@@ -45,6 +45,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   useEffect(() => {
     router.prefetch('/');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   usePageTracker();

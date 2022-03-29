@@ -22,7 +22,7 @@ function useProjectPages(): PageDefinition[] {
   const pages = [];
 
   const projectSlug = useRouteParam('project');
-  const { project, error: projectError } = useProject(projectSlug);
+  const { project } = useProject(projectSlug);
 
   if (project?.tutorial === 'NFT_MARKET') {
     pages.push({ display: 'Tutorial', route: '/tutorials/nfts/introduction', routeMatchPattern: '/tutorials/' });
