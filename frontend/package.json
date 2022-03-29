@@ -7,7 +7,7 @@
     "build": "next build",
     "export": "next build && next export",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "test:e2e": "playwright test",
     "test": "jest --watch",
     "test:ci": "jest --ci",
