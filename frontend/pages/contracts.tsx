@@ -1,17 +1,15 @@
+import { NextPageWithLayout } from '../utils/types';
 import { debounce } from 'lodash-es';
-import { useDashboardLayout } from "../utils/layouts";
-import { Button, Form } from "react-bootstrap";
-import useSWR from "swr";
-import { FormEvent, useMemo, useState, useEffect } from "react";
-import { Contract, Environment } from "../utils/interfaces";
-import {
-  authenticatedPost,
-  useContracts,
-} from "../utils/fetchers";
-import { useIdentity, useProjectAndEnvironment } from "../utils/hooks";
-import BorderSpinner from "../components/BorderSpinner";
+import { useDashboardLayout } from '../utils/layouts';
+import { Button, Form } from 'react-bootstrap';
+import useSWR from 'swr';
+import { FormEvent, useMemo, useState, useEffect } from 'react';
+import { Contract, Environment } from '../utils/interfaces';
+import { authenticatedPost, useContracts } from '../utils/fetchers';
+import { useIdentity, useProjectAndEnvironment } from '../utils/hooks';
+import BorderSpinner from '../components/BorderSpinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
+import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import Config from '../utils/config';
 import ProjectSelector from '../components/ProjectSelector';
 import RecentTransactionList from '../components/RecentTransactionList';
@@ -19,7 +17,7 @@ import Image from 'next/image';
 import ContractsPreview from '../public/contractsPreview.png';
 import analytics from '../utils/analytics';
 
-export default function Contracts() {
+const Contracts: NextPageWithLayout = () => {
   const { project, environment } = useProjectAndEnvironment();
 
   let user = useIdentity();
@@ -33,9 +31,7 @@ export default function Contracts() {
   return (
     <div className="pageContainer">
       <ProjectSelector />
-      {project && environment && (
-        <ContractsTable project={project.slug} environment={environment} />
-      )}
+      {project && environment && <ContractsTable project={project.slug} environment={environment} />}
       <style jsx>{`
         .pageContainer {
           display: flex;
@@ -44,16 +40,12 @@ export default function Contracts() {
       `}</style>
     </div>
   );
-}
+};
 
 function ContractsTable(props: { project: string; environment: Environment }) {
-  const {
-    contracts,
-    error,
-    mutate: mutateContracts,
-  } = useContracts(props.project, props.environment.subId);
+  const { contracts, error, mutate: mutateContracts } = useContracts(props.project, props.environment.subId);
   // TODO determine how to not retry on 400s
-  let [isEditing, setIsEditing] = useState<boolean>(false);
+  let [isEditing, setIsEditing] = useState(false);
 
   // these variables might seem redundant, but there are three states we need
   // to represent
@@ -74,7 +66,9 @@ function ContractsTable(props: { project: string; environment: Environment }) {
   }, [hasNoContracts]);
 
   if (hasNoContracts) {
-    return <ContractsEmptyState project={props.project} environment={props.environment} mutateContracts={mutateContracts} />;
+    return (
+      <ContractsEmptyState project={props.project} environment={props.environment} mutateContracts={mutateContracts} />
+    );
   }
 
   if (!contracts && !error) {
@@ -92,22 +86,29 @@ function ContractsTable(props: { project: string; environment: Environment }) {
         <h2>Contracts</h2>
         {hasContracts && <Button onClick={() => setIsEditing(!isEditing)}>{!isEditing ? 'Edit' : 'Done'}</Button>}
       </div>
-      {hasContracts && <div className="tableGrid">
-        <span />
-        <span className="label">Account Balance</span>
-        <span className="label">Storage Used</span>
-        {isEditing && <span></span>}
-        {contracts &&
-          contracts.map((contract) => (
-            <ContractRow key={contract.address} contract={contract} showDelete={isEditing} onDelete={mutateContracts} />
-          ))}
-      </div>}
-      <AddContractForm
-        project={props.project}
-        environment={props.environment}
-        onAdd={mutateContracts}
-      />
-      {hasContracts && <div className='transactionsWrapper'><RecentTransactionList contracts={contracts!} net={props.environment.net} /></div>}
+      {hasContracts && (
+        <div className="tableGrid">
+          <span />
+          <span className="label">Account Balance</span>
+          <span className="label">Storage Used</span>
+          {isEditing && <span></span>}
+          {contracts &&
+            contracts.map((contract) => (
+              <ContractRow
+                key={contract.address}
+                contract={contract}
+                showDelete={isEditing}
+                onDelete={mutateContracts}
+              />
+            ))}
+        </div>
+      )}
+      <AddContractForm project={props.project} environment={props.environment} onAdd={mutateContracts} />
+      {hasContracts && (
+        <div className="transactionsWrapper">
+          <RecentTransactionList contracts={contracts!} net={props.environment.net} />
+        </div>
+      )}
 
       <style jsx>{`
         .headerRow {
@@ -131,8 +132,8 @@ function ContractsTable(props: { project: string; environment: Environment }) {
           /* max-width: 46rem; */
         }
         .tableGrid :global(.btn) {
-            width: 3rem;
-            margin-left: auto;
+          width: 3rem;
+          margin-left: auto;
         }
         .transactionsWrapper {
           margin-top: 3rem;
@@ -140,26 +141,30 @@ function ContractsTable(props: { project: string; environment: Environment }) {
       `}</style>
       <style jsx>{`
         .tableGrid {
-          grid-template-columns: auto 10rem 10rem${isEditing ? ' 6rem' : ''};
+          grid-template-columns: auto 10rem 10rem ${isEditing ? ' 6rem' : ''};
         }
       `}</style>
     </div>
   );
 }
 
-function ContractsEmptyState({ project, environment, mutateContracts }: {
+function ContractsEmptyState({
+  project,
+  environment,
+  mutateContracts,
+}: {
   project: string;
   environment: Environment;
   mutateContracts: () => void;
 }) {
   return (
-    <div className='emptyStateContainer'>
-      <div className='imageContainer'>
-        <Image src={ContractsPreview} alt='Preview of populated contracts page' />
+    <div className="emptyStateContainer">
+      <div className="imageContainer">
+        <Image src={ContractsPreview} alt="Preview of populated contracts page" />
       </div>
-      <div className='onboarding'>
-        <div className='onboardingText'>
-          <span className='boldText'>To see focused explorer views and aggregate transactions: </span>
+      <div className="onboarding">
+        <div className="onboardingText">
+          <span className="boldText">To see focused explorer views and aggregate transactions: </span>
           <span>add contracts to this project. </span>
         </div>
         <AddContractForm project={project} environment={environment} onAdd={mutateContracts} />
@@ -175,28 +180,25 @@ function ContractsEmptyState({ project, environment, mutateContracts }: {
           margin-bottom: 1.5rem;
         }
         .boldText {
-            font-weight: 700;
+          font-weight: 700;
         }
-        .imageContainer, .onboarding {
+        .imageContainer,
+        .onboarding {
           width: 50%;
         }
         a {
-          color: var(--color-primary)
+          color: var(--color-primary);
         }
       `}</style>
     </div>
   );
 }
 
-function AddContractForm(props: {
-  project: string;
-  environment: Environment;
-  onAdd: () => void;
-}) {
-  let [showAdd, setShowAdd] = useState<boolean>(false);
-  let [addInProgress, setAddInProgress] = useState<boolean>(false);
-  let [address, setAddress] = useState<string>("");
-  let [error, setError] = useState<string>("");
+function AddContractForm(props: { project: string; environment: Environment; onAdd: () => void }) {
+  let [showAdd, setShowAdd] = useState(false);
+  let [addInProgress, setAddInProgress] = useState(false);
+  let [address, setAddress] = useState('');
+  let [error, setError] = useState('');
 
   async function submitNewContract(e?: FormEvent) {
     if (e) {
@@ -205,7 +207,7 @@ function AddContractForm(props: {
     setAddInProgress(true);
     let contract: Contract;
     try {
-      contract = await authenticatedPost("/projects/addContract", {
+      contract = await authenticatedPost('/projects/addContract', {
         project: props.project,
         environment: props.environment.subId,
         address,
@@ -232,12 +234,12 @@ function AddContractForm(props: {
   }
 
   function handleAddressChange(e: React.ChangeEvent<HTMLInputElement>) {
-    error && setError("");
+    error && setError('');
     setAddress(e.target.value);
   }
 
   function closeAdd() {
-    setAddress("");
+    setAddress('');
     setShowAdd(false);
   }
 
@@ -253,21 +255,14 @@ function AddContractForm(props: {
               value={address}
               onChange={handleAddressChange}
             />
-            <Form.Control.Feedback type="invalid">
-              {error}
-            </Form.Control.Feedback>
+            <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
           </Form>
-          <div className="loadingContainer">
-            {addInProgress && <BorderSpinner />}
-          </div>
+          <div className="loadingContainer">{addInProgress && <BorderSpinner />}</div>
         </div>
       )}
       <div className="buttonContainer">
-        <Button
-          disabled={addInProgress}
-          onClick={showAdd ? submitNewContract : () => setShowAdd(true)}
-        >
-          {showAdd ? "Confirm" : "Add a Contract"}
+        <Button disabled={addInProgress} onClick={showAdd ? submitNewContract : () => setShowAdd(true)}>
+          {showAdd ? 'Confirm' : 'Add a Contract'}
         </Button>
         {showAdd && (
           <Button disabled={addInProgress} onClick={closeAdd}>
@@ -300,30 +295,27 @@ function AddContractForm(props: {
   );
 }
 
-function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete: Function }) {
-  let [canDelete, setCanDelete] = useState<boolean>(true);
+function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete: Function }) {
+  let [canDelete, setCanDelete] = useState(true);
   const { data, error } = useSWR(
     [props.contract.address, props.contract.net],
     async (address: string) => {
-      const res = await fetch(
-        Config.url.rpc.default[props.contract.net],
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+      const res = await fetch(Config.url.rpc.default[props.contract.net], {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'dontcare',
+          method: 'query',
+          params: {
+            request_type: 'view_account',
+            finality: 'final',
+            account_id: address,
           },
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            id: "dontcare",
-            method: "query",
-            params: {
-              request_type: "view_account",
-              finality: "final",
-              account_id: address,
-            },
-          }),
-        }
-      ).then((res) => res.json());
+        }),
+      }).then((res) => res.json());
       if (res.error) {
         // TODO decide whether to retry error
         throw new Error(res.error.name);
@@ -333,14 +325,14 @@ function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete:
     {
       // TODO decide whether to retry error
       shouldRetryOnError: false,
-    }
+    },
   );
 
   async function removeContractRaw() {
     setCanDelete(false);
     try {
       await authenticatedPost('/projects/removeContract', {
-        id: props.contract.id
+        id: props.contract.id,
       });
       analytics.track('DC Remove Contract', {
         status: 'success',
@@ -351,7 +343,7 @@ function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete:
       analytics.track('DC Remove Contract', {
         status: 'failure',
         contractId: props.contract.address,
-        error: e.message
+        error: e.message,
       });
       // TODO
       console.error(e);
@@ -359,24 +351,26 @@ function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete:
     }
   }
 
-  const removeContract = useMemo(() => debounce(removeContractRaw, Config.buttonDebounce, { leading: true, trailing: false }), []);
+  const removeContract = useMemo(
+    () => debounce(removeContractRaw, Config.buttonDebounce, { leading: true, trailing: false }),
+    [],
+  );
 
   return (
     <>
       <a
         onClick={() => analytics.track('DC View contract in Explorer')} // TODO CHECK
         className="explorerLink"
-        href={`https://explorer${props.contract.net === "TESTNET" ? ".testnet" : ""
-          }.near.org/accounts/${props.contract.address}`}
+        href={`https://explorer${props.contract.net === 'TESTNET' ? '.testnet' : ''}.near.org/accounts/${
+          props.contract.address
+        }`}
         target="_blank"
         rel="noopener noreferrer"
       >
         {props.contract.address}
       </a>
       {data ? (
-        <span className="data">
-          {(data.result.amount / 10 ** 24).toFixed(5)} Ⓝ
-        </span>
+        <span className="data">{(data.result.amount / 10 ** 24).toFixed(5)} Ⓝ</span>
       ) : !error ? (
         <BorderSpinner />
       ) : (
@@ -389,7 +383,11 @@ function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete:
       ) : (
         <span className="data">N/A</span>
       )}
-      {props.showDelete && <Button variant="outline-danger" onClick={() => removeContract()} disabled={!canDelete}><FontAwesomeIcon icon={faTrashAlt} /></Button>}
+      {props.showDelete && (
+        <Button variant="outline-danger" onClick={() => removeContract()} disabled={!canDelete}>
+          <FontAwesomeIcon icon={faTrashAlt} />
+        </Button>
+      )}
       <style jsx>{`
         .explorerLink {
           font-weight: 600;
@@ -403,3 +401,5 @@ function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete:
 }
 
 Contracts.getLayout = useDashboardLayout;
+
+export default Contracts;

@@ -5,9 +5,8 @@ import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config as svgConfig } from '@fortawesome/fontawesome-svg-core';
 svgConfig.autoAddCss = false;
 
-import { ReactElement, ReactNode, useEffect } from 'react';
-import type { NextPage } from 'next';
-import type { AppProps } from 'next/app';
+import { useEffect } from 'react';
+import { AppProps } from 'next/app';
 import { useSWRConfig, SWRConfig } from 'swr';
 import { appWithTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
@@ -15,16 +14,11 @@ import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { customErrorRetry } from '../utils/fetchers';
 import config from '../utils/config';
 import Head from 'next/head';
+import { NextPageWithLayout } from '../utils/types';
 
-
-export type NextPageWithLayout = NextPage & {
-  getLayout?: (page: ReactElement, footer: ReactElement | null) => ReactNode,
-  getFooter?: () => ReactElement
-}
-
-export type AppPropsWithLayout = AppProps & {
-  Component: NextPageWithLayout
-}
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
 
 // initialize Firebase
 import { initializeApp } from 'firebase/app';
@@ -37,16 +31,15 @@ initializeApp(config.firebaseConfig);
 
 // mixpanel initialization
 import analytics from '../utils/analytics';
-import { initializeNaj } from '../utils/chainData'
-import { usePageTracker } from '../utils/hooks'
-import SmallScreenNotice from '../components/SmallScreenNotice'
+import { initializeNaj } from '../utils/chainData';
+import { usePageTracker } from '../utils/hooks';
+import SmallScreenNotice from '../components/SmallScreenNotice';
 
 analytics.init();
 
 const unauthedPaths = ['/', '/register'];
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
-
   // redirect to login if user is not signed in
   const router = useRouter();
 
@@ -59,7 +52,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // https://github.com/vercel/swr/discussions/1494
   const { cache }: { cache: any } = useSWRConfig();
   useEffect(() => {
-    const auth = getAuth()
+    const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
       if (user) {
         analytics.identify(user.uid);
@@ -82,34 +75,39 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
   const getFooter = Component.getFooter ?? (() => null);
-  return <SSRProvider>
-    <SWRConfig
-      value={{
-        onErrorRetry: customErrorRetry
-      }}
-    >
-      <Head>
-        <title>Pagoda Developer Console</title>
-        <meta name="description" content="Pagoda Developer Console" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <div className="largeScreen">{getLayout(<Component {...pageProps} />, getFooter())}</div>
-      <div className="smallScreen"><SmallScreenNotice /></div>
-      <style jsx>{`
-        .smallScreen {
-          display: none;
-        }
-        
-        @media only screen and (max-width: 61.9rem) {
-          .largeScreen {
+  return (
+    <SSRProvider>
+      <SWRConfig
+        value={{
+          onErrorRetry: customErrorRetry,
+        }}
+      >
+        <Head>
+          <title>Pagoda Developer Console</title>
+          <meta name="description" content="Pagoda Developer Console" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <div className="largeScreen">{getLayout(<Component {...pageProps} />, getFooter())}</div>
+        <div className="smallScreen">
+          <SmallScreenNotice />
+        </div>
+        <style jsx>{`
+          .smallScreen {
             display: none;
           }
-          .smallScreen {
-            display: block;
+
+          @media only screen and (max-width: 61.9rem) {
+            .largeScreen {
+              display: none;
+            }
+            .smallScreen {
+              display: block;
+            }
           }
-        }
-      `}</style>
-    </SWRConfig>
-  </SSRProvider>
+        `}</style>
+      </SWRConfig>
+    </SSRProvider>
+  );
 }
+
 export default appWithTranslation(MyApp);

@@ -1,4 +1,4 @@
-import { NetOption } from "../../../../utils/interfaces";
+import { NetOption } from '../../../../utils/interfaces';
 import analytics from '../../../../utils/analytics';
 
 export interface Props {
@@ -17,12 +17,18 @@ export interface Props {
 
 const TransactionLink = ({ transactionHash, children, net }: Props) => (
   <>
-    <a onClick={() => analytics.track('DC Recent transactions tx link')} className="transaction-link" href={`https://explorer${net === "TESTNET" ? ".testnet" : ""}.near.org/transactions/${transactionHash}`} target="_blank" rel="noopener noreferrer">
+    <a
+      onClick={() => analytics.track('DC Recent transactions tx link')}
+      className="transaction-link"
+      href={`https://explorer${net === 'TESTNET' ? '.testnet' : ''}.near.org/transactions/${transactionHash}`}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       {children || `${transactionHash.substring(0, 7)}...`}
     </a>
     <style jsx>{`
       a {
-        color: var(--color-primary)
+        color: var(--color-primary);
       }
     `}</style>
   </>

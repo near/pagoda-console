@@ -1,16 +1,16 @@
-import BN from "bn.js";
-import { useContext } from "react";
+import BN from 'bn.js';
+import { useContext } from 'react';
 
 // import { DatabaseContext } from "../../context/DatabaseProvider";
-import { TransactionInfo } from "./types";
-import { Receipt } from "./types";
+import { TransactionInfo } from './types';
+import { Receipt } from './types';
 
-import BatchTransactionIcon from "../../../../public/static/images/icon-m-batch.svg";
+import BatchTransactionIcon from '../../../../public/static/images/icon-m-batch.svg';
 
-import ActionRow from "./ActionRow";
-import ActionRowBlock, { ViewMode } from "./ActionRowBlock";
-import ActionsList from "./ActionsList";
-import { FinalityStatus } from "../../../RecentTransactionList";
+import ActionRow from './ActionRow';
+import ActionRowBlock, { ViewMode } from './ActionRowBlock';
+import ActionsList from './ActionsList';
+import { FinalityStatus } from '../../../RecentTransactionList';
 
 interface Props {
   actionGroup: Receipt | TransactionInfo;
@@ -19,27 +19,17 @@ interface Props {
   viewMode?: ViewMode;
   title: string;
   icon?: React.ReactElement;
-  finalityStatus?: FinalityStatus
+  finalityStatus?: FinalityStatus;
 }
 
-const ActionGroup = ({
-  actionGroup,
-  detailsLink,
-  status,
-  viewMode,
-  title,
-  icon,
-  finalityStatus,
-}: Props) => {
+const ActionGroup = ({ actionGroup, detailsLink, status, viewMode, title, icon, finalityStatus }: Props) => {
   // const { finalityStatus } = useContext(DatabaseContext);
 
   if (!actionGroup?.actions) return null;
 
   const isFinal =
-    typeof finalityStatus?.finalBlockTimestampNanosecond !== "undefined"
-      ? new BN(actionGroup.blockTimestamp).lte(
-        finalityStatus.finalBlockTimestampNanosecond.divn(10 ** 6)
-      )
+    typeof finalityStatus?.finalBlockTimestampNanosecond !== 'undefined'
+      ? new BN(actionGroup.blockTimestamp).lte(finalityStatus.finalBlockTimestampNanosecond.divn(10 ** 6))
       : undefined;
 
   return (

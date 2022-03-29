@@ -1,9 +1,9 @@
-import { PureComponent } from "react";
+import { PureComponent } from 'react';
 // import * as T from "../../libraries/explorer-wamp/transactions";
 import * as T from './types';
 
-import ActionRow from "./ActionRow";
-import { ViewMode, DetalizationMode } from "./ActionRowBlock";
+import ActionRow from './ActionRow';
+import { ViewMode, DetalizationMode } from './ActionRowBlock';
 
 export interface Props {
   actions: T.Action[];
@@ -18,16 +18,8 @@ export interface Props {
 
 class ActionList extends PureComponent<Props> {
   render() {
-    const {
-      actions,
-      blockTimestamp,
-      signerId,
-      receiverId,
-      detailsLink,
-      viewMode,
-      detalizationMode,
-      showDetails,
-    } = this.props;
+    const { actions, blockTimestamp, signerId, receiverId, detailsLink, viewMode, detalizationMode, showDetails } =
+      this.props;
 
     let actionRows = actions.map((action, actionIndex) => (
       <ActionRow

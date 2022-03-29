@@ -1,8 +1,6 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from '@playwright/test';
 
-test("login test", async ({ page }) => {
-  await page.goto("/", { waitUntil: "networkidle" });
-  expect(await page.screenshot({ fullPage: true })).toMatchSnapshot(
-    "login.png"
-  );
+test('login test', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  expect(await page.screenshot({ fullPage: true })).toMatchSnapshot('login.png');
 });

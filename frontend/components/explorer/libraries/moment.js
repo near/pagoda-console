@@ -1,29 +1,29 @@
-import moment from "moment";
+import moment from 'moment';
 
 // import "moment/locale/ru";
 // import "moment/locale/zh-cn";
 // import "moment/locale/vi";
 
-moment.relativeTimeThreshold("ss", 1);
+moment.relativeTimeThreshold('ss', 1);
 
-moment.updateLocale("en", {
+moment.updateLocale('en', {
   relativeTime: {
     past: (input) => {
-      return input === "just now" ? "1s ago" : input + " ago";
+      return input === 'just now' ? '1s ago' : input + ' ago';
     },
-    s: "just now",
-    future: "in %s",
-    ss: "%ds",
-    m: "1m",
-    mm: "%dm",
-    h: "1hr",
-    hh: "%dhr",
-    d: "1d",
-    dd: "%dd",
-    M: "1 mth",
-    MM: "%d mths",
-    y: "1y",
-    yy: "%dy",
+    s: 'just now',
+    future: 'in %s',
+    ss: '%ds',
+    m: '1m',
+    mm: '%dm',
+    h: '1hr',
+    hh: '%dhr',
+    d: '1d',
+    dd: '%dd',
+    M: '1 mth',
+    MM: '%d mths',
+    y: '1y',
+    yy: '%dy',
   },
 });
 
@@ -94,27 +94,27 @@ moment.updateLocale("en", {
 // });
 
 function plural(word, num) {
-  var forms = word.split("_");
+  var forms = word.split('_');
   return num % 10 === 1 && num % 100 !== 11
     ? forms[0]
     : num % 10 >= 2 && num % 10 <= 4 && (num % 100 < 10 || num % 100 >= 20)
-      ? forms[1]
-      : forms[2];
+    ? forms[1]
+    : forms[2];
 }
 function relativeTimeWithPlural(number, withoutSuffix, key) {
   var format = {
-    ss: withoutSuffix ? "секунда_секунды_секунд" : "секунду_секунды_секунд",
-    mm: withoutSuffix ? "минута_минуты_минут" : "минуту_минуты_минут",
-    hh: "час_часа_часов",
-    dd: "день_дня_дней",
-    ww: "неделя_недели_недель",
-    MM: "месяц_месяца_месяцев",
-    yy: "год_года_лет",
+    ss: withoutSuffix ? 'секунда_секунды_секунд' : 'секунду_секунды_секунд',
+    mm: withoutSuffix ? 'минута_минуты_минут' : 'минуту_минуты_минут',
+    hh: 'час_часа_часов',
+    dd: 'день_дня_дней',
+    ww: 'неделя_недели_недель',
+    MM: 'месяц_месяца_месяцев',
+    yy: 'год_года_лет',
   };
-  if (key === "m") {
-    return withoutSuffix ? "минута" : "минуту";
+  if (key === 'm') {
+    return withoutSuffix ? 'минута' : 'минуту';
   } else {
-    return number + " " + plural(format[key], +number);
+    return number + ' ' + plural(format[key], +number);
   }
 }
 

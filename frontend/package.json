@@ -11,7 +11,8 @@
     "test:snapshot": "playwright test tests/playwright/snapshot/",
     "test:e2e": "playwright test tests/playwright/e2e/",
     "test": "jest --watch",
-    "test:ci": "jest --ci"
+    "test:ci": "jest --ci",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
@@ -55,11 +56,19 @@
     "dotenv": "^16.0.0",
     "eslint": "8.5.0",
     "eslint-config-next": "^12.1.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-testing-library": "^5.0.1",
+    "husky": "^7.0.4",
     "jest": "27.4.5",
+    "lint-staged": "^12.3.7",
+    "prettier": "^2.6.0",
     "typescript": "4.5.4"
   },
   "optionalDependencies": {
     "fsevents": "^1.0.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "eslint --cache",
+    "*.{js,jsx,ts,tsx,css,scss,md,json}": "prettier --check"
   }
 }
