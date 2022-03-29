@@ -141,6 +141,8 @@ Tests are written in [Playwright](https://playwright.dev). See `/tests/playwrigh
 
 The screenshot tests are used for testing tutorial pages that have dynamic content that could potentially change outside of our team (tests/playwright/snapshot/nft-tutorial-snapshot.spec.ts).
 
+Note: playwright tests can only run on [specific OSes](https://playwright.dev/docs/library#system-requirements). This means we can't run it in the VS Code dev container. Currently, you must run this project on your host machine.
+
 If you want to run these tests in your local, make sure you install the dependencies:
 
 ```bash
