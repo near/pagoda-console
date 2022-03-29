@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
 import router, { useRouter } from 'next/router';
-import useSWR, { useSWRConfig } from 'swr';
-import { getAuth, onAuthStateChanged, User, getIdToken, onIdTokenChanged } from 'firebase/auth';
-import { authenticatedPost, useEnvironments, useProject } from './fetchers';
+import { getAuth, onAuthStateChanged, User, onIdTokenChanged } from 'firebase/auth';
+import { useEnvironments, useProject } from './fetchers';
 import { Environment, UserData } from './interfaces';
 import { updateUserData } from './cache';
 import analytics from './analytics';
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 
 export function useIdentity(): User | null {
   const [user, setUser] = useState<User | null>(null);
@@ -42,7 +39,7 @@ export function useDisplayName(): string | null {
 }
 
 export function useRouteParam(paramName: string, redirectIfMissing?: string): string | null {
-  const { query, isReady, pathname } = useRouter();
+  const { query, isReady } = useRouter();
   const rawParam = query[paramName];
   const value = rawParam && typeof rawParam === 'string' ? rawParam : null;
   useEffect(() => {
@@ -58,12 +55,12 @@ export function useProjectAndEnvironment() {
   const projectSlug = useRouteParam('project');
   const environmentSubIdRaw = useRouteParam('environment');
   const environmentSubId = typeof environmentSubIdRaw === 'string' ? parseInt(environmentSubIdRaw) : null;
-  const { project, error: projectError } = useProject(projectSlug);
+  const { project } = useProject(projectSlug);
   const currentUser = useIdentity();
 
-  let [environment, setEnvironment] = useState<Environment>();
+  const [environment, setEnvironment] = useState<Environment>();
 
-  const { environmentData: environments, error: environmentsError } = useEnvironments(projectSlug);
+  const { environmentData: environments } = useEnvironments(projectSlug);
   useEffect(() => {
     if (!projectSlug || !currentUser) {
       return;

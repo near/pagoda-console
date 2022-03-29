@@ -66,7 +66,7 @@ const nftMetaFetcher = async (_: any, contractAddress: any) => {
   ) as any;
   // return await contract.nft_metadata();
 
-  let nftData: NftData = {
+  const nftData: NftData = {
     errors: {
       metadata: null,
       supply: null,
@@ -103,9 +103,9 @@ const nftMetaFetcher = async (_: any, contractAddress: any) => {
 
   // this section could likely be cleaned up
   type dataKeys = keyof NftData['errors'];
-  let dataNames: dataKeys[] = ['supply', 'tokenJson'];
+  const dataNames: dataKeys[] = ['supply', 'tokenJson'];
   // TODO extract limit to environment variable
-  let dataFetches = [contract.nft_total_supply(), contract.nft_tokens({ limit: 30 })];
+  const dataFetches = [contract.nft_total_supply(), contract.nft_tokens({ limit: 30 })];
 
   const fetchResults = await Promise.allSettled(dataFetches);
 
@@ -161,7 +161,7 @@ export function useContractInfo(contractAddress: string | null) {
     async (_, address: string) => {
       let contractInfo: ContractInfo;
       try {
-        let account = await near.account(address);
+        const account = await near.account(address);
         contractInfo = await account.state();
       } catch (e: any) {
         if (e?.type === 'AccountDoesNotExist') {
