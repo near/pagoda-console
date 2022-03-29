@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { getAuth, onAuthStateChanged, onIdTokenChanged, User } from 'firebase/auth';
 import router, { useRouter } from 'next/router';
-import { getAuth, onAuthStateChanged, User, onIdTokenChanged } from 'firebase/auth';
+import { useEffect, useState } from 'react';
+
+import analytics from './analytics';
+import { updateUserData } from './cache';
 import { useEnvironments, useProject } from './fetchers';
 import { Environment, UserData } from './interfaces';
-import { updateUserData } from './cache';
-import analytics from './analytics';
 
 export function useIdentity(): User | null {
   const [user, setUser] = useState<User | null>(null);

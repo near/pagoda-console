@@ -1,13 +1,14 @@
-import { NextPageWithLayout } from '../utils/types';
-import { ChangeEvent, FormEvent, useState } from 'react';
-import { useSimpleLogoutLayout } from '../utils/layouts';
-import { Form, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
-import { Project } from '../utils/interfaces';
+import { ChangeEvent, FormEvent, useState } from 'react';
+import { Button, Form } from 'react-bootstrap';
+
+import BorderSpinner from '../components/BorderSpinner';
+import analytics from '../utils/analytics';
 import { authenticatedPost } from '../utils/fetchers';
 import { useRouteParam } from '../utils/hooks';
-import analytics from '../utils/analytics';
-import BorderSpinner from '../components/BorderSpinner';
+import { Project } from '../utils/interfaces';
+import { useSimpleLogoutLayout } from '../utils/layouts';
+import { NextPageWithLayout } from '../utils/types';
 
 const NewProject: NextPageWithLayout = () => {
   const [projectName, setProjectName] = useState('');

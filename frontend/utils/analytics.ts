@@ -1,4 +1,5 @@
 import mixpanel from 'mixpanel-browser';
+
 import config from './config';
 
 export interface Dict {

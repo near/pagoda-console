@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { useRecentTransactions } from '../utils/fetchers';
-import TransactionAction from './explorer/components/transactions/TransactionAction';
-import { Contract, NetOption } from '../utils/interfaces';
-import Config from '../utils/config';
-
 import BN from 'bn.js';
+import { useEffect, useState } from 'react';
+
+import Config from '../utils/config';
+import { useRecentTransactions } from '../utils/fetchers';
+import { Contract, NetOption } from '../utils/interfaces';
+import TransactionAction from './explorer/components/transactions/TransactionAction';
 export interface FinalityStatus {
   finalBlockHeight: number;
   finalBlockTimestampNanosecond: BN;

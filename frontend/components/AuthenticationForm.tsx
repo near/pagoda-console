@@ -1,28 +1,28 @@
-import { FormEvent, useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { Button, Form } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  getAuth,
-  signInWithPopup,
+  AuthError,
   AuthProvider,
+  fetchSignInMethodsForEmail,
+  getAdditionalUserInfo,
+  getAuth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  AuthError,
-  getAdditionalUserInfo,
-  fetchSignInMethodsForEmail,
+  signInWithPopup,
 } from 'firebase/auth';
 import { GithubAuthProvider, GoogleAuthProvider } from 'firebase/auth';
-import { useTranslation } from 'next-i18next';
-import Link from 'next/link';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import ForgotPasswordModal from './modals/ForgotPasswordModal';
-import ErrorModal from './modals/ErrorModal';
 import Image from 'next/image';
-import analytics from '../utils/analytics';
-import { assertUnreachable } from '../utils/helpers';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
+import { FormEvent, useEffect, useState } from 'react';
+import { Button, Form } from 'react-bootstrap';
 
 import GithubMark from '../public/githubMark.png';
 import GoogleMark from '../public/googleMark.png';
+import analytics from '../utils/analytics';
+import { assertUnreachable } from '../utils/helpers';
+import ErrorModal from './modals/ErrorModal';
+import ForgotPasswordModal from './modals/ForgotPasswordModal';
 
 interface ProviderDetails {
   name: string;

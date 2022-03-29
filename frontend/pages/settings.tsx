@@ -1,13 +1,14 @@
-import { NextPageWithLayout } from '../utils/types';
+import { getIdToken, updateProfile } from 'firebase/auth';
 import { FormEvent, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
+
 import BorderSpinner from '../components/BorderSpinner';
 import ErrorModal from '../components/modals/ErrorModal';
 import { useAccount } from '../utils/fetchers';
-import { useDashboardLayout } from '../utils/layouts';
-import { getIdToken, updateProfile } from 'firebase/auth';
-import { useIdentity } from '../utils/hooks';
 import { assertUnreachable } from '../utils/helpers';
+import { useIdentity } from '../utils/hooks';
+import { useDashboardLayout } from '../utils/layouts';
+import { NextPageWithLayout } from '../utils/types';
 
 interface ValidationFailure {
   displayName?: string;

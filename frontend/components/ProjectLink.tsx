@@ -1,6 +1,7 @@
-import { Project } from '../utils/interfaces';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+
+import { Project } from '../utils/interfaces';
 import TutorialBadge from './TutorialBadge';
 
 export default function ProjectLink({ project }: { project: Project }) {

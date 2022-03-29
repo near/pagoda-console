@@ -1,6 +1,7 @@
-import ConsoleLogo from './SmallConsoleLogo';
 import type { ReactElement } from 'react';
+
 import { logOut } from '../utils/auth';
+import ConsoleLogo from './SmallConsoleLogo';
 
 export default function SimpleLogoutLayout({
   children,

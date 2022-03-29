@@ -1,5 +1,5 @@
 // example.spec.ts
-import { test, expect, Page } from '@playwright/test';
+import { expect, Page, test } from '@playwright/test';
 
 async function login(page: Page) {
   await page.goto('/', { waitUntil: 'networkidle' });

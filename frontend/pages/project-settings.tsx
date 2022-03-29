@@ -1,19 +1,19 @@
-import { NextPageWithLayout } from '../utils/types';
-import { authenticatedPost, useApiKeys, useProject } from '../utils/fetchers';
-import { useRouteParam } from '../utils/hooks';
-import { useDashboardLayout } from '../utils/layouts';
-
+import { faCopy, faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEyeSlash, faEye, faCopy } from '@fortawesome/free-regular-svg-icons';
-import { Button, Placeholder, Overlay } from 'react-bootstrap';
-import { useState, useRef } from 'react';
-import { NetOption } from '../utils/interfaces';
-import ProjectSelector from '../components/ProjectSelector';
+import { useRouter } from 'next/router';
+import { useRef, useState } from 'react';
+import { Button, Overlay, Placeholder } from 'react-bootstrap';
+
 import CenterModal from '../components/modals/CenterModal';
+import DeleteProjectModal from '../components/modals/DeleteProjectModal';
+import ProjectSelector from '../components/ProjectSelector';
 import StarterGuide from '../components/StarterGuide';
 import analytics from '../utils/analytics';
-import DeleteProjectModal from '../components/modals/DeleteProjectModal';
-import { useRouter } from 'next/router';
+import { authenticatedPost, useApiKeys, useProject } from '../utils/fetchers';
+import { useRouteParam } from '../utils/hooks';
+import { NetOption } from '../utils/interfaces';
+import { useDashboardLayout } from '../utils/layouts';
+import { NextPageWithLayout } from '../utils/types';
 
 const ROTATION_WARNING =
   'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';

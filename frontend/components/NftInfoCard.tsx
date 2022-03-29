@@ -1,18 +1,17 @@
-import { FormEvent, useEffect, useState } from 'react';
-import { Accordion, Form, Button, InputGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import CodeBlock from './CodeBlock';
-import analytics from '../utils/analytics';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faCheckCircle, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { faCircle } from '@fortawesome/free-regular-svg-icons';
-import { useContractInfo, useMetadata } from '../utils/chainData';
-
-import { ContractMetadata, NftData, Token } from '../utils/chainData';
-import { getUserData, updateUserData } from '../utils/cache';
-import { useIdentity, useRouteParam } from '../utils/hooks';
-import PageLink from './PageLink';
+import { faCheckCircle, faChevronUp, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
+import { FormEvent, useEffect, useState } from 'react';
+import { Accordion, Button, Form, InputGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
+
+import analytics from '../utils/analytics';
+import { getUserData, updateUserData } from '../utils/cache';
+import { useContractInfo, useMetadata } from '../utils/chainData';
+import { ContractMetadata, NftData, Token } from '../utils/chainData';
+import { useIdentity, useRouteParam } from '../utils/hooks';
+import CodeBlock from './CodeBlock';
+import PageLink from './PageLink';
 
 export default function NftInfoCard() {
   const [isEditing, setIsEditing] = useState(true);

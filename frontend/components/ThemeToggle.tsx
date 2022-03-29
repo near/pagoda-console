@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Button } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 // assets
 import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useEffect, useState } from 'react';
+import { Button } from 'react-bootstrap';
 
 /*
   NOTE: this component must be dynamically loaded with SSR disabled since

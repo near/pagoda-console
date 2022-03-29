@@ -1,17 +1,18 @@
-import { NextPageWithLayout } from '../utils/types';
-import { useSimpleLogoutLayout } from '../utils/layouts';
-import { Alert, Button } from 'react-bootstrap';
+import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
+import { faAngleDoubleRight, faExclamationCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { Alert, Button } from 'react-bootstrap';
+
+import BorderSpinner from '../components/BorderSpinner';
+import DeleteProjectModal from '../components/modals/DeleteProjectModal';
+import TutorialBadge from '../components/TutorialBadge';
 import { useProjects } from '../utils/fetchers';
 import { Project } from '../utils/interfaces';
-import Link from 'next/link';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
-import { useEffect, useState } from 'react';
-import BorderSpinner from '../components/BorderSpinner';
-import { faAngleDoubleRight, faExclamationCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
-import TutorialBadge from '../components/TutorialBadge';
-import DeleteProjectModal from '../components/modals/DeleteProjectModal';
+import { useSimpleLogoutLayout } from '../utils/layouts';
+import { NextPageWithLayout } from '../utils/types';
 
 const Projects: NextPageWithLayout = () => {
   const router = useRouter();

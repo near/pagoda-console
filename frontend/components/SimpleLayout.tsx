@@ -1,5 +1,6 @@
-import ConsoleLogo from '../components/ConsoleLogo';
 import type { ReactElement } from 'react';
+
+import ConsoleLogo from '../components/ConsoleLogo';
 
 export default function SimpleLayout({
   children,

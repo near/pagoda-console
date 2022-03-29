@@ -1,9 +1,10 @@
-import { NextPageWithLayout } from '../utils/types';
-import { useEffect } from 'react';
-import { useSimpleLogoutLayout } from '../utils/layouts';
 import { useRouter } from 'next/router';
-import { useRouteParam } from '../utils/hooks';
+import { useEffect } from 'react';
+
 import ProjectCard, { ProjectCardColor } from '../components/ProjectCard';
+import { useRouteParam } from '../utils/hooks';
+import { useSimpleLogoutLayout } from '../utils/layouts';
+import { NextPageWithLayout } from '../utils/types';
 
 interface Project {
   title: string;

@@ -1,19 +1,20 @@
-import { NextPageWithLayout } from '../utils/types';
-import { authenticatedPost } from '../utils/fetchers';
-import { useIdentity, useRouteParam } from '../utils/hooks';
-import { useDashboardLayout } from '../utils/layouts';
+import Highcharts from 'highcharts';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
-import AnalyticsPreview from '../public/analyticsPreview.png';
-import ProjectSelector from '../components/ProjectSelector';
-import { NetOption, NetUsageData, UsageData } from '../utils/interfaces';
 import { useEffect } from 'react';
-import Highcharts from 'highcharts';
-import BorderSpinner from '../components/BorderSpinner';
+
 import AnalyticsCard from '../components/AnalyticsCard';
+import BorderSpinner from '../components/BorderSpinner';
+import PageLink from '../components/PageLink';
+import ProjectSelector from '../components/ProjectSelector';
+import AnalyticsPreview from '../public/analyticsPreview.png';
 import { getUserData, updateUserData } from '../utils/cache';
 import config from '../utils/config';
-import PageLink from '../components/PageLink';
+import { authenticatedPost } from '../utils/fetchers';
+import { useIdentity, useRouteParam } from '../utils/hooks';
+import { NetOption, NetUsageData, UsageData } from '../utils/interfaces';
+import { useDashboardLayout } from '../utils/layouts';
+import { NextPageWithLayout } from '../utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {
   useEffect(() => {

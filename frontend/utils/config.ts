@@ -1,4 +1,5 @@
 import { FirebaseOptions } from 'firebase/app';
+
 import { NetOption } from './interfaces';
 
 // * NOTE: This is ugly, but we are limited in how we can

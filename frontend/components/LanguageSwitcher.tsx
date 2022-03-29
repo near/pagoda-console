@@ -1,6 +1,6 @@
-import { useTranslation } from 'next-i18next';
-import { DropdownButton, Dropdown } from 'react-bootstrap';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
+import { Dropdown, DropdownButton } from 'react-bootstrap';
 
 function LanguageSwitcher() {
   const { t } = useTranslation('common');

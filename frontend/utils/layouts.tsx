@@ -1,7 +1,8 @@
 import { ReactElement } from 'react';
+
+import DashboardLayout from '../components/DashboardLayout';
 import SimpleLayout from '../components/SimpleLayout';
 import SimpleLogoutLayout from '../components/SimpleLogoutLayout';
-import DashboardLayout from '../components/DashboardLayout';
 
 export function useSimpleLayout(page: ReactElement, footer: ReactElement | null) {
   return <SimpleLayout footer={footer}>{page}</SimpleLayout>;

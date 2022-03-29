@@ -12,7 +12,7 @@
     "sourceType": "module"
   },
   "extends": ["plugin:@typescript-eslint/recommended", "next", "next/core-web-vitals", "prettier"],
-  "plugins": ["@typescript-eslint", "testing-library"],
+  "plugins": ["@typescript-eslint", "simple-import-sort", "testing-library"],
   "overrides": [
     // Only uses Testing Library lint rules in test files
     {
@@ -21,6 +21,8 @@
     }
   ],
   "rules": {
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off"
   }

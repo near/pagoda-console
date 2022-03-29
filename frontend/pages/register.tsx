@@ -1,19 +1,20 @@
-import { NextPageWithLayout } from '../utils/types';
-import { Form, Button, Alert } from 'react-bootstrap';
-import { useSimpleLayout } from '../utils/layouts';
-import Link from 'next/link';
 import {
-  getAuth,
-  createUserWithEmailAndPassword,
   AuthError,
+  createUserWithEmailAndPassword,
+  getAuth,
   onAuthStateChanged,
   sendEmailVerification,
   updateProfile,
 } from 'firebase/auth';
-import { FormEvent, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { FormEvent, useEffect, useState } from 'react';
+import { Alert, Button, Form } from 'react-bootstrap';
+
 import analytics from '../utils/analytics';
 import { assertUnreachable } from '../utils/helpers';
+import { useSimpleLayout } from '../utils/layouts';
+import { NextPageWithLayout } from '../utils/types';
 
 interface ValidationFailure {
   email?: string;

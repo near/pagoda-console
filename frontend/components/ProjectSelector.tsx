@@ -1,13 +1,14 @@
+import { faCaretDown, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
 import { forwardRef } from 'react';
 import { AnchorProps, Dropdown, Placeholder } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import analytics from '../utils/analytics';
 import { useProject, useProjects } from '../utils/fetchers';
 import { useRouteParam } from '../utils/hooks';
-import Link from 'next/link';
-import { faCaretDown, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import ProjectLink from './ProjectLink';
 import EnvironmentSelector from './EnvironmentSelector';
-import analytics from '../utils/analytics';
+import ProjectLink from './ProjectLink';
 import TutorialBadge from './TutorialBadge';
 
 export default function ProjectSelector() {
