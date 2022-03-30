@@ -1,4 +1,3 @@
-// import '../styles/customBootstrap.scss';
 import '../styles/globals.scss';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 
