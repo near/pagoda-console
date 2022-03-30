@@ -73,7 +73,7 @@
     "fsevents": "^1.0.0"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint --cache",
+    "*.{js,jsx,ts,tsx}": "eslint --cache --max-warnings 0",
     "*.{js,jsx,ts,tsx,css,scss,md,json}": "prettier --check"
   }
 }
