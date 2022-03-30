@@ -1,9 +1,10 @@
 name: Snapshot Tests
 on:
   push:
-    branches: [main, master, development]
-  pull_request:
     branches: [development]
+  # You could test this CI job in a PR by uncommenting the below pull_request line.
+  # pull_request:
+  #   branches: [development]
 jobs:
   test:
     timeout-minutes: 60
