@@ -1,4 +1,4 @@
-import { test, devices, expect } from '@playwright/test';
+import { devices, test } from '@playwright/test';
 
 test.use({
   ...devices['iPhone 11'],
