@@ -4,7 +4,5 @@ WORKDIR /app
 
 COPY . .
 
-EXPOSE 9323
-
 RUN npm i
 RUN npm run test:snapshot
