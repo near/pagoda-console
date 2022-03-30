@@ -5,9 +5,9 @@ import { Alert } from 'react-bootstrap';
 import ProjectCard from '../components/ProjectCard';
 import analytics from '../utils/analytics';
 import { authenticatedPost } from '../utils/fetchers';
-import { Project } from '../utils/interfaces';
+import type { Project } from '../utils/interfaces';
 import { useSimpleLogoutLayout } from '../utils/layouts';
-import { NextPageWithLayout } from '../utils/types';
+import type { NextPageWithLayout } from '../utils/types';
 
 enum Tutorial {
   NftMarket = 'NFT_MARKET',

@@ -2,7 +2,8 @@ import { faCaretDown, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { forwardRef } from 'react';
-import { AnchorProps, Dropdown, Placeholder } from 'react-bootstrap';
+import type { AnchorProps } from 'react-bootstrap';
+import { Dropdown, Placeholder } from 'react-bootstrap';
 
 import analytics from '../utils/analytics';
 import { useProject, useProjects } from '../utils/fetchers';

@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import type { ReactElement } from 'react';
 
 import DashboardLayout from '../components/DashboardLayout';
 import SimpleLayout from '../components/SimpleLayout';

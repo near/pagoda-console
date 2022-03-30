@@ -12,9 +12,9 @@ import { getUserData, updateUserData } from '../utils/cache';
 import config from '../utils/config';
 import { authenticatedPost } from '../utils/fetchers';
 import { useIdentity, useRouteParam } from '../utils/hooks';
-import { NetOption, NetUsageData, UsageData } from '../utils/interfaces';
+import type { NetOption, NetUsageData, UsageData } from '../utils/interfaces';
 import { useDashboardLayout } from '../utils/layouts';
-import { NextPageWithLayout } from '../utils/types';
+import type { NextPageWithLayout } from '../utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {
   useEffect(() => {

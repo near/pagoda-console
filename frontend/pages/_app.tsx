@@ -7,8 +7,9 @@ svgConfig.autoAddCss = false;
 
 import { SSRProvider } from '@restart/ui/ssr'; // workaround for react-bootstrap bug https://github.com/react-bootstrap/react-bootstrap/issues/6026
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
-import { AppProps } from 'next/app';
+import type { User } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { appWithTranslation } from 'next-i18next';
@@ -17,7 +18,7 @@ import { SWRConfig, useSWRConfig } from 'swr';
 
 import config from '../utils/config';
 import { customErrorRetry } from '../utils/fetchers';
-import { NextPageWithLayout } from '../utils/types';
+import type { NextPageWithLayout } from '../utils/types';
 
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;

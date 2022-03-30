@@ -1,5 +1,5 @@
+import type { AuthError } from 'firebase/auth';
 import {
-  AuthError,
   createUserWithEmailAndPassword,
   getAuth,
   onAuthStateChanged,
@@ -8,13 +8,14 @@ import {
 } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { FormEvent, useEffect, useState } from 'react';
+import type { FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 
 import analytics from '../utils/analytics';
 import { assertUnreachable } from '../utils/helpers';
 import { useSimpleLayout } from '../utils/layouts';
-import { NextPageWithLayout } from '../utils/types';
+import type { NextPageWithLayout } from '../utils/types';
 
 interface ValidationFailure {
   email?: string;

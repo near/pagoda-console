@@ -2,12 +2,13 @@ import { getAuth, getIdToken } from 'firebase/auth';
 import mixpanel from 'mixpanel-browser';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import useSWR, { KeyedMutator, mutate } from 'swr';
-import { PublicConfiguration, Revalidator, RevalidatorOptions, SWRConfiguration } from 'swr/dist/types';
+import type { KeyedMutator } from 'swr';
+import useSWR, { mutate } from 'swr';
+import type { PublicConfiguration, Revalidator, RevalidatorOptions, SWRConfiguration } from 'swr/dist/types';
 
-import { Transaction } from '../components/explorer/components/transactions/types';
+import type { Transaction } from '../components/explorer/components/transactions/types';
 import { useIdentity } from './hooks';
-import { Contract, Environment, NetOption, Project, User } from './interfaces';
+import type { Contract, Environment, NetOption, Project, User } from './interfaces';
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion

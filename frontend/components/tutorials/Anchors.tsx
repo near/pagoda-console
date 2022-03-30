@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ReactElement } from 'react';
+import type { ReactElement } from 'react';
 
 import { useRouteParam } from '../../utils/hooks';
 

@@ -5,7 +5,7 @@ import TableOfContents from '../../../components/tutorials/TableOfContents';
 import TutorialFooter from '../../../components/tutorials/TutorialFooter';
 import Content from '../../../tutorials/nfts/md/1-skeleton.mdx';
 import { useDashboardLayout } from '../../../utils/layouts';
-import { NextPageWithLayout } from '../../../utils/types';
+import type { NextPageWithLayout } from '../../../utils/types';
 
 const Skeleton: NextPageWithLayout = () => {
   return (

@@ -1,7 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { AuthError, AuthProvider } from 'firebase/auth';
 import {
-  AuthError,
-  AuthProvider,
   fetchSignInMethodsForEmail,
   getAdditionalUserInfo,
   getAuth,
@@ -14,7 +13,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import { FormEvent, useEffect, useState } from 'react';
+import type { FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 
 import GithubMark from '../public/githubMark.png';

@@ -7,7 +7,7 @@ import analytics from '../utils/analytics';
 import { logOut } from '../utils/auth';
 import { useRouteParam } from '../utils/hooks';
 import { useSimpleLayout } from '../utils/layouts';
-import { NextPageWithLayout } from '../utils/types';
+import type { NextPageWithLayout } from '../utils/types';
 
 const Verification: NextPageWithLayout = () => {
   const [hasResent, setHasResent] = useState(false);

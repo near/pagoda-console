@@ -2,7 +2,8 @@ import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { debounce } from 'lodash-es';
 import Image from 'next/image';
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import type { FormEvent } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import useSWR from 'swr';
 
@@ -14,9 +15,9 @@ import analytics from '../utils/analytics';
 import Config from '../utils/config';
 import { authenticatedPost, useContracts } from '../utils/fetchers';
 import { useIdentity, useProjectAndEnvironment } from '../utils/hooks';
-import { Contract, Environment } from '../utils/interfaces';
+import type { Contract, Environment } from '../utils/interfaces';
 import { useDashboardLayout } from '../utils/layouts';
-import { NextPageWithLayout } from '../utils/types';
+import type { NextPageWithLayout } from '../utils/types';
 
 const Contracts: NextPageWithLayout = () => {
   const { project, environment } = useProjectAndEnvironment();

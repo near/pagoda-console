@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Placeholder } from 'react-bootstrap';
 
 import PagodaIcon from '../public/brand/pagoda_icon_small.svg';

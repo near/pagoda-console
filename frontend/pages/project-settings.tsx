@@ -11,9 +11,9 @@ import StarterGuide from '../components/StarterGuide';
 import analytics from '../utils/analytics';
 import { authenticatedPost, useApiKeys, useProject } from '../utils/fetchers';
 import { useRouteParam } from '../utils/hooks';
-import { NetOption } from '../utils/interfaces';
+import type { NetOption } from '../utils/interfaces';
 import { useDashboardLayout } from '../utils/layouts';
-import { NextPageWithLayout } from '../utils/types';
+import type { NextPageWithLayout } from '../utils/types';
 
 const ROTATION_WARNING =
   'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';

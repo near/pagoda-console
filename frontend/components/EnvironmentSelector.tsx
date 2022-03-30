@@ -2,7 +2,8 @@ import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/router';
 import { forwardRef } from 'react';
-import { Button, ButtonProps, Dropdown } from 'react-bootstrap';
+import type { ButtonProps } from 'react-bootstrap';
+import { Button, Dropdown } from 'react-bootstrap';
 
 import { useProjectAndEnvironment } from '../utils/hooks';
 

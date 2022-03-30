@@ -1,6 +1,7 @@
 import { faCopy } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ReactNode, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useRef, useState } from 'react';
 import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs';

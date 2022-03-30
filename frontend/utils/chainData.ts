@@ -1,5 +1,5 @@
 import * as nearAPI from 'near-api-js';
-import { AccountView } from 'near-api-js/lib/providers/provider';
+import type { AccountView } from 'near-api-js/lib/providers/provider';
 import useSWR from 'swr';
 
 import Config from '../utils/config';

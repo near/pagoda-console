@@ -1,6 +1,6 @@
-import { IconDefinition } from '@fortawesome/free-regular-svg-icons';
+import type { IconDefinition } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { MouseEventHandler } from 'react';
+import type { MouseEventHandler } from 'react';
 
 export default function IconButton({ icon, onClick }: { icon: IconDefinition; onClick: MouseEventHandler }) {
   return (

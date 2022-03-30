@@ -1,6 +1,6 @@
 import { merge } from 'lodash-es';
 
-import { UserData } from './interfaces';
+import type { UserData } from './interfaces';
 
 // this might make more sense as a custom hook. it would need to be dynamic and leverage
 // useIdentity since the firebase user is undefined at page load
