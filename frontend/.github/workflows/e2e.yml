@@ -22,7 +22,7 @@ jobs:
         env:
           TEST_URL: https://dev.console.pagoda.co
           TEST_EMAIL: jon+e2e@near.org
-          TEST_USER_PASS: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
+          TEST_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
           TEST_NFT_TUTORIAL_PROJECT: dD188d1fpAfJZ
           TEST_CREATE_BLANK_PROJECT: 'My Cool Project for E2E Testing'
       - uses: actions/upload-artifact@v2

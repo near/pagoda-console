@@ -8,12 +8,6 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    env:
-      TEST_URL: https://dev.console.pagoda.co
-      TEST_EMAIL: jon+e2e@near.org
-      TEST_USER_PASS: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
-      TEST_NFT_TUTORIAL_PROJECT: dD188d1fpAfJZ
-      TEST_CREATE_BLANK_PROJECT: 'My Cool Project for E2E Testing'
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -27,6 +21,12 @@ jobs:
         run: npx playwright install --with-deps
       - name: Run snapshot tests
         run: npm run test:snapshot
+        env:
+          TEST_URL: https://dev.console.pagoda.co
+          TEST_EMAIL: jon+e2e@near.org
+          TEST_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
+          TEST_NFT_TUTORIAL_PROJECT: dD188d1fpAfJZ
+          TEST_CREATE_BLANK_PROJECT: 'My Cool Project for E2E Testing'
       - uses: actions/upload-artifact@v2
         if: always()
         with:
