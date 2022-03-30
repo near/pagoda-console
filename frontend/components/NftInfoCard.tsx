@@ -1,7 +1,6 @@
 import { faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCheckCircle, faChevronUp, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Image from 'next/image';
 import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { Accordion, Button, Form, InputGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
@@ -412,7 +411,7 @@ function NftPreview({
 }) {
   return (
     <div className="previewContainer">
-      <div className="imageWrapper">{url ? <Image src={url} alt="Preview of NFT media" /> : '??'}</div>
+      <div className="imageWrapper">{url ? <img src={url} alt="Preview of NFT media" /> : '??'}</div>
       <div className="infoWrapper">
         <div className="infoGrid">
           <span className="label">Title</span>
