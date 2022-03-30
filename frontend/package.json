@@ -9,7 +9,9 @@
     "start": "next start",
     "lint": "next lint",
     "test:snapshot": "playwright test tests/playwright/snapshot/",
+    "test:snapshot:local": "docker build -t devcon-snapshot -f Dockerfile.snapshot . && docker run -it -p 9323:9323 devcon-snapshot",
     "test:e2e": "playwright test tests/playwright/e2e/",
+    "test:e2e:local": "docker build -t devcon-e2e -f Dockerfile.e2e . && docker run -it -p 9323:9323 devcon-e2e",
     "test": "jest --watch",
     "test:ci": "jest --ci",
     "prepare": "husky install"
