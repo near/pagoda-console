@@ -1,14 +1,15 @@
 import { faCopy } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ReactNode, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useRef, useState } from 'react';
 import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { LightAsync as SyntaxHighlighter, SyntaxHighlighterProps } from 'react-syntax-highlighter';
+import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
 
 export default function CodeBlock({ children, ...passedProps }: { children: ReactNode; language: string }) {
   const isChildString = typeof children === 'string';
 
-  let [showCopiedAlert, setShowCopiedAlert] = useState(false);
+  const [showCopiedAlert, setShowCopiedAlert] = useState(false);
   const copiedTimer = useRef<NodeJS.Timeout>();
 
   function copyKey() {

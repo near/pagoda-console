@@ -1,39 +1,35 @@
-// import '../styles/customBootstrap.scss';
 import '../styles/globals.scss';
-
 import '@fortawesome/fontawesome-svg-core/styles.css';
+
 import { config as svgConfig } from '@fortawesome/fontawesome-svg-core';
 svgConfig.autoAddCss = false;
 
-import { useEffect } from 'react';
-import { AppProps } from 'next/app';
-import { useSWRConfig, SWRConfig } from 'swr';
-import { appWithTranslation } from 'next-i18next';
-import { useRouter } from 'next/router';
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
-import { customErrorRetry } from '../utils/fetchers';
-import config from '../utils/config';
+import { SSRProvider } from '@restart/ui/ssr'; // workaround for react-bootstrap bug https://github.com/react-bootstrap/react-bootstrap/issues/6026
+import { initializeApp } from 'firebase/app';
+import type { User } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import type { AppProps } from 'next/app';
 import Head from 'next/head';
-import { NextPageWithLayout } from '../utils/types';
+import { useRouter } from 'next/router';
+import { appWithTranslation } from 'next-i18next';
+import { useEffect } from 'react';
+import { SWRConfig, useSWRConfig } from 'swr';
+
+import config from '@/utils/config';
+import { customErrorRetry } from '@/utils/fetchers';
+import type { NextPageWithLayout } from '@/utils/types';
 
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
-// initialize Firebase
-import { initializeApp } from 'firebase/app';
-
-// workaround for react-bootstrap bug
-// https://github.com/react-bootstrap/react-bootstrap/issues/6026
-import { SSRProvider } from '@restart/ui/ssr';
-
 initializeApp(config.firebaseConfig);
 
 // mixpanel initialization
-import analytics from '../utils/analytics';
-import { initializeNaj } from '../utils/chainData';
-import { usePageTracker } from '../utils/hooks';
-import SmallScreenNotice from '../components/SmallScreenNotice';
+import SmallScreenNotice from '@/components/SmallScreenNotice';
+import analytics from '@/utils/analytics';
+import { initializeNaj } from '@/utils/chainData';
+import { usePageTracker } from '@/utils/hooks';
 
 analytics.init();
 
@@ -45,6 +41,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   useEffect(() => {
     router.prefetch('/');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   usePageTracker();

@@ -1,26 +1,26 @@
-import { NextPageWithLayout } from '../utils/types';
-import { authenticatedPost, useApiKeys, useProject } from '../utils/fetchers';
-import { useRouteParam } from '../utils/hooks';
-import { useDashboardLayout } from '../utils/layouts';
-
+import { faCopy, faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEyeSlash, faEye, faCopy } from '@fortawesome/free-regular-svg-icons';
-import { Button, Placeholder, Overlay } from 'react-bootstrap';
-import { useState, useRef } from 'react';
-import { NetOption } from '../utils/interfaces';
-import ProjectSelector from '../components/ProjectSelector';
-import CenterModal from '../components/modals/CenterModal';
-import StarterGuide from '../components/StarterGuide';
-import analytics from '../utils/analytics';
-import DeleteProjectModal from '../components/modals/DeleteProjectModal';
 import { useRouter } from 'next/router';
+import { useRef, useState } from 'react';
+import { Button, Overlay, Placeholder } from 'react-bootstrap';
+
+import CenterModal from '@/components/modals/CenterModal';
+import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
+import ProjectSelector from '@/components/ProjectSelector';
+import StarterGuide from '@/components/StarterGuide';
+import analytics from '@/utils/analytics';
+import { authenticatedPost, useApiKeys, useProject } from '@/utils/fetchers';
+import { useRouteParam } from '@/utils/hooks';
+import type { NetOption } from '@/utils/interfaces';
+import { useDashboardLayout } from '@/utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
 
 const ROTATION_WARNING =
   'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';
 
 const ProjectSettings: NextPageWithLayout = () => {
   const projectSlug = useRouteParam('project', '/projects');
-  const { keys, error: keysError, mutate: mutateKeys } = useApiKeys(projectSlug);
+  const { keys, mutate: mutateKeys } = useApiKeys(projectSlug);
   const [showMainnetRotationModal, setShowMainnetRotationModal] = useState(false);
   const [showTestnetRotationModal, setShowTestnetRotationModal] = useState(false);
 
@@ -37,7 +37,7 @@ const ProjectSettings: NextPageWithLayout = () => {
         delete cachedKeys[net];
         return cachedKeys;
       }, false);
-      let newKey = await authenticatedPost('/projects/rotateKey', { project: projectSlug, environment: subId });
+      const newKey = await authenticatedPost('/projects/rotateKey', { project: projectSlug, environment: subId });
       analytics.track('DC Rotate API Key', {
         status: 'success',
         net: net,
@@ -121,7 +121,7 @@ const ProjectSettings: NextPageWithLayout = () => {
 };
 
 function DeleteProject() {
-  let [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const projectSlug = useRouteParam('project', '/projects');
   const { project } = useProject(projectSlug);
   const router = useRouter();
@@ -156,8 +156,8 @@ function DeleteProject() {
   );
 }
 
-function KeyRow(props: { name: string; token?: string; onRotateKey: Function }) {
-  let [keyObscured, setKeyObscured] = useState(true);
+function KeyRow(props: { name: string; token?: string; onRotateKey: () => void }) {
+  const [keyObscured, setKeyObscured] = useState(true);
 
   function getObscuredKey(key: string) {
     // const obscureChar = '*';
@@ -166,7 +166,7 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: Function }) 
   }
 
   const copyRef = useRef(null);
-  let [showCopiedAlert, setShowCopiedAlert] = useState(false);
+  const [showCopiedAlert, setShowCopiedAlert] = useState(false);
   const copiedTimer = useRef<NodeJS.Timeout>();
   function copyKey() {
     if (copiedTimer.current) {
@@ -216,7 +216,10 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: Function }) 
           popperConfig={{ modifiers: [{ name: 'offset', options: { offset: [0, 8] } }] }}
           placement="right"
         >
-          {({ placement, arrowProps, show: _show, popper, ...props }) => (
+          {(
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            { placement, arrowProps, show, popper, ...props },
+          ) => (
             <div
               {...props}
               style={{

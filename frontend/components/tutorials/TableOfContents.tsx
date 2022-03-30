@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useRouteParam } from '../../utils/hooks';
+
+import { useRouteParam } from '@/utils/hooks';
 
 interface Route {
   label: string;

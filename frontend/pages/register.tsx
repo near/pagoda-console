@@ -1,18 +1,21 @@
-import { NextPageWithLayout } from '../utils/types';
-import { Form, Button, Alert } from 'react-bootstrap';
-import { useSimpleLayout } from '../utils/layouts';
-import Link from 'next/link';
+import type { AuthError } from 'firebase/auth';
 import {
-  getAuth,
   createUserWithEmailAndPassword,
-  AuthError,
+  getAuth,
   onAuthStateChanged,
   sendEmailVerification,
   updateProfile,
 } from 'firebase/auth';
-import { FormEvent, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
-import analytics from '../utils/analytics';
+import type { FormEvent } from 'react';
+import { useEffect, useState } from 'react';
+import { Alert, Button, Form } from 'react-bootstrap';
+
+import analytics from '@/utils/analytics';
+import { assertUnreachable } from '@/utils/helpers';
+import { useSimpleLayout } from '@/utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
 
 interface ValidationFailure {
   email?: string;
@@ -171,10 +174,8 @@ const Register: NextPageWithLayout = () => {
       case 'displayName':
         setDisplayName(newValue);
         break;
-
       default:
-        const _exhaustiveCheck: never = type;
-        break;
+        assertUnreachable(type);
     }
   }
 

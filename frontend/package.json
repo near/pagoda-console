@@ -7,7 +7,9 @@
     "build": "next build",
     "export": "next build && next export",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "lint:prettier": "prettier --write .",
     "test:snapshot": "playwright test tests/playwright/snapshot/",
     "test:e2e": "playwright test tests/playwright/e2e/",
     "test": "jest --watch",
@@ -53,10 +55,14 @@
     "@types/mixpanel-browser": "^2.36.0",
     "@types/react": "17.0.38",
     "@types/react-syntax-highlighter": "^13.5.2",
+    "@typescript-eslint/eslint-plugin": "^5.17.0",
+    "@typescript-eslint/parser": "^5.17.0",
     "dotenv": "^16.0.0",
     "eslint": "8.5.0",
     "eslint-config-next": "^12.1.0",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^2.7.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-testing-library": "^5.0.1",
     "husky": "^7.0.4",
     "jest": "27.4.5",
@@ -68,7 +74,7 @@
     "fsevents": "^1.0.0"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint --cache",
+    "*.{js,jsx,ts,tsx}": "eslint --cache --max-warnings 0",
     "*.{js,jsx,ts,tsx,css,scss,md,json}": "prettier --check"
   }
 }

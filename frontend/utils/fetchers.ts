@@ -1,13 +1,15 @@
 import { getAuth, getIdToken } from 'firebase/auth';
-import useSWR, { KeyedMutator, mutate } from 'swr';
-import useSWRImmutable from 'swr/immutable';
-import { PublicConfiguration, Revalidator, RevalidatorOptions, SWRConfiguration } from 'swr/dist/types';
-import { Transaction } from '../components/explorer/components/transactions/types';
-import { useIdentity } from './hooks';
-import { Contract, Environment, User, Project, NetOption } from './interfaces';
-import router, { useRouter } from 'next/router';
-import { useEffect } from 'react';
 import mixpanel from 'mixpanel-browser';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import type { KeyedMutator } from 'swr';
+import useSWR, { mutate } from 'swr';
+import type { PublicConfiguration, Revalidator, RevalidatorOptions, SWRConfiguration } from 'swr/dist/types';
+
+import type { Transaction } from '@/components/explorer/components/transactions/types';
+
+import { useIdentity } from './hooks';
+import type { Contract, Environment, NetOption, Project, User } from './interfaces';
 
 // TODO decide proper crash if environment variables are not defined
 // and remove unsafe type assertion
@@ -25,19 +27,15 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 //     }).then((res) => res.json())
 // }
 
-function getUID() {
-  const user = getAuth().currentUser;
-  if (!user) {
-    throw new Error('No authenticated user found during SWR fetch');
-  }
-  return user.uid;
-}
-
 interface AuthenticatedPostOptions {
   forceRefresh?: boolean;
 }
 
-export async function authenticatedPost(endpoint: string, body?: Object, options?: AuthenticatedPostOptions) {
+export async function authenticatedPost(
+  endpoint: string,
+  body?: Record<string, any>,
+  options?: AuthenticatedPostOptions,
+) {
   const user = getAuth().currentUser;
   if (!user) throw new Error('No authenticated user');
 
@@ -170,7 +168,7 @@ export function useProjects(): { projects?: Project[]; error?: any; mutate: Keye
     error,
     mutate,
     isValidating,
-  } = useSWR(identity ? ['/projects/list', identity.uid] : null, (key: string, project: number) => {
+  } = useSWR(identity ? ['/projects/list', identity.uid] : null, (key: string) => {
     return authenticatedPost(key);
   });
 

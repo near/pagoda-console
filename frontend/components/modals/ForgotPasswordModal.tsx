@@ -2,10 +2,11 @@
 // Instead of this being a dedicated component, we should have a version of CenterModal which takes
 // custom children
 
-import { useState } from 'react';
-import { Modal, Button, Form } from 'react-bootstrap';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
-import analytics from '../../utils/analytics';
+import { useState } from 'react';
+import { Button, Form, Modal } from 'react-bootstrap';
+
+import analytics from '@/utils/analytics';
 
 export default function ForgotPasswordModal({ show, onHide }: { show: boolean; onHide: () => void }) {
   const [email, setEmail] = useState('');

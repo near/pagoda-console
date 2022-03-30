@@ -56,13 +56,16 @@ To style third party components which do not accept a custom `className` (e.g. R
 Pages take advantage of the Next.js [layouts](https://nextjs.org/docs/basic-features/layouts) feature. Currently there are two layouts: DashboardLayout and SimpleLayout. Choose a layout by setting the `getLayout` to the appropriate value from the [utils/layouts.tsx](utils/layouts.tsx) file
 
 ```tsx
-import { useSimpleLayout } from '../utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
+import { useSimpleLayout } from '@/utils/layouts';
 
-export default function NewPage() {
+const NewPage: NextPageWithLayout = () => {
   // page content
-}
+};
 
 NewPage.getLayout = useSimpleLayout;
+
+export default NewPage;
 ```
 
 ## Data Fetching
@@ -72,6 +75,10 @@ NewPage.getLayout = useSimpleLayout;
 ## Comments
 
 Where helpful, utilize [Better Comments](https://marketplace.visualstudio.com/items?itemName=aaron-bond.better-comments) syntax to add context to your comments
+
+## Path Alias
+
+Next JS supports `tsconfig.json` path aliases out of the box. We've set up a root `@/` alias that will allow us to write `@/utils/abc.tsx` instead of `../../../utils/abc.tsx`. This alias should be preferred most of the time when referencing root folders like `utils`, `public`, or `components`.
 
 ## Editor
 

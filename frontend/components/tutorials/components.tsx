@@ -1,8 +1,9 @@
 import { Table } from 'react-bootstrap';
-import MdxCodeBlock from './MdxCodeBlock';
+
 import { Anchor, H1Anchor, H2Anchor, H3Anchor } from './Anchors';
-import Note from './Note';
 import Blockquote from './Blockquote';
+import MdxCodeBlock from './MdxCodeBlock';
+import Note from './Note';
 import SetApiKey from './SetApiKey';
 
 // A component map between markdown syntax and custom JSX components.

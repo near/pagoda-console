@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { ReactElement } from 'react';
-import { useRouteParam } from '../../utils/hooks';
+import type { ReactElement } from 'react';
+
+import { useRouteParam } from '@/utils/hooks';
 
 export function Anchor(props: any) {
   const project = useRouteParam('project');

@@ -1,22 +1,24 @@
-import { NextPageWithLayout } from '../utils/types';
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-import { useSimpleLogoutLayout } from '../utils/layouts';
-import { Form, Button } from 'react-bootstrap';
 import { useRouter } from 'next/router';
-import { Project } from '../utils/interfaces';
-import { authenticatedPost } from '../utils/fetchers';
-import { useRouteParam } from '../utils/hooks';
-import analytics from '../utils/analytics';
-import BorderSpinner from '../components/BorderSpinner';
+import type { ChangeEvent, FormEvent } from 'react';
+import { useState } from 'react';
+import { Button, Form } from 'react-bootstrap';
+
+import BorderSpinner from '@/components/BorderSpinner';
+import analytics from '@/utils/analytics';
+import { authenticatedPost } from '@/utils/fetchers';
+import { useRouteParam } from '@/utils/hooks';
+import type { Project } from '@/utils/interfaces';
+import { useSimpleLogoutLayout } from '@/utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
 
 const NewProject: NextPageWithLayout = () => {
-  let [projectName, setProjectName] = useState('');
-  let [formEnabled, setFormEnabled] = useState(true);
+  const [projectName, setProjectName] = useState('');
+  const [formEnabled, setFormEnabled] = useState(true);
   const router = useRouter();
   const isOnboarding = useRouteParam('onboarding');
 
-  let [creationError, setCreationError] = useState('');
-  let [validationError, setValidationError] = useState('');
+  const [creationError, setCreationError] = useState('');
+  const [validationError, setValidationError] = useState('');
   const [createInProgress, setCreateInProgress] = useState(false);
 
   function canCreate(): boolean {

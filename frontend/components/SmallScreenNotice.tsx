@@ -1,5 +1,5 @@
-import Circles from '../public/circles.svg';
-import Logo from '../public/Pagoda Logo.svg';
+import Circles from '@/public/circles.svg';
+import Logo from '@/public/Pagoda Logo.svg';
 
 export default function SmallScreenNotice() {
   return (
