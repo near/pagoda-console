@@ -12,10 +12,10 @@ import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 
-import analytics from '../utils/analytics';
-import { assertUnreachable } from '../utils/helpers';
-import { useSimpleLayout } from '../utils/layouts';
-import type { NextPageWithLayout } from '../utils/types';
+import analytics from '@/utils/analytics';
+import { assertUnreachable } from '@/utils/helpers';
+import { useSimpleLayout } from '@/utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
 
 interface ValidationFailure {
   email?: string;

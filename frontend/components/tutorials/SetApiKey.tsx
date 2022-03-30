@@ -1,5 +1,6 @@
-import { useApiKeys } from '../../utils/fetchers';
-import { useRouteParam } from '../../utils/hooks';
+import { useApiKeys } from '@/utils/fetchers';
+import { useRouteParam } from '@/utils/hooks';
+
 import CodeBlock from '../CodeBlock';
 
 export default function ApiKey() {

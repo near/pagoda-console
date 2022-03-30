@@ -6,11 +6,12 @@ import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { Accordion, Button, Form, InputGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
-import analytics from '../utils/analytics';
-import { getUserData, updateUserData } from '../utils/cache';
-import type { ContractMetadata, NftData, Token } from '../utils/chainData';
-import { useContractInfo, useMetadata } from '../utils/chainData';
-import { useIdentity, useRouteParam } from '../utils/hooks';
+import analytics from '@/utils/analytics';
+import { getUserData, updateUserData } from '@/utils/cache';
+import type { ContractMetadata, NftData, Token } from '@/utils/chainData';
+import { useContractInfo, useMetadata } from '@/utils/chainData';
+import { useIdentity, useRouteParam } from '@/utils/hooks';
+
 import CodeBlock from './CodeBlock';
 import PageLink from './PageLink';
 

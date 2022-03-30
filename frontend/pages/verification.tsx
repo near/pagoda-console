@@ -3,11 +3,11 @@ import router from 'next/router';
 import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 
-import analytics from '../utils/analytics';
-import { logOut } from '../utils/auth';
-import { useRouteParam } from '../utils/hooks';
-import { useSimpleLayout } from '../utils/layouts';
-import type { NextPageWithLayout } from '../utils/types';
+import analytics from '@/utils/analytics';
+import { logOut } from '@/utils/auth';
+import { useRouteParam } from '@/utils/hooks';
+import { useSimpleLayout } from '@/utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
 
 const Verification: NextPageWithLayout = () => {
   const [hasResent, setHasResent] = useState(false);

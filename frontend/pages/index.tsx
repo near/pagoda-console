@@ -1,8 +1,8 @@
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
-import AuthenticationForm from '../components/AuthenticationForm';
-import { useSimpleLayout } from '../utils/layouts';
-import type { NextPageWithLayout } from '../utils/types';
+import AuthenticationForm from '@/components/AuthenticationForm';
+import { useSimpleLayout } from '@/utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
 
 /*
   Translation Example:

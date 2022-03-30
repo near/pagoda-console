@@ -6,13 +6,13 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Alert, Button } from 'react-bootstrap';
 
-import BorderSpinner from '../components/BorderSpinner';
-import DeleteProjectModal from '../components/modals/DeleteProjectModal';
-import TutorialBadge from '../components/TutorialBadge';
-import { useProjects } from '../utils/fetchers';
-import type { Project } from '../utils/interfaces';
-import { useSimpleLogoutLayout } from '../utils/layouts';
-import type { NextPageWithLayout } from '../utils/types';
+import BorderSpinner from '@/components/BorderSpinner';
+import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
+import TutorialBadge from '@/components/TutorialBadge';
+import { useProjects } from '@/utils/fetchers';
+import type { Project } from '@/utils/interfaces';
+import { useSimpleLogoutLayout } from '@/utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
 
 const Projects: NextPageWithLayout = () => {
   const router = useRouter();

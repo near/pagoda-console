@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
-import { useRouteParam } from '../utils/hooks';
+import { useRouteParam } from '@/utils/hooks';
 
 export default function PageLink({ route, anchor, children }: { route: string; anchor?: string; children: ReactNode }) {
   const project = useRouteParam('project');

@@ -3,13 +3,13 @@ import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 
-import BorderSpinner from '../components/BorderSpinner';
-import ErrorModal from '../components/modals/ErrorModal';
-import { useAccount } from '../utils/fetchers';
-import { assertUnreachable } from '../utils/helpers';
-import { useIdentity } from '../utils/hooks';
-import { useDashboardLayout } from '../utils/layouts';
-import type { NextPageWithLayout } from '../utils/types';
+import BorderSpinner from '@/components/BorderSpinner';
+import ErrorModal from '@/components/modals/ErrorModal';
+import { useAccount } from '@/utils/fetchers';
+import { assertUnreachable } from '@/utils/helpers';
+import { useIdentity } from '@/utils/hooks';
+import { useDashboardLayout } from '@/utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
 
 interface ValidationFailure {
   displayName?: string;

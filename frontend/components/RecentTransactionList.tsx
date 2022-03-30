@@ -1,9 +1,10 @@
 import BN from 'bn.js';
 import { useEffect, useState } from 'react';
 
-import Config from '../utils/config';
-import { useRecentTransactions } from '../utils/fetchers';
-import type { Contract, NetOption } from '../utils/interfaces';
+import Config from '@/utils/config';
+import { useRecentTransactions } from '@/utils/fetchers';
+import type { Contract, NetOption } from '@/utils/interfaces';
+
 import TransactionAction from './explorer/components/transactions/TransactionAction';
 export interface FinalityStatus {
   finalBlockHeight: number;

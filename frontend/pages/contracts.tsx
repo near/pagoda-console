@@ -7,17 +7,17 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import useSWR from 'swr';
 
-import BorderSpinner from '../components/BorderSpinner';
-import ProjectSelector from '../components/ProjectSelector';
-import RecentTransactionList from '../components/RecentTransactionList';
-import ContractsPreview from '../public/contractsPreview.png';
-import analytics from '../utils/analytics';
-import Config from '../utils/config';
-import { authenticatedPost, useContracts } from '../utils/fetchers';
-import { useIdentity, useProjectAndEnvironment } from '../utils/hooks';
-import type { Contract, Environment } from '../utils/interfaces';
-import { useDashboardLayout } from '../utils/layouts';
-import type { NextPageWithLayout } from '../utils/types';
+import BorderSpinner from '@/components/BorderSpinner';
+import ProjectSelector from '@/components/ProjectSelector';
+import RecentTransactionList from '@/components/RecentTransactionList';
+import ContractsPreview from '@/public/contractsPreview.png';
+import analytics from '@/utils/analytics';
+import Config from '@/utils/config';
+import { authenticatedPost, useContracts } from '@/utils/fetchers';
+import { useIdentity, useProjectAndEnvironment } from '@/utils/hooks';
+import type { Contract, Environment } from '@/utils/interfaces';
+import { useDashboardLayout } from '@/utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
 
 const Contracts: NextPageWithLayout = () => {
   const { project, environment } = useProjectAndEnvironment();

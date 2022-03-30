@@ -6,7 +6,8 @@ import type { KeyedMutator } from 'swr';
 import useSWR, { mutate } from 'swr';
 import type { PublicConfiguration, Revalidator, RevalidatorOptions, SWRConfiguration } from 'swr/dist/types';
 
-import type { Transaction } from '../components/explorer/components/transactions/types';
+import type { Transaction } from '@/components/explorer/components/transactions/types';
+
 import { useIdentity } from './hooks';
 import type { Contract, Environment, NetOption, Project, User } from './interfaces';
 

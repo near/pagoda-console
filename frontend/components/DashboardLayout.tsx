@@ -3,10 +3,11 @@ import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
 import { Placeholder } from 'react-bootstrap';
 
-import PagodaIcon from '../public/brand/pagoda_icon_small.svg';
-import { logOut } from '../utils/auth';
-import { useProject } from '../utils/fetchers';
-import { useDisplayName, useRouteParam } from '../utils/hooks';
+import PagodaIcon from '@/public/brand/pagoda_icon_small.svg';
+import { logOut } from '@/utils/auth';
+import { useProject } from '@/utils/fetchers';
+import { useDisplayName, useRouteParam } from '@/utils/hooks';
+
 import NftInfoCard from './NftInfoCard';
 
 interface PageDefinition {

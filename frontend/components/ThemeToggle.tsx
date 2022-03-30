@@ -10,7 +10,7 @@ import { Button } from 'react-bootstrap';
 
   import dynamic from 'next/dynamic';
 
-  const ThemeToggle = dynamic(() => import('../components/ThemeToggle'), {
+  const ThemeToggle = dynamic(() => import('@/components/ThemeToggle'), {
     ssr: false,
   });
 */

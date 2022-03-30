@@ -1,7 +1,8 @@
 import { useState } from 'react';
 
-import { deleteProject } from '../../utils/fetchers';
-import { useIdentity } from '../../utils/hooks';
+import { deleteProject } from '@/utils/fetchers';
+import { useIdentity } from '@/utils/hooks';
+
 import CenterModal from './CenterModal';
 
 export default function DeleteProjectModal({

@@ -3,13 +3,13 @@ import type { ChangeEvent, FormEvent } from 'react';
 import { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 
-import BorderSpinner from '../components/BorderSpinner';
-import analytics from '../utils/analytics';
-import { authenticatedPost } from '../utils/fetchers';
-import { useRouteParam } from '../utils/hooks';
-import type { Project } from '../utils/interfaces';
-import { useSimpleLogoutLayout } from '../utils/layouts';
-import type { NextPageWithLayout } from '../utils/types';
+import BorderSpinner from '@/components/BorderSpinner';
+import analytics from '@/utils/analytics';
+import { authenticatedPost } from '@/utils/fetchers';
+import { useRouteParam } from '@/utils/hooks';
+import type { Project } from '@/utils/interfaces';
+import { useSimpleLogoutLayout } from '@/utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
 
 const NewProject: NextPageWithLayout = () => {
   const [projectName, setProjectName] = useState('');

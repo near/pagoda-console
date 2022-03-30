@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Accordion } from 'react-bootstrap';
 
-import Config from '../utils/config';
-import { useApiKeys } from '../utils/fetchers';
-import { useRouteParam } from '../utils/hooks';
-import type { NetOption } from '../utils/interfaces';
+import Config from '@/utils/config';
+import { useApiKeys } from '@/utils/fetchers';
+import { useRouteParam } from '@/utils/hooks';
+import type { NetOption } from '@/utils/interfaces';
+
 import CodeBlock from './CodeBlock';
 
 const NAJ_STARTER_TEMPLATE = `const { connect, keyStores } = require("near-api-js");

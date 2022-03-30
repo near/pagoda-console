@@ -17,10 +17,11 @@ import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 
-import GithubMark from '../public/githubMark.png';
-import GoogleMark from '../public/googleMark.png';
-import analytics from '../utils/analytics';
-import { assertUnreachable } from '../utils/helpers';
+import GithubMark from '@/public/githubMark.png';
+import GoogleMark from '@/public/googleMark.png';
+import analytics from '@/utils/analytics';
+import { assertUnreachable } from '@/utils/helpers';
+
 import ErrorModal from './modals/ErrorModal';
 import ForgotPasswordModal from './modals/ForgotPasswordModal';
 

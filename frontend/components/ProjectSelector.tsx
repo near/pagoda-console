@@ -5,9 +5,10 @@ import { forwardRef } from 'react';
 import type { AnchorProps } from 'react-bootstrap';
 import { Dropdown, Placeholder } from 'react-bootstrap';
 
-import analytics from '../utils/analytics';
-import { useProject, useProjects } from '../utils/fetchers';
-import { useRouteParam } from '../utils/hooks';
+import analytics from '@/utils/analytics';
+import { useProject, useProjects } from '@/utils/fetchers';
+import { useRouteParam } from '@/utils/hooks';
+
 import EnvironmentSelector from './EnvironmentSelector';
 import ProjectLink from './ProjectLink';
 import TutorialBadge from './TutorialBadge';

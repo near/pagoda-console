@@ -15,9 +15,9 @@ import { appWithTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 import { SWRConfig, useSWRConfig } from 'swr';
 
-import config from '../utils/config';
-import { customErrorRetry } from '../utils/fetchers';
-import type { NextPageWithLayout } from '../utils/types';
+import config from '@/utils/config';
+import { customErrorRetry } from '@/utils/fetchers';
+import type { NextPageWithLayout } from '@/utils/types';
 
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
@@ -26,10 +26,10 @@ type AppPropsWithLayout = AppProps & {
 initializeApp(config.firebaseConfig);
 
 // mixpanel initialization
-import SmallScreenNotice from '../components/SmallScreenNotice';
-import analytics from '../utils/analytics';
-import { initializeNaj } from '../utils/chainData';
-import { usePageTracker } from '../utils/hooks';
+import SmallScreenNotice from '@/components/SmallScreenNotice';
+import analytics from '@/utils/analytics';
+import { initializeNaj } from '@/utils/chainData';
+import { usePageTracker } from '@/utils/hooks';
 
 analytics.init();
 

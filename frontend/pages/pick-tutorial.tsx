@@ -2,12 +2,12 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { Alert } from 'react-bootstrap';
 
-import ProjectCard from '../components/ProjectCard';
-import analytics from '../utils/analytics';
-import { authenticatedPost } from '../utils/fetchers';
-import type { Project } from '../utils/interfaces';
-import { useSimpleLogoutLayout } from '../utils/layouts';
-import type { NextPageWithLayout } from '../utils/types';
+import ProjectCard from '@/components/ProjectCard';
+import analytics from '@/utils/analytics';
+import { authenticatedPost } from '@/utils/fetchers';
+import type { Project } from '@/utils/interfaces';
+import { useSimpleLogoutLayout } from '@/utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
 
 enum Tutorial {
   NftMarket = 'NFT_MARKET',

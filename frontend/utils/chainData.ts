@@ -2,7 +2,7 @@ import * as nearAPI from 'near-api-js';
 import type { AccountView } from 'near-api-js/lib/providers/provider';
 import useSWR from 'swr';
 
-import Config from '../utils/config';
+import Config from '@/utils/config';
 
 const RPC_API_ENDPOINT = Config.url.rpc.default.TESTNET;
 
