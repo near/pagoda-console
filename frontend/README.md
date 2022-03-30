@@ -16,7 +16,7 @@ Identity Management: [Firebase Auth](https://firebase.google.com/docs/auth)
 
 ## Local Environment Variables
 
-Environment variables are loaded automatically from a `.env.local` file at the root of the project. This file is not currently tracked in git so you will need to obtain it from a fellow developer.
+Environment variables are loaded automatically from a `.env.local` file at the root of the project. Please copy the `.env.local.example` file as a starting point and ask the team for the secrets.
 
 To make the environment variable available in the browser at runtime, it must be prefixed with `NEXT_PUBLIC_`
 
@@ -135,13 +135,13 @@ Here are the changes that need to occur to each .md file that comes from @near/d
 V2 docs: https://mdxjs.com/
 V1 docs: https://v1.mdxjs.com/
 
-## Testing
+## E2E Testing
 
-### e2e
+Tests are written in [Playwright](https://playwright.dev). See `/tests/playwright` folder for examples. The tests are configurable via a `.env.test.local` file. To run this locally, you will need to copy `.env.test.local.example` and ask the team for the secrets.
 
-e2e tests are written in [Playwright](https://playwright.dev). See `/e2e` folder for examples. The tests are configurable via a `.env.test.local` file. Please ask the team for an example.
+The screenshot tests are used for testing tutorial pages that have dynamic content that could potentially change outside of our team (tests/playwright/snapshot/nft-tutorial-snapshot.spec.ts).
 
-We also have screenshot tests for testing tutorial pages that have dynamic content that could potentially change outside of our team (e2e/snapshot.spec.ts).
+Note: playwright tests can only run on [specific OSes](https://playwright.dev/docs/library#system-requirements). This means we can't run it in the VS Code dev container. Currently, you must run this project on your host machine.
 
 If you want to run these tests in your local, make sure you install the dependencies:
 
@@ -150,4 +150,11 @@ npx playwright install
 npx playwright install-deps
 ```
 
-then run `npm run test:e2e`.
+then run `npm run test:e2e` for integration tests or `npm run test:snapshot` for snapshot tests.
+
+### Initial console setup for e2e tests
+
+Go to the url of the environment you want to test:
+
+1. Setup a user with email and password. Store these in your `.env.test.local`.
+2. Create a tutorial project. Copy the slug from the url and set `TEST_NFT_TUTORIAL_PROJECT` in `.env.test.local`. This is important for both e2e and snapshot tests.

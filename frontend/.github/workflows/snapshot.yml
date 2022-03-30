@@ -1,5 +1,8 @@
-name: E2E Tests
+name: Snapshot Tests
 on:
+  # Run once daily
+  schedule:
+    - cron: '0 7 * * *'
   push:
     branches: [development]
   # You could test this CI job in a PR by uncommenting the below pull_request line.
@@ -18,8 +21,8 @@ jobs:
         run: npm ci
       - name: Install Playwright
         run: npx playwright install --with-deps
-      - name: Run e2e tests
-        run: npm run test:e2e
+      - name: Run snapshot tests
+        run: npm run test:snapshot
         env:
           TEST_URL: https://dev.console.pagoda.co
           TEST_EMAIL: jon+e2e@near.org

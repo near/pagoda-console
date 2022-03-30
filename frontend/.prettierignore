@@ -2,3 +2,4 @@
 *.mdx
 
 .next
+playwright-report/
