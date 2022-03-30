@@ -411,6 +411,7 @@ function NftPreview({
 }) {
   return (
     <div className="previewContainer">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <div className="imageWrapper">{url ? <img src={url} alt="Preview of NFT media" /> : '??'}</div>
       <div className="infoWrapper">
         <div className="infoGrid">
