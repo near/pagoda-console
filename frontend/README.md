@@ -16,7 +16,7 @@ Identity Management: [Firebase Auth](https://firebase.google.com/docs/auth)
 
 ## Local Environment Variables
 
-Environment variables are loaded automatically from a `.env.local` file at the root of the project. This file is not currently tracked in git so you will need to obtain it from a fellow developer.
+Environment variables are loaded automatically from a `.env.local` file at the root of the project. Please copy the `.env.local.example` file as a starting point and ask the team for the secrets.
 
 To make the environment variable available in the browser at runtime, it must be prefixed with `NEXT_PUBLIC_`
 
@@ -137,7 +137,7 @@ V1 docs: https://v1.mdxjs.com/
 
 ## E2E Testing
 
-Tests are written in [Playwright](https://playwright.dev). See `/tests/playwright` folder for examples. The tests are configurable via a `.env.test.local` file. Please ask the team for an example.
+Tests are written in [Playwright](https://playwright.dev). See `/tests/playwright` folder for examples. The tests are configurable via a `.env.test.local` file. To run this locally, you will need to copy `.env.test.local.example` and ask the team for the secrets.
 
 The screenshot tests are used for testing tutorial pages that have dynamic content that could potentially change outside of our team (tests/playwright/snapshot/nft-tutorial-snapshot.spec.ts).
 
