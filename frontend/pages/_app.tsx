@@ -72,7 +72,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
   const getFooter = Component.getFooter ?? (() => null);
-
   return (
     <SSRProvider>
       <SWRConfig
@@ -94,7 +93,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
             display: none;
           }
 
-          @media only screen and (max-width: 62rem) {
+          @media only screen and (max-width: 61.9rem) {
             .largeScreen {
               display: none;
             }

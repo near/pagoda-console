@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "lint:prettier": "prettier --write .",
-    "test:e2e": "playwright test",
+    "test:snapshot": "playwright test tests/playwright/snapshot/",
+    "test:e2e": "playwright test tests/playwright/e2e/",
     "test": "jest --watch",
     "test:ci": "jest --ci",
     "prepare": "husky install"
@@ -43,7 +44,7 @@
     "@mdx-js/loader": "^2.0.0",
     "@mdx-js/mdx": "^2.0.0",
     "@next/mdx": "^12.0.10",
-    "@playwright/test": "^1.19.2",
+    "@playwright/test": "^1.20.0",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.3",

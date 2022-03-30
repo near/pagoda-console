@@ -657,41 +657,41 @@ export default function TableOfContents() {
         <div className="routeWrapper">
           <RouteList routes={ROUTES} />
         </div>
-      </div>
-      <style jsx>{`
-        .smallScreen {
-          display: none;
-        }
-
-        @media only screen and (max-width: 80rem) {
-          .largeScreen {
+        <style jsx>{`
+          .smallScreen {
             display: none;
           }
-          .smallScreen {
-            display: block;
+
+          @media only screen and (max-width: 79.9rem) {
+            .largeScreen {
+              display: none;
+            }
+            .smallScreen {
+              display: block;
+            }
           }
-        }
-        .routeWrapper {
-          border-left: 1px solid #abb5be;
-          font-size: 1rem;
-          text-decoration: none;
-          position: fixed;
-          top: 8rem;
-          margin-right: 2rem;
-          left: calc(var(--layout-sidebar-width) + 7.5rem + 46rem + 2rem);
-        }
-        .routeWrapper :global(li) {
-          padding-bottom: 0.25rem;
-        }
-        .routeWrapper :global(ul) {
-          list-style-type: none;
-        }
-        .routeWrapper :global(ul) :global(ul) {
-          color: var(--color-primary);
-          padding-top: 0.25rem;
-          padding-left: 1rem;
-        }
-      `}</style>
+          .routeWrapper {
+            border-left: 1px solid #abb5be;
+            font-size: 1rem;
+            text-decoration: none;
+            position: fixed;
+            top: 8rem;
+            margin-right: 2rem;
+            left: calc(var(--layout-sidebar-width) + 7.5rem + 46rem + 2rem);
+          }
+          .routeWrapper :global(li) {
+            padding-bottom: 0.25rem;
+          }
+          .routeWrapper :global(ul) {
+            list-style-type: none;
+          }
+          .routeWrapper :global(ul) :global(ul) {
+            color: var(--color-primary);
+            padding-top: 0.25rem;
+            padding-left: 1rem;
+          }
+        `}</style>
+      </div>
     </>
   );
 }
