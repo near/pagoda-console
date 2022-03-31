@@ -1,0 +1,9 @@
+FROM mcr.microsoft.com/playwright:v1.20.0-focal
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm ci
+# exit 0 will allow the tests to fail and the docker image to be built and tagged for later.
+RUN npm run test:snapshot; exit 0
