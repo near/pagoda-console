@@ -24,9 +24,21 @@ To make the environment variable available in the browser at runtime, it must be
 
 # Contributing
 
-The recommended way to run a development instance of this project is with VS Code and Dev Containers. The container definitions are part of this repository (`.devcontainer/`), so using dev containers will allow you to easily keep your environment in sync with other team members.
+The recommended way to run a development instance of this project is with VS Code and Dev Containers via the `ms-azuretools.vscode-docker` extension (which you will need to install manually). The container definitions are part of this repository (`.devcontainer/`), so using dev containers will allow you to easily keep your environment in sync with other team members.
 
 If VS Code is not your preferred development environment, you are more than welcome to stray from this recommendation and run the containers with Docker directly.
+
+If you're running in to performance issues running/building the app inside the Dev Container, another option is run the app outside of it via `NVM`. Simply install `NVM` and then run `nvm use` in the project's root directory.
+
+## Getting Started
+
+Run the development server:
+
+```bash
+npm run dev
+```
+
+View at [http://localhost:3000](http://localhost:3000)
 
 ## Config
 
@@ -79,24 +91,6 @@ Where helpful, utilize [Better Comments](https://marketplace.visualstudio.com/it
 ## Path Alias
 
 Next JS supports `tsconfig.json` path aliases out of the box. We've set up a root `@/` alias that will allow us to write `@/utils/abc.tsx` instead of `../../../utils/abc.tsx`. This alias should be preferred most of the time when referencing root folders like `utils`, `public`, or `components`.
-
-## Editor
-
-Important extensions
-
-```
-divlo.vscode-styled-jsx-syntax
-```
-
-## Getting Started
-
-Run the development server:
-
-```bash
-npm run dev
-```
-
-View at [http://localhost:3000](http://localhost:3000)
 
 ## Tutorial Pages
 
