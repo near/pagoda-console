@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import setupErrorLogger from '../errorLogger';
 import { login } from '../login';
 
 [
@@ -13,6 +14,8 @@ import { login } from '../login';
 ].forEach((path) => {
   test(`NFT tutorial ${path} snapshot test`, async ({ page }) => {
     const project = process.env.TEST_NFT_TUTORIAL_PROJECT;
+
+    setupErrorLogger(page);
 
     await login(page);
 
@@ -42,6 +45,8 @@ const CHUNK = 10000;
     const to = from + CHUNK;
     test(`NFT tutorial ${path} snapshot - ${from}-${to}k px - test`, async ({ page }) => {
       const project = process.env.TEST_NFT_TUTORIAL_PROJECT;
+
+      setupErrorLogger(page);
 
       // sign in
       await login(page);
