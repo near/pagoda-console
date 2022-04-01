@@ -16,7 +16,7 @@ Identity Management: [Firebase Auth](https://firebase.google.com/docs/auth)
 
 ## Local Environment Variables
 
-Environment variables are loaded automatically from a `.env.local` file at the root of the project. This file is not currently tracked in git so you will need to obtain it from a fellow developer.
+Environment variables are loaded automatically from a `.env.local` file at the root of the project. Please copy the `.env.local.example` file as a starting point and ask the team for the secrets.
 
 To make the environment variable available in the browser at runtime, it must be prefixed with `NEXT_PUBLIC_`
 
@@ -24,9 +24,21 @@ To make the environment variable available in the browser at runtime, it must be
 
 # Contributing
 
-The recommended way to run a development instance of this project is with VS Code and Dev Containers. The container definitions are part of this repository (`.devcontainer/`), so using dev containers will allow you to easily keep your environment in sync with other team members.
+The recommended way to run a development instance of this project is with VS Code and Dev Containers via the `ms-azuretools.vscode-docker` extension (which you will need to install manually). The container definitions are part of this repository (`.devcontainer/`), so using dev containers will allow you to easily keep your environment in sync with other team members.
 
 If VS Code is not your preferred development environment, you are more than welcome to stray from this recommendation and run the containers with Docker directly.
+
+If you're running in to performance issues running/building the app inside the Dev Container, another option is run the app outside of it via `NVM`. Simply install `NVM` and then run `nvm use` in the project's root directory.
+
+## Getting Started
+
+Run the development server:
+
+```bash
+npm run dev
+```
+
+View at [http://localhost:3000](http://localhost:3000)
 
 ## Config
 
@@ -56,13 +68,16 @@ To style third party components which do not accept a custom `className` (e.g. R
 Pages take advantage of the Next.js [layouts](https://nextjs.org/docs/basic-features/layouts) feature. Currently there are two layouts: DashboardLayout and SimpleLayout. Choose a layout by setting the `getLayout` to the appropriate value from the [utils/layouts.tsx](utils/layouts.tsx) file
 
 ```tsx
-import { useSimpleLayout } from '../utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
+import { useSimpleLayout } from '@/utils/layouts';
 
-export default function NewPage() {
+const NewPage: NextPageWithLayout = () => {
   // page content
-}
+};
 
 NewPage.getLayout = useSimpleLayout;
+
+export default NewPage;
 ```
 
 ## Data Fetching
@@ -73,23 +88,9 @@ NewPage.getLayout = useSimpleLayout;
 
 Where helpful, utilize [Better Comments](https://marketplace.visualstudio.com/items?itemName=aaron-bond.better-comments) syntax to add context to your comments
 
-## Editor
+## Path Alias
 
-Important extensions
-
-```
-divlo.vscode-styled-jsx-syntax
-```
-
-## Getting Started
-
-Run the development server:
-
-```bash
-npm run dev
-```
-
-View at [http://localhost:3000](http://localhost:3000)
+Next JS supports `tsconfig.json` path aliases out of the box. We've set up a root `@/` alias that will allow us to write `@/utils/abc.tsx` instead of `../../../utils/abc.tsx`. This alias should be preferred most of the time when referencing root folders like `utils`, `public`, or `components`.
 
 ## Tutorial Pages
 
@@ -137,7 +138,7 @@ V1 docs: https://v1.mdxjs.com/
 
 ## E2E Testing
 
-Tests are written in [Playwright](https://playwright.dev). See `/tests/playwright` folder for examples. The tests are configurable via a `.env.test.local` file. Please ask the team for an example.
+Tests are written in [Playwright](https://playwright.dev). See `/tests/playwright` folder for examples. The tests are configurable via a `.env.test.local` file. To run this locally, you will need to copy `.env.test.local.example` and ask the team for the secrets.
 
 The screenshot tests are used for testing tutorial pages that have dynamic content that could potentially change outside of our team (tests/playwright/snapshot/nft-tutorial-snapshot.spec.ts).
 

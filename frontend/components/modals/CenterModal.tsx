@@ -1,4 +1,4 @@
-import { Modal, Button, Alert } from 'react-bootstrap';
+import { Alert, Button, Modal } from 'react-bootstrap';
 
 export default function CenterModal(props: {
   title: string;

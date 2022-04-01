@@ -2,12 +2,17 @@
   "name": "developer-console-framework",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "^14.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "export": "next build && next export",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "lint:prettier": "prettier --write .",
     "test:snapshot": "playwright test tests/playwright/snapshot/",
     "test:snapshot:local": "./tests/playwright/scripts/run-snapshot.sh",
     "test:e2e": "playwright test tests/playwright/e2e/",
@@ -23,7 +28,7 @@
     "@fortawesome/react-fontawesome": "^0.1.16",
     "bn.js": "^5.2.0",
     "bootstrap": "^5.1.1",
-    "firebase": "^9.2.0",
+    "firebase": "^9.6.10",
     "hexy": "^0.3.3",
     "highcharts": "^9.3.2",
     "highcharts-react-official": "^3.1.0",
@@ -55,10 +60,14 @@
     "@types/mixpanel-browser": "^2.36.0",
     "@types/react": "17.0.38",
     "@types/react-syntax-highlighter": "^13.5.2",
+    "@typescript-eslint/eslint-plugin": "^5.17.0",
+    "@typescript-eslint/parser": "^5.17.0",
     "dotenv": "^16.0.0",
     "eslint": "8.5.0",
     "eslint-config-next": "^12.1.0",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^2.7.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-testing-library": "^5.0.1",
     "husky": "^7.0.4",
     "jest": "27.4.5",
@@ -70,7 +79,7 @@
     "fsevents": "^1.0.0"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint --cache",
+    "*.{js,jsx,ts,tsx}": "eslint --cache --max-warnings 0",
     "*.{js,jsx,ts,tsx,css,scss,md,json}": "prettier --check"
   }
 }

@@ -1,4 +1,4 @@
-import ConsoleLogoImage from '../public/brand/pagoda_dc.svg';
+import ConsoleLogoImage from '@/public/brand/pagoda_dc.svg';
 
 function ConsoleLogo() {
   return (

@@ -1,13 +1,16 @@
-import { ReactNode, forwardRef } from 'react';
-import { AnchorProps, Dropdown, Placeholder } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useProject, useProjects } from '../utils/fetchers';
-import { useRouteParam } from '../utils/hooks';
-import Link from 'next/link';
 import { faCaretDown, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import ProjectLink from './ProjectLink';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
+import { forwardRef } from 'react';
+import type { AnchorProps } from 'react-bootstrap';
+import { Dropdown, Placeholder } from 'react-bootstrap';
+
+import analytics from '@/utils/analytics';
+import { useProject, useProjects } from '@/utils/fetchers';
+import { useRouteParam } from '@/utils/hooks';
+
 import EnvironmentSelector from './EnvironmentSelector';
-import analytics from '../utils/analytics';
+import ProjectLink from './ProjectLink';
 import TutorialBadge from './TutorialBadge';
 
 export default function ProjectSelector() {
@@ -15,9 +18,9 @@ export default function ProjectSelector() {
   const project = useRouteParam('project', '/projects');
   // TODO (P2+) this could probably be pulled from the useProjects call instead of fetched
   // separately
-  const { project: projectDetails, error: projectError } = useProject(project);
+  const { project: projectDetails } = useProject(project);
 
-  const { projects, error, isValidating, mutate: refetchProjects } = useProjects();
+  const { projects } = useProjects();
 
   const otherProjectsList = projects && projects.filter((p) => p.slug !== project);
   const otherProjects = otherProjectsList?.length ? otherProjectsList : null;

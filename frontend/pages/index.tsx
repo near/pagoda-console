@@ -1,8 +1,16 @@
-import { NextPageWithLayout } from '../utils/types';
-import AuthenticationForm from '../components/AuthenticationForm';
-import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { useSimpleLayout } from '../utils/layouts';
+
+import AuthenticationForm from '@/components/AuthenticationForm';
+import { useSimpleLayout } from '@/utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
+
+/*
+  Translation Example:
+
+  import { useTranslation } from 'next-i18next';
+  ...
+  const { t } = useTranslation('login');
+*/
 
 export async function getStaticProps({ locale }: { locale: string }) {
   return {
@@ -14,8 +22,6 @@ export async function getStaticProps({ locale }: { locale: string }) {
 }
 
 const Login: NextPageWithLayout = () => {
-  const { t } = useTranslation('login');
-
   return (
     <div className="pageContainer">
       <AuthenticationForm />

@@ -1,24 +1,20 @@
-import { useState, useEffect } from 'react';
-import { authenticatedPost, useRecentTransactions } from '../utils/fetchers';
-import { useIdentity } from '../utils/hooks';
-import TransactionAction from './explorer/components/transactions/TransactionAction';
-import { Transaction } from './explorer/components/transactions/types';
-import { Contract, NetOption } from '../utils/interfaces';
-import Config from '../utils/config';
-
 import BN from 'bn.js';
+import { useEffect, useState } from 'react';
+
+import Config from '@/utils/config';
+import { useRecentTransactions } from '@/utils/fetchers';
+import type { Contract, NetOption } from '@/utils/interfaces';
+
+import TransactionAction from './explorer/components/transactions/TransactionAction';
 export interface FinalityStatus {
   finalBlockHeight: number;
   finalBlockTimestampNanosecond: BN;
 }
 
 export default function RecentTransactionList({ contracts, net }: { contracts: Contract[]; net: NetOption }) {
-  // let [transactions, setTransactions] = useState<Transaction[]>();
-  const identity = useIdentity();
-
   const [finalityStatus, setFinalityStatus] = useState<FinalityStatus>();
 
-  const { transactions, error } = useRecentTransactions(
+  const { transactions } = useRecentTransactions(
     contracts.map((c) => c.address),
     net,
   );

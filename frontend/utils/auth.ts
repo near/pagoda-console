@@ -1,4 +1,5 @@
 import { getAuth, signOut } from 'firebase/auth';
+
 import analytics from './analytics';
 
 export async function logOut() {

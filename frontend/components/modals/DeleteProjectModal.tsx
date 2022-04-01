@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { deleteProject } from '../../utils/fetchers';
-import { useIdentity } from '../../utils/hooks';
+
+import { deleteProject } from '@/utils/fetchers';
+import { useIdentity } from '@/utils/hooks';
+
 import CenterModal from './CenterModal';
 
 export default function DeleteProjectModal({
@@ -16,9 +18,9 @@ export default function DeleteProjectModal({
   setShow: (show: boolean) => void;
   onDelete: () => void;
 }) {
-  let identity = useIdentity();
-  let [errorText, setErrorText] = useState<string | undefined>();
-  let [confirmDisabled, setConfirmDisabled] = useState(false);
+  const identity = useIdentity();
+  const [errorText, setErrorText] = useState<string | undefined>();
+  const [confirmDisabled, setConfirmDisabled] = useState(false);
   const warning =
     'Removing this project may have unintended consequences, make sure the API keys for this project are no longer in use before removing it.';
 

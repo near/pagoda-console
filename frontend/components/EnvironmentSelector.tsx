@@ -1,10 +1,11 @@
+import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRouter } from 'next/router';
 import { forwardRef } from 'react';
-import { Dropdown, ButtonProps, Button } from 'react-bootstrap';
-import { useProjectAndEnvironment } from '../utils/hooks';
+import type { ButtonProps } from 'react-bootstrap';
+import { Button, Dropdown } from 'react-bootstrap';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { useProjectAndEnvironment } from '@/utils/hooks';
 
 export default function EnvironmentSelector() {
   const router = useRouter();

@@ -1,22 +1,23 @@
-import { NextPageWithLayout } from '../utils/types';
-import { useSimpleLogoutLayout } from '../utils/layouts';
-import { Alert, Button } from 'react-bootstrap';
-import { useRouter } from 'next/router';
-import { useProjects } from '../utils/fetchers';
-import { Project } from '../utils/interfaces';
-import Link from 'next/link';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
-import { useEffect, useState } from 'react';
-import BorderSpinner from '../components/BorderSpinner';
 import { faAngleDoubleRight, faExclamationCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
-import TutorialBadge from '../components/TutorialBadge';
-import DeleteProjectModal from '../components/modals/DeleteProjectModal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { Alert, Button } from 'react-bootstrap';
+
+import BorderSpinner from '@/components/BorderSpinner';
+import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
+import TutorialBadge from '@/components/TutorialBadge';
+import { useProjects } from '@/utils/fetchers';
+import type { Project } from '@/utils/interfaces';
+import { useSimpleLogoutLayout } from '@/utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
 
 const Projects: NextPageWithLayout = () => {
   const router = useRouter();
   const { projects, error, isValidating, mutate: refetchProjects } = useProjects();
-  let [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [showRedirectAlert, setShowRedirectAlert] = useState(false);
 
   useEffect(() => {
@@ -47,7 +48,7 @@ const Projects: NextPageWithLayout = () => {
   } else if (!projects.length && isValidating) {
     return <BorderSpinner />;
   } else {
-    body = projects!.map((proj, index, arr) => (
+    body = projects!.map((proj, index) => (
       <ProjectRow
         key={proj.id}
         project={proj}
@@ -129,7 +130,7 @@ function RedirectAlert(props: { onClick: () => void }) {
 }
 
 function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boolean; onDelete: () => void }) {
-  let [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <div className="projectRowContainer">

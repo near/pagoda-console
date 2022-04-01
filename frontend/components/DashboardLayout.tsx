@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-
-import PagodaIcon from '../public/brand/pagoda_icon_small.svg';
-import { useDisplayName, useRouteParam } from '../utils/hooks';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Placeholder } from 'react-bootstrap';
 
-import { logOut } from '../utils/auth';
-import { useProject } from '../utils/fetchers';
+import PagodaIcon from '@/public/brand/pagoda_icon_small.svg';
+import { logOut } from '@/utils/auth';
+import { useProject } from '@/utils/fetchers';
+import { useDisplayName, useRouteParam } from '@/utils/hooks';
+
 import NftInfoCard from './NftInfoCard';
 
 interface PageDefinition {
@@ -22,7 +22,7 @@ function useProjectPages(): PageDefinition[] {
   const pages = [];
 
   const projectSlug = useRouteParam('project');
-  const { project, error: projectError } = useProject(projectSlug);
+  const { project } = useProject(projectSlug);
 
   if (project?.tutorial === 'NFT_MARKET') {
     pages.push({ display: 'Tutorial', route: '/tutorials/nfts/introduction', routeMatchPattern: '/tutorials/' });

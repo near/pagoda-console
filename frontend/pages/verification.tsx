@@ -1,15 +1,16 @@
-import { NextPageWithLayout } from '../utils/types';
-import router from 'next/router';
-import { useState, useEffect } from 'react';
-import { Button } from 'react-bootstrap';
-import { useSimpleLayout } from '../utils/layouts';
 import { getAuth, sendEmailVerification } from 'firebase/auth';
-import { useRouteParam } from '../utils/hooks';
-import analytics from '../utils/analytics';
-import { logOut } from '../utils/auth';
+import router from 'next/router';
+import { useEffect, useState } from 'react';
+import { Button } from 'react-bootstrap';
+
+import analytics from '@/utils/analytics';
+import { logOut } from '@/utils/auth';
+import { useRouteParam } from '@/utils/hooks';
+import { useSimpleLayout } from '@/utils/layouts';
+import type { NextPageWithLayout } from '@/utils/types';
 
 const Verification: NextPageWithLayout = () => {
-  let [hasResent, setHasResent] = useState(false);
+  const [hasResent, setHasResent] = useState(false);
 
   const existing = useRouteParam('existing') === 'true';
 
@@ -43,6 +44,7 @@ const Verification: NextPageWithLayout = () => {
   // only run once since it will re-queue itself
   useEffect(() => {
     queueVerificationCheck();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
