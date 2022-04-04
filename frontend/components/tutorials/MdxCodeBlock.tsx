@@ -102,7 +102,7 @@ export function parseReference(ref: string): GitHubReference {
   const fullUrl = ref.slice(ref.indexOf('https'), -1);
   const [url, loc] = fullUrl.split('#');
 
-  const [org, repo, branch, ...pathSeg] = new URL(url).pathname.split('/').slice(1);
+  const [org, repo, _blob, branch, ...pathSeg] = new URL(url).pathname.split('/').slice(1);
   const [fromLine, toLine] = loc ? loc.split('-').map((lineNr) => parseInt(lineNr.slice(1), 10) - 1) : [0, Infinity];
 
   return {
