@@ -30,6 +30,7 @@ model User {
   updatedContracts    Contract[]    @relation("UserUpdatedContract")
   createdTeamProject  TeamProject[] @relation("UserCreatedTeamProject")
   updatedTeamProject  TeamProject[] @relation("UserUpdatedTeamProject")
+  userActions         UserAction[]
 }
 
 model Team {
@@ -145,4 +146,18 @@ model Contract {
 enum ProjectTutorial {
   NFT_MARKET
   CROSSWORD
+}
+
+// UserAction is used to audit user actions that can't be captured in the Audit table.
+model UserAction {
+  id              Int            @id @default(autoincrement())
+  action          UserActionType
+  data            Json?
+  user            User           @relation(fields: [userId], references: [id])
+  userId          Int
+  actionTimestamp DateTime       @default(now())
+}
+
+enum UserActionType {
+  ROTATE_API_KEY
 }
