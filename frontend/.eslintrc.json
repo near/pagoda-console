@@ -25,6 +25,7 @@
     "simple-import-sort/exports": "warn",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/consistent-type-imports": "error"
+    "@typescript-eslint/consistent-type-imports": "error",
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
   }
 }
