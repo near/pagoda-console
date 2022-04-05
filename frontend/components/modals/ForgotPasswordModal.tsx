@@ -71,8 +71,8 @@ export default function ForgotPasswordModal({ show, onHide }: { show: boolean; o
           </Modal.Header>
           <Modal.Body>
             {!hasSent ? (
-              <>
-                <Form.Label>Please enter your email address</Form.Label>
+              <Form.Group controlId="formForgotEmail">
+                <Form.Label>Please enter your email address:</Form.Label>
                 <Form.Control
                   type="email"
                   placeholder="name@example.com"
@@ -86,7 +86,7 @@ export default function ForgotPasswordModal({ show, onHide }: { show: boolean; o
                   })}
                 />
                 <Form.Control.Feedback type="invalid">{formState.errors.email?.message}</Form.Control.Feedback>
-              </>
+              </Form.Group>
             ) : (
               'Sent!'
             )}
