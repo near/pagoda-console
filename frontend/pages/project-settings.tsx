@@ -20,12 +20,13 @@ const ROTATION_WARNING =
 
 const ProjectSettings: NextPageWithLayout = () => {
   const projectSlug = useRouteParam('project', '/projects');
+  const { project } = useProject(projectSlug);
   const { keys, mutate: mutateKeys } = useApiKeys(projectSlug);
   const [showMainnetRotationModal, setShowMainnetRotationModal] = useState(false);
   const [showTestnetRotationModal, setShowTestnetRotationModal] = useState(false);
 
   // Tutorial projects do not have MAINNET keys.
-  const hasMainnetKey = !!keys?.MAINNET;
+  const hasMainnetKey = !project?.tutorial;
 
   async function rotateKey(net: NetOption) {
     showMainnetRotationModal && setShowMainnetRotationModal(false);
