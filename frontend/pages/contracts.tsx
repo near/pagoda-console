@@ -15,7 +15,7 @@ import ContractsPreview from '@/public/contractsPreview.png';
 import analytics from '@/utils/analytics';
 import Config from '@/utils/config';
 import { authenticatedPost, useContracts } from '@/utils/fetchers';
-import { returnAddressPattern } from '@/utils/helpers';
+import { returnContractAddressRegex } from '@/utils/helpers';
 import { useIdentity, useProjectAndEnvironment } from '@/utils/hooks';
 import type { Contract, Environment } from '@/utils/interfaces';
 import { useDashboardLayout } from '@/utils/layouts';
@@ -199,31 +199,31 @@ function ContractsEmptyState({
 }
 
 interface AddContractFormData {
-  address: string;
+  contractAddress: string;
 }
 
 function AddContractForm(props: { project: string; environment: Environment; onAdd: () => void }) {
   const { register, handleSubmit, formState, setValue } = useForm<AddContractFormData>();
   const [showAddForm, setShowAddForm] = useState(false);
   const [error, setError] = useState('');
-  const addressPattern = returnAddressPattern(props.environment);
+  const contractAddressRegex = returnContractAddressRegex(props.environment);
 
   function closeAddForm() {
-    setValue('address', '');
+    setValue('contractAddress', '');
     setShowAddForm(false);
   }
 
-  const submitNewContract: SubmitHandler<AddContractFormData> = async ({ address }) => {
+  const submitNewContract: SubmitHandler<AddContractFormData> = async ({ contractAddress }) => {
     try {
       setError('');
       const contract = await authenticatedPost('/projects/addContract', {
         project: props.project,
         environment: props.environment.subId,
-        address,
+        address: contractAddress,
       });
       analytics.track('DC Add Contract', {
         status: 'success',
-        contractId: address,
+        contractId: contractAddress,
         net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
       });
       props.onAdd();
@@ -233,7 +233,7 @@ function AddContractForm(props: { project: string; environment: Environment; onA
       analytics.track('DC Add Contract', {
         status: 'failure',
         error: e.message,
-        contractId: address,
+        contractId: contractAddress,
         net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
       });
       setError(e.message);
@@ -247,17 +247,17 @@ function AddContractForm(props: { project: string; environment: Environment; onA
           {showAddForm && (
             <div className="inputRow">
               <Form.Control
-                isInvalid={!!formState.errors.address}
+                isInvalid={!!formState.errors.contractAddress}
                 placeholder={props.environment.net === 'MAINNET' ? 'contract.near' : 'contract.testnet'}
-                {...register('address', {
+                {...register('contractAddress', {
                   required: 'Address field is required',
                   pattern: {
-                    value: addressPattern,
+                    value: contractAddressRegex,
                     message: 'Invalid address format',
                   },
                 })}
               />
-              <Form.Control.Feedback type="invalid">{formState.errors.address?.message}</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">{formState.errors.contractAddress?.message}</Form.Control.Feedback>
             </div>
           )}
 

@@ -10,24 +10,24 @@ import analytics from '@/utils/analytics';
 import { getUserData, updateUserData } from '@/utils/cache';
 import type { ContractMetadata, NftData, Token } from '@/utils/chainData';
 import { useContractInfo, useMetadata } from '@/utils/chainData';
-import { returnAddressPattern } from '@/utils/helpers';
+import { returnContractAddressRegex } from '@/utils/helpers';
 import { useIdentity, useProjectAndEnvironment, useRouteParam } from '@/utils/hooks';
 
 import CodeBlock from './CodeBlock';
 import PageLink from './PageLink';
 
 interface NftInfoFormData {
-  address: string;
+  contractAddress: string;
 }
 
 export default function NftInfoCard() {
   const { register, handleSubmit, formState } = useForm<NftInfoFormData>();
   const { environment } = useProjectAndEnvironment();
   const [isEditing, setIsEditing] = useState(true);
-  const [contractAddress, setContractAddress] = useState<string | null>(null);
+  const [savedContractAddress, setSavedContractAddress] = useState<string | null>(null);
   const [addressInputValue, setAddressInputValue] = useState('');
   const [showQuickInfo, setShowQuickInfo] = useState(true);
-  const addressPattern = returnAddressPattern(environment);
+  const contractAddressRegex = returnContractAddressRegex(environment);
   const identity = useIdentity();
   const project = useRouteParam('project');
 
@@ -42,7 +42,7 @@ export default function NftInfoCard() {
       userData = getUserData(identity.uid);
       const cachedContractAddress = userData?.projectData?.[project]?.nftContract;
       if (cachedContractAddress) {
-        setContractAddress(cachedContractAddress);
+        setSavedContractAddress(cachedContractAddress);
         setIsEditing(false);
         setAddressInputValue(cachedContractAddress);
       }
@@ -53,17 +53,17 @@ export default function NftInfoCard() {
   }, [identity, project]);
 
   // fetch basic account info for the NFT contract
-  const { data: contractBasics, error: basicsError } = useContractInfo(contractAddress);
+  const { data: contractBasics, error: basicsError } = useContractInfo(savedContractAddress);
 
   // fetch full NFT contract data based on functions required by nft-1.0.0
   const { data: nftData, error: nftError } = useMetadata(
     'NFT',
-    contractAddress && contractBasics?.accountExists && contractBasics?.codeDeployed ? contractAddress : null,
+    savedContractAddress && contractBasics?.accountExists && contractBasics?.codeDeployed ? savedContractAddress : null,
   );
 
   // update the contract address for data fetching
-  const saveAddressChange: SubmitHandler<NftInfoFormData> = async ({ address }) => {
-    setContractAddress(address);
+  const saveAddressChange: SubmitHandler<NftInfoFormData> = async ({ contractAddress }) => {
+    setSavedContractAddress(contractAddress);
     setIsEditing(false);
     if (project && identity?.uid) {
       updateUserData(identity.uid, { projectData: { [project]: { nftContract: addressInputValue } } });
@@ -96,33 +96,35 @@ export default function NftInfoCard() {
         </div>
       </div>
 
-      {!contractAddress && (
+      {!savedContractAddress && (
         <span className="quickInfoInstructions">
           I’ll show you contract metrics here. Paste in your NFT contract address below and info will update here as you
           progress through the tutorial.
         </span>
       )}
 
-      {isEditing || !contractAddress ? (
-        <Form noValidate className="contractForm" onSubmit={handleSubmit(saveAddressChange)}>
-          <InputGroup>
-            <Form.Control
-              isInvalid={!!formState.errors.address}
-              placeholder="contract.testnet"
-              {...register('address', {
-                required: 'Address field is required',
-                pattern: {
-                  value: addressPattern,
-                  message: 'Invalid address format',
-                },
-              })}
-            />
-            <Button type="submit">Save</Button>
-          </InputGroup>
+      {isEditing || !savedContractAddress ? (
+        <Form noValidate onSubmit={handleSubmit(saveAddressChange)}>
+          <fieldset className="contractForm" disabled={formState.isSubmitting}>
+            <InputGroup>
+              <Form.Control
+                isInvalid={!!formState.errors.contractAddress}
+                placeholder="contract.testnet"
+                {...register('contractAddress', {
+                  required: 'Address field is required',
+                  pattern: {
+                    value: contractAddressRegex,
+                    message: 'Invalid address format',
+                  },
+                })}
+              />
+              <Button type="submit">Save</Button>
+            </InputGroup>
+          </fieldset>
         </Form>
       ) : (
         <div className="address">
-          <b className="addressText">{contractAddress}</b>
+          <b className="addressText">{savedContractAddress}</b>
           <Button
             variant="outline-primary"
             onClick={() => {
@@ -134,7 +136,7 @@ export default function NftInfoCard() {
         </div>
       )}
 
-      {contractAddress && contractBasics && (
+      {savedContractAddress && contractBasics && (
         <div className="infoCardContent">
           {/* status */}
           {contractBasics && (

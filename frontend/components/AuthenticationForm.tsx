@@ -21,6 +21,7 @@ import { useForm } from 'react-hook-form';
 import GithubMark from '@/public/githubMark.png';
 import GoogleMark from '@/public/googleMark.png';
 import analytics from '@/utils/analytics';
+import { formRegex } from '@/utils/constants';
 
 import ErrorModal from './modals/ErrorModal';
 import ForgotPasswordModal from './modals/ForgotPasswordModal';
@@ -180,9 +181,6 @@ interface EmailAuthFormData {
   password: string;
 }
 
-const emailRegex = /\w+@\w+\.\w+/;
-const passwordRegex = /.{6,}/;
-
 function EmailAuth(props: { authActive: boolean }) {
   const { register, handleSubmit, formState, setError } = useForm<EmailAuthFormData>();
   const [showResetModal, setShowResetModal] = useState(false);
@@ -235,49 +233,51 @@ function EmailAuth(props: { authActive: boolean }) {
   return (
     <div className="emailContainer">
       <Form noValidate onSubmit={handleSubmit(signInWithEmail)}>
-        <div className="formFieldsWrapper">
-          <Form.Group controlId="email">
-            <Form.Label>Email</Form.Label>
-            <Form.Control
-              type="email"
-              placeholder="name@example.com"
-              isInvalid={!!formState.errors.email}
-              {...register('email', {
-                required: 'Please enter an email address',
-                pattern: {
-                  value: emailRegex,
-                  message: 'Please enter a valid email address',
-                },
-              })}
-            />
-            <Form.Control.Feedback type="invalid">{formState.errors.email?.message}</Form.Control.Feedback>
-          </Form.Group>
+        <fieldset disabled={formState.isSubmitting}>
+          <div className="formFieldsWrapper">
+            <Form.Group controlId="email">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="name@example.com"
+                isInvalid={!!formState.errors.email}
+                {...register('email', {
+                  required: 'Please enter an email address',
+                  pattern: {
+                    value: formRegex.email,
+                    message: 'Please enter a valid email address',
+                  },
+                })}
+              />
+              <Form.Control.Feedback type="invalid">{formState.errors.email?.message}</Form.Control.Feedback>
+            </Form.Group>
 
-          <Form.Group controlId="password">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type="password"
-              placeholder="Password"
-              isInvalid={!!formState.errors.password}
-              {...register('password', {
-                required: 'Please enter a password',
-                pattern: {
-                  value: passwordRegex,
-                  message: 'Password must be at least 6 characters',
-                },
-              })}
-            />
-            <Form.Control.Feedback type="invalid">{formState.errors.password?.message}</Form.Control.Feedback>
-          </Form.Group>
-        </div>
+            <Form.Group controlId="password">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Password"
+                isInvalid={!!formState.errors.password}
+                {...register('password', {
+                  required: 'Please enter a password',
+                  pattern: {
+                    value: formRegex.password,
+                    message: 'Password must be at least 6 characters',
+                  },
+                })}
+              />
+              <Form.Control.Feedback type="invalid">{formState.errors.password?.message}</Form.Control.Feedback>
+            </Form.Group>
+          </div>
 
-        <IconButton
-          type="submit"
-          color="var(--color-white)"
-          backgroundColor="var(--color-accent-green)"
-          active={props.authActive}
-          text="Continue"
-        />
+          <IconButton
+            type="submit"
+            color="var(--color-white)"
+            backgroundColor="var(--color-accent-green)"
+            active={props.authActive}
+            text="Continue"
+          />
+        </fieldset>
       </Form>
 
       <Link href="/register" passHref>
