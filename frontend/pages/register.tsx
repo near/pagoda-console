@@ -14,7 +14,7 @@ import type { SubmitErrorHandler, SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import analytics from '@/utils/analytics';
-import { formRegex } from '@/utils/constants';
+import { formValidations } from '@/utils/constants';
 import { useSimpleLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -125,13 +125,7 @@ const Register: NextPageWithLayout = () => {
                 type="email"
                 isInvalid={!!formState.errors.email}
                 placeholder="name@example.com"
-                {...register('email', {
-                  required: 'Please enter an email address',
-                  pattern: {
-                    value: formRegex.email,
-                    message: 'Please enter a valid email address',
-                  },
-                })}
+                {...register('email', formValidations.email)}
               />
               <Form.Control.Feedback type="invalid">{formState.errors.email?.message}</Form.Control.Feedback>
             </Form.Group>
@@ -142,13 +136,7 @@ const Register: NextPageWithLayout = () => {
                 type="password"
                 isInvalid={!!formState.errors.password}
                 placeholder="6+ characters"
-                {...register('password', {
-                  required: 'Please enter a password',
-                  pattern: {
-                    value: formRegex.password,
-                    message: 'Password must be at least 6 characters',
-                  },
-                })}
+                {...register('password', formValidations.password)}
               />
               <Form.Control.Feedback type="invalid">{formState.errors.password?.message}</Form.Control.Feedback>
             </Form.Group>
@@ -175,13 +163,7 @@ const Register: NextPageWithLayout = () => {
               <Form.Control
                 isInvalid={!!formState.errors.displayName}
                 placeholder="John Nearian"
-                {...register('displayName', {
-                  required: 'Please enter a display name',
-                  maxLength: {
-                    value: 50,
-                    message: 'Display name must be 50 characters or less',
-                  },
-                })}
+                {...register('displayName', formValidations.displayName)}
               />
               <Form.Control.Feedback type="invalid">{formState.errors.displayName?.message}</Form.Control.Feedback>
             </Form.Group>

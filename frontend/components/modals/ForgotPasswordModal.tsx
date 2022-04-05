@@ -9,7 +9,7 @@ import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import analytics from '@/utils/analytics';
-import { formRegex } from '@/utils/constants';
+import { formValidations } from '@/utils/constants';
 
 interface ForgotPasswordFormData {
   email: string;
@@ -77,13 +77,7 @@ export default function ForgotPasswordModal({ show, onHide }: { show: boolean; o
                   type="email"
                   placeholder="name@example.com"
                   isInvalid={!!formState.errors.email}
-                  {...register('email', {
-                    required: 'Please enter an email address',
-                    pattern: {
-                      value: formRegex.email,
-                      message: 'Please enter a valid email address',
-                    },
-                  })}
+                  {...register('email', formValidations.email)}
                 />
                 <Form.Control.Feedback type="invalid">{formState.errors.email?.message}</Form.Control.Feedback>
               </Form.Group>

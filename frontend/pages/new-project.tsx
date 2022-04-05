@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 
 import BorderSpinner from '@/components/BorderSpinner';
 import analytics from '@/utils/analytics';
+import { formValidations } from '@/utils/constants';
 import { authenticatedPost } from '@/utils/fetchers';
 import { useRouteParam } from '@/utils/hooks';
 import type { Project } from '@/utils/interfaces';
@@ -63,13 +64,7 @@ const NewProject: NextPageWithLayout = () => {
             <Form.Control
               isInvalid={!!formState.errors.projectName}
               placeholder="Cool New Project"
-              {...register('projectName', {
-                required: 'Please enter a project name',
-                maxLength: {
-                  value: 50,
-                  message: 'Project names cannot be longer than 50 characters',
-                },
-              })}
+              {...register('projectName', formValidations.projectName)}
             />
             <Form.Control.Feedback type="invalid">{formState.errors.projectName?.message}</Form.Control.Feedback>
           </Form.Group>

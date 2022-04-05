@@ -21,7 +21,7 @@ import { useForm } from 'react-hook-form';
 import GithubMark from '@/public/githubMark.png';
 import GoogleMark from '@/public/googleMark.png';
 import analytics from '@/utils/analytics';
-import { formRegex } from '@/utils/constants';
+import { formValidations } from '@/utils/constants';
 
 import ErrorModal from './modals/ErrorModal';
 import ForgotPasswordModal from './modals/ForgotPasswordModal';
@@ -241,13 +241,7 @@ function EmailAuth(props: { authActive: boolean }) {
                 type="email"
                 placeholder="name@example.com"
                 isInvalid={!!formState.errors.email}
-                {...register('email', {
-                  required: 'Please enter an email address',
-                  pattern: {
-                    value: formRegex.email,
-                    message: 'Please enter a valid email address',
-                  },
-                })}
+                {...register('email', formValidations.email)}
               />
               <Form.Control.Feedback type="invalid">{formState.errors.email?.message}</Form.Control.Feedback>
             </Form.Group>
@@ -258,13 +252,7 @@ function EmailAuth(props: { authActive: boolean }) {
                 type="password"
                 placeholder="Password"
                 isInvalid={!!formState.errors.password}
-                {...register('password', {
-                  required: 'Please enter a password',
-                  pattern: {
-                    value: formRegex.password,
-                    message: 'Password must be at least 6 characters',
-                  },
-                })}
+                {...register('password', formValidations.password)}
               />
               <Form.Control.Feedback type="invalid">{formState.errors.password?.message}</Form.Control.Feedback>
             </Form.Group>
