@@ -234,7 +234,7 @@ function EmailAuth(props: { authActive: boolean }) {
 
   return (
     <div className="emailContainer">
-      <Form onSubmit={handleSubmit(signInWithEmail)}>
+      <Form noValidate onSubmit={handleSubmit(signInWithEmail)}>
         <div className="formFieldsWrapper">
           <Form.Group controlId="email">
             <Form.Label>Email</Form.Label>

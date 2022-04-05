@@ -1,29 +1,37 @@
 import { faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCheckCircle, faChevronUp, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { Accordion, Button, Form, InputGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import type { SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import analytics from '@/utils/analytics';
 import { getUserData, updateUserData } from '@/utils/cache';
 import type { ContractMetadata, NftData, Token } from '@/utils/chainData';
 import { useContractInfo, useMetadata } from '@/utils/chainData';
-import { useIdentity, useRouteParam } from '@/utils/hooks';
+import { returnAddressPattern } from '@/utils/helpers';
+import { useIdentity, useProjectAndEnvironment, useRouteParam } from '@/utils/hooks';
 
 import CodeBlock from './CodeBlock';
 import PageLink from './PageLink';
 
+interface NftInfoFormData {
+  address: string;
+}
+
 export default function NftInfoCard() {
+  const { register, handleSubmit, formState } = useForm<NftInfoFormData>();
+  const { environment } = useProjectAndEnvironment();
   const [isEditing, setIsEditing] = useState(true);
   const [contractAddress, setContractAddress] = useState<string | null>(null);
   const [addressInputValue, setAddressInputValue] = useState('');
   const [showQuickInfo, setShowQuickInfo] = useState(true);
-
+  const addressPattern = returnAddressPattern(environment);
   const identity = useIdentity();
+  const project = useRouteParam('project');
 
   // fetch NFT contract address from local storage at startup
-  const project = useRouteParam('project');
   useEffect(() => {
     if (!project || !identity?.uid) {
       return;
@@ -53,22 +61,15 @@ export default function NftInfoCard() {
     contractAddress && contractBasics?.accountExists && contractBasics?.codeDeployed ? contractAddress : null,
   );
 
-  // track the value of the input field without updated the value which is actually fetched
-  async function handleAddressChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setAddressInputValue(e.target.value);
-  }
-
   // update the contract address for data fetching
-  function saveAddressChange(e: FormEvent) {
-    e.preventDefault();
-    setContractAddress(addressInputValue);
+  const saveAddressChange: SubmitHandler<NftInfoFormData> = async ({ address }) => {
+    setContractAddress(address);
     setIsEditing(false);
-
     if (project && identity?.uid) {
       updateUserData(identity.uid, { projectData: { [project]: { nftContract: addressInputValue } } });
     }
     analytics.track('DC Set NFT quick info card address');
-  }
+  };
 
   function toggleQuickInfo() {
     setShowQuickInfo(!showQuickInfo);
@@ -94,6 +95,7 @@ export default function NftInfoCard() {
           <FontAwesomeIcon icon={faChevronUp} size="2x" />
         </div>
       </div>
+
       {!contractAddress && (
         <span className="quickInfoInstructions">
           I’ll show you contract metrics here. Paste in your NFT contract address below and info will update here as you
@@ -101,11 +103,20 @@ export default function NftInfoCard() {
         </span>
       )}
 
-      {/* contract address input */}
       {isEditing || !contractAddress ? (
-        <Form className="contractForm" onSubmit={saveAddressChange}>
+        <Form noValidate className="contractForm" onSubmit={handleSubmit(saveAddressChange)}>
           <InputGroup>
-            <Form.Control placeholder="contract.testnet" value={addressInputValue} onChange={handleAddressChange} />
+            <Form.Control
+              isInvalid={!!formState.errors.address}
+              placeholder="contract.testnet"
+              {...register('address', {
+                required: 'Address field is required',
+                pattern: {
+                  value: addressPattern,
+                  message: 'Invalid address format',
+                },
+              })}
+            />
             <Button type="submit">Save</Button>
           </InputGroup>
         </Form>
@@ -122,6 +133,7 @@ export default function NftInfoCard() {
           </Button>
         </div>
       )}
+
       {contractAddress && contractBasics && (
         <div className="infoCardContent">
           {/* status */}
@@ -137,6 +149,7 @@ export default function NftInfoCard() {
           {nftData && nftData.claimsSpec && nftData.initialized && <NftInfo nftData={nftData} />}
         </div>
       )}
+
       <style jsx>{`
         .nftContractCard {
           position: fixed;

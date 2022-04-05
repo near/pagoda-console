@@ -15,6 +15,7 @@ import ContractsPreview from '@/public/contractsPreview.png';
 import analytics from '@/utils/analytics';
 import Config from '@/utils/config';
 import { authenticatedPost, useContracts } from '@/utils/fetchers';
+import { returnAddressPattern } from '@/utils/helpers';
 import { useIdentity, useProjectAndEnvironment } from '@/utils/hooks';
 import type { Contract, Environment } from '@/utils/interfaces';
 import { useDashboardLayout } from '@/utils/layouts';
@@ -205,10 +206,7 @@ function AddContractForm(props: { project: string; environment: Environment; onA
   const { register, handleSubmit, formState, setValue } = useForm<AddContractFormData>();
   const [showAddForm, setShowAddForm] = useState(false);
   const [error, setError] = useState('');
-
-  const addressPatternPrefix = '^(([a-z\\d]+[\\-_])*[a-z\\d]+\\.)*([a-z\\d]+[\\-_])*[a-z\\d]+'; // https://docs.near.org/docs/concepts/account#account-id-rules
-  const addressPatternPostfix = props.environment.net === 'MAINNET' ? '(.near)$' : '(.testnet)$';
-  const addressPattern = new RegExp(addressPatternPrefix + addressPatternPostfix);
+  const addressPattern = returnAddressPattern(props.environment);
 
   function closeAddForm() {
     setValue('address', '');
@@ -244,7 +242,7 @@ function AddContractForm(props: { project: string; environment: Environment; onA
 
   return (
     <>
-      <Form onSubmit={handleSubmit(submitNewContract)}>
+      <Form noValidate onSubmit={handleSubmit(submitNewContract)}>
         <fieldset className="addContainer" disabled={formState.isSubmitting}>
           {showAddForm && (
             <div className="inputRow">
