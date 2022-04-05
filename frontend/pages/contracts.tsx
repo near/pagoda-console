@@ -197,12 +197,12 @@ function ContractsEmptyState({
   );
 }
 
-interface AddContractInputs {
+interface AddContractFormData {
   address: string;
 }
 
 function AddContractForm(props: { project: string; environment: Environment; onAdd: () => void }) {
-  const { register, handleSubmit, formState, setValue } = useForm<AddContractInputs>();
+  const { register, handleSubmit, formState, setValue } = useForm<AddContractFormData>();
   const [showAddForm, setShowAddForm] = useState(false);
   const [error, setError] = useState('');
 
@@ -215,7 +215,7 @@ function AddContractForm(props: { project: string; environment: Environment; onA
     setShowAddForm(false);
   }
 
-  const submitNewContract: SubmitHandler<AddContractInputs> = async ({ address }) => {
+  const submitNewContract: SubmitHandler<AddContractFormData> = async ({ address }) => {
     try {
       setError('');
       const contract = await authenticatedPost('/projects/addContract', {
@@ -252,10 +252,10 @@ function AddContractForm(props: { project: string; environment: Environment; onA
                 isInvalid={!!formState.errors.address}
                 placeholder={props.environment.net === 'MAINNET' ? 'contract.near' : 'contract.testnet'}
                 {...register('address', {
-                  required: 'Address field is required.',
+                  required: 'Address field is required',
                   pattern: {
                     value: addressPattern,
-                    message: 'Invalid address format.',
+                    message: 'Invalid address format',
                   },
                 })}
               />
