@@ -6,7 +6,24 @@ export function assertUnreachable(x: never): never {
 
 export function returnContractAddressRegex(environment?: Environment) {
   // https://docs.near.org/docs/concepts/account#account-id-rules
+
+  if (!environment) {
+    return new RegExp('');
+  }
+
   const prefix = '^(([a-z\\d]+[\\-_])*[a-z\\d]+\\.)*([a-z\\d]+[\\-_])*[a-z\\d]+';
-  const postfix = environment?.net === 'MAINNET' ? '(.near)$' : '(.testnet)$';
+  let postfix = '';
+
+  switch (environment.net) {
+    case 'MAINNET':
+      postfix = '(.near)$';
+      break;
+    case 'TESTNET':
+      postfix = '(.testnet)$';
+      break;
+    default:
+      assertUnreachable(environment.net);
+  }
+
   return new RegExp(prefix + postfix);
 }
