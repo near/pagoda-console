@@ -8,7 +8,7 @@ export function returnContractAddressRegex(environment?: Environment) {
   // https://docs.near.org/docs/concepts/account#account-id-rules
 
   if (!environment) {
-    return new RegExp('');
+    return /.*/;
   }
 
   const prefix = '^(([a-z\\d]+[\\-_])*[a-z\\d]+\\.)*([a-z\\d]+[\\-_])*[a-z\\d]+';
