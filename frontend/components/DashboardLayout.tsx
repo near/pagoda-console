@@ -256,7 +256,7 @@ function ComingSoonPageLink({ page }: { page: PageDefinition }) {
           font-size: 1.125rem;
           text-decoration: none;
           color: #6c757d;
-          font-weight: '500';
+          font-weight: '400';
         }
         .disabledLinkContainer {
           padding: 1rem 0rem 1rem;
@@ -318,7 +318,7 @@ function PageLink(props: {
       `}</style>
       <style jsx>{`
         a {
-          font-weight: ${props.isSelected ? '800' : '500'};
+          font-weight: ${props.isSelected ? '700' : '400'};
         }
         .linkContainer {
           padding: 1rem 0rem 1rem;
