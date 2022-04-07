@@ -9,6 +9,18 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
+    const metadata = {
+      createdByUser: {
+        connect: {
+          email: data.email,
+        },
+      },
+      updatedByUser: {
+        connect: {
+          email: data.email,
+        },
+      },
+    };
     return this.prisma.user.create({
       data: {
         ...data,
@@ -17,8 +29,10 @@ export class UsersService {
             team: {
               create: {
                 name: 'personal',
+                ...metadata,
               },
             },
+            ...metadata,
           },
         },
       },

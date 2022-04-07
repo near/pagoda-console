@@ -30,10 +30,22 @@ Initialize database with Prisma models
 npx prisma migrate dev
 ```
 
-Wipe the contents of the database (as needed)
+Wipe the contents of the database (as needed) and apply all migrations
 
 ```
 npx prisma migrate reset
+```
+
+To create a new migration. This will attempt to delete the Audit table since it cannot be defined in the Prisma schema. Please remove this code from your migration!
+
+```
+npx prisma migrate dev --create-only
+```
+
+To apply all migrations
+
+```
+npx prisma migrate deploy
 ```
 
 ### Update models
