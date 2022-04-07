@@ -1,47 +1,37 @@
 import { getIdToken, updateProfile } from 'firebase/auth';
-import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
+import type { SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import BorderSpinner from '@/components/BorderSpinner';
 import ErrorModal from '@/components/modals/ErrorModal';
+import { formValidations } from '@/utils/constants';
 import { useAccount } from '@/utils/fetchers';
-import { assertUnreachable } from '@/utils/helpers';
 import { useIdentity } from '@/utils/hooks';
 import { useDashboardLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
-interface ValidationFailure {
-  displayName?: string;
+interface SettingsFormData {
+  displayName: string;
 }
 
 const Settings: NextPageWithLayout = () => {
+  const { register, handleSubmit, formState, setValue } = useForm<SettingsFormData>();
   const [isEditing, setIsEditing] = useState(false);
-  const [updateInProgress, setUpdateInProgress] = useState(false);
-  const [displayName, setDisplayName] = useState('');
   const { user, error, mutate } = useAccount();
   const identity = useIdentity();
   const [updateError, setUpdateError] = useState('');
-  const [validationFail, setValidationFail] = useState<ValidationFailure>({});
 
-  function handleFormChange(type: 'displayName', newValue: string): void {
-    setValidationFail({});
-
-    switch (type) {
-      case 'displayName':
-        setDisplayName(newValue);
-        break;
-      default:
-        assertUnreachable(type);
-    }
+  function edit() {
+    setValue('displayName', user!.name!);
+    setIsEditing(true);
   }
 
-  async function submitForm() {
+  const submitSettings: SubmitHandler<SettingsFormData> = async ({ displayName }) => {
     if (!identity) return;
-    if (!validate()) return;
 
     try {
-      setUpdateInProgress(true);
       await updateProfile(identity, {
         displayName,
       });
@@ -54,38 +44,11 @@ const Settings: NextPageWithLayout = () => {
         name: displayName,
       });
     } catch (e) {
-      setUpdateError('Something went wrong while attempting to update display name');
+      setUpdateError('Something went wrong while attempting to update your settings');
     } finally {
-      setUpdateInProgress(false);
       setIsEditing(false);
     }
-  }
-
-  async function toggleEditMode(e: FormEvent): Promise<void> {
-    e.preventDefault();
-    if (isEditing) {
-      await submitForm();
-    } else {
-      setDisplayName(user!.name!);
-      setIsEditing(true);
-    }
-  }
-
-  function validate() {
-    const validations: ValidationFailure = {};
-    let failed = false;
-
-    if (!displayName) {
-      validations.displayName = 'Please enter a display name';
-      failed = true;
-    } else if (displayName.length > 50) {
-      validations.displayName = 'Display name must be 50 characters or less';
-      failed = true;
-    }
-
-    setValidationFail(validations);
-    return !failed;
-  }
+  };
 
   const isLoading = !user && !error;
   // TODO handle error
@@ -93,38 +56,38 @@ const Settings: NextPageWithLayout = () => {
     <div className="pageContainer">
       <ErrorModal error={updateError} setError={setUpdateError} />
 
-      <div className="titleContainer">
-        <h1>User Settings</h1>
-        <Button onClick={toggleEditMode} disabled={!user?.name || updateInProgress}>
-          {!isEditing ? 'Edit' : 'Done'}
-        </Button>
-      </div>
-
-      {error && <Alert variant="danger">Could not fetch account data</Alert>}
-
-      <Form noValidate onSubmit={toggleEditMode}>
-        <div className="settingsContainer">
-          <div className="settingRow">
-            <span className="settingLabel">Display Name</span>
-            {!isEditing && <span className="settingValue">{isLoading ? <BorderSpinner /> : user && user.name}</span>}
-            {isEditing && (
-              <Form.Group controlId="formBasicDisplayName">
-                <Form.Control
-                  value={displayName}
-                  onChange={(e) => handleFormChange('displayName', e.target.value)}
-                  isInvalid={!!validationFail.displayName}
-                  placeholder="John Nearian"
-                />
-                <Form.Control.Feedback type="invalid">{validationFail.displayName}</Form.Control.Feedback>
-              </Form.Group>
-            )}
+      <Form noValidate onSubmit={handleSubmit(submitSettings)}>
+        <fieldset disabled={formState.isSubmitting}>
+          <div className="titleContainer">
+            <h1>User Settings</h1>
+            {isEditing && <Button type="submit">Done</Button>}
+            {!isEditing && <Button onClick={edit}>Edit</Button>}
           </div>
 
-          <div className="settingRow">
-            <span className="settingLabel">Email Address</span>
-            <span className="settingValue">{isLoading ? <BorderSpinner /> : user && user.email}</span>
+          {error && <Alert variant="danger">Could not fetch account data</Alert>}
+
+          <div className="settingsContainer">
+            <div className="settingRow">
+              <span className="settingLabel">Display Name</span>
+              {!isEditing && <span className="settingValue">{isLoading ? <BorderSpinner /> : user && user.name}</span>}
+              {isEditing && (
+                <Form.Group controlId="formBasicDisplayName">
+                  <Form.Control
+                    isInvalid={!!formState.errors.displayName}
+                    placeholder="John Nearian"
+                    {...register('displayName', formValidations.displayName)}
+                  />
+                  <Form.Control.Feedback type="invalid">{formState.errors.displayName?.message}</Form.Control.Feedback>
+                </Form.Group>
+              )}
+            </div>
+
+            <div className="settingRow">
+              <span className="settingLabel">Email Address</span>
+              <span className="settingValue">{isLoading ? <BorderSpinner /> : user && user.email}</span>
+            </div>
           </div>
-        </div>
+        </fieldset>
       </Form>
 
       <style jsx>{`

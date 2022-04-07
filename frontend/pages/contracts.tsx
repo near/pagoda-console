@@ -2,9 +2,10 @@ import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { debounce } from 'lodash-es';
 import Image from 'next/image';
-import type { FormEvent } from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Alert, Button, Form } from 'react-bootstrap';
+import type { SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import useSWR from 'swr';
 
 import BorderSpinner from '@/components/BorderSpinner';
@@ -14,6 +15,7 @@ import ContractsPreview from '@/public/contractsPreview.png';
 import analytics from '@/utils/analytics';
 import Config from '@/utils/config';
 import { authenticatedPost, useContracts } from '@/utils/fetchers';
+import { returnContractAddressRegex } from '@/utils/helpers';
 import { useIdentity, useProjectAndEnvironment } from '@/utils/hooks';
 import type { Contract, Environment } from '@/utils/interfaces';
 import { useDashboardLayout } from '@/utils/layouts';
@@ -196,104 +198,110 @@ function ContractsEmptyState({
   );
 }
 
-function AddContractForm(props: { project: string; environment: Environment; onAdd: () => void }) {
-  const [showAdd, setShowAdd] = useState(false);
-  const [addInProgress, setAddInProgress] = useState(false);
-  const [address, setAddress] = useState('');
-  const [error, setError] = useState('');
+interface AddContractFormData {
+  contractAddress: string;
+}
 
-  async function submitNewContract(e?: FormEvent) {
-    if (e) {
-      e.preventDefault();
-    }
-    setAddInProgress(true);
-    let contract: Contract;
+function AddContractForm(props: { project: string; environment: Environment; onAdd: () => void }) {
+  const { register, handleSubmit, formState, setValue } = useForm<AddContractFormData>();
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [error, setError] = useState('');
+  const contractAddressRegex = returnContractAddressRegex(props.environment);
+
+  function closeAddForm() {
+    setValue('contractAddress', '');
+    setShowAddForm(false);
+  }
+
+  const submitNewContract: SubmitHandler<AddContractFormData> = async ({ contractAddress }) => {
     try {
-      contract = await authenticatedPost('/projects/addContract', {
+      setError('');
+      const contract = await authenticatedPost('/projects/addContract', {
         project: props.project,
         environment: props.environment.subId,
-        address,
+        address: contractAddress,
       });
       analytics.track('DC Add Contract', {
         status: 'success',
-        contractId: address,
+        contractId: contractAddress,
         net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
       });
       props.onAdd();
-      closeAdd();
+      closeAddForm();
       return contract;
     } catch (e: any) {
       analytics.track('DC Add Contract', {
         status: 'failure',
         error: e.message,
-        contractId: address,
+        contractId: contractAddress,
         net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
       });
       setError(e.message);
-    } finally {
-      setAddInProgress(false);
     }
-  }
-
-  function handleAddressChange(e: React.ChangeEvent<HTMLInputElement>) {
-    error && setError('');
-    setAddress(e.target.value);
-  }
-
-  function closeAdd() {
-    setAddress('');
-    setShowAdd(false);
-  }
+  };
 
   return (
-    <div className="addContainer">
-      {showAdd && (
-        <div className="inputRow">
-          <Form onSubmit={submitNewContract}>
-            <Form.Control
-              isInvalid={Boolean(error)}
-              disabled={addInProgress}
-              placeholder={props.environment.net === 'MAINNET' ? 'contract.near' : 'contract.testnet'}
-              value={address}
-              onChange={handleAddressChange}
-            />
-            <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
-          </Form>
-          <div className="loadingContainer">{addInProgress && <BorderSpinner />}</div>
-        </div>
-      )}
-      <div className="buttonContainer">
-        <Button disabled={addInProgress} onClick={showAdd ? submitNewContract : () => setShowAdd(true)}>
-          {showAdd ? 'Confirm' : 'Add a Contract'}
-        </Button>
-        {showAdd && (
-          <Button disabled={addInProgress} onClick={closeAdd}>
-            Cancel
-          </Button>
-        )}
-      </div>
+    <>
+      <Form noValidate onSubmit={handleSubmit(submitNewContract)}>
+        <fieldset className="addContainer" disabled={formState.isSubmitting}>
+          {showAddForm && (
+            <div className="inputRow">
+              <Form.Control
+                isInvalid={!!formState.errors.contractAddress}
+                placeholder={props.environment.net === 'MAINNET' ? 'contract.near' : 'contract.testnet'}
+                {...register('contractAddress', {
+                  required: 'Address field is required',
+                  pattern: {
+                    value: contractAddressRegex,
+                    message: 'Invalid address format',
+                  },
+                })}
+              />
+              <Form.Control.Feedback type="invalid">{formState.errors.contractAddress?.message}</Form.Control.Feedback>
+            </div>
+          )}
+
+          {error && <Alert variant="danger">{error}</Alert>}
+
+          <div className="buttonContainer">
+            {showAddForm && (
+              <>
+                <Button type="submit">Confirm</Button>
+                <Button onClick={closeAddForm} variant="outline-neutral">
+                  Cancel
+                </Button>
+                <div className="loadingContainer">{formState.isSubmitting && <BorderSpinner />}</div>
+              </>
+            )}
+            {!showAddForm && <Button onClick={() => setShowAddForm(true)}>Add a Contract</Button>}
+          </div>
+        </fieldset>
+      </Form>
+
       <style jsx>{`
         .addContainer {
           display: flex;
           flex-direction: column;
           row-gap: 1em;
         }
+        .addContainer :global(.alert) {
+          margin-bottom: 0;
+        }
         .inputRow {
           display: flex;
-          flex-direction: row;
-          column-gap: 1rem;
-          align-items: center;
+          flex-direction: column;
         }
         .loadingContainer {
-          width: 3rem;
+          margin: 0 0 0 auto;
         }
         .buttonContainer {
           display: flex;
           flex-direction: row;
           column-gap: 0.75rem;
+          align-items: center;
         }
       `}</style>
-    </div>
+    </>
   );
 }
 
