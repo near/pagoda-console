@@ -60,16 +60,20 @@ const dbConfig = {
   },
 };
 
-let db;
-
 @Injectable()
 export class IndexerService {
+  // number of recent transactions to return
   private recentTransactionsCount;
+  // indexer db connections formed by Sequelize
+  private db: {
+    sequelizeIndexerBackendMainnetReadOnly: Sequelize;
+    sequelizeIndexerBackendTestnetReadOnly: Sequelize;
+  };
   constructor(private config: ConfigService<AppConfig>) {
     this.recentTransactionsCount = this.config.get('recentTransactionsCount', {
       infer: true,
     });
-    db = {
+    this.db = {
       sequelizeIndexerBackendMainnetReadOnly: new Sequelize(
         dbConfig.indexerDatabaseMainnet.database,
         dbConfig.indexerDatabaseMainnet.username,
@@ -178,9 +182,9 @@ export class IndexerService {
   getSequelize(dataSource) {
     switch (dataSource) {
       case DS_INDEXER_MAINNET:
-        return db.sequelizeIndexerBackendMainnetReadOnly;
+        return this.db.sequelizeIndexerBackendMainnetReadOnly;
       case DS_INDEXER_TESTNET:
-        return db.sequelizeIndexerBackendTestnetReadOnly;
+        return this.db.sequelizeIndexerBackendTestnetReadOnly;
       default:
         throw new VError('getSequelize() has no default dataSource');
     }
