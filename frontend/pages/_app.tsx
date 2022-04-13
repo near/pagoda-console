@@ -81,9 +81,13 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       >
         <Head>
           <title>Pagoda Developer Console</title>
-          <meta name="description" content="Pagoda Developer Console" />
+          <meta
+            name="description"
+            content="Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics."
+          />
           <link rel="icon" href="/favicon.ico" />
         </Head>
+
         <div className="largeScreen">{getLayout(<Component {...pageProps} />, getFooter())}</div>
         <div className="smallScreen">
           <SmallScreenNotice />

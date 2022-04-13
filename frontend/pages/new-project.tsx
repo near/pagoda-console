@@ -1,39 +1,29 @@
 import { useRouter } from 'next/router';
-import type { ChangeEvent, FormEvent } from 'react';
-import { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
+import type { SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import BorderSpinner from '@/components/BorderSpinner';
 import analytics from '@/utils/analytics';
+import { formValidations } from '@/utils/constants';
 import { authenticatedPost } from '@/utils/fetchers';
 import { useRouteParam } from '@/utils/hooks';
 import type { Project } from '@/utils/interfaces';
 import { useSimpleLogoutLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
+interface NewProjectFormData {
+  projectName: string;
+}
+
 const NewProject: NextPageWithLayout = () => {
-  const [projectName, setProjectName] = useState('');
-  const [formEnabled, setFormEnabled] = useState(true);
+  const { register, handleSubmit, formState, setError } = useForm<NewProjectFormData>();
   const router = useRouter();
   const isOnboarding = useRouteParam('onboarding');
 
-  const [creationError, setCreationError] = useState('');
-  const [validationError, setValidationError] = useState('');
-  const [createInProgress, setCreateInProgress] = useState(false);
-
-  function canCreate(): boolean {
-    return formEnabled && !!projectName.trim() && !validationError;
-  }
-
-  async function createProject(e: FormEvent): Promise<void> {
-    if (!canCreate()) {
-      return;
-    }
-    e.preventDefault();
-    setFormEnabled(false);
+  const createProject: SubmitHandler<NewProjectFormData> = async ({ projectName }) => {
     try {
       router.prefetch('/project-settings');
-      setCreateInProgress(true);
       const project: Project = await authenticatedPost(
         '/projects/create',
         { name: projectName },
@@ -50,23 +40,11 @@ const NewProject: NextPageWithLayout = () => {
         name: projectName,
         error: e.message,
       });
-      setFormEnabled(true);
-      setCreationError('Something went wrong');
-    } finally {
-      setCreateInProgress(false);
+      setError('projectName', {
+        message: 'Something went wrong',
+      });
     }
-  }
-
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    setCreationError('');
-    if (e?.target && e.target.value.length > 50) {
-      setValidationError('Project names cannot be longer than 50 characters');
-    } else if (validationError) {
-      setValidationError('');
-    }
-
-    setProjectName(e.target.value);
-  }
+  };
 
   return (
     <div className="newProjectContainer">
@@ -78,26 +56,30 @@ const NewProject: NextPageWithLayout = () => {
           and any smart contracts you wish to track.
         </div>
       )}
-      <Form className="newProjectForm" onSubmit={createProject}>
-        <Form.Group className="formField" controlId="projectNameInput">
-          <Form.Label>Project Name</Form.Label>
-          <Form.Control
-            placeholder="Cool New Project"
-            value={projectName}
-            onChange={handleChange}
-            isInvalid={!!(validationError || creationError)}
-          />
-          <Form.Control.Feedback type="invalid">{validationError || creationError}</Form.Control.Feedback>
-        </Form.Group>
-        <div className="submitRow">
-          <div className="submitContainer">
-            {createInProgress && <BorderSpinner />}
-            <Button variant="primary" type="submit" disabled={!canCreate()}>
-              Create a Project
-            </Button>
+
+      <Form noValidate className="newProjectForm" onSubmit={handleSubmit(createProject)}>
+        <fieldset disabled={formState.isSubmitting}>
+          <Form.Group className="formField" controlId="projectNameInput">
+            <Form.Label>Project Name</Form.Label>
+            <Form.Control
+              isInvalid={!!formState.errors.projectName}
+              placeholder="Cool New Project"
+              {...register('projectName', formValidations.projectName)}
+            />
+            <Form.Control.Feedback type="invalid">{formState.errors.projectName?.message}</Form.Control.Feedback>
+          </Form.Group>
+
+          <div className="submitRow">
+            <div className="submitContainer">
+              {formState.isSubmitting && <BorderSpinner />}
+              <Button variant="primary" type="submit">
+                Create a Project
+              </Button>
+            </div>
           </div>
-        </div>
+        </fieldset>
       </Form>
+
       <style jsx>{`
         .newProjectContainer {
           display: flex;

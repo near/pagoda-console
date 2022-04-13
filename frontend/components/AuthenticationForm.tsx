@@ -13,14 +13,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
+import type { SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import GithubMark from '@/public/githubMark.png';
 import GoogleMark from '@/public/googleMark.png';
 import analytics from '@/utils/analytics';
-import { assertUnreachable } from '@/utils/helpers';
+import { formValidations } from '@/utils/constants';
 
 import ErrorModal from './modals/ErrorModal';
 import ForgotPasswordModal from './modals/ForgotPasswordModal';
@@ -175,33 +176,24 @@ export default function AuthenticationForm() {
   );
 }
 
-interface ValidationFailure {
-  email?: string;
-  password?: string;
+interface EmailAuthFormData {
+  email: string;
+  password: string;
 }
 
-const emailRegex = /\w+@\w+\.\w+/;
-const passwordRegex = /.{6,}/;
-
 function EmailAuth(props: { authActive: boolean }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [hasFailedSignIn, setHasFailedSignIn] = useState(false);
+  const { register, handleSubmit, formState, setError } = useForm<EmailAuthFormData>();
   const [showResetModal, setShowResetModal] = useState(false);
 
-  const [validationFail, setValidationFail] = useState<ValidationFailure>({});
-
-  async function signInWithEmail(): Promise<void> {
-    setHasFailedSignIn(false);
+  const signInWithEmail: SubmitHandler<EmailAuthFormData> = async ({ email, password }) => {
     const auth = getAuth();
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
       analytics.track('DC Login using name + password', {
         status: 'success',
       });
-      setHasFailedSignIn(false);
     } catch (e) {
-      setHasFailedSignIn(true);
       const error = e as AuthError;
       const errorCode = error.code;
 
@@ -210,105 +202,72 @@ function EmailAuth(props: { authActive: boolean }) {
         error: errorCode,
       });
 
-      const errorValidationFailure: ValidationFailure = {};
       switch (errorCode) {
         case 'auth/user-not-found':
-          errorValidationFailure.email = 'User not found';
+          setError('email', {
+            message: 'User not found',
+          });
           break;
         case 'auth/wrong-password':
-          errorValidationFailure.password = 'Incorrect password';
+          setError('password', {
+            message: 'Incorrect password',
+          });
           break;
         case 'auth/too-many-requests':
           // hardcode message from Firebase for the time being
-          errorValidationFailure.password =
-            'Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later.';
+          setError('password', {
+            message:
+              'Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later.',
+          });
           break;
         default:
           // TODO
-          errorValidationFailure.password = 'Something went wrong';
+          setError('password', {
+            message: 'Something went wrong',
+          });
           break;
       }
-      setValidationFail(errorValidationFailure);
     }
-  }
-
-  function validate() {
-    const validations: ValidationFailure = {};
-    let failed = false;
-    if (!emailRegex.test(email)) {
-      validations.email = 'Please enter a valid email address';
-      failed = true;
-    }
-
-    if (!passwordRegex.test(password)) {
-      validations.password = 'Password must be at least 6 characters';
-      failed = true;
-    }
-
-    setValidationFail(validations);
-    return !failed;
-  }
-
-  function handleFormChange(type: 'email' | 'password', newValue: string): void {
-    setValidationFail({});
-    hasFailedSignIn && setHasFailedSignIn(false);
-    switch (type) {
-      case 'email':
-        setEmail(newValue);
-        break;
-      case 'password':
-        setPassword(newValue);
-        break;
-      default:
-        assertUnreachable(type);
-    }
-  }
-
-  function handleSubmit(e: FormEvent): void {
-    e.preventDefault();
-
-    // validation has side effect of showing messages
-    if (!validate()) {
-      return;
-    }
-    signInWithEmail();
-  }
+  };
 
   return (
     <div className="emailContainer">
-      <Form noValidate onSubmit={handleSubmit}>
-        <div className="formFieldsWrapper">
-          <Form.Group controlId="email">
-            <Form.Label>Email</Form.Label>
-            <Form.Control
-              type="email"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => handleFormChange('email', e.target.value)}
-              isInvalid={!!validationFail.email}
-            />
-            <Form.Control.Feedback type="invalid">{validationFail.email}</Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group controlId="password">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => handleFormChange('password', e.target.value)}
-              isInvalid={!!validationFail.password}
-            />
-            <Form.Control.Feedback type="invalid">{validationFail.password}</Form.Control.Feedback>
-          </Form.Group>
-        </div>
-        <IconButton
-          type="submit"
-          color="var(--color-white)"
-          backgroundColor="var(--color-accent-green)"
-          active={props.authActive}
-          text="Continue"
-        />
+      <Form noValidate onSubmit={handleSubmit(signInWithEmail)}>
+        <fieldset disabled={formState.isSubmitting}>
+          <div className="formFieldsWrapper">
+            <Form.Group controlId="email">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="name@example.com"
+                isInvalid={!!formState.errors.email}
+                {...register('email', formValidations.email)}
+              />
+              <Form.Control.Feedback type="invalid">{formState.errors.email?.message}</Form.Control.Feedback>
+            </Form.Group>
+
+            <Form.Group controlId="password">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Password"
+                isInvalid={!!formState.errors.password}
+                {...register('password', formValidations.password)}
+              />
+              <Form.Control.Feedback type="invalid">{formState.errors.password?.message}</Form.Control.Feedback>
+            </Form.Group>
+          </div>
+
+          <IconButton
+            type="submit"
+            color="var(--color-white)"
+            backgroundColor="var(--color-accent-green)"
+            active={props.authActive}
+            text="Continue"
+          />
+        </fieldset>
       </Form>
+
       <Link href="/register" passHref>
         <Button onClick={() => analytics.track('DC Clicked Sign Up on Login')} variant="outline-primary">
           Sign Up
@@ -317,7 +276,9 @@ function EmailAuth(props: { authActive: boolean }) {
       <div onClick={() => setShowResetModal(true)} className="forgotPassword">
         Forgot Password?
       </div>
+
       <ForgotPasswordModal show={showResetModal} onHide={() => setShowResetModal(false)} />
+
       <style jsx>{`
         .emailContainer {
           display: flex;

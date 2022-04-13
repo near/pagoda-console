@@ -8,38 +8,31 @@ import {
 } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import type { FormEvent } from 'react';
 import { useEffect, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
+import type { SubmitErrorHandler, SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import analytics from '@/utils/analytics';
-import { assertUnreachable } from '@/utils/helpers';
+import { formValidations } from '@/utils/constants';
 import { useSimpleLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
-
-interface ValidationFailure {
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-  displayName?: string;
-}
-
-const emailRegex = /\w+@\w+\.\w+/;
-const passwordRegex = /.{6,}/;
 
 const onFocus = () => {
   console.log('Tab is in focus');
   getAuth().currentUser?.reload();
 };
 
+interface RegisterFormData {
+  displayName: string;
+  email: string;
+  password: string;
+  passwordConfirm: string;
+}
+
 const Register: NextPageWithLayout = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [validationFail, setValidationFail] = useState<ValidationFailure>({});
+  const { getValues, register, handleSubmit, formState, watch } = useForm<RegisterFormData>();
   const [errorAlert, setErrorAlert] = useState<string | null>();
-  const [submitDisabled, setSubmitDisabled] = useState(false);
 
   const router = useRouter();
 
@@ -48,7 +41,7 @@ const Register: NextPageWithLayout = () => {
       if (user && !user.emailVerified) {
         try {
           await updateProfile(user, {
-            displayName,
+            displayName: getValues('displayName'),
           });
 
           await sendEmailVerification(user);
@@ -64,7 +57,7 @@ const Register: NextPageWithLayout = () => {
       }
     });
     return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
-  }, [router, displayName]);
+  }, [getValues, router]);
 
   useEffect(() => {
     router.prefetch('/verification');
@@ -79,9 +72,16 @@ const Register: NextPageWithLayout = () => {
     };
   }, []);
 
-  async function signUpWithEmail(): Promise<void> {
-    const auth = getAuth();
+  const handleInvalidSubmit: SubmitErrorHandler<RegisterFormData> = () => {
+    analytics.track('DC Submitted email registration form');
+    analytics.track('DC Registration form validation failed');
+  };
+
+  const signUpWithEmail: SubmitHandler<RegisterFormData> = async ({ email, password }) => {
     try {
+      setErrorAlert('');
+      analytics.track('DC Submitted email registration form');
+      const auth = getAuth();
       const registerResult = await createUserWithEmailAndPassword(auth, email, password);
 
       try {
@@ -112,132 +112,81 @@ const Register: NextPageWithLayout = () => {
         error: errorCode,
       });
     }
-  }
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setSubmitDisabled(true);
-    analytics.track('DC Submitted email registration form');
-    // validation has side effect of showing messages
-    if (!validate()) {
-      analytics.track('DC Registration form validation failed');
-      setSubmitDisabled(false);
-      return;
-    }
-    await signUpWithEmail();
-  }
-
-  function validate() {
-    const validations: ValidationFailure = {};
-    let failed = false;
-    if (!emailRegex.test(email)) {
-      validations.email = 'Please enter a valid email address';
-      failed = true;
-    }
-
-    if (!passwordRegex.test(password)) {
-      validations.password = 'Password must be at least 6 characters';
-      failed = true;
-    }
-
-    if (confirmPassword !== password) {
-      validations.confirmPassword = 'Passwords do not match';
-      failed = true;
-    }
-
-    if (!displayName) {
-      validations.displayName = 'Please enter a display name';
-      failed = true;
-    } else if (displayName.length > 50) {
-      validations.displayName = 'Display name must be 50 characters or less';
-      failed = true;
-    }
-
-    setValidationFail(validations);
-    return !failed;
-  }
-
-  function handleFormChange(type: 'email' | 'password' | 'confirmPassword' | 'displayName', newValue: string): void {
-    setValidationFail({});
-    errorAlert && setErrorAlert(null); // TODO TODO
-    // hasFailedSignIn && setHasFailedSignIn(false);
-    switch (type) {
-      case 'email':
-        setEmail(newValue);
-        break;
-      case 'password':
-        setPassword(newValue);
-        break;
-      case 'confirmPassword':
-        setConfirmPassword(newValue);
-        break;
-      case 'displayName':
-        setDisplayName(newValue);
-        break;
-      default:
-        assertUnreachable(type);
-    }
-  }
+  };
 
   return (
     <div className="pageContainer">
-      <Form noValidate onSubmit={handleSubmit}>
-        <div className="formFields">
-          <Form.Group controlId="formBasicEmail">
-            <Form.Label>Email address</Form.Label>
-            <Form.Control
-              type="email"
-              onChange={(e) => handleFormChange('email', e.target.value)}
-              isInvalid={!!validationFail.email}
-              placeholder="name@example.com"
-            />
-            <Form.Control.Feedback type="invalid">{validationFail.email}</Form.Control.Feedback>
-          </Form.Group>
+      <Form noValidate onSubmit={handleSubmit(signUpWithEmail, handleInvalidSubmit)}>
+        <fieldset disabled={formState.isSubmitting}>
+          <div className="formFields">
+            <Form.Group controlId="formBasicEmail">
+              <Form.Label>Email address</Form.Label>
+              <Form.Control
+                type="email"
+                isInvalid={!!formState.errors.email}
+                placeholder="name@example.com"
+                {...register('email', formValidations.email)}
+              />
+              <Form.Control.Feedback type="invalid">{formState.errors.email?.message}</Form.Control.Feedback>
+            </Form.Group>
 
-          <Form.Group controlId="formBasicPassword">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type="password"
-              onChange={(e) => handleFormChange('password', e.target.value)}
-              isInvalid={!!validationFail.password}
-              placeholder="6+ characters"
-            />
-            <Form.Control.Feedback type="invalid">{validationFail.password}</Form.Control.Feedback>
-          </Form.Group>
+            <Form.Group controlId="formBasicPassword">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                isInvalid={!!formState.errors.password}
+                placeholder="6+ characters"
+                {...register('password', formValidations.password)}
+              />
+              <Form.Control.Feedback type="invalid">{formState.errors.password?.message}</Form.Control.Feedback>
+            </Form.Group>
 
-          <Form.Group controlId="formBasicConfirmPassword">
-            <Form.Label>Confirm Password</Form.Label>
-            <Form.Control
-              type="password"
-              onChange={(e) => handleFormChange('confirmPassword', e.target.value)}
-              isInvalid={!!validationFail.confirmPassword}
-            />
-            <Form.Control.Feedback type="invalid">{validationFail.confirmPassword}</Form.Control.Feedback>
-          </Form.Group>
+            <Form.Group controlId="formBasicConfirmPassword">
+              <Form.Label>Confirm Password</Form.Label>
+              <Form.Control
+                type="password"
+                isInvalid={!!formState.errors.passwordConfirm}
+                {...register('passwordConfirm', {
+                  required: 'Please confirm your password',
+                  validate: (value) => {
+                    if (watch('password') !== value) {
+                      return 'Passwords do not match';
+                    }
+                  },
+                })}
+              />
+              <Form.Control.Feedback type="invalid">{formState.errors.passwordConfirm?.message}</Form.Control.Feedback>
+            </Form.Group>
 
-          <Form.Group controlId="formBasicDisplayName">
-            <Form.Label>Display Name</Form.Label>
-            <Form.Control
-              onChange={(e) => handleFormChange('displayName', e.target.value)}
-              isInvalid={!!validationFail.displayName}
-              placeholder="John Nearian"
-            />
-            <Form.Control.Feedback type="invalid">{validationFail.displayName}</Form.Control.Feedback>
-          </Form.Group>
-        </div>
-        <Button variant="primary" type="submit" disabled={submitDisabled}>
-          Sign Up
-        </Button>
+            <Form.Group controlId="formBasicDisplayName">
+              <Form.Label>Display Name</Form.Label>
+              <Form.Control
+                isInvalid={!!formState.errors.displayName}
+                placeholder="John Nearian"
+                {...register('displayName', formValidations.displayName)}
+              />
+              <Form.Control.Feedback type="invalid">{formState.errors.displayName?.message}</Form.Control.Feedback>
+            </Form.Group>
+          </div>
+
+          <Button variant="primary" type="submit">
+            Sign Up
+          </Button>
+        </fieldset>
       </Form>
+
       {errorAlert && (
         <div className="alertContainer">
           <Alert variant="danger">{errorAlert}</Alert>
         </div>
       )}
+
       <hr />
+
       <Link href="/">
         <a>I already have an account</a>
       </Link>
+
       <style jsx>{`
         .pageContainer {
           display: flex;
