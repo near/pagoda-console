@@ -3,6 +3,7 @@ import type { FirebaseOptions } from 'firebase/app';
 import type { NetOption } from './types';
 
 type RpcNets = Record<NetOption, string>;
+type DeployEnvironment = 'LOCAL' | 'DEVELOPMENT' | 'PRODUCTION';
 
 // * NOTE: This is ugly, but we are limited in how we can
 // * implement this check. Due to the way Next.js loads
@@ -22,7 +23,8 @@ if (
   !process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE ||
   !process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES ||
   !process.env.NEXT_PUBLIC_MIXPANEL_TOKEN ||
-  !process.env.NEXT_PUBLIC_FIREBASE_CONFIG
+  !process.env.NEXT_PUBLIC_FIREBASE_CONFIG ||
+  !process.env.NEXT_PUBLIC_DEPLOY_ENV
 ) {
   throw new Error('Missing configuration value');
 }
@@ -48,7 +50,6 @@ if (downtimeMode === 'custom' && !downtimeMessage) {
 }
 
 // Define config:
-
 interface AppConfig {
   url: {
     api: string;
@@ -67,6 +68,7 @@ interface AppConfig {
   firebaseConfig: FirebaseOptions;
   downtimeMessage: string;
   downtimeMode: DowntimeMode | undefined;
+  deployEnv: DeployEnvironment;
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
@@ -97,6 +99,9 @@ const config: AppConfig = {
   firebaseConfig: JSON.parse(process.env.NEXT_PUBLIC_FIREBASE_CONFIG),
   downtimeMessage,
   downtimeMode,
+  deployEnv: ['LOCAL', 'DEVELOPMENT', 'PRODUCTION'].includes(process.env.NEXT_PUBLIC_DEPLOY_ENV)
+    ? (process.env.NEXT_PUBLIC_DEPLOY_ENV as DeployEnvironment)
+    : 'PRODUCTION', // default to production to be safe
 };
 
 export default config;
