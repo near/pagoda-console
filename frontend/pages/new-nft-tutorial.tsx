@@ -1,39 +1,27 @@
 import { useRouter } from 'next/router';
-import type { ChangeEvent, FormEvent } from 'react';
-import { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
+import type { SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import BorderSpinner from '@/components/BorderSpinner';
 import ProjectCard from '@/components/ProjectCard';
 import analytics from '@/utils/analytics';
+import { formValidations } from '@/utils/constants';
 import { authenticatedPost } from '@/utils/fetchers';
 import type { Project } from '@/utils/interfaces';
 import { useSimpleLogoutLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
+interface NewProjectFormData {
+  projectName: string;
+}
+
 const NewNftTutorial: NextPageWithLayout = () => {
-  const [projectName, setProjectName] = useState('');
-  const [formEnabled, setFormEnabled] = useState(true);
+  const { register, handleSubmit, formState, setError } = useForm<NewProjectFormData>();
   const router = useRouter();
 
-  const [creationError, setCreationError] = useState('');
-  const [validationError, setValidationError] = useState('');
-  const [createInProgress, setCreateInProgress] = useState(false);
-
-  function canCreate(): boolean {
-    return formEnabled && !!projectName.trim() && !validationError;
-  }
-
   // Project name is tutorial name. Path is the mdx file for the tutorial.
-  async function createProject(e: FormEvent): Promise<void> {
-    if (!canCreate()) {
-      return;
-    }
-
-    e.preventDefault();
-    setCreateInProgress(true);
-    setFormEnabled(false);
-
+  const createProject: SubmitHandler<NewProjectFormData> = async ({ projectName }) => {
     const path = '/tutorials/nfts/introduction';
     const tutorial = 'NFT_MARKET';
     const name = projectName;
@@ -52,23 +40,13 @@ const NewNftTutorial: NextPageWithLayout = () => {
         name,
         error: e.message,
       });
-      setFormEnabled(true);
-      setCreationError('Something went wrong');
-    } finally {
-      setCreateInProgress(false);
+      setError('projectName', {
+        message: 'Something went wrong',
+      });
     }
-  }
+  };
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    setCreationError('');
-    if (e?.target && e.target.value.length > 50) {
-      setValidationError('Project names cannot be longer than 50 characters');
-    } else if (validationError) {
-      setValidationError('');
-    }
-
-    setProjectName(e.target.value);
-  }
+  const isSubmitting = formState.isSubmitting || formState.isSubmitSuccessful;
 
   return (
     <div className="newProjectContainer">
@@ -90,25 +68,26 @@ const NewNftTutorial: NextPageWithLayout = () => {
           </p>
         </div>
         <div className="formContainer">
-          <Form className="newProjectForm" onSubmit={createProject}>
-            <Form.Group className="formField" controlId="projectNameInput">
-              <Form.Label>Project Name</Form.Label>
-              <Form.Control
-                placeholder="Cool New Project"
-                value={projectName}
-                onChange={handleChange}
-                isInvalid={!!(validationError || creationError)}
-              />
-              <Form.Control.Feedback type="invalid">{validationError || creationError}</Form.Control.Feedback>
-            </Form.Group>
-            <div className="submitRow">
-              <div className="submitContainer">
-                {createInProgress && <BorderSpinner />}
-                <Button variant="primary" type="submit" disabled={!canCreate()}>
-                  Create Project
-                </Button>
+          <Form noValidate className="newProjectForm" onSubmit={handleSubmit(createProject)}>
+            <fieldset disabled={isSubmitting}>
+              <Form.Group className="formField" controlId="projectNameInput">
+                <Form.Label>Project Name</Form.Label>
+                <Form.Control
+                  isInvalid={!!formState.errors.projectName}
+                  placeholder="Cool New Project"
+                  {...register('projectName', formValidations.projectName)}
+                />
+                <Form.Control.Feedback type="invalid">{formState.errors.projectName?.message}</Form.Control.Feedback>
+              </Form.Group>
+              <div className="submitRow">
+                <div className="submitContainer">
+                  <Button variant="primary" type="submit" disabled={isSubmitting}>
+                    Create Project
+                  </Button>
+                  {isSubmitting && <BorderSpinner />}
+                </div>
               </div>
-            </div>
+            </fieldset>
           </Form>
         </div>
       </div>
@@ -147,12 +126,16 @@ const NewNftTutorial: NextPageWithLayout = () => {
         .submitRow {
           width: 100%;
           display: flex;
-          justify-content: flex-end;
+          justify-content: flex-start;
         }
         .submitContainer {
           display: flex;
           flex-direction: row;
           column-gap: 1rem;
+        }
+        .formContainer {
+          margin-top: 3rem;
+          width: 20rem;
         }
       `}</style>
     </div>
