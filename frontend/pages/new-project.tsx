@@ -46,8 +46,6 @@ const NewProject: NextPageWithLayout = () => {
     }
   };
 
-  const isSubmitting = formState.isSubmitting || formState.isSubmitSuccessful;
-
   return (
     <div className="newProjectContainer">
       <h1>New Project</h1>
@@ -60,7 +58,7 @@ const NewProject: NextPageWithLayout = () => {
       )}
 
       <Form noValidate className="newProjectForm" onSubmit={handleSubmit(createProject)}>
-        <fieldset disabled={isSubmitting}>
+        <fieldset disabled={formState.isSubmitting}>
           <Form.Group className="formField" controlId="projectNameInput">
             <Form.Label>Project Name</Form.Label>
             <Form.Control
@@ -73,8 +71,8 @@ const NewProject: NextPageWithLayout = () => {
 
           <div className="submitRow">
             <div className="submitContainer">
-              {isSubmitting && <BorderSpinner />}
-              <Button variant="primary" type="submit" disabled={isSubmitting}>
+              {formState.isSubmitting && <BorderSpinner />}
+              <Button variant="primary" type="submit">
                 Create a Project
               </Button>
             </div>
