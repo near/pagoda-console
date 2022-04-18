@@ -318,7 +318,7 @@ function PageLink(props: {
       `}</style>
       <style jsx>{`
         a {
-          font-weight: ${props.isSelected ? '800' : '500'};
+          font-weight: ${props.isSelected ? '700' : '400'};
         }
         .linkContainer {
           padding: 1rem 0rem 1rem;

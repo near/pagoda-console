@@ -1,4 +1,5 @@
 import '../styles/globals.scss';
+import '../public/fonts/fonts.css';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 
 import { config as svgConfig } from '@fortawesome/fontawesome-svg-core';
