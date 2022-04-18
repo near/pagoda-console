@@ -114,10 +114,12 @@ const Register: NextPageWithLayout = () => {
     }
   };
 
+  const isSubmitting = formState.isSubmitting || formState.isSubmitSuccessful;
+
   return (
     <div className="pageContainer">
       <Form noValidate onSubmit={handleSubmit(signUpWithEmail, handleInvalidSubmit)}>
-        <fieldset disabled={formState.isSubmitting}>
+        <fieldset disabled={isSubmitting}>
           <div className="formFields">
             <Form.Group controlId="formBasicEmail">
               <Form.Label>Email address</Form.Label>
