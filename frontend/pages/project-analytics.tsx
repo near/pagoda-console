@@ -21,7 +21,7 @@ const ProjectAnalytics: NextPageWithLayout = () => {
     Highcharts.setOptions({
       chart: {
         style: {
-          fontFamily: 'Arimo, sans-serif',
+          fontFamily: 'Manrope, sans-serif',
         },
       },
     });

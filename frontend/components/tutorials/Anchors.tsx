@@ -45,7 +45,7 @@ export function H1Anchor(props: any) {
       <style jsx>{`
         h1 {
           margin-bottom: 2rem;
-          font-family: 'Arimo', sans-serif;
+          font-family: 'Manrope', sans-serif;
           font-weight: 700;
         }
       `}</style>
