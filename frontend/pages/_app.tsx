@@ -86,6 +86,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
             content="Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics."
           />
           <link rel="icon" href="/favicon.ico" />
+          <link href="/favicon-256x256.png" rel="apple-touch-icon" />
         </Head>
 
         <div className="largeScreen">{getLayout(<Component {...pageProps} />, getFooter())}</div>
