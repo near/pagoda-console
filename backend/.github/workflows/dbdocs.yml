@@ -28,7 +28,7 @@ jobs:
         run: npm install prisma-dbml-generator
 
       - name: add generator to Prisma's schema
-        run: echo '\ngenerator dbml {\n  provider = "prisma-dbml-generator"\n}' >> ./prisma/schema.prisma
+        run: printf '\ngenerator dbml {\n  provider = "prisma-dbml-generator"\n}' >> ./prisma/schema.prisma
 
       - name: Generate DB Docs schema file
         run: npx prisma generate
