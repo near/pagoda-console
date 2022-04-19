@@ -33,7 +33,7 @@ const NewProject: NextPageWithLayout = () => {
         status: 'success',
         name: projectName,
       });
-      router.push(`/project-settings?project=${project.slug}&onboarding=true`);
+      await router.push(`/project-settings?project=${project.slug}&onboarding=true`);
     } catch (e: any) {
       analytics.track('DC Create New Project', {
         status: 'failure',
@@ -45,8 +45,6 @@ const NewProject: NextPageWithLayout = () => {
       });
     }
   };
-
-  const isSubmitting = formState.isSubmitting || formState.isSubmitSuccessful;
 
   return (
     <div className="newProjectContainer">
@@ -60,7 +58,7 @@ const NewProject: NextPageWithLayout = () => {
       )}
 
       <Form noValidate className="newProjectForm" onSubmit={handleSubmit(createProject)}>
-        <fieldset disabled={isSubmitting}>
+        <fieldset disabled={formState.isSubmitting}>
           <Form.Group className="formField" controlId="projectNameInput">
             <Form.Label>Project Name</Form.Label>
             <Form.Control
@@ -73,7 +71,7 @@ const NewProject: NextPageWithLayout = () => {
 
           <div className="submitRow">
             <div className="submitContainer">
-              {isSubmitting && <BorderSpinner />}
+              {formState.isSubmitting && <BorderSpinner />}
               <Button variant="primary" type="submit">
                 Create a Project
               </Button>
