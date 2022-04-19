@@ -405,6 +405,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
         }
         .data {
           text-align: right;
+          font-family: 'Source Code Pro', monospace;
         }
       `}</style>
     </>
