@@ -44,16 +44,16 @@ export default function ProjectCard(props: {
   title: string;
   description: string;
   color: ProjectCardColor;
-  onClick: () => void;
+  onClick?: () => void;
 }) {
   const isComingSoon = !props.path;
-  const cursor = !isComingSoon ? 'pointer' : 'auto';
+  const cursor = !isComingSoon && props.onClick ? 'pointer' : 'auto';
   const iconColor = props.color === 'green' ? 'var(--color-accent-dark-green)' : 'var(--color-accent-dark-orange)';
   const cardColor = props.color === 'green' ? 'var(--color-accent-light-green)' : 'var(--color-accent-orange)';
 
   return (
     <>
-      <div className="projectCard" onClick={() => props.onClick()}>
+      <div className="projectCard" onClick={() => props.onClick && props.onClick()}>
         <div className="projectTitleWrapper">
           {isComingSoon && (
             <div style={{ position: 'absolute', top: '2.375rem', left: '2.375rem' }}>
@@ -63,7 +63,7 @@ export default function ProjectCard(props: {
           <div className="projectTitle">
             <b>{props.title}</b>
           </div>
-          {!isComingSoon && (
+          {!isComingSoon && props.onClick && (
             <div className="titleIcon">
               <FontAwesomeIcon icon={faAngleDoubleRight} />
             </div>

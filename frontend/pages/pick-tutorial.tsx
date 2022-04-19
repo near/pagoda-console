@@ -1,11 +1,6 @@
 import { useRouter } from 'next/router';
-import { useState } from 'react';
-import { Alert } from 'react-bootstrap';
 
 import ProjectCard from '@/components/ProjectCard';
-import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/fetchers';
-import type { Project } from '@/utils/interfaces';
 import { useSimpleLogoutLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -19,8 +14,7 @@ const projects = [
   {
     tutorial: Tutorial.NftMarket,
     title: 'NFT Market',
-    projectName: 'NFT Marketplace',
-    path: '/tutorials/nfts/introduction',
+    path: '/new-nft-tutorial',
     description:
       'Start by minting an NFT using a pre-deployed contract, then build up to a fully-fledged NFT marketplace.',
   },
@@ -33,34 +27,6 @@ const projects = [
 
 const PickTutorial: NextPageWithLayout = () => {
   const router = useRouter();
-  const [createInProgress, setCreateInProgress] = useState(false);
-  const [creationError, setCreationError] = useState('');
-
-  // Project name is tutorial name. Path is the mdx file for the tutorial.
-  async function createProject(tutorial: Tutorial, name: string, path: string): Promise<void> {
-    if (createInProgress) {
-      return;
-    }
-    setCreateInProgress(true);
-    try {
-      router.prefetch(path);
-      const project: Project = await authenticatedPost('/projects/create', { name, tutorial }, { forceRefresh: true });
-      analytics.track('DC Create New Tutorial Project', {
-        status: 'success',
-        name,
-      });
-      router.push(`${path}?project=${project.slug}&environment=1`);
-    } catch (e: any) {
-      analytics.track('DC Create New Tutorial Project', {
-        status: 'failure',
-        name,
-        error: e.message,
-      });
-      setCreationError('Something went wrong');
-    } finally {
-      setCreateInProgress(false);
-    }
-  }
 
   return (
     <div className="newProjectContainer">
@@ -77,28 +43,17 @@ const PickTutorial: NextPageWithLayout = () => {
               title={project.title}
               description={project.description}
               color="orange"
-              onClick={() => project.path && createProject(project.tutorial, project.projectName, project.path)}
+              onClick={() => project.path && router.push(project.path)}
             />
           </div>
         ))}
       </div>
-      {creationError && (
-        <div className="errorContainer">
-          <Alert variant="danger">{creationError}</Alert>
-        </div>
-      )}
       <style jsx>{`
         .pageTitle {
           margin-bottom: 1.25rem;
         }
-        .errorContainer {
-          margin-top: 1rem;
-        }
         .calloutText {
           margin-bottom: 2.625rem;
-        }
-        .boldText {
-          font-weight: 700;
         }
         .cardsContainer {
           display: flex;

@@ -44,7 +44,7 @@ export default function SimpleLogoutLayout({
         </div>
         <style jsx>{`
           .contentContainer {
-            max-width: 44rem;
+            max-width: 55rem;
           }
           .centeringContainer {
             display: flex;
