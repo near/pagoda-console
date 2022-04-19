@@ -163,7 +163,7 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: () => void }
   function getObscuredKey(key: string) {
     // const obscureChar = '*';
     // return key.substring(0, 4) + obscureChar.repeat(key.length - 4);
-    return key.substring(0, 8) + `-●●●●-●●●●-●●●●-●●●●●●●●●●●●`;
+    return key.substring(0, 8) + `-••••-••••-••••-••••••••••••`;
   }
 
   const copyRef = useRef(null);
@@ -244,6 +244,7 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: () => void }
         }
         .keyField {
           flex-grow: 1;
+          font-family: 'Source Code Pro', monospace;
         }
         .buttonsContainer {
           display: flex;
