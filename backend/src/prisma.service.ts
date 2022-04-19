@@ -7,10 +7,9 @@ import { AppConfig } from './config/validate';
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor(private config: ConfigService<AppConfig>) {
     super({
-      log:
-        config.get('deployEnv', { infer: true }) === 'LOCAL'
-          ? ['query', 'info', 'warn', 'error']
-          : ['info', 'warn', 'error'],
+      log: config.get('log.queries', { infer: true })
+        ? ['query', 'info', 'warn', 'error']
+        : ['info', 'warn', 'error'],
     });
   }
 

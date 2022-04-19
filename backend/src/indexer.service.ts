@@ -60,35 +60,46 @@ const dbConfig = {
   },
 };
 
-const db = {
-  sequelizeIndexerBackendMainnetReadOnly: new Sequelize(
-    dbConfig.indexerDatabaseMainnet.database,
-    dbConfig.indexerDatabaseMainnet.username,
-    dbConfig.indexerDatabaseMainnet.password,
-    {
-      host: dbConfig.indexerDatabaseMainnet.host,
-      dialect: dbConfig.indexerDatabaseMainnet.dialect,
-    },
-  ),
-  sequelizeIndexerBackendTestnetReadOnly: new Sequelize(
-    dbConfig.indexerDatabaseTestnet.database,
-    dbConfig.indexerDatabaseTestnet.username,
-    dbConfig.indexerDatabaseTestnet.password,
-    {
-      host: dbConfig.indexerDatabaseTestnet.host,
-      dialect: dbConfig.indexerDatabaseTestnet.dialect,
-    },
-  ),
-  Sequelize,
-};
-
 @Injectable()
 export class IndexerService {
+  // number of recent transactions to return
   private recentTransactionsCount;
+  // indexer db connections formed by Sequelize
+  private db: {
+    sequelizeIndexerBackendMainnetReadOnly: Sequelize;
+    sequelizeIndexerBackendTestnetReadOnly: Sequelize;
+  };
   constructor(private config: ConfigService<AppConfig>) {
     this.recentTransactionsCount = this.config.get('recentTransactionsCount', {
       infer: true,
     });
+    this.db = {
+      sequelizeIndexerBackendMainnetReadOnly: new Sequelize(
+        dbConfig.indexerDatabaseMainnet.database,
+        dbConfig.indexerDatabaseMainnet.username,
+        dbConfig.indexerDatabaseMainnet.password,
+        {
+          host: dbConfig.indexerDatabaseMainnet.host,
+          dialect: dbConfig.indexerDatabaseMainnet.dialect,
+          logging: this.config.get('log.indexer', { infer: true })
+            ? console.log
+            : false,
+        },
+      ),
+      sequelizeIndexerBackendTestnetReadOnly: new Sequelize(
+        dbConfig.indexerDatabaseTestnet.database,
+        dbConfig.indexerDatabaseTestnet.username,
+        dbConfig.indexerDatabaseTestnet.password,
+        {
+          host: dbConfig.indexerDatabaseTestnet.host,
+          dialect: dbConfig.indexerDatabaseTestnet.dialect,
+          logging: this.config.get('log.indexer', { infer: true })
+            ? console.log
+            : false,
+        },
+      ),
+      Sequelize,
+    };
   }
 
   async queryAccountTransactionsList(
@@ -171,9 +182,9 @@ export class IndexerService {
   getSequelize(dataSource) {
     switch (dataSource) {
       case DS_INDEXER_MAINNET:
-        return db.sequelizeIndexerBackendMainnetReadOnly;
+        return this.db.sequelizeIndexerBackendMainnetReadOnly;
       case DS_INDEXER_TESTNET:
-        return db.sequelizeIndexerBackendTestnetReadOnly;
+        return this.db.sequelizeIndexerBackendTestnetReadOnly;
       default:
         throw new VError('getSequelize() has no default dataSource');
     }
