@@ -91,6 +91,7 @@ export default function ProjectCard(props: {
           font-size: 2rem;
         }
         .projectTitle {
+          font-family: 'New Spirit';
         }
         .titleIcon {
           ${!isComingSoon && `color:${iconColor}`};
