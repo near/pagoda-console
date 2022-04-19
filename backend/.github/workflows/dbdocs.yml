@@ -35,5 +35,5 @@ jobs:
 
       - name: Upload DB Docs schema file
         env:
-          DBDOCS_TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDMyOSwidXNlck5hbWUiOiJqb24tbGV3aXMiLCJlbWFpbCI6ImpvbmF0aGFuZGF2aWRsZXdpczkyQGdtYWlsLmNvbSIsImlhdCI6MTY1MDM4NDk4NH0.Hr0pQ0OS3GQbIxciSGx5FbBKPWiQSGQJibiySBooFE0
+          DBDOCS_TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6Impvbi1sZXdpcyIsInRva2VuIjoiMTQzMzg1Yjk2ZTE5MGIyZGU1MzRmNmUzYjNmZmQxMmIiLCJpYXQiOjE2NTAzODYzNjZ9.IjGw23NygBjUm7WJ2lpw6_xJnqcp6doRywQkyV629V0
         run: dbdocs build ./prisma/dbml/schema.dbml --password replace_me --project "Pagoda Developer Console"
