@@ -33,7 +33,7 @@ const NewProject: NextPageWithLayout = () => {
         status: 'success',
         name: projectName,
       });
-      router.push(`/project-settings?project=${project.slug}&onboarding=true`);
+      await router.push(`/project-settings?project=${project.slug}&onboarding=true`);
     } catch (e: any) {
       analytics.track('DC Create New Project', {
         status: 'failure',

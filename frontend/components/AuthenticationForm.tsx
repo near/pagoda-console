@@ -230,10 +230,12 @@ function EmailAuth(props: { authActive: boolean }) {
     }
   };
 
+  const isSubmitting = formState.isSubmitting || formState.isSubmitSuccessful;
+
   return (
     <div className="emailContainer">
       <Form noValidate onSubmit={handleSubmit(signInWithEmail)}>
-        <fieldset disabled={formState.isSubmitting}>
+        <fieldset disabled={isSubmitting}>
           <div className="formFieldsWrapper">
             <Form.Group controlId="email">
               <Form.Label>Email</Form.Label>
