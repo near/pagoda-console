@@ -48,6 +48,14 @@ To apply all migrations
 npx prisma migrate deploy
 ```
 
+### Database Documentation
+
+We currently have a Github action that will generate DB docs and upload them to:
+`https://dbdocs.io/jon-lewis/Pagoda-Developer-Console-Dev` when a PR is merged into `development` and
+`https://dbdocs.io/jon-lewis/Pagoda-Developer-Console` when merged into `main`.
+
+You will need a password to view these docs, please ask the team for it.
+
 ### Update models
 
 Whenever models are changed,even locally, a new Prisma client must be generated
