@@ -33,6 +33,7 @@ export interface AppConfig {
   projectRefPrefix: string;
   analytics: {
     url: string;
+    token: string;
   };
   firebase: {
     credentials: string;
@@ -88,6 +89,7 @@ const appConfigSchema = Joi.object({
   projectRefPrefix: Joi.string().optional().default(''),
   analytics: {
     url: Joi.string().uri({ scheme: 'https' }),
+    token: Joi.string(),
   },
   firebase: {
     credentials: Joi.string(),
@@ -125,6 +127,7 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     projectRefPrefix: config.PROJECT_REF_PREFIX,
     analytics: {
       url: config.MIXPANEL_API,
+      token: config.MIXPANEL_TOKEN,
     },
     firebase: {
       credentials: config.FIREBASE_CREDENTIALS,
