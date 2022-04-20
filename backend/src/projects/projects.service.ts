@@ -23,6 +23,7 @@ const nanoid = customAlphabet(
 @Injectable()
 export class ProjectsService {
   private projectRefPrefix: string;
+  private mixpanelCredentials: string;
   constructor(
     private prisma: PrismaService,
     private keys: KeysService,
@@ -31,6 +32,12 @@ export class ProjectsService {
     this.projectRefPrefix = this.config.get('projectRefPrefix', {
       infer: true,
     });
+    const token = this.config.get('analytics.token', {
+      infer: true,
+    });
+    this.mixpanelCredentials = `Basic ${Buffer.from(token + ':').toString(
+      'base64',
+    )}`;
   }
 
   async create(
@@ -815,7 +822,7 @@ export class ProjectsService {
             to_date: endDate,
           },
           headers: {
-            Authorization: 'Basic OTdjOTg2MzZjMjIzMGY0YzFhNTgxYmVlYjUzM2VjMjM6',
+            Authorization: this.mixpanelCredentials,
           },
         },
       );
