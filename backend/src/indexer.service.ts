@@ -98,6 +98,7 @@ export class IndexerService {
             : false,
         },
       ),
+      Sequelize,
     };
   }
 
