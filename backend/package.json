@@ -90,7 +90,7 @@
     "testEnvironment": "node"
   },
   "lint-staged": {
-    "**/.{js,ts}": "eslint --cache --fix",
+    "**/.{js,ts}": "eslint --cache",
     "*.{js,ts,json}": "prettier --check"
   }
 }
