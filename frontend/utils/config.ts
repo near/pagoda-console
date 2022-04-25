@@ -43,6 +43,7 @@ interface AppConfig {
     debug: boolean;
   };
   firebaseConfig: FirebaseOptions;
+  maintenanceMode: boolean;
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
@@ -71,6 +72,7 @@ const config: AppConfig = {
     debug: process.env.NEXT_PUBLIC_MIXPANEL_DEBUG === 'true',
   },
   firebaseConfig: JSON.parse(process.env.NEXT_PUBLIC_FIREBASE_CONFIG),
+  maintenanceMode: process.env.NEXT_MAINTENANCE_MODE === 'true',
 };
 
 export default config;
