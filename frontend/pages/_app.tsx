@@ -29,6 +29,7 @@ initializeApp(config.firebaseConfig);
 // mixpanel initialization
 import { Alert } from 'react-bootstrap';
 
+import MaintenanceMode from '@/components/MaintenanceMode';
 import SimpleLayout from '@/components/SimpleLayout';
 import SmallScreenNotice from '@/components/SmallScreenNotice';
 import analytics from '@/utils/analytics';
@@ -96,18 +97,11 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
         {config.maintenanceMode ? (
           <SimpleLayout footer={null}>
-            <>
-              <Alert variant="danger" style={{ textAlign: 'center' }}>
-                Sorry, we are currently down for scheduled maintenance.
-                <br />
-                Please check back again soon.
-              </Alert>
-            </>
+            <MaintenanceMode />
           </SimpleLayout>
         ) : (
           <>
             <div className="largeScreen">{getLayout(<Component {...pageProps} />, getFooter())}</div>
-
             <div className="smallScreen">
               <SmallScreenNotice />
             </div>

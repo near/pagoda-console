@@ -31,7 +31,7 @@ const Login: NextPageWithLayout = () => {
           display: flex;
           flex-direction: column;
           align-items: center;
-          width: 22.25rem;
+          width: 20.35rem;
         }
       `}</style>
     </div>

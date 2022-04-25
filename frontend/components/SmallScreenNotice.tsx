@@ -1,5 +1,5 @@
 import Circles from '@/public/circles.svg';
-import Logo from '@/public/Pagoda Logo.svg';
+import Logo from '@/public/images/pagoda-logo.svg';
 
 export default function SmallScreenNotice() {
   return (
@@ -12,7 +12,7 @@ export default function SmallScreenNotice() {
             We’re working to deliver the best mobile experience possible. In the meantime, please visit us on a device
             with a larger screen.
           </p>
-          <Logo style={{ marginTop: '2.5rem' }} />
+          <Logo style={{ height: '40px', marginTop: '2.5rem' }} />
         </div>
       </div>
       <style jsx>{`
