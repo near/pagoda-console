@@ -1,17 +1,17 @@
 import {
-  Body,
+  //Body,
   Controller,
-  HttpCode,
+  //HttpCode,
   Post,
   Request,
   UseGuards,
-  UsePipes,
+  //UsePipes,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from '@prisma/client';
+// import { User } from '@prisma/client';
 import { BearerAuthGuard } from '../auth/bearer-auth.guard';
 // import { UpdateDetailsDto, UpdateDetailsSchema } from './dto';
-import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
+// import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 
 @Controller('users')
 export class UsersController {

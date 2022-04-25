@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { User, Prisma } from '@prisma/client';
-import { getAuth } from 'firebase-admin/auth';
-import { VError } from 'verror';
 
 @Injectable()
 export class UsersService {
