@@ -72,7 +72,7 @@ const config: AppConfig = {
     debug: process.env.NEXT_PUBLIC_MIXPANEL_DEBUG === 'true',
   },
   firebaseConfig: JSON.parse(process.env.NEXT_PUBLIC_FIREBASE_CONFIG),
-  maintenanceMode: process.env.NEXT_MAINTENANCE_MODE === 'true',
+  maintenanceMode: process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true',
 };
 
 export default config;
