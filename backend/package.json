@@ -90,7 +90,7 @@
     "testEnvironment": "node"
   },
   "lint-staged": {
-    "**/.{js,ts}": "eslint --cache --fix --max-warnings 0",
+    "**/.{js,ts}": "eslint --cache --max-warnings 0",
     "*.{js,ts,json}": "prettier --check"
   }
 }
