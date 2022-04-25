@@ -27,6 +27,9 @@ type AppPropsWithLayout = AppProps & {
 initializeApp(config.firebaseConfig);
 
 // mixpanel initialization
+import { Alert } from 'react-bootstrap';
+
+import SimpleLayout from '@/components/SimpleLayout';
 import SmallScreenNotice from '@/components/SmallScreenNotice';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chainData';
@@ -73,6 +76,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
   const getFooter = Component.getFooter ?? (() => null);
+
   return (
     <SSRProvider>
       <SWRConfig
@@ -90,10 +94,26 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
           <link href="/favicon-256x256.png" rel="apple-touch-icon" />
         </Head>
 
-        <div className="largeScreen">{getLayout(<Component {...pageProps} />, getFooter())}</div>
-        <div className="smallScreen">
-          <SmallScreenNotice />
-        </div>
+        {config.maintenanceMode ? (
+          <SimpleLayout footer={null}>
+            <>
+              <Alert variant="danger" style={{ textAlign: 'center' }}>
+                Sorry, we are currently down for scheduled maintenance.
+                <br />
+                Please check back again soon.
+              </Alert>
+            </>
+          </SimpleLayout>
+        ) : (
+          <>
+            <div className="largeScreen">{getLayout(<Component {...pageProps} />, getFooter())}</div>
+
+            <div className="smallScreen">
+              <SmallScreenNotice />
+            </div>
+          </>
+        )}
+
         <style jsx>{`
           .smallScreen {
             display: none;
