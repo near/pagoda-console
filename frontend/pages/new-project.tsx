@@ -40,9 +40,16 @@ const NewProject: NextPageWithLayout = () => {
         name: projectName,
         error: e.message,
       });
-      setError('projectName', {
-        message: 'Something went wrong',
-      });
+
+      if (e.statusCode === 409) {
+        setError('projectName', {
+          message: 'Project name is already in use',
+        });
+      } else {
+        setError('projectName', {
+          message: 'Something went wrong',
+        });
+      }
     }
   };
 
