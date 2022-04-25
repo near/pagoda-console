@@ -59,6 +59,14 @@ export class ProjectsService {
       throw new VError(e, 'Failed to find team');
     }
 
+    // TODO when our schema can enforce project name uniqueness within a team, replace this unique check with a database constraint.
+    if (!(await this.isProjectNameUnique(user, name))) {
+      throw new VError(
+        { info: { code: 'NAME_CONFLICT' } },
+        'Project name is not unique',
+      );
+    }
+
     let project;
 
     const metadata = {
@@ -664,6 +672,34 @@ export class ProjectsService {
       return { name, slug, tutorial };
     } catch (e) {
       throw new VError(e, 'Failed while fetching project details');
+    }
+  }
+
+  async isProjectNameUnique(callingUser: User, name: string) {
+    try {
+      const p = await this.prisma.project.findFirst({
+        where: {
+          teamProjects: {
+            some: {
+              team: {
+                teamMembers: {
+                  some: {
+                    userId: callingUser.id,
+                  },
+                },
+              },
+            },
+          },
+          name,
+          active: true,
+        },
+        select: {
+          slug: true,
+        },
+      });
+      return !p;
+    } catch (e) {
+      throw new VError(e, 'Failed to guarantee project uniqueness');
     }
   }
 

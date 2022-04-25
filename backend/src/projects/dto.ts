@@ -5,13 +5,15 @@
 import { Net, ProjectTutorial } from '.prisma/client';
 import * as Joi from 'joi';
 
+const projectNameSchema = Joi.string().required().max(50);
+
 // create project
 export interface CreateProjectDto {
   name: string;
   tutorial?: ProjectTutorial;
 }
 export const CreateProjectSchema = Joi.object({
-  name: Joi.string().required().max(50),
+  name: projectNameSchema,
   tutorial: Joi.string(),
 });
 
@@ -21,6 +23,14 @@ export interface DeleteProjectDto {
 }
 export const DeleteProjectSchema = Joi.object({
   slug: Joi.string().required(),
+});
+
+// is project name unique
+export interface IsProjectNameUniqueDto {
+  name: string;
+}
+export const IsProjectNameUniqueSchema = Joi.object({
+  name: projectNameSchema,
 });
 
 // get project details
