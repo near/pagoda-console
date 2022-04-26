@@ -677,6 +677,9 @@ export class ProjectsService {
 
   async isProjectNameUnique(callingUser: User, name: string) {
     try {
+      // TODO once team/org management is solidified, review the below query.
+      // This query was created when a team was the highest level that could determine project uniqueness
+      // and `project` was the only table in the list of relations where `active` could be `false`.
       const p = await this.prisma.project.findFirst({
         where: {
           teamProjects: {
