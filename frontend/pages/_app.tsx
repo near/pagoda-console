@@ -26,10 +26,6 @@ type AppPropsWithLayout = AppProps & {
 
 initializeApp(config.firebaseConfig);
 
-// mixpanel initialization
-import { Alert } from 'react-bootstrap';
-import { Button } from 'react-bootstrap';
-
 import MaintenanceMode from '@/components/MaintenanceMode';
 import SimpleLayout from '@/components/SimpleLayout';
 import SmallScreenNotice from '@/components/SmallScreenNotice';
