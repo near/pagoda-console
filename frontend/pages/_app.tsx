@@ -26,7 +26,7 @@ type AppPropsWithLayout = AppProps & {
 
 initializeApp(config.firebaseConfig);
 
-import MaintenanceMode from '@/components/MaintenanceMode';
+import DowntimeMode from '@/components/DowntimeMode';
 import SimpleLayout from '@/components/SimpleLayout';
 import SmallScreenNotice from '@/components/SmallScreenNotice';
 import analytics from '@/utils/analytics';
@@ -92,9 +92,9 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
           <link href="/favicon-256x256.png" rel="apple-touch-icon" />
         </Head>
 
-        {config.maintenanceMode ? (
+        {config.downtimeMode ? (
           <SimpleLayout footer={null}>
-            <MaintenanceMode />
+            <DowntimeMode />
           </SimpleLayout>
         ) : (
           <>
