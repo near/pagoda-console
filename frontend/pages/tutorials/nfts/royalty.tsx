@@ -4,7 +4,7 @@ import NextStepButton from '@/components/tutorials/NextStepButton';
 import TableOfContents from '@/components/tutorials/TableOfContents';
 import TutorialFooter from '@/components/tutorials/TutorialFooter';
 import Content from '@/tutorials/nfts/md/6-royalty.mdx';
-import { useDashboardLayout } from '@/utils/layouts';
+import { dashboardLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Royalty: NextPageWithLayout = () => {
@@ -20,6 +20,6 @@ const Royalty: NextPageWithLayout = () => {
   );
 };
 
-Royalty.getLayout = useDashboardLayout;
+Royalty.getLayout = dashboardLayout;
 
 export default Royalty;

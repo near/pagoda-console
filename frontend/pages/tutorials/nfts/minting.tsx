@@ -4,7 +4,7 @@ import NextStepButton from '@/components/tutorials/NextStepButton';
 import TableOfContents from '@/components/tutorials/TableOfContents';
 import TutorialFooter from '@/components/tutorials/TutorialFooter';
 import Content from '@/tutorials/nfts/md/2-minting.mdx';
-import { useDashboardLayout } from '@/utils/layouts';
+import { dashboardLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Minting: NextPageWithLayout = () => {
@@ -20,6 +20,6 @@ const Minting: NextPageWithLayout = () => {
   );
 };
 
-Minting.getLayout = useDashboardLayout;
+Minting.getLayout = dashboardLayout;
 
 export default Minting;

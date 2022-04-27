@@ -8,7 +8,7 @@ import BorderSpinner from '@/components/BorderSpinner';
 import ErrorModal from '@/components/modals/ErrorModal';
 import { useAccount, useIdentity } from '@/hooks/user';
 import { formValidations } from '@/utils/constants';
-import { useDashboardLayout } from '@/utils/layouts';
+import { dashboardLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface SettingsFormData {
@@ -124,6 +124,6 @@ const Settings: NextPageWithLayout = () => {
   );
 };
 
-Settings.getLayout = useDashboardLayout;
+Settings.getLayout = dashboardLayout;
 
 export default Settings;

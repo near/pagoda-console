@@ -13,7 +13,7 @@ import { useProject } from '@/hooks/projects';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
-import { useDashboardLayout } from '@/utils/layouts';
+import { dashboardLayout } from '@/utils/layouts';
 import type { NetOption } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -268,6 +268,6 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: () => void }
   );
 }
 
-ProjectSettings.getLayout = useDashboardLayout;
+ProjectSettings.getLayout = dashboardLayout;
 
 export default ProjectSettings;

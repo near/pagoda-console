@@ -15,7 +15,7 @@ import { useForm } from 'react-hook-form';
 
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
-import { useSimpleLayout } from '@/utils/layouts';
+import { simpleLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const onFocus = () => {
@@ -215,6 +215,6 @@ const Register: NextPageWithLayout = () => {
   );
 };
 
-Register.getLayout = useSimpleLayout;
+Register.getLayout = simpleLayout;
 
 export default Register;

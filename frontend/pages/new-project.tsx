@@ -8,7 +8,7 @@ import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import { authenticatedPost } from '@/utils/http';
-import { useSimpleLogoutLayout } from '@/utils/layouts';
+import { simpleLogoutLayout } from '@/utils/layouts';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -126,6 +126,6 @@ const NewProject: NextPageWithLayout = () => {
   );
 };
 
-NewProject.getLayout = useSimpleLogoutLayout;
+NewProject.getLayout = simpleLogoutLayout;
 
 export default NewProject;

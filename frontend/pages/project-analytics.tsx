@@ -13,7 +13,7 @@ import AnalyticsPreview from '@/public/analyticsPreview.png';
 import { getUserData, updateUserData } from '@/utils/cache';
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
-import { useDashboardLayout } from '@/utils/layouts';
+import { dashboardLayout } from '@/utils/layouts';
 import type { NetOption, NetUsageData, UsageData } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -433,6 +433,6 @@ function LastFetchedInfo({ fetchedAt }: { fetchedAt: string }) {
   );
 }
 
-ProjectAnalytics.getLayout = useDashboardLayout;
+ProjectAnalytics.getLayout = dashboardLayout;
 
 export default ProjectAnalytics;

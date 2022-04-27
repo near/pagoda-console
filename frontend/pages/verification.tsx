@@ -6,7 +6,7 @@ import { Button } from 'react-bootstrap';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { logOut } from '@/utils/auth';
-import { useSimpleLayout } from '@/utils/layouts';
+import { simpleLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Verification: NextPageWithLayout = () => {
@@ -95,6 +95,6 @@ const Verification: NextPageWithLayout = () => {
   );
 };
 
-Verification.getLayout = useSimpleLayout;
+Verification.getLayout = simpleLayout;
 
 export default Verification;

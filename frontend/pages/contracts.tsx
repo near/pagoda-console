@@ -19,7 +19,7 @@ import analytics from '@/utils/analytics';
 import Config from '@/utils/config';
 import { returnContractAddressRegex } from '@/utils/helpers';
 import { authenticatedPost } from '@/utils/http';
-import { useDashboardLayout } from '@/utils/layouts';
+import { dashboardLayout } from '@/utils/layouts';
 import type { Contract, Environment } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -414,6 +414,6 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
   );
 }
 
-Contracts.getLayout = useDashboardLayout;
+Contracts.getLayout = dashboardLayout;
 
 export default Contracts;

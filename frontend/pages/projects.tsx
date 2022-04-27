@@ -10,7 +10,7 @@ import BorderSpinner from '@/components/BorderSpinner';
 import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
 import TutorialBadge from '@/components/TutorialBadge';
 import { useProjects } from '@/hooks/projects';
-import { useSimpleLogoutLayout } from '@/utils/layouts';
+import { simpleLogoutLayout } from '@/utils/layouts';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -197,6 +197,6 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
   );
 }
 
-Projects.getLayout = useSimpleLogoutLayout;
+Projects.getLayout = simpleLogoutLayout;
 
 export default Projects;

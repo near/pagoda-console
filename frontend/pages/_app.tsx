@@ -27,7 +27,7 @@ type AppPropsWithLayout = AppProps & {
 initializeApp(config.firebaseConfig);
 
 import DowntimeMode from '@/components/DowntimeMode';
-import SimpleLayout from '@/components/SimpleLayout';
+import SimpleLayout from '@/components/layouts/SimpleLayout';
 import SmallScreenNotice from '@/components/SmallScreenNotice';
 import { usePageTracker } from '@/hooks/page-tracker';
 import analytics from '@/utils/analytics';

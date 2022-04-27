@@ -1,7 +1,7 @@
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 import AuthenticationForm from '@/components/AuthenticationForm';
-import { useSimpleLayout } from '@/utils/layouts';
+import { simpleLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 /*
@@ -38,6 +38,6 @@ const Login: NextPageWithLayout = () => {
   );
 };
 
-Login.getLayout = useSimpleLayout;
+Login.getLayout = simpleLayout;
 
 export default Login;

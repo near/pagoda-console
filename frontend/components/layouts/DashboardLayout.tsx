@@ -9,7 +9,7 @@ import { useDisplayName } from '@/hooks/user';
 import PagodaIcon from '@/public/brand/pagoda_icon_small.svg';
 import { logOut } from '@/utils/auth';
 
-import NftInfoCard from './NftInfoCard';
+import NftInfoCard from '../NftInfoCard';
 
 interface PageDefinition {
   display: string;

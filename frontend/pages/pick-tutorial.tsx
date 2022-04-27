@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 
 import ProjectCard from '@/components/ProjectCard';
-import { useSimpleLogoutLayout } from '@/utils/layouts';
+import { simpleLogoutLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 enum Tutorial {
@@ -66,6 +66,6 @@ const PickTutorial: NextPageWithLayout = () => {
   );
 };
 
-PickTutorial.getLayout = useSimpleLogoutLayout;
+PickTutorial.getLayout = simpleLogoutLayout;
 
 export default PickTutorial;

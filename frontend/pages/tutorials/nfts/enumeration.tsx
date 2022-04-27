@@ -4,7 +4,7 @@ import NextStepButton from '@/components/tutorials/NextStepButton';
 import TableOfContents from '@/components/tutorials/TableOfContents';
 import TutorialFooter from '@/components/tutorials/TutorialFooter';
 import Content from '@/tutorials/nfts/md/3-enumeration.mdx';
-import { useDashboardLayout } from '@/utils/layouts';
+import { dashboardLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Enumeration: NextPageWithLayout = () => {
@@ -20,6 +20,6 @@ const Enumeration: NextPageWithLayout = () => {
   );
 };
 
-Enumeration.getLayout = useDashboardLayout;
+Enumeration.getLayout = dashboardLayout;
 
 export default Enumeration;

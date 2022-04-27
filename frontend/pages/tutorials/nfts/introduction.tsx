@@ -4,7 +4,7 @@ import NextStepButton from '@/components/tutorials/NextStepButton';
 import TableOfContents from '@/components/tutorials/TableOfContents';
 import TutorialFooter from '@/components/tutorials/TutorialFooter';
 import Content from '@/tutorials/nfts/md/0-intro.mdx';
-import { useDashboardLayout } from '@/utils/layouts';
+import { dashboardLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Introduction: NextPageWithLayout = () => {
@@ -20,6 +20,6 @@ const Introduction: NextPageWithLayout = () => {
   );
 };
 
-Introduction.getLayout = useDashboardLayout;
+Introduction.getLayout = dashboardLayout;
 
 export default Introduction;
