@@ -311,7 +311,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
   const [canDelete, setCanDelete] = useState(true);
   const { data, error } = useSWR(
     [props.contract.address, props.contract.net],
-    async (address: string) => {
+    async (address) => {
       const res = await fetch(Config.url.rpc.default[props.contract.net], {
         method: 'POST',
         headers: {

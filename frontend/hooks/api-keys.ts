@@ -17,7 +17,7 @@ export function useApiKeys(
     mutate,
   } = useSWR(
     identity && project ? ['/projects/getKeys', project, identity.uid] : null,
-    (key: string, project: number) => {
+    (key, project) => {
       return authenticatedPost(key, { project });
     },
     swrOptions,

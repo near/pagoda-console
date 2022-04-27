@@ -16,7 +16,7 @@ export function useContracts(
     mutate,
   } = useSWR(
     identity && project && environment ? ['/projects/getContracts', project, environment, identity.uid] : null,
-    (key: string, project: string | null, environment?: number) => {
+    (key, project, environment) => {
       return authenticatedPost(key, { project, environment });
     },
   );

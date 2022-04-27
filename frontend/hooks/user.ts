@@ -13,7 +13,7 @@ export function useAccount(): { user?: User; error?: any; mutate: KeyedMutator<a
     data: user,
     error,
     mutate,
-  } = useSWR(identity ? ['/users/getAccountDetails', identity.uid] : null, (key: string) => {
+  } = useSWR(identity ? ['/users/getAccountDetails', identity.uid] : null, (key) => {
     return authenticatedPost(key);
   });
 

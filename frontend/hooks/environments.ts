@@ -18,7 +18,7 @@ export function useEnvironment(environmentId?: number): {
     mutate,
   } = useSWR(
     identity && environmentId ? ['/projects/getEnvironmentDetails', environmentId, identity.uid] : null,
-    (key: string, environmentId: number) => {
+    (key, environmentId) => {
       return authenticatedPost(key, { environmentId });
     },
   );
@@ -38,12 +38,9 @@ export function useEnvironments(project: string | null): {
     data: environmentData,
     error,
     mutate,
-  } = useSWR(
-    identity && project ? ['/projects/getEnvironments', project, identity.uid] : null,
-    (key: string, project: number) => {
-      return authenticatedPost(key, { project });
-    },
-  );
+  } = useSWR(identity && project && ['/projects/getEnvironments', project, identity.uid], (key, project) => {
+    return authenticatedPost(key, { project });
+  });
 
   return { environmentData, error, mutate };
 }

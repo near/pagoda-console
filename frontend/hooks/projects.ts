@@ -44,7 +44,7 @@ export function useProject(projectSlug: string | null): { project?: Project; err
 
   const { data: project, error } = useSWR(
     identity && projectSlug ? ['/projects/getDetails', projectSlug, identity.uid] : null,
-    (key: string, projectSlug: number) => {
+    (key, projectSlug) => {
       return authenticatedPost(key, { slug: projectSlug });
     },
   );
@@ -64,7 +64,7 @@ export function useProjects(): { projects?: Project[]; error?: any; mutate: Keye
     error,
     mutate,
     isValidating,
-  } = useSWR(identity ? ['/projects/list', identity.uid] : null, (key: string) => {
+  } = useSWR(identity ? ['/projects/list', identity.uid] : null, (key) => {
     return authenticatedPost(key);
   });
 

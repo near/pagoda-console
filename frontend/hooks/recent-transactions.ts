@@ -15,7 +15,7 @@ export function useRecentTransactions(
   // separate key
   const { data: transactions, error } = useSWR(
     identity && contracts && net ? ['/projects/getTransactions', contracts.join(','), net, identity.uid] : null,
-    (key: string, contracts: string, net: NetOption) => {
+    (key, contracts, net) => {
       return authenticatedPost(key, {
         contracts: contracts.split(','),
         net,
