@@ -31,7 +31,7 @@ import SimpleLayout from '@/components/SimpleLayout';
 import SmallScreenNotice from '@/components/SmallScreenNotice';
 import { usePageTracker } from '@/hooks/page-tracker';
 import analytics from '@/utils/analytics';
-import { initializeNaj } from '@/utils/chainData';
+import { initializeNaj } from '@/utils/chain-data';
 
 analytics.init();
 

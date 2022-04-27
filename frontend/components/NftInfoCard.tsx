@@ -11,8 +11,8 @@ import { useRouteParam } from '@/hooks/route';
 import { useIdentity } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { getUserData, updateUserData } from '@/utils/cache';
-import type { ContractMetadata, NftData, Token } from '@/utils/chainData';
-import { useContractInfo, useMetadata } from '@/utils/chainData';
+import type { ContractMetadata, NftData, Token } from '@/utils/chain-data';
+import { useContractInfo, useMetadata } from '@/utils/chain-data';
 import { returnContractAddressRegex } from '@/utils/helpers';
 
 import CodeBlock from './CodeBlock';
