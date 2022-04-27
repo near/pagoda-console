@@ -2,6 +2,8 @@ import type { FirebaseOptions } from 'firebase/app';
 
 import type { NetOption } from './interfaces';
 
+type RpcNets = Record<NetOption, string>;
+
 // * NOTE: This is ugly, but we are limited in how we can
 // * implement this check. Due to the way Next.js loads
 // * environment variables, we cannot access the variables
@@ -25,7 +27,27 @@ if (
   throw new Error('Missing configuration value');
 }
 
-type RpcNets = Record<NetOption, string>;
+// Validate downtime related variables:
+
+const downtimeMessage = process.env.NEXT_PUBLIC_DOWNTIME_MESSAGE || '';
+const downtimeModeRaw = process.env.NEXT_PUBLIC_DOWNTIME_MODE;
+const downtimeModes = ['maintenance', 'unexpected', 'custom'] as const;
+type DowntimeMode = typeof downtimeModes[number];
+let downtimeMode: DowntimeMode | undefined = undefined;
+
+if (downtimeModeRaw) {
+  const value = downtimeModeRaw as DowntimeMode;
+  if (!downtimeModes.includes(value)) throw new Error(`Invalid value for NEXT_PUBLIC_DOWNTIME_MODE: "${value}"`);
+  downtimeMode = value;
+}
+
+if (downtimeMode === 'custom' && !downtimeMessage) {
+  throw new Error(
+    `Invalid value for NEXT_PUBLIC_DOWNTIME_MESSAGE: "${downtimeMessage}" (should be non-empty string due to NEXT_PUBLIC_DOWNTIME_MODE="custom")`,
+  );
+}
+
+// Define config:
 
 interface AppConfig {
   url: {
@@ -43,6 +65,8 @@ interface AppConfig {
     debug: boolean;
   };
   firebaseConfig: FirebaseOptions;
+  downtimeMessage: string;
+  downtimeMode: DowntimeMode | undefined;
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
@@ -71,6 +95,8 @@ const config: AppConfig = {
     debug: process.env.NEXT_PUBLIC_MIXPANEL_DEBUG === 'true',
   },
   firebaseConfig: JSON.parse(process.env.NEXT_PUBLIC_FIREBASE_CONFIG),
+  downtimeMessage,
+  downtimeMode,
 };
 
 export default config;

@@ -15,7 +15,6 @@ export default function SimpleLayout({
         <div className="logoContainer">
           <ConsoleLogo />
         </div>
-        {/* <main>{children}</main> */}
         {children}
         {footer ?? <></>}
       </div>

@@ -72,7 +72,7 @@ const Verification: NextPageWithLayout = () => {
           flex-direction: column;
           row-gap: 2rem;
           align-content: center;
-          width: 22.25rem;
+          width: 20.35rem;
           text-align: center;
         }
         .sentContainer {

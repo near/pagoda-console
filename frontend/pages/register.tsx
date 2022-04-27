@@ -193,7 +193,7 @@ const Register: NextPageWithLayout = () => {
         .pageContainer {
           display: flex;
           flex-direction: column;
-          width: 22.25rem;
+          width: 20.35rem;
         }
         .formFields {
           display: flex;

@@ -26,7 +26,8 @@ type AppPropsWithLayout = AppProps & {
 
 initializeApp(config.firebaseConfig);
 
-// mixpanel initialization
+import DowntimeMode from '@/components/DowntimeMode';
+import SimpleLayout from '@/components/SimpleLayout';
 import SmallScreenNotice from '@/components/SmallScreenNotice';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chainData';
@@ -73,6 +74,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
   const getFooter = Component.getFooter ?? (() => null);
+
   return (
     <SSRProvider>
       <SWRConfig
@@ -90,10 +92,19 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
           <link href="/favicon-256x256.png" rel="apple-touch-icon" />
         </Head>
 
-        <div className="largeScreen">{getLayout(<Component {...pageProps} />, getFooter())}</div>
-        <div className="smallScreen">
-          <SmallScreenNotice />
-        </div>
+        {config.downtimeMode ? (
+          <SimpleLayout footer={null}>
+            <DowntimeMode />
+          </SimpleLayout>
+        ) : (
+          <>
+            <div className="largeScreen">{getLayout(<Component {...pageProps} />, getFooter())}</div>
+            <div className="smallScreen">
+              <SmallScreenNotice />
+            </div>
+          </>
+        )}
+
         <style jsx>{`
           .smallScreen {
             display: none;
