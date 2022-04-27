@@ -1,4 +1,4 @@
-import { NetOption } from '../../../../utils/interfaces';
+import { NetOption } from '../../../../utils/types';
 import analytics from '../../../../utils/analytics';
 
 export interface Props {

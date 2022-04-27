@@ -5,9 +5,9 @@ import { forwardRef } from 'react';
 import type { AnchorProps } from 'react-bootstrap';
 import { Dropdown, Placeholder } from 'react-bootstrap';
 
+import { useProject, useProjects } from '@/hooks/projects';
+import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
-import { useProject, useProjects } from '@/utils/fetchers';
-import { useRouteParam } from '@/utils/hooks';
 
 import EnvironmentSelector from './EnvironmentSelector';
 import ProjectLink from './ProjectLink';

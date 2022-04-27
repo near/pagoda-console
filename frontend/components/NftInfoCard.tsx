@@ -6,12 +6,14 @@ import { Accordion, Button, Form, InputGroup, OverlayTrigger, Tooltip } from 're
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
+import { useProjectAndEnvironment } from '@/hooks/project-and-environment';
+import { useRouteParam } from '@/hooks/route';
+import { useIdentity } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { getUserData, updateUserData } from '@/utils/cache';
 import type { ContractMetadata, NftData, Token } from '@/utils/chainData';
 import { useContractInfo, useMetadata } from '@/utils/chainData';
 import { returnContractAddressRegex } from '@/utils/helpers';
-import { useIdentity, useProjectAndEnvironment, useRouteParam } from '@/utils/hooks';
 
 import CodeBlock from './CodeBlock';
 import PageLink from './PageLink';

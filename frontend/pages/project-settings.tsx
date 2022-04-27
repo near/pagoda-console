@@ -8,11 +8,13 @@ import CenterModal from '@/components/modals/CenterModal';
 import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
 import ProjectSelector from '@/components/ProjectSelector';
 import StarterGuide from '@/components/StarterGuide';
+import { useApiKeys } from '@/hooks/api-keys';
+import { useProject } from '@/hooks/projects';
+import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
-import { authenticatedPost, useApiKeys, useProject } from '@/utils/fetchers';
-import { useRouteParam } from '@/utils/hooks';
-import type { NetOption } from '@/utils/interfaces';
+import { authenticatedPost } from '@/utils/http';
 import { useDashboardLayout } from '@/utils/layouts';
+import type { NetOption } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ROTATION_WARNING =

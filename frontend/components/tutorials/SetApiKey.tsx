@@ -1,5 +1,5 @@
-import { useApiKeys } from '@/utils/fetchers';
-import { useRouteParam } from '@/utils/hooks';
+import { useApiKeys } from '@/hooks/api-keys';
+import { useRouteParam } from '@/hooks/route';
 
 import CodeBlock from '../CodeBlock';
 

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Accordion } from 'react-bootstrap';
 
+import { useApiKeys } from '@/hooks/api-keys';
+import { useRouteParam } from '@/hooks/route';
 import Config from '@/utils/config';
-import { useApiKeys } from '@/utils/fetchers';
-import { useRouteParam } from '@/utils/hooks';
-import type { NetOption } from '@/utils/interfaces';
+import type { NetOption } from '@/utils/types';
 
 import CodeBlock from './CodeBlock';
 

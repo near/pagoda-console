@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import type { Project } from '@/utils/interfaces';
+import type { Project } from '@/utils/types';
 
 import TutorialBadge from './TutorialBadge';
 

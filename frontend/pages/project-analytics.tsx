@@ -7,13 +7,14 @@ import AnalyticsCard from '@/components/AnalyticsCard';
 import BorderSpinner from '@/components/BorderSpinner';
 import PageLink from '@/components/PageLink';
 import ProjectSelector from '@/components/ProjectSelector';
+import { useRouteParam } from '@/hooks/route';
+import { useIdentity } from '@/hooks/user';
 import AnalyticsPreview from '@/public/analyticsPreview.png';
 import { getUserData, updateUserData } from '@/utils/cache';
 import config from '@/utils/config';
-import { authenticatedPost } from '@/utils/fetchers';
-import { useIdentity, useRouteParam } from '@/utils/hooks';
-import type { NetOption, NetUsageData, UsageData } from '@/utils/interfaces';
+import { authenticatedPost } from '@/utils/http';
 import { useDashboardLayout } from '@/utils/layouts';
+import type { NetOption, NetUsageData, UsageData } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {

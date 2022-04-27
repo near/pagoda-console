@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 
 import type { ProjectCardColor } from '@/components/ProjectCard';
 import ProjectCard from '@/components/ProjectCard';
-import { useRouteParam } from '@/utils/hooks';
+import { useRouteParam } from '@/hooks/route';
 import { useSimpleLogoutLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 

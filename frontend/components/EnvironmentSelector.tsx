@@ -5,7 +5,7 @@ import { forwardRef } from 'react';
 import type { ButtonProps } from 'react-bootstrap';
 import { Button, Dropdown } from 'react-bootstrap';
 
-import { useProjectAndEnvironment } from '@/utils/hooks';
+import { useProjectAndEnvironment } from '@/hooks/project-and-environment';
 
 export default function EnvironmentSelector() {
   const router = useRouter();

@@ -17,7 +17,7 @@ import { useEffect } from 'react';
 import { SWRConfig, useSWRConfig } from 'swr';
 
 import config from '@/utils/config';
-import { customErrorRetry } from '@/utils/fetchers';
+import { customErrorRetry } from '@/utils/swr';
 import type { NextPageWithLayout } from '@/utils/types';
 
 type AppPropsWithLayout = AppProps & {
@@ -29,9 +29,9 @@ initializeApp(config.firebaseConfig);
 import DowntimeMode from '@/components/DowntimeMode';
 import SimpleLayout from '@/components/SimpleLayout';
 import SmallScreenNotice from '@/components/SmallScreenNotice';
+import { usePageTracker } from '@/hooks/page-tracker';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chainData';
-import { usePageTracker } from '@/utils/hooks';
 
 analytics.init();
 

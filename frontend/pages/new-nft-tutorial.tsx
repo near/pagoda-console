@@ -7,9 +7,9 @@ import BorderSpinner from '@/components/BorderSpinner';
 import ProjectCard from '@/components/ProjectCard';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
-import { authenticatedPost } from '@/utils/fetchers';
-import type { Project } from '@/utils/interfaces';
+import { authenticatedPost } from '@/utils/http';
 import { useSimpleLogoutLayout } from '@/utils/layouts';
+import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface NewProjectFormData {

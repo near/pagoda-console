@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Button } from 'react-bootstrap';
 
-import { useRouteParam } from '@/utils/hooks';
+import { useRouteParam } from '@/hooks/route';
 
 export default function NextStepButton({ label, path }: { label: string; path: string }) {
   const project = useRouteParam('project');

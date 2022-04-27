@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import { deleteProject } from '@/utils/fetchers';
-import { useIdentity } from '@/utils/hooks';
+import { deleteProject } from '@/hooks/projects';
+import { useIdentity } from '@/hooks/user';
 
 import CenterModal from './CenterModal';
 

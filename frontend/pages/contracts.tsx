@@ -11,14 +11,16 @@ import useSWR from 'swr';
 import BorderSpinner from '@/components/BorderSpinner';
 import ProjectSelector from '@/components/ProjectSelector';
 import RecentTransactionList from '@/components/RecentTransactionList';
+import { useContracts } from '@/hooks/contracts';
+import { useProjectAndEnvironment } from '@/hooks/project-and-environment';
+import { useIdentity } from '@/hooks/user';
 import ContractsPreview from '@/public/contractsPreview.png';
 import analytics from '@/utils/analytics';
 import Config from '@/utils/config';
-import { authenticatedPost, useContracts } from '@/utils/fetchers';
 import { returnContractAddressRegex } from '@/utils/helpers';
-import { useIdentity, useProjectAndEnvironment } from '@/utils/hooks';
-import type { Contract, Environment } from '@/utils/interfaces';
+import { authenticatedPost } from '@/utils/http';
 import { useDashboardLayout } from '@/utils/layouts';
+import type { Contract, Environment } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Contracts: NextPageWithLayout = () => {
