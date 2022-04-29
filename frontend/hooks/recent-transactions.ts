@@ -6,7 +6,7 @@ import { authenticatedPost } from '@/utils/http';
 import type { NetOption } from '@/utils/types';
 
 export function useRecentTransactions(
-  contracts: string[],
+  contracts: string[] | undefined,
   net: NetOption,
 ): { transactions: Transaction[]; error: any } {
   const identity = useIdentity();

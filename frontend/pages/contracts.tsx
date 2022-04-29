@@ -12,7 +12,7 @@ import BorderSpinner from '@/components/BorderSpinner';
 import ProjectSelector from '@/components/ProjectSelector';
 import RecentTransactionList from '@/components/RecentTransactionList';
 import { useContracts } from '@/hooks/contracts';
-import { useProjectAndEnvironment } from '@/hooks/project-and-environment';
+import { useSelectedProject } from '@/hooks/selected-project';
 import { useIdentity } from '@/hooks/user';
 import ContractsPreview from '@/public/contractsPreview.png';
 import analytics from '@/utils/analytics';
@@ -24,7 +24,7 @@ import type { Contract, Environment } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Contracts: NextPageWithLayout = () => {
-  const { project, environment } = useProjectAndEnvironment();
+  const { project, environment } = useSelectedProject();
 
   const user = useIdentity();
 

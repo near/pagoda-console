@@ -9,7 +9,7 @@ import { useIdentity } from '@/hooks/user';
 import { authenticatedPost } from '@/utils/http';
 import type { Project } from '@/utils/types';
 
-export async function deleteProject(userId: string | null, slug: string, name: string) {
+export async function deleteProject(userId: string | undefined, slug: string, name: string) {
   try {
     await authenticatedPost('/projects/delete', { slug });
     mixpanel.track('DC Remove Project', {
@@ -33,7 +33,7 @@ export async function deleteProject(userId: string | null, slug: string, name: s
   return false;
 }
 
-export function useProject(projectSlug: string | null): { project?: Project; error?: any } {
+export function useProject(projectSlug: string | undefined): { project?: Project; error?: any } {
   const router = useRouter();
   const identity = useIdentity();
 

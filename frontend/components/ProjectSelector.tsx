@@ -1,43 +1,56 @@
 import { faCaretDown, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { forwardRef } from 'react';
 import type { AnchorProps } from 'react-bootstrap';
 import { Dropdown, Placeholder } from 'react-bootstrap';
 
-import { useProject, useProjects } from '@/hooks/projects';
-import { useRouteParam } from '@/hooks/route';
+import { useProjects } from '@/hooks/projects';
+import { useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
 
 import EnvironmentSelector from './EnvironmentSelector';
-import ProjectLink from './ProjectLink';
 import TutorialBadge from './TutorialBadge';
 
 export default function ProjectSelector() {
-  // perform redirect to project selection page if no project param is provided
-  const project = useRouteParam('project', '/projects');
-  // TODO (P2+) this could probably be pulled from the useProjects call instead of fetched
-  // separately
-  const { project: projectDetails } = useProject(project);
-
+  const { project, selectProject } = useSelectedProject();
   const { projects } = useProjects();
+  const router = useRouter();
 
-  const otherProjectsList = projects && projects.filter((p) => p.slug !== project);
+  const otherProjectsList = projects && projects.filter((p) => p.slug !== project?.slug);
   const otherProjects = otherProjectsList?.length ? otherProjectsList : null;
+
+  function onSelectProject(eventKey: string | null) {
+    if (!projects || !eventKey || eventKey === 'new') return;
+
+    const selection = projects.find((p) => eventKey === p.slug);
+
+    if (selection) {
+      selectProject(selection.slug);
+
+      if (router.pathname.startsWith('/tutorials/') && !selection.tutorial) {
+        router.push('/project-analytics');
+      }
+
+      analytics.track('DC Switch Project');
+    }
+  }
+
   return (
     <div className="selectorWrapper">
-      <Dropdown>
+      <Dropdown onSelect={onSelectProject}>
         <Dropdown.Toggle as={CustomToggle}>
           <span className="toggleText">
-            {projectDetails ? (
-              projectDetails.name
+            {project ? (
+              project.name
             ) : (
               <Placeholder animation="glow">
                 <Placeholder size="sm" style={{ borderRadius: '0.5em', width: '10rem' }} />
               </Placeholder>
             )}
           </span>
-          {projectDetails?.tutorial && (
+          {project?.tutorial && (
             <span className="tutorialBadge">
               <TutorialBadge />
             </span>
@@ -46,13 +59,9 @@ export default function ProjectSelector() {
         <Dropdown.Menu>
           {otherProjects &&
             otherProjects.map((p) => (
-              <Dropdown.Item
-                as="div"
-                onClick={() => analytics.track('DC Switch Project')}
-                key={p.slug}
-                eventKey={p.slug}
-              >
-                <ProjectLink project={p} />
+              <Dropdown.Item key={p.slug} eventKey={p.slug}>
+                {p.name}
+                {p.tutorial && <TutorialBadge />}
               </Dropdown.Item>
             ))}
           <Dropdown.Item as="div" style={{ color: 'var(--color-primary)' }} eventKey={'new'}>

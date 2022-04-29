@@ -6,7 +6,7 @@ import { authenticatedPost } from '@/utils/http';
 import type { Contract } from '@/utils/types';
 
 export function useContracts(
-  project: string | null,
+  project: string | undefined,
   environment?: number,
 ): { contracts?: Contract[]; error?: any; mutate: KeyedMutator<any> } {
   const identity = useIdentity();

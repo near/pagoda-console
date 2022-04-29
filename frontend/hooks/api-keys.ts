@@ -7,7 +7,7 @@ import { authenticatedPost } from '@/utils/http';
 import type { NetOption } from '@/utils/types';
 
 export function useApiKeys(
-  project: string | null,
+  project: string | undefined,
   swrOptions?: SWRConfiguration,
 ): { keys?: Partial<Record<NetOption, string>>; error?: any; mutate: KeyedMutator<any> } {
   const identity = useIdentity();

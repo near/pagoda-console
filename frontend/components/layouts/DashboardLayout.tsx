@@ -3,8 +3,8 @@ import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
 import { Placeholder } from 'react-bootstrap';
 
-import { useProject } from '@/hooks/projects';
 import { useRouteParam } from '@/hooks/route';
+import { useSelectedProject } from '@/hooks/selected-project';
 import { useDisplayName } from '@/hooks/user';
 import PagodaIcon from '@/public/brand/pagoda_icon_small.svg';
 import { logOut } from '@/utils/auth';
@@ -22,8 +22,9 @@ interface PageDefinition {
 function useProjectPages(): PageDefinition[] {
   const pages = [];
 
-  const projectSlug = useRouteParam('project');
-  const { project } = useProject(projectSlug);
+  const { project } = useSelectedProject({
+    enforceSelectedProject: false,
+  });
 
   if (project?.tutorial === 'NFT_MARKET') {
     pages.push({ display: 'Tutorial', route: '/tutorials/nfts/introduction', routeMatchPattern: '/tutorials/' });
@@ -72,19 +73,8 @@ function SideBar() {
   const isOnboardingRaw = useRouteParam('onboarding');
   const isOnboarding = isOnboardingRaw === 'true';
 
-  const project = useRouteParam('project');
-  const environment = useRouteParam('environment');
-
   function dismissOnboarding() {
-    router.replace(`${router.pathname}?project=${project}`, undefined, { shallow: true });
-  }
-
-  function createLink(route: string): string {
-    let linkOut = route;
-    if (typeof project === 'string' && typeof environment === 'string') {
-      linkOut += `?project=${project}&environment=${environment}`;
-    }
-    return linkOut;
+    router.replace(router.pathname, undefined, { shallow: true });
   }
 
   function isLinkSelected(page: PageDefinition): boolean {
@@ -108,7 +98,7 @@ function SideBar() {
               <PageLink
                 key={page.route}
                 page={page}
-                link={createLink(page.route)}
+                link={page.route}
                 isSelected={isLinkSelected(page)}
                 isFirst={index === 0}
                 isOnboarding={isOnboarding}
@@ -118,7 +108,7 @@ function SideBar() {
           })}
         </div>
         <div className="footerContainer">
-          <Link href={createLink('/settings')}>
+          <Link href="/settings">
             <a className="footerItem">
               {displayName || (
                 <Placeholder animation="glow">

@@ -1,8 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { useRouteParam } from '@/hooks/route';
-
 interface Route {
   label: string;
   path: string;
@@ -618,12 +616,11 @@ function RouteList({ routes, isChild = false }: { routes: Route[]; isChild?: boo
 
 function RouteItem({ route, isChild }: { route: Route; isChild: boolean }) {
   const router = useRouter();
-  const project = useRouteParam('project');
   let path;
   if (route.path.startsWith('#')) {
     path = route.path;
   } else {
-    path = `${BASE_PATH}${route.path}?project=${project}&environment=1`;
+    path = `${BASE_PATH}${route.path}`;
   }
 
   const isCurrentRoute = router.pathname.startsWith(`${BASE_PATH}${route.path}`);

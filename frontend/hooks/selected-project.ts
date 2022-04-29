@@ -1,70 +1,80 @@
-import type { User } from 'firebase/auth';
 import router from 'next/router';
 import { useEffect, useState } from 'react';
 
-import { useEnvironments } from '@/hooks/environments';
-import { useProject } from '@/hooks/projects';
-import analytics from '@/utils/analytics';
-import { updateUserData } from '@/utils/cache';
-import type { Environment, UserData } from '@/utils/types';
+import { useSettingsStoreForUser } from '@/stores/settings';
+import type { Environment } from '@/utils/types';
 
+import { useEnvironments } from './environments';
+import { useProject } from './projects';
 import { useRouteParam } from './route';
-import { useIdentity } from './user';
 
-export function useProjectAndEnvironment() {
-  const projectSlug = useRouteParam('project');
-  const environmentSubIdRaw = useRouteParam('environment');
-  const environmentSubId = typeof environmentSubIdRaw === 'string' ? parseInt(environmentSubIdRaw) : null;
-  const { project } = useProject(projectSlug);
-  const currentUser = useIdentity();
+interface Options {
+  enforceSelectedProject?: boolean;
+}
 
+export function useSelectedProject(
+  options: Options = {
+    enforceSelectedProject: true,
+  },
+) {
+  const projectSlugRouteParam = useRouteParam('project');
+  const environmentSubIdRouteParam = useRouteParam('environment');
   const [environment, setEnvironment] = useState<Environment>();
+  const { projectSettings, settings, settingsInitialized, updateSettings, updateProjectSettings } =
+    useSettingsStoreForUser();
+  const { project } = useProject(settings?.selectedProjectSlug);
+  const { environments } = useEnvironments(settings?.selectedProjectSlug);
 
-  const { environmentData: environments } = useEnvironments(projectSlug);
+  // Conditionally redirect to force user to select project:
 
   useEffect(() => {
-    if (!projectSlug || !currentUser) return;
+    if (!options.enforceSelectedProject || !settingsInitialized || settings.selectedProjectSlug) return;
+    router.push('/projects');
+  }, [options, settingsInitialized, settings]);
 
-    if (!environmentSubId && environments) {
-      // no environment was selected in query params, try to load from local storage or fallback to default
-      const defaultEnvironment = getDefaultEnvironment(currentUser, projectSlug, environments);
-      router.replace(`${router.pathname}?project=${projectSlug}&environment=${defaultEnvironment}`, undefined, {
-        shallow: true,
-      });
-    } else if (!environment && environments && environmentSubId) {
-      // environment selected in query params, now load it into state
-      setEnvironment(environments.find((e) => e.subId === environmentSubId));
-      setEnvironmentInLocalStorage(currentUser, projectSlug, environmentSubId);
-    } else if (environments && environmentSubId && environment?.subId !== environmentSubId) {
-      // new environment selected
-      setEnvironment(environments.find((e) => e.subId === environmentSubId));
-      setEnvironmentInLocalStorage(currentUser, projectSlug, environmentSubId);
-      analytics.track('DC Switch Network');
+  // Sync local state with selected environment:
+
+  useEffect(() => {
+    if (!environments) return;
+    const selectedEnvironmentSubId = projectSettings.selectedEnvironmentSubId || 1;
+    setEnvironment(environments.find((e) => e.subId === selectedEnvironmentSubId) || environments[0]);
+  }, [environments, projectSettings]);
+
+  // Overwrite selections via query params:
+
+  useEffect(() => {
+    if (!settingsInitialized) return;
+
+    if (projectSlugRouteParam) {
+      selectProject(projectSlugRouteParam);
     }
-  }, [environmentSubId, projectSlug, environments, environment, currentUser]);
+    if (environmentSubIdRouteParam) {
+      selectEnvironment(parseInt(environmentSubIdRouteParam));
+    }
 
-  return { environment, project, environments };
-}
+    router.replace(router.pathname, undefined, {
+      shallow: true,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settingsInitialized, projectSlugRouteParam, environmentSubIdRouteParam]);
 
-function setEnvironmentInLocalStorage(user: User, projectSlug: string, environmentSubId: number) {
-  if (!user?.uid) {
-    return;
+  function selectEnvironment(environmentSubId: number) {
+    updateProjectSettings({
+      selectedEnvironmentSubId: environmentSubId,
+    });
   }
-  updateUserData(user.uid, { projectData: { [projectSlug]: { selectedEnvironment: environmentSubId } } });
-}
 
-const defaultSubId = 1;
-function getDefaultEnvironment(user: User, projectSlug: string, environments: Environment[]) {
-  if (!user?.uid) {
-    return defaultSubId;
+  function selectProject(projectSlug: string) {
+    updateSettings({
+      selectedProjectSlug: projectSlug,
+    });
   }
-  const userDataRaw = localStorage.getItem(user.uid);
-  const userData = userDataRaw ? (JSON.parse(userDataRaw) as UserData) : null;
-  const previouslySelectedEnv = userData?.projectData?.[projectSlug]?.selectedEnvironment;
 
-  // ensure that the previously selected environment is still valid
-  if (previouslySelectedEnv && environments.find((e) => e.subId === previouslySelectedEnv)) {
-    return previouslySelectedEnv;
-  }
-  return defaultSubId;
+  return {
+    environment,
+    environments,
+    project,
+    selectEnvironment,
+    selectProject,
+  };
 }

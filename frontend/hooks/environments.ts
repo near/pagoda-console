@@ -5,7 +5,7 @@ import { useIdentity } from '@/hooks/user';
 import { authenticatedPost } from '@/utils/http';
 import type { Environment } from '@/utils/types';
 
-export function useEnvironment(environmentId?: number): {
+export function useEnvironment(environmentId: number | undefined): {
   environment?: Environment;
   error?: any;
   mutate: KeyedMutator<any>;
@@ -26,21 +26,19 @@ export function useEnvironment(environmentId?: number): {
   return { environment, error, mutate };
 }
 
-// NOTE: naming here can be cleaned up. The request was changed late in order
-// to consolidate multiple calls. This returns closer to a Project record
-export function useEnvironments(project: string | null): {
-  environmentData?: Environment[];
+export function useEnvironments(project: string | undefined): {
+  environments?: Environment[];
   error?: any;
   mutate: KeyedMutator<any>;
 } {
   const identity = useIdentity();
   const {
-    data: environmentData,
+    data: environments,
     error,
     mutate,
   } = useSWR(identity && project && ['/projects/getEnvironments', project, identity.uid], (key, project) => {
     return authenticatedPost(key, { project });
   });
 
-  return { environmentData, error, mutate };
+  return { environments, error, mutate };
 }
