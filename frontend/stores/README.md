@@ -2,7 +2,7 @@
 
 We chose [Zustand](https://github.com/pmndrs/zustand) as our global state management tool for the following reasons:
 
-1. Low lurning curve.
+1. Low learning curve.
 2. No boilerplate.
 3. Excellent TS support.
 4. Very small library with 0 run time dependencies: https://bundlephobia.com/package/zustand@3.7.1
