@@ -13,7 +13,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "lint:prettier": "prettier --write .",
-    "test:snapshot": "playwright test tests/playwright/snapshot/ -u",
+    "test:snapshot": "playwright test tests/playwright/snapshot/",
     "test:snapshot:local": "./tests/playwright/scripts/run-snapshot.sh",
     "test:e2e": "playwright test tests/playwright/e2e/",
     "test:e2e:local": "./tests/playwright/scripts/run-e2e.sh",
