@@ -8,6 +8,10 @@ export type NextPageWithLayout = NextPage & {
 export type NetOption = 'MAINNET' | 'TESTNET';
 export type TutorialOption = 'NFT_MARKET' | 'CROSSWORD';
 
+export interface PersistedStore {
+  hasHydrated?: boolean;
+}
+
 export interface Contract {
   id: number;
   address: string;
