@@ -26,7 +26,7 @@ export default function DeleteProjectModal({
 
   async function onConfirm() {
     setConfirmDisabled(true);
-    const success = await deleteProject(identity?.uid || null, slug, name);
+    const success = await deleteProject(identity?.uid, slug, name);
     if (success) {
       onDelete();
     } else {
