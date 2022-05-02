@@ -31,7 +31,6 @@ const Projects: NextPageWithLayout = () => {
   useEffect(() => {
     router.prefetch('/pick-project');
     // Prefetch only needs to happen once. Disabling rule.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   let body;

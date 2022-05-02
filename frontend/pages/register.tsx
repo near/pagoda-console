@@ -62,7 +62,6 @@ const Register: NextPageWithLayout = () => {
   useEffect(() => {
     router.prefetch('/verification');
     router.prefetch('/pick-project');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

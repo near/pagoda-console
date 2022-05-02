@@ -55,7 +55,6 @@ export function useSelectedProject(
     router.replace(router.pathname, undefined, {
       shallow: true,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settingsInitialized, projectSlugRouteParam, environmentSubIdRouteParam]);
 
   function selectEnvironment(environmentSubId: number) {

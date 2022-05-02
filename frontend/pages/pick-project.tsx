@@ -35,7 +35,6 @@ const PickProject: NextPageWithLayout = () => {
   useEffect(() => {
     projects.forEach((p) => router.prefetch(p.path));
     // It is not expected for the list of projects or the router to change during runtime.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isOnboarding = useRouteParam('onboarding');

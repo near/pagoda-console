@@ -39,7 +39,6 @@ export function useProject(projectSlug: string | undefined): { project?: Project
 
   useEffect(() => {
     router.prefetch('/projects');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { data: project, error } = useSWR(

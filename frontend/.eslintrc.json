@@ -23,6 +23,7 @@
   "rules": {
     "simple-import-sort/imports": "warn",
     "simple-import-sort/exports": "warn",
+    "react-hooks/exhaustive-deps": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/consistent-type-imports": "error",

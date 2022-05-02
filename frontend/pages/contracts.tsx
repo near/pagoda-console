@@ -365,7 +365,6 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
 
   const removeContract = useMemo(
     () => debounce(removeContractRaw, Config.buttonDebounce, { leading: true, trailing: false }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 

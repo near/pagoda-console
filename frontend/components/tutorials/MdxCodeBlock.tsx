@@ -29,7 +29,6 @@ export default function MdxCodeBlock(props: any) {
     const codeSnippetDetails = parseReference(url);
     // This isn't getting the line numbers correctly.
     fetchCode(codeSnippetDetails, setContent);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isGithubReference(props)) {

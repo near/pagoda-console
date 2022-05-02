@@ -45,7 +45,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     hydrateAllStores();
     router.prefetch('/');
     initializeNaj();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

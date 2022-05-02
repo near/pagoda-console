@@ -44,7 +44,6 @@ const Verification: NextPageWithLayout = () => {
   // only run once since it will re-queue itself
   useEffect(() => {
     queueVerificationCheck();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
