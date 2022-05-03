@@ -40,9 +40,11 @@ test(`create blank project test`, async ({ page }) => {
 });
 
 test(`create tutorial project test`, async ({ page }) => {
-  if (!process.env.TEST_URL) {
+  if (!process.env.TEST_CREATE_NFT_TUTORIAL_PROJECT || !process.env.TEST_URL) {
     throw 'missing env variables';
   }
+
+  const project = process.env.TEST_CREATE_NFT_TUTORIAL_PROJECT;
 
   await login(page);
 
@@ -55,9 +57,18 @@ test(`create tutorial project test`, async ({ page }) => {
 
   await Promise.all([
     page.waitForNavigation({
-      url: `${process.env.TEST_URL}/tutorials/nfts/introduction?project=**&environment=1`,
+      url: `${process.env.TEST_URL}/new-nft-tutorial`,
     }),
     page.click('text=NFT Market'),
+  ]);
+
+  await page.locator('[placeholder="Cool New Project"]').fill(project);
+
+  await Promise.all([
+    page.waitForNavigation({
+      url: `${process.env.TEST_URL}/tutorials/nfts/introduction?project=**&environment=1`,
+    }),
+    page.locator('text=Create Project').click(),
   ]);
 
   await Promise.all([
