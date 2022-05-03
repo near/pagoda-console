@@ -5,10 +5,10 @@ import { useForm } from 'react-hook-form';
 
 import BorderSpinner from '@/components/BorderSpinner';
 import ProjectCard from '@/components/ProjectCard';
+import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import { authenticatedPost } from '@/utils/http';
-import { simpleLogoutLayout } from '@/utils/layouts';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -142,6 +142,6 @@ const NewNftTutorial: NextPageWithLayout = () => {
   );
 };
 
-NewNftTutorial.getLayout = simpleLogoutLayout;
+NewNftTutorial.getLayout = useSimpleLogoutLayout;
 
 export default NewNftTutorial;

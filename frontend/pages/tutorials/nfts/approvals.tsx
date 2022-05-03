@@ -3,8 +3,8 @@ import components from '@/components/tutorials/components';
 import NextStepButton from '@/components/tutorials/NextStepButton';
 import TableOfContents from '@/components/tutorials/TableOfContents';
 import TutorialFooter from '@/components/tutorials/TutorialFooter';
+import { useDashboardLayout } from '@/hooks/layouts';
 import Content from '@/tutorials/nfts/md/5-approval.mdx';
-import { dashboardLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Approvals: NextPageWithLayout = () => {
@@ -20,6 +20,6 @@ const Approvals: NextPageWithLayout = () => {
   );
 };
 
-Approvals.getLayout = dashboardLayout;
+Approvals.getLayout = useDashboardLayout;
 
 export default Approvals;

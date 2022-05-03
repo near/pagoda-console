@@ -6,9 +6,9 @@ import { useForm } from 'react-hook-form';
 
 import BorderSpinner from '@/components/BorderSpinner';
 import ErrorModal from '@/components/modals/ErrorModal';
+import { useDashboardLayout } from '@/hooks/layouts';
 import { useAccount, useIdentity } from '@/hooks/user';
 import { formValidations } from '@/utils/constants';
-import { dashboardLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface SettingsFormData {
@@ -124,6 +124,6 @@ const Settings: NextPageWithLayout = () => {
   );
 };
 
-Settings.getLayout = dashboardLayout;
+Settings.getLayout = useDashboardLayout;
 
 export default Settings;

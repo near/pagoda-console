@@ -3,10 +3,10 @@ import router from 'next/router';
 import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 
+import { useSimpleLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { logOut } from '@/utils/auth';
-import { simpleLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Verification: NextPageWithLayout = () => {
@@ -94,6 +94,6 @@ const Verification: NextPageWithLayout = () => {
   );
 };
 
-Verification.getLayout = simpleLayout;
+Verification.getLayout = useSimpleLayout;
 
 export default Verification;

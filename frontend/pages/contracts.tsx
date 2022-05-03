@@ -12,6 +12,7 @@ import BorderSpinner from '@/components/BorderSpinner';
 import ProjectSelector from '@/components/ProjectSelector';
 import RecentTransactionList from '@/components/RecentTransactionList';
 import { useContracts } from '@/hooks/contracts';
+import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useIdentity } from '@/hooks/user';
 import ContractsPreview from '@/public/contractsPreview.png';
@@ -19,7 +20,6 @@ import analytics from '@/utils/analytics';
 import Config from '@/utils/config';
 import { returnContractAddressRegex } from '@/utils/helpers';
 import { authenticatedPost } from '@/utils/http';
-import { dashboardLayout } from '@/utils/layouts';
 import type { Contract, Environment } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -413,6 +413,6 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
   );
 }
 
-Contracts.getLayout = dashboardLayout;
+Contracts.getLayout = useDashboardLayout;
 
 export default Contracts;

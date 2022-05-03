@@ -65,17 +65,17 @@ To style third party components which do not accept a custom `className` (e.g. R
 
 ## Page Layouts
 
-Pages take advantage of the Next.js [layouts](https://nextjs.org/docs/basic-features/layouts) feature. Currently there are three layouts: DashboardLayout, SimpleLayout, and SimpleLogoutLayout. Choose a layout by setting the `getLayout` to the appropriate value from the [utils/layouts.tsx](utils/layouts.tsx) file
+Pages take advantage of the Next.js [layouts](https://nextjs.org/docs/basic-features/layouts) feature. Currently there are three layouts: DashboardLayout, SimpleLayout, and SimpleLogoutLayout. Choose a layout by setting the `getLayout` property to the appropriate hook from the [hooks/layouts.tsx](hooks/layouts.tsx) file.
 
 ```tsx
 import type { NextPageWithLayout } from '@/utils/types';
-import { simpleLayout } from '@/utils/layouts';
+import { useSimpleLayout } from '@/hooks/layouts';
 
 const NewPage: NextPageWithLayout = () => {
   // page content
 };
 
-NewPage.getLayout = simpleLayout;
+NewPage.getLayout = useSimpleLayout;
 
 export default NewPage;
 ```

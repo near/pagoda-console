@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 
 import type { ProjectCardColor } from '@/components/ProjectCard';
 import ProjectCard from '@/components/ProjectCard';
+import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
-import { simpleLogoutLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface Project {
@@ -82,6 +82,6 @@ const PickProject: NextPageWithLayout = () => {
   );
 };
 
-PickProject.getLayout = simpleLogoutLayout;
+PickProject.getLayout = useSimpleLogoutLayout;
 
 export default PickProject;

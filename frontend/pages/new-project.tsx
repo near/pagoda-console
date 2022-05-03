@@ -4,11 +4,11 @@ import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import BorderSpinner from '@/components/BorderSpinner';
+import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import { authenticatedPost } from '@/utils/http';
-import { simpleLogoutLayout } from '@/utils/layouts';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -126,6 +126,6 @@ const NewProject: NextPageWithLayout = () => {
   );
 };
 
-NewProject.getLayout = simpleLogoutLayout;
+NewProject.getLayout = useSimpleLogoutLayout;
 
 export default NewProject;

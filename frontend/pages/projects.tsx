@@ -9,8 +9,8 @@ import { Alert, Button } from 'react-bootstrap';
 import BorderSpinner from '@/components/BorderSpinner';
 import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
 import TutorialBadge from '@/components/TutorialBadge';
+import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useProjects } from '@/hooks/projects';
-import { simpleLogoutLayout } from '@/utils/layouts';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -196,6 +196,6 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
   );
 }
 
-Projects.getLayout = simpleLogoutLayout;
+Projects.getLayout = useSimpleLogoutLayout;
 
 export default Projects;

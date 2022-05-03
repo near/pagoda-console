@@ -9,10 +9,10 @@ import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
 import ProjectSelector from '@/components/ProjectSelector';
 import StarterGuide from '@/components/StarterGuide';
 import { useApiKeys } from '@/hooks/api-keys';
+import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
-import { dashboardLayout } from '@/utils/layouts';
 import type { NetOption } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -265,6 +265,6 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: () => void }
   );
 }
 
-ProjectSettings.getLayout = dashboardLayout;
+ProjectSettings.getLayout = useDashboardLayout;
 
 export default ProjectSettings;

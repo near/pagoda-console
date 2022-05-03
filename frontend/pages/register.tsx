@@ -13,9 +13,9 @@ import { Alert, Button, Form } from 'react-bootstrap';
 import type { SubmitErrorHandler, SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
+import { useSimpleLayout } from '@/hooks/layouts';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
-import { simpleLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const onFocus = () => {
@@ -214,6 +214,6 @@ const Register: NextPageWithLayout = () => {
   );
 };
 
-Register.getLayout = simpleLayout;
+Register.getLayout = useSimpleLayout;
 
 export default Register;
