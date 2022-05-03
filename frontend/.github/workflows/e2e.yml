@@ -26,6 +26,7 @@ jobs:
           TEST_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
           TEST_NFT_TUTORIAL_PROJECT: dD188d1fpAfJZ
           TEST_CREATE_BLANK_PROJECT: 'My Cool Project for E2E Testing'
+          TEST_CREATE_NFT_TUTORIAL_PROJECT: 'My Cool NFT Project for E2E Testing'
       - uses: actions/upload-artifact@v2
         if: always()
         with:
