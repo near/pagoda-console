@@ -20,6 +20,8 @@ import {
   CreateProjectSchema,
   DeleteProjectDto,
   DeleteProjectSchema,
+  EjectTutorialProjectDto,
+  EjectTutorialProjectSchema,
   GetContractsDto,
   GetContractsSchema,
   GetEnvironmentsDetailsDto,
@@ -57,6 +59,21 @@ export class ProjectsController {
   async create(@Request() req, @Body() { name, tutorial }: CreateProjectDto) {
     try {
       return await this.projectsService.create(req.user, name.trim(), tutorial);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('ejectTutorial')
+  @HttpCode(204)
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(EjectTutorialProjectSchema))
+  async ejectTutorial(
+    @Request() req,
+    @Body() { slug }: EjectTutorialProjectDto,
+  ) {
+    try {
+      return await this.projectsService.ejectTutorial(req.user, { slug });
     } catch (e) {
       throw mapError(e);
     }

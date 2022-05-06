@@ -17,6 +17,14 @@ export const CreateProjectSchema = Joi.object({
   tutorial: Joi.string(),
 });
 
+// eject tutorial project
+export interface EjectTutorialProjectDto {
+  slug: string;
+}
+export const EjectTutorialProjectSchema = Joi.object({
+  slug: Joi.string().required(),
+});
+
 // delete project
 export interface DeleteProjectDto {
   slug: string;

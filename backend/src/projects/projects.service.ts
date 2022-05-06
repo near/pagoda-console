@@ -212,6 +212,78 @@ export class ProjectsService {
     };
   }
 
+  async ejectTutorial(
+    callingUser: User,
+    projectWhereUnique: Prisma.ProjectWhereUniqueInput,
+  ): Promise<void> {
+    // throw an error if the user doesn't have permission to perform this action
+    await this.checkUserPermission({
+      userId: callingUser.id,
+      projectWhereUnique,
+    });
+
+    // check that project is valid for ejection
+    let project;
+    try {
+      project = await this.prisma.project.findUnique({
+        where: projectWhereUnique,
+        select: {
+          id: true,
+          active: true,
+          tutorial: true,
+        },
+      });
+      if (!project || !project.active || !project.tutorial) {
+        throw new VError(
+          { info: { code: 'BAD_PROJECT' } },
+          'Project not found or project already ejected',
+        );
+      }
+    } catch (e) {
+      throw new VError(
+        e,
+        'Failed while determining project eligibility for ejection',
+      );
+    }
+
+    // generate RPC keys
+    try {
+      await this.keys.createProject(
+        `${this.projectRefPrefix || ''}${project.id}_2`,
+        'MAINNET',
+      );
+    } catch (e) {
+      throw new VError(e, 'Failed while generating API keys');
+    }
+
+    try {
+      await this.prisma.project.update({
+        where: {
+          id: project.id,
+        },
+        data: {
+          tutorial: null,
+          environments: {
+            create: {
+              name: 'Mainnet',
+              net: 'MAINNET',
+              subId: 2,
+              createdBy: callingUser.id,
+              updatedBy: callingUser.id,
+            },
+          },
+          updatedByUser: {
+            connect: {
+              id: callingUser.id,
+            },
+          },
+        },
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while ejecting tutorial project');
+    }
+  }
+
   async delete(
     callingUser: User,
     projectWhereUnique: Prisma.ProjectWhereUniqueInput,
@@ -230,7 +302,7 @@ export class ProjectsService {
       if (!project || !project.active) {
         throw new VError(
           { info: { code: 'BAD_PROJECT' } },
-          'Project not found or project already invactive',
+          'Project not found or project already inactive',
         );
       }
     } catch (e) {
