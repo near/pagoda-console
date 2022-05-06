@@ -1,8 +1,7 @@
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { debounce } from 'lodash-es';
 import Image from 'next/image';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
@@ -12,6 +11,7 @@ import BorderSpinner from '@/components/BorderSpinner';
 import ProjectSelector from '@/components/ProjectSelector';
 import RecentTransactionList from '@/components/RecentTransactionList';
 import { useContracts } from '@/hooks/contracts';
+import { useDebounce } from '@/hooks/debounce';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useIdentity } from '@/hooks/user';
@@ -340,32 +340,32 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
     },
   );
 
-  async function removeContractRaw() {
-    setCanDelete(false);
-    try {
-      await authenticatedPost('/projects/removeContract', {
-        id: props.contract.id,
-      });
-      analytics.track('DC Remove Contract', {
-        status: 'success',
-        contractId: props.contract.address,
-      });
-      props.onDelete && props.onDelete();
-    } catch (e: any) {
-      analytics.track('DC Remove Contract', {
-        status: 'failure',
-        contractId: props.contract.address,
-        error: e.message,
-      });
-      // TODO
-      console.error(e);
-      setCanDelete(true);
-    }
-  }
+  const removeContract = useDebounce(
+    async () => {
+      setCanDelete(false);
 
-  const removeContract = useMemo(
-    () => debounce(removeContractRaw, Config.buttonDebounce, { leading: true, trailing: false }),
-    [],
+      try {
+        await authenticatedPost('/projects/removeContract', {
+          id: props.contract.id,
+        });
+        analytics.track('DC Remove Contract', {
+          status: 'success',
+          contractId: props.contract.address,
+        });
+        props.onDelete && props.onDelete();
+      } catch (e: any) {
+        analytics.track('DC Remove Contract', {
+          status: 'failure',
+          contractId: props.contract.address,
+          error: e.message,
+        });
+        // TODO
+        console.error(e);
+        setCanDelete(true);
+      }
+    },
+    Config.buttonDebounce,
+    { leading: true, trailing: false },
   );
 
   return (

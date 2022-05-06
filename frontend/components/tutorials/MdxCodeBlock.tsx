@@ -1,5 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+
+import { useOnMount } from '@/hooks/lifecycle';
 
 import CodeBlock from '../CodeBlock';
 
@@ -20,7 +22,7 @@ export default function MdxCodeBlock(props: any) {
   // className is the language used in the code block.
   // It's currently the only way for us to guess if the .mdx is using a single tick (`) vs three ticks (```).
   // Another way around this would be to call the component directly in Markdown.
-  useEffect(() => {
+  useOnMount(() => {
     if (!isGithubReference(props)) {
       return;
     }
@@ -29,7 +31,7 @@ export default function MdxCodeBlock(props: any) {
     const codeSnippetDetails = parseReference(url);
     // This isn't getting the line numbers correctly.
     fetchCode(codeSnippetDetails, setContent);
-  }, []);
+  });
 
   if (isGithubReference(props)) {
     // Handles "```rust reference" code blocks

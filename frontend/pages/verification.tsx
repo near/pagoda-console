@@ -1,9 +1,10 @@
 import { getAuth, sendEmailVerification } from 'firebase/auth';
 import router from 'next/router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 
 import { useSimpleLayout } from '@/hooks/layouts';
+import { useOnMount } from '@/hooks/lifecycle';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { logOut } from '@/utils/auth';
@@ -11,8 +12,12 @@ import type { NextPageWithLayout } from '@/utils/types';
 
 const Verification: NextPageWithLayout = () => {
   const [hasResent, setHasResent] = useState(false);
-
   const existing = useRouteParam('existing') === 'true';
+
+  useOnMount(() => {
+    router.prefetch('/pick-project');
+    queueVerificationCheck(); // only run once since it will re-queue itself
+  });
 
   async function queueVerificationCheck() {
     return setTimeout(async () => {
@@ -40,15 +45,6 @@ const Verification: NextPageWithLayout = () => {
       console.error(e);
     }
   }
-
-  // only run once since it will re-queue itself
-  useEffect(() => {
-    queueVerificationCheck();
-  }, []);
-
-  useEffect(() => {
-    router.prefetch('/pick-project');
-  }, []);
 
   return (
     <div className="pageContainer">

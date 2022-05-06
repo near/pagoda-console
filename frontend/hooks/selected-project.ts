@@ -1,5 +1,5 @@
 import router from 'next/router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useSettingsStoreForUser } from '@/stores/settings';
 import type { Environment } from '@/utils/types';
@@ -25,6 +25,24 @@ export function useSelectedProject(
   const { project } = useProject(settings?.selectedProjectSlug);
   const { environments } = useEnvironments(settings?.selectedProjectSlug);
 
+  const selectEnvironment = useCallback(
+    (environmentSubId: number) => {
+      updateProjectSettings({
+        selectedEnvironmentSubId: environmentSubId,
+      });
+    },
+    [updateProjectSettings],
+  );
+
+  const selectProject = useCallback(
+    (projectSlug: string) => {
+      updateSettings({
+        selectedProjectSlug: projectSlug,
+      });
+    },
+    [updateSettings],
+  );
+
   // Conditionally redirect to force user to select project:
 
   useEffect(() => {
@@ -48,26 +66,17 @@ export function useSelectedProject(
     if (projectSlugRouteParam) {
       selectProject(projectSlugRouteParam);
     }
+
     if (environmentSubIdRouteParam) {
       selectEnvironment(parseInt(environmentSubIdRouteParam));
     }
 
-    router.replace(router.pathname, undefined, {
-      shallow: true,
-    });
-  }, [settingsInitialized, projectSlugRouteParam, environmentSubIdRouteParam]);
-
-  function selectEnvironment(environmentSubId: number) {
-    updateProjectSettings({
-      selectedEnvironmentSubId: environmentSubId,
-    });
-  }
-
-  function selectProject(projectSlug: string) {
-    updateSettings({
-      selectedProjectSlug: projectSlug,
-    });
-  }
+    if (projectSlugRouteParam || environmentSubIdRouteParam) {
+      router.replace(router.pathname, undefined, {
+        shallow: true,
+      });
+    }
+  }, [selectEnvironment, selectProject, settingsInitialized, projectSlugRouteParam, environmentSubIdRouteParam]);
 
   return {
     environment,

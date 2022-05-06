@@ -3,13 +3,14 @@ import { faAngleDoubleRight, faExclamationCircle, faTimes } from '@fortawesome/f
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Alert, Button } from 'react-bootstrap';
 
 import BorderSpinner from '@/components/BorderSpinner';
 import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
 import TutorialBadge from '@/components/TutorialBadge';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
+import { useOnMount } from '@/hooks/lifecycle';
 import { useProjects } from '@/hooks/projects';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -20,18 +21,15 @@ const Projects: NextPageWithLayout = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showRedirectAlert, setShowRedirectAlert] = useState(false);
 
-  useEffect(() => {
+  useOnMount(() => {
     if (window.sessionStorage.getItem('redirected') === 'true') {
       setShowRedirectAlert(true);
       // Reset global state.
       window.sessionStorage.removeItem('redirected');
     }
-  }, []);
 
-  useEffect(() => {
     router.prefetch('/pick-project');
-    // Prefetch only needs to happen once. Disabling rule.
-  }, []);
+  });
 
   let body;
   if (error) {

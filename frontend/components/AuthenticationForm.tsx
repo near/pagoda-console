@@ -18,6 +18,7 @@ import { Button, Form } from 'react-bootstrap';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
+import { useOnMount } from '@/hooks/lifecycle';
 import GithubMark from '@/public/githubMark.png';
 import GoogleMark from '@/public/googleMark.png';
 import analytics from '@/utils/analytics';
@@ -62,6 +63,11 @@ export default function AuthenticationForm() {
   const [authActive, setAuthActive] = useState(true);
   const [authError, setAuthError] = useState('');
 
+  useOnMount(() => {
+    router.prefetch('/projects');
+    router.prefetch('/verification');
+  });
+
   useEffect(() => {
     const unregisterAuthObserver = onAuthStateChanged(getAuth(), (user) => {
       if (
@@ -77,11 +83,6 @@ export default function AuthenticationForm() {
     });
     return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
   }, [router]);
-
-  useEffect(() => {
-    router.prefetch('/projects');
-    router.prefetch('/verification');
-  }, []);
 
   async function socialSignIn(provider: AuthProvider) {
     setAuthActive(false);

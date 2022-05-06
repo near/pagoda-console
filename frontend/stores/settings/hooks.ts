@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useIdentity } from '@/hooks/user';
 
@@ -41,28 +41,34 @@ export function useSettingsStoreForUser() {
     setSettingsInitialized(store.hasHydrated || false);
   }, [store, userId]);
 
-  function updateSettings(s: Partial<UserSettings>) {
-    if (!userId) {
-      console.warn(`updateSettings() - ${userIdWarning}`);
-      return;
-    }
+  const updateSettings = useCallback(
+    (s: Partial<UserSettings>) => {
+      if (!userId) {
+        console.warn(`updateSettings() - ${userIdWarning}`);
+        return;
+      }
 
-    store.updateSettings(userId, s);
-  }
+      store.updateSettings(userId, s);
+    },
+    [userId, store],
+  );
 
-  function updateProjectSettings(s: Partial<ProjectSettings>) {
-    if (!userId) {
-      console.warn(`updateProjectSettings() - ${userIdWarning}`);
-      return;
-    }
+  const updateProjectSettings = useCallback(
+    (s: Partial<ProjectSettings>) => {
+      if (!userId) {
+        console.warn(`updateProjectSettings() - ${userIdWarning}`);
+        return;
+      }
 
-    if (!settings.selectedProjectSlug) {
-      console.warn(`updateProjectSettings() - ${selectedProjectWarning}`);
-      return;
-    }
+      if (!settings.selectedProjectSlug) {
+        console.warn(`updateProjectSettings() - ${selectedProjectWarning}`);
+        return;
+      }
 
-    store.updateProjectSettings(userId, settings.selectedProjectSlug, s);
-  }
+      store.updateProjectSettings(userId, settings.selectedProjectSlug, s);
+    },
+    [userId, settings.selectedProjectSlug, store],
+  );
 
   return {
     projectSettings,

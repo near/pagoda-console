@@ -8,6 +8,7 @@ import AnalyticsCard from '@/components/AnalyticsCard';
 import BorderSpinner from '@/components/BorderSpinner';
 import ProjectSelector from '@/components/ProjectSelector';
 import { useDashboardLayout } from '@/hooks/layouts';
+import { useOnMount } from '@/hooks/lifecycle';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useIdentity } from '@/hooks/user';
 import AnalyticsPreview from '@/public/analyticsPreview.png';
@@ -18,7 +19,15 @@ import type { NetOption, NetUsageData, UsageData } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {
-  useEffect(() => {
+  const identity = useIdentity();
+  const [usageData, setUsageData] = useState<UsageData | null>();
+  const [methodBreakdownChartOptions, setMethodBreakdownChartOptions] = useState<Highcharts.Options>();
+  const [responseCodeChartOptions, setResponseCodeChartOptions] = useState<Highcharts.Options>();
+  const { environment, project } = useSelectedProject();
+  // TODO (P2+) determine net by other means than subId
+  const net: NetOption = environment?.subId === 2 ? 'MAINNET' : 'TESTNET';
+
+  useOnMount(() => {
     Highcharts.setOptions({
       chart: {
         style: {
@@ -26,16 +35,7 @@ const ProjectAnalytics: NextPageWithLayout = () => {
         },
       },
     });
-  }, []);
-  const identity = useIdentity();
-  const [usageData, setUsageData] = useState<UsageData | null>();
-
-  const [methodBreakdownChartOptions, setMethodBreakdownChartOptions] = useState<Highcharts.Options>();
-  const [responseCodeChartOptions, setResponseCodeChartOptions] = useState<Highcharts.Options>();
-
-  const { environment, project } = useSelectedProject();
-  // TODO (P2+) determine net by other means than subId
-  const net: NetOption = environment?.subId === 2 ? 'MAINNET' : 'TESTNET';
+  });
 
   const processUsageChunk = useCallback(
     async (
