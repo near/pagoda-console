@@ -1,13 +1,16 @@
 import { INestApplication, Injectable, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
+import { AppConfig } from './config/validate';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
-  constructor() {
-    // TODO enable query+ in local
+  constructor(private config: ConfigService<AppConfig>) {
     super({
-      // log: ['query', 'info', 'warn', 'error'],
-      log: ['info', 'warn', 'error'],
+      log:
+        config.get('deployEnv', { infer: true }) === 'LOCAL'
+          ? ['query', 'info', 'warn', 'error']
+          : ['info', 'warn', 'error'],
     });
   }
 

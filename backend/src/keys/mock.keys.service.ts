@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Net } from '@prisma/client';
+import { AppConfig } from 'src/config/validate';
 import { VError } from 'verror';
 
 const mockTokens: Record<Net, string> = {
@@ -14,10 +15,10 @@ const mockInvalidTokens: Record<Net, string> = {
 
 @Injectable()
 export class MockKeysService {
-  constructor(private config: ConfigService) {}
+  constructor(private config: ConfigService<AppConfig>) {}
 
   async createProject(keyId: string, net: Net) {
-    if (this.config.get('MOCK_KEY_SERVICE_WITH_ERRORS') === 'true') {
+    if (this.config.get('dev.mock.rpcAuthErrors', { infer: true })) {
       console.log('Mocking createProject with errors');
       throw new VError('Failed while sending project creation request');
     }
@@ -46,7 +47,7 @@ export class MockKeysService {
   }
 
   async rotate(keyId: string, net: Net) {
-    if (this.config.get('MOCK_KEY_SERVICE_WITH_ERRORS') === 'true') {
+    if (this.config.get('dev.mock.rpcAuthErrors', { infer: true })) {
       console.log('Mocking rotate with errors');
       throw new VError('Failed while generating new API key');
     }

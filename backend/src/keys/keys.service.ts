@@ -4,6 +4,7 @@ import axios, { AxiosInstance } from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { VError } from 'verror';
 import { Net } from '.prisma/client';
+import { AppConfig } from 'src/config/validate';
 
 interface Key {
   project_ref: string;
@@ -19,25 +20,29 @@ export class KeysService {
   private fetchers: Record<Net, AxiosInstance>;
   private quotas: Record<Net, number>;
 
-  constructor(private config: ConfigService) {
+  constructor(private config: ConfigService<AppConfig>) {
     this.fetchers = {
       MAINNET: axios.create({
-        baseURL: this.config.get('KEY_MANAGEMENT_URL_MAIN'),
+        baseURL: this.config.get('rpcAuth.MAINNET.url', { infer: true }),
         headers: {
-          Authorization: this.config.get('KEY_MANAGEMENT_CREDENTIALS_MAIN'),
+          Authorization: this.config.get('rpcAuth.MAINNET.credential', {
+            infer: true,
+          }),
         },
       }),
       TESTNET: axios.create({
-        baseURL: this.config.get('KEY_MANAGEMENT_URL_TEST'),
+        baseURL: this.config.get('rpcAuth.TESTNET.url', { infer: true }),
         headers: {
-          Authorization: this.config.get('KEY_MANAGEMENT_CREDENTIALS_TEST'),
+          Authorization: this.config.get('rpcAuth.TESTNET.credential', {
+            infer: true,
+          }),
         },
       }),
     };
 
     this.quotas = {
-      MAINNET: parseInt(this.config.get('KEY_MANAGEMENT_QUOTA_MAIN')),
-      TESTNET: parseInt(this.config.get('KEY_MANAGEMENT_QUOTA_TEST')),
+      MAINNET: this.config.get('rpcAuth.MAINNET.quota', { infer: true }),
+      TESTNET: this.config.get('rpcAuth.TESTNET.quota', { infer: true }),
     };
   }
 

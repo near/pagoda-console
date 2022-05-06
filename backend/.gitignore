@@ -35,7 +35,8 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # dotenv
-.env
+.env.local
+.env.nest.local
 
 # custom
 near-dev-platform-firebase-adminsdk-7zimk-2208813638.json

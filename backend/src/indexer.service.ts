@@ -41,6 +41,7 @@ const DS_INDEXER_TESTNET = 'DS_INDEXER_TESTNET';
 
 import { Sequelize, Dialect, QueryTypes } from 'sequelize';
 import { Net } from '.prisma/client';
+import { AppConfig } from './config/validate';
 
 const dbConfig = {
   indexerDatabaseTestnet: {
@@ -84,10 +85,10 @@ const db = {
 @Injectable()
 export class IndexerService {
   private recentTransactionsCount;
-  constructor(private config: ConfigService) {
-    this.recentTransactionsCount = parseInt(
-      this.config.get('RECENT_TRANSACTIONS_COUNT'),
-    );
+  constructor(private config: ConfigService<AppConfig>) {
+    this.recentTransactionsCount = this.config.get('recentTransactionsCount', {
+      infer: true,
+    });
   }
 
   async queryAccountTransactionsList(
@@ -105,8 +106,9 @@ export class IndexerService {
                 DIV(transactions.block_timestamp, 1000 * 1000) AS block_timestamp,
                 transactions.index_in_chunk AS transaction_index
         FROM transactions
-        ${paginationIndexer
-          ? `WHERE (transaction_hash IN
+        ${
+          paginationIndexer
+            ? `WHERE (transaction_hash IN
                 (SELECT originated_from_transaction_hash
                 FROM receipts
                 WHERE receipts.predecessor_account_id = :account_id
@@ -114,7 +116,7 @@ export class IndexerService {
         AND (transactions.block_timestamp < :end_timestamp
               OR (transactions.block_timestamp = :end_timestamp
                   AND transactions.index_in_chunk < :transaction_index))`
-          : `WHERE transaction_hash IN
+            : `WHERE transaction_hash IN
               (SELECT originated_from_transaction_hash
               FROM receipts
               WHERE receipts.predecessor_account_id = :account_id
@@ -242,7 +244,6 @@ export class IndexerService {
     return await this.createTransactionsList(accountTxList, net);
   }
 
-
   async fetchRecentTransactions(accounts: string[], net: Net) {
     const promises = [];
 
@@ -263,7 +264,7 @@ export class IndexerService {
       // console.log(res);
     }
     const results = await Promise.allSettled(promises);
-    console.log(results);
+    // console.log(results);
     let mergedTransactions = [];
     for (let i = 0; i < results.length; i++) {
       const result = results[i];

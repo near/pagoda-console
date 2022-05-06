@@ -7,7 +7,7 @@ type UserDetails = User & { name?: string; picture?: string };
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService) { }
+  constructor(private usersService: UsersService) {}
 
   async validateUser(token: string): Promise<UserDetails> {
     try {
