@@ -9,7 +9,7 @@ We chose [Zustand](https://github.com/pmndrs/zustand) as our global state manage
 
 ## Persisting a Store (Local/Session Storage)
 
-Zustand comes with a default persistence middleware that unfortunately doesn't work with Next due to SSR + rehydration. Zustand tries to be helpful by hydrating stores before the app renders, which works great for traditional React SPA's, but causes [rehydration errors](https://www.joshwcomeau.com/react/the-perils-of-rehydration) for Next apps - a deal breaker. To prevent these errors, we need to hydrate our persisted stores inside a `useEffect()` hook (after the UI has rendered).
+Zustand comes with a default persistence middleware that unfortunately doesn't work with Next due to SSR/SSG + rehydration. Zustand tries to be helpful by hydrating stores before the app renders, which works great for traditional React SPA's, but causes [rehydration errors](https://www.joshwcomeau.com/react/the-perils-of-rehydration) for Next apps - a deal breaker. To prevent these errors, we need to hydrate our persisted stores inside a `useEffect()` hook (after the UI has rendered).
 
 As a side note, even Jotai has a call out in their docs calling out the same problem: https://jotai.org/docs/utils/atom-with-storage#server-side-rendering
 

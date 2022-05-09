@@ -20,25 +20,24 @@ export function useSettingsStoreForUser() {
   const userId = currentUser?.uid;
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !store.hasHydrated) return;
     const user = store.users[userId];
+    if (!user) return;
 
-    if (user) {
-      setSettings({
-        ...user,
-      });
+    setSettings({
+      ...user,
+    });
 
-      if (user.selectedProjectSlug) {
-        const project = user.projects[user.selectedProjectSlug];
-        if (project) {
-          setProjectSettings({
-            ...project,
-          });
-        }
+    if (user.selectedProjectSlug) {
+      const project = user.projects[user.selectedProjectSlug];
+      if (project) {
+        setProjectSettings({
+          ...project,
+        });
       }
     }
 
-    setSettingsInitialized(store.hasHydrated || false);
+    setSettingsInitialized(true);
   }, [store, userId]);
 
   const updateSettings = useCallback(
