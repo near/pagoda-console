@@ -17,7 +17,10 @@ export default function EnvironmentSelector() {
 
     if (selection) {
       selectEnvironment(selection.subId);
-      analytics.track('DC Switch Network');
+      analytics.track('DC Switch Network', {
+        status: 'success',
+        net: selection.net,
+      });
     }
   }
 
