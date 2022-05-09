@@ -75,7 +75,10 @@ const appConfigSchema = Joi.object({
           is: Joi.boolean().valid(true),
           then: Joi.optional().allow(''),
         }),
-      credential: Joi.string(),
+      credential: Joi.string().when('/dev.mock.rpcAuth', {
+        is: Joi.boolean().valid(true),
+        then: Joi.optional().allow(''),
+      }),
       quota: Joi.number().integer(),
     },
     MAINNET: Joi.object({
@@ -85,7 +88,10 @@ const appConfigSchema = Joi.object({
           is: Joi.boolean().valid(true),
           then: Joi.optional().allow(''),
         }),
-      credential: Joi.string(),
+      credential: Joi.string().when('/dev.mock.rpcAuth', {
+        is: Joi.boolean().valid(true),
+        then: Joi.optional().allow(''),
+      }),
       quota: Joi.number().integer(),
     }),
   },
