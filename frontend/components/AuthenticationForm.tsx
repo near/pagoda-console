@@ -18,7 +18,6 @@ import { Button, Form } from 'react-bootstrap';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
-import { useOnMount } from '@/hooks/lifecycle';
 import GithubMark from '@/public/githubMark.png';
 import GoogleMark from '@/public/googleMark.png';
 import analytics from '@/utils/analytics';
@@ -63,10 +62,10 @@ export default function AuthenticationForm() {
   const [authActive, setAuthActive] = useState(true);
   const [authError, setAuthError] = useState('');
 
-  useOnMount(() => {
+  useEffect(() => {
     router.prefetch('/projects');
     router.prefetch('/verification');
-  });
+  }, [router]);
 
   useEffect(() => {
     const unregisterAuthObserver = onAuthStateChanged(getAuth(), (user) => {

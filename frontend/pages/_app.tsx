@@ -19,7 +19,6 @@ import { SWRConfig, useSWRConfig } from 'swr';
 import DowntimeMode from '@/components/DowntimeMode';
 import SimpleLayout from '@/components/layouts/SimpleLayout';
 import SmallScreenNotice from '@/components/SmallScreenNotice';
-import { useOnMount } from '@/hooks/lifecycle';
 import { usePageTracker } from '@/hooks/page-tracker';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
@@ -42,11 +41,17 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const router = useRouter();
   const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
 
-  useOnMount(() => {
-    hydrateAllStores();
+  useEffect(() => {
     router.prefetch('/');
+  }, [router]);
+
+  useEffect(() => {
+    hydrateAllStores();
+  }, []);
+
+  useEffect(() => {
     initializeNaj();
-  });
+  }, []);
 
   useEffect(() => {
     const auth = getAuth();

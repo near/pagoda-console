@@ -1,9 +1,9 @@
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 import type { ProjectCardColor } from '@/components/ProjectCard';
 import ProjectCard from '@/components/ProjectCard';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
-import { useOnMount } from '@/hooks/lifecycle';
 import { useRouteParam } from '@/hooks/route';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -32,10 +32,9 @@ const projects: Project[] = [
 const PickProject: NextPageWithLayout = () => {
   const router = useRouter();
 
-  useOnMount(() => {
+  useEffect(() => {
     projects.forEach((p) => router.prefetch(p.path));
-    // It is not expected for the list of projects or the router to change during runtime.
-  });
+  }, [router]);
 
   const isOnboarding = useRouteParam('onboarding');
 

@@ -1,5 +1,6 @@
 import mixpanel from 'mixpanel-browser';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import type { KeyedMutator } from 'swr';
 import useSWR from 'swr';
 import { mutate } from 'swr';
@@ -7,8 +8,6 @@ import { mutate } from 'swr';
 import { useIdentity } from '@/hooks/user';
 import { authenticatedPost } from '@/utils/http';
 import type { Project } from '@/utils/types';
-
-import { useOnMount } from './lifecycle';
 
 export async function deleteProject(userId: string | undefined, slug: string, name: string) {
   try {
@@ -38,9 +37,9 @@ export function useProject(projectSlug: string | undefined): { project?: Project
   const router = useRouter();
   const identity = useIdentity();
 
-  useOnMount(() => {
+  useEffect(() => {
     router.prefetch('/projects');
-  });
+  }, [router]);
 
   const { data: project, error } = useSWR(
     identity && projectSlug ? ['/projects/getDetails', projectSlug, identity.uid] : null,

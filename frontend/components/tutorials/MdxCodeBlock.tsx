@@ -1,7 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
+import { useEffect } from 'react';
 import { useState } from 'react';
-
-import { useOnMount } from '@/hooks/lifecycle';
 
 import CodeBlock from '../CodeBlock';
 
@@ -15,14 +14,10 @@ export interface GitHubReference {
 export default function MdxCodeBlock(props: any) {
   const [content, setContent] = useState('');
 
-  function isGithubReference(props: any) {
-    return props.className === 'language-rust' && props.children.startsWith('https://github.com/near-examples');
-  }
-
   // className is the language used in the code block.
   // It's currently the only way for us to guess if the .mdx is using a single tick (`) vs three ticks (```).
   // Another way around this would be to call the component directly in Markdown.
-  useOnMount(() => {
+  useEffect(() => {
     if (!isGithubReference(props)) {
       return;
     }
@@ -31,7 +26,7 @@ export default function MdxCodeBlock(props: any) {
     const codeSnippetDetails = parseReference(url);
     // This isn't getting the line numbers correctly.
     fetchCode(codeSnippetDetails, setContent);
-  });
+  }, [props]);
 
   if (isGithubReference(props)) {
     // Handles "```rust reference" code blocks
@@ -96,6 +91,10 @@ export default function MdxCodeBlock(props: any) {
       `}</style>
     </>
   );
+}
+
+function isGithubReference(props: any) {
+  return props.className === 'language-rust' && props.children.startsWith('https://github.com/near-examples');
 }
 
 // Similar to what near/docs are doing with this docusaurus theme: https://github.com/saucelabs/docusaurus-theme-github-codeblock#readme

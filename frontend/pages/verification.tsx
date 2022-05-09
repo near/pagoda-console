@@ -1,23 +1,27 @@
 import { getAuth, sendEmailVerification } from 'firebase/auth';
-import router from 'next/router';
-import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 
 import { useSimpleLayout } from '@/hooks/layouts';
-import { useOnMount } from '@/hooks/lifecycle';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { logOut } from '@/utils/auth';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Verification: NextPageWithLayout = () => {
+  const router = useRouter();
   const [hasResent, setHasResent] = useState(false);
   const existing = useRouteParam('existing') === 'true';
 
-  useOnMount(() => {
+  useEffect(() => {
     router.prefetch('/pick-project');
+  }, [router]);
+
+  useEffect(() => {
     queueVerificationCheck(); // only run once since it will re-queue itself
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function queueVerificationCheck() {
     return setTimeout(async () => {

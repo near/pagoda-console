@@ -8,7 +8,6 @@ import AnalyticsCard from '@/components/AnalyticsCard';
 import BorderSpinner from '@/components/BorderSpinner';
 import ProjectSelector from '@/components/ProjectSelector';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { useOnMount } from '@/hooks/lifecycle';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useIdentity } from '@/hooks/user';
 import AnalyticsPreview from '@/public/analyticsPreview.png';
@@ -27,7 +26,7 @@ const ProjectAnalytics: NextPageWithLayout = () => {
   // TODO (P2+) determine net by other means than subId
   const net: NetOption = environment?.subId === 2 ? 'MAINNET' : 'TESTNET';
 
-  useOnMount(() => {
+  useEffect(() => {
     Highcharts.setOptions({
       chart: {
         style: {
@@ -35,7 +34,7 @@ const ProjectAnalytics: NextPageWithLayout = () => {
         },
       },
     });
-  });
+  }, []);
 
   const processUsageChunk = useCallback(
     async (

@@ -14,7 +14,6 @@ import type { SubmitErrorHandler, SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import { useSimpleLayout } from '@/hooks/layouts';
-import { useOnMount } from '@/hooks/lifecycle';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -35,15 +34,17 @@ const Register: NextPageWithLayout = () => {
   const [errorAlert, setErrorAlert] = useState<string | null>();
   const router = useRouter();
 
-  useOnMount(() => {
-    router.prefetch('/verification');
-    router.prefetch('/pick-project');
-
+  useEffect(() => {
     window.addEventListener('focus', onFocus);
     return () => {
       window.removeEventListener('focus', onFocus);
     };
-  });
+  }, []);
+
+  useEffect(() => {
+    router.prefetch('/verification');
+    router.prefetch('/pick-project');
+  }, [router]);
 
   useEffect(() => {
     const unregisterAuthObserver = onAuthStateChanged(getAuth(), async (user) => {

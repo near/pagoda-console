@@ -7,8 +7,6 @@ import useSWR from 'swr';
 import { authenticatedPost } from '@/utils/http';
 import type { User } from '@/utils/types';
 
-import { useOnMount } from './lifecycle';
-
 export function useAccount(): { user?: User; error?: any; mutate: KeyedMutator<any> } {
   const identity = useIdentity();
   const {
@@ -42,14 +40,14 @@ export function useDisplayName(): string | null {
 export function useIdentity(): FirebaseUser | null {
   const [user, setUser] = useState<FirebaseUser | null>(null);
 
-  useOnMount(() => {
+  useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user: FirebaseUser | null) => {
       setUser(user);
     });
 
     return () => unsubscribe();
-  });
+  }, []);
 
   return user;
 }
