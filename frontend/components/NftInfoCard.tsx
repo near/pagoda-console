@@ -372,7 +372,7 @@ function TokenList({ tokenJson, listCapped = false }: { tokenJson: Token[]; list
             <a>
               <i>{'Enumerating tokens > NFT tokens'}</i>
             </a>
-          </Link>
+          </Link>{' '}
           section.
         </div>
       )}

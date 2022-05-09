@@ -376,7 +376,7 @@ function AnalyticsEmptyState({ fetchedAt }: { fetchedAt?: string }) {
         <div className="onboarding">
           <div className="onboardingText">
             <p>
-              Follow the instructions on the
+              Follow the instructions on the{' '}
               <Link href="/project-settings">
                 <a>Project Settings screen</a>
               </Link>{' '}
