@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Accordion } from 'react-bootstrap';
 
+import { useApiKeys } from '@/hooks/api-keys';
+import { useSelectedProject } from '@/hooks/selected-project';
 import Config from '@/utils/config';
-import { useApiKeys } from '@/utils/fetchers';
-import { useRouteParam } from '@/utils/hooks';
-import type { NetOption } from '@/utils/interfaces';
+import type { NetOption } from '@/utils/types';
 
 import CodeBlock from './CodeBlock';
 
@@ -67,19 +67,17 @@ export default function StarterGuide() {
     cliKey: CLI_KEY_TEMPLATE,
   });
 
-  const projectSlug = useRouteParam('project');
-  const { keys } = useApiKeys(projectSlug, {
+  const { project, environment } = useSelectedProject();
+
+  const { keys } = useApiKeys(project?.slug, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
 
   // TODO (P2+) determine net by other means than subId
-  const environmentSubIdRaw = useRouteParam('environment');
-  const environmentSubId = typeof environmentSubIdRaw === 'string' ? parseInt(environmentSubIdRaw) : null;
-
   useEffect(() => {
-    const net: NetOption = environmentSubId === 2 ? 'MAINNET' : 'TESTNET';
-    if (!environmentSubId || !keys || !keys[net]) {
+    const net: NetOption = environment?.subId === 2 ? 'MAINNET' : 'TESTNET';
+    if (!environment?.subId || !keys || !keys[net]) {
       return;
     }
     // setupCode = keys?.TESTNET ? `near set-api-key ${Config.url.rpc.default[net]} ${keys?.[net]}` : '';
@@ -98,7 +96,7 @@ export default function StarterGuide() {
       ),
       cliKey: CLI_KEY_TEMPLATE.replace(/<your API Key>/, keys[net]!),
     });
-  }, [keys, environmentSubId]);
+  }, [keys, environment]);
 
   return (
     <div className="guideContainer">

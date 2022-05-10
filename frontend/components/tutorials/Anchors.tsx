@@ -1,11 +1,7 @@
 import Link from 'next/link';
 import type { ReactElement } from 'react';
 
-import { useRouteParam } from '@/utils/hooks';
-
 export function Anchor(props: any) {
-  const project = useRouteParam('project');
-
   // External links should open a new tab.
   const isExternal = props.href.startsWith('http');
   if (isExternal) {
@@ -16,15 +12,7 @@ export function Anchor(props: any) {
     );
   }
 
-  let path;
-  if (props.href.startsWith('#')) {
-    path = props.href;
-  } else {
-    // Internal links should include project and environment.
-    const splitUrl = props.href.split('#');
-    const anchor = splitUrl[1] ? '#' + splitUrl[1] : '';
-    path = `${splitUrl[0]}?project=${project}&environment=1${anchor}`;
-  }
+  const path = props.href;
 
   return (
     <>

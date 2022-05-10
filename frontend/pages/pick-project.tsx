@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 
 import type { ProjectCardColor } from '@/components/ProjectCard';
 import ProjectCard from '@/components/ProjectCard';
-import { useRouteParam } from '@/utils/hooks';
-import { useSimpleLogoutLayout } from '@/utils/layouts';
+import { useSimpleLogoutLayout } from '@/hooks/layouts';
+import { useRouteParam } from '@/hooks/route';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface Project {
@@ -34,9 +34,7 @@ const PickProject: NextPageWithLayout = () => {
 
   useEffect(() => {
     projects.forEach((p) => router.prefetch(p.path));
-    // It is not expected for the list of projects or the router to change during runtime.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [router]);
 
   const isOnboarding = useRouteParam('onboarding');
 

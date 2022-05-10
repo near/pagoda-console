@@ -13,13 +13,12 @@ import { Alert, Button, Form } from 'react-bootstrap';
 import type { SubmitErrorHandler, SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
+import { useSimpleLayout } from '@/hooks/layouts';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
-import { useSimpleLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const onFocus = () => {
-  console.log('Tab is in focus');
   getAuth().currentUser?.reload();
 };
 
@@ -33,8 +32,19 @@ interface RegisterFormData {
 const Register: NextPageWithLayout = () => {
   const { getValues, register, handleSubmit, formState, watch } = useForm<RegisterFormData>();
   const [errorAlert, setErrorAlert] = useState<string | null>();
-
   const router = useRouter();
+
+  useEffect(() => {
+    window.addEventListener('focus', onFocus);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+    };
+  }, []);
+
+  useEffect(() => {
+    router.prefetch('/verification');
+    router.prefetch('/pick-project');
+  }, [router]);
 
   useEffect(() => {
     const unregisterAuthObserver = onAuthStateChanged(getAuth(), async (user) => {
@@ -53,24 +63,10 @@ const Register: NextPageWithLayout = () => {
       } else if (user) {
         // If the user is already verified and they go to /register, let's reroute them.
         router.push('/pick-project');
-        console.log('verified');
       }
     });
     return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
   }, [getValues, router]);
-
-  useEffect(() => {
-    router.prefetch('/verification');
-    router.prefetch('/pick-project');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener('focus', onFocus);
-    return () => {
-      window.removeEventListener('focus', onFocus);
-    };
-  }, []);
 
   const handleInvalidSubmit: SubmitErrorHandler<RegisterFormData> = () => {
     analytics.track('DC Submitted email registration form');

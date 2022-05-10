@@ -1,6 +1,6 @@
 import type { FirebaseOptions } from 'firebase/app';
 
-import type { NetOption } from './interfaces';
+import type { NetOption } from './types';
 
 type RpcNets = Record<NetOption, string>;
 

@@ -5,11 +5,11 @@ import { useForm } from 'react-hook-form';
 
 import BorderSpinner from '@/components/BorderSpinner';
 import ProjectCard from '@/components/ProjectCard';
+import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
-import { authenticatedPost } from '@/utils/fetchers';
-import type { Project } from '@/utils/interfaces';
-import { useSimpleLogoutLayout } from '@/utils/layouts';
+import { authenticatedPost } from '@/utils/http';
+import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface NewProjectFormData {

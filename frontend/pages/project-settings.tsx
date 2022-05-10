@@ -8,20 +8,20 @@ import CenterModal from '@/components/modals/CenterModal';
 import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
 import ProjectSelector from '@/components/ProjectSelector';
 import StarterGuide from '@/components/StarterGuide';
+import { useApiKeys } from '@/hooks/api-keys';
+import { useDashboardLayout } from '@/hooks/layouts';
+import { useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
-import { authenticatedPost, useApiKeys, useProject } from '@/utils/fetchers';
-import { useRouteParam } from '@/utils/hooks';
-import type { NetOption } from '@/utils/interfaces';
-import { useDashboardLayout } from '@/utils/layouts';
+import { authenticatedPost } from '@/utils/http';
+import type { NetOption } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ROTATION_WARNING =
   'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';
 
 const ProjectSettings: NextPageWithLayout = () => {
-  const projectSlug = useRouteParam('project', '/projects');
-  const { project } = useProject(projectSlug);
-  const { keys, mutate: mutateKeys } = useApiKeys(projectSlug);
+  const { project } = useSelectedProject();
+  const { keys, mutate: mutateKeys } = useApiKeys(project?.slug);
   const [showMainnetRotationModal, setShowMainnetRotationModal] = useState(false);
   const [showTestnetRotationModal, setShowTestnetRotationModal] = useState(false);
 
@@ -38,7 +38,7 @@ const ProjectSettings: NextPageWithLayout = () => {
         delete cachedKeys[net];
         return cachedKeys;
       }, false);
-      const newKey = await authenticatedPost('/projects/rotateKey', { project: projectSlug, environment: subId });
+      const newKey = await authenticatedPost('/projects/rotateKey', { project: project?.slug, environment: subId });
       analytics.track('DC Rotate API Key', {
         status: 'success',
         net: net,
@@ -122,9 +122,8 @@ const ProjectSettings: NextPageWithLayout = () => {
 };
 
 function DeleteProject() {
+  const { project } = useSelectedProject();
   const [showModal, setShowModal] = useState(false);
-  const projectSlug = useRouteParam('project', '/projects');
-  const { project } = useProject(projectSlug);
   const router = useRouter();
 
   if (!project) {

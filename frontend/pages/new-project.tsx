@@ -4,12 +4,12 @@ import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import BorderSpinner from '@/components/BorderSpinner';
+import { useSimpleLogoutLayout } from '@/hooks/layouts';
+import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
-import { authenticatedPost } from '@/utils/fetchers';
-import { useRouteParam } from '@/utils/hooks';
-import type { Project } from '@/utils/interfaces';
-import { useSimpleLogoutLayout } from '@/utils/layouts';
+import { authenticatedPost } from '@/utils/http';
+import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface NewProjectFormData {
@@ -33,7 +33,7 @@ const NewProject: NextPageWithLayout = () => {
         status: 'success',
         name: projectName,
       });
-      await router.push(`/project-settings?project=${project.slug}&onboarding=true`);
+      await router.push(`/project-settings?project=${project.slug}`);
     } catch (e: any) {
       analytics.track('DC Create New Project', {
         status: 'failure',

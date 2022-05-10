@@ -9,9 +9,9 @@ import { Alert, Button } from 'react-bootstrap';
 import BorderSpinner from '@/components/BorderSpinner';
 import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
 import TutorialBadge from '@/components/TutorialBadge';
-import { useProjects } from '@/utils/fetchers';
-import type { Project } from '@/utils/interfaces';
-import { useSimpleLogoutLayout } from '@/utils/layouts';
+import { useSimpleLogoutLayout } from '@/hooks/layouts';
+import { useProjects } from '@/hooks/projects';
+import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Projects: NextPageWithLayout = () => {
@@ -26,13 +26,9 @@ const Projects: NextPageWithLayout = () => {
       // Reset global state.
       window.sessionStorage.removeItem('redirected');
     }
-  }, []);
 
-  useEffect(() => {
     router.prefetch('/pick-project');
-    // Prefetch only needs to happen once. Disabling rule.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [router]);
 
   let body;
   if (error) {

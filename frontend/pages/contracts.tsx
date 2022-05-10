@@ -1,8 +1,7 @@
 import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { debounce } from 'lodash-es';
 import Image from 'next/image';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
@@ -11,18 +10,21 @@ import useSWR from 'swr';
 import BorderSpinner from '@/components/BorderSpinner';
 import ProjectSelector from '@/components/ProjectSelector';
 import RecentTransactionList from '@/components/RecentTransactionList';
+import { useContracts } from '@/hooks/contracts';
+import { useDebounce } from '@/hooks/debounce';
+import { useDashboardLayout } from '@/hooks/layouts';
+import { useSelectedProject } from '@/hooks/selected-project';
+import { useIdentity } from '@/hooks/user';
 import ContractsPreview from '@/public/contractsPreview.png';
 import analytics from '@/utils/analytics';
 import Config from '@/utils/config';
-import { authenticatedPost, useContracts } from '@/utils/fetchers';
 import { returnContractAddressRegex } from '@/utils/helpers';
-import { useIdentity, useProjectAndEnvironment } from '@/utils/hooks';
-import type { Contract, Environment } from '@/utils/interfaces';
-import { useDashboardLayout } from '@/utils/layouts';
+import { authenticatedPost } from '@/utils/http';
+import type { Contract, Environment } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Contracts: NextPageWithLayout = () => {
-  const { project, environment } = useProjectAndEnvironment();
+  const { project, environment } = useSelectedProject();
 
   const user = useIdentity();
 
@@ -309,7 +311,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
   const [canDelete, setCanDelete] = useState(true);
   const { data, error } = useSWR(
     [props.contract.address, props.contract.net],
-    async (address: string) => {
+    async (address) => {
       const res = await fetch(Config.url.rpc.default[props.contract.net], {
         method: 'POST',
         headers: {
@@ -338,33 +340,32 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
     },
   );
 
-  async function removeContractRaw() {
-    setCanDelete(false);
-    try {
-      await authenticatedPost('/projects/removeContract', {
-        id: props.contract.id,
-      });
-      analytics.track('DC Remove Contract', {
-        status: 'success',
-        contractId: props.contract.address,
-      });
-      props.onDelete && props.onDelete();
-    } catch (e: any) {
-      analytics.track('DC Remove Contract', {
-        status: 'failure',
-        contractId: props.contract.address,
-        error: e.message,
-      });
-      // TODO
-      console.error(e);
-      setCanDelete(true);
-    }
-  }
+  const removeContract = useDebounce(
+    async () => {
+      setCanDelete(false);
 
-  const removeContract = useMemo(
-    () => debounce(removeContractRaw, Config.buttonDebounce, { leading: true, trailing: false }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+      try {
+        await authenticatedPost('/projects/removeContract', {
+          id: props.contract.id,
+        });
+        analytics.track('DC Remove Contract', {
+          status: 'success',
+          contractId: props.contract.address,
+        });
+        props.onDelete && props.onDelete();
+      } catch (e: any) {
+        analytics.track('DC Remove Contract', {
+          status: 'failure',
+          contractId: props.contract.address,
+          error: e.message,
+        });
+        // TODO
+        console.error(e);
+        setCanDelete(true);
+      }
+    },
+    Config.buttonDebounce,
+    { leading: true, trailing: false },
   );
 
   return (

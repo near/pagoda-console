@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 
 import ProjectCard from '@/components/ProjectCard';
-import { useSimpleLogoutLayout } from '@/utils/layouts';
+import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 enum Tutorial {

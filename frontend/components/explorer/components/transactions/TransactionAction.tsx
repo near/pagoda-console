@@ -7,7 +7,7 @@ import ActionGroup from './ActionGroup';
 import { ViewMode } from './ActionRowBlock';
 import TransactionExecutionStatus from './TransactionExecutionStatus';
 
-import { NetOption } from '../../../../utils/interfaces';
+import { NetOption } from '../../../../utils/types';
 import Config from '../../../../utils/config';
 
 // import { Translate } from "react-localize-redux";

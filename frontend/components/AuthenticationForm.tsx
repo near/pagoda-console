@@ -63,6 +63,11 @@ export default function AuthenticationForm() {
   const [authError, setAuthError] = useState('');
 
   useEffect(() => {
+    router.prefetch('/projects');
+    router.prefetch('/verification');
+  }, [router]);
+
+  useEffect(() => {
     const unregisterAuthObserver = onAuthStateChanged(getAuth(), (user) => {
       if (
         user &&
@@ -77,12 +82,6 @@ export default function AuthenticationForm() {
     });
     return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
   }, [router]);
-
-  useEffect(() => {
-    router.prefetch('/projects');
-    router.prefetch('/verification');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   async function socialSignIn(provider: AuthProvider) {
     setAuthActive(false);

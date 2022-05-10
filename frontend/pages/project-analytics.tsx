@@ -1,22 +1,31 @@
 import Highcharts from 'highcharts';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import { useEffect } from 'react';
 
 import AnalyticsCard from '@/components/AnalyticsCard';
 import BorderSpinner from '@/components/BorderSpinner';
-import PageLink from '@/components/PageLink';
 import ProjectSelector from '@/components/ProjectSelector';
+import { useDashboardLayout } from '@/hooks/layouts';
+import { useSelectedProject } from '@/hooks/selected-project';
+import { useIdentity } from '@/hooks/user';
 import AnalyticsPreview from '@/public/analyticsPreview.png';
 import { getUserData, updateUserData } from '@/utils/cache';
 import config from '@/utils/config';
-import { authenticatedPost } from '@/utils/fetchers';
-import { useIdentity, useRouteParam } from '@/utils/hooks';
-import type { NetOption, NetUsageData, UsageData } from '@/utils/interfaces';
-import { useDashboardLayout } from '@/utils/layouts';
+import { authenticatedPost } from '@/utils/http';
+import type { NetOption, NetUsageData, UsageData } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {
+  const identity = useIdentity();
+  const [usageData, setUsageData] = useState<UsageData | null>();
+  const [methodBreakdownChartOptions, setMethodBreakdownChartOptions] = useState<Highcharts.Options>();
+  const [responseCodeChartOptions, setResponseCodeChartOptions] = useState<Highcharts.Options>();
+  const { environment, project } = useSelectedProject();
+  // TODO (P2+) determine net by other means than subId
+  const net: NetOption = environment?.subId === 2 ? 'MAINNET' : 'TESTNET';
+
   useEffect(() => {
     Highcharts.setOptions({
       chart: {
@@ -26,17 +35,6 @@ const ProjectAnalytics: NextPageWithLayout = () => {
       },
     });
   }, []);
-  const identity = useIdentity();
-  const [usageData, setUsageData] = useState<UsageData | null>();
-
-  const [methodBreakdownChartOptions, setMethodBreakdownChartOptions] = useState<Highcharts.Options>();
-  const [responseCodeChartOptions, setResponseCodeChartOptions] = useState<Highcharts.Options>();
-
-  const projectSlug = useRouteParam('project');
-  // TODO (P2+) determine net by other means than subId
-  const environmentSubIdRaw = useRouteParam('environment');
-  const environmentSubId = typeof environmentSubIdRaw === 'string' ? parseInt(environmentSubIdRaw) : null;
-  const net: NetOption = environmentSubId === 2 ? 'MAINNET' : 'TESTNET';
 
   const processUsageChunk = useCallback(
     async (
@@ -197,11 +195,11 @@ const ProjectAnalytics: NextPageWithLayout = () => {
     // clear currently loaded data
     setUsageData(undefined);
 
-    if (projectSlug && identity) {
-      const cachedUserData = getUserData(identity.uid);
-      loadUsageData(identity.uid, projectSlug, net, cachedUserData?.usageData?.[projectSlug]);
-    }
-  }, [projectSlug, loadUsageData, identity, net]);
+    if (!project || !identity) return;
+
+    const cachedUserData = getUserData(identity.uid);
+    loadUsageData(identity.uid, project.slug, net, cachedUserData?.usageData?.[project.slug]);
+  }, [project, loadUsageData, identity, net]);
 
   // TODO (P2+) extract to specialized component
   function getMethodChartOptions(methodBreakdown: NetUsageData['methods']) {
@@ -377,7 +375,10 @@ function AnalyticsEmptyState({ fetchedAt }: { fetchedAt?: string }) {
         <div className="onboarding">
           <div className="onboardingText">
             <p>
-              Follow the instructions on the <PageLink route="/project-settings">Project Settings screen</PageLink>{' '}
+              Follow the instructions on the{' '}
+              <Link href="/project-settings">
+                <a>Project Settings screen</a>
+              </Link>{' '}
               (&#34;Settings&#34; in the navbar) to get started with making requests to the NEAR RPC service.
             </p>
             <span>Once you make some requests you’ll see usage data populate here.</span>

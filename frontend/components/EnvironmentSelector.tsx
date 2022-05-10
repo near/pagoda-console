@@ -1,24 +1,25 @@
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useRouter } from 'next/router';
 import { forwardRef } from 'react';
 import type { ButtonProps } from 'react-bootstrap';
 import { Button, Dropdown } from 'react-bootstrap';
 
-import { useProjectAndEnvironment } from '@/utils/hooks';
+import { useSelectedProject } from '@/hooks/selected-project';
+import analytics from '@/utils/analytics';
 
 export default function EnvironmentSelector() {
-  const router = useRouter();
-  const { project, environment, environments } = useProjectAndEnvironment();
+  const { environment, environments, selectEnvironment } = useSelectedProject();
 
-  function changeEnvironment(eventKey: string | null) {
-    if (!environments || !project) {
-      return;
-    }
-    const newEnv = environments.find((env) => eventKey === env.name);
-    if (newEnv) {
-      router.replace(`${router.pathname}?project=${project.slug}&environment=${newEnv.subId}`, undefined, {
-        shallow: true,
+  function onSelectEnvironment(eventKey: string | null) {
+    if (!environments) return;
+
+    const selection = environments.find((env) => eventKey === env.name);
+
+    if (selection) {
+      selectEnvironment(selection.subId);
+      analytics.track('DC Switch Network', {
+        status: 'success',
+        net: selection.net,
       });
     }
   }
@@ -26,7 +27,7 @@ export default function EnvironmentSelector() {
   return (
     <>
       {environment && environments && (
-        <Dropdown onSelect={changeEnvironment}>
+        <Dropdown onSelect={onSelectEnvironment}>
           <Dropdown.Toggle as={CustomToggle}>{environment.name}</Dropdown.Toggle>
           <Dropdown.Menu>
             {environments.map((env) => (
