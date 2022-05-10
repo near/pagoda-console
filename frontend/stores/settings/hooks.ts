@@ -20,20 +20,27 @@ export function useSettingsStoreForUser() {
   const userId = currentUser?.uid;
 
   useEffect(() => {
+    /*
+      We need to make sure setSettings() and setProjectSettings() fire before setSettingsInitialized().
+      Otherwise, settingsInitialized would return true for a split second before settings and
+      projectSettings were updated. This issue will be solved by React 18's mutation batching.
+    */
+
     if (!userId || !store.hasHydrated) return;
     const user = store.users[userId];
-    if (!user) return;
 
-    setSettings({
-      ...user,
-    });
+    if (user) {
+      setSettings({
+        ...user,
+      });
 
-    if (user.selectedProjectSlug) {
-      const project = user.projects[user.selectedProjectSlug];
-      if (project) {
-        setProjectSettings({
-          ...project,
-        });
+      if (user.selectedProjectSlug) {
+        const project = user.projects[user.selectedProjectSlug];
+        if (project) {
+          setProjectSettings({
+            ...project,
+          });
+        }
       }
     }
 
