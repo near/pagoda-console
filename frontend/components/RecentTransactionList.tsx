@@ -1,9 +1,9 @@
 import BN from 'bn.js';
 import { useEffect, useState } from 'react';
 
+import { useRecentTransactions } from '@/hooks/recent-transactions';
 import Config from '@/utils/config';
-import { useRecentTransactions } from '@/utils/fetchers';
-import type { Contract, NetOption } from '@/utils/interfaces';
+import type { Contract, NetOption } from '@/utils/types';
 
 import TransactionAction from './explorer/components/transactions/TransactionAction';
 export interface FinalityStatus {

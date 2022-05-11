@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import { deleteProject } from '@/utils/fetchers';
-import { useIdentity } from '@/utils/hooks';
+import { deleteProject } from '@/hooks/projects';
+import { useIdentity } from '@/hooks/user';
 
 import CenterModal from './CenterModal';
 
@@ -26,7 +26,7 @@ export default function DeleteProjectModal({
 
   async function onConfirm() {
     setConfirmDisabled(true);
-    const success = await deleteProject(identity?.uid || null, slug, name);
+    const success = await deleteProject(identity?.uid, slug, name);
     if (success) {
       onDelete();
     } else {

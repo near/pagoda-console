@@ -1,4 +1,4 @@
-import type { Environment } from './interfaces';
+import type { Environment } from './types';
 
 export function assertUnreachable(x: never): never {
   throw new Error(`Unreachable Case: ${x}`);

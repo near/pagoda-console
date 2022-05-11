@@ -159,7 +159,7 @@ type ContractInfo = Partial<AccountView> & { codeDeployed?: boolean; accountExis
 export function useContractInfo(contractAddress: string | null) {
   return useSWR(
     contractAddress ? ['state', contractAddress] : null,
-    async (_, address: string) => {
+    async (_, address) => {
       let contractInfo: ContractInfo;
       try {
         const account = await near.account(address);

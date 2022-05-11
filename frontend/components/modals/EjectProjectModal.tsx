@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { ejectTutorial } from '@/utils/fetchers';
+import { ejectTutorial } from '@/hooks/projects';
 
 import CenterModal from './CenterModal';
 

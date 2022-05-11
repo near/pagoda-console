@@ -23,7 +23,7 @@ test(`create blank project test`, async ({ page }) => {
 
   await Promise.all([
     page.waitForNavigation({
-      url: `${process.env.TEST_URL}/project-settings?project=**&environment=1`,
+      url: `${process.env.TEST_URL}/project-settings`,
     }),
     page.locator('text=Create a Project').click(),
   ]);
@@ -66,14 +66,14 @@ test(`create tutorial project test`, async ({ page }) => {
 
   await Promise.all([
     page.waitForNavigation({
-      url: `${process.env.TEST_URL}/tutorials/nfts/introduction?project=**&environment=1`,
+      url: `${process.env.TEST_URL}/tutorials/nfts/introduction`,
     }),
     page.locator('text=Create Project').click(),
   ]);
 
   await Promise.all([
     page.waitForNavigation({
-      url: `${process.env.TEST_URL}/project-settings?project=**&environment=1`,
+      url: `${process.env.TEST_URL}/project-settings`,
     }),
     page.locator('text=Settings').click(),
   ]);

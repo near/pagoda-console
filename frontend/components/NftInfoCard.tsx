@@ -1,56 +1,43 @@
 import { faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCheckCircle, faChevronUp, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Accordion, Button, Form, InputGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
+import { useSelectedProject } from '@/hooks/selected-project';
+import { useSettingsStoreForUser } from '@/stores/settings';
 import analytics from '@/utils/analytics';
-import { getUserData, updateUserData } from '@/utils/cache';
-import type { ContractMetadata, NftData, Token } from '@/utils/chainData';
-import { useContractInfo, useMetadata } from '@/utils/chainData';
+import type { ContractMetadata, NftData, Token } from '@/utils/chain-data';
+import { useContractInfo, useMetadata } from '@/utils/chain-data';
 import { returnContractAddressRegex } from '@/utils/helpers';
-import { useIdentity, useProjectAndEnvironment, useRouteParam } from '@/utils/hooks';
 
 import CodeBlock from './CodeBlock';
-import PageLink from './PageLink';
 
 interface NftInfoFormData {
   contractAddress: string;
 }
 
 export default function NftInfoCard() {
-  const { register, handleSubmit, formState } = useForm<NftInfoFormData>();
-  const { environment } = useProjectAndEnvironment();
+  const { register, handleSubmit, formState, setValue } = useForm<NftInfoFormData>();
   const [isEditing, setIsEditing] = useState(true);
   const [savedContractAddress, setSavedContractAddress] = useState<string | null>(null);
-  const [addressInputValue, setAddressInputValue] = useState('');
   const [showQuickInfo, setShowQuickInfo] = useState(true);
+  const { environment } = useSelectedProject();
+  const { projectSettings, updateProjectSettings } = useSettingsStoreForUser();
   const contractAddressRegex = returnContractAddressRegex(environment);
-  const identity = useIdentity();
-  const project = useRouteParam('project');
 
-  // fetch NFT contract address from local storage at startup
   useEffect(() => {
-    if (!project || !identity?.uid) {
-      return;
-    }
+    const { nftContract } = projectSettings;
 
-    let userData;
-    try {
-      userData = getUserData(identity.uid);
-      const cachedContractAddress = userData?.projectData?.[project]?.nftContract;
-      if (cachedContractAddress) {
-        setSavedContractAddress(cachedContractAddress);
-        setIsEditing(false);
-        setAddressInputValue(cachedContractAddress);
-      }
-    } catch (e) {
-      // silently fail
-      console.error(e);
+    if (nftContract) {
+      setSavedContractAddress(nftContract || null);
+      setValue('contractAddress', nftContract);
+      setIsEditing(false);
     }
-  }, [identity, project]);
+  }, [projectSettings, setValue]);
 
   // fetch basic account info for the NFT contract
   const { data: contractBasics, error: basicsError } = useContractInfo(savedContractAddress);
@@ -65,9 +52,9 @@ export default function NftInfoCard() {
   const saveAddressChange: SubmitHandler<NftInfoFormData> = async ({ contractAddress }) => {
     setSavedContractAddress(contractAddress);
     setIsEditing(false);
-    if (project && identity?.uid) {
-      updateUserData(identity.uid, { projectData: { [project]: { nftContract: addressInputValue } } });
-    }
+    updateProjectSettings({
+      nftContract: contractAddress,
+    });
     analytics.track('DC Set NFT quick info card address');
   };
 
@@ -381,9 +368,11 @@ function TokenList({ tokenJson, listCapped = false }: { tokenJson: Token[]; list
         <div>
           There’s more where that came from! We can only show 30 tokens here at a time, but you can query the rest as
           shown in the{' '}
-          <PageLink route="/tutorials/nfts/enumeration" anchor="nft-tokens">
-            <i>{'Enumerating tokens > NFT tokens'}</i>
-          </PageLink>{' '}
+          <Link href="/tutorials/nfts/enumeration#nft-tokens">
+            <a>
+              <i>{'Enumerating tokens > NFT tokens'}</i>
+            </a>
+          </Link>{' '}
           section.
         </div>
       )}

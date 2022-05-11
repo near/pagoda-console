@@ -7,16 +7,13 @@ import ProjectSelector from '@/components/ProjectSelector';
 import components from '@/components/tutorials/components';
 import TableOfContents from '@/components/tutorials/TableOfContents';
 import TutorialFooter from '@/components/tutorials/TutorialFooter';
+import { useDashboardLayout } from '@/hooks/layouts';
+import { useSelectedProject } from '@/hooks/selected-project';
 import Content from '@/tutorials/nfts/md/8-marketplace.mdx';
-import { useProject } from '@/utils/fetchers';
-import { useRouteParam } from '@/utils/hooks';
-import { useDashboardLayout } from '@/utils/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Marketplace: NextPageWithLayout = () => {
-  const projectSlug = useRouteParam('project');
-  const environment = useRouteParam('environment');
-  const { project } = useProject(projectSlug);
+  const { project } = useSelectedProject();
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
 
@@ -33,7 +30,7 @@ const Marketplace: NextPageWithLayout = () => {
             name={project.name}
             show={showModal}
             setShow={setShowModal}
-            onEject={() => router.push(`/project-analytics?project=${project.slug}&environment=${environment}`)}
+            onEject={() => router.push('/project-analytics')}
           />
         </TutorialFooter>
       )}

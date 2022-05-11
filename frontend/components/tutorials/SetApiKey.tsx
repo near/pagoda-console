@@ -1,11 +1,11 @@
-import { useApiKeys } from '@/utils/fetchers';
-import { useRouteParam } from '@/utils/hooks';
+import { useApiKeys } from '@/hooks/api-keys';
+import { useSelectedProject } from '@/hooks/selected-project';
 
 import CodeBlock from '../CodeBlock';
 
 export default function ApiKey() {
-  const projectSlug = useRouteParam('project');
-  const { keys } = useApiKeys(projectSlug);
+  const { project } = useSelectedProject();
+  const { keys } = useApiKeys(project?.slug);
   const key = keys?.TESTNET;
   return (
     <>
