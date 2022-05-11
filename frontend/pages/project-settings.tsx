@@ -35,8 +35,11 @@ const ProjectSettings: NextPageWithLayout = () => {
     try {
       // clear current key from the UI
       mutateKeys((cachedKeys: Record<NetOption, string>) => {
-        delete cachedKeys[net];
-        return cachedKeys;
+        const clone = {
+          ...cachedKeys,
+        };
+        delete clone[net];
+        return clone;
       }, false);
       const newKey = await authenticatedPost('/projects/rotateKey', { project: project?.slug, environment: subId });
       analytics.track('DC Rotate API Key', {
