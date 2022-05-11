@@ -1,6 +1,7 @@
 @font-face {
   font-family: 'New Spirit';
   src: url('/fonts/NewSpirit-Light.otf');
+  font-weight: 300;
 }
 
 @font-face {

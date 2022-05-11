@@ -1,11 +1,13 @@
-import '../styles/globals.scss';
-import '../public/fonts/fonts.css';
+import '@/styles/reset.css'; // UI_TODO: Uncomment
+import '@/styles/global.css'; // UI_TODO: Uncomment
+// import '@/styles/globals.scss'; // UI_TODO: Remove
+import '@/styles/fonts.css';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 
 import { config as svgConfig } from '@fortawesome/fontawesome-svg-core';
 svgConfig.autoAddCss = false;
 
-import { SSRProvider } from '@restart/ui/ssr'; // workaround for react-bootstrap bug https://github.com/react-bootstrap/react-bootstrap/issues/6026
+import { SSRProvider } from '@restart/ui/ssr'; // UI_TODO: Remove // workaround for react-bootstrap bug https://github.com/react-bootstrap/react-bootstrap/issues/6026
 import { initializeApp } from 'firebase/app';
 import type { User } from 'firebase/auth';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';

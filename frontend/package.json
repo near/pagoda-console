@@ -26,6 +26,8 @@
     "@fortawesome/free-regular-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.16",
+    "@radix-ui/react-accordion": "^0.1.6",
+    "@stitches/react": "^1.2.8",
     "bn.js": "^5.2.0",
     "bootstrap": "^5.1.1",
     "firebase": "^9.6.10",
