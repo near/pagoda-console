@@ -246,14 +246,26 @@ export class ProjectsService {
       );
     }
 
+    const projectKey = `${this.projectRefPrefix || ''}${project.id}_2`;
+
     // generate RPC keys
     try {
-      await this.keys.createProject(
-        `${this.projectRefPrefix || ''}${project.id}_2`,
-        'MAINNET',
-      );
+      // It's possible the user tried ejecting before and it failed.
+      // Let's check if the project already exists.
+      const mainnetKeys = await this.keys.fetchAllKeys(projectKey, 'MAINNET');
+      if (!mainnetKeys.length) {
+        await this.keys.createProject(projectKey, 'MAINNET');
+      } else {
+        const validKey = mainnetKeys.find((k) => !k.invalid);
+        if (!validKey) {
+          await this.keys.generate(projectKey, 'MAINNET');
+        }
+      }
     } catch (e) {
-      throw new VError(e, 'Failed while generating API keys');
+      throw new VError(
+        e,
+        'Failed while generating MAINNET API key during tutorial ejection',
+      );
     }
 
     try {
@@ -280,6 +292,15 @@ export class ProjectsService {
         },
       });
     } catch (e) {
+      try {
+        await this.keys.invalidate(projectKey, 'MAINNET');
+      } catch (e) {
+        console.error(
+          'Failed to invalidate MAINNET API Key after tutorial ejection failed',
+          e,
+        );
+      }
+
       throw new VError(e, 'Failed while ejecting tutorial project');
     }
   }
