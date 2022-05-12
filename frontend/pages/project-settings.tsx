@@ -34,7 +34,7 @@ const ProjectSettings: NextPageWithLayout = () => {
     const subId = net === 'MAINNET' ? 2 : 1;
     try {
       // clear current key from the UI
-      mutateKeys((cachedKeys: Record<NetOption, string>) => {
+      await mutateKeys((cachedKeys: Record<NetOption, string>) => {
         const clone = {
           ...cachedKeys,
         };
@@ -46,7 +46,7 @@ const ProjectSettings: NextPageWithLayout = () => {
         status: 'success',
         net: net,
       });
-      mutateKeys((cachedKeys: Record<NetOption, string>) => {
+      await mutateKeys((cachedKeys: Record<NetOption, string>) => {
         return {
           ...cachedKeys,
           ...newKey,
