@@ -233,10 +233,22 @@ export class ProjectsService {
           tutorial: true,
         },
       });
-      if (!project || !project.active || !project.tutorial) {
+      if (!project) {
         throw new VError(
           { info: { code: 'BAD_PROJECT' } },
-          'Project not found or project already ejected',
+          'Project not found',
+        );
+      }
+      if (!project.active) {
+        throw new VError(
+          { info: { code: 'BAD_PROJECT' } },
+          'Project not active',
+        );
+      }
+      if (!project.tutorial) {
+        throw new VError(
+          { info: { code: 'BAD_PROJECT' } },
+          'Project not a tutorial',
         );
       }
     } catch (e) {
