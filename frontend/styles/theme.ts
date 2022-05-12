@@ -3,20 +3,47 @@ import { createStitches } from '@stitches/react';
 export const { config, createTheme, css, getCssText, globalCss, keyframes, styled, theme } = createStitches({
   theme: {
     colors: {
-      border1: '#dedede',
-      border2: '#eeeeee',
-      brandPrimary: '#2135da',
-      surface1: '#ffffff',
-      surface2: '#eeeeee',
-      surface3: '#dedede',
-      text1: '#151515',
-      text2: '#323232',
-      text3: '#4c4c4c',
+      gray900: '#FFFFFF',
+      gray850: '#F0F2F4',
+      gray800: '#D6DAE1',
+      gray700: '#BCC3CD',
+      gray600: '#A1ABBA',
+      gray500: '#8793A6',
+      gray400: '#6C7C93',
+      gray300: '#576375',
+      gray200: '#414A58',
+      gray100: '#2B323B',
+      gray50: '#1f2429',
+      gray25: '#16191D',
+
+      green900: '#EFF6EE',
+      green800: '#D3E6D1',
+      green700: '#B6D6B3',
+      green600: '#9AC695',
+      green500: '#7EB677',
+      green400: '#61A659',
+      green300: '#4E8448',
+      green200: '#3A6336',
+      green100: '#274224',
+      green50: '#132112',
+
+      red900: '#FCE9E9',
+      red800: '#F7C0C0',
+      red700: '#F19898',
+      red600: '#EC6F6F',
+      red500: '#E64747',
+      red400: '#E11E1E',
+      red300: '#B41818',
+      red200: '#871212',
+      red100: '#5A0C0C',
+      red50: '#2D0606',
     },
+
     fonts: {
       accent: 'New Spirit, serif',
       body: 'NB International Pro, sans-serif',
     },
+
     fontSizes: {
       body: '1rem',
       bodySmall: '0.8rem',
@@ -27,17 +54,19 @@ export const { config, createTheme, css, getCssText, globalCss, keyframes, style
       h5: '1rem',
       h6: '0.8rem',
     },
+
     lineHeights: {
       standard: 1.5,
     },
+
     radii: {
       standard: '3px',
     },
+
     shadows: {
-      soft: '0 2px 10px rgba(0, 0, 0, 0.1)',
-      focus: '0 0 0 2px rgba(0, 0, 0, 0.1)',
-      focusDark: '0 0 0 2px rgba(0, 0, 0, 0.2)',
+      soft: '0 2px 10px rgba(0, 0, 0, 0.3)',
     },
+
     space: {
       xs: '0.25rem',
       s: '0.5rem',
@@ -45,14 +74,20 @@ export const { config, createTheme, css, getCssText, globalCss, keyframes, style
       l: '2rem',
       xl: '4rem',
     },
+
     sizes: {
       inputSmall: '1.75rem',
       inputStandard: '3rem',
       maxContainerWidth: '75rem',
     },
   },
+
   media: {
     mobile: '(max-width: 30rem)',
     tablet: '(max-width: 60rem)',
   },
 });
+
+export const darkTheme = createTheme({});
+
+export const lightTheme = createTheme({});

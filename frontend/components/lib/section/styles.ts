@@ -3,7 +3,7 @@ import { styled } from '@/styles/theme';
 export const Section = styled('section', {
   padding: '$l',
   borderBottom: '1px solid',
-  borderColor: '$border1',
+  borderColor: '$gray100',
 
   '&:last-child': {
     borderBottom: 'none',
@@ -16,7 +16,7 @@ export const Section = styled('section', {
   variants: {
     color: {
       primary: {
-        background: '$surface2',
+        background: '$gray50',
         border: 'none',
       },
     },

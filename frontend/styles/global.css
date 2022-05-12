@@ -3,8 +3,8 @@ html {
 }
 
 body {
-  background: var(--colors-surface1);
-  color: var(--colors-text1);
+  background: var(--colors-gray25);
+  color: var(--colors-gray900);
   font-family: var(--fonts-body);
   line-height: var(--lineHeights-standard);
 }

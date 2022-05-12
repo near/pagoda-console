@@ -14,28 +14,24 @@ const slideUp = keyframes({
 
 export const Accordion = styled(AccordionPrimitive.Root, {
   '--animationSpeed': '200ms',
-  borderRadius: '$standard',
-  backgroundColor: '$surface2',
-  boxShadow: '$soft',
+  display: 'flex',
+  flexDirection: 'column',
+  width: '100%',
+  gap: '$s',
 });
 
 export const Item = styled(AccordionPrimitive.Item, {
   overflow: 'hidden',
-
-  '&:first-child': {
-    borderTopLeftRadius: '$standard',
-    borderTopRightRadius: '$standard',
-  },
-
-  '&:last-child': {
-    borderBottomLeftRadius: '$standard',
-    borderBottomRightRadius: '$standard',
-  },
+  borderRadius: '$standard',
+  boxShadow: '$soft',
+  backgroundColor: '$gray50',
 
   '&:focus-within': {
     position: 'relative',
     zIndex: 1,
-    boxShadow: '$focus',
+    outline: '1px solid',
+    outlineOffset: '2px',
+    outlineColor: '$gray500',
   },
 });
 
@@ -45,8 +41,8 @@ export const Header = styled(AccordionPrimitive.Header, {
 
 export const Trigger = styled(AccordionPrimitive.Trigger, {
   alignItems: 'center',
-  boxShadow: '0 1px 0 $colors$border2',
-  color: '$brandPrimary',
+  boxShadow: '0 1px 0 $colors$gray25',
+  color: '$gray900',
   cursor: 'pointer',
   display: 'flex',
   flex: '1',
@@ -59,25 +55,22 @@ export const Trigger = styled(AccordionPrimitive.Trigger, {
   transition: 'background var(--animationSpeed)',
 
   '&[data-state="open"]': {
-    backgroundColor: '$surface1',
-
     '& svg': {
-      color: '$text1',
       transform: 'rotate(-180deg)',
     },
   },
 
-  '&:hover': { backgroundColor: '$surface1' },
+  '&:hover': { backgroundColor: '$gray100' },
 
   '& svg': {
-    color: '$surface3',
+    color: '$green500',
     transition: 'transform 300ms',
   },
 });
 
 export const Content = styled(AccordionPrimitive.Content, {
   overflow: 'hidden',
-  backgroundColor: '$surface1',
+  backgroundColor: '$gray50',
 
   '&[data-state="open"]': {
     animation: `${slideDown} var(--animationSpeed) ease forwards`,

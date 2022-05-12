@@ -13,7 +13,7 @@ import type { NextPageWithLayout } from '@/utils/types';
 const Box = styled('div', {
   width: '15rem',
   height: '2rem',
-  background: '$surface3',
+  background: '$gray100',
 });
 
 const Settings: NextPageWithLayout = () => {
@@ -27,7 +27,7 @@ const Settings: NextPageWithLayout = () => {
       <Section>
         <H2>Accordion</H2>
 
-        <Accordion.Root type="single" defaultValue="item-1" collapsible>
+        <Accordion.Root type="multiple" defaultValue={['item-1']}>
           <Accordion.Item value="item-1">
             <Accordion.Trigger>Is it accessible?</Accordion.Trigger>
             <Accordion.Content>
@@ -60,9 +60,9 @@ const Settings: NextPageWithLayout = () => {
         <H2>Button</H2>
 
         <Flex>
-          <Button>Standard</Button>
-          <Button color="secondary">Secondary</Button>
-          <Button color="secondary" size="small">
+          <Button>Primary</Button>
+          <Button color="neutral">Neutral</Button>
+          <Button color="neutral" size="small">
             Small
           </Button>
         </Flex>
@@ -127,8 +127,6 @@ const Settings: NextPageWithLayout = () => {
               <Box />
               <Box />
               <Box />
-              <Box />
-              <Box />
             </Flex>
           </Stack>
         </Stack>
@@ -174,7 +172,7 @@ const Settings: NextPageWithLayout = () => {
       <Section>
         <H2>Section</H2>
 
-        <p>This is wrapped in a section.</p>
+        <P>This is wrapped in a section.</P>
       </Section>
 
       <Section>
@@ -182,8 +180,8 @@ const Settings: NextPageWithLayout = () => {
           <H2>Text Link</H2>
           <P>
             Here are some links: <TextLink href="#">Primary Link</TextLink> and{' '}
-            <TextLink color="secondary" href="#">
-              Secondary Link
+            <TextLink color="neutral" href="#">
+              Neutral Link
             </TextLink>
           </P>
         </Stack>

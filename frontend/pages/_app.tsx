@@ -20,7 +20,6 @@ import { SWRConfig, useSWRConfig } from 'swr';
 
 import DowntimeMode from '@/components/DowntimeMode';
 import SimpleLayout from '@/components/layouts/SimpleLayout';
-import SmallScreenNotice from '@/components/SmallScreenNotice';
 import { usePageTracker } from '@/hooks/page-tracker';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
@@ -97,28 +96,8 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
             <DowntimeMode />
           </SimpleLayout>
         ) : (
-          <>
-            <div className="largeScreen">{getLayout(<Component {...pageProps} />, getFooter())}</div>
-            <div className="smallScreen">
-              <SmallScreenNotice />
-            </div>
-          </>
+          getLayout(<Component {...pageProps} />, getFooter())
         )}
-
-        <style jsx>{`
-          .smallScreen {
-            display: none;
-          }
-
-          @media only screen and (max-width: 61.9rem) {
-            .largeScreen {
-              display: none;
-            }
-            .smallScreen {
-              display: block;
-            }
-          }
-        `}</style>
       </SWRConfig>
     </SSRProvider>
   );

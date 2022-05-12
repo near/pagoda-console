@@ -5,11 +5,13 @@ export const TextLink = styled('a', {
   cursor: 'pointer',
   fontWeight: 700,
   fontFamily: '$body',
-  transition: 'border-color 150ms',
-  borderBottom: '1px solid transparent',
+  transition: 'color 150ms',
+  borderBottom: '1px solid',
 
-  '&:hover, &:focus': {
-    borderBottomColor: 'CurrentColor',
+  '&:focus': {
+    outline: '1px solid',
+    outlineOffset: '4px',
+    outlineColor: '$gray500',
   },
 
   '&:active': {
@@ -19,10 +21,16 @@ export const TextLink = styled('a', {
   variants: {
     color: {
       primary: {
-        color: '$brandPrimary',
+        color: '$green500',
+        '&:hover': {
+          color: '$green600',
+        },
       },
-      secondary: {
-        color: '$text3',
+      neutral: {
+        color: '$gray800',
+        '&:hover': {
+          color: '$gray900',
+        },
       },
     },
   },

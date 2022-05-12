@@ -10,31 +10,32 @@ export const Button = styled('button', {
   fontFamily: '$body',
   padding: '0 $m',
   flexShrink: 0,
-  transition: 'opacity 150ms',
-
-  '&:hover': {
-    opacity: 0.9,
-  },
-
-  '&:active': {
-    opacity: 0.8,
-  },
+  transition: 'background 150ms',
 
   '&:focus': {
-    boxShadow: '$focusDark',
+    outline: '1px solid',
+    outlineOffset: '2px',
+    outlineColor: '$gray500',
   },
 
   variants: {
     color: {
       primary: {
-        background: '$brandPrimary',
-        color: '$surface1',
+        background: '$green500',
+        color: '$gray25',
+        '&:hover': {
+          background: '$green600',
+        },
       },
-      secondary: {
-        background: '$text2',
-        color: '$surface1',
+      neutral: {
+        background: '$gray700',
+        color: '$gray25',
+        '&:hover': {
+          background: '$gray800',
+        },
       },
     },
+
     size: {
       small: {
         fontSize: '$bodySmall',

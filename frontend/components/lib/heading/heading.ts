@@ -1,7 +1,7 @@
 import { styled } from '@/styles/theme';
 
 export const H1 = styled('h1', {
-  color: '$text1',
+  color: '$gray900',
   fontFamily: '$accent',
   fontWeight: 300,
   fontSize: '$h1',
@@ -9,7 +9,7 @@ export const H1 = styled('h1', {
 });
 
 export const H2 = styled('h2', {
-  color: '$text1',
+  color: '$gray900',
   fontFamily: '$body',
   fontWeight: 500,
   fontSize: '$h2',
@@ -17,7 +17,7 @@ export const H2 = styled('h2', {
 });
 
 export const H3 = styled('h3', {
-  color: '$text1',
+  color: '$gray900',
   fontFamily: '$body',
   fontWeight: 500,
   fontSize: '$h3',
@@ -25,7 +25,7 @@ export const H3 = styled('h3', {
 });
 
 export const H4 = styled('h4', {
-  color: '$text1',
+  color: '$gray900',
   fontFamily: '$body',
   fontWeight: 500,
   fontSize: '$h4',
@@ -33,14 +33,14 @@ export const H4 = styled('h4', {
 });
 
 export const H5 = styled('h5', {
-  color: '$text1',
+  color: '$gray900',
   fontFamily: '$body',
   fontWeight: 500,
   fontSize: '$h5',
 });
 
 export const H6 = styled('h6', {
-  color: '$text1',
+  color: '$gray900',
   fontFamily: '$body',
   fontWeight: 500,
   fontSize: '$h6',
