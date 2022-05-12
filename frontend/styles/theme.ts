@@ -88,6 +88,47 @@ export const { config, createTheme, css, getCssText, globalCss, keyframes, style
   },
 });
 
-export const darkTheme = createTheme({});
+export const darkTheme = createTheme('dark-theme', {});
 
-export const lightTheme = createTheme({});
+export const lightTheme = createTheme('light-theme', {
+  colors: {
+    gray25: '#FFFFFF',
+    gray50: '#FFFFFF',
+    gray100: '#D6DAE1',
+    gray200: '#BCC3CD',
+    gray300: '#A1ABBA',
+    gray400: '#8793A6',
+    gray500: '#6C7C93',
+    gray600: '#576375',
+    gray700: '#414A58',
+    gray800: '#2B323B',
+    gray850: '#1f2429',
+    gray900: '#16191D',
+
+    green50: '#EFF6EE',
+    green100: '#D3E6D1',
+    green200: '#B6D6B3',
+    green300: '#9AC695',
+    green400: '#7EB677',
+    green500: '#61A659',
+    green600: '#4E8448',
+    green700: '#3A6336',
+    green800: '#274224',
+    green900: '#132112',
+
+    red50: '#FCE9E9',
+    red100: '#F7C0C0',
+    red200: '#F19898',
+    red300: '#EC6F6F',
+    red400: '#E64747',
+    red500: '#E11E1E',
+    red600: '#B41818',
+    red700: '#871212',
+    red800: '#5A0C0C',
+    red900: '#2D0606',
+  },
+
+  shadows: {
+    soft: '0 2px 10px rgba(0, 0, 0, 0.15)',
+  },
+});

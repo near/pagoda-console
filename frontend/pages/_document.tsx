@@ -1,32 +1,10 @@
 import Document, { Head, Html, Main, NextScript } from 'next/document';
 
 import { getCssText } from '@/styles/theme';
+import { initializeTheme } from '@/utils/initialize-theme';
 
 class MyDocument extends Document {
   render() {
-    // Use this version once it is desired that theme defaults to user's OS-level preference
-    // const setInitialTheme = `
-    //   function getUserPreference() {
-    //     if(window.localStorage.getItem('theme')) {
-    //       return window.localStorage.getItem('theme')
-    //     }
-    //     return window.matchMedia('(prefers-color-scheme: dark)').matches
-    //               ? 'dark'
-    //               : 'light'
-    //   }
-    //   document.body.dataset.theme = getUserPreference();
-    // `;
-
-    const setInitialTheme = `
-      function getUserPreference() {
-        if(window.localStorage.getItem('theme')) {
-          return window.localStorage.getItem('theme')
-        }
-        return 'light'
-      }
-      document.body.dataset.theme = getUserPreference();
-    `;
-
     return (
       <Html>
         <Head>
@@ -34,7 +12,7 @@ class MyDocument extends Document {
           <style id="stitches" dangerouslySetInnerHTML={{ __html: getCssText() }} />
         </Head>
         <body>
-          <script dangerouslySetInnerHTML={{ __html: setInitialTheme }} />
+          <script dangerouslySetInnerHTML={{ __html: initializeTheme }} />
           <Main />
           <NextScript />
         </body>

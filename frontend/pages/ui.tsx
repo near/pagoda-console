@@ -1,4 +1,5 @@
 import * as Accordion from '@/components/lib/accordion';
+import { Box } from '@/components/lib/box';
 import { Button } from '@/components/lib/button';
 import { Flex } from '@/components/lib/flex';
 import { H1, H2, H3, H4, H5, H6 } from '@/components/lib/heading';
@@ -7,10 +8,11 @@ import { P } from '@/components/lib/paragraph';
 import { Section } from '@/components/lib/section';
 import { Stack } from '@/components/lib/stack';
 import { TextLink } from '@/components/lib/text-link';
+import { ThemeToggle } from '@/components/theme-toggle/theme-toggle';
 import { styled } from '@/styles/theme';
 import type { NextPageWithLayout } from '@/utils/types';
 
-const Box = styled('div', {
+const Block = styled('div', {
   width: '15rem',
   height: '2rem',
   background: '$gray100',
@@ -22,6 +24,7 @@ const Settings: NextPageWithLayout = () => {
       <Section color="primary">
         <H1>Stitches & Radix UI</H1>
         <P>This page shows examples of all our shared components.</P>
+        <ThemeToggle />
       </Section>
 
       <Section>
@@ -54,6 +57,17 @@ const Settings: NextPageWithLayout = () => {
             </Accordion.Content>
           </Accordion.Item>
         </Accordion.Root>
+      </Section>
+
+      <Section>
+        <H2>Box</H2>
+
+        <Box>
+          <Stack>
+            <H3>This is a box.</H3>
+            <P>Here is some content.</P>
+          </Stack>
+        </Box>
       </Section>
 
       <Section>
@@ -97,9 +111,9 @@ const Settings: NextPageWithLayout = () => {
             <P>Default</P>
 
             <Flex>
-              <Box />
-              <Box />
-              <Box />
+              <Block />
+              <Block />
+              <Block />
             </Flex>
           </Stack>
 
@@ -109,9 +123,9 @@ const Settings: NextPageWithLayout = () => {
             <P>Custom Gap & Justify</P>
 
             <Flex gap="xl" justify="end">
-              <Box />
-              <Box />
-              <Box />
+              <Block />
+              <Block />
+              <Block />
             </Flex>
           </Stack>
 
@@ -121,12 +135,12 @@ const Settings: NextPageWithLayout = () => {
             <P>Wrap</P>
 
             <Flex wrap>
-              <Box />
-              <Box />
-              <Box />
-              <Box />
-              <Box />
-              <Box />
+              <Block />
+              <Block />
+              <Block />
+              <Block />
+              <Block />
+              <Block />
             </Flex>
           </Stack>
         </Stack>
@@ -140,9 +154,9 @@ const Settings: NextPageWithLayout = () => {
             <P>Default</P>
 
             <Stack>
-              <Box />
-              <Box />
-              <Box />
+              <Block />
+              <Block />
+              <Block />
             </Stack>
           </Stack>
 
@@ -152,9 +166,9 @@ const Settings: NextPageWithLayout = () => {
             <P>Custom Gap</P>
 
             <Stack gap="xs">
-              <Box />
-              <Box />
-              <Box />
+              <Block />
+              <Block />
+              <Block />
             </Stack>
           </Stack>
         </Stack>
@@ -169,10 +183,10 @@ const Settings: NextPageWithLayout = () => {
         </Stack>
       </Section>
 
-      <Section>
+      <Section color="primary">
         <H2>Section</H2>
 
-        <P>This is wrapped in a section.</P>
+        <P>This is wrapped in a primary color section.</P>
       </Section>
 
       <Section>

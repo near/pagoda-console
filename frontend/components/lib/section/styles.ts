@@ -17,7 +17,6 @@ export const Section = styled('section', {
     color: {
       primary: {
         background: '$gray50',
-        border: 'none',
       },
     },
 
