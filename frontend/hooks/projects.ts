@@ -9,6 +9,26 @@ import { useIdentity } from '@/hooks/user';
 import { authenticatedPost } from '@/utils/http';
 import type { Project } from '@/utils/types';
 
+export async function ejectTutorial(slug: string, name: string) {
+  try {
+    await authenticatedPost('/projects/ejectTutorial', { slug });
+    mixpanel.track('DC Eject Tutorial Project', {
+      status: 'success',
+      name,
+    });
+    return true;
+  } catch (e: any) {
+    mixpanel.track('DC Eject Tutorial Project', {
+      status: 'failure',
+      name,
+      error: e.message,
+    });
+    // TODO
+    console.error('Failed to eject tutorial project');
+  }
+  return false;
+}
+
 export async function deleteProject(userId: string | undefined, slug: string, name: string) {
   try {
     await authenticatedPost('/projects/delete', { slug });

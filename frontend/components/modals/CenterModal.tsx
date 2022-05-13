@@ -1,4 +1,5 @@
 import { Alert, Button, Modal } from 'react-bootstrap';
+import type { ButtonVariant } from 'react-bootstrap/esm/types';
 
 export default function CenterModal(props: {
   title: string;
@@ -6,6 +7,7 @@ export default function CenterModal(props: {
   onConfirm?: () => void;
   confirmDisabled?: boolean;
   confirmText?: string;
+  confirmVariant?: ButtonVariant;
   onHide: () => void;
   show: boolean;
   errorText?: string | undefined;
@@ -24,7 +26,11 @@ export default function CenterModal(props: {
             <Button onClick={props.onHide} variant="secondary">
               Cancel
             </Button>
-            <Button disabled={props.confirmDisabled} onClick={props.onConfirm} variant="danger">
+            <Button
+              disabled={props.confirmDisabled}
+              onClick={props.onConfirm}
+              variant={props.confirmVariant || 'danger'}
+            >
               {props.confirmText}
             </Button>
           </Modal.Footer>
