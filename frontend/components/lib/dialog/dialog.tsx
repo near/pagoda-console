@@ -2,25 +2,44 @@
   https://www.radix-ui.com/docs/primitives/components/dialog
 */
 
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import type { ComponentProps } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
+import { Stack } from '../stack';
 import * as S from './styles';
 
 export const Root = DialogPrimitive.Root;
 export const Trigger = DialogPrimitive.Trigger;
 export const Close = DialogPrimitive.Close;
 
-export const Content = ({ children, ...props }: ComponentProps<typeof S.Content>) => {
+type ContentProps = Omit<ComponentProps<typeof S.Content>, 'title'> & {
+  title?: ReactNode;
+};
+
+export const Content = ({ children, title, ...props }: ContentProps) => {
   return (
     <DialogPrimitive.Portal>
       <S.Overlay />
-      <S.ContentWrapper>
+      <S.Wrapper>
         <S.Content {...props}>
-          <Close>Close</Close>
-          {children}
+          {title && (
+            <S.Header>
+              {typeof title === 'string' && <S.Title>{title}</S.Title>}
+              {typeof title !== 'string' && { title }}
+
+              <S.CloseButton>
+                <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>
+              </S.CloseButton>
+            </S.Header>
+          )}
+
+          <S.ContentInner>
+            <Stack>{children}</Stack>
+          </S.ContentInner>
         </S.Content>
-      </S.ContentWrapper>
+      </S.Wrapper>
     </DialogPrimitive.Portal>
   );
 };

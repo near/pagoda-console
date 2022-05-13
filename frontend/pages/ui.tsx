@@ -85,7 +85,7 @@ const Settings: NextPageWithLayout = () => {
       <Section>
         <H2>Button</H2>
 
-        <Flex>
+        <Flex wrap>
           <Button>Primary</Button>
           <Button>
             <FontAwesomeIcon icon={faAtlas} /> With Icon
@@ -115,35 +115,43 @@ const Settings: NextPageWithLayout = () => {
           <Dialog.Trigger asChild>
             <Button>Trigger</Button>
           </Dialog.Trigger>
-          <Dialog.Content>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
-            <P>This is triggered content.</P>
+
+          <Dialog.Content title="Hello There">
+            <Button
+              onClick={() => {
+                setDialogIsOpen(true);
+              }}
+            >
+              Open Another Modal
+            </Button>
+            <P>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas metus turpis, auctor eget imperdiet in,
+              tincidunt ac sem. Aliquam erat volutpat. Integer eleifend metus orci, ac vehicula tortor luctus non.
+              Integer dignissim, orci eget egestas mattis, eros lacus auctor diam, id elementum ipsum nulla ac dolor.
+              Pellentesque placerat lectus eget turpis rutrum, vitae placerat ex eleifend. Cras vitae tellus ultricies
+              nisl congue molestie. Quisque id varius nisi, quis pretium metus. Donec fringilla massa in diam ultrices
+              pretium. Suspendisse ut quam in erat tincidunt mollis. Maecenas pulvinar, arcu eu sodales imperdiet,
+              mauris orci pellentesque quam, quis fermentum sapien risus nec nulla.
+            </P>
+            <P>
+              Vestibulum vel viverra sem. Suspendisse nec nisi turpis. Curabitur tristique magna sed turpis ullamcorper
+              commodo. Nunc mattis mi sed ex pretium, et iaculis odio facilisis. Maecenas tempor nulla magna, quis
+              dignissim magna convallis blandit. Sed convallis sapien risus, at tincidunt justo blandit vitae. Aliquam
+              erat volutpat. Duis blandit metus mauris, vitae lacinia nibh lobortis eu. Donec et sagittis ligula. Morbi
+              et consequat nibh, nec cursus mauris. Sed dapibus lectus nec felis porta dictum. Duis ac blandit justo,
+              sed facilisis ante. Fusce eleifend turpis leo, a ultricies quam mattis ac. Mauris sagittis, urna et
+              malesuada facilisis, augue elit suscipit nunc, ut accumsan mi urna a eros. Maecenas blandit hendrerit
+              malesuada.
+            </P>
+            <P>
+              Quisque risus velit, consectetur in commodo in, ultrices ut est. Suspendisse est diam, commodo non luctus
+              nec, pellentesque et ex. Etiam at velit porta, malesuada odio ut, lobortis libero. Quisque pretium, quam
+              sit amet suscipit tempor, enim quam volutpat lacus, in pharetra nunc magna quis dui. Praesent elementum
+              pulvinar consectetur. Nunc non bibendum erat, vel eleifend sapien. Etiam nec auctor ligula, ut scelerisque
+              risus. Integer ac eros nec eros eleifend rutrum sit amet at sapien. In lacinia sem ac neque rhoncus, quis
+              finibus sapien ultricies. Sed varius non orci a consectetur. Duis ut blandit justo, tincidunt vulputate
+              neque. Ut placerat turpis in eleifend dignissim.
+            </P>
           </Dialog.Content>
         </Dialog.Root>
 
