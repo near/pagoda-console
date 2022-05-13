@@ -5,18 +5,10 @@ import { ConfigService } from '@nestjs/config';
 import { VError } from 'verror';
 import { Net } from '.prisma/client';
 import { AppConfig } from 'src/config/validate';
-
-interface Key {
-  project_ref: string;
-  invalid: boolean;
-  created_at: string;
-  invalidated_at: string;
-  token: string;
-  quota: number;
-}
+import { Key, KeysServiceInterface } from './interfaces';
 
 @Injectable()
-export class KeysService {
+export class KeysService implements KeysServiceInterface {
   private fetchers: Record<Net, AxiosInstance>;
   private quotas: Record<Net, number>;
 

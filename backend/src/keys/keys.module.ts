@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from 'src/config/validate';
+import { KeysServiceInterface } from './interfaces';
 import { KeysService } from './keys.service';
 import { MockKeysService } from './mock.keys.service';
 
 const keysFactory = {
   provide: KeysService,
-  useFactory: (configService: ConfigService<AppConfig>) => {
+  useFactory: (
+    configService: ConfigService<AppConfig>,
+  ): KeysServiceInterface => {
     const useKeysServiceMock = configService.get('dev.mock.rpcAuth', {
       infer: true,
     });
