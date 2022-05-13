@@ -1,9 +1,11 @@
 import { faAtlas, faCar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useState } from 'react';
 
 import * as Accordion from '@/components/lib/accordion';
 import { Box } from '@/components/lib/box';
 import { Button } from '@/components/lib/button';
+import * as Dialog from '@/components/lib/dialog';
 import { Flex } from '@/components/lib/flex';
 import { H1, H2, H3, H4, H5, H6 } from '@/components/lib/heading';
 import { HR } from '@/components/lib/hr';
@@ -22,6 +24,8 @@ const Block = styled('div', {
 });
 
 const Settings: NextPageWithLayout = () => {
+  const [dialogIsOpen, setDialogIsOpen] = useState(false);
+
   return (
     <>
       <Section color="primary">
@@ -90,6 +94,7 @@ const Settings: NextPageWithLayout = () => {
             <FontAwesomeIcon icon={faCar} />
           </Button>
           <Button loading>Is Loading</Button>
+          <Button disabled>Disabled</Button>
           <Button color="danger">Danger</Button>
           <Button color="neutral">Neutral</Button>
           <Button color="neutral" size="small">
@@ -99,6 +104,69 @@ const Settings: NextPageWithLayout = () => {
             Small
           </Button>
         </Flex>
+      </Section>
+
+      <Section>
+        <H2>Dialog</H2>
+
+        <P>Open/close via trigger:</P>
+
+        <Dialog.Root>
+          <Dialog.Trigger asChild>
+            <Button>Trigger</Button>
+          </Dialog.Trigger>
+          <Dialog.Content>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+            <P>This is triggered content.</P>
+          </Dialog.Content>
+        </Dialog.Root>
+
+        <HR />
+
+        <P>Open/close via control:</P>
+
+        <Button
+          onClick={() => {
+            setDialogIsOpen(true);
+          }}
+        >
+          Controlled
+        </Button>
+
+        <Dialog.Root open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
+          <Dialog.Content>
+            <P>This is controlled content.</P>
+            <Dialog.Close asChild>
+              <Button>Closer</Button>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Root>
       </Section>
 
       <Section>

@@ -1,4 +1,24 @@
-// https://www.radix-ui.com/docs/primitives/components/accordion
+/*
+  https://www.radix-ui.com/docs/primitives/components/accordion
+
+  import * as Accordion from '@/components/lib/accordion';
+
+  <Accordion.Root>
+    <Accordion.Item value="item-1">
+      <Accordion.Trigger>Header 1</Accordion.Trigger>
+      <Accordion.Content>
+        <P>Content 1</P>
+      </Accordion.Content>
+    </Accordion.Item>
+
+    <Accordion.Item value="item-2">
+      <Accordion.Trigger>Header 2</Accordion.Trigger>
+      <Accordion.Content>
+        <P>Content 2</P>
+      </Accordion.Content>
+    </Accordion.Item>
+  </Accordion.Root>
+*/
 
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

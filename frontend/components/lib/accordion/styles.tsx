@@ -68,10 +68,10 @@ export const Content = styled(AccordionPrimitive.Content, {
   overflow: 'hidden',
 
   '&[data-state="open"]': {
-    animation: `${slideDown} var(--animation-speed) ease forwards`,
+    animation: `${slideDown} var(--animation-speed) ease`,
   },
   '&[data-state="closed"]': {
-    animation: `${slideUp} var(--animation-speed) ease forwards`,
+    animation: `${slideUp} var(--animation-speed) ease`,
   },
 });
 

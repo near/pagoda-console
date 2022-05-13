@@ -2,7 +2,7 @@ import { styled } from '@/styles/stitches';
 
 export const Flex = styled('div', {
   display: 'flex',
-  flexDirection: 'row',
+  width: '100%',
 
   variants: {
     align: {
@@ -17,6 +17,15 @@ export const Flex = styled('div', {
       },
       stretch: {
         alignItems: 'stretch',
+      },
+    },
+
+    direction: {
+      column: {
+        flexDirection: 'column',
+      },
+      row: {
+        flexDirection: 'row',
       },
     },
 
@@ -83,6 +92,7 @@ export const Flex = styled('div', {
   },
 
   defaultVariants: {
+    direction: 'row',
     gap: 'm',
     justify: 'start',
   },

@@ -23,6 +23,12 @@ export const Button = styled('button', {
   flexShrink: 0,
   transition: 'background var(--transition-speed)',
   position: 'relative',
+  userSelect: 'none',
+
+  '&:disabled': {
+    opacity: 0.25,
+    pointerEvents: 'none',
+  },
 
   '&:focus': {
     outline: 'var(--focus-outline)',

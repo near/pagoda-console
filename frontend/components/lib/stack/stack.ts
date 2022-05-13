@@ -2,7 +2,9 @@ import { styled } from '@/styles/stitches';
 
 export const Stack = styled('div', {
   display: 'flex',
+  width: '100%',
   flexDirection: 'column',
+  alignItems: 'flex-start',
 
   variants: {
     gap: {
