@@ -219,6 +219,111 @@ export class ProjectsService {
     };
   }
 
+  async ejectTutorial(
+    callingUser: User,
+    projectWhereUnique: Prisma.ProjectWhereUniqueInput,
+  ): Promise<void> {
+    // throw an error if the user doesn't have permission to perform this action
+    await this.checkUserPermission({
+      userId: callingUser.id,
+      projectWhereUnique,
+    });
+
+    // check that project is valid for ejection
+    let project;
+    try {
+      project = await this.prisma.project.findUnique({
+        where: projectWhereUnique,
+        select: {
+          id: true,
+          active: true,
+          tutorial: true,
+        },
+      });
+      if (!project) {
+        throw new VError(
+          { info: { code: 'BAD_PROJECT' } },
+          'Project not found',
+        );
+      }
+      if (!project.active) {
+        throw new VError(
+          { info: { code: 'BAD_PROJECT' } },
+          'Project not active',
+        );
+      }
+      if (!project.tutorial) {
+        throw new VError(
+          { info: { code: 'BAD_PROJECT' } },
+          'Project not a tutorial',
+        );
+      }
+    } catch (e) {
+      throw new VError(
+        e,
+        'Failed while determining project eligibility for ejection',
+      );
+    }
+
+    const projectKey = `${this.projectRefPrefix || ''}${project.id}_2`;
+
+    // generate RPC keys
+    try {
+      // It's possible the user tried ejecting before and it failed.
+      // Let's check if the project already exists.
+      const mainnetKeys = await this.keys.fetchAllKeys(projectKey, 'MAINNET');
+      if (!mainnetKeys.length) {
+        await this.keys.createProject(projectKey, 'MAINNET');
+      } else {
+        const validKey = mainnetKeys.find((k) => !k.invalid);
+        if (!validKey) {
+          await this.keys.generate(projectKey, 'MAINNET');
+        }
+      }
+    } catch (e) {
+      throw new VError(
+        e,
+        'Failed while generating MAINNET API key during tutorial ejection',
+      );
+    }
+
+    try {
+      await this.prisma.project.update({
+        where: {
+          id: project.id,
+        },
+        data: {
+          tutorial: null,
+          environments: {
+            create: {
+              name: 'Mainnet',
+              net: 'MAINNET',
+              subId: 2,
+              createdBy: callingUser.id,
+              updatedBy: callingUser.id,
+            },
+          },
+          updatedByUser: {
+            connect: {
+              id: callingUser.id,
+            },
+          },
+        },
+      });
+    } catch (e) {
+      try {
+        await this.keys.invalidate(projectKey, 'MAINNET');
+      } catch (e) {
+        console.error(
+          'Failed to invalidate MAINNET API Key after tutorial ejection failed',
+          e,
+        );
+      }
+
+      throw new VError(e, 'Failed while ejecting tutorial project');
+    }
+  }
+
   async delete(
     callingUser: User,
     projectWhereUnique: Prisma.ProjectWhereUniqueInput,
@@ -237,7 +342,7 @@ export class ProjectsService {
       if (!project || !project.active) {
         throw new VError(
           { info: { code: 'BAD_PROJECT' } },
-          'Project not found or project already invactive',
+          'Project not found or project already inactive',
         );
       }
     } catch (e) {

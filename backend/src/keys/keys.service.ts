@@ -133,11 +133,15 @@ export class KeysService {
   }
 
   async fetchAll(keyId: string, net: Net): Promise<Array<string>> {
+    return (await this.fetchAllKeys(keyId, net)).map((k) => k.token);
+  }
+
+  async fetchAllKeys(keyId: string, net: Net): Promise<Array<Key>> {
     const res = await this.fetchers[net].get(`/projects/${keyId}/tokens`);
     if (!Array.isArray(res.data)) {
       throw new VError('Did not receive key list');
     }
     const keyData = res.data as Key[];
-    return keyData.map((k) => k.token);
+    return keyData;
   }
 }
