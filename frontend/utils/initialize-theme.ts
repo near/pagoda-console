@@ -1,7 +1,5 @@
 // https://www.joshwcomeau.com/react/dark-mode/
 
-import { darkTheme, lightTheme } from '@/styles/theme';
-
 export const initializeTheme = `
   (function() {
     function getUserPreference() {
@@ -13,7 +11,7 @@ export const initializeTheme = `
 
     console.log(getUserPreference());
 
-    const themeClass = getUserPreference() === 'dark' ? '${darkTheme}' : '${lightTheme}';
+    const themeClass = getUserPreference() === 'dark' ? '.dark-theme' : '.light-theme';
 
     document.body.classList.add(themeClass);
   })();

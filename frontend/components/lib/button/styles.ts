@@ -1,50 +1,64 @@
-import { styled } from '@/styles/theme';
+import { styled } from '@/styles/stitches';
 
 export const Button = styled('button', {
-  borderRadius: '$standard',
+  borderRadius: 'var(--border-radius)',
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
   cursor: 'pointer',
   fontWeight: 500,
-  fontFamily: '$body',
-  padding: '0 $m',
+  fontFamily: 'var(--font-body)',
+  padding: '0 var(--space-m)',
   flexShrink: 0,
-  transition: 'background 150ms',
+  transition: 'background var(--transition-speed)',
 
   '&:focus': {
-    outline: '1px solid',
-    outlineOffset: '2px',
-    outlineColor: '$gray500',
+    outline: 'var(--focus-outline)',
+    outlineOffset: 'var(--focus-outline-offset)',
   },
 
   variants: {
     color: {
-      primary: {
-        background: '$green500',
-        color: '$gray25',
+      danger: {
+        background: 'var(--color-cta-danger)',
+        color: 'var(--color-cta-danger-text)',
         '&:hover': {
-          background: '$green600',
+          background: 'var(--color-cta-danger-highlight)',
+        },
+        '&:active': {
+          background: 'var(--color-cta-danger)',
+        },
+      },
+      primary: {
+        background: 'var(--color-cta-primary)',
+        color: 'var(--color-cta-primary-text)',
+        '&:hover': {
+          background: 'var(--color-cta-primary-highlight)',
+        },
+        '&:active': {
+          background: 'var(--color-cta-primary)',
         },
       },
       neutral: {
-        background: '$gray700',
-        color: '$gray25',
+        background: 'var(--color-cta-neutral)',
+        color: 'var(--color-cta-neutral-text)',
         '&:hover': {
-          background: '$gray800',
+          background: 'var(--color-cta-neutral-highlight)',
+        },
+        '&:active': {
+          background: 'var(--color-cta-neutral)',
         },
       },
     },
 
     size: {
       small: {
-        fontSize: '$bodySmall',
-        height: '$inputSmall',
+        fontSize: 'var(--font-size-body-small)',
+        height: 'var(--size-input-small)',
       },
       standard: {
-        fontSize: '$body',
-        height: '$inputStandard',
-        padding: '0 $m',
+        fontSize: 'var(--font-size-body)',
+        height: 'var(--size-input-standard)',
       },
     },
   },

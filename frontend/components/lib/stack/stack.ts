@@ -1,4 +1,4 @@
-import { styled } from '@/styles/theme';
+import { styled } from '@/styles/stitches';
 
 export const Stack = styled('div', {
   display: 'flex',
@@ -7,19 +7,19 @@ export const Stack = styled('div', {
   variants: {
     gap: {
       xs: {
-        gap: '$xs',
+        gap: 'var(--space-xs)',
       },
       s: {
-        gap: '$s',
+        gap: 'var(--space-s)',
       },
       m: {
-        gap: '$m',
+        gap: 'var(--space-m)',
       },
       l: {
-        gap: '$l',
+        gap: 'var(--space-l)',
       },
       xl: {
-        gap: '$xl',
+        gap: 'var(--space-xl)',
       },
     },
   },

@@ -1,6 +1,6 @@
 import Document, { Head, Html, Main, NextScript } from 'next/document';
 
-import { getCssText } from '@/styles/theme';
+import { getCssText } from '@/styles/stitches';
 import { initializeTheme } from '@/utils/initialize-theme';
 
 class MyDocument extends Document {

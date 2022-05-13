@@ -3,11 +3,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 
-import { darkTheme, lightTheme } from '@/styles/theme';
-
 export const ThemeToggle = () => {
   const [activeTheme, setActiveTheme] = useState('dark');
   const [shouldRender, setShouldRender] = useState(false);
+  const darkThemeClass = 'dark-theme';
+  const lightThemeClass = 'light-theme';
 
   useEffect(() => {
     setActiveTheme(localStorage.getItem('theme') || 'dark');
@@ -16,13 +16,13 @@ export const ThemeToggle = () => {
 
   function toggleTheme() {
     if (activeTheme === 'dark') {
-      document.body.classList.remove(darkTheme);
-      document.body.classList.add(lightTheme);
+      document.body.classList.remove(darkThemeClass);
+      document.body.classList.add(lightThemeClass);
       localStorage.setItem('theme', 'light');
       setActiveTheme('light');
     } else {
-      document.body.classList.remove(lightTheme);
-      document.body.classList.add(darkTheme);
+      document.body.classList.remove(lightThemeClass);
+      document.body.classList.add(darkThemeClass);
       localStorage.setItem('theme', 'dark');
       setActiveTheme('dark');
     }

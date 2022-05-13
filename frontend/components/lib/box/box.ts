@@ -1,8 +1,8 @@
-import { styled } from '@/styles/theme';
+import { styled } from '@/styles/stitches';
 
 export const Box = styled('div', {
-  padding: '$m',
-  background: '$gray50',
-  borderRadius: '$standard',
-  boxShadow: '$soft',
+  padding: 'var(--space-m)',
+  background: 'var(--color-surface-2)',
+  borderRadius: 'var(--border-radius)',
+  boxShadow: 'var(--shadow-soft)',
 });

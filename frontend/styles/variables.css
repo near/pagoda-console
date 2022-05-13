@@ -1,0 +1,77 @@
+:root,
+.dark-theme {
+  --border-radius: 3px;
+
+  --color-text-1: #ffffff;
+  --color-text-2: #bcc3cd;
+
+  --color-surface-1: #16191d;
+  --color-surface-2: #1f2429;
+  --color-surface-3: #2b323b;
+  --color-surface-4: #414a58;
+
+  --color-cta-primary: #87bb81;
+  --color-cta-primary-highlight: #a8daa4;
+  --color-cta-primary-text: #000000;
+  --color-cta-danger: #e64747;
+  --color-cta-danger-highlight: #ec6f6f;
+  --color-cta-danger-text: #000000;
+  --color-cta-neutral: #bcc3cd;
+  --color-cta-neutral-highlight: #f0f2f4;
+  --color-cta-neutral-text: #000000;
+
+  --focus-outline: 1px solid var(--focus-outline-color);
+  --focus-outline-color: #8793a6;
+  --focus-outline-offset: 3px;
+
+  --font-accent: 'New Spirit', serif;
+  --font-body: 'NB International Pro', sans-serif;
+  --font-code: 'Source Code Pro', monospace;
+
+  --font-size-body: 1rem;
+  --font-size-body-small: 0.8rem;
+  --font-size-h1: 3rem;
+  --font-size-h2: 2.5rem;
+  --font-size-h3: 2rem;
+  --font-size-h4: 1.5rem;
+  --font-size-h5: 1rem;
+  --font-size-h6: 0.8rem;
+
+  --line-height-body: 1.5;
+
+  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.3);
+
+  --size-input-small: 1.75rem;
+  --size-input-standard: 3rem;
+  --size-max-container-width: 75rem;
+
+  --space-xs: 0.25rem;
+  --space-s: 0.5rem;
+  --space-m: 1rem;
+  --space-l: 2rem;
+  --space-xl: 4rem;
+
+  --transition-speed: 150ms;
+}
+
+.light-theme {
+  --color-text-1: #16191d;
+  --color-text-2: #2b323b;
+
+  --color-surface-1: #ffffff;
+  --color-surface-2: #ffffff;
+  --color-surface-3: #d6dae1;
+  --color-surface-4: #bcc3cd;
+
+  --color-cta-primary: #87bb81;
+  --color-cta-primary-highlight: #a8daa4;
+  --color-cta-primary-text: #000000;
+  --color-cta-danger: #e64747;
+  --color-cta-danger-highlight: #ec6f6f;
+  --color-cta-danger-text: #000000;
+  --color-cta-neutral: #bcc3cd;
+  --color-cta-neutral-highlight: #f0f2f4;
+  --color-cta-neutral-text: #000000;
+
+  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.15);
+}

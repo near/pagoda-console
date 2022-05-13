@@ -1,17 +1,16 @@
-import { styled } from '@/styles/theme';
+import { styled } from '@/styles/stitches';
 
 export const TextLink = styled('a', {
   display: 'inline-block',
   cursor: 'pointer',
   fontWeight: 700,
-  fontFamily: '$body',
-  transition: 'color 150ms',
+  fontFamily: 'var(--font-body)',
+  transition: 'color var(--transition-speed)',
   borderBottom: '1px solid',
 
   '&:focus': {
-    outline: '1px solid',
+    outline: 'var(--focus-outline)',
     outlineOffset: '4px',
-    outlineColor: '$gray500',
   },
 
   '&:active': {
@@ -20,16 +19,22 @@ export const TextLink = styled('a', {
 
   variants: {
     color: {
-      primary: {
-        color: '$green500',
+      danger: {
+        color: 'var(--color-cta-danger)',
         '&:hover': {
-          color: '$green600',
+          color: 'var(--color-cta-danger-highlight)',
+        },
+      },
+      primary: {
+        color: 'var(--color-cta-primary)',
+        '&:hover': {
+          color: 'var(--color-cta-primary-highlight)',
         },
       },
       neutral: {
-        color: '$gray800',
+        color: 'var(--color-text-1)',
         '&:hover': {
-          color: '$gray900',
+          color: 'var(--color-text-2)',
         },
       },
     },

@@ -1,6 +1,6 @@
-import { styled } from '@/styles/theme';
+import { styled } from '@/styles/stitches';
 
 export const HR = styled('hr', {
   height: '1px',
-  background: '$gray100',
+  background: 'var(--color-surface-3)',
 });

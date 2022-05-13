@@ -1,22 +1,21 @@
-import { styled } from '@/styles/theme';
+import { styled } from '@/styles/stitches';
 
 export const Section = styled('section', {
-  padding: '$l',
-  borderBottom: '1px solid',
-  borderColor: '$gray100',
+  padding: 'var(--space-l)',
+  borderBottom: '2px solid var(--color-surface-3)',
 
   '&:last-child': {
     borderBottom: 'none',
   },
 
   '@mobile': {
-    padding: '$m',
+    padding: 'var(--space-m)',
   },
 
   variants: {
     color: {
       primary: {
-        background: '$gray50',
+        background: 'var(--color-surface-2)',
       },
     },
 

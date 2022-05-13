@@ -1,6 +1,6 @@
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 
-import { keyframes, styled } from '@/styles/theme';
+import { keyframes, styled } from '@/styles/stitches';
 
 const slideDown = keyframes({
   from: { height: 0 },
@@ -13,25 +13,24 @@ const slideUp = keyframes({
 });
 
 export const Accordion = styled(AccordionPrimitive.Root, {
-  '--animationSpeed': '200ms',
+  '--animation-speed': '200ms',
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
-  gap: '$s',
+  gap: 'var(--space-s)',
 });
 
 export const Item = styled(AccordionPrimitive.Item, {
   overflow: 'hidden',
-  borderRadius: '$standard',
-  boxShadow: '$soft',
-  backgroundColor: '$gray50',
+  borderRadius: 'var(--border-radius)',
+  boxShadow: 'var(--shadow-soft)',
+  backgroundColor: 'var(--color-surface-2)',
 
   '&:focus-within': {
     position: 'relative',
     zIndex: 1,
-    outline: '1px solid',
-    outlineOffset: '2px',
-    outlineColor: '$gray500',
+    outline: 'var(--focus-outline)',
+    outlineOffset: 'var(--focus-outline-offset)',
   },
 });
 
@@ -41,18 +40,15 @@ export const Header = styled(AccordionPrimitive.Header, {
 
 export const Trigger = styled(AccordionPrimitive.Trigger, {
   alignItems: 'center',
-  boxShadow: '0 1px 0 $colors$gray25',
-  color: '$gray900',
+  boxShadow: '0 1px 0 var(--color-surface-1)',
+  color: 'var(--color-text-1)',
   cursor: 'pointer',
   display: 'flex',
   flex: '1',
-  fontFamily: '$body',
   fontWeight: '500',
-  fontSize: '$body',
   justifyContent: 'space-between',
-  lineHeight: '$standard',
-  padding: '$m',
-  transition: 'background var(--animationSpeed)',
+  padding: 'var(--space-m)',
+  transition: 'background var(--animation-speed)',
 
   '&[data-state="open"]': {
     '& svg': {
@@ -60,26 +56,25 @@ export const Trigger = styled(AccordionPrimitive.Trigger, {
     },
   },
 
-  '&:hover': { backgroundColor: '$gray100' },
+  '&:hover': { backgroundColor: 'var(--color-surface-3)' },
 
   '& svg': {
-    color: '$green500',
-    transition: 'transform 300ms',
+    color: 'var(--color-cta-primary)',
+    transition: 'transform var(--animation-speed)',
   },
 });
 
 export const Content = styled(AccordionPrimitive.Content, {
   overflow: 'hidden',
-  backgroundColor: '$gray50',
 
   '&[data-state="open"]': {
-    animation: `${slideDown} var(--animationSpeed) ease forwards`,
+    animation: `${slideDown} var(--animation-speed) ease forwards`,
   },
   '&[data-state="closed"]': {
-    animation: `${slideUp} var(--animationSpeed) ease forwards`,
+    animation: `${slideUp} var(--animation-speed) ease forwards`,
   },
 });
 
 export const ContentContainer = styled('div', {
-  padding: '$m',
+  padding: 'var(--space-m)',
 });

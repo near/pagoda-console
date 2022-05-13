@@ -9,13 +9,13 @@ import { Section } from '@/components/lib/section';
 import { Stack } from '@/components/lib/stack';
 import { TextLink } from '@/components/lib/text-link';
 import { ThemeToggle } from '@/components/theme-toggle/theme-toggle';
-import { styled } from '@/styles/theme';
+import { styled } from '@/styles/stitches';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Block = styled('div', {
   width: '15rem',
   height: '2rem',
-  background: '$gray100',
+  background: 'var(--color-surface-3)',
 });
 
 const Settings: NextPageWithLayout = () => {
@@ -75,6 +75,7 @@ const Settings: NextPageWithLayout = () => {
 
         <Flex>
           <Button>Primary</Button>
+          <Button color="danger">Danger</Button>
           <Button color="neutral">Neutral</Button>
           <Button color="neutral" size="small">
             Small
@@ -194,6 +195,10 @@ const Settings: NextPageWithLayout = () => {
           <H2>Text Link</H2>
           <P>
             Here are some links: <TextLink href="#">Primary Link</TextLink> and{' '}
+            <TextLink color="danger" href="#">
+              Danger Link
+            </TextLink>{' '}
+            and{' '}
             <TextLink color="neutral" href="#">
               Neutral Link
             </TextLink>

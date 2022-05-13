@@ -1,6 +1,6 @@
-import { styled } from '@/styles/theme';
+import { styled } from '@/styles/stitches';
 
 export const Container = styled('div', {
   margin: '0 auto',
-  maxWidth: '$maxContainerWidth',
+  maxWidth: 'var(--size-max-container-width)',
 });

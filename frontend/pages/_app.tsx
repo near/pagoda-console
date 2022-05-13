@@ -1,7 +1,8 @@
-import '@/styles/reset.css'; // UI_TODO: Uncomment
-import '@/styles/global.css'; // UI_TODO: Uncomment
-// import '@/styles/globals.scss'; // UI_TODO: Remove
+import '@/styles/reset.css';
 import '@/styles/fonts.css';
+import '@/styles/variables.css';
+import '@/styles/global.css';
+// import '@/styles/globals.scss'; // UI_TODO: Remove
 import '@fortawesome/fontawesome-svg-core/styles.css';
 
 import { config as svgConfig } from '@fortawesome/fontawesome-svg-core';

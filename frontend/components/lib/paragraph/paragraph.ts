@@ -1,21 +1,21 @@
-import { styled } from '@/styles/theme';
+import { styled } from '@/styles/stitches';
 
 export const P = styled('p', {
-  color: '$gray800',
-  fontFamily: '$body',
+  color: 'var(--color-text-2)',
+  fontFamily: 'var(--font-body)',
   fontWeight: 400,
-  lineHeight: '$body',
+  lineHeight: 'var(--line-height-body)',
 
   variants: {
     size: {
       small: {
-        fontSize: '$bodySmall',
+        fontSize: 'var(--font-size-body-small)',
       },
       standard: {
-        fontSize: '$body',
+        fontSize: 'var(--font-size-body)',
       },
       large: {
-        fontSize: '$h4',
+        fontSize: 'var(--font-size-h4)',
       },
     },
   },
