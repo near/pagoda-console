@@ -1,7 +1,8 @@
 import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
-import { Button } from 'react-bootstrap';
+
+import * as S from './styles';
 
 export const ThemeToggle = () => {
   const [activeTheme, setActiveTheme] = useState('dark');
@@ -34,9 +35,9 @@ export const ThemeToggle = () => {
 
   return (
     <>
-      <Button variant="accent" onClick={() => toggleTheme()} title={buttonTitle}>
+      <S.Button data-theme={activeTheme} onClick={() => toggleTheme()} title={buttonTitle}>
         <FontAwesomeIcon icon={activeTheme === 'light' ? faSun : faMoon} />
-      </Button>
+      </S.Button>
     </>
   );
 };

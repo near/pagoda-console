@@ -9,7 +9,7 @@ type Props = ComponentProps<typeof S.Button> & {
 export const Button = ({ children, type = 'button', ...props }: Props) => {
   return (
     <S.Button type={type} {...props}>
-      <span>{children}</span>
+      <S.Content>{children}</S.Content>
     </S.Button>
   );
 };

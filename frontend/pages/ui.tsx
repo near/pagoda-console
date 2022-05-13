@@ -1,3 +1,6 @@
+import { faAtlas, faCar } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import * as Accordion from '@/components/lib/accordion';
 import { Box } from '@/components/lib/box';
 import { Button } from '@/components/lib/button';
@@ -22,9 +25,14 @@ const Settings: NextPageWithLayout = () => {
   return (
     <>
       <Section color="primary">
-        <H1>Stitches & Radix UI</H1>
-        <P>This page shows examples of all our shared components.</P>
-        <ThemeToggle />
+        <Flex justify="spaceBetween" align="center">
+          <div>
+            <H1>Stitches & Radix UI</H1>
+            <P>This page shows examples of all our shared components.</P>
+          </div>
+
+          <ThemeToggle />
+        </Flex>
       </Section>
 
       <Section>
@@ -75,9 +83,19 @@ const Settings: NextPageWithLayout = () => {
 
         <Flex>
           <Button>Primary</Button>
+          <Button>
+            <FontAwesomeIcon icon={faAtlas} /> With Icon
+          </Button>
+          <Button>
+            <FontAwesomeIcon icon={faCar} />
+          </Button>
+          <Button loading>Is Loading</Button>
           <Button color="danger">Danger</Button>
           <Button color="neutral">Neutral</Button>
           <Button color="neutral" size="small">
+            Small
+          </Button>
+          <Button color="neutral" size="small" loading>
             Small
           </Button>
         </Flex>

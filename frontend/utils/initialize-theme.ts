@@ -9,9 +9,7 @@ export const initializeTheme = `
       return 'dark';
     }
 
-    console.log(getUserPreference());
-
-    const themeClass = getUserPreference() === 'dark' ? '.dark-theme' : '.light-theme';
+    const themeClass = getUserPreference() === 'dark' ? 'dark-theme' : 'light-theme';
 
     document.body.classList.add(themeClass);
   })();
