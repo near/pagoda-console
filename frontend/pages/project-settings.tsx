@@ -35,20 +35,26 @@ const ProjectSettings: NextPageWithLayout = () => {
     try {
       // clear current key from the UI
       mutateKeys((cachedKeys: Record<NetOption, string>) => {
-        delete cachedKeys[net];
-        return cachedKeys;
-      }, false);
-      const newKey = await authenticatedPost('/projects/rotateKey', { project: project?.slug, environment: subId });
-      analytics.track('DC Rotate API Key', {
-        status: 'success',
-        net: net,
+        const clone = {
+          ...cachedKeys,
+        };
+        delete clone[net];
+        return clone;
       });
-      mutateKeys((cachedKeys: Record<NetOption, string>) => {
+
+      await mutateKeys(async (cachedKeys: Record<NetOption, string>) => {
+        const newKey = await authenticatedPost('/projects/rotateKey', { project: project?.slug, environment: subId });
+
+        analytics.track('DC Rotate API Key', {
+          status: 'success',
+          net: net,
+        });
+
         return {
           ...cachedKeys,
           ...newKey,
         };
-      }, false);
+      });
     } catch (e: any) {
       analytics.track('DC Rotate API Key', {
         status: 'failure',
