@@ -12,7 +12,7 @@ export const Content = styled('span', {
 });
 
 export const Button = styled('button', {
-  borderRadius: 'var(--border-radius)',
+  borderRadius: 'var(--border-radius-s)',
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -24,6 +24,7 @@ export const Button = styled('button', {
   transition: 'background var(--transition-speed)',
   position: 'relative',
   userSelect: 'none',
+  whiteSpace: 'nowrap',
 
   '&:disabled': {
     opacity: 0.25,
@@ -71,6 +72,10 @@ export const Button = styled('button', {
 
     loading: {
       true: {
+        '&:disabled': {
+          opacity: 1,
+        },
+
         [`& ${Content}`]: {
           opacity: 0,
         },

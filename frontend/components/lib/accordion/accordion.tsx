@@ -1,55 +1,36 @@
-/*
-  https://www.radix-ui.com/docs/primitives/components/accordion
-
-  import * as Accordion from '@/components/lib/accordion';
-
-  <Accordion.Root>
-    <Accordion.Item value="item-1">
-      <Accordion.Trigger>Header 1</Accordion.Trigger>
-      <Accordion.Content>
-        <P>Content 1</P>
-      </Accordion.Content>
-    </Accordion.Item>
-
-    <Accordion.Item value="item-2">
-      <Accordion.Trigger>Header 2</Accordion.Trigger>
-      <Accordion.Content>
-        <P>Content 2</P>
-      </Accordion.Content>
-    </Accordion.Item>
-  </Accordion.Root>
-*/
-
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import type { ComponentProps, ElementRef } from 'react';
+import type { ComponentProps } from 'react';
 import { forwardRef } from 'react';
 
-import { Stack } from '../stack';
+import { Flex } from '../flex';
 import * as S from './styles';
+
+type ContentProps = ComponentProps<typeof S.Content>;
+type TriggerProps = ComponentProps<typeof S.Trigger>;
 
 export const Root = S.Accordion;
 export const Item = S.Item;
 
-export const Trigger = forwardRef<ElementRef<typeof S.Trigger>, ComponentProps<typeof S.Trigger>>(
-  ({ children, ...props }, ref) => (
+export const Trigger = forwardRef<HTMLButtonElement, TriggerProps>(({ children, ...props }, ref) => {
+  return (
     <S.Header>
-      <S.Trigger {...props} ref={ref}>
+      <S.Trigger ref={ref} {...props}>
         {children}
         <FontAwesomeIcon icon={faCaretDown}></FontAwesomeIcon>
       </S.Trigger>
     </S.Header>
-  ),
-);
+  );
+});
 Trigger.displayName = 'AccordionTrigger';
 
-export const Content = forwardRef<ElementRef<typeof S.Content>, ComponentProps<typeof S.Content>>(
-  ({ children, ...props }, ref) => (
-    <S.Content {...props} ref={ref}>
+export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, ...props }, ref) => {
+  return (
+    <S.Content ref={ref} {...props}>
       <S.ContentContainer>
-        <Stack>{children}</Stack>
+        <Flex stack>{children}</Flex>
       </S.ContentContainer>
     </S.Content>
-  ),
-);
+  );
+});
 Content.displayName = 'AccordionContent';

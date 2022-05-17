@@ -20,15 +20,6 @@ export const Flex = styled('div', {
       },
     },
 
-    direction: {
-      column: {
-        flexDirection: 'column',
-      },
-      row: {
-        flexDirection: 'row',
-      },
-    },
-
     gap: {
       xs: {
         gap: 'var(--space-xs)',
@@ -72,15 +63,8 @@ export const Flex = styled('div', {
     },
 
     stack: {
-      mobile: {
-        '@mobile': {
-          flexDirection: 'column',
-        },
-      },
-      tablet: {
-        '@tablet': {
-          flexDirection: 'column',
-        },
+      true: {
+        flexDirection: 'column',
       },
     },
 
@@ -92,7 +76,7 @@ export const Flex = styled('div', {
   },
 
   defaultVariants: {
-    direction: 'row',
+    align: 'start',
     gap: 'm',
     justify: 'start',
   },

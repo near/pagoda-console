@@ -15,7 +15,10 @@ export const Section = styled('section', {
 
   variants: {
     color: {
-      primary: {
+      surface1: {
+        background: 'var(--color-surface-1)',
+      },
+      surface2: {
         background: 'var(--color-surface-2)',
       },
     },
@@ -25,5 +28,9 @@ export const Section = styled('section', {
         borderBottom: 'none',
       },
     },
+  },
+
+  defaultVariants: {
+    color: 'surface1',
   },
 });

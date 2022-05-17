@@ -6,28 +6,35 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import type { ComponentProps, ReactNode } from 'react';
+import { forwardRef } from 'react';
 
-import { Stack } from '../stack';
+import { Flex } from '../flex';
 import * as S from './styles';
 
-export const Root = DialogPrimitive.Root;
-export const Trigger = DialogPrimitive.Trigger;
 export const Close = DialogPrimitive.Close;
+export const Root = DialogPrimitive.Root;
+export const Title = S.Title;
+export const Trigger = DialogPrimitive.Trigger;
 
 type ContentProps = Omit<ComponentProps<typeof S.Content>, 'title'> & {
   title?: ReactNode;
 };
 
-export const Content = ({ children, title, ...props }: ContentProps) => {
+export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, title, ...props }, ref) => {
   return (
     <DialogPrimitive.Portal>
-      <S.Overlay />
-      <S.Wrapper>
-        <S.Content {...props}>
+      <S.Overlay>
+        <S.Content aria-describedby={undefined} ref={ref} {...props}>
+          {/*
+            Descriptions are optional: https://www.radix-ui.com/docs/primitives/components/dialog#description
+            The modal is already labeled with the title attribute via "aria-labelledby" - so description is a
+            bit overkill. This is why we're setting aria-describedby={undefined} since we don't intend to
+            use <DialogPrimitive.Description>.
+          */}
+
           {title && (
             <S.Header>
-              {typeof title === 'string' && <S.Title>{title}</S.Title>}
-              {typeof title !== 'string' && { title }}
+              <S.HeaderContent>{typeof title === 'string' ? <S.Title>{title}</S.Title> : title}</S.HeaderContent>
 
               <S.CloseButton>
                 <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>
@@ -35,11 +42,12 @@ export const Content = ({ children, title, ...props }: ContentProps) => {
             </S.Header>
           )}
 
-          <S.ContentInner>
-            <Stack>{children}</Stack>
-          </S.ContentInner>
+          <S.ContentBody>
+            <Flex stack>{children}</Flex>
+          </S.ContentBody>
         </S.Content>
-      </S.Wrapper>
+      </S.Overlay>
     </DialogPrimitive.Portal>
   );
-};
+});
+Content.displayName = 'DialogContent';

@@ -22,7 +22,7 @@ export const Accordion = styled(AccordionPrimitive.Root, {
 
 export const Item = styled(AccordionPrimitive.Item, {
   overflow: 'hidden',
-  borderRadius: 'var(--border-radius)',
+  borderRadius: 'var(--border-radius-s)',
   boxShadow: 'var(--shadow-soft)',
   backgroundColor: 'var(--color-surface-2)',
 

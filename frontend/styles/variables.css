@@ -1,6 +1,8 @@
 :root,
 .dark-theme {
-  --border-radius: 3px;
+  --border-radius-s: 3px;
+  --border-radius-m: 10px;
+  --border-radius-l: 20px;
 
   --color-text-1: #ffffff;
   --color-text-2: #bcc3cd;
@@ -44,7 +46,9 @@
 
   --size-input-small: 1.75rem;
   --size-input-standard: 3rem;
-  --size-max-container-width: 75rem;
+  --size-max-container-width-s: 30rem;
+  --size-max-container-width-m: 50rem;
+  --size-max-container-width-l: 75rem;
 
   --space-xs: 0.25rem;
   --space-s: 0.5rem;
