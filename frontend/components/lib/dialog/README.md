@@ -2,13 +2,13 @@
 
 Implemented via Radix primitives: https://www.radix-ui.com/docs/primitives/components/dialog
 
-There are two ways you can implement a dialog. With a simple trigger or with a control.
+There are two ways you can implement a dialog: with a trigger or controlled by state.
 
 _If the current props and Stitches style overrides aren't enough to cover your use case, feel free to implement your own component using the Radix primitives directly._
 
 ## Controlled
 
-A controlled modal via a boolean state property will give you the most control over when the modal should open or close. This will make sense the vast majority of the time.
+A controlled modal via a boolean state property will give you the most control over when the modal should open or close. This will make sense for most use cases.
 
 ```tsx
 import * as Dialog from '@/components/lib/dialog';

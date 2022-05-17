@@ -12,6 +12,7 @@ import { H1, H2, H3, H4, H5, H6 } from '@/components/lib/heading';
 import { HR } from '@/components/lib/hr';
 import { P } from '@/components/lib/paragraph';
 import { Section } from '@/components/lib/section';
+import * as Tabs from '@/components/lib/tabs';
 import { TextLink } from '@/components/lib/text-link';
 import { ThemeToggle } from '@/components/theme-toggle/theme-toggle';
 import { styled } from '@/styles/stitches';
@@ -106,7 +107,7 @@ const Settings: NextPageWithLayout = () => {
 
           <Accordion.Item value="item-3">
             <Accordion.Trigger>
-              <FontAwesomeIcon size="1x" icon={faAtlas} />
+              <FontAwesomeIcon icon={faAtlas} />
               <H5>Some Title</H5>
               <P>With some subtitle</P>
             </Accordion.Trigger>
@@ -314,6 +315,50 @@ const Settings: NextPageWithLayout = () => {
           Each UI section is wrapped by a section component. This section is using the &quot;surface2&quot; color
           background.
         </P>
+      </Section>
+
+      <Section>
+        <H2>Tabs</H2>
+
+        <Tabs.Root defaultValue="tab-1">
+          <Tabs.List>
+            <Tabs.Trigger value="tab-1">Tab 1</Tabs.Trigger>
+            <Tabs.Trigger value="tab-2">Tab 2 With a Really Super Long Name</Tabs.Trigger>
+            <Tabs.Trigger value="tab-3">Tab 3 Also With a Long Name</Tabs.Trigger>
+            <Tabs.Trigger value="tab-4">
+              <FontAwesomeIcon icon={faAtlas} />
+              <H5 css={{ color: 'CurrentColor' }}>Tab 4</H5>
+            </Tabs.Trigger>
+          </Tabs.List>
+
+          <Tabs.Content value="tab-1">
+            <Flex stack>
+              <H4>Tab 1</H4>
+              <P>Some tab 1 content.</P>
+            </Flex>
+          </Tabs.Content>
+
+          <Tabs.Content value="tab-2">
+            <Flex stack>
+              <H4>Tab 2</H4>
+              <P>Some tab 2 content.</P>
+            </Flex>
+          </Tabs.Content>
+
+          <Tabs.Content value="tab-3">
+            <Flex stack>
+              <H4>Tab 3</H4>
+              <P>Some tab 3 content.</P>
+            </Flex>
+          </Tabs.Content>
+
+          <Tabs.Content value="tab-4">
+            <Flex stack>
+              <H4>Tab 4</H4>
+              <P>Some tab 4 content.</P>
+            </Flex>
+          </Tabs.Content>
+        </Tabs.Root>
       </Section>
 
       <Section>
