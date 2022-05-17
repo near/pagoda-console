@@ -16,7 +16,7 @@ export const Trigger = forwardRef<HTMLButtonElement, TriggerProps>(({ children, 
   return (
     <S.Header>
       <S.Trigger ref={ref} {...props}>
-        {children}
+        <Flex align="center">{children}</Flex>
         <FontAwesomeIcon icon={faCaretDown}></FontAwesomeIcon>
       </S.Trigger>
     </S.Header>

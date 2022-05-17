@@ -17,20 +17,28 @@ export const Accordion = styled(AccordionPrimitive.Root, {
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
-  gap: 'var(--space-s)',
+  boxShadow: 'var(--shadow-soft)',
 });
 
 export const Item = styled(AccordionPrimitive.Item, {
-  overflow: 'hidden',
-  borderRadius: 'var(--border-radius-s)',
-  boxShadow: 'var(--shadow-soft)',
+  border: '1px solid var(--color-surface-3)',
+  borderTop: 'none',
   backgroundColor: 'var(--color-surface-2)',
+
+  '&:first-child': {
+    borderTop: '1px solid var(--color-surface-3)',
+    borderTopLeftRadius: 'var(--border-radius-s)',
+    borderTopRightRadius: 'var(--border-radius-s)',
+  },
+
+  '&:last-child': {
+    borderBottomLeftRadius: 'var(--border-radius-s)',
+    borderBottomRightRadius: 'var(--border-radius-s)',
+  },
 
   '&:focus-within': {
     position: 'relative',
-    zIndex: 1,
-    outline: 'var(--focus-outline)',
-    outlineOffset: 'var(--focus-outline-offset)',
+    zIndex: 5,
   },
 });
 
@@ -40,7 +48,6 @@ export const Header = styled(AccordionPrimitive.Header, {
 
 export const Trigger = styled(AccordionPrimitive.Trigger, {
   alignItems: 'center',
-  boxShadow: '0 1px 0 var(--color-surface-1)',
   color: 'var(--color-text-1)',
   cursor: 'pointer',
   display: 'flex',
@@ -48,17 +55,25 @@ export const Trigger = styled(AccordionPrimitive.Trigger, {
   fontWeight: '500',
   justifyContent: 'space-between',
   padding: 'var(--space-m)',
-  transition: 'background var(--animation-speed)',
+  transition: 'background var(--animation-speed), box-shadow var(--animation-speed)',
 
   '&[data-state="open"]': {
-    '& svg': {
+    backgroundColor: 'var(--color-surface-3)',
+    boxShadow: 'var(--shadow-soft)',
+
+    '& > svg': {
       transform: 'rotate(-180deg)',
     },
   },
 
   '&:hover': { backgroundColor: 'var(--color-surface-3)' },
 
-  '& svg': {
+  '&:focus': {
+    outline: 'var(--focus-outline)',
+    outlineOffset: '0px',
+  },
+
+  '& > svg': {
     color: 'var(--color-cta-primary)',
     transition: 'transform var(--animation-speed)',
   },
@@ -66,6 +81,7 @@ export const Trigger = styled(AccordionPrimitive.Trigger, {
 
 export const Content = styled(AccordionPrimitive.Content, {
   overflow: 'hidden',
+  background: 'var(--color-surface-1)',
 
   '&[data-state="open"]': {
     animation: `${slideDown} var(--animation-speed) ease`,

@@ -105,7 +105,11 @@ const Settings: NextPageWithLayout = () => {
           </Accordion.Item>
 
           <Accordion.Item value="item-3">
-            <Accordion.Trigger>Can it be animated?</Accordion.Trigger>
+            <Accordion.Trigger>
+              <FontAwesomeIcon size="1x" icon={faAtlas} />
+              <H5>Some Title</H5>
+              <P>With some subtitle</P>
+            </Accordion.Trigger>
             <Accordion.Content>
               <P>Yes! You can animate the Accordion with CSS or JavaScript.</P>
             </Accordion.Content>
