@@ -5,6 +5,7 @@ import '@fortawesome/fontawesome-svg-core/styles.css';
 import { config as svgConfig } from '@fortawesome/fontawesome-svg-core';
 svgConfig.autoAddCss = false;
 
+import * as FullStory from '@fullstory/browser';
 import { SSRProvider } from '@restart/ui/ssr'; // workaround for react-bootstrap bug https://github.com/react-bootstrap/react-bootstrap/issues/6026
 import { initializeApp } from 'firebase/app';
 import type { User } from 'firebase/auth';
@@ -40,6 +41,10 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   usePageTracker();
   const router = useRouter();
   const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
+
+  useEffect(() => {
+    FullStory.init({ orgId: 'o-1A5K4V-na1' });
+  }, []);
 
   useEffect(() => {
     router.prefetch('/');
