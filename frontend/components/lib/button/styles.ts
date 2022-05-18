@@ -7,7 +7,7 @@ const loadingAnimation = keyframes({
 
 export const Content = styled('span', {
   display: 'flex',
-  gap: 'var(--space-m)',
+  gap: 'var(--space-s)',
   alignItems: 'center',
 });
 

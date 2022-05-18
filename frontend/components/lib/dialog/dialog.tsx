@@ -47,4 +47,4 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, tit
     </DialogPrimitive.Portal>
   );
 });
-Content.displayName = 'DialogContent';
+Content.displayName = 'Content';

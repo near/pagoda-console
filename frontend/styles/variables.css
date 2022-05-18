@@ -52,7 +52,7 @@
   --size-max-container-width-l: 75rem;
 
   --space-xs: 0.25rem;
-  --space-s: 0.5rem;
+  --space-s: 0.6rem;
   --space-m: 1rem;
   --space-l: 2rem;
   --space-xl: 4rem;
@@ -65,8 +65,8 @@
   --color-text-2: #2b323b;
 
   --color-surface-1: #ffffff;
-  --color-surface-2: #ffffff;
-  --color-surface-3: #d6dae1;
+  --color-surface-2: #f2f4f7;
+  --color-surface-3: #e9ecf0;
   --color-surface-4: #bcc3cd;
 
   --color-cta-primary: #87bb81;
@@ -79,5 +79,5 @@
   --color-cta-neutral-highlight: #f0f2f4;
   --color-cta-neutral-text: #000000;
 
-  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.05);
 }

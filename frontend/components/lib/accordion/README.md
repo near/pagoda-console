@@ -27,7 +27,7 @@ import * as Accordion from '@/components/lib/accordion';
       <P>Content 2</P>
     </Accordion.Content>
   </Accordion.Item>
-</Accordion.Root>;
+</Accordion.Root>
 ```
 
 ## Single

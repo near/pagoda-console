@@ -16,13 +16,15 @@ export const Trigger = forwardRef<HTMLButtonElement, TriggerProps>(({ children, 
   return (
     <S.Header>
       <S.Trigger ref={ref} {...props}>
-        <Flex align="center">{children}</Flex>
+        <Flex gap="s" align="center">
+          {children}
+        </Flex>
         <FontAwesomeIcon icon={faCaretDown}></FontAwesomeIcon>
       </S.Trigger>
     </S.Header>
   );
 });
-Trigger.displayName = 'AccordionTrigger';
+Trigger.displayName = 'Trigger';
 
 export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, ...props }, ref) => {
   return (
@@ -31,4 +33,4 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, ...
     </S.Content>
   );
 });
-Content.displayName = 'AccordionContent';
+Content.displayName = 'Content';

@@ -1,12 +1,4 @@
-import {
-  faAtlas,
-  faCar,
-  faCheckCircle,
-  faCheckSquare,
-  faChevronDown,
-  faCircle,
-  faSquare,
-} from '@fortawesome/free-solid-svg-icons';
+import { faAtlas, faCar, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -256,13 +248,16 @@ const Settings: NextPageWithLayout = () => {
               </Button>
             </DropdownMenu.Trigger>
 
-            <DropdownMenu.Content sideOffset={5}>
+            <DropdownMenu.Content>
               <DropdownMenu.Item>New Tab</DropdownMenu.Item>
-              <DropdownMenu.Item>New Window</DropdownMenu.Item>
-              <DropdownMenu.Item disabled>New Private Window</DropdownMenu.Item>
+              <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
+              <DropdownMenu.Item>
+                <FontAwesomeIcon icon={faAtlas} /> With Icon
+              </DropdownMenu.Item>
+
               <DropdownMenu.Root>
                 <DropdownMenu.TriggerItem>More Tools</DropdownMenu.TriggerItem>
-                <DropdownMenu.Content sideOffset={0} alignOffset={-7}>
+                <DropdownMenu.Content nested>
                   <DropdownMenu.Item>Save Page As...</DropdownMenu.Item>
                   <DropdownMenu.Item>Create Shortcut…</DropdownMenu.Item>
                   <DropdownMenu.Item>Name Window…</DropdownMenu.Item>
@@ -270,81 +265,32 @@ const Settings: NextPageWithLayout = () => {
                   <DropdownMenu.Item>Developer Tools</DropdownMenu.Item>
                 </DropdownMenu.Content>
               </DropdownMenu.Root>
+
               <DropdownMenu.Separator />
+
               <DropdownMenu.CheckboxItem checked={bookmarksChecked} onCheckedChange={setBookmarksChecked}>
-                <DropdownMenu.ItemSelectedIndicator>
-                  <FontAwesomeIcon icon={faCheckSquare} />
-                </DropdownMenu.ItemSelectedIndicator>
-                <DropdownMenu.ItemUnselectedIndicator>
-                  <FontAwesomeIcon icon={faSquare} />
-                </DropdownMenu.ItemUnselectedIndicator>
                 Show Bookmarks
               </DropdownMenu.CheckboxItem>
               <DropdownMenu.CheckboxItem checked={urlsChecked} onCheckedChange={setUrlsChecked}>
-                <DropdownMenu.ItemSelectedIndicator>
-                  <FontAwesomeIcon icon={faCheckSquare} />
-                </DropdownMenu.ItemSelectedIndicator>
-                <DropdownMenu.ItemUnselectedIndicator>
-                  <FontAwesomeIcon icon={faSquare} />
-                </DropdownMenu.ItemUnselectedIndicator>
                 Show Full URLs
               </DropdownMenu.CheckboxItem>
+
               <DropdownMenu.Separator />
+
               <DropdownMenu.Label>People</DropdownMenu.Label>
+
               <DropdownMenu.RadioGroup value={person} onValueChange={setPerson}>
-                <DropdownMenu.RadioItem value="pedro">
-                  <DropdownMenu.ItemSelectedIndicator>
-                    <FontAwesomeIcon icon={faCheckCircle} />
-                  </DropdownMenu.ItemSelectedIndicator>
-                  <DropdownMenu.ItemUnselectedIndicator>
-                    <FontAwesomeIcon icon={faCircle} />
-                  </DropdownMenu.ItemUnselectedIndicator>
-                  Pedro Duarte
-                </DropdownMenu.RadioItem>
-                <DropdownMenu.RadioItem value="colm">
-                  <DropdownMenu.ItemSelectedIndicator>
-                    <FontAwesomeIcon icon={faCheckCircle} />
-                  </DropdownMenu.ItemSelectedIndicator>
-                  <DropdownMenu.ItemUnselectedIndicator>
-                    <FontAwesomeIcon icon={faCircle} />
-                  </DropdownMenu.ItemUnselectedIndicator>
-                  Colm Tuite
-                </DropdownMenu.RadioItem>
+                <DropdownMenu.RadioItem value="pedro">Pedro Duarte</DropdownMenu.RadioItem>
+                <DropdownMenu.RadioItem value="colm">Colm Tuite</DropdownMenu.RadioItem>
               </DropdownMenu.RadioGroup>
-              <DropdownMenu.Arrow offset={6} />
             </DropdownMenu.Content>
           </DropdownMenu.Root>
         </Flex>
       </Section>
 
       <Section>
-        <Flex stack>
-          <H2>Heading</H2>
-
-          <H1>Heading 1</H1>
-          <H2>Heading 2</H2>
-          <H3>Heading 3</H3>
-          <H4>Heading 4</H4>
-          <H5>Heading 5</H5>
-          <H6>Heading 6</H6>
-        </Flex>
-      </Section>
-
-      <Section>
-        <Flex stack>
-          <H2>Horizontal Rule</H2>
-
-          <P>Here is some content split with a horizontal rule.</P>
-
-          <HR />
-
-          <P>Here is more content.</P>
-        </Flex>
-      </Section>
-
-      <Section>
         <Flex stack gap="l">
-          <H2>Layout - Flex</H2>
+          <H2>Flex</H2>
 
           <Flex stack>
             <P>Default</P>
@@ -413,6 +359,31 @@ const Settings: NextPageWithLayout = () => {
 
       <Section>
         <Flex stack>
+          <H2>Heading</H2>
+
+          <H1>Heading 1</H1>
+          <H2>Heading 2</H2>
+          <H3>Heading 3</H3>
+          <H4>Heading 4</H4>
+          <H5>Heading 5</H5>
+          <H6>Heading 6</H6>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
+          <H2>Horizontal Rule</H2>
+
+          <P>Here is some content split with a horizontal rule.</P>
+
+          <HR />
+
+          <P>Here is more content.</P>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
           <H2>Paragraph</H2>
           <P size="small">A small paragraph.</P>
           <P>A standard paragraph.</P>
@@ -438,11 +409,11 @@ const Settings: NextPageWithLayout = () => {
           <Tabs.Root defaultValue="tab-1">
             <Tabs.List>
               <Tabs.Trigger value="tab-1">Tab 1</Tabs.Trigger>
-              <Tabs.Trigger value="tab-2">Tab 2 With a Really Super Long Name</Tabs.Trigger>
-              <Tabs.Trigger value="tab-3">Tab 3 Also With a Long Name</Tabs.Trigger>
+              <Tabs.Trigger value="tab-2">Tab With a Really Super Long Name</Tabs.Trigger>
+              <Tabs.Trigger value="tab-3">Tab Also With a Long Name</Tabs.Trigger>
               <Tabs.Trigger value="tab-4">
                 <FontAwesomeIcon icon={faAtlas} />
-                Tab 4
+                Tab With Icon
               </Tabs.Trigger>
             </Tabs.List>
 

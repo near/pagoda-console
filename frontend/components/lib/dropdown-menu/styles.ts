@@ -89,9 +89,18 @@ const itemStyles: StitchesCSS = {
   },
 };
 
-export const Item = styled(DropdownMenuPrimitive.Item, { ...itemStyles });
-export const TriggerItem = styled(DropdownMenuPrimitive.TriggerItem, { ...itemStyles });
+export const Item = styled(DropdownMenuPrimitive.Item, { ...itemStyles, gap: 'var(--space-s)' });
+
+export const TriggerItem = styled(DropdownMenuPrimitive.TriggerItem, {
+  ...itemStyles,
+
+  '& > svg': {
+    color: 'var(--color-surface-4)',
+  },
+});
+
 export const CheckboxItem = styled(DropdownMenuPrimitive.CheckboxItem, { ...itemStyles });
+
 export const RadioItem = styled(DropdownMenuPrimitive.RadioItem, { ...itemStyles });
 
 export const Label = styled(DropdownMenuPrimitive.Label, {
