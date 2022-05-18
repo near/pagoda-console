@@ -114,7 +114,7 @@ export const Title = styled(DialogPrimitive.Title, {
   fontFamily: 'var(--font-body)',
   fontWeight: 500,
   fontSize: 'var(--font-size-h3)',
-  lineHeight: 1.3,
+  lineHeight: 'var(--line-height-h3)',
 });
 
 export const CloseButton = styled(DialogPrimitive.Close, {

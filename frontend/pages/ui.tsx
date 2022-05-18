@@ -9,6 +9,7 @@ import { Button, ButtonLink } from '@/components/lib/button';
 import * as Dialog from '@/components/lib/dialog';
 import * as DropdownMenu from '@/components/lib/dropdown-menu';
 import { Flex } from '@/components/lib/flex';
+import { Font } from '@/components/lib/font';
 import { H1, H2, H3, H4, H5, H6 } from '@/components/lib/heading';
 import { HR } from '@/components/lib/hr';
 import { P } from '@/components/lib/paragraph';
@@ -22,8 +23,9 @@ import type { NextPageWithLayout } from '@/utils/types';
 
 const Block = styled('div', {
   width: '15rem',
-  height: '2rem',
+  height: '3rem',
   background: 'var(--color-surface-3)',
+  borderRadius: 'var(--border-radius-m)',
 });
 
 const Lipsum = () => {
@@ -354,6 +356,62 @@ const Settings: NextPageWithLayout = () => {
               <Block />
               <Block />
             </Flex>
+          </Flex>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
+          <H2>Font</H2>
+
+          <P>Renders a span element that can be set to a specific family, size, and/or color.</P>
+
+          <HR />
+
+          <Flex as="p" gap="l">
+            <Font size="h1">Size H1</Font>
+            <Font size="h2">Size H2</Font>
+            <Font size="h3">Size H3</Font>
+            <Font size="h4">Size H4</Font>
+            <Font size="h5">Size H5</Font>
+            <Font size="h6">Size H6</Font>
+          </Flex>
+
+          <HR />
+
+          <Flex as="p" gap="l">
+            <Font size="h3" family="accent">
+              Family Accent
+            </Font>
+            <Font size="h3" family="body">
+              Family Body
+            </Font>
+            <Font size="h3" family="code">
+              Family Code
+            </Font>
+            <Font size="h3" family="number">
+              Family Number
+            </Font>
+          </Flex>
+
+          <HR />
+
+          <Flex as="p" gap="l">
+            <Font size="h3" color="danger">
+              Danger
+            </Font>
+
+            <Font size="h3" color="primary">
+              Primary
+            </Font>
+
+            <Font size="h3" color="text1">
+              Text 1
+            </Font>
+
+            <Font size="h3" color="text2">
+              Text 2
+            </Font>
           </Flex>
         </Flex>
       </Section>
