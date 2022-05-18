@@ -15,7 +15,7 @@ import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { customErrorRetry } from '../utils/fetchers';
 import config from '../utils/config';
 import Head from 'next/head';
-
+import * as FullStory from '@fullstory/browser';
 
 export type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement, footer: ReactElement | null) => ReactNode,
@@ -49,6 +49,10 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   // redirect to login if user is not signed in
   const router = useRouter();
+
+  useEffect(() => {
+    FullStory.init({ orgId: 'o-1A5K4V-na1' });
+  }, []);
 
   useEffect(() => {
     router.prefetch('/');

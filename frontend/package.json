@@ -16,6 +16,7 @@
     "@fortawesome/free-regular-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.16",
+    "@fullstory/browser": "^1.5.1",
     "bn.js": "^5.2.0",
     "bootstrap": "^5.1.1",
     "firebase": "^9.2.0",
