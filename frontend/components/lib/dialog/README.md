@@ -2,8 +2,6 @@
 
 Implemented via Radix primitives: https://www.radix-ui.com/docs/primitives/components/dialog
 
-There are two ways you can implement a dialog: with a trigger or controlled by state.
-
 _If the current props and Stitches style overrides aren't enough to cover your use case, feel free to implement your own component using the Radix primitives directly._
 
 ## Controlled

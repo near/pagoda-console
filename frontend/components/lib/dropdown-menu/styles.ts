@@ -15,11 +15,13 @@ const closeAnimation = keyframes({
 
 export const Content = styled(DropdownMenuPrimitive.Content, {
   '--animation-speed': '200ms',
+  '--background-color': 'var(--color-surface-3)',
   minWidth: 200,
-  backgroundColor: 'var(--color-surface-3)',
+  backgroundColor: 'var(--background-color)',
   borderRadius: 'var(--border-radius-s)',
   padding: 'var(--space-s)',
   boxShadow: 'var(--shadow-soft)',
+  transformOrigin: 'var(--radix-dropdown-menu-content-transform-origin)',
 
   '&[data-state="open"]': {
     animation: `${openAnimation} var(--animation-speed)`,
@@ -27,11 +29,6 @@ export const Content = styled(DropdownMenuPrimitive.Content, {
   '&[data-state="closed"]': {
     animation: `${closeAnimation} var(--animation-speed)`,
   },
-
-  '&[data-side="bottom"]': { transformOrigin: 'center top' },
-  '&[data-side="top"]': { transformOrigin: 'center bottom' },
-  '&[data-side="left"]': { transformOrigin: 'right center' },
-  '&[data-side="right"]': { transformOrigin: 'left center' },
 });
 
 export const ItemSelectedIndicator = styled('div', {
@@ -117,5 +114,5 @@ export const Separator = styled(DropdownMenuPrimitive.Separator, {
 });
 
 export const Arrow = styled(DropdownMenuPrimitive.Arrow, {
-  fill: 'var(--color-surface-3)',
+  fill: 'var(--background-color)',
 });

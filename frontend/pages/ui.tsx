@@ -15,6 +15,7 @@ import { P } from '@/components/lib/paragraph';
 import { Section } from '@/components/lib/section';
 import * as Tabs from '@/components/lib/tabs';
 import { TextLink } from '@/components/lib/text-link';
+import { Tooltip } from '@/components/lib/tooltip';
 import { ThemeToggle } from '@/components/theme-toggle/theme-toggle';
 import { styled } from '@/styles/stitches';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -465,6 +466,44 @@ const Settings: NextPageWithLayout = () => {
               <TextLink color="neutral">Neutral Link</TextLink>
             </Link>
           </P>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
+          <H2>Tooltip</H2>
+
+          <Flex align="center">
+            <Tooltip content="I am the tooltip message.">
+              <Button>Curious Button</Button>
+            </Tooltip>
+
+            <Tooltip
+              content={
+                <>
+                  <FontAwesomeIcon icon={faCar} /> I have an icon.
+                </>
+              }
+            >
+              <P>With Icon</P>
+            </Tooltip>
+
+            <Tooltip color="primary" content="Primary!">
+              <P>Primary</P>
+            </Tooltip>
+
+            <Tooltip color="danger" content="Danger!">
+              <P>Danger</P>
+            </Tooltip>
+
+            <Tooltip color="reverse" content="Reverse!">
+              <P>Reverse</P>
+            </Tooltip>
+
+            <Tooltip content="Right side!" side="right">
+              <P>Side</P>
+            </Tooltip>
+          </Flex>
         </Flex>
       </Section>
     </>
