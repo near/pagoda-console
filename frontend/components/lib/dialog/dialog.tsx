@@ -8,7 +8,6 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 import type { ComponentProps, ReactNode } from 'react';
 import { forwardRef } from 'react';
 
-import { Flex } from '../flex';
 import * as S from './styles';
 
 export const Close = DialogPrimitive.Close;
@@ -42,9 +41,7 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, tit
             </S.Header>
           )}
 
-          <S.ContentBody>
-            <Flex stack>{children}</Flex>
-          </S.ContentBody>
+          <S.ContentBody>{children}</S.ContentBody>
         </S.Content>
       </S.Overlay>
     </DialogPrimitive.Portal>

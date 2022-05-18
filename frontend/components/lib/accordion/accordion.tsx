@@ -27,9 +27,7 @@ Trigger.displayName = 'AccordionTrigger';
 export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, ...props }, ref) => {
   return (
     <S.Content ref={ref} {...props}>
-      <S.ContentContainer>
-        <Flex stack>{children}</Flex>
-      </S.ContentContainer>
+      <S.ContentContainer>{children}</S.ContentContainer>
     </S.Content>
   );
 });

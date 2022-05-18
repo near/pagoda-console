@@ -96,8 +96,7 @@ export const Header = styled('div', {
   zIndex: 100,
   gap: 'var(--space-m)',
   padding: 'var(--space-m) var(--space-l)',
-  background: 'var(--color-surface-2)',
-  borderBottom: '1px solid var(--color-surface-1)',
+  background: 'var(--color-surface-3)',
   boxShadow: 'var(--shadow-softer)',
   wordBreak: 'break-word',
 
@@ -128,7 +127,7 @@ export const CloseButton = styled(DialogPrimitive.Close, {
   borderRadius: '100%',
   cursor: 'pointer',
   color: 'var(--color-text-2)',
-  background: 'var(--color-surface-3)',
+  background: 'var(--color-surface-1)',
   transition: 'color var(--transition-speed)',
 
   '&:hover': {

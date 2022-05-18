@@ -1,7 +1,6 @@
 import type { ComponentProps, ElementType } from 'react';
 
 import { Container } from '../container';
-import { Flex } from '../flex';
 import * as S from './styles';
 
 type Props = ComponentProps<typeof S.Section> & {
@@ -11,9 +10,7 @@ type Props = ComponentProps<typeof S.Section> & {
 export const Section = (props: Props) => {
   return (
     <S.Section {...props}>
-      <Container>
-        <Flex stack>{props.children}</Flex>
-      </Container>
+      <Container>{props.children}</Container>
     </S.Section>
   );
 };

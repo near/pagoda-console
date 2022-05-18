@@ -16,6 +16,7 @@ export const List = styled(TabsPrimitive.List, {
   overflow: 'auto',
   '-ms-overflow-style': 'none',
   scrollbarWidth: 'none',
+  scrollBehavior: 'smooth',
 
   '&::-webkit-scrollbar': {
     display: 'none',
@@ -39,20 +40,8 @@ export const Trigger = styled(TabsPrimitive.Trigger, {
   border: '1px solid transparent',
   borderBottom: 'none',
 
-  '@tablet': {
-    padding: 'var(--space-s) var(--space-m)',
-  },
-
   '> *': {
     transition: 'color var(--transition-speed)',
-  },
-
-  '&[data-state="active"]': {
-    background: 'var(--color-surface-2)',
-    color: 'var(--color-text-1)',
-    boxShadow: 'inset 0 -2px 0 var(--color-cta-primary)',
-    position: 'relative',
-    zIndex: 5,
   },
 
   '&:hover': {
@@ -62,6 +51,13 @@ export const Trigger = styled(TabsPrimitive.Trigger, {
 
   '&:focus': {
     borderColor: 'var(--focus-outline-color)',
+  },
+
+  '&[data-state="active"]': {
+    color: 'var(--color-text-1)',
+    boxShadow: 'inset 0 -2px 0 var(--color-cta-primary)',
+    position: 'relative',
+    zIndex: 5,
   },
 });
 

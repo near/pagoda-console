@@ -1,4 +1,12 @@
-import { faAtlas, faCar } from '@fortawesome/free-solid-svg-icons';
+import {
+  faAtlas,
+  faCar,
+  faCheckCircle,
+  faCheckSquare,
+  faChevronDown,
+  faCircle,
+  faSquare,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -7,6 +15,7 @@ import * as Accordion from '@/components/lib/accordion';
 import { Box } from '@/components/lib/box';
 import { Button, ButtonLink } from '@/components/lib/button';
 import * as Dialog from '@/components/lib/dialog';
+import * as DropdownMenu from '@/components/lib/dropdown-menu';
 import { Flex } from '@/components/lib/flex';
 import { H1, H2, H3, H4, H5, H6 } from '@/components/lib/heading';
 import { HR } from '@/components/lib/hr';
@@ -68,166 +77,269 @@ const Lipsum = () => {
 
 const Settings: NextPageWithLayout = () => {
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
+  const [bookmarksChecked, setBookmarksChecked] = useState(true);
+  const [urlsChecked, setUrlsChecked] = useState(false);
+  const [person, setPerson] = useState('pedro');
 
   return (
     <>
       <Section color="surface2">
         <Flex justify="spaceBetween" align="center">
-          <div>
+          <Flex stack>
             <H1>Stitches & Radix UI</H1>
             <P>This page shows examples of all our shared components.</P>
-          </div>
+          </Flex>
 
           <ThemeToggle />
         </Flex>
       </Section>
 
       <Section>
-        <H2>Accordion</H2>
+        <Flex stack>
+          <H2>Accordion</H2>
 
-        <Accordion.Root type="multiple" defaultValue={['item-1']}>
-          <Accordion.Item value="item-1">
-            <Accordion.Trigger>Is it accessible?</Accordion.Trigger>
-            <Accordion.Content>
-              <P>Yes. It adheres to the WAI-ARIA design pattern.</P>
-              <P>Here is another paragraph.</P>
+          <Accordion.Root type="multiple" defaultValue={['item-1']}>
+            <Accordion.Item value="item-1">
+              <Accordion.Trigger>Is it accessible?</Accordion.Trigger>
+              <Accordion.Content>
+                <Flex stack>
+                  <P>Yes. It adheres to the WAI-ARIA design pattern.</P>
+                  <P>Here is another paragraph.</P>
 
-              <div>
-                <Button>Click Me</Button>
-              </div>
-            </Accordion.Content>
-          </Accordion.Item>
+                  <div>
+                    <Button>Click Me</Button>
+                  </div>
+                </Flex>
+              </Accordion.Content>
+            </Accordion.Item>
 
-          <Accordion.Item value="item-2">
-            <Accordion.Trigger>Is it unstyled?</Accordion.Trigger>
-            <Accordion.Content>
-              <P>Yes. It is unstyled by default, giving you freedom over the look and feel.</P>
-            </Accordion.Content>
-          </Accordion.Item>
+            <Accordion.Item value="item-2">
+              <Accordion.Trigger>Is it unstyled?</Accordion.Trigger>
+              <Accordion.Content>
+                <Flex stack>
+                  <P>Yes. It is unstyled by default, giving you freedom over the look and feel.</P>
+                </Flex>
+              </Accordion.Content>
+            </Accordion.Item>
 
-          <Accordion.Item value="item-3">
-            <Accordion.Trigger>
-              <FontAwesomeIcon icon={faAtlas} />
-              <H5>Some Title</H5>
-              <P>With some subtitle</P>
-            </Accordion.Trigger>
-            <Accordion.Content>
-              <P>Yes! You can animate the Accordion with CSS or JavaScript.</P>
-            </Accordion.Content>
-          </Accordion.Item>
-        </Accordion.Root>
-      </Section>
-
-      <Section>
-        <H2>Box</H2>
-
-        <Box>
-          <Flex stack>
-            <H3>This is a box.</H3>
-            <P>Here is some content.</P>
-          </Flex>
-        </Box>
-      </Section>
-
-      <Section>
-        <H2>Button</H2>
-
-        <Flex wrap>
-          <Button>Primary</Button>
-          <Button>
-            <FontAwesomeIcon icon={faAtlas} /> With Icon
-          </Button>
-          <Button>
-            <FontAwesomeIcon icon={faCar} />
-          </Button>
-          <Button loading>Is Loading</Button>
-          <Button disabled>Disabled</Button>
-          <Button color="danger">Danger</Button>
-          <Button color="neutral">Neutral</Button>
-          <Button color="neutral" size="small">
-            Small
-          </Button>
-          <Button color="neutral" size="small" loading>
-            Small
-          </Button>
-
-          <Link href="/project-settings" passHref>
-            <ButtonLink color="neutral" size="small" css={{ '@mobile': { background: 'red' } }}>
-              Link
-            </ButtonLink>
-          </Link>
+            <Accordion.Item value="item-3">
+              <Accordion.Trigger>
+                <FontAwesomeIcon icon={faAtlas} />
+                Some Title
+                <P>With a subtitle</P>
+              </Accordion.Trigger>
+              <Accordion.Content>
+                <Flex stack>
+                  <P>Yes! You can animate the Accordion with CSS or JavaScript.</P>
+                </Flex>
+              </Accordion.Content>
+            </Accordion.Item>
+          </Accordion.Root>
         </Flex>
       </Section>
 
       <Section>
-        <H2>Dialog</H2>
+        <Flex stack>
+          <H2>Box</H2>
 
-        <P>Open/close via trigger:</P>
+          <Box
+            css={{
+              display: 'flex',
+              flexDirection: 'column',
+              padding: 'var(--space-m)',
+              borderRadius: 'var(--border-radius-l)',
+              border: '1px dashed var(--color-cta-primary)',
+            }}
+          >
+            <H4>This is a box.</H4>
+            <P>A box is an unstyled div that you can apply your own styles to via the css prop.</P>
+          </Box>
+        </Flex>
+      </Section>
 
-        <Dialog.Root>
-          <Dialog.Trigger asChild>
-            <Button>Trigger</Button>
-          </Dialog.Trigger>
+      <Section>
+        <Flex stack>
+          <H2>Button</H2>
 
-          <Dialog.Content title="Your Modal Title" size="small">
-            <H4>This is a small modal with a default title and close button.</H4>
-            <Button
-              onClick={() => {
-                setDialogIsOpen(true);
-              }}
-            >
-              Open Another Modal
+          <Flex wrap>
+            <Button>Primary</Button>
+            <Button>
+              <FontAwesomeIcon icon={faAtlas} /> With Icon
             </Button>
-            <HR />
-            <Lipsum />
-          </Dialog.Content>
-        </Dialog.Root>
+            <Button>
+              <FontAwesomeIcon icon={faCar} />
+            </Button>
+            <Button loading>Is Loading</Button>
+            <Button disabled>Disabled</Button>
+            <Button color="danger">Danger</Button>
+            <Button color="neutral">Neutral</Button>
+            <Button color="neutral" size="small">
+              Small
+            </Button>
+            <Button color="neutral" size="small" loading>
+              Small
+            </Button>
 
-        <HR />
-
-        <P>Open/close via control:</P>
-
-        <Button
-          onClick={() => {
-            setDialogIsOpen(true);
-          }}
-        >
-          Controlled
-        </Button>
-
-        <Dialog.Root open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
-          <Dialog.Content>
-            <H1>Controlled</H1>
-            <P>
-              This is a controlled dialog. You can ommit the title prop to avoid rendering the default title and close
-              button - this would allow you to render your own.
-            </P>
-            <Dialog.Close asChild>
-              <Button>Close Me</Button>
-            </Dialog.Close>
-          </Dialog.Content>
-        </Dialog.Root>
+            <Link href="/project-settings" passHref>
+              <ButtonLink color="neutral" size="small" css={{ '@mobile': { background: 'red' } }}>
+                Link
+              </ButtonLink>
+            </Link>
+          </Flex>
+        </Flex>
       </Section>
 
       <Section>
-        <H2>Heading</H2>
+        <Flex stack>
+          <H2>Dialog</H2>
 
-        <H1>Heading 1</H1>
-        <H2>Heading 2</H2>
-        <H3>Heading 3</H3>
-        <H4>Heading 4</H4>
-        <H5>Heading 5</H5>
-        <H6>Heading 6</H6>
+          <P>Open/close via trigger:</P>
+
+          <Dialog.Root>
+            <Dialog.Trigger asChild>
+              <Button>Trigger</Button>
+            </Dialog.Trigger>
+
+            <Dialog.Content title="Your Modal Title" size="small">
+              <Flex stack>
+                <H4>This is a small modal with a default title and close button.</H4>
+                <Button
+                  onClick={() => {
+                    setDialogIsOpen(true);
+                  }}
+                >
+                  Open Another Modal
+                </Button>
+                <HR />
+                <Lipsum />
+              </Flex>
+            </Dialog.Content>
+          </Dialog.Root>
+
+          <HR />
+
+          <P>Open/close via control:</P>
+
+          <Button
+            onClick={() => {
+              setDialogIsOpen(true);
+            }}
+          >
+            Controlled
+          </Button>
+
+          <Dialog.Root open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
+            <Dialog.Content>
+              <Flex stack>
+                <H1>Controlled</H1>
+                <P>
+                  This is a controlled dialog. You can ommit the title prop to avoid rendering the default title and
+                  close button - this would allow you to render your own.
+                </P>
+                <Dialog.Close asChild>
+                  <Button>Close Me</Button>
+                </Dialog.Close>
+              </Flex>
+            </Dialog.Content>
+          </Dialog.Root>
+        </Flex>
       </Section>
 
       <Section>
-        <H2>Horizontal Rule</H2>
+        <Flex stack>
+          <H2>Dropdown Menu</H2>
 
-        <P>Here is some content split with a horizontal rule.</P>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <Button>
+                Open Menu <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+              </Button>
+            </DropdownMenu.Trigger>
 
-        <HR />
+            <DropdownMenu.Content sideOffset={5}>
+              <DropdownMenu.Item>New Tab</DropdownMenu.Item>
+              <DropdownMenu.Item>New Window</DropdownMenu.Item>
+              <DropdownMenu.Item disabled>New Private Window</DropdownMenu.Item>
+              <DropdownMenu.Root>
+                <DropdownMenu.TriggerItem>More Tools</DropdownMenu.TriggerItem>
+                <DropdownMenu.Content sideOffset={0} alignOffset={-7}>
+                  <DropdownMenu.Item>Save Page As...</DropdownMenu.Item>
+                  <DropdownMenu.Item>Create Shortcut…</DropdownMenu.Item>
+                  <DropdownMenu.Item>Name Window…</DropdownMenu.Item>
+                  <DropdownMenu.Separator />
+                  <DropdownMenu.Item>Developer Tools</DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
+              <DropdownMenu.Separator />
+              <DropdownMenu.CheckboxItem checked={bookmarksChecked} onCheckedChange={setBookmarksChecked}>
+                <DropdownMenu.ItemSelectedIndicator>
+                  <FontAwesomeIcon icon={faCheckSquare} />
+                </DropdownMenu.ItemSelectedIndicator>
+                <DropdownMenu.ItemUnselectedIndicator>
+                  <FontAwesomeIcon icon={faSquare} />
+                </DropdownMenu.ItemUnselectedIndicator>
+                Show Bookmarks
+              </DropdownMenu.CheckboxItem>
+              <DropdownMenu.CheckboxItem checked={urlsChecked} onCheckedChange={setUrlsChecked}>
+                <DropdownMenu.ItemSelectedIndicator>
+                  <FontAwesomeIcon icon={faCheckSquare} />
+                </DropdownMenu.ItemSelectedIndicator>
+                <DropdownMenu.ItemUnselectedIndicator>
+                  <FontAwesomeIcon icon={faSquare} />
+                </DropdownMenu.ItemUnselectedIndicator>
+                Show Full URLs
+              </DropdownMenu.CheckboxItem>
+              <DropdownMenu.Separator />
+              <DropdownMenu.Label>People</DropdownMenu.Label>
+              <DropdownMenu.RadioGroup value={person} onValueChange={setPerson}>
+                <DropdownMenu.RadioItem value="pedro">
+                  <DropdownMenu.ItemSelectedIndicator>
+                    <FontAwesomeIcon icon={faCheckCircle} />
+                  </DropdownMenu.ItemSelectedIndicator>
+                  <DropdownMenu.ItemUnselectedIndicator>
+                    <FontAwesomeIcon icon={faCircle} />
+                  </DropdownMenu.ItemUnselectedIndicator>
+                  Pedro Duarte
+                </DropdownMenu.RadioItem>
+                <DropdownMenu.RadioItem value="colm">
+                  <DropdownMenu.ItemSelectedIndicator>
+                    <FontAwesomeIcon icon={faCheckCircle} />
+                  </DropdownMenu.ItemSelectedIndicator>
+                  <DropdownMenu.ItemUnselectedIndicator>
+                    <FontAwesomeIcon icon={faCircle} />
+                  </DropdownMenu.ItemUnselectedIndicator>
+                  Colm Tuite
+                </DropdownMenu.RadioItem>
+              </DropdownMenu.RadioGroup>
+              <DropdownMenu.Arrow offset={6} />
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+        </Flex>
+      </Section>
 
-        <P>Here is more content.</P>
+      <Section>
+        <Flex stack>
+          <H2>Heading</H2>
+
+          <H1>Heading 1</H1>
+          <H2>Heading 2</H2>
+          <H3>Heading 3</H3>
+          <H4>Heading 4</H4>
+          <H5>Heading 5</H5>
+          <H6>Heading 6</H6>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
+          <H2>Horizontal Rule</H2>
+
+          <P>Here is some content split with a horizontal rule.</P>
+
+          <HR />
+
+          <P>Here is more content.</P>
+        </Flex>
       </Section>
 
       <Section>
@@ -309,56 +421,60 @@ const Settings: NextPageWithLayout = () => {
       </Section>
 
       <Section color="surface2">
-        <H2>Section</H2>
+        <Flex stack>
+          <H2>Section</H2>
 
-        <P>
-          Each UI section is wrapped by a section component. This section is using the &quot;surface2&quot; color
-          background.
-        </P>
+          <P>
+            Each UI section is wrapped by a section component. This section is using the &quot;surface2&quot; color
+            background.
+          </P>
+        </Flex>
       </Section>
 
       <Section>
-        <H2>Tabs</H2>
+        <Flex stack>
+          <H2>Tabs</H2>
 
-        <Tabs.Root defaultValue="tab-1">
-          <Tabs.List>
-            <Tabs.Trigger value="tab-1">Tab 1</Tabs.Trigger>
-            <Tabs.Trigger value="tab-2">Tab 2 With a Really Super Long Name</Tabs.Trigger>
-            <Tabs.Trigger value="tab-3">Tab 3 Also With a Long Name</Tabs.Trigger>
-            <Tabs.Trigger value="tab-4">
-              <FontAwesomeIcon icon={faAtlas} />
-              <H5 css={{ color: 'CurrentColor' }}>Tab 4</H5>
-            </Tabs.Trigger>
-          </Tabs.List>
+          <Tabs.Root defaultValue="tab-1">
+            <Tabs.List>
+              <Tabs.Trigger value="tab-1">Tab 1</Tabs.Trigger>
+              <Tabs.Trigger value="tab-2">Tab 2 With a Really Super Long Name</Tabs.Trigger>
+              <Tabs.Trigger value="tab-3">Tab 3 Also With a Long Name</Tabs.Trigger>
+              <Tabs.Trigger value="tab-4">
+                <FontAwesomeIcon icon={faAtlas} />
+                Tab 4
+              </Tabs.Trigger>
+            </Tabs.List>
 
-          <Tabs.Content value="tab-1">
-            <Flex stack>
-              <H4>Tab 1</H4>
-              <P>Some tab 1 content.</P>
-            </Flex>
-          </Tabs.Content>
+            <Tabs.Content value="tab-1">
+              <Flex stack>
+                <H4>Tab 1</H4>
+                <P>Some tab 1 content.</P>
+              </Flex>
+            </Tabs.Content>
 
-          <Tabs.Content value="tab-2">
-            <Flex stack>
-              <H4>Tab 2</H4>
-              <P>Some tab 2 content.</P>
-            </Flex>
-          </Tabs.Content>
+            <Tabs.Content value="tab-2">
+              <Flex stack>
+                <H4>Tab 2</H4>
+                <P>Some tab 2 content.</P>
+              </Flex>
+            </Tabs.Content>
 
-          <Tabs.Content value="tab-3">
-            <Flex stack>
-              <H4>Tab 3</H4>
-              <P>Some tab 3 content.</P>
-            </Flex>
-          </Tabs.Content>
+            <Tabs.Content value="tab-3">
+              <Flex stack>
+                <H4>Tab 3</H4>
+                <P>Some tab 3 content.</P>
+              </Flex>
+            </Tabs.Content>
 
-          <Tabs.Content value="tab-4">
-            <Flex stack>
-              <H4>Tab 4</H4>
-              <P>Some tab 4 content.</P>
-            </Flex>
-          </Tabs.Content>
-        </Tabs.Root>
+            <Tabs.Content value="tab-4">
+              <Flex stack>
+                <H4>Tab 4</H4>
+                <P>Some tab 4 content.</P>
+              </Flex>
+            </Tabs.Content>
+          </Tabs.Root>
+        </Flex>
       </Section>
 
       <Section>

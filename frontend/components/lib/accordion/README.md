@@ -2,13 +2,7 @@
 
 Implemented via Radix primitives: https://www.radix-ui.com/docs/primitives/components/accordion
 
-There are two ways you can implement an accordion: with a trigger or controlled by state.
-
 _If the current props and Stitches style overrides aren't enough to cover your use case, feel free to implement your own component using the Radix primitives directly._
-
-## Triggered VS Controlled
-
-If you're interested in creating a controlled accordion, please refer to the Radix docs above regarding `value` and `onValueChange`. The following examples are based only on triggers.
 
 ## Multiple
 
