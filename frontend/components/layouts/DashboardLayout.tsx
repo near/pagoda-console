@@ -199,7 +199,7 @@ function SideBar() {
 
 function Logo() {
   const clickHandler =
-    Config.deployEnv === 'LOCAL'
+    Config.deployEnv === 'LOCAL' || Config.deployEnv === 'DEVELOPMENT'
       ? () =>
           getIdToken(getAuth().currentUser!).then((token) =>
             navigator.clipboard.writeText(token).then(() => alert('Copied token to clipboard')),
