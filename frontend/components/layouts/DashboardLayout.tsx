@@ -1,3 +1,4 @@
+import { getAuth, getIdToken } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
@@ -8,6 +9,7 @@ import { useSelectedProject } from '@/hooks/selected-project';
 import { useDisplayName } from '@/hooks/user';
 import PagodaIcon from '@/public/brand/pagoda_icon_small.svg';
 import { logOut } from '@/utils/auth';
+import Config from '@/utils/config';
 
 import NftInfoCard from '../NftInfoCard';
 
@@ -85,10 +87,7 @@ function SideBar() {
   return (
     <>
       <div className="sidebar">
-        {/* <div className='logoContainer' onClick={() => getIdToken(getAuth().currentUser!).then((token) => navigator.clipboard.writeText(token).then(() => alert('Copied token to clipboard')))}> */}
-        <div className="logoContainer">
-          <PagodaIcon />
-        </div>
+        <Logo />
         <div className="linkContainer">
           {pages.map((page, index) => {
             if (!page.route) {
@@ -140,9 +139,6 @@ function SideBar() {
             align-items: center;
             padding-top: 3rem;
             position: fixed;
-          }
-          .logoContainer {
-            width: 2.625rem;
           }
           .linkContainer {
             display: flex;
@@ -198,6 +194,26 @@ function SideBar() {
             }
         `}</style>
     </>
+  );
+}
+
+function Logo() {
+  const clickHandler =
+    Config.deployEnv === 'LOCAL' || Config.deployEnv === 'DEVELOPMENT'
+      ? () =>
+          getIdToken(getAuth().currentUser!).then((token) =>
+            navigator.clipboard.writeText(token).then(() => alert('Copied token to clipboard')),
+          )
+      : undefined;
+  return (
+    <div className="logoContainer" onClick={clickHandler}>
+      <PagodaIcon />
+      <style jsx>{`
+        .logoContainer {
+          width: 2.625rem;
+        }
+      `}</style>
+    </div>
   );
 }
 

@@ -40,6 +40,10 @@ npm run dev
 
 View at [http://localhost:3000](http://localhost:3000)
 
+## JWT Reveal
+
+When running locally or in development (`NEXT_PUBLIC_DEPLOY_ENV` is `LOCAL` or `DEVELOPMENT`), you can easily grab the JWT for the current session by clicking on the Pagoda icon in the sidebar. This is useful for manual API testing through Postman.
+
 ## Config
 
 All environment variables are read into a config object in [utils/config.ts](utils/config.ts). This allows casting the values to their desired types in a central location and early process termination if any values were not defined

@@ -1,6 +1,7 @@
 // example.spec.ts
-import { expect, test } from '@playwright/test';
+import { expect } from '@playwright/test';
 
+import { test } from '../fixtures';
 import { login } from '../login';
 
 test(`create blank project test`, async ({ page }) => {
