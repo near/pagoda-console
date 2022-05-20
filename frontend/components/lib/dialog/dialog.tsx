@@ -15,6 +15,7 @@ export const Root = DialogPrimitive.Root;
 export const Title = S.Title;
 export const Trigger = DialogPrimitive.Trigger;
 
+type CloseButtonProps = ComponentProps<typeof S.CloseButton>;
 type ContentProps = Omit<ComponentProps<typeof S.Content>, 'title'> & {
   title?: ReactNode;
 };
@@ -34,10 +35,7 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, tit
           {title && (
             <S.Header>
               <S.HeaderContent>{typeof title === 'string' ? <S.Title>{title}</S.Title> : title}</S.HeaderContent>
-
-              <S.CloseButton>
-                <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>
-              </S.CloseButton>
+              <CloseButton />
             </S.Header>
           )}
 
@@ -48,3 +46,12 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, tit
   );
 });
 Content.displayName = 'Content';
+
+export const CloseButton = forwardRef<HTMLButtonElement, CloseButtonProps>((props, ref) => {
+  return (
+    <S.CloseButton aria-label="Close" ref={ref} {...props}>
+      <FontAwesomeIcon icon={faTimes} />
+    </S.CloseButton>
+  );
+});
+CloseButton.displayName = 'CloseButton';

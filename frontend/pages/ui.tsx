@@ -13,6 +13,7 @@ import { Font } from '@/components/lib/font';
 import { H1, H2, H3, H4, H5, H6 } from '@/components/lib/heading';
 import { HR } from '@/components/lib/hr';
 import { P } from '@/components/lib/paragraph';
+import * as Popover from '@/components/lib/popover';
 import { Section } from '@/components/lib/section';
 import * as Tabs from '@/components/lib/tabs';
 import { TextLink } from '@/components/lib/text-link';
@@ -447,6 +448,45 @@ const Settings: NextPageWithLayout = () => {
           <P size="small">A small paragraph.</P>
           <P>A standard paragraph.</P>
           <P size="large">A large paragraph.</P>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
+          <H2>Popover</H2>
+
+          <Popover.Root>
+            <Popover.Trigger asChild>
+              <Button>Open</Button>
+            </Popover.Trigger>
+
+            <Popover.Content>
+              <Flex stack>
+                <Flex align="center" justify="spaceBetween">
+                  <H5>Popover Title</H5>
+                  <Popover.CloseButton />
+                </Flex>
+
+                <P>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas metus turpis, auctor eget imperdiet
+                  in, tincidunt ac sem. Aliquam erat volutpat. Integer eleifend metus orci, ac vehicula tortor luctus
+                  non.
+                </P>
+
+                <Popover.Close asChild>
+                  <Button
+                    size="small"
+                    color="danger"
+                    onClick={() => {
+                      console.log(1);
+                    }}
+                  >
+                    Do Some Action
+                  </Button>
+                </Popover.Close>
+              </Flex>
+            </Popover.Content>
+          </Popover.Root>
         </Flex>
       </Section>
 

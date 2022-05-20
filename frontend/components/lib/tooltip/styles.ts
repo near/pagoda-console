@@ -15,7 +15,6 @@ const closeAnimation = keyframes({
 export const Content = styled(TooltipPrimitive.Content, {
   borderRadius: 'var(--border-radius-s)',
   padding: 'var(--space-s) var(--space-m)',
-  color: 'var(--color-text-1)',
   display: 'flex',
   alignItems: 'center',
   gap: 'var(--space-s)',
@@ -37,6 +36,7 @@ export const Content = styled(TooltipPrimitive.Content, {
       },
       neutral: {
         '--background-color': 'var(--color-surface-3)',
+        color: 'var(--color-text-1)',
       },
       primary: {
         '--background-color': 'var(--color-cta-primary)',

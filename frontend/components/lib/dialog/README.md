@@ -88,3 +88,28 @@ If you omit the `title` prop entirely, no default title or close button will be 
   </Dialog.Close>
 </Dialog.Content>
 ```
+
+## Conditional Closing
+
+When giving the user an action, sometimes we might need to verify the action is valid before closing the dialog. You can accomplish this with `<Dialog.Close>` like so:
+
+```tsx
+<Dialog.Close asChild>
+  <Button
+    onClick={(e) => {
+      ...
+
+      if (!isValid) {
+        e.preventDefault();
+        return;
+      }
+
+      console.log('is valid!');
+    }}
+  >
+    Do Some Action
+  </Button>
+</Dialog.Close>
+```
+
+By calling `e.preventDefault()` on the close button click event, we prevent the dialog from closing if the action was not valid.
