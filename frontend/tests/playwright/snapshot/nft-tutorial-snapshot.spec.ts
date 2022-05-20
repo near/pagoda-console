@@ -1,6 +1,7 @@
-import { expect, test } from '@playwright/test';
+import { expect } from '@playwright/test';
 
 import setupErrorLogger from '../errorLogger';
+import { test } from '../fixtures';
 import { login } from '../login';
 
 [
