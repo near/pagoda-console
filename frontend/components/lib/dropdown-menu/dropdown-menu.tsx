@@ -27,11 +27,12 @@ export const Trigger = DropdownMenuPrimitive.Trigger;
 export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, nested, ...props }, ref) => {
   const alignOffset = nested ? -6 : props.alignOffset;
   const sideOffset = nested ? 14 : props.sideOffset || 6;
+  const arrowOffset = nested ? 24 : 16;
 
   return (
     <S.Content ref={ref} alignOffset={alignOffset} sideOffset={sideOffset} {...props}>
       {children}
-      <S.Arrow offset={24} />
+      <S.Arrow offset={arrowOffset} />
     </S.Content>
   );
 });

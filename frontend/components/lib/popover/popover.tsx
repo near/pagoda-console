@@ -17,7 +17,7 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, sid
   return (
     <S.Content ref={ref} sideOffset={sideOffset} {...props}>
       {children}
-      <S.Arrow offset={18} />
+      <S.Arrow offset={16} />
     </S.Content>
   );
 });

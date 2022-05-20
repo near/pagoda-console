@@ -2,6 +2,7 @@ import { faAtlas, faCar, faChevronDown } from '@fortawesome/free-solid-svg-icons
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import * as Accordion from '@/components/lib/accordion';
 import { Box } from '@/components/lib/box';
@@ -10,8 +11,10 @@ import * as Dialog from '@/components/lib/dialog';
 import * as DropdownMenu from '@/components/lib/dropdown-menu';
 import { Flex } from '@/components/lib/flex';
 import { Font } from '@/components/lib/font';
+import * as Form from '@/components/lib/form';
 import { H1, H2, H3, H4, H5, H6 } from '@/components/lib/heading';
 import { HR } from '@/components/lib/hr';
+import { Info } from '@/components/lib/info';
 import { P } from '@/components/lib/paragraph';
 import * as Popover from '@/components/lib/popover';
 import { Section } from '@/components/lib/section';
@@ -20,6 +23,7 @@ import { TextLink } from '@/components/lib/text-link';
 import { Tooltip } from '@/components/lib/tooltip';
 import { ThemeToggle } from '@/components/theme-toggle/theme-toggle';
 import { styled } from '@/styles/stitches';
+import { formValidations } from '@/utils/constants';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Block = styled('div', {
@@ -28,6 +32,11 @@ const Block = styled('div', {
   background: 'var(--color-surface-3)',
   borderRadius: 'var(--border-radius-m)',
 });
+
+interface FakeForm {
+  displayName: string;
+  email: string;
+}
 
 const Lipsum = () => {
   return (
@@ -76,6 +85,7 @@ const Settings: NextPageWithLayout = () => {
   const [bookmarksChecked, setBookmarksChecked] = useState(true);
   const [urlsChecked, setUrlsChecked] = useState(false);
   const [person, setPerson] = useState('pedro');
+  const { register, handleSubmit, formState } = useForm<FakeForm>();
 
   return (
     <>
@@ -414,6 +424,53 @@ const Settings: NextPageWithLayout = () => {
               Text 2
             </Font>
           </Flex>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack gap="l">
+          <H2>Form</H2>
+
+          <Form.Root
+            onSubmit={handleSubmit((value) => {
+              alert(JSON.stringify(value));
+            })}
+            css={{
+              maxWidth: '20rem',
+            }}
+          >
+            <Flex stack gap="l">
+              <Form.Group>
+                <Form.Label htmlFor="displayName">Display Name</Form.Label>
+                <Form.Input
+                  id="displayName"
+                  placeholder="eg: John Smith"
+                  isInvalid={!!formState.errors.displayName}
+                  {...register('displayName', formValidations.displayName)}
+                />
+                <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
+              </Form.Group>
+
+              <Form.Group>
+                <Flex gap="s">
+                  <Form.Label htmlFor="email">Email</Form.Label>
+                  <Info content="This would provide even more context." />
+                </Flex>
+
+                <P>This could provide a description for a confusing field.</P>
+
+                <Form.Input
+                  id="email"
+                  type="email"
+                  isInvalid={!!formState.errors.email}
+                  {...register('email', formValidations.email)}
+                />
+                <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
+              </Form.Group>
+
+              <Button type="submit">Submit</Button>
+            </Flex>
+          </Form.Root>
         </Flex>
       </Section>
 

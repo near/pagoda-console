@@ -39,8 +39,8 @@ export const CloseButton = styled(PopoverPrimitive.Close, {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  width: '1.75rem',
-  height: '1.75rem',
+  width: '1.25rem',
+  height: '1.25rem',
   flexShrink: '0',
   borderRadius: '100%',
   cursor: 'pointer',
@@ -55,5 +55,10 @@ export const CloseButton = styled(PopoverPrimitive.Close, {
   '&:focus': {
     outline: 'var(--focus-outline)',
     outlineOffset: 'var(--focus-outline-offset)',
+  },
+
+  svg: {
+    width: '0.7rem',
+    height: '0.7rem',
   },
 });

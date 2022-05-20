@@ -6,6 +6,7 @@
 
   --color-text-1: #ffffff;
   --color-text-2: #bcc3cd;
+  --color-text-3: #888e98;
 
   --color-surface-1: #16191d;
   --color-surface-2: #1f2429;
@@ -77,6 +78,7 @@
 .light-theme {
   --color-text-1: #16191d;
   --color-text-2: #2b323b;
+  --color-text-3: #404954;
 
   --color-surface-1: #ffffff;
   --color-surface-2: #f2f4f7;
