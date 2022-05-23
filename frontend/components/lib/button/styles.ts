@@ -101,11 +101,11 @@ export const Button = styled('button', {
     size: {
       small: {
         fontSize: 'var(--font-size-body-small)',
-        height: 'var(--size-input-small)',
+        height: 'var(--size-input-s)',
       },
       standard: {
         fontSize: 'var(--font-size-body)',
-        height: 'var(--size-input-standard)',
+        height: 'var(--size-input-m)',
       },
     },
   },

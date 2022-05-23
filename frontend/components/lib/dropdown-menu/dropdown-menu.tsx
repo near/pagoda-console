@@ -42,10 +42,10 @@ export const CheckboxItem = forwardRef<HTMLDivElement, CheckboxItemProps>(({ chi
   return (
     <S.CheckboxItem ref={ref} {...props}>
       <S.ItemSelectedIndicator>
-        <FontAwesomeIcon icon={faCheckCircle} />
+        <FontAwesomeIcon icon={faCheckSquare} />
       </S.ItemSelectedIndicator>
       <S.ItemUnselectedIndicator>
-        <FontAwesomeIcon icon={faCircle} />
+        <FontAwesomeIcon icon={faSquare} />
       </S.ItemUnselectedIndicator>
       {children}
     </S.CheckboxItem>
@@ -57,10 +57,10 @@ export const RadioItem = forwardRef<HTMLDivElement, RadioItemProps>(({ children,
   return (
     <S.RadioItem ref={ref} {...props}>
       <S.ItemSelectedIndicator>
-        <FontAwesomeIcon icon={faCheckSquare} />
+        <FontAwesomeIcon icon={faCheckCircle} />
       </S.ItemSelectedIndicator>
       <S.ItemUnselectedIndicator>
-        <FontAwesomeIcon icon={faSquare} />
+        <FontAwesomeIcon icon={faCircle} />
       </S.ItemUnselectedIndicator>
       {children}
     </S.RadioItem>

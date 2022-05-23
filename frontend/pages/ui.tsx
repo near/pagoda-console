@@ -105,7 +105,7 @@ const Settings: NextPageWithLayout = () => {
     {
       display: 'Pasta',
       value: 'pasta',
-      description: 'Spaghetti & meatballs - so good with extra parmesan cheese.',
+      description: 'Spaghetti & meatballs with extra parmesan cheese.',
     },
   ];
 

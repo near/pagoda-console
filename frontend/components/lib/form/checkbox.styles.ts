@@ -5,8 +5,8 @@ export const Indicator = styled('span', {
   alignItems: 'center',
   justifyContent: 'center',
   flexShrink: 0,
-  width: 'var(--size-input-small)',
-  height: 'var(--size-input-small)',
+  width: 'var(--size-input-xs)',
+  height: 'var(--size-input-xs)',
   borderRadius: 'var(--border-radius-s)',
   background: 'var(--color-surface-1)',
   border: '1px solid var(--color-surface-4)',
@@ -14,6 +14,8 @@ export const Indicator = styled('span', {
     'background var(--transition-speed), border-color var(--transition-speed), box-shadow var(--transition-speed)',
 
   svg: {
+    width: '0.6rem',
+    height: '0.6rem',
     color: 'var(--color-primary)',
     transition: 'opacity var(--transition-speed), transform var(--transition-speed)',
     opacity: 0,

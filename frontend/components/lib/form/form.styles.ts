@@ -67,7 +67,7 @@ export const Input = styled('input', {
   fontSize: 'var(--font-size-body)',
   fontFamily: 'var(--font-body)',
   fontWeight: 400,
-  height: 'var(--size-input-standard)',
+  height: 'var(--size-input-m)',
   padding: '0 var(--space-m)',
   borderRadius: 'var(--border-radius-s)',
   transition: 'background var(--transition-speed), border var(--transition-speed), box-shadow var(--transition-speed)',

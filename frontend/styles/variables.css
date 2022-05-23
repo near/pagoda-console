@@ -58,8 +58,9 @@
   --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.3);
   --shadow-softer: 0 2px 10px rgba(0, 0, 0, 0.15);
 
-  --size-input-small: 1.75rem;
-  --size-input-standard: 3rem;
+  --size-input-xs: 1.25rem;
+  --size-input-s: 1.75rem;
+  --size-input-m: 3rem;
   --size-max-container-width-xxs: 10rem;
   --size-max-container-width-xs: 20rem;
   --size-max-container-width-s: 30rem;
