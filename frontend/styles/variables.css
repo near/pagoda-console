@@ -1,5 +1,6 @@
 :root,
-.dark-theme {
+.dark-theme,
+.light-theme .reverse-theme {
   --border-radius-s: 3px;
   --border-radius-m: 10px;
   --border-radius-l: 20px;
@@ -76,7 +77,8 @@
   --transition-speed: 150ms;
 }
 
-.light-theme {
+.light-theme,
+.dark-theme .reverse-theme {
   --color-text-1: #16191d;
   --color-text-2: #323a43;
   --color-text-3: #48515c;

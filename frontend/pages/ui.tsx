@@ -112,7 +112,7 @@ const Settings: NextPageWithLayout = () => {
   return (
     <>
       <Section color="surface2">
-        <Flex justify="spaceBetween" align="center">
+        <Flex align="center">
           <Flex stack>
             <H1>Stitches & Radix UI</H1>
             <P>This page shows examples of all our shared components.</P>
@@ -126,7 +126,7 @@ const Settings: NextPageWithLayout = () => {
         <Flex stack>
           <H2>Accordion</H2>
 
-          <Accordion.Root type="multiple" defaultValue={['item-1']}>
+          <Accordion.Root type="multiple">
             <Accordion.Item value="item-1">
               <Accordion.Trigger>Is it accessible?</Accordion.Trigger>
               <Accordion.Content>

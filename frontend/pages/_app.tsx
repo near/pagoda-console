@@ -37,7 +37,7 @@ type AppPropsWithLayout = AppProps & {
 initializeApp(config.firebaseConfig);
 analytics.init();
 
-const unauthedPaths = ['/', '/register'];
+const unauthedPaths = ['/', '/register', '/ui'];
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   usePageTracker();
