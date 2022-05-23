@@ -30,7 +30,7 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, nes
   const arrowOffset = nested ? 24 : 16;
 
   return (
-    <S.Content ref={ref} alignOffset={alignOffset} sideOffset={sideOffset} {...props}>
+    <S.Content className="dark-theme" ref={ref} alignOffset={alignOffset} sideOffset={sideOffset} {...props}>
       {children}
       <S.Arrow offset={arrowOffset} />
     </S.Content>

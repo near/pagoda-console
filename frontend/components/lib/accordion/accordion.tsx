@@ -1,4 +1,4 @@
-import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { ComponentProps } from 'react';
 import { forwardRef } from 'react';
@@ -19,7 +19,7 @@ export const Trigger = forwardRef<HTMLButtonElement, TriggerProps>(({ children, 
         <Flex gap="s" align="center">
           {children}
         </Flex>
-        <FontAwesomeIcon icon={faCaretDown}></FontAwesomeIcon>
+        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
       </S.Trigger>
     </S.Header>
   );

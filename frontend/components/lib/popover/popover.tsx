@@ -15,7 +15,7 @@ export const Close = PopoverPrimitive.Close;
 
 export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, sideOffset = 6, ...props }, ref) => {
   return (
-    <S.Content ref={ref} sideOffset={sideOffset} {...props}>
+    <S.Content className="dark-theme" ref={ref} sideOffset={sideOffset} {...props}>
       {children}
       <S.Arrow offset={16} />
     </S.Content>

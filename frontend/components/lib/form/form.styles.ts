@@ -14,20 +14,50 @@ export const Group = styled('div', {
   display: 'flex',
   width: '100%',
   flexDirection: 'column',
-  gap: 'var(--space-s)',
+
+  variants: {
+    gap: {
+      xs: {
+        gap: 'var(--space-xs)',
+      },
+      s: {
+        gap: 'var(--space-s)',
+      },
+      m: {
+        gap: 'var(--space-m)',
+      },
+      l: {
+        gap: 'var(--space-l)',
+      },
+      xl: {
+        gap: 'var(--space-xl)',
+      },
+    },
+  },
+
+  defaultVariants: {
+    gap: 's',
+  },
+});
+
+export const Legend = styled('legend', {
+  color: 'var(--color-text-1)',
+  fontFamily: 'var(--font-body)',
+  fontWeight: 500,
+  lineHeight: 'var(--line-height-body)',
 });
 
 export const Label = styled('label', {
   color: 'var(--color-text-1)',
   fontFamily: 'var(--font-body)',
   fontWeight: 500,
-  lineHeight: 1.2,
+  lineHeight: 'var(--line-height-body)',
 });
 
 export const LabelDescription = styled('p', {
   color: 'var(--color-text-2)',
   fontFamily: 'var(--font-body)',
-  lineHeight: 1.2,
+  lineHeight: 'var(--line-height-body)',
 });
 
 export const Input = styled('input', {
@@ -53,14 +83,14 @@ export const Input = styled('input', {
   },
 
   '&:focus': {
-    boxShadow: 'var(--shadow-soft)',
     background: 'var(--color-surface-1)',
+    borderColor: 'var(--focus-outline-color)',
   },
 
   variants: {
     invalid: {
       true: {
-        borderColor: 'var(--color-danger)',
+        borderColor: 'var(--color-danger) !important',
       },
     },
   },
@@ -68,7 +98,7 @@ export const Input = styled('input', {
 
 export const Feedback = styled('p', {
   fontSize: 'var(--font-size-body)',
-  lineHeight: 1.2,
+  lineHeight: 'var(--line-height-body)',
   fontFamily: 'var(--font-body)',
   fontWeight: 400,
 

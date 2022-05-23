@@ -127,7 +127,7 @@ export const CloseButton = styled(DialogPrimitive.Close, {
   borderRadius: '100%',
   cursor: 'pointer',
   color: 'var(--color-text-2)',
-  background: 'var(--color-surface-1)',
+  background: 'var(--color-surface-4)',
   transition: 'color var(--transition-speed)',
 
   '&:hover': {

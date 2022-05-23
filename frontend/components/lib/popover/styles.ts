@@ -39,13 +39,13 @@ export const CloseButton = styled(PopoverPrimitive.Close, {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  width: '1.25rem',
-  height: '1.25rem',
+  width: '1.5rem',
+  height: '1.5rem',
   flexShrink: '0',
   borderRadius: '100%',
   cursor: 'pointer',
   color: 'var(--color-text-2)',
-  background: 'var(--color-surface-1)',
+  background: 'var(--color-surface-4)',
   transition: 'color var(--transition-speed)',
 
   '&:hover': {

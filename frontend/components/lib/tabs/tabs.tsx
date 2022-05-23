@@ -38,6 +38,8 @@ export const Trigger = styled(TabsPrimitive.Trigger, {
   userSelect: 'none',
   whiteSpace: 'nowrap',
   border: '1px solid transparent',
+  borderTopRightRadius: 'var(--border-radius-m)',
+  borderTopLeftRadius: 'var(--border-radius-m)',
   borderBottom: 'none',
 
   '> *': {
@@ -46,7 +48,7 @@ export const Trigger = styled(TabsPrimitive.Trigger, {
 
   '&:hover': {
     color: 'var(--color-text-1)',
-    background: 'var(--color-surface-3)',
+    boxShadow: 'inset 0 -2px 0 var(--color-text-1)',
   },
 
   '&:focus': {
@@ -54,7 +56,7 @@ export const Trigger = styled(TabsPrimitive.Trigger, {
   },
 
   '&[data-state="active"]': {
-    color: 'var(--color-text-1)',
+    color: 'var(--color-cta-primary)',
     boxShadow: 'inset 0 -2px 0 var(--color-cta-primary)',
     position: 'relative',
     zIndex: 5,

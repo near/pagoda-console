@@ -36,6 +36,10 @@ const Block = styled('div', {
 interface FakeForm {
   displayName: string;
   email: string;
+  favoriteFood: string;
+  favoriteColorsBlue: boolean;
+  favoriteColorsOrange: boolean;
+  termsAccepted: boolean;
 }
 
 const Lipsum = () => {
@@ -86,6 +90,24 @@ const Settings: NextPageWithLayout = () => {
   const [urlsChecked, setUrlsChecked] = useState(false);
   const [person, setPerson] = useState('pedro');
   const { register, handleSubmit, formState } = useForm<FakeForm>();
+
+  const favoriteFoodOptions = [
+    {
+      display: 'Pizza',
+      value: 'pizza',
+      description: 'Pepperoni pizza is delicious.',
+    },
+    {
+      display: 'Taco',
+      value: 'taco',
+      description: 'Taco Tuesday!',
+    },
+    {
+      display: 'Pasta',
+      value: 'pasta',
+      description: 'Spaghetti & meatballs - so good with extra parmesan cheese.',
+    },
+  ];
 
   return (
     <>
@@ -379,7 +401,7 @@ const Settings: NextPageWithLayout = () => {
 
           <HR />
 
-          <Flex as="p" gap="l">
+          <Flex as="p" gap="l" wrap>
             <Font size="h1">Size H1</Font>
             <Font size="h2">Size H2</Font>
             <Font size="h3">Size H3</Font>
@@ -390,7 +412,7 @@ const Settings: NextPageWithLayout = () => {
 
           <HR />
 
-          <Flex as="p" gap="l">
+          <Flex as="p" gap="l" wrap>
             <Font size="h3" family="accent">
               Family Accent
             </Font>
@@ -407,7 +429,7 @@ const Settings: NextPageWithLayout = () => {
 
           <HR />
 
-          <Flex as="p" gap="l">
+          <Flex as="p" gap="l" wrap>
             <Font size="h3" color="danger">
               Danger
             </Font>
@@ -466,6 +488,60 @@ const Settings: NextPageWithLayout = () => {
                   {...register('email', formValidations.email)}
                 />
                 <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
+              </Form.Group>
+
+              <Form.Fieldset>
+                <Form.Group gap="m">
+                  <Form.Legend>Favorite Food</Form.Legend>
+
+                  <Form.CheckboxGroup>
+                    {favoriteFoodOptions.map((option) => (
+                      <Form.Checkbox
+                        radio
+                        key={option.value}
+                        value={option.value}
+                        isInvalid={!!formState.errors.favoriteFood}
+                        {...register('favoriteFood', {
+                          required: 'You must select a favorite food.',
+                        })}
+                      >
+                        {option.display}
+                        <P size="small">{option.description}</P>
+                      </Form.Checkbox>
+                    ))}
+                  </Form.CheckboxGroup>
+
+                  <Form.Feedback>{formState.errors.favoriteFood?.message}</Form.Feedback>
+                </Form.Group>
+              </Form.Fieldset>
+
+              <Form.Fieldset>
+                <Form.Group gap="m">
+                  <Form.Legend>Favorite Colors</Form.Legend>
+
+                  <Form.CheckboxGroup>
+                    <Form.Checkbox {...register('favoriteColorsOrange')}>Orange</Form.Checkbox>
+                    <Form.Checkbox {...register('favoriteColorsBlue')}>Blue</Form.Checkbox>
+                  </Form.CheckboxGroup>
+                </Form.Group>
+              </Form.Fieldset>
+
+              <HR />
+
+              <Form.Group>
+                <Form.Checkbox
+                  isInvalid={!!formState.errors.termsAccepted}
+                  {...register('termsAccepted', {
+                    required: 'You must accept the terms.',
+                  })}
+                >
+                  I agree to the{' '}
+                  <TextLink href="/" target="_blank">
+                    Terms & Conditions
+                  </TextLink>
+                </Form.Checkbox>
+
+                <Form.Feedback>{formState.errors.termsAccepted?.message}</Form.Feedback>
               </Form.Group>
 
               <Button type="submit">Submit</Button>
@@ -565,11 +641,11 @@ const Settings: NextPageWithLayout = () => {
           <Tabs.Root defaultValue="tab-1">
             <Tabs.List>
               <Tabs.Trigger value="tab-1">Tab 1</Tabs.Trigger>
-              <Tabs.Trigger value="tab-2">Tab With a Really Super Long Name</Tabs.Trigger>
-              <Tabs.Trigger value="tab-3">Tab Also With a Long Name</Tabs.Trigger>
+              <Tabs.Trigger value="tab-2">Tab 2</Tabs.Trigger>
+              <Tabs.Trigger value="tab-3">Tab 3 With a Long Name</Tabs.Trigger>
               <Tabs.Trigger value="tab-4">
                 <FontAwesomeIcon icon={faAtlas} />
-                Tab With Icon
+                Tab 4 With Icon
               </Tabs.Trigger>
             </Tabs.List>
 
@@ -628,7 +704,7 @@ const Settings: NextPageWithLayout = () => {
         <Flex stack>
           <H2>Tooltip</H2>
 
-          <Flex align="center">
+          <Flex align="center" wrap>
             <Tooltip content="I am the tooltip message.">
               <Button>Curious Button</Button>
             </Tooltip>

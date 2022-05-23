@@ -1,19 +1,21 @@
 import type { ComponentProps } from 'react';
 import { forwardRef } from 'react';
 
-import * as S from './styles';
+import * as S from './form.styles';
 
 type FeedbackProps = ComponentProps<typeof S.Feedback>;
 type FormProps = ComponentProps<typeof S.Form> & {
   disabled?: boolean;
 };
-type InputProps = ComponentProps<typeof S.Input> & {
+type InputProps = Omit<ComponentProps<typeof S.Input>, 'invalid'> & {
   isInvalid?: boolean;
 };
 
+export const Fieldset = S.Fieldset;
 export const Group = S.Group;
 export const Label = S.Label;
 export const LabelDescription = S.LabelDescription;
+export const Legend = S.Legend;
 
 export const Root = forwardRef<HTMLFormElement, FormProps>(
   ({ children, disabled, noValidate = true, ...props }, ref) => {
