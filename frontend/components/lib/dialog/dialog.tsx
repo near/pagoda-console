@@ -2,12 +2,11 @@
   https://www.radix-ui.com/docs/primitives/components/dialog
 */
 
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import type { ComponentProps, ReactNode } from 'react';
 import { forwardRef } from 'react';
 
+import { FeatherIcon } from '../FeatherIcon';
 import * as S from './styles';
 
 export const Close = DialogPrimitive.Close;
@@ -50,7 +49,7 @@ Content.displayName = 'Content';
 export const CloseButton = forwardRef<HTMLButtonElement, CloseButtonProps>((props, ref) => {
   return (
     <S.CloseButton aria-label="Close" ref={ref} {...props}>
-      <FontAwesomeIcon icon={faTimes} />
+      <FeatherIcon icon="x" />
     </S.CloseButton>
   );
 });

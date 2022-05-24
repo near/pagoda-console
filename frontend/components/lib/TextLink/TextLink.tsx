@@ -38,6 +38,13 @@ export const TextLink = styled('a', {
         },
       },
     },
+
+    size: {
+      small: {
+        fontSize: 'var(--font-size-body-small)',
+        fontWeight: 400,
+      },
+    },
   },
 
   defaultVariants: {

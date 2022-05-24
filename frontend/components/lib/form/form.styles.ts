@@ -63,7 +63,7 @@ export const LabelDescription = styled('p', {
 export const Input = styled('input', {
   color: 'var(--color-text-1)',
   background: 'var(--color-surface-2)',
-  border: '1px solid var(--color-surface-4)',
+  border: '1px solid var(--color-surface-1)',
   fontSize: 'var(--font-size-body)',
   fontFamily: 'var(--font-body)',
   fontWeight: 400,

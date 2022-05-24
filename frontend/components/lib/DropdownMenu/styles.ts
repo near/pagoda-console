@@ -15,13 +15,13 @@ const closeAnimation = keyframes({
 
 export const Content = styled(DropdownMenuPrimitive.Content, {
   '--animation-speed': '200ms',
-  '--background-color': 'var(--color-surface-3)',
+  '--background-color': 'var(--color-surface-1)',
   minWidth: 'var(--size-max-container-width-xxs)',
   maxWidth: 'var(--size-max-container-width-xs)',
   backgroundColor: 'var(--background-color)',
   borderRadius: 'var(--border-radius-s)',
   padding: 'var(--space-s)',
-  boxShadow: 'var(--shadow-soft)',
+  boxShadow: 'var(--shadow-softer)',
   transformOrigin: 'var(--radix-dropdown-menu-content-transform-origin)',
 
   '&[data-state="open"]': {
@@ -37,7 +37,7 @@ export const ItemSelectedIndicator = styled('div', {
 });
 
 export const ItemUnselectedIndicator = styled('div', {
-  color: 'var(--color-surface-4)',
+  color: 'var(--color-surface-5)',
 });
 
 const itemStyles: StitchesCSS = {
@@ -61,11 +61,11 @@ const itemStyles: StitchesCSS = {
   },
 
   '&:focus': {
-    backgroundColor: 'var(--color-surface-2)',
+    backgroundColor: 'var(--color-surface-3)',
   },
 
   '&[data-state="open"]': {
-    backgroundColor: 'var(--color-surface-2)',
+    backgroundColor: 'var(--color-surface-3)',
   },
 
   '&[data-state="checked"]': {
@@ -93,7 +93,7 @@ export const TriggerItem = styled(DropdownMenuPrimitive.TriggerItem, {
   ...itemStyles,
 
   '& > svg': {
-    color: 'var(--color-surface-4)',
+    color: 'var(--color-surface-5)',
   },
 });
 
@@ -110,7 +110,7 @@ export const Label = styled(DropdownMenuPrimitive.Label, {
 
 export const Separator = styled(DropdownMenuPrimitive.Separator, {
   height: 1,
-  backgroundColor: 'var(--color-surface-2)',
+  backgroundColor: 'var(--color-surface-3)',
   margin: 'var(--space-s) 0',
 });
 

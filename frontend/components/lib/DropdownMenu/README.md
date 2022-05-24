@@ -24,7 +24,7 @@ import * as DropdownMenu from '@/components/lib/dropdown-menu';
     <DropdownMenu.Item>New Tab</DropdownMenu.Item>
     <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
     <DropdownMenu.Item>
-      <FontAwesomeIcon icon={faAtlas} /> With Icon
+      <FeatherIcon icon="eye" /> With Icon
     </DropdownMenu.Item>
 
     <DropdownMenu.Root>

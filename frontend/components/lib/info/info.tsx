@@ -1,9 +1,8 @@
-import { faQuestion } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { ComponentProps } from 'react';
 import { useState } from 'react';
 
-import { Tooltip } from '../tooltip';
+import { FeatherIcon } from '../FeatherIcon';
+import { Tooltip } from '../Tooltip';
 import * as S from './styles';
 
 type Props = Omit<ComponentProps<typeof S.Info>, 'children'> & {
@@ -28,8 +27,8 @@ export const Info = ({ content }: Props) => {
         onOpenChange: setIsOpen,
       }}
     >
-      <S.Info aria-label={isOpen ? 'Close Info' : 'More Info'} onMouseDown={onClick}>
-        <FontAwesomeIcon icon={faQuestion} />
+      <S.Info>
+        <FeatherIcon icon="help-circle" aria-label={isOpen ? 'Close Info' : 'More Info'} onMouseDown={onClick} />
       </S.Info>
     </Tooltip>
   );

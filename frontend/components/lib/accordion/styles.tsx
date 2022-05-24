@@ -14,7 +14,7 @@ const closeAnimation = keyframes({
 
 export const Accordion = styled(AccordionPrimitive.Root, {
   '--animation-speed': '200ms',
-  '--border-radius': 'var(--border-radius-s)',
+  '--border-radius': 'var(--border-radius-m)',
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
@@ -59,7 +59,7 @@ export const Trigger = styled(AccordionPrimitive.Trigger, {
     },
   },
 
-  '&:hover': { backgroundColor: 'var(--color-surface-3)' },
+  '&:hover': { backgroundColor: 'var(--color-surface-1)' },
 
   '&:focus': {
     outline: 'var(--focus-outline)',

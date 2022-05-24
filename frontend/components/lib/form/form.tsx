@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 import { forwardRef } from 'react';
 
-import * as S from './form.styles';
+import * as S from './Form.styles';
 
 type FeedbackProps = ComponentProps<typeof S.Feedback>;
 type FormProps = ComponentProps<typeof S.Form> & {

@@ -1,9 +1,8 @@
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { ComponentProps } from 'react';
 import { forwardRef } from 'react';
 
-import { Flex } from '../flex';
+import { FeatherIcon } from '../FeatherIcon';
+import { Flex } from '../Flex';
 import * as S from './styles';
 
 type ContentProps = ComponentProps<typeof S.Content>;
@@ -16,10 +15,10 @@ export const Trigger = forwardRef<HTMLButtonElement, TriggerProps>(({ children, 
   return (
     <S.Header>
       <S.Trigger ref={ref} {...props}>
-        <Flex gap="s" align="center">
+        <Flex gap="m" align="center">
           {children}
         </Flex>
-        <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+        <FeatherIcon icon="chevron-down"></FeatherIcon>
       </S.Trigger>
     </S.Header>
   );

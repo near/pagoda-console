@@ -12,7 +12,7 @@ export const List = styled(TabsPrimitive.List, {
   flexShrink: 0,
   display: 'flex',
   width: '100%',
-  boxShadow: 'inset 0 -2px 0 var(--color-surface-3)',
+  boxShadow: 'inset 0 -2px 0 var(--color-surface-5)',
   overflow: 'auto',
   '-ms-overflow-style': 'none',
   scrollbarWidth: 'none',

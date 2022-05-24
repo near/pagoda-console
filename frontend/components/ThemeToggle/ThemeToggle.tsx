@@ -1,10 +1,12 @@
-import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { ComponentProps } from 'react';
 import { useEffect, useState } from 'react';
 
+import { FeatherIcon } from '../lib/FeatherIcon';
 import * as S from './styles';
 
-export const ThemeToggle = () => {
+type Props = ComponentProps<typeof S.Button>;
+
+export const ThemeToggle = (props: Props) => {
   const [activeTheme, setActiveTheme] = useState('dark');
   const [shouldRender, setShouldRender] = useState(false);
   const darkThemeClass = 'dark-theme';
@@ -34,10 +36,9 @@ export const ThemeToggle = () => {
   if (!shouldRender) return null;
 
   return (
-    <>
-      <S.Button data-theme={activeTheme} onClick={() => toggleTheme()} title={buttonTitle}>
-        <FontAwesomeIcon icon={activeTheme === 'light' ? faSun : faMoon} />
-      </S.Button>
-    </>
+    <S.Button type="button" data-theme={activeTheme} onClick={() => toggleTheme()} aria-label={buttonTitle} {...props}>
+      <FeatherIcon icon={activeTheme === 'light' ? 'sun' : 'moon'} />
+      {activeTheme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+    </S.Button>
   );
 };

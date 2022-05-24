@@ -57,7 +57,7 @@ A `ReactNode` can also be passed if you want to use a custom set of elements for
 <Tooltip
   content={
     <>
-      <FontAwesomeIcon icon={faCar} /> I have an icon.
+      <FeatherIcon icon="eye" /> I have an icon.
     </>
   }
 >

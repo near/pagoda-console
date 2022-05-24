@@ -30,7 +30,7 @@ export const Overlay = styled(DialogPrimitive.Overlay, {
   alignItems: 'center',
   justifyContent: 'center',
   padding: 'var(--space-l)',
-  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  backgroundColor: 'rgba(36, 38, 37, 0.7)',
   backdropFilter: 'blur(3px)',
 
   '&[data-state="open"]': {
@@ -46,7 +46,7 @@ export const Overlay = styled(DialogPrimitive.Overlay, {
 });
 
 export const Content = styled(DialogPrimitive.Content, {
-  backgroundColor: 'var(--color-surface-2)',
+  backgroundColor: 'var(--color-surface-3)',
   borderRadius: 'var(--border-radius-l)',
   boxShadow: 'var(--shadow-soft)',
   width: '100%',
@@ -96,7 +96,8 @@ export const Header = styled('div', {
   zIndex: 100,
   gap: 'var(--space-m)',
   padding: 'var(--space-m) var(--space-l)',
-  background: 'var(--color-surface-3)',
+  background: 'var(--color-surface-2)',
+  borderBottom: '1px solid var(--color-surface-1)',
   boxShadow: 'var(--shadow-softer)',
   wordBreak: 'break-word',
 
@@ -126,12 +127,12 @@ export const CloseButton = styled(DialogPrimitive.Close, {
   flexShrink: '0',
   borderRadius: '100%',
   cursor: 'pointer',
-  color: 'var(--color-text-2)',
-  background: 'var(--color-surface-4)',
-  transition: 'color var(--transition-speed)',
+  color: 'var(--color-cta-neutral-text)',
+  background: 'var(--color-cta-neutral)',
+  transition: 'background var(--transition-speed)',
 
   '&:hover': {
-    color: 'var(--color-text-1)',
+    background: 'var(--color-cta-neutral-highlight)',
   },
 
   '&:focus': {

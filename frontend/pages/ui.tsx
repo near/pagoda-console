@@ -1,27 +1,27 @@
-import { faAtlas, faCar, faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import * as Accordion from '@/components/lib/accordion';
-import { Box } from '@/components/lib/box';
-import { Button, ButtonLink } from '@/components/lib/button';
-import * as Dialog from '@/components/lib/dialog';
-import * as DropdownMenu from '@/components/lib/dropdown-menu';
-import { Flex } from '@/components/lib/flex';
-import { Font } from '@/components/lib/font';
-import * as Form from '@/components/lib/form';
-import { H1, H2, H3, H4, H5, H6 } from '@/components/lib/heading';
-import { HR } from '@/components/lib/hr';
-import { Info } from '@/components/lib/info';
-import { P } from '@/components/lib/paragraph';
-import * as Popover from '@/components/lib/popover';
-import { Section } from '@/components/lib/section';
-import * as Tabs from '@/components/lib/tabs';
-import { TextLink } from '@/components/lib/text-link';
-import { Tooltip } from '@/components/lib/tooltip';
-import { ThemeToggle } from '@/components/theme-toggle/theme-toggle';
+import * as Accordion from '@/components/lib/Accordion';
+import { Badge } from '@/components/lib/Badge';
+import { Box } from '@/components/lib/Box';
+import { Button, ButtonLink } from '@/components/lib/Button';
+import * as Dialog from '@/components/lib/Dialog';
+import * as DropdownMenu from '@/components/lib/DropdownMenu';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
+import { Flex } from '@/components/lib/Flex';
+import { Font } from '@/components/lib/Font';
+import * as Form from '@/components/lib/Form';
+import { H1, H2, H3, H4, H5, H6 } from '@/components/lib/Heading';
+import { HR } from '@/components/lib/HorizontalRule';
+import { Info } from '@/components/lib/Info';
+import { P } from '@/components/lib/Paragraph';
+import * as Popover from '@/components/lib/Popover';
+import { Section } from '@/components/lib/Section';
+import * as Tabs from '@/components/lib/Tabs';
+import { TextLink } from '@/components/lib/TextLink';
+import { Tooltip } from '@/components/lib/Tooltip';
+import { ThemeToggle } from '@/components/ThemeToggle/ThemeToggle';
 import { styled } from '@/styles/stitches';
 import { formValidations } from '@/utils/constants';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -29,7 +29,7 @@ import type { NextPageWithLayout } from '@/utils/types';
 const Block = styled('div', {
   width: '15rem',
   height: '3rem',
-  background: 'var(--color-surface-3)',
+  background: 'var(--color-surface-1)',
   borderRadius: 'var(--border-radius-m)',
 });
 
@@ -112,13 +112,13 @@ const Settings: NextPageWithLayout = () => {
   return (
     <>
       <Section color="surface2">
-        <Flex align="center">
-          <Flex stack>
+        <Flex align="center" justify="spaceBetween" wrap>
+          <Flex stack css={{ width: 'auto' }}>
             <H1>Stitches & Radix UI</H1>
             <P>This page shows examples of all our shared components.</P>
           </Flex>
 
-          <ThemeToggle />
+          <ThemeToggle css={{ width: 'auto', border: '1px solid var(--color-surface-4)' }} />
         </Flex>
       </Section>
 
@@ -152,7 +152,7 @@ const Settings: NextPageWithLayout = () => {
 
             <Accordion.Item value="item-3">
               <Accordion.Trigger>
-                <FontAwesomeIcon icon={faAtlas} />
+                <FeatherIcon icon="eye" />
                 Some Title
                 <P>With a subtitle</P>
               </Accordion.Trigger>
@@ -163,6 +163,24 @@ const Settings: NextPageWithLayout = () => {
               </Accordion.Content>
             </Accordion.Item>
           </Accordion.Root>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex align="center">
+          <H2
+            css={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-s)',
+            }}
+          >
+            Badge
+            <Badge>Neutral</Badge>
+            <Badge color="primary">Primary</Badge>
+            <Badge color="danger">Danger</Badge>
+            <Badge size="small">Small</Badge>
+          </H2>
         </Flex>
       </Section>
 
@@ -192,10 +210,10 @@ const Settings: NextPageWithLayout = () => {
           <Flex wrap>
             <Button>Primary</Button>
             <Button>
-              <FontAwesomeIcon icon={faAtlas} /> With Icon
+              <FeatherIcon icon="cpu" /> With Icon
             </Button>
             <Button>
-              <FontAwesomeIcon icon={faCar} />
+              <FeatherIcon icon="eye" aria-label="Eye" />
             </Button>
             <Button loading>Is Loading</Button>
             <Button disabled>Disabled</Button>
@@ -280,7 +298,7 @@ const Settings: NextPageWithLayout = () => {
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <Button>
-                Open Menu <FontAwesomeIcon icon={faChevronDown}></FontAwesomeIcon>
+                Open Menu <FeatherIcon icon="chevron-down"></FeatherIcon>
               </Button>
             </DropdownMenu.Trigger>
 
@@ -288,7 +306,7 @@ const Settings: NextPageWithLayout = () => {
               <DropdownMenu.Item>New Tab</DropdownMenu.Item>
               <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
               <DropdownMenu.Item>
-                <FontAwesomeIcon icon={faAtlas} /> With Icon
+                <FeatherIcon icon="eye" /> With Icon
               </DropdownMenu.Item>
 
               <DropdownMenu.Root>
@@ -321,6 +339,44 @@ const Settings: NextPageWithLayout = () => {
               </DropdownMenu.RadioGroup>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
+          <H2>Feather Icon</H2>
+          <P>
+            View all Feather Icons{' '}
+            <TextLink href="https://feathericons.com/" target="_blank">
+              here
+            </TextLink>
+            .
+          </P>
+
+          <Flex>
+            <FeatherIcon icon="home" size="xl" />
+            <FeatherIcon icon="home" size="l" />
+            <FeatherIcon icon="home" size="m" />
+            <FeatherIcon icon="home" size="s" />
+            <FeatherIcon icon="home" size="xs" />
+          </Flex>
+
+          <Flex>
+            <Font css={{ color: 'orange' }}>
+              <FeatherIcon icon="cpu" />
+            </Font>
+            <FeatherIcon icon="cpu" color="primary" />
+            <FeatherIcon icon="cpu" color="danger" />
+            <FeatherIcon icon="cpu" color="text1" />
+            <FeatherIcon icon="cpu" color="text2" />
+            <FeatherIcon icon="cpu" color="text3" />
+          </Flex>
+
+          <Flex>
+            <FeatherIcon icon="eye" strokeWidth={3} />
+            <FeatherIcon icon="eye" strokeWidth={2} />
+            <FeatherIcon icon="eye" strokeWidth={1} />
+          </Flex>
         </Flex>
       </Section>
 
@@ -445,6 +501,9 @@ const Settings: NextPageWithLayout = () => {
             <Font size="h3" color="text2">
               Text 2
             </Font>
+            <Font size="h3" color="text3">
+              Text 3
+            </Font>
           </Flex>
         </Flex>
       </Section>
@@ -474,7 +533,7 @@ const Settings: NextPageWithLayout = () => {
               </Form.Group>
 
               <Form.Group>
-                <Flex gap="s">
+                <Flex gap="s" align="center">
                   <Form.Label htmlFor="email">Email</Form.Label>
                   <Info content="This would provide even more context." />
                 </Flex>
@@ -644,7 +703,7 @@ const Settings: NextPageWithLayout = () => {
               <Tabs.Trigger value="tab-2">Tab 2</Tabs.Trigger>
               <Tabs.Trigger value="tab-3">Tab 3 With a Long Name</Tabs.Trigger>
               <Tabs.Trigger value="tab-4">
-                <FontAwesomeIcon icon={faAtlas} />
+                <FeatherIcon icon="home" />
                 Tab 4 With Icon
               </Tabs.Trigger>
             </Tabs.List>
@@ -683,20 +742,20 @@ const Settings: NextPageWithLayout = () => {
       <Section>
         <Flex stack>
           <H2>Text Link</H2>
-          <P>
-            Here are some links:{' '}
+          <Flex>
             <Link href="/project-settings" passHref>
               <TextLink>Primary Link</TextLink>
-            </Link>{' '}
-            and{' '}
+            </Link>
             <Link href="/project-settings" passHref>
               <TextLink color="danger">Danger Link</TextLink>
-            </Link>{' '}
-            and{' '}
+            </Link>
             <Link href="/project-settings" passHref>
               <TextLink color="neutral">Neutral Link</TextLink>
             </Link>
-          </P>
+            <Link href="/project-settings" passHref>
+              <TextLink size="small">Small Link</TextLink>
+            </Link>
+          </Flex>
         </Flex>
       </Section>
 
@@ -712,7 +771,7 @@ const Settings: NextPageWithLayout = () => {
             <Tooltip
               content={
                 <>
-                  <FontAwesomeIcon icon={faCar} /> I have an icon.
+                  <FeatherIcon icon="cpu" /> I have an icon.
                 </>
               }
             >

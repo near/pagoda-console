@@ -12,18 +12,22 @@ const lightThemeAnimation = keyframes({
 
 export const Button = styled('button', {
   '--animation-speed': '500ms',
-  width: '2rem',
-  height: '2rem',
-  borderRadius: '100%',
-  display: 'inline-flex',
-  justifyContent: 'center',
+  display: 'flex',
+  width: '100%',
   alignItems: 'center',
+  gap: 'var(--space-s)',
+  fontSize: 'var(--font-size-h6)',
+  lineHeight: 'var(--line-height-h6)',
+  fontWeight: 400,
+  color: 'var(--color-text-1)',
   cursor: 'pointer',
-  color: 'var(--color-text-2)',
-  transition: 'color var(--transition-speed)',
+  padding: 'var(--space-s)',
+  borderRadius: 'var(--border-radius-s)',
+  transition: 'color var(--transition-speed), background var(--transition-speed)',
+  whiteSpace: 'nowrap',
 
   '&:hover': {
-    color: 'var(--color-text-1)',
+    color: 'var(--color-cta-primary)',
   },
 
   '&:focus': {
@@ -32,10 +36,10 @@ export const Button = styled('button', {
   },
 
   '&[data-theme="dark"]': {
-    animation: `${darkThemeAnimation} var(--animation-speed) ease forwards`,
+    svg: { animation: `${darkThemeAnimation} var(--animation-speed) ease forwards` },
   },
 
   '&[data-theme="light"]': {
-    animation: `${lightThemeAnimation} var(--animation-speed) ease forwards`,
+    svg: { animation: `${lightThemeAnimation} var(--animation-speed) ease forwards` },
   },
 });

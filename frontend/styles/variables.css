@@ -5,14 +5,15 @@
   --border-radius-m: 10px;
   --border-radius-l: 20px;
 
-  --color-text-1: #ffffff;
+  --color-text-1: #f5f5f5;
   --color-text-2: #bcc3cd;
   --color-text-3: #888e98;
 
-  --color-surface-1: #16191d;
-  --color-surface-2: #1f2429;
-  --color-surface-3: #2b323b;
-  --color-surface-4: #414a58;
+  --color-surface-1: #242625;
+  --color-surface-2: #2b2c2b;
+  --color-surface-3: #323232;
+  --color-surface-4: #383838;
+  --color-surface-5: #464646;
 
   --color-primary: #87bb81;
   --color-primary-highlight: #a8daa4;
@@ -25,9 +26,9 @@
   --color-cta-danger: var(--color-danger);
   --color-cta-danger-highlight: var(--color-danger-highlight);
   --color-cta-danger-text: #000000;
-  --color-cta-neutral: #bcc3cd;
-  --color-cta-neutral-highlight: #f0f2f4;
-  --color-cta-neutral-text: #000000;
+  --color-cta-neutral: #464646;
+  --color-cta-neutral-highlight: #575757;
+  --color-cta-neutral-text: #f5f5f5;
 
   --focus-outline: 1px solid var(--focus-outline-color);
   --focus-outline-color: #8793a6;
@@ -56,9 +57,14 @@
   --line-height-h5: 1.5;
   --line-height-h6: 1.5;
 
-  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.3);
-  --shadow-softer: 0 2px 10px rgba(0, 0, 0, 0.15);
+  --shadow-soft: 0 2px 20px rgba(0, 0, 0, 0.3);
+  --shadow-softer: 0 2px 20px rgba(0, 0, 0, 0.15);
 
+  --size-icon-xs: 0.8rem;
+  --size-icon-s: 1.25rem;
+  --size-icon-m: 1.75rem;
+  --size-icon-l: 2.5rem;
+  --size-icon-xl: 3.25rem;
   --size-input-xs: 1.25rem;
   --size-input-s: 1.75rem;
   --size-input-m: 3rem;
@@ -67,6 +73,7 @@
   --size-max-container-width-s: 30rem;
   --size-max-container-width-m: 50rem;
   --size-max-container-width-l: 75rem;
+  --size-sidebar-expanded: 12rem;
 
   --space-xs: 0.25rem;
   --space-s: 0.6rem;
@@ -79,14 +86,20 @@
 
 .light-theme,
 .dark-theme .reverse-theme {
-  --color-text-1: #16191d;
-  --color-text-2: #323a43;
-  --color-text-3: #48515c;
+  --color-text-1: #242625;
+  --color-text-2: #2b2c2b;
+  --color-text-3: #323232;
 
   --color-surface-1: #ffffff;
   --color-surface-2: #f2f4f7;
   --color-surface-3: #e9ecf0;
-  --color-surface-4: #bcc3cd;
+  --color-surface-4: #cdd3db;
+  --color-surface-5: #bcc3cd;
+
+  --color-cta-neutral: #bcc3cd;
+  --color-cta-neutral-highlight: #a9b0ba;
+  --color-cta-neutral-text: #242625;
 
   --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.05);
+  --shadow-softer: 0 2px 10px rgba(0, 0, 0, 0.025);
 }

@@ -9,7 +9,7 @@ export const Indicator = styled('span', {
   height: 'var(--size-input-xs)',
   borderRadius: 'var(--border-radius-s)',
   background: 'var(--color-surface-1)',
-  border: '1px solid var(--color-surface-4)',
+  border: '1px solid var(--color-surface-5)',
   transition:
     'background var(--transition-speed), border-color var(--transition-speed), box-shadow var(--transition-speed)',
 
@@ -57,7 +57,7 @@ export const CheckboxGroup = styled('div', {
   background: 'var(--color-surface-2)',
 
   [`${Label}`]: {
-    borderTop: '1px solid var(--color-surface-3)',
+    borderTop: '1px solid var(--color-surface-1)',
     padding: 'var(--space-m)',
     gap: 'var(--space-m)',
 

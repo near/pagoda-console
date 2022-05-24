@@ -1,6 +1,6 @@
 import type { ComponentProps, ElementType } from 'react';
 
-import { Container } from '../container';
+import { Container } from '../Container';
 import * as S from './styles';
 
 type Props = ComponentProps<typeof S.Section> & {

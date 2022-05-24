@@ -4,7 +4,7 @@ import { logOut } from '@/utils/auth';
 
 import ConsoleLogo from '../SmallConsoleLogo';
 
-export default function SimpleLogoutLayout({
+export function SimpleLogoutLayout({
   children,
   footer = null,
 }: {

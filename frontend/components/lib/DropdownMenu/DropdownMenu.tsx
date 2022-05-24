@@ -1,11 +1,9 @@
-import { faCircle, faSquare } from '@fortawesome/free-regular-svg-icons';
-import { faCheckCircle, faCheckSquare, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import type { ComponentProps } from 'react';
 import { forwardRef } from 'react';
 
-import { Flex } from '../flex';
+import { FeatherIcon } from '../FeatherIcon';
+import { Flex } from '../Flex';
 import * as S from './styles';
 
 type ContentProps = ComponentProps<typeof S.Content> & {
@@ -30,7 +28,7 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, nes
   const arrowOffset = nested ? 24 : 16;
 
   return (
-    <S.Content className="dark-theme" ref={ref} alignOffset={alignOffset} sideOffset={sideOffset} {...props}>
+    <S.Content ref={ref} alignOffset={alignOffset} sideOffset={sideOffset} {...props}>
       {children}
       <S.Arrow offset={arrowOffset} />
     </S.Content>
@@ -42,10 +40,10 @@ export const CheckboxItem = forwardRef<HTMLDivElement, CheckboxItemProps>(({ chi
   return (
     <S.CheckboxItem ref={ref} {...props}>
       <S.ItemSelectedIndicator>
-        <FontAwesomeIcon icon={faCheckSquare} />
+        <FeatherIcon icon="check-square" />
       </S.ItemSelectedIndicator>
       <S.ItemUnselectedIndicator>
-        <FontAwesomeIcon icon={faSquare} />
+        <FeatherIcon icon="square" />
       </S.ItemUnselectedIndicator>
       {children}
     </S.CheckboxItem>
@@ -57,10 +55,10 @@ export const RadioItem = forwardRef<HTMLDivElement, RadioItemProps>(({ children,
   return (
     <S.RadioItem ref={ref} {...props}>
       <S.ItemSelectedIndicator>
-        <FontAwesomeIcon icon={faCheckCircle} />
+        <FeatherIcon icon="check-circle" />
       </S.ItemSelectedIndicator>
       <S.ItemUnselectedIndicator>
-        <FontAwesomeIcon icon={faCircle} />
+        <FeatherIcon icon="circle" />
       </S.ItemUnselectedIndicator>
       {children}
     </S.RadioItem>
@@ -73,7 +71,7 @@ export const TriggerItem = forwardRef<HTMLDivElement, TriggerItemProps>(({ child
     <S.TriggerItem ref={ref} {...props}>
       <Flex gap="s">{children}</Flex>
 
-      <FontAwesomeIcon icon={faChevronRight} />
+      <FeatherIcon icon="chevron-right" />
     </S.TriggerItem>
   );
 });

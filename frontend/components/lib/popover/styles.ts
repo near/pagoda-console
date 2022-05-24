@@ -14,13 +14,13 @@ const closeAnimation = keyframes({
 
 export const Content = styled(PopoverPrimitive.Content, {
   '--animation-speed': '200ms',
-  '--background-color': 'var(--color-surface-3)',
+  '--background-color': 'var(--color-surface-1)',
   borderRadius: 'var(--border-radius-s)',
   padding: 'var(--space-m)',
   minWidth: 'var(--size-max-container-width-xxs)',
   maxWidth: 'var(--size-max-container-width-xs)',
   background: 'var(--background-color)',
-  boxShadow: 'var(--shadow-soft)',
+  boxShadow: 'var(--shadow-softer)',
   transformOrigin: 'var(--radix-popover-content-transform-origin)',
 
   '&[data-state="open"]': {
@@ -44,12 +44,12 @@ export const CloseButton = styled(PopoverPrimitive.Close, {
   flexShrink: '0',
   borderRadius: '100%',
   cursor: 'pointer',
-  color: 'var(--color-text-2)',
-  background: 'var(--color-surface-4)',
-  transition: 'color var(--transition-speed)',
+  color: 'var(--color-cta-neutral-text)',
+  background: 'var(--color-cta-neutral)',
+  transition: 'background var(--transition-speed)',
 
   '&:hover': {
-    color: 'var(--color-text-1)',
+    background: 'var(--color-cta-neutral-highlight)',
   },
 
   '&:focus': {
@@ -58,7 +58,7 @@ export const CloseButton = styled(PopoverPrimitive.Close, {
   },
 
   svg: {
-    width: '0.7rem',
-    height: '0.7rem',
+    width: '0.8rem',
+    height: '0.8rem',
   },
 });

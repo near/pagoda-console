@@ -2,13 +2,7 @@ import type { ReactElement } from 'react';
 
 import ConsoleLogo from '@/components/ConsoleLogo';
 
-export default function SimpleLayout({
-  children,
-  footer = null,
-}: {
-  children: ReactElement;
-  footer: ReactElement | null;
-}) {
+export function SimpleLayout({ children, footer = null }: { children: ReactElement; footer: ReactElement | null }) {
   return (
     <div className="centeringContainer">
       <div className="centeredContainer">

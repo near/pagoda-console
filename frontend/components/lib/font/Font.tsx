@@ -15,6 +15,9 @@ export const Font = styled('span', {
       text2: {
         color: 'var(--color-text-2)',
       },
+      text3: {
+        color: 'var(--color-text-3)',
+      },
     },
 
     family: {

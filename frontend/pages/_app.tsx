@@ -2,7 +2,6 @@ import '@/styles/reset.css';
 import '@/styles/fonts.css';
 import '@/styles/variables.css';
 import '@/styles/global.css';
-// import '@/styles/globals.scss'; // UI_TODO: Remove
 import '@fortawesome/fontawesome-svg-core/styles.css';
 
 import { config as svgConfig } from '@fortawesome/fontawesome-svg-core';
@@ -21,7 +20,8 @@ import { useEffect } from 'react';
 import { SWRConfig, useSWRConfig } from 'swr';
 
 import DowntimeMode from '@/components/DowntimeMode';
-import SimpleLayout from '@/components/layouts/SimpleLayout';
+import { SimpleLayout } from '@/components/layouts/SimpleLayout';
+import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
 import { usePageTracker } from '@/hooks/page-tracker';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
@@ -96,6 +96,8 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
           <link rel="icon" href="/favicon.ico" />
           <link href="/favicon-256x256.png" rel="apple-touch-icon" />
         </Head>
+
+        <FeatherIconSheet />
 
         {config.downtimeMode ? (
           <SimpleLayout footer={null}>

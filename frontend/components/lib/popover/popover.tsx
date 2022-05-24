@@ -1,9 +1,8 @@
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 import type { ComponentProps } from 'react';
 import { forwardRef } from 'react';
 
+import { FeatherIcon } from '../FeatherIcon';
 import * as S from './styles';
 
 type ContentProps = Omit<ComponentProps<typeof S.Content>, 'title'>;
@@ -15,7 +14,7 @@ export const Close = PopoverPrimitive.Close;
 
 export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, sideOffset = 6, ...props }, ref) => {
   return (
-    <S.Content className="dark-theme" ref={ref} sideOffset={sideOffset} {...props}>
+    <S.Content ref={ref} sideOffset={sideOffset} {...props}>
       {children}
       <S.Arrow offset={16} />
     </S.Content>
@@ -26,7 +25,7 @@ Content.displayName = 'Content';
 export const CloseButton = forwardRef<HTMLButtonElement, CloseButtonProps>((props, ref) => {
   return (
     <S.CloseButton aria-label="Close" ref={ref} {...props}>
-      <FontAwesomeIcon icon={faTimes} />
+      <FeatherIcon icon="x" />
     </S.CloseButton>
   );
 });

@@ -1,9 +1,8 @@
-import { faCheck, faCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { ComponentProps } from 'react';
 import { forwardRef } from 'react';
 
-import * as S from './checkbox.styles';
+import { FeatherIcon } from '../FeatherIcon';
+import * as S from './Checkbox.styles';
 
 type Props = Omit<ComponentProps<typeof S.Input>, 'type' | 'radioGroup'> & {
   isInvalid?: boolean;
@@ -21,7 +20,11 @@ export const Checkbox = forwardRef<HTMLInputElement, Props>(
         <S.Input aria-invalid={isInvalid} type={type} ref={ref} {...props} />
 
         <S.Indicator invalid={isInvalid} radio={radio}>
-          <FontAwesomeIcon icon={radio ? faCircle : faCheck} />
+          {radio ? (
+            <FeatherIcon icon="circle" fill="currentColor" stroke="none" />
+          ) : (
+            <FeatherIcon icon="check" strokeWidth={4} />
+          )}
         </S.Indicator>
 
         <S.Description>{children}</S.Description>

@@ -19,7 +19,7 @@ export const Content = styled(TooltipPrimitive.Content, {
   alignItems: 'center',
   gap: 'var(--space-s)',
   backgroundColor: 'var(--background-color)',
-  boxShadow: 'var(--soft-shadow)',
+  boxShadow: 'var(--shadow-softer)',
 
   '&[data-state="delayed-open"]': {
     animation: `${openAnimation} 200ms`,
@@ -35,7 +35,7 @@ export const Content = styled(TooltipPrimitive.Content, {
         color: 'var(--color-cta-danger-text)',
       },
       neutral: {
-        '--background-color': 'var(--color-surface-3)',
+        '--background-color': 'var(--color-surface-1)',
         color: 'var(--color-text-1)',
       },
       primary: {
