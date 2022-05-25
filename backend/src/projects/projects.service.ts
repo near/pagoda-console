@@ -7,13 +7,10 @@ import {
   User,
   Contract,
   Environment,
-  ProjectTutorial,
 } from '@prisma/client';
 import { VError } from 'verror';
 import { customAlphabet } from 'nanoid';
-import { GetProjectDetailsSchema } from './dto';
 import { KeysService } from 'src/keys/keys.service';
-import { UserInfo } from 'firebase-admin/auth';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { AppConfig } from 'src/config/validate';
@@ -69,7 +66,20 @@ export class ProjectsService {
       throw new VError(e, 'Failed to find team');
     }
 
+    // TODO when our schema can enforce project name uniqueness within a team, replace this unique check with a database constraint.
+    if (!(await this.isProjectNameUnique(user, name))) {
+      throw new VError(
+        { info: { code: 'NAME_CONFLICT' } },
+        'Project name is not unique',
+      );
+    }
+
     let project;
+
+    const metadata = {
+      createdBy: user.id,
+      updatedBy: user.id,
+    };
 
     try {
       let projectInput: Prisma.ProjectCreateInput;
@@ -82,14 +92,23 @@ export class ProjectsService {
           teamProjects: {
             create: {
               teamId,
+              ...metadata,
             },
           },
           environments: {
             createMany: {
-              data: [{ name: 'Testnet', net: 'TESTNET', subId: 1 }],
+              data: [
+                {
+                  name: 'Testnet',
+                  net: 'TESTNET',
+                  subId: 1,
+                  ...metadata,
+                },
+              ],
             },
           },
           active: false,
+          ...metadata,
         };
       } else {
         projectInput = {
@@ -98,17 +117,29 @@ export class ProjectsService {
           teamProjects: {
             create: {
               teamId,
+              ...metadata,
             },
           },
           environments: {
             createMany: {
               data: [
-                { name: 'Testnet', net: 'TESTNET', subId: 1 },
-                { name: 'Mainnet', net: 'MAINNET', subId: 2 },
+                {
+                  name: 'Testnet',
+                  net: 'TESTNET',
+                  subId: 1,
+                  ...metadata,
+                },
+                {
+                  name: 'Mainnet',
+                  net: 'MAINNET',
+                  subId: 2,
+                  ...metadata,
+                },
               ],
             },
           },
           active: false,
+          ...metadata,
         };
       }
 
@@ -188,6 +219,111 @@ export class ProjectsService {
     };
   }
 
+  async ejectTutorial(
+    callingUser: User,
+    projectWhereUnique: Prisma.ProjectWhereUniqueInput,
+  ): Promise<void> {
+    // throw an error if the user doesn't have permission to perform this action
+    await this.checkUserPermission({
+      userId: callingUser.id,
+      projectWhereUnique,
+    });
+
+    // check that project is valid for ejection
+    let project;
+    try {
+      project = await this.prisma.project.findUnique({
+        where: projectWhereUnique,
+        select: {
+          id: true,
+          active: true,
+          tutorial: true,
+        },
+      });
+      if (!project) {
+        throw new VError(
+          { info: { code: 'BAD_PROJECT' } },
+          'Project not found',
+        );
+      }
+      if (!project.active) {
+        throw new VError(
+          { info: { code: 'BAD_PROJECT' } },
+          'Project not active',
+        );
+      }
+      if (!project.tutorial) {
+        throw new VError(
+          { info: { code: 'BAD_PROJECT' } },
+          'Project not a tutorial',
+        );
+      }
+    } catch (e) {
+      throw new VError(
+        e,
+        'Failed while determining project eligibility for ejection',
+      );
+    }
+
+    const projectKey = `${this.projectRefPrefix || ''}${project.id}_2`;
+
+    // generate RPC keys
+    try {
+      // It's possible the user tried ejecting before and it failed.
+      // Let's check if the project already exists.
+      const mainnetKeys = await this.keys.fetchAllKeys(projectKey, 'MAINNET');
+      if (!mainnetKeys.length) {
+        await this.keys.createProject(projectKey, 'MAINNET');
+      } else {
+        const validKey = mainnetKeys.find((k) => !k.invalid);
+        if (!validKey) {
+          await this.keys.generate(projectKey, 'MAINNET');
+        }
+      }
+    } catch (e) {
+      throw new VError(
+        e,
+        'Failed while generating MAINNET API key during tutorial ejection',
+      );
+    }
+
+    try {
+      await this.prisma.project.update({
+        where: {
+          id: project.id,
+        },
+        data: {
+          tutorial: null,
+          environments: {
+            create: {
+              name: 'Mainnet',
+              net: 'MAINNET',
+              subId: 2,
+              createdBy: callingUser.id,
+              updatedBy: callingUser.id,
+            },
+          },
+          updatedByUser: {
+            connect: {
+              id: callingUser.id,
+            },
+          },
+        },
+      });
+    } catch (e) {
+      try {
+        await this.keys.invalidate(projectKey, 'MAINNET');
+      } catch (e) {
+        console.error(
+          'Failed to invalidate MAINNET API Key after tutorial ejection failed',
+          e,
+        );
+      }
+
+      throw new VError(e, 'Failed while ejecting tutorial project');
+    }
+  }
+
   async delete(
     callingUser: User,
     projectWhereUnique: Prisma.ProjectWhereUniqueInput,
@@ -206,7 +342,7 @@ export class ProjectsService {
       if (!project || !project.active) {
         throw new VError(
           { info: { code: 'BAD_PROJECT' } },
-          'Project not found or project already invactive',
+          'Project not found or project already inactive',
         );
       }
     } catch (e) {
@@ -252,6 +388,11 @@ export class ProjectsService {
         where: projectWhereUnique,
         data: {
           active: false,
+          updatedByUser: {
+            connect: {
+              id: callingUser.id,
+            },
+          },
         },
       });
     } catch (e) {
@@ -335,8 +476,22 @@ export class ProjectsService {
       return await this.prisma.contract.create({
         data: {
           address,
-          environmentId,
+          environment: {
+            connect: {
+              id: environmentId,
+            },
+          },
           net,
+          createdByUser: {
+            connect: {
+              id: callingUser.id,
+            },
+          },
+          updatedByUser: {
+            connect: {
+              id: callingUser.id,
+            },
+          },
         },
         select: {
           id: true,
@@ -394,6 +549,11 @@ export class ProjectsService {
         where: contractWhereUnique,
         data: {
           active: false,
+          updatedByUser: {
+            connect: {
+              id: callingUser.id,
+            },
+          },
         },
       });
     } catch (e) {
@@ -627,6 +787,37 @@ export class ProjectsService {
     }
   }
 
+  async isProjectNameUnique(callingUser: User, name: string) {
+    try {
+      // TODO once team/org management is solidified, review the below query.
+      // This query was created when a team was the highest level that could determine project uniqueness
+      // and `project` was the only table in the list of relations where `active` could be `false`.
+      const p = await this.prisma.project.findFirst({
+        where: {
+          teamProjects: {
+            some: {
+              team: {
+                teamMembers: {
+                  some: {
+                    userId: callingUser.id,
+                  },
+                },
+              },
+            },
+          },
+          name,
+          active: true,
+        },
+        select: {
+          slug: true,
+        },
+      });
+      return !p;
+    } catch (e) {
+      throw new VError(e, 'Failed to guarantee project uniqueness');
+    }
+  }
+
   async getKeys(
     callingUser: User,
     projectWhereUnique: Prisma.ProjectWhereUniqueInput,
@@ -692,6 +883,17 @@ export class ProjectsService {
     }_${subId}`;
     const net = subId === 2 ? 'MAINNET' : 'TESTNET';
     try {
+      // Track the user's action.
+      await this.prisma.userAction.create({
+        data: {
+          action: 'ROTATE_API_KEY',
+          data: {
+            net,
+            keyId,
+          },
+          userId: callingUser.id,
+        },
+      });
       return { [net]: (await this.keys.rotate(keyId, net)).token };
     } catch (e) {
       throw new VError(e, `Failed to rotate key ${keyId} on net ${net}`);

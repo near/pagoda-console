@@ -1,14 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { User, Prisma } from '@prisma/client';
-import { getAuth } from 'firebase-admin/auth';
-import { VError } from 'verror';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
+    const metadata = {
+      createdByUser: {
+        connect: {
+          email: data.email,
+        },
+      },
+      updatedByUser: {
+        connect: {
+          email: data.email,
+        },
+      },
+    };
     return this.prisma.user.create({
       data: {
         ...data,
@@ -17,8 +27,10 @@ export class UsersService {
             team: {
               create: {
                 name: 'personal',
+                ...metadata,
               },
             },
+            ...metadata,
           },
         },
       },

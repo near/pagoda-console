@@ -30,11 +30,31 @@ Initialize database with Prisma models
 npx prisma migrate dev
 ```
 
-Wipe the contents of the database (as needed)
+Wipe the contents of the database (as needed) and apply all migrations
 
 ```
 npx prisma migrate reset
 ```
+
+To create a new migration. This will attempt to delete the Audit table since it cannot be defined in the Prisma schema. Please remove this code from your migration!
+
+```
+npx prisma migrate dev --create-only
+```
+
+To apply all migrations
+
+```
+npx prisma migrate deploy
+```
+
+### Database Documentation
+
+We currently have a Github action that will generate DB docs and upload them to:
+`https://dbdocs.io/jon-lewis/Pagoda-Developer-Console-Dev` when a PR is merged into `development` and
+`https://dbdocs.io/jon-lewis/Pagoda-Developer-Console` when merged into `main`.
+
+You will need a password to view these docs, please ask the team for it.
 
 ### Update models
 

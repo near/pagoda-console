@@ -44,6 +44,10 @@ export interface AppConfig {
       rpcAuthErrors: boolean;
     };
   };
+  log: {
+    queries: boolean;
+    indexer: boolean;
+  };
 }
 
 // Joi docs: https://joi.dev/api
@@ -71,7 +75,10 @@ const appConfigSchema = Joi.object({
           is: Joi.boolean().valid(true),
           then: Joi.optional().allow(''),
         }),
-      credential: Joi.string(),
+      credential: Joi.string().when('/dev.mock.rpcAuth', {
+        is: Joi.boolean().valid(true),
+        then: Joi.optional().allow(''),
+      }),
       quota: Joi.number().integer(),
     },
     MAINNET: Joi.object({
@@ -81,7 +88,10 @@ const appConfigSchema = Joi.object({
           is: Joi.boolean().valid(true),
           then: Joi.optional().allow(''),
         }),
-      credential: Joi.string(),
+      credential: Joi.string().when('/dev.mock.rpcAuth', {
+        is: Joi.boolean().valid(true),
+        then: Joi.optional().allow(''),
+      }),
       quota: Joi.number().integer(),
     }),
   },
@@ -99,6 +109,10 @@ const appConfigSchema = Joi.object({
       rpcAuth: Joi.boolean().optional().default(false),
       rpcAuthErrors: Joi.boolean().optional().default(false),
     },
+  },
+  log: {
+    queries: Joi.boolean().optional().default(false),
+    indexer: Joi.boolean().optional().default(false),
   },
 });
 
@@ -137,6 +151,10 @@ export default function validate(config: Record<string, unknown>): AppConfig {
         rpcAuth: config.MOCK_KEY_SERVICE,
         rpcAuthErrors: config.MOCK_KEY_SERVICE_WITH_ERRORS,
       },
+    },
+    log: {
+      queries: config.LOG_QUERIES,
+      indexer: config.LOG_INDEXER,
     },
   };
 

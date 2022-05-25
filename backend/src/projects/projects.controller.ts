@@ -3,13 +3,12 @@ import {
   Body,
   Controller,
   ForbiddenException,
-  HttpException,
-  HttpStatus,
   HttpCode,
   Post,
   Request,
   UseGuards,
   UsePipes,
+  ConflictException,
 } from '@nestjs/common';
 import { BearerAuthGuard } from 'src/auth/bearer-auth.guard';
 import { ProjectsService } from './projects.service';
@@ -21,6 +20,8 @@ import {
   CreateProjectSchema,
   DeleteProjectDto,
   DeleteProjectSchema,
+  EjectTutorialProjectDto,
+  EjectTutorialProjectSchema,
   GetContractsDto,
   GetContractsSchema,
   GetEnvironmentsDetailsDto,
@@ -35,6 +36,8 @@ import {
   GetRpcUsageSchema,
   GetTransactionsDto,
   GetTransactionsSchema,
+  IsProjectNameUniqueDto,
+  IsProjectNameUniqueSchema,
   RemoveContractDto,
   RemoveContractSchema,
   RotateKeyDto,
@@ -54,7 +57,26 @@ export class ProjectsController {
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(CreateProjectSchema))
   async create(@Request() req, @Body() { name, tutorial }: CreateProjectDto) {
-    return this.projectsService.create(req.user, name.trim(), tutorial);
+    try {
+      return await this.projectsService.create(req.user, name.trim(), tutorial);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('ejectTutorial')
+  @HttpCode(204)
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(EjectTutorialProjectSchema))
+  async ejectTutorial(
+    @Request() req,
+    @Body() { slug }: EjectTutorialProjectDto,
+  ) {
+    try {
+      return await this.projectsService.ejectTutorial(req.user, { slug });
+    } catch (e) {
+      throw mapError(e);
+    }
   }
 
   @Post('delete')
@@ -64,6 +86,17 @@ export class ProjectsController {
   async delete(@Request() req, @Body() { slug }: DeleteProjectDto) {
     try {
       return await this.projectsService.delete(req.user, { slug });
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('isNameUnique')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(IsProjectNameUniqueSchema))
+  async isNameUnique(@Request() req, @Body() { name }: IsProjectNameUniqueDto) {
+    try {
+      return await this.projectsService.isProjectNameUnique(req.user, name);
     } catch (e) {
       throw mapError(e);
     }
@@ -227,6 +260,8 @@ function mapError(e: Error) {
     case 'BAD_ENVIRONMENT':
     case 'BAD_CONTRACT':
       return new BadRequestException();
+    case 'NAME_CONFLICT':
+      return new ConflictException('Name already exists');
     default:
       return e;
   }
