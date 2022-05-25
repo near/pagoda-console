@@ -1,8 +1,4 @@
-export type ExecutionStatus =
-  | "NotStarted"
-  | "Started"
-  | "Failure"
-  | "SuccessValue";
+export type ExecutionStatus = 'NotStarted' | 'Started' | 'Failure' | 'SuccessValue';
 
 export interface TransactionBaseInfo {
   hash: string;
@@ -78,11 +74,7 @@ export interface ReceiptSuccessId {
   SuccessReceiptId: string;
 }
 
-export type ReceiptStatus =
-  | ReceiptSuccessValue
-  | ReceiptFailure
-  | ReceiptSuccessId
-  | string;
+export type ReceiptStatus = ReceiptSuccessValue | ReceiptFailure | ReceiptSuccessId | string;
 
 export interface Outcome {
   tokens_burnt: string;
@@ -137,8 +129,7 @@ export interface TransactionOutcomeWrapper {
 
 export type Transaction = TransactionInfo &
   ReceiptsOutcomeWrapper &
-  TransactionOutcomeWrapper & { receipt?: NestedReceiptWithOutcome } &
-  {sourceContract?: string}; // custom for console
+  TransactionOutcomeWrapper & { receipt?: NestedReceiptWithOutcome } & { sourceContract?: string }; // custom for console
 
 export interface TxPagination {
   endTimestamp: number;
@@ -146,19 +137,15 @@ export interface TxPagination {
 }
 
 export interface Receipt {
-    actions: Action[];
-    blockTimestamp: number;
-    receiptId: string;
-    gasBurnt: number;
-    receiverId: string;
-    signerId: string;
-    status?: ReceiptExecutionStatus;
-    originatedFromTransactionHash?: string | null;
-    tokensBurnt: string;
-  }
-  
-  export type ReceiptExecutionStatus =
-    | "Unknown"
-    | "Failure"
-    | "SuccessValue"
-    | "SuccessReceiptId";
+  actions: Action[];
+  blockTimestamp: number;
+  receiptId: string;
+  gasBurnt: number;
+  receiverId: string;
+  signerId: string;
+  status?: ReceiptExecutionStatus;
+  originatedFromTransactionHash?: string | null;
+  tokensBurnt: string;
+}
+
+export type ReceiptExecutionStatus = 'Unknown' | 'Failure' | 'SuccessValue' | 'SuccessReceiptId';

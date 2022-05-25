@@ -1,15 +1,31 @@
-import ConsoleLogoImage from '../public/brand/pagoda_dc.svg'
+import LogoSvg from '@/public/images/pagoda-logo.svg';
 
 function ConsoleLogo() {
+  return (
+    <div className="container">
+      <div className="logoContainer">
+        <LogoSvg style={{ width: '92px', height: 'auto', maxWidth: '100%' }} />
+      </div>
 
-    return <div className='logoContainer'>
-        <ConsoleLogoImage style={{ width: '100%', height: '100%' }} />
-        <style jsx>{`
+      <h1 className="title">Developer Console</h1>
+
+      <style jsx>{`
         .logoContainer {
-            max-width: 100vw;
+          display: flex;
+          justify-content: center;
+          margin-bottom: 1rem;
         }
-        `}</style>
+        .title {
+          font-size: 2.5rem;
+          font-family: 'NB International Pro', sans-serif;
+          font-weight: 400;
+          letter-spacing: -0.02em;
+          text-align: center;
+          margin: 0;
+        }
+      `}</style>
     </div>
+  );
 }
 
-export default ConsoleLogo
+export default ConsoleLogo;

@@ -1,13 +1,13 @@
-import { PureComponent } from "react";
+import { PureComponent } from 'react';
 // import TransactionsApi, * as T from "../../libraries/explorer-wamp/transactions"; // TODO
 import * as T from './types';
 
-import TransactionLink from "../utils/TransactionLink";
-import ActionGroup from "./ActionGroup";
-import { ViewMode } from "./ActionRowBlock";
-import TransactionExecutionStatus from "./TransactionExecutionStatus";
+import TransactionLink from '../utils/TransactionLink';
+import ActionGroup from './ActionGroup';
+import { ViewMode } from './ActionRowBlock';
+import TransactionExecutionStatus from './TransactionExecutionStatus';
 
-import { NetOption } from '../../../../utils/interfaces';
+import { NetOption } from '../../../../utils/types';
 import Config from '../../../../utils/config';
 
 // import { Translate } from "react-localize-redux";
@@ -18,7 +18,7 @@ export interface Props {
   transaction: T.Transaction;
   viewMode?: ViewMode;
   net: NetOption;
-  finalityStatus?: FinalityStatus,
+  finalityStatus?: FinalityStatus;
 }
 
 interface State {
@@ -27,7 +27,7 @@ interface State {
 
 class TransactionAction extends PureComponent<Props, State> {
   static defaultProps = {
-    viewMode: "sparse",
+    viewMode: 'sparse',
   };
 
   state: State = {};
@@ -37,10 +37,7 @@ class TransactionAction extends PureComponent<Props, State> {
   }
 
   fetchStatus = async () => {
-    const status = await getTransactionStatus(
-      this.props.transaction,
-      this.props.net
-    );
+    const status = await getTransactionStatus(this.props.transaction, this.props.net);
     this.setState({ status });
   };
 
@@ -54,15 +51,9 @@ class TransactionAction extends PureComponent<Props, State> {
       <ActionGroup
         actionGroup={transaction as T.Transaction}
         detailsLink={<TransactionLink transactionHash={transaction.hash} net={net} />}
-        status={
-          status ? (
-            <TransactionExecutionStatus status={status} />
-          ) : (
-            <>Fetching Status...</>
-          )
-        }
+        status={status ? <TransactionExecutionStatus status={status} /> : <>Fetching Status...</>}
         viewMode={viewMode}
-        title='Batch Transaction'
+        title="Batch Transaction"
         finalityStatus={this.props.finalityStatus}
       />
     );
@@ -72,8 +63,12 @@ class TransactionAction extends PureComponent<Props, State> {
 // NOTE: this is a custom implementation for console. Explorer requests this status through
 // its backend from dedicated archival nodes
 import { TransactionInfo, ExecutionStatus } from './types';
-import { FinalityStatus } from "../../../RecentTransactionList";
-async function getTransactionStatus(transaction: TransactionInfo, net: NetOption, forceArchival?: boolean): Promise<any> {
+import { FinalityStatus } from '../../../RecentTransactionList';
+async function getTransactionStatus(
+  transaction: TransactionInfo,
+  net: NetOption,
+  forceArchival?: boolean,
+): Promise<any> {
   // TODO replace moment with a modern alternative for better web performance
   // https://momentjs.com/docs/#/-project-status/
 
@@ -95,24 +90,18 @@ async function getTransactionStatus(transaction: TransactionInfo, net: NetOption
     }
   }
 
-  const res = await fetch(
-    rpcUrl,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: "dontcare",
-        method: "EXPERIMENTAL_tx_status",
-        params: [
-          transaction.hash,
-          transaction.signerId,
-        ],
-      }),
-    }
-  ).then((res) => res.json());
+  const res = await fetch(rpcUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 'dontcare',
+      method: 'EXPERIMENTAL_tx_status',
+      params: [transaction.hash, transaction.signerId],
+    }),
+  }).then((res) => res.json());
   if (res.error && res.error.cause?.name === 'UNKNOWN_TRANSACTION' && !forceArchival) {
     // fallback to archival node
     return getTransactionStatus(transaction, net, true);
@@ -122,11 +111,8 @@ async function getTransactionStatus(transaction: TransactionInfo, net: NetOption
     throw new Error('Failed to fetch transaction status');
   }
   const transactionExtraInfo = res.result;
-  const status = Object.keys(
-    transactionExtraInfo.status
-  )[0] as ExecutionStatus;
+  const status = Object.keys(transactionExtraInfo.status)[0] as ExecutionStatus;
   return status;
 }
-
 
 export default TransactionAction;

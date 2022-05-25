@@ -1,5 +1,5 @@
-import { PureComponent } from "react";
-import Moment from "../../libraries/moment";
+import { PureComponent } from 'react';
+import Moment from '../../libraries/moment';
 
 class Timer extends PureComponent {
   constructor(props) {

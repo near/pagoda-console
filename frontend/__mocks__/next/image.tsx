@@ -1,7 +1,7 @@
-import * as React from 'react'
+import * as React from 'react';
 
 const mock = (props: { children: React.ReactElement }): React.ReactElement => {
-    return <>{props.children}</>
-}
+  return <>{props.children}</>;
+};
 
-export default mock
+export default mock;

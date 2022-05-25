@@ -1,85 +1,99 @@
-import router from 'next/router';
-import { useState, useEffect } from 'react';
+import { getAuth, sendEmailVerification } from 'firebase/auth';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { useSimpleLayout } from "../utils/layouts";
-import { getAuth, sendEmailVerification, signOut } from 'firebase/auth';
-import { useRouteParam } from '../utils/hooks';
-import analytics from '../utils/analytics';
-import { logOut } from '../utils/auth';
 
-export default function Verification() {
-    let [hasResent, setHasResent] = useState<boolean>(false);
+import { useSimpleLayout } from '@/hooks/layouts';
+import { useRouteParam } from '@/hooks/route';
+import analytics from '@/utils/analytics';
+import { logOut } from '@/utils/auth';
+import type { NextPageWithLayout } from '@/utils/types';
 
-    const existing = (useRouteParam('existing') === 'true');
+const Verification: NextPageWithLayout = () => {
+  const router = useRouter();
+  const [hasResent, setHasResent] = useState(false);
+  const existing = useRouteParam('existing') === 'true';
 
-    async function queueVerificationCheck() {
-        return setTimeout(async () => {
-            await getAuth().currentUser?.reload();
-            if (getAuth().currentUser?.emailVerified) {
-                analytics.track('DC Verify Account');
-                router.push('/pick-project?onboarding=true');
-            } else {
-                queueVerificationCheck();
-            }
-        }, 3000);
-    }
+  useEffect(() => {
+    router.prefetch('/pick-project');
+  }, [router]);
 
-    async function resendVerification() {
-        try {
-            const user = getAuth().currentUser;
-            if (!user) {
-                throw new Error('User not logged in');
-            }
-            await sendEmailVerification(user);
-            analytics.track('DC Resent verification email');
-            setHasResent(true);
-        } catch (e) {
-            // TODO display error
-            console.error(e);
-        }
-    }
+  useEffect(() => {
+    queueVerificationCheck(); // only run once since it will re-queue itself
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    // only run once since it will re-queue itself
-    useEffect(() => {
+  async function queueVerificationCheck() {
+    return setTimeout(async () => {
+      await getAuth().currentUser?.reload();
+      if (getAuth().currentUser?.emailVerified) {
+        analytics.track('DC Verify Account');
+        router.push('/pick-project?onboarding=true');
+      } else {
         queueVerificationCheck();
-    }, []);
+      }
+    }, 3000);
+  }
 
-    useEffect(() => {
-        router.prefetch('/pick-project');
-    }, []);
+  async function resendVerification() {
+    try {
+      const user = getAuth().currentUser;
+      if (!user) {
+        throw new Error('User not logged in');
+      }
+      await sendEmailVerification(user);
+      analytics.track('DC Resent verification email');
+      setHasResent(true);
+    } catch (e) {
+      // TODO display error
+      console.error(e);
+    }
+  }
 
-    return (
-        <div className='pageContainer'>
-            A verification message {existing ? 'was previously' : 'has been'} sent to your email address
-            {!hasResent ? <Button disabled={hasResent} onClick={resendVerification}>Send Again</Button> : <div className='sentContainer'><span>Sent!</span></div>}
-            <div className='signOut' onClick={logOut}>Log Out</div>
-            <style jsx>{`
-                .pageContainer {
-                    display: flex;
-                    flex-direction: column;
-                    row-gap: 2rem;
-                    align-content: center;
-                    width: 22.25rem;
-                    text-align: center;
-                }
-                .sentContainer {
-                    height: 2.625rem;
-                    color: var(--color-primary);
-                    display: flex;
-                }
-                .sentContainer > span {
-                    margin: auto auto;
-                }
-                .signOut {
-                    cursor: pointer;
-                    text-decoration: none;
-                }
-                .signOut:hover {
-                    color: var(--color-primary)
-                }
-            `}</style>
+  return (
+    <div className="pageContainer">
+      A verification message {existing ? 'was previously' : 'has been'} sent to your email address
+      {!hasResent ? (
+        <Button disabled={hasResent} onClick={resendVerification}>
+          Send Again
+        </Button>
+      ) : (
+        <div className="sentContainer">
+          <span>Sent!</span>
         </div>
-    )
-}
+      )}
+      <div className="signOut" onClick={logOut}>
+        Log Out
+      </div>
+      <style jsx>{`
+        .pageContainer {
+          display: flex;
+          flex-direction: column;
+          row-gap: 2rem;
+          align-content: center;
+          width: 20.35rem;
+          text-align: center;
+        }
+        .sentContainer {
+          height: 2.625rem;
+          color: var(--color-primary);
+          display: flex;
+        }
+        .sentContainer > span {
+          margin: auto auto;
+        }
+        .signOut {
+          cursor: pointer;
+          text-decoration: none;
+        }
+        .signOut:hover {
+          color: var(--color-primary);
+        }
+      `}</style>
+    </div>
+  );
+};
 
 Verification.getLayout = useSimpleLayout;
+
+export default Verification;
