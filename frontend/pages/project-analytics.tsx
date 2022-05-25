@@ -6,7 +6,6 @@ import { useEffect } from 'react';
 
 import AnalyticsCard from '@/components/AnalyticsCard';
 import BorderSpinner from '@/components/BorderSpinner';
-import ProjectSelector from '@/components/ProjectSelector';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useIdentity } from '@/hooks/user';
@@ -350,10 +349,7 @@ const ProjectAnalytics: NextPageWithLayout = () => {
 
   return (
     <div>
-      <div className="pageContainer">
-        <ProjectSelector />
-        {content}
-      </div>
+      <div className="pageContainer">{content}</div>
       <style jsx>{`
         .pageContainer {
           display: flex;

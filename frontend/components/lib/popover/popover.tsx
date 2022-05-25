@@ -2,15 +2,28 @@ import * as PopoverPrimitive from '@radix-ui/react-popover';
 import type { ComponentProps } from 'react';
 import { forwardRef } from 'react';
 
+import { ButtonDropdown } from '../Button';
 import { FeatherIcon } from '../FeatherIcon';
 import * as S from './styles';
 
+type ButtonProps = ComponentProps<typeof ButtonDropdown>;
 type ContentProps = Omit<ComponentProps<typeof S.Content>, 'title'>;
 type CloseButtonProps = ComponentProps<typeof S.CloseButton>;
 
 export const Root = PopoverPrimitive.Root;
 export const Trigger = PopoverPrimitive.Trigger;
 export const Close = PopoverPrimitive.Close;
+
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, color = 'neutral', ...props }, ref) => {
+  return (
+    <Trigger asChild>
+      <ButtonDropdown color={color} ref={ref} {...props}>
+        {children}
+      </ButtonDropdown>
+    </Trigger>
+  );
+});
+Button.displayName = 'Button';
 
 export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, sideOffset = 6, ...props }, ref) => {
   return (

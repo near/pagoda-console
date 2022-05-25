@@ -6,7 +6,6 @@ import { Button, Overlay, Placeholder } from 'react-bootstrap';
 
 import CenterModal from '@/components/modals/CenterModal';
 import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
-import ProjectSelector from '@/components/ProjectSelector';
 import StarterGuide from '@/components/StarterGuide';
 import { useApiKeys } from '@/hooks/api-keys';
 import { useDashboardLayout } from '@/hooks/layouts';
@@ -70,7 +69,6 @@ const ProjectSettings: NextPageWithLayout = () => {
 
   return (
     <div className="pageContainer">
-      <ProjectSelector />
       <div className="content">
         <div className="keysContainer">
           <h4>API Keys</h4>

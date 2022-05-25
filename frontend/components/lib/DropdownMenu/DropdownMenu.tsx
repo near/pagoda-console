@@ -2,10 +2,12 @@ import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import type { ComponentProps } from 'react';
 import { forwardRef } from 'react';
 
+import { ButtonDropdown } from '../Button';
 import { FeatherIcon } from '../FeatherIcon';
 import { Flex } from '../Flex';
 import * as S from './styles';
 
+type ButtonProps = ComponentProps<typeof ButtonDropdown>;
 type ContentProps = ComponentProps<typeof S.Content> & {
   nested?: boolean;
 };
@@ -21,6 +23,17 @@ export const RadioGroup = DropdownMenuPrimitive.RadioGroup;
 export const Root = DropdownMenuPrimitive.Root;
 export const Separator = S.Separator;
 export const Trigger = DropdownMenuPrimitive.Trigger;
+
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, color = 'neutral', ...props }, ref) => {
+  return (
+    <Trigger asChild>
+      <ButtonDropdown color={color} ref={ref} {...props}>
+        {children}
+      </ButtonDropdown>
+    </Trigger>
+  );
+});
+Button.displayName = 'Button';
 
 export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, nested, ...props }, ref) => {
   const alignOffset = nested ? -6 : props.alignOffset;

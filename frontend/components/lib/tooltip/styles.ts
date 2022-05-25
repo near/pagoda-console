@@ -35,7 +35,7 @@ export const Content = styled(TooltipPrimitive.Content, {
         color: 'var(--color-cta-danger-text)',
       },
       neutral: {
-        '--background-color': 'var(--color-surface-1)',
+        '--background-color': 'var(--color-surface-overlay)',
         color: 'var(--color-text-1)',
       },
       primary: {

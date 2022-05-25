@@ -27,7 +27,6 @@ export const LogoContainer = styled('div', {
   justifyContent: 'center',
 
   svg: {
-    fill: 'currentColor',
     width: '2.625rem',
   },
 });

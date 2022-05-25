@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import type { ReactElement, ReactNode } from 'react';
 
 export type NextPageWithLayout = NextPage & {
-  getLayout?: (page: ReactElement, footer: ReactElement | null) => ReactNode;
+  getLayout?: (page: ReactElement) => ReactNode;
   getFooter?: () => ReactElement;
 };
 export type NetOption = 'MAINNET' | 'TESTNET';

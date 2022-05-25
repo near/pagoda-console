@@ -66,7 +66,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       if (user) {
         analytics.identify(user.uid);
       } else if (!user && !unauthedPaths.includes(router.pathname)) {
-        // user is signed out, clear all data and redirect back to login
         analytics.reset();
         cache.clear();
         router.push('/');
@@ -76,9 +75,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     return () => unsubscribe(); // TODO why lambda function?
   }, [router, cache]);
 
-  // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
-  const getFooter = Component.getFooter ?? (() => null);
 
   return (
     <SSRProvider>
@@ -100,11 +97,11 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         <FeatherIconSheet />
 
         {config.downtimeMode ? (
-          <SimpleLayout footer={null}>
+          <SimpleLayout>
             <DowntimeMode />
           </SimpleLayout>
         ) : (
-          getLayout(<Component {...pageProps} />, getFooter())
+          getLayout(<Component {...pageProps} />)
         )}
       </SWRConfig>
     </SSRProvider>

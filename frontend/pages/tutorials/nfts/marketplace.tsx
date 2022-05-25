@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 
 import EjectProjectModal from '@/components/modals/EjectProjectModal';
-import ProjectSelector from '@/components/ProjectSelector';
 import components from '@/components/tutorials/components';
 import TableOfContents from '@/components/tutorials/TableOfContents';
 import TutorialFooter from '@/components/tutorials/TutorialFooter';
@@ -19,7 +18,6 @@ const Marketplace: NextPageWithLayout = () => {
 
   return (
     <>
-      <ProjectSelector />
       <TableOfContents />
       <Content components={components} />
       {project && (

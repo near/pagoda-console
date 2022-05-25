@@ -1,14 +1,15 @@
 :root,
 .dark-theme,
 .light-theme .reverse-theme {
-  --border-radius-s: 3px;
-  --border-radius-m: 10px;
+  --border-radius-s: 8px;
+  --border-radius-m: 12px;
   --border-radius-l: 20px;
 
   --color-text-1: #f5f5f5;
   --color-text-2: #bcc3cd;
   --color-text-3: #888e98;
 
+  --color-surface-overlay: #101110;
   --color-surface-1: #242625;
   --color-surface-2: #2b2c2b;
   --color-surface-3: #323232;
@@ -87,9 +88,10 @@
 .light-theme,
 .dark-theme .reverse-theme {
   --color-text-1: #242625;
-  --color-text-2: #2b2c2b;
-  --color-text-3: #323232;
+  --color-text-2: #474747;
+  --color-text-3: #9f9f9f;
 
+  --color-surface-overlay: #ffffff;
   --color-surface-1: #ffffff;
   --color-surface-2: #f2f4f7;
   --color-surface-3: #e9ecf0;
@@ -100,6 +102,6 @@
   --color-cta-neutral-highlight: #a9b0ba;
   --color-cta-neutral-text: #242625;
 
-  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.05);
-  --shadow-softer: 0 2px 10px rgba(0, 0, 0, 0.025);
+  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --shadow-softer: 0 2px 10px rgba(0, 0, 0, 0.05);
 }

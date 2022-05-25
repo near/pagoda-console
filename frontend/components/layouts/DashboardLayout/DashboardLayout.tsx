@@ -1,10 +1,11 @@
 import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
 
-import NftInfoCard from '../NftInfoCard';
-import { Footer } from './Footer';
-import { Header } from './Header';
-import { Sidebar } from './Sidebar';
+import NftInfoCard from '@/components/NftInfoCard';
+
+import { Footer } from '../Footer';
+import { Header } from '../Header';
+import { Sidebar } from '../Sidebar';
 import * as S from './styles';
 
 export function DashboardLayout({ children }: { children: ReactNode }) {

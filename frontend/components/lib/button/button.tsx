@@ -3,10 +3,12 @@ import { forwardRef } from 'react';
 
 import type { StitchesProps } from '@/styles/stitches';
 
+import { FeatherIcon } from '../FeatherIcon';
 import * as S from './styles';
 
 type Props = StitchesProps<typeof S.Button>;
 type ButtonProps = Props & ButtonHTMLAttributes<HTMLButtonElement>;
+type ButtonDropdownProps = Props & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'>;
 type ButtonLinkProps = Props & AnchorHTMLAttributes<HTMLAnchorElement>;
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, type = 'button', ...props }, ref) => {
@@ -17,6 +19,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, ty
   );
 });
 Button.displayName = 'Button';
+
+export const ButtonDropdown = forwardRef<HTMLButtonElement, ButtonDropdownProps>(({ children, ...props }, ref) => {
+  return (
+    <S.Button dropdown disabled={props.disabled || props.loading === true} type="button" ref={ref} {...props}>
+      <S.Content>{children}</S.Content>
+      <FeatherIcon fill="currentColor" stroke="none" icon="chevron-down" data-icon="arrow-down" />
+    </S.Button>
+  );
+});
+ButtonDropdown.displayName = 'ButtonDropdown';
 
 export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(({ children, ...props }, ref) => {
   return (

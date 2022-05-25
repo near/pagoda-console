@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import * as Accordion from '@/components/lib/Accordion';
 import { Badge } from '@/components/lib/Badge';
 import { Box } from '@/components/lib/Box';
-import { Button, ButtonLink } from '@/components/lib/Button';
+import { Button, ButtonDropdown, ButtonLink } from '@/components/lib/Button';
 import * as Dialog from '@/components/lib/Dialog';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -118,7 +118,7 @@ const Settings: NextPageWithLayout = () => {
             <P>This page shows examples of all our shared components.</P>
           </Flex>
 
-          <ThemeToggle css={{ width: 'auto', border: '1px solid var(--color-surface-4)' }} />
+          <ThemeToggle css={{ width: 'auto' }} />
         </Flex>
       </Section>
 
@@ -219,12 +219,18 @@ const Settings: NextPageWithLayout = () => {
             <Button disabled>Disabled</Button>
             <Button color="danger">Danger</Button>
             <Button color="neutral">Neutral</Button>
+            <Button color="outline">Outline</Button>
+            <Button color="transparent">Transparent</Button>
             <Button color="neutral" size="small">
               Small
             </Button>
             <Button color="neutral" size="small" loading>
               Small
             </Button>
+          </Flex>
+
+          <Flex wrap>
+            <ButtonDropdown>Dropdown</ButtonDropdown>
 
             <Link href="/project-settings" passHref>
               <ButtonLink color="neutral" size="small" css={{ '@mobile': { background: 'red' } }}>
@@ -295,50 +301,66 @@ const Settings: NextPageWithLayout = () => {
         <Flex stack>
           <H2>Dropdown Menu</H2>
 
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
-              <Button>
-                Open Menu <FeatherIcon icon="chevron-down"></FeatherIcon>
-              </Button>
-            </DropdownMenu.Trigger>
+          <Flex>
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <Button>Custom Trigger</Button>
+              </DropdownMenu.Trigger>
 
-            <DropdownMenu.Content>
-              <DropdownMenu.Item>New Tab</DropdownMenu.Item>
-              <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
-              <DropdownMenu.Item>
-                <FeatherIcon icon="eye" /> With Icon
-              </DropdownMenu.Item>
+              <DropdownMenu.Content>
+                <DropdownMenu.Item>New Tab</DropdownMenu.Item>
+                <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
+                <DropdownMenu.Item>
+                  <FeatherIcon icon="eye" /> With Icon
+                </DropdownMenu.Item>
 
-              <DropdownMenu.Root>
-                <DropdownMenu.TriggerItem>More Tools</DropdownMenu.TriggerItem>
-                <DropdownMenu.Content nested>
-                  <DropdownMenu.Item>Save Page As...</DropdownMenu.Item>
-                  <DropdownMenu.Item>Create Shortcut…</DropdownMenu.Item>
-                  <DropdownMenu.Item>Name Window…</DropdownMenu.Item>
-                  <DropdownMenu.Separator />
-                  <DropdownMenu.Item>Developer Tools</DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu.Root>
+                <DropdownMenu.Root>
+                  <DropdownMenu.TriggerItem>More Tools</DropdownMenu.TriggerItem>
+                  <DropdownMenu.Content nested>
+                    <DropdownMenu.Item>Save Page As...</DropdownMenu.Item>
+                    <DropdownMenu.Item>Create Shortcut…</DropdownMenu.Item>
+                    <DropdownMenu.Item>Name Window…</DropdownMenu.Item>
+                    <DropdownMenu.Separator />
+                    <DropdownMenu.Item>Developer Tools</DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
 
-              <DropdownMenu.Separator />
+                <DropdownMenu.Separator />
 
-              <DropdownMenu.CheckboxItem checked={bookmarksChecked} onCheckedChange={setBookmarksChecked}>
-                Show Bookmarks
-              </DropdownMenu.CheckboxItem>
-              <DropdownMenu.CheckboxItem checked={urlsChecked} onCheckedChange={setUrlsChecked}>
-                Show Full URLs
-              </DropdownMenu.CheckboxItem>
+                <DropdownMenu.CheckboxItem checked={bookmarksChecked} onCheckedChange={setBookmarksChecked}>
+                  Show Bookmarks
+                </DropdownMenu.CheckboxItem>
+                <DropdownMenu.CheckboxItem checked={urlsChecked} onCheckedChange={setUrlsChecked}>
+                  Show Full URLs
+                </DropdownMenu.CheckboxItem>
 
-              <DropdownMenu.Separator />
+                <DropdownMenu.Separator />
 
-              <DropdownMenu.Label>People</DropdownMenu.Label>
+                <DropdownMenu.Label>People</DropdownMenu.Label>
 
-              <DropdownMenu.RadioGroup value={person} onValueChange={setPerson}>
-                <DropdownMenu.RadioItem value="pedro">Pedro Duarte</DropdownMenu.RadioItem>
-                <DropdownMenu.RadioItem value="colm">Colm Tuite</DropdownMenu.RadioItem>
-              </DropdownMenu.RadioGroup>
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
+                <DropdownMenu.RadioGroup value={person} onValueChange={setPerson}>
+                  <DropdownMenu.RadioItem value="pedro">Pedro Duarte</DropdownMenu.RadioItem>
+                  <DropdownMenu.RadioItem value="colm">Colm Tuite</DropdownMenu.RadioItem>
+                </DropdownMenu.RadioGroup>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+
+            <DropdownMenu.Root>
+              <DropdownMenu.Button>Standard</DropdownMenu.Button>
+              <DropdownMenu.Content>
+                <DropdownMenu.Item>New Tab</DropdownMenu.Item>
+                <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+
+            <DropdownMenu.Root>
+              <DropdownMenu.Button size="small">Small</DropdownMenu.Button>
+              <DropdownMenu.Content>
+                <DropdownMenu.Item>New Tab</DropdownMenu.Item>
+                <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          </Flex>
         </Flex>
       </Section>
 
@@ -647,38 +669,64 @@ const Settings: NextPageWithLayout = () => {
         <Flex stack>
           <H2>Popover</H2>
 
-          <Popover.Root>
-            <Popover.Trigger asChild>
-              <Button>Open</Button>
-            </Popover.Trigger>
+          <Flex wrap>
+            <Popover.Root>
+              <Popover.Trigger asChild>
+                <Button>Custom Trigger</Button>
+              </Popover.Trigger>
 
-            <Popover.Content>
-              <Flex stack>
-                <Flex align="center" justify="spaceBetween">
-                  <H5>Popover Title</H5>
-                  <Popover.CloseButton />
+              <Popover.Content>
+                <Flex stack>
+                  <Flex align="center" justify="spaceBetween">
+                    <H5>Popover Title</H5>
+                    <Popover.CloseButton />
+                  </Flex>
+
+                  <P>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas metus turpis, auctor eget
+                    imperdiet in, tincidunt ac sem. Aliquam erat volutpat. Integer eleifend metus orci, ac vehicula
+                    tortor luctus non.
+                  </P>
+
+                  <Popover.Close asChild>
+                    <Button
+                      size="small"
+                      color="danger"
+                      onClick={() => {
+                        console.log(1);
+                      }}
+                    >
+                      Do Some Action
+                    </Button>
+                  </Popover.Close>
                 </Flex>
+              </Popover.Content>
+            </Popover.Root>
 
+            <Popover.Root>
+              <Popover.Button>Standard</Popover.Button>
+
+              <Popover.Content>
                 <P>
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas metus turpis, auctor eget imperdiet
                   in, tincidunt ac sem. Aliquam erat volutpat. Integer eleifend metus orci, ac vehicula tortor luctus
                   non.
                 </P>
+              </Popover.Content>
+            </Popover.Root>
 
-                <Popover.Close asChild>
-                  <Button
-                    size="small"
-                    color="danger"
-                    onClick={() => {
-                      console.log(1);
-                    }}
-                  >
-                    Do Some Action
-                  </Button>
-                </Popover.Close>
-              </Flex>
-            </Popover.Content>
-          </Popover.Root>
+            <Popover.Root>
+              <Popover.Button size="small">Small</Popover.Button>
+
+              <Popover.Content>
+                <P>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas metus turpis, auctor eget imperdiet
+                  in, tincidunt ac sem. Aliquam erat volutpat. Integer eleifend metus orci, ac vehicula tortor luctus
+                  non.
+                </P>
+              </Popover.Content>
+            </Popover.Root>
+          </Flex>
         </Flex>
       </Section>
 

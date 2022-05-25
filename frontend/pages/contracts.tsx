@@ -8,7 +8,6 @@ import { useForm } from 'react-hook-form';
 import useSWR from 'swr';
 
 import BorderSpinner from '@/components/BorderSpinner';
-import ProjectSelector from '@/components/ProjectSelector';
 import RecentTransactionList from '@/components/RecentTransactionList';
 import { useContracts } from '@/hooks/contracts';
 import { useDebounce } from '@/hooks/debounce';
@@ -36,7 +35,6 @@ const Contracts: NextPageWithLayout = () => {
   // maximum amount of elements can be rendered without environmentId
   return (
     <div className="pageContainer">
-      <ProjectSelector />
       {project && environment && <ContractsTable project={project.slug} environment={environment} />}
       <style jsx>{`
         .pageContainer {

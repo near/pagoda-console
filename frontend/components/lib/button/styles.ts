@@ -15,6 +15,7 @@ export const Button = styled('button', {
   borderRadius: 'var(--border-radius-s)',
   display: 'inline-flex',
   alignItems: 'center',
+  gap: 'var(--space-m)',
   justifyContent: 'center',
   cursor: 'pointer',
   fontWeight: 500,
@@ -36,6 +37,16 @@ export const Button = styled('button', {
     outlineOffset: 'var(--focus-outline-offset)',
   },
 
+  '& > [data-icon="arrow-down"]': {
+    opacity: 0.5,
+    transition: 'transform 200ms',
+    transform: 'rotate(0deg)',
+  },
+
+  '&[data-state="open"] > [data-icon="arrow-down"]': {
+    transform: 'rotate(-180deg)',
+  },
+
   variants: {
     color: {
       danger: {
@@ -44,18 +55,12 @@ export const Button = styled('button', {
         '&:hover': {
           background: 'var(--color-cta-danger-highlight)',
         },
-        '&:active': {
-          background: 'var(--color-cta-danger)',
-        },
       },
       primary: {
         background: 'var(--color-cta-primary)',
         color: 'var(--color-cta-primary-text)',
         '&:hover': {
           background: 'var(--color-cta-primary-highlight)',
-        },
-        '&:active': {
-          background: 'var(--color-cta-primary)',
         },
       },
       neutral: {
@@ -64,9 +69,27 @@ export const Button = styled('button', {
         '&:hover': {
           background: 'var(--color-cta-neutral-highlight)',
         },
-        '&:active': {
-          background: 'var(--color-cta-neutral)',
+      },
+      outline: {
+        background: 'transparent',
+        boxShadow: 'inset 0 0 0 1px var(--color-surface-5)',
+        color: 'var(--color-text-1)',
+        '&:hover': {
+          background: 'var(--color-surface-1)',
         },
+      },
+      transparent: {
+        background: 'transparent',
+        color: 'var(--color-text-1)',
+        '&:hover': {
+          background: 'var(--color-surface-1)',
+        },
+      },
+    },
+
+    dropdown: {
+      true: {
+        fontFamily: 'var(--font-code)',
       },
     },
 

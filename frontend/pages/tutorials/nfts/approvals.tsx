@@ -1,4 +1,3 @@
-import ProjectSelector from '@/components/ProjectSelector';
 import components from '@/components/tutorials/components';
 import NextStepButton from '@/components/tutorials/NextStepButton';
 import TableOfContents from '@/components/tutorials/TableOfContents';
@@ -10,7 +9,6 @@ import type { NextPageWithLayout } from '@/utils/types';
 const Approvals: NextPageWithLayout = () => {
   return (
     <>
-      <ProjectSelector />
       <TableOfContents />
       <Content components={components} />
       <TutorialFooter>

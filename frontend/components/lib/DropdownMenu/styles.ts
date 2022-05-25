@@ -15,7 +15,7 @@ const closeAnimation = keyframes({
 
 export const Content = styled(DropdownMenuPrimitive.Content, {
   '--animation-speed': '200ms',
-  '--background-color': 'var(--color-surface-1)',
+  '--background-color': 'var(--color-surface-overlay)',
   minWidth: 'var(--size-max-container-width-xxs)',
   maxWidth: 'var(--size-max-container-width-xs)',
   backgroundColor: 'var(--background-color)',

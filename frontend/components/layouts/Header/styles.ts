@@ -5,6 +5,6 @@ export const Header = styled('header', {
   padding: 'var(--space-m)',
   position: 'sticky',
   top: 0,
-  background: 'var(--color-surface-3)',
+  background: 'var(--color-surface-2)',
   zIndex: 500,
 });

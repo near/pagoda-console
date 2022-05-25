@@ -14,11 +14,9 @@ import * as DropdownMenu from '@/components/lib/dropdown-menu';
 ...
 
 <DropdownMenu.Root>
-  <DropdownMenu.Trigger asChild>
-    <Button>
-      Open Menu
-    </Button>
-  </DropdownMenu.Trigger>
+  <DropdownMenu.Button>
+    Open Menu
+  </DropdownMenu.Button>
 
   <DropdownMenu.Content>
     <DropdownMenu.Item>New Tab</DropdownMenu.Item>
@@ -56,6 +54,18 @@ import * as DropdownMenu from '@/components/lib/dropdown-menu';
       <DropdownMenu.RadioItem value="colm">Colm Tuite</DropdownMenu.RadioItem>
     </DropdownMenu.RadioGroup>
   </DropdownMenu.Content>
+</DropdownMenu.Root>
+```
+
+## Custom Trigger
+
+```tsx
+<DropdownMenu.Root>
+  <DropdownMenu.Trigger asChild>
+    <Button>Open Menu</Button>
+  </DropdownMenu.Trigger>
+
+  <DropdownMenu.Content>...</DropdownMenu.Content>
 </DropdownMenu.Root>
 ```
 

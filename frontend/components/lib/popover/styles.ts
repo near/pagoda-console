@@ -14,7 +14,7 @@ const closeAnimation = keyframes({
 
 export const Content = styled(PopoverPrimitive.Content, {
   '--animation-speed': '200ms',
-  '--background-color': 'var(--color-surface-1)',
+  '--background-color': 'var(--color-surface-overlay)',
   borderRadius: 'var(--border-radius-s)',
   padding: 'var(--space-m)',
   minWidth: 'var(--size-max-container-width-xxs)',

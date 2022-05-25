@@ -1,6 +1,6 @@
 import { getAuth, getIdToken } from 'firebase/auth';
 
-import PagodaIcon from '@/public/brand/pagoda_icon_small.svg';
+import LogoSvg from '@/public/images/brand/pagoda-icon.svg';
 import Config from '@/utils/config';
 
 import * as S from './styles';
@@ -16,7 +16,7 @@ export function Logo() {
 
   return (
     <S.LogoContainer onClick={clickHandler}>
-      <PagodaIcon />
+      <LogoSvg />
     </S.LogoContainer>
   );
 }

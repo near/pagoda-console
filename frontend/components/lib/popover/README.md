@@ -14,9 +14,9 @@ import * as Popover from '@/components/lib/popover';
 ...
 
 <Popover.Root>
-  <Popover.Trigger asChild>
-    <Button>Open</Button>
-  </Popover.Trigger>
+  <Popover.Button>
+    Open
+  </Popover.Button>
 
   <Popover.Content>
     <Flex stack>
@@ -43,6 +43,24 @@ import * as Popover from '@/components/lib/popover';
         </Button>
       </Popover.Close>
     </Flex>
+  </Popover.Content>
+</Popover.Root>
+```
+
+## Custom Trigger
+
+```tsx
+import * as Popover from '@/components/lib/popover';
+
+...
+
+<Popover.Root>
+  <Popover.Trigger asChild>
+    <Button>Open</Button>
+  </Popover.Trigger>
+
+  <Popover.Content>
+   ...
   </Popover.Content>
 </Popover.Root>
 ```
