@@ -24,7 +24,7 @@ Button.displayName = 'Button';
 
 export const ButtonDropdown = forwardRef<HTMLButtonElement, ButtonDropdownProps>(({ children, ...props }, ref) => {
   return (
-    <S.Button dropdown disabled={props.disabled || props.loading === true} type="button" ref={ref} {...props}>
+    <S.Button disabled={props.disabled || props.loading === true} type="button" ref={ref} {...props}>
       <S.Content>{children}</S.Content>
       <FeatherIcon fill="currentColor" stroke="none" icon="chevron-down" data-icon="arrow-down" />
     </S.Button>

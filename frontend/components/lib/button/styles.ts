@@ -19,7 +19,7 @@ export const Button = styled('button', {
   justifyContent: 'center',
   cursor: 'pointer',
   fontWeight: 500,
-  fontFamily: 'var(--font-body)',
+  fontFamily: 'var(--font-code)',
   padding: '0 var(--space-m)',
   flexShrink: 0,
   transition: 'background var(--transition-speed), opacity var(--transition-speed)',
@@ -77,12 +77,6 @@ export const Button = styled('button', {
         '&:hover': {
           background: 'var(--color-surface-1)',
         },
-      },
-    },
-
-    dropdown: {
-      true: {
-        fontFamily: 'var(--font-code)',
       },
     },
 

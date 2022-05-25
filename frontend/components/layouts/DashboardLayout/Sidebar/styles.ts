@@ -16,7 +16,7 @@ export const Sidebar = styled('nav', {
   top: 0,
   left: 0,
   bottom: 0,
-  padding: 'var(--space-l) 0 var(--space-m)',
+  padding: '0 var(--space-m) var(--space-m)',
   background: 'var(--color-surface-1)',
   overflow: 'auto',
   scrollBehavior: 'smooth',
@@ -24,14 +24,14 @@ export const Sidebar = styled('nav', {
 
 export const LogoContainer = styled('div', {
   display: 'flex',
-  justifyContent: 'center',
+  alignItems: 'center',
+  height: 'var(--size-header-height)',
 });
 
 export const Nav = styled('ul', {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--space-m)',
-  padding: 'var(--space-s)',
 });
 
 export const NavItem = styled('li', {

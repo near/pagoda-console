@@ -62,6 +62,7 @@
   --shadow-soft: 0 2px 20px rgba(0, 0, 0, 0.3);
   --shadow-softer: 0 2px 20px rgba(0, 0, 0, 0.15);
 
+  --size-header-height: 5rem;
   --size-icon-xs: 0.8rem;
   --size-icon-s: 1.25rem;
   --size-icon-m: 1.75rem;
@@ -75,7 +76,7 @@
   --size-max-container-width-s: 30rem;
   --size-max-container-width-m: 50rem;
   --size-max-container-width-l: 75rem;
-  --size-sidebar-expanded: 12rem;
+  --size-sidebar-expanded: 15.625rem;
 
   --space-xs: 0.25rem;
   --space-s: 0.6rem;

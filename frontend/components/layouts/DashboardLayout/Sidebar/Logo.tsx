@@ -1,6 +1,6 @@
 import { getAuth, getIdToken } from 'firebase/auth';
 
-import LogoSvg from '@/public/images/brand/pagoda-icon.svg';
+import LogoSvg from '@/public/images/brand/pagoda-logo.svg';
 import Config from '@/utils/config';
 
 import * as S from './styles';
@@ -16,7 +16,7 @@ export function Logo() {
 
   return (
     <S.LogoContainer onClick={clickHandler}>
-      <LogoSvg style={{ width: '3rem' }} />
+      <LogoSvg style={{ height: '2.125rem' }} />
     </S.LogoContainer>
   );
 }
