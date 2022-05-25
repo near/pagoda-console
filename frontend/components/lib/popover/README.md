@@ -9,7 +9,7 @@ _If the current props and Stitches style overrides aren't enough to cover your u
 Here's an example using the popover:
 
 ```tsx
-import * as Popover from '@/components/lib/popover';
+import * as Popover from '@/components/lib/Popover';
 
 ...
 

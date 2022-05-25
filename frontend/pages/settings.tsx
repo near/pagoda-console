@@ -5,7 +5,7 @@ import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import BorderSpinner from '@/components/BorderSpinner';
-import ErrorModal from '@/components/modals/ErrorModal';
+import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useAccount, useIdentity } from '@/hooks/user';
 import { formValidations } from '@/utils/constants';

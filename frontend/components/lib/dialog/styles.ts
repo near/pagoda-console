@@ -96,8 +96,8 @@ export const Header = styled('div', {
   zIndex: 100,
   gap: 'var(--space-m)',
   padding: 'var(--space-m) var(--space-l)',
-  background: 'var(--color-surface-2)',
-  borderBottom: '1px solid var(--color-surface-1)',
+  background: 'var(--color-surface-3)',
+  borderBottom: '1px solid var(--color-surface-5)',
   boxShadow: 'var(--shadow-softer)',
   wordBreak: 'break-word',
 
@@ -114,8 +114,8 @@ export const Title = styled(DialogPrimitive.Title, {
   color: 'var(--color-text-1)',
   fontFamily: 'var(--font-body)',
   fontWeight: 500,
-  fontSize: 'var(--font-size-h3)',
-  lineHeight: 'var(--line-height-h3)',
+  fontSize: 'var(--font-size-h4)',
+  lineHeight: 'var(--line-height-h4)',
 });
 
 export const CloseButton = styled(DialogPrimitive.Close, {

@@ -7,11 +7,10 @@ export const Indicator = styled('span', {
   flexShrink: 0,
   width: 'var(--size-input-xs)',
   height: 'var(--size-input-xs)',
-  borderRadius: 'var(--border-radius-s)',
+  borderRadius: 'var(--border-radius-xs)',
   background: 'var(--color-surface-1)',
   border: '1px solid var(--color-surface-5)',
-  transition:
-    'background var(--transition-speed), border-color var(--transition-speed), box-shadow var(--transition-speed)',
+  transition: 'background var(--transition-speed), border-color var(--transition-speed)',
 
   svg: {
     width: '0.6rem',
@@ -43,7 +42,6 @@ export const Label = styled('label', {
   alignItems: 'center',
   userSelect: 'none',
   cursor: 'pointer',
-  transition: 'box-shadow var(--transition-speed)',
 
   '&:hover': {
     [`${Indicator}`]: {
@@ -84,6 +82,13 @@ export const Input = styled('input', {
         opacity: 1,
         transform: 'scale(1, 1)',
       },
+    },
+  },
+
+  '&:disabled +': {
+    [`${Indicator}`]: {
+      opacity: 0.5,
+      pointerEvents: 'none',
     },
   },
 

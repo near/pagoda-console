@@ -16,7 +16,7 @@ export function Logo() {
 
   return (
     <S.LogoContainer onClick={clickHandler}>
-      <LogoSvg />
+      <LogoSvg style={{ width: '3rem' }} />
     </S.LogoContainer>
   );
 }

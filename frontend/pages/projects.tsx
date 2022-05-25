@@ -7,9 +7,9 @@ import { useEffect, useState } from 'react';
 import { Alert, Button } from 'react-bootstrap';
 
 import BorderSpinner from '@/components/BorderSpinner';
+import { Badge } from '@/components/lib/Badge';
 import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
-import TutorialBadge from '@/components/TutorialBadge';
-import { useDashboardLayout } from '@/hooks/layouts';
+import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useProjects } from '@/hooks/projects';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -140,7 +140,7 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
       <Link href={`/project-analytics?project=${props.project.slug}`}>
         <a className="projectLink">
           <div className="linkDiv">
-            {props.project.name} {props.project.tutorial && <TutorialBadge size="md" />}
+            {props.project.name} {props.project.tutorial && <Badge>Tutorial</Badge>}
           </div>
           {!props.showDelete && (
             <div className="projectIcon">
@@ -193,6 +193,6 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
   );
 }
 
-Projects.getLayout = useDashboardLayout;
+Projects.getLayout = useSimpleLogoutLayout;
 
 export default Projects;

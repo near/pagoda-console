@@ -9,7 +9,7 @@ _If the current props and Stitches style overrides aren't enough to cover your u
 A controlled modal via a boolean state property will give you the most control over when the modal should open or close. This will make sense for most use cases.
 
 ```tsx
-import * as Dialog from '@/components/lib/dialog';
+import * as Dialog from '@/components/lib/Dialog';
 
 ...
 

@@ -6,6 +6,7 @@ import * as Accordion from '@/components/lib/Accordion';
 import { Badge } from '@/components/lib/Badge';
 import { Box } from '@/components/lib/Box';
 import { Button, ButtonDropdown, ButtonLink } from '@/components/lib/Button';
+import { Container } from '@/components/lib/Container';
 import * as Dialog from '@/components/lib/Dialog';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -27,10 +28,21 @@ import { formValidations } from '@/utils/constants';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Block = styled('div', {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
   width: '15rem',
   height: '3rem',
   background: 'var(--color-surface-1)',
   borderRadius: 'var(--border-radius-m)',
+
+  variants: {
+    expand: {
+      true: {
+        width: '100%',
+      },
+    },
+  },
 });
 
 interface FakeForm {
@@ -219,7 +231,6 @@ const Settings: NextPageWithLayout = () => {
             <Button disabled>Disabled</Button>
             <Button color="danger">Danger</Button>
             <Button color="neutral">Neutral</Button>
-            <Button color="outline">Outline</Button>
             <Button color="transparent">Transparent</Button>
             <Button color="neutral" size="small">
               Small
@@ -238,6 +249,42 @@ const Settings: NextPageWithLayout = () => {
               </ButtonLink>
             </Link>
           </Flex>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
+          <H2>Container</H2>
+
+          <Container size="xxs">
+            <Block expand>
+              <P>xxs</P>
+            </Block>
+          </Container>
+
+          <Container size="xs">
+            <Block expand>
+              <P>xs</P>
+            </Block>
+          </Container>
+
+          <Container size="s">
+            <Block expand>
+              <P>s</P>
+            </Block>
+          </Container>
+
+          <Container size="m">
+            <Block expand>
+              <P>m</P>
+            </Block>
+          </Container>
+
+          <Container size="l">
+            <Block expand>
+              <P>l</P>
+            </Block>
+          </Container>
         </Flex>
       </Section>
 
@@ -569,6 +616,11 @@ const Settings: NextPageWithLayout = () => {
                   {...register('email', formValidations.email)}
                 />
                 <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
+              </Form.Group>
+
+              <Form.Group>
+                <Form.Label>Disabled</Form.Label>
+                <Form.Input disabled />
               </Form.Group>
 
               <Form.Fieldset>

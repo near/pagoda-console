@@ -1,10 +1,9 @@
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
 import { assertUnreachable } from '@/utils/helpers';
 import type { Environment } from '@/utils/types';
-
-import { FeatherIcon } from '../lib/FeatherIcon';
 
 export function EnvironmentSelector() {
   const { environment, environments, selectEnvironment } = useSelectedProject();
@@ -19,8 +18,8 @@ export function EnvironmentSelector() {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button color="outline">
-        <Icon environment={environment} /> {environment?.name}
+      <DropdownMenu.Button color="neutral">
+        <Icon environment={environment} /> {environment?.name || '...'}
       </DropdownMenu.Button>
 
       <DropdownMenu.Content align="start">

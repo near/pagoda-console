@@ -1,5 +1,31 @@
-import CenterModal from './CenterModal';
+import * as Dialog from '@/components/lib/Dialog';
 
-export default function ErrorModal({ error, setError }: { error: string; setError: (err: string) => void }) {
-  return <CenterModal title="Error" show={!!error} onHide={() => setError('')} content={error} />;
+import { Button } from '../lib/Button';
+import { FeatherIcon } from '../lib/FeatherIcon';
+import { Flex } from '../lib/Flex';
+import { P } from '../lib/Paragraph';
+
+interface Props {
+  error?: string;
+  setError: (error: string) => void;
 }
+
+export const ErrorModal = ({ error, setError }: Props) => {
+  function close() {
+    setError('');
+  }
+
+  return (
+    <Dialog.Root open={!!error}>
+      <Dialog.Content size="small">
+        <Flex stack gap="l" align="center">
+          <FeatherIcon icon="alert-circle" color="danger" size="l" />
+          <P size="large">{error}</P>
+          <Button color="neutral" onClick={close}>
+            Dismiss
+          </Button>
+        </Flex>
+      </Dialog.Content>
+    </Dialog.Root>
+  );
+};

@@ -5,7 +5,7 @@
 The `Button` component renders a `<button type="button">` HTML element.
 
 ```tsx
-import { Button } from '@/components/lib/button';
+import { Button } from '@/components/lib/Button';
 
 ...
 
@@ -22,7 +22,7 @@ The `ButtonLink` component renders a `<a href="...">` HTML element. The styling 
 
 ```tsx
 import Link from 'next/link';
-import { ButtonLink } from '@/components/lib/button';
+import { ButtonLink } from '@/components/lib/Button';
 
 ...
 

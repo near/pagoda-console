@@ -19,7 +19,7 @@ import { appWithTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 import { SWRConfig, useSWRConfig } from 'swr';
 
-import DowntimeMode from '@/components/DowntimeMode';
+import { DowntimeMode } from '@/components/DowntimeMode';
 import { SimpleLayout } from '@/components/layouts/SimpleLayout';
 import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
 import { usePageTracker } from '@/hooks/page-tracker';

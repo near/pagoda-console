@@ -6,7 +6,7 @@ The `TextLink` component renders a `<a href="...">` HTML element. Make sure to w
 
 ```tsx
 import Link from 'next/link';
-import { TextLink } from '@/components/lib/text-link';
+import { TextLink } from '@/components/lib/TextLink';
 
 ...
 

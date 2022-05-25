@@ -1,13 +1,12 @@
 import { useRouter } from 'next/router';
 
+import { Badge } from '@/components/lib/Badge';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { useProjects } from '@/hooks/projects';
 import { useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
 import type { Project } from '@/utils/types';
-
-import { Badge } from '../lib/Badge';
-import { FeatherIcon } from '../lib/FeatherIcon';
 
 export function ProjectSelector() {
   const { project, selectProject } = useSelectedProject();
@@ -33,7 +32,7 @@ export function ProjectSelector() {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button color="outline">{project?.name}</DropdownMenu.Button>
+      <DropdownMenu.Button color="neutral">{project?.name || '...'}</DropdownMenu.Button>
 
       <DropdownMenu.Content align="start">
         {otherProjects?.map((p) => {

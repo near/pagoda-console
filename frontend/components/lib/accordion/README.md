@@ -9,7 +9,7 @@ _If the current props and Stitches style overrides aren't enough to cover your u
 You can allow multiple sections being open at once.
 
 ```tsx
-import * as Accordion from '@/components/lib/accordion';
+import * as Accordion from '@/components/lib/Accordion';
 
 ...
 

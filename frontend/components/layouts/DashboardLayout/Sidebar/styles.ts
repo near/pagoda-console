@@ -25,10 +25,6 @@ export const Sidebar = styled('nav', {
 export const LogoContainer = styled('div', {
   display: 'flex',
   justifyContent: 'center',
-
-  svg: {
-    width: '2.625rem',
-  },
 });
 
 export const Nav = styled('ul', {

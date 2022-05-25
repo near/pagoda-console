@@ -9,7 +9,7 @@ _If the current props and Stitches style overrides aren't enough to cover your u
 Here's an example using all of the dropdown menu features:
 
 ```tsx
-import * as DropdownMenu from '@/components/lib/dropdown-menu';
+import * as DropdownMenu from '@/components/lib/DropdownMenu';
 
 ...
 

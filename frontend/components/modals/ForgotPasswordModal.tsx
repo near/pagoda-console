@@ -1,22 +1,30 @@
-// TODO
-// Instead of this being a dedicated component, we should have a version of CenterModal which takes
-// custom children
-
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 import { useState } from 'react';
-import { Button, Form, Modal } from 'react-bootstrap';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
+import * as Dialog from '@/components/lib/Dialog';
+import * as Form from '@/components/lib/Form';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
+
+import { Button } from '../lib/Button';
+import { FeatherIcon } from '../lib/FeatherIcon';
+import { Flex } from '../lib/Flex';
+import { Font } from '../lib/Font';
+import { P } from '../lib/Paragraph';
 
 interface ForgotPasswordFormData {
   email: string;
 }
 
-export default function ForgotPasswordModal({ show, onHide }: { show: boolean; onHide: () => void }) {
-  const { register, handleSubmit, formState, setError, setValue } = useForm<ForgotPasswordFormData>();
+interface Props {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+const ModalContent = ({ onOpenChange }: Props) => {
+  const { register, handleSubmit, formState, setError, getValues } = useForm<ForgotPasswordFormData>();
   const [hasSent, setHasSent] = useState(false);
 
   const sendPasswordReset: SubmitHandler<ForgotPasswordFormData> = async ({ email }) => {
@@ -56,45 +64,55 @@ export default function ForgotPasswordModal({ show, onHide }: { show: boolean; o
     }
   };
 
-  function close() {
-    onHide();
-    setHasSent(false);
-    setValue('email', '');
-  }
-
   return (
-    <Modal show={show} onHide={close} size="lg" aria-labelledby="contained-modal-title-vcenter" centered>
-      <Form noValidate onSubmit={handleSubmit(sendPasswordReset)}>
-        <fieldset disabled={formState.isSubmitting}>
-          <Modal.Header closeButton>
-            <Modal.Title id="contained-modal-title-vcenter">Password Reset</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {!hasSent ? (
-              <Form.Group controlId="formForgotEmail">
-                <Form.Label>Please enter your email address:</Form.Label>
-                <Form.Control
-                  type="email"
-                  placeholder="name@example.com"
-                  isInvalid={!!formState.errors.email}
-                  {...register('email', formValidations.email)}
-                />
-                <Form.Control.Feedback type="invalid">{formState.errors.email?.message}</Form.Control.Feedback>
-              </Form.Group>
-            ) : (
-              'Sent!'
-            )}
-          </Modal.Body>
-          {!hasSent && (
-            <Modal.Footer>
-              <Button onClick={close} variant="secondary">
-                Cancel
-              </Button>
-              <Button type="submit">Send</Button>
-            </Modal.Footer>
-          )}
-        </fieldset>
-      </Form>
-    </Modal>
+    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(sendPasswordReset)}>
+      {hasSent ? (
+        <Flex stack align="center" css={{ textAlign: 'center' }}>
+          <FeatherIcon icon="check-circle" color="primary" size="l" />
+
+          <P>
+            A reset email has been sent to your address: <Font color="text1">{getValues('email')}</Font>
+          </P>
+
+          <Button onClick={() => onOpenChange(false)}>Okay</Button>
+        </Flex>
+      ) : (
+        <Flex stack>
+          <Form.Group gap="s">
+            <Form.Label htmlFor="forgotEmail">Please enter your email address:</Form.Label>
+            <Form.Input
+              id="forgotEmail"
+              type="email"
+              placeholder="name@example.com"
+              isInvalid={!!formState.errors.email}
+              {...register('email', formValidations.email)}
+            />
+            <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
+          </Form.Group>
+
+          <Flex justify="end">
+            <Button onClick={() => onOpenChange(false)} color="neutral">
+              Cancel
+            </Button>
+            <Button type="submit">Send</Button>
+          </Flex>
+        </Flex>
+      )}
+    </Form.Root>
   );
-}
+};
+
+export const ForgotPasswordModal = (props: Props) => {
+  return (
+    <Dialog.Root open={props.open} onOpenChange={props.onOpenChange}>
+      <Dialog.Content title="Password Reset" size="small">
+        {/* The modal content is broken out in to its own component so
+        that we'll have a fresh instance each time this modal opens.
+        Otherwise, we'd have to worry about manually resetting the state
+        and form each time it opened or closed. */}
+
+        <ModalContent {...props} />
+      </Dialog.Content>
+    </Dialog.Root>
+  );
+};

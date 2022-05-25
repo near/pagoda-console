@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 
 import BorderSpinner from '@/components/BorderSpinner';
 import ProjectCard from '@/components/ProjectCard';
-import { useDashboardLayout } from '@/hooks/layouts';
+import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import { authenticatedPost } from '@/utils/http';
@@ -142,6 +142,6 @@ const NewNftTutorial: NextPageWithLayout = () => {
   );
 };
 
-NewNftTutorial.getLayout = useDashboardLayout;
+NewNftTutorial.getLayout = useSimpleLogoutLayout;
 
 export default NewNftTutorial;

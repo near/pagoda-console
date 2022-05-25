@@ -1,6 +1,7 @@
 :root,
 .dark-theme,
 .light-theme .reverse-theme {
+  --border-radius-xs: 4px;
   --border-radius-s: 8px;
   --border-radius-m: 12px;
   --border-radius-l: 20px;

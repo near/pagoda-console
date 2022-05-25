@@ -1,14 +1,14 @@
 import type { ComponentProps } from '@stitches/react';
 import { useRouter } from 'next/router';
 
-import { EnvironmentSelector } from '@/components/EnvironmentSelector';
+import { ProjectSelector } from '@/components/layouts/DashboardLayout/ProjectSelector';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
-import { ProjectSelector } from '@/components/ProjectSelector';
 import { useAccount } from '@/hooks/user';
 import { logOut } from '@/utils/auth';
 
+import { EnvironmentSelector } from '../EnvironmentSelector';
 import * as S from './styles';
 
 type Props = ComponentProps<typeof S.Header>;

@@ -1,12 +1,14 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
 import { forwardRef } from 'react';
 
-import type { StitchesProps } from '@/styles/stitches';
+import type { StitchesCSS, StitchesProps } from '@/styles/stitches';
 
 import { FeatherIcon } from '../FeatherIcon';
 import * as S from './styles';
 
-type Props = StitchesProps<typeof S.Button>;
+type Props = StitchesProps<typeof S.Button> & {
+  css?: StitchesCSS;
+};
 type ButtonProps = Props & ButtonHTMLAttributes<HTMLButtonElement>;
 type ButtonDropdownProps = Props & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'>;
 type ButtonLinkProps = Props & AnchorHTMLAttributes<HTMLAnchorElement>;

@@ -9,7 +9,7 @@ _If the current props and Stitches style overrides aren't enough to cover your u
 Simply wrap the element you desire to have a tooltip with the `<Tooltip>` component:
 
 ```tsx
-import { Tooltip } from '@/components/lib/tooltip';
+import { Tooltip } from '@/components/lib/Tooltip';
 
 ...
 

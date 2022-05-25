@@ -8,7 +8,13 @@ export const Wrapper = styled('div', {
 });
 
 export const Main = styled('main', {
+  display: 'flex',
   flex: '1 0 auto',
+  flexDirection: 'column',
+  gap: 'var(--space-l)',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: 'var(--space-l) var(--space-m)',
 });
 
 export const Header = styled('header', {

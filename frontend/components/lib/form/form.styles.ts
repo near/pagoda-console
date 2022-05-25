@@ -36,7 +36,7 @@ export const Group = styled('div', {
   },
 
   defaultVariants: {
-    gap: 's',
+    gap: 'xs',
   },
 });
 
@@ -70,15 +70,15 @@ export const Input = styled('input', {
   height: 'var(--size-input-m)',
   padding: '0 var(--space-m)',
   borderRadius: 'var(--border-radius-s)',
-  transition: 'background var(--transition-speed), border var(--transition-speed), box-shadow var(--transition-speed)',
+  transition: 'background var(--transition-speed), border var(--transition-speed), opacity var(--transition-speed)',
 
   '&::placeholder': {
-    fontSize: 'var(--font-size-body-small)',
+    fontSize: 'var(--font-size-body)',
     color: 'var(--color-text-3)',
   },
 
   '&:disabled': {
-    opacity: 0.25,
+    opacity: 0.5,
     pointerEvents: 'none',
   },
 

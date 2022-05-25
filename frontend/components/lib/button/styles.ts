@@ -22,13 +22,13 @@ export const Button = styled('button', {
   fontFamily: 'var(--font-body)',
   padding: '0 var(--space-m)',
   flexShrink: 0,
-  transition: 'background var(--transition-speed)',
+  transition: 'background var(--transition-speed), opacity var(--transition-speed)',
   position: 'relative',
   userSelect: 'none',
   whiteSpace: 'nowrap',
 
   '&:disabled': {
-    opacity: 0.25,
+    opacity: 0.5,
     pointerEvents: 'none',
   },
 
@@ -64,13 +64,6 @@ export const Button = styled('button', {
         },
       },
       neutral: {
-        background: 'var(--color-cta-neutral)',
-        color: 'var(--color-cta-neutral-text)',
-        '&:hover': {
-          background: 'var(--color-cta-neutral-highlight)',
-        },
-      },
-      outline: {
         background: 'transparent',
         boxShadow: 'inset 0 0 0 1px var(--color-surface-5)',
         color: 'var(--color-text-1)',
@@ -90,6 +83,12 @@ export const Button = styled('button', {
     dropdown: {
       true: {
         fontFamily: 'var(--font-code)',
+      },
+    },
+
+    expand: {
+      true: {
+        width: '100%',
       },
     },
 
