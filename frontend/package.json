@@ -35,7 +35,7 @@
     "@radix-ui/react-tooltip": "^0.1.7",
     "@stitches/react": "^1.2.8",
     "bn.js": "^5.2.0",
-    "bootstrap": "^5.1.1",
+    "bootstrap": "^5.1.3",
     "firebase": "^9.6.10",
     "hexy": "^0.3.3",
     "highcharts": "^9.3.2",

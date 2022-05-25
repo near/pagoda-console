@@ -21,7 +21,7 @@ export default function EjectProjectModal({
   const [confirmDisabled, setConfirmDisabled] = useState(false);
 
   const warning =
-    'Completing this tutorial will turn it into a full project. Doing so will remove the Tutorial from the menu bar and create a mainnet API key.';
+    'Completing this tutorial will turn it into a full project. Doing so will remove the Tutorial from the menu bar and create a mainnet API key. This action is irreversible.';
 
   async function onConfirm() {
     setConfirmDisabled(true);
