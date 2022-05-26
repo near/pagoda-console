@@ -18,6 +18,7 @@ import validate from './config/validate';
 import { KeysService } from './keys/keys.service';
 import { KeysModule } from './keys/keys.module';
 import { IndexerService } from './indexer.service';
+import { AlertsModule } from './alerts/alerts.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { IndexerService } from './indexer.service';
     ProjectsModule,
     AuthModule,
     KeysModule,
+    AlertsModule,
   ],
   controllers: [AppController],
   providers: [AppService, KeysService, IndexerService],
