@@ -1,7 +1,8 @@
 import {
   //Body,
   Controller,
-  //HttpCode,
+  InternalServerErrorException,
+  HttpCode,
   Post,
   Request,
   UseGuards,
@@ -10,6 +11,7 @@ import {
 import { UsersService } from './users.service';
 // import { User } from '@prisma/client';
 import { BearerAuthGuard } from '../auth/bearer-auth.guard';
+import firebaseAdmin from 'firebase-admin';
 // import { UpdateDetailsDto, UpdateDetailsSchema } from './dto';
 // import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 
@@ -22,6 +24,27 @@ export class UsersController {
   async getAccountDetails(@Request() req) {
     const { uid, email, name, photoUrl } = req.user;
     return { uid, email, name, photoUrl };
+  }
+
+  @Post('deleteAccount')
+  @HttpCode(204)
+  @UseGuards(BearerAuthGuard)
+  async deleteAccount(@Request() req) {
+    const { uid } = req.user;
+    firebaseAdmin
+      .auth()
+      .deleteUser(uid)
+      .then(() => {
+        console.log(
+          'Firebase account deleted successfully. Deactivating user...',
+        );
+        this.usersService.deactivateUser(uid);
+        console.log('User deactivated successfully.');
+      })
+      .catch((e) => {
+        console.log('An error occured while deleting an account: ' + e);
+        throw new InternalServerErrorException();
+      });
   }
 
   // @Post('updateDetails')
