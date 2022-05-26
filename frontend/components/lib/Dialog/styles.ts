@@ -25,6 +25,7 @@ const contentHide = keyframes({
 export const Overlay = styled(DialogPrimitive.Overlay, {
   '--animation-speed': '300ms',
   position: 'fixed',
+  zIndex: 600,
   inset: 0,
   display: 'flex',
   alignItems: 'center',

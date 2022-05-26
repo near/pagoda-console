@@ -21,6 +21,8 @@
   --color-primary-highlight: #a8daa4;
   --color-danger: #e64747;
   --color-danger-highlight: #ec6f6f;
+  --color-success: #87bb81;
+  --color-success-highlight: #a8daa4;
 
   --color-cta-primary: var(--color-primary);
   --color-cta-primary-highlight: var(--color-primary-highlight);

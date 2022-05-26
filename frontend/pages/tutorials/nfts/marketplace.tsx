@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 
-import EjectProjectModal from '@/components/modals/EjectProjectModal';
+import { EjectProjectModal } from '@/components/modals/EjectProjectModal';
 import components from '@/components/tutorials/components';
 import TableOfContents from '@/components/tutorials/TableOfContents';
 import TutorialFooter from '@/components/tutorials/TutorialFooter';

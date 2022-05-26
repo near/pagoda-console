@@ -19,11 +19,11 @@ interface ForgotPasswordFormData {
 }
 
 interface Props {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  show: boolean;
+  setShow: (show: boolean) => void;
 }
 
-const ModalContent = ({ onOpenChange }: Props) => {
+const ModalContent = ({ setShow }: Props) => {
   const { register, handleSubmit, formState, setError, getValues } = useForm<ForgotPasswordFormData>();
   const [hasSent, setHasSent] = useState(false);
 
@@ -68,13 +68,13 @@ const ModalContent = ({ onOpenChange }: Props) => {
     <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(sendPasswordReset)}>
       {hasSent ? (
         <Flex stack align="center" css={{ textAlign: 'center' }}>
-          <FeatherIcon icon="check-circle" color="primary" size="l" />
+          <FeatherIcon icon="check-circle" color="success" size="l" />
 
           <P>
             A reset email has been sent to your address: <Font color="text1">{getValues('email')}</Font>
           </P>
 
-          <Button onClick={() => onOpenChange(false)}>Okay</Button>
+          <Button onClick={() => setShow(false)}>Okay</Button>
         </Flex>
       ) : (
         <Flex stack>
@@ -91,7 +91,7 @@ const ModalContent = ({ onOpenChange }: Props) => {
           </Form.Group>
 
           <Flex justify="end">
-            <Button onClick={() => onOpenChange(false)} color="neutral">
+            <Button onClick={() => setShow(false)} color="neutral">
               Cancel
             </Button>
             <Button type="submit">Send</Button>
@@ -104,7 +104,7 @@ const ModalContent = ({ onOpenChange }: Props) => {
 
 export const ForgotPasswordModal = (props: Props) => {
   return (
-    <Dialog.Root open={props.open} onOpenChange={props.onOpenChange}>
+    <Dialog.Root open={props.show} onOpenChange={props.setShow}>
       <Dialog.Content title="Password Reset" size="small">
         {/* The modal content is broken out in to its own component so
         that we'll have a fresh instance each time this modal opens.

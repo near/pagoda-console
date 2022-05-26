@@ -1,0 +1,45 @@
+import type { ComponentProps } from 'react';
+
+import { Button } from '../Button';
+import { FeatherIcon } from '../FeatherIcon';
+import { Flex } from '../Flex';
+import * as S from './styles';
+
+type MessageType = 'info' | 'error' | 'success';
+
+type Props = Omit<ComponentProps<typeof S.Container>, 'children' | 'type'> & {
+  content?: string;
+  dismiss?: () => void;
+  dismissText?: string;
+  icon?: string;
+  type?: MessageType;
+};
+
+export const Message = ({ content, dismiss, dismissText, icon: iconOverride, type = 'info', ...props }: Props) => {
+  const iconsByType: Record<MessageType, string> = {
+    info: 'help-circle',
+    error: 'alert-circle',
+    success: 'check-circle',
+  };
+
+  const icon = iconOverride || iconsByType[type];
+
+  if (!content) return null;
+
+  return (
+    <S.Container type={type} {...props} role="alert">
+      <Flex align="center" justify="spaceBetween">
+        <Flex align="center">
+          <FeatherIcon icon={icon} />
+          <S.Text>{content}</S.Text>
+        </Flex>
+
+        {dismiss && (
+          <Button size="small" color="neutral" onClick={dismiss}>
+            {dismissText || 'Dismiss'}
+          </Button>
+        )}
+      </Flex>
+    </S.Container>
+  );
+};

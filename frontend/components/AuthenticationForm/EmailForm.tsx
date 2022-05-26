@@ -122,7 +122,7 @@ export function EmailForm({ isAuthenticating, setIsAuthenticating }: Props) {
         </Flex>
       </Form.Root>
 
-      <ForgotPasswordModal open={showResetModal} onOpenChange={setShowResetModal} />
+      <ForgotPasswordModal show={showResetModal} setShow={setShowResetModal} />
     </>
   );
 }

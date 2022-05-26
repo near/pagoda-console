@@ -108,7 +108,7 @@ export const Feedback = styled('p', {
         color: 'var(--color-danger)',
       },
       success: {
-        color: 'var(--color-primary)',
+        color: 'var(--color-success)',
       },
       neutral: {
         color: 'var(--color-text-2)',

@@ -16,6 +16,7 @@ import * as Form from '@/components/lib/Form';
 import { H1, H2, H3, H4, H5, H6 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Info } from '@/components/lib/Info';
+import { Message } from '@/components/lib/Message';
 import { P } from '@/components/lib/Paragraph';
 import * as Popover from '@/components/lib/Popover';
 import { Section } from '@/components/lib/Section';
@@ -101,6 +102,7 @@ const Settings: NextPageWithLayout = () => {
   const [bookmarksChecked, setBookmarksChecked] = useState(true);
   const [urlsChecked, setUrlsChecked] = useState(false);
   const [person, setPerson] = useState('pedro');
+  const [errorMessage, setErrorMessage] = useState('This is a dismissable error message');
   const { register, handleSubmit, formState } = useForm<FakeForm>();
 
   const favoriteFoodOptions = [
@@ -705,6 +707,18 @@ const Settings: NextPageWithLayout = () => {
           <HR />
 
           <P>Here is more content.</P>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
+          <H2>Message</H2>
+
+          <Message content="Here is an info message." />
+          <Message type="error" content="Here is an error message." />
+          <Message type="success" content="Here is a success message." />
+          <Message type="success" content="With a custom icon." icon="zap" />
+          <Message type="error" content={errorMessage} dismiss={() => setErrorMessage('')} />
         </Flex>
       </Section>
 

@@ -12,6 +12,9 @@ export const Svg = styled('svg', {
       primary: {
         color: 'var(--color-primary)',
       },
+      success: {
+        color: 'var(--color-success)',
+      },
       text1: {
         color: 'var(--color-text-1)',
       },
