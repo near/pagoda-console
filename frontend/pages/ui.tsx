@@ -589,9 +589,6 @@ const Settings: NextPageWithLayout = () => {
             onSubmit={handleSubmit((value) => {
               alert(JSON.stringify(value));
             })}
-            css={{
-              maxWidth: '20rem',
-            }}
           >
             <Flex stack gap="l">
               <Form.Group>
@@ -625,6 +622,11 @@ const Settings: NextPageWithLayout = () => {
               <Form.Group>
                 <Form.Label>Disabled</Form.Label>
                 <Form.Input disabled />
+              </Form.Group>
+
+              <Form.Group maxWidth="xl">
+                <Form.Label>Max Width XL</Form.Label>
+                <Form.Input />
               </Form.Group>
 
               <Form.Fieldset>
@@ -682,6 +684,55 @@ const Settings: NextPageWithLayout = () => {
               </Form.Group>
 
               <Button type="submit">Submit</Button>
+            </Flex>
+          </Form.Root>
+
+          <HR />
+
+          <Form.Root>
+            <Flex stack>
+              <Form.Group horizontal>
+                <Form.Label>Horizontal</Form.Label>
+
+                <Form.Group>
+                  <Form.Input />
+                  <Form.Feedback type="neutral">Here is some feedback.</Form.Feedback>
+                </Form.Group>
+              </Form.Group>
+
+              <Form.Group horizontal>
+                <Form.Label>Horizontal M</Form.Label>
+
+                <Form.Group maxWidth="m">
+                  <Form.Input />
+                  <Form.Feedback type="neutral">Here is some feedback.</Form.Feedback>
+                </Form.Group>
+              </Form.Group>
+
+              <Form.Group maxWidth="xs">
+                <Form.Label>Max Width XS</Form.Label>
+                <Form.Input />
+              </Form.Group>
+
+              <Form.Group maxWidth="s">
+                <Form.Label>Max Width S</Form.Label>
+                <Form.Input />
+              </Form.Group>
+
+              <Form.Group maxWidth="m">
+                <Form.Label>Max Width M</Form.Label>
+                <Form.Input />
+              </Form.Group>
+
+              <Form.Group maxWidth="l">
+                <Form.Label>Max Width L</Form.Label>
+                <Form.Input />
+              </Form.Group>
+
+              <Form.Group maxWidth="xl">
+                <Form.Label>Max Width XL</Form.Label>
+                <Form.Input />
+              </Form.Group>
             </Flex>
           </Form.Root>
         </Flex>

@@ -1,10 +1,16 @@
 import { getIdToken, updateProfile } from 'firebase/auth';
 import { useState } from 'react';
-import { Alert, Button, Form } from 'react-bootstrap';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import BorderSpinner from '@/components/BorderSpinner';
+import { Button } from '@/components/lib/Button';
+import { Flex } from '@/components/lib/Flex';
+import * as Form from '@/components/lib/Form';
+import { H1 } from '@/components/lib/Heading';
+import { HR } from '@/components/lib/HorizontalRule';
+import { Message } from '@/components/lib/Message';
+import { Section } from '@/components/lib/Section';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useAccount, useIdentity } from '@/hooks/user';
@@ -50,77 +56,52 @@ const Settings: NextPageWithLayout = () => {
   };
 
   const isLoading = !user && !error;
-  // TODO handle error
+
   return (
-    <div className="pageContainer">
+    <Section>
       <ErrorModal error={updateError} setError={setUpdateError} />
 
-      <Form noValidate onSubmit={handleSubmit(submitSettings)}>
-        <fieldset disabled={formState.isSubmitting}>
-          <div className="titleContainer">
-            <h1>User Settings</h1>
+      <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitSettings)}>
+        <Flex stack gap="l">
+          <Flex justify="spaceBetween">
+            <H1>User Settings</H1>
             {isEditing && <Button type="submit">Done</Button>}
             {!isEditing && <Button onClick={edit}>Edit</Button>}
-          </div>
+          </Flex>
 
-          {error && <Alert variant="danger">Could not fetch account data</Alert>}
+          <HR />
 
-          <div className="settingsContainer">
-            <div className="settingRow">
-              <span className="settingLabel">Display Name</span>
-              {!isEditing && <span className="settingValue">{isLoading ? <BorderSpinner /> : user && user.name}</span>}
-              {isEditing && (
-                <Form.Group controlId="formBasicDisplayName">
-                  <Form.Control
-                    isInvalid={!!formState.errors.displayName}
-                    placeholder="John Nearian"
-                    {...register('displayName', formValidations.displayName)}
-                  />
-                  <Form.Control.Feedback type="invalid">{formState.errors.displayName?.message}</Form.Control.Feedback>
-                </Form.Group>
-              )}
-            </div>
+          {error && <Message type="error" content="Could not fetch account data." />}
 
-            <div className="settingRow">
-              <span className="settingLabel">Email Address</span>
-              <span className="settingValue">{isLoading ? <BorderSpinner /> : user && user.email}</span>
-            </div>
-          </div>
-        </fieldset>
-      </Form>
+          <Flex stack gap="s">
+            <Form.Group horizontal>
+              <Form.Label htmlFor="displayName">Display Name</Form.Label>
 
-      <style jsx>{`
-        .pageContainer {
-          display: flex;
-          flex-direction: column;
-        }
-        .titleContainer {
-          display: flex;
-          flex-direction: row;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 2.75rem;
-        }
-        .settingsContainer {
-          display: flex;
-          flex-direction: column;
-          row-gap: 1rem;
-        }
-        .settingRow {
-          display: flex;
-          flex-direction: row;
-          justify-content: space-between;
-          align-items: center;
-          min-height: 2.5rem;
-        }
-        .settingLabel {
-          font-weight: 600;
-        }
-        .settingsContainer :global(input) {
-          width: 20rem;
-        }
-      `}</style>
-    </div>
+              <Form.Group maxWidth="m">
+                {isEditing ? (
+                  <>
+                    <Form.Input
+                      id="displayName"
+                      isInvalid={!!formState.errors.displayName}
+                      placeholder="John Nearian"
+                      {...register('displayName', formValidations.displayName)}
+                    />
+                    <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
+                  </>
+                ) : (
+                  <>{isLoading ? <BorderSpinner /> : user?.name}</>
+                )}
+              </Form.Group>
+            </Form.Group>
+
+            <Form.Group horizontal>
+              <Form.Label>Email</Form.Label>
+              <Form.Group maxWidth="m">{isLoading ? <BorderSpinner /> : user?.email}</Form.Group>
+            </Form.Group>
+          </Flex>
+        </Flex>
+      </Form.Root>
+    </Section>
   );
 };
 

@@ -78,6 +78,11 @@
   --size-max-container-width-s: 30rem;
   --size-max-container-width-m: 50rem;
   --size-max-container-width-l: 75rem;
+  --size-max-input-width-xs: 5rem;
+  --size-max-input-width-s: 10rem;
+  --size-max-input-width-m: 20rem;
+  --size-max-input-width-l: 30rem;
+  --size-max-input-width-xl: 40rem;
   --size-sidebar-expanded: 15.625rem;
 
   --space-xs: 0.25rem;

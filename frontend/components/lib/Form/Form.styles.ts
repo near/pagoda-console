@@ -16,6 +16,22 @@ export const Group = styled('div', {
   flexDirection: 'column',
 
   variants: {
+    horizontal: {
+      true: {
+        flexDirection: 'row',
+        gap: 'var(--space-m)',
+        minHeight: 'var(--size-input-m)',
+        alignItems: 'center',
+
+        '& > :first-child': {
+          flexShrink: 0,
+          flexGrow: 0,
+          width: '12rem',
+          textAlign: 'right',
+        },
+      },
+    },
+
     gap: {
       xs: {
         gap: 'var(--space-xs)',
@@ -31,6 +47,24 @@ export const Group = styled('div', {
       },
       xl: {
         gap: 'var(--space-xl)',
+      },
+    },
+
+    maxWidth: {
+      xs: {
+        maxWidth: 'var(--size-max-input-width-xs)',
+      },
+      s: {
+        maxWidth: 'var(--size-max-input-width-s)',
+      },
+      m: {
+        maxWidth: 'var(--size-max-input-width-m)',
+      },
+      l: {
+        maxWidth: 'var(--size-max-input-width-l)',
+      },
+      xl: {
+        maxWidth: 'var(--size-max-input-width-xl)',
       },
     },
   },
@@ -61,6 +95,7 @@ export const LabelDescription = styled('p', {
 });
 
 export const Input = styled('input', {
+  flexGrow: 1,
   color: 'var(--color-text-1)',
   background: 'var(--color-surface-2)',
   border: '1px solid var(--color-surface-1)',
