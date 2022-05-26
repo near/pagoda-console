@@ -2,45 +2,66 @@
 // because class-validator was experiencing issues at the time of implementation
 // and had many unaddressed github issues
 
-import { AlertRuleType } from '.prisma/client';
+import { AlertRuleType, NumberComparator, TxAction } from '.prisma/client';
 import * as Joi from 'joi';
 
-const alertRuleNameSchema = Joi.string().required().max(50);
-
 export interface CreateFnCallRule {
-  method: string;
+  function: string;
+  // params: object;
 }
 export const CreateFnCallRuleSchema = Joi.object({
-  method: Joi.string().required(),
+  function: Joi.string().required(),
+  // params: Joi.object(),
 });
 
-// export interface CreateTxRule {
-//   status: TxStatus;
-// }
-// export const CreateTxRuleSchema = Joi.object({
-//   status: Joi.string().required(),
-// });
+export interface CreateTxRule {
+  action?: TxAction;
+}
+export const CreateTxRuleSchema = Joi.object({
+  action: Joi.string(),
+});
+
+export interface CreateEventRule {
+  standard: string;
+  version: string;
+  event: string;
+  // data: object;
+}
+export const CreateEventRuleSchema = Joi.object({
+  standard: Joi.string(),
+  version: Joi.string(),
+  event: Joi.string(),
+  // data: Joi.object(),
+});
+
+export interface CreateAcctBalRule {
+  comparator: NumberComparator;
+  amount: number;
+}
+export const CreateAcctBalRuleSchema = Joi.object({
+  comparator: Joi.string(),
+  amount: Joi.number(),
+});
 
 // create alert rule
 export interface CreateAlertRuleDto {
   name?: string;
   type: AlertRuleType;
-  rule: CreateFnCallRule; // | CreateTxRule;
+  rule: CreateFnCallRule | CreateTxRule | CreateEventRule | CreateAcctBalRule;
   contract: number;
   environment: number;
 }
 export const CreateAlertRuleSchema = Joi.object({
-  name: alertRuleNameSchema,
+  name: Joi.string(),
   type: Joi.string().required(),
-  // rule: Joi.object({
-  //   method: Joi.string(),
-  //   status: Joi.string(),
-  // }).or('method', 'status'),
   rule: Joi.alternatives().conditional('.type', {
     switch: [
-      // { is: 'TX_SUCCESS', then: CreateTxRuleSchema },
-      // { is: 'TX_FAILURE', then: CreateTxRuleSchema },
+      { is: 'TX_SUCCESS', then: CreateTxRuleSchema },
+      { is: 'TX_FAILURE', then: CreateTxRuleSchema },
       { is: 'FN_CALL', then: CreateFnCallRuleSchema },
+      { is: 'EVENT', then: CreateEventRuleSchema },
+      { is: 'ACCT_BAL_PCT', then: CreateAcctBalRuleSchema },
+      { is: 'ACCT_BAL_NUM', then: CreateAcctBalRuleSchema },
     ],
   }),
   contract: Joi.number().required(),

@@ -7,11 +7,11 @@
 -- CreateEnum
 CREATE TYPE "AlertRuleType" AS ENUM ('TX_SUCCESS', 'TX_FAILURE', 'FN_CALL', 'EVENT', 'ACCT_BAL_PCT', 'ACCT_BAL_NUM');
 
--- DropForeignKey
-ALTER TABLE "Audit" DROP CONSTRAINT "Audit_userId_fkey";
+-- CreateEnum
+CREATE TYPE "TxAction" AS ENUM ('CREATE_ACCOUNT', 'DEPLOY_CONTRACT', 'FUNCTION_CALL', 'TRANSFER', 'STAKE', 'ADD_KEY', 'DELETE_KEY', 'DELETE_ACCOUNT');
 
--- DropTable
-DROP TABLE "Audit";
+-- CreateEnum
+CREATE TYPE "NumberComparator" AS ENUM ('EQ', 'NEQ', 'LT', 'LTE', 'GT', 'GTE');
 
 -- CreateTable
 CREATE TABLE "AlertRule" (
@@ -21,6 +21,9 @@ CREATE TABLE "AlertRule" (
     "description" TEXT NOT NULL,
     "isPaused" BOOLEAN NOT NULL DEFAULT false,
     "fnCallRuleId" INTEGER,
+    "txRuleId" INTEGER,
+    "acctBalRuleId" INTEGER,
+    "eventRuleId" INTEGER,
     "contractId" INTEGER NOT NULL,
     "environmentId" INTEGER NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
@@ -35,9 +38,38 @@ CREATE TABLE "AlertRule" (
 -- CreateTable
 CREATE TABLE "FnCallRule" (
     "id" SERIAL NOT NULL,
-    "methodName" TEXT NOT NULL,
+    "function" TEXT NOT NULL,
+    "params" JSONB NOT NULL,
 
     CONSTRAINT "FnCallRule_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TxRule" (
+    "id" SERIAL NOT NULL,
+    "action" "TxAction",
+
+    CONSTRAINT "TxRule_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "EventRule" (
+    "id" SERIAL NOT NULL,
+    "standard" TEXT NOT NULL,
+    "version" TEXT NOT NULL,
+    "event" TEXT NOT NULL,
+    "data" JSONB NOT NULL,
+
+    CONSTRAINT "EventRule_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AcctBalRule" (
+    "id" SERIAL NOT NULL,
+    "comparator" "NumberComparator" NOT NULL,
+    "amount" INTEGER NOT NULL,
+
+    CONSTRAINT "AcctBalRule_pkey" PRIMARY KEY ("id")
 );
 
 -- AddForeignKey
@@ -54,3 +86,12 @@ ALTER TABLE "AlertRule" ADD CONSTRAINT "AlertRule_contractId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "AlertRule" ADD CONSTRAINT "AlertRule_fnCallRuleId_fkey" FOREIGN KEY ("fnCallRuleId") REFERENCES "FnCallRule"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AlertRule" ADD CONSTRAINT "AlertRule_txRuleId_fkey" FOREIGN KEY ("txRuleId") REFERENCES "TxRule"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AlertRule" ADD CONSTRAINT "AlertRule_eventRuleId_fkey" FOREIGN KEY ("eventRuleId") REFERENCES "EventRule"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AlertRule" ADD CONSTRAINT "AlertRule_acctBalRuleId_fkey" FOREIGN KEY ("acctBalRuleId") REFERENCES "AcctBalRule"("id") ON DELETE SET NULL ON UPDATE CASCADE;

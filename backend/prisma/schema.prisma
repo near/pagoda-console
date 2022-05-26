@@ -111,23 +111,23 @@ model ApiKey {
 }
 
 model Environment {
-  id            Int        @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   name          String
-  project       Project    @relation(fields: [projectId], references: [id])
+  project       Project     @relation(fields: [projectId], references: [id])
   projectId     Int
   net           Net
   subId         Int
-  active        Boolean    @default(true)
+  active        Boolean     @default(true)
   apiKeys       ApiKey[]
   contracts     Contract[]
-  createdAt     DateTime?  @default(now())
-  createdByUser User?      @relation(name: "UserCreatedEnvironment", fields: [createdBy], references: [id])
+  createdAt     DateTime?   @default(now())
+  createdByUser User?       @relation(name: "UserCreatedEnvironment", fields: [createdBy], references: [id])
   createdBy     Int?
-  updatedByUser User?      @relation(name: "UserUpdatedEnvironment", fields: [updatedBy], references: [id])
-  updatedAt     DateTime?  @updatedAt
+  updatedByUser User?       @relation(name: "UserUpdatedEnvironment", fields: [updatedBy], references: [id])
+  updatedAt     DateTime?   @updatedAt
   updatedBy     Int?
+  alertRules    AlertRule[]
 
-  AlertRule AlertRule[]
   @@unique([projectId, subId])
 }
 
@@ -174,11 +174,12 @@ model AlertRule {
   isPaused      Boolean       @default(false)
   fnCallRule    FnCallRule?   @relation(fields: [fnCallRuleId], references: [id])
   fnCallRuleId  Int?
-  // txRule        TxRule?       @relation(fields: [txRuleId], references: [id])
-  // txRuleId      Int?
-  // eventRuleId   EventRule?
-  // acctBalRuleId
-  // acctBalRuleId
+  txRule        TxRule?       @relation(fields: [txRuleId], references: [id])
+  txRuleId      Int?
+  acctBalRule   AcctBalRule?  @relation(fields: [acctBalRuleId], references: [id])
+  acctBalRuleId Int?
+  eventRule     EventRule?    @relation(fields: [eventRuleId], references: [id])
+  eventRuleId   Int?
   contract      Contract      @relation(fields: [contractId], references: [id])
   contractId    Int
   environment   Environment   @relation(fields: [environmentId], references: [id])
@@ -187,8 +188,8 @@ model AlertRule {
   createdAt     DateTime?     @default(now())
   createdByUser User?         @relation(name: "UserCreatedAlert", fields: [createdBy], references: [id])
   createdBy     Int?
-  updatedByUser User?         @relation(name: "UserUpdatedAlert", fields: [updatedBy], references: [id])
   updatedAt     DateTime?     @updatedAt
+  updatedByUser User?         @relation(name: "UserUpdatedAlert", fields: [updatedBy], references: [id])
   updatedBy     Int?
 }
 
@@ -203,63 +204,49 @@ enum AlertRuleType {
 
 model FnCallRule {
   id         Int         @id @default(autoincrement())
-  methodName String
-  // paramFilters Json
-  AlertRule  AlertRule[]
+  function   String
+  params     Json
+  alertRules AlertRule[]
 }
 
-// model TxRule {
-//   id        Int         @id @default(autoincrement())
-//   action TxAction?
-//   AlertRule AlertRule[]
-// }
+model TxRule {
+  id         Int         @id @default(autoincrement())
+  action     TxAction?
+  alertRules AlertRule[]
+}
 
-// enum TxAction {
-//   CREATE_ACCOUNT
-//   DEPLOY_CONTRACT
-//   FUNCTION_CALL
-//   TRANSFER
-//   STAKE
-//   ADD_KEY
-//   DELETE_KEY
-//   DELETE_ACCOUNT
-// }
+enum TxAction {
+  CREATE_ACCOUNT
+  DEPLOY_CONTRACT
+  FUNCTION_CALL
+  TRANSFER
+  STAKE
+  ADD_KEY
+  DELETE_KEY
+  DELETE_ACCOUNT
+}
 
-// FN_CALL
-// {
-//   "method_name": "guess_solution",
-//   // These would be "and" filters only.
-//   // Or filters can be achieved by creating multiple rules on the same method/contract.
-//   "method_params": [
-//     {
-//       "name": "guess",
-//       "comparator": "eq",
-//       "value": "near nomicon ref finances"
-//     }
-//   ]
-// }
+model EventRule {
+  id         Int         @id @default(autoincrement())
+  standard   String
+  version    String
+  event      String
+  data       Json
+  alertRules AlertRule[]
+}
 
-// EVENT
-// {
-//   "event": "nft_mint",
-//   "standard": "nep191",
-//   "version": "1.0.0",
-//   "data_type": "Array",
-//   // These would be "and" filters only.
-//   // Or filters can be achieved by creating multiple rules on the same method/contract.
-//   // data in the event could be anything... we should ask the user what the data type is and store it
-//   // If it's a number or a string, then only one filter can exist
-//   "filters": [
-//     {
-//       "attribute_path": [""], // An array of strings to get to the attribute that finally holds the data you want
-//       "comparator": "eq",
-//       "value": "near nomicon ref finances"
-//     }
-//   ]
-// }
+model AcctBalRule {
+  id         Int              @id @default(autoincrement())
+  comparator NumberComparator
+  amount     Int
+  alertRules AlertRule[]
+}
 
-// ACCOUNT BALANCE
-// {
-//   "comparator": "gte",
-//   "amount": 50
-// }
+enum NumberComparator {
+  EQ
+  NEQ
+  LT
+  LTE
+  GT
+  GTE
+}

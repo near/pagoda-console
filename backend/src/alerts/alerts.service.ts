@@ -9,14 +9,31 @@ import {
   Contract,
   AlertRule,
   FnCallRule,
+  AcctBalRule,
   AlertRuleType,
+  TxRule,
+  EventRule,
 } from '@prisma/client';
-import axios from 'axios';
 import { AppConfig } from 'src/config/validate';
 import { PrismaService } from 'src/prisma.service';
 import VError from 'verror';
 
-type Rule = { method: FnCallRule['methodName'] };
+type FnCallRuleSchema = { function: FnCallRule['function'] };
+type TxRuleSchema = { action?: TxRule['action'] };
+type EventRuleSchema = {
+  standard: EventRule['standard'];
+  version: EventRule['version'];
+  event: EventRule['event'];
+};
+type AcctBalRuleSchema = {
+  comparator: AcctBalRule['comparator'];
+  amount: AcctBalRule['amount'];
+};
+type Rule =
+  | FnCallRuleSchema
+  | TxRuleSchema
+  | EventRuleSchema
+  | AcctBalRuleSchema;
 
 @Injectable()
 export class AlertsService {
@@ -43,31 +60,71 @@ export class AlertsService {
   ): Promise<{ name: AlertRule['name']; id: AlertRule['id'] }> {
     let alert;
 
-    let ruleInput;
+    // let ruleInput;
 
-    switch (type) {
-      case 'FN_CALL':
-        ruleInput = {
-          fnCallRule: {
-            create: {
-              methodName: rule.method,
-            },
-          },
-        };
-        break;
-    }
-
-    const metadata = {
-      createdBy: user.id,
-      updatedBy: user.id,
-    };
+    // switch (type) {
+    //   case 'FN_CALL':
+    //     const r = rule as FnCallRuleSchema;
+    //     ruleInput = {
+    //       fnCallRule: {
+    //         create: {
+    //           function: r.function,
+    //         },
+    //       },
+    //     };
+    //     break;
+    //   case 'EVENT':
+    //     const r = rule as EventRuleSchema;
+    //     ruleInput = {
+    //       eventRule: {
+    //         create: {
+    //           function: r.function,
+    //         },
+    //       },
+    //     };
+    //     break;
+    // }
 
     try {
       const alertInput: Prisma.AlertRuleCreateInput = {
         name: name || (await this.buildName(contract, type, rule)),
         description: '',
         type,
-        ...ruleInput,
+        //...ruleInput,
+        // txRule: (type === 'TX_SUCCESS' || type === 'TX_FAILURE') && {
+        //   create: {
+        //     action: (rule as TxRuleSchema).action,
+        //   },
+        // },
+        fnCallRule:
+          type === 'FN_CALL'
+            ? {
+                create: {
+                  function: (rule as FnCallRuleSchema).function,
+                  params: {},
+                },
+              }
+            : undefined,
+        eventRule:
+          type === 'EVENT'
+            ? {
+                create: {
+                  standard: (rule as EventRuleSchema).standard,
+                  version: (rule as EventRuleSchema).version,
+                  event: (rule as EventRuleSchema).event,
+                  data: {},
+                },
+              }
+            : undefined,
+        acctBalRule:
+          type === 'ACCT_BAL_NUM' || type === 'ACCT_BAL_PCT'
+            ? {
+                create: {
+                  comparator: (rule as AcctBalRuleSchema).comparator,
+                  amount: (rule as AcctBalRuleSchema).amount,
+                },
+              }
+            : undefined,
         contract: {
           connect: {
             id: contract,
@@ -78,7 +135,16 @@ export class AlertsService {
             id: environment,
           },
         },
-        ...metadata,
+        createdByUser: {
+          connect: {
+            id: user.id,
+          },
+        },
+        updatedByUser: {
+          connect: {
+            id: user.id,
+          },
+        },
       };
 
       alert = await this.prisma.alertRule.create({
@@ -89,7 +155,7 @@ export class AlertsService {
         },
       });
     } catch (e) {
-      throw new VError(e, 'Failed while executing project creation query');
+      throw new VError(e, 'Failed while executing alert creation query');
     }
 
     return {
@@ -111,9 +177,16 @@ export class AlertsService {
       case 'TX_FAILURE':
         return `Failed transaction in ${address}`;
       case 'FN_CALL':
-        return `Function ${rule.method} called in ${address}`;
+        return `Function ${
+          (rule as FnCallRuleSchema).function
+        } called in ${address}`;
+      case 'ACCT_BAL_PCT':
+      case 'ACCT_BAL_NUM':
+        return `Account balance changed in ${address}`;
+      case 'EVENT':
+        return `Event ${(rule as EventRuleSchema).event} logged in ${address}`;
       default:
-        return `Not implemented for ${address}`;
+        return `Alert for ${address}`;
     }
   }
 
