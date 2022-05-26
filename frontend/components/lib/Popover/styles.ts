@@ -17,7 +17,6 @@ export const Content = styled(PopoverPrimitive.Content, {
   '--background-color': 'var(--color-surface-overlay)',
   borderRadius: 'var(--border-radius-s)',
   padding: 'var(--space-m)',
-  minWidth: 'var(--size-max-container-width-xxs)',
   maxWidth: 'var(--size-max-container-width-xs)',
   background: 'var(--background-color)',
   boxShadow: 'var(--shadow-softer)',

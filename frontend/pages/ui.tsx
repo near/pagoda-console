@@ -16,6 +16,7 @@ import * as Form from '@/components/lib/Form';
 import { H1, H2, H3, H4, H5, H6 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Info } from '@/components/lib/Info';
+import { List, ListItem } from '@/components/lib/List';
 import { Message } from '@/components/lib/Message';
 import { P } from '@/components/lib/Paragraph';
 import * as Popover from '@/components/lib/Popover';
@@ -187,6 +188,7 @@ const Settings: NextPageWithLayout = () => {
               display: 'flex',
               alignItems: 'center',
               gap: 'var(--space-s)',
+              flexWrap: 'wrap',
             }}
           >
             Badge
@@ -350,7 +352,7 @@ const Settings: NextPageWithLayout = () => {
         <Flex stack>
           <H2>Dropdown Menu</H2>
 
-          <Flex>
+          <Flex wrap>
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
                 <Button>Custom Trigger</Button>
@@ -712,6 +714,32 @@ const Settings: NextPageWithLayout = () => {
 
       <Section>
         <Flex stack>
+          <H2>List</H2>
+
+          <H5>Unordered</H5>
+
+          <List>
+            <ListItem>Here is the first item.</ListItem>
+            <ListItem>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas metus turpis, auctor eget imperdiet in,
+              tincidunt ac sem. Aliquam erat volutpat. Integer eleifend metus orci, ac vehicula tortor luctus non.
+            </ListItem>
+          </List>
+
+          <H5>Ordered</H5>
+
+          <List as="ol">
+            <ListItem>Here is the first item.</ListItem>
+            <ListItem>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas metus turpis, auctor eget imperdiet in,
+              tincidunt ac sem. Aliquam erat volutpat. Integer eleifend metus orci, ac vehicula tortor luctus non.
+            </ListItem>
+          </List>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
           <H2>Message</H2>
 
           <Message content="Here is an info message." />
@@ -856,7 +884,7 @@ const Settings: NextPageWithLayout = () => {
       <Section>
         <Flex stack>
           <H2>Text Link</H2>
-          <Flex>
+          <Flex wrap>
             <Link href="/project-settings" passHref>
               <TextLink>Primary Link</TextLink>
             </Link>

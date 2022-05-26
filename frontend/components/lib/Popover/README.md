@@ -50,17 +50,31 @@ import * as Popover from '@/components/lib/Popover';
 ## Custom Trigger
 
 ```tsx
-import * as Popover from '@/components/lib/popover';
-
-...
-
 <Popover.Root>
   <Popover.Trigger asChild>
     <Button>Open</Button>
   </Popover.Trigger>
 
+  <Popover.Content>...</Popover.Content>
+</Popover.Root>
+```
+
+## Anchoring Without Trigger
+
+Sometimes you need to open the popover programatically - without a trigger. In these cases, you can use the `Anchor` component to define where the popover should be displayed instead of using the `Trigger` component.
+
+```tsx
+const [isOpen, setIsOpen] = useState(false);
+
+...
+
+<Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+  <Popover.Anchor asChild>
+    <P>Popover Near Me</P>
+  </Popover.Anchor>
+
   <Popover.Content>
-   ...
+    ...
   </Popover.Content>
 </Popover.Root>
 ```

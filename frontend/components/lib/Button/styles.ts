@@ -118,6 +118,8 @@ export const Button = styled('button', {
       small: {
         fontSize: 'var(--font-size-body-small)',
         height: 'var(--size-input-s)',
+        padding: '0 var(--space-s)',
+        borderRadius: 'var(--border-radius-xs)',
       },
       standard: {
         fontSize: 'var(--font-size-body)',

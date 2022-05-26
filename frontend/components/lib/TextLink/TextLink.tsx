@@ -7,6 +7,7 @@ export const TextLink = styled('a', {
   fontFamily: 'var(--font-body)',
   transition: 'color var(--transition-speed)',
   borderBottom: '1px solid',
+  whiteSpace: 'nowrap',
 
   '&:focus': {
     outline: 'var(--focus-outline)',

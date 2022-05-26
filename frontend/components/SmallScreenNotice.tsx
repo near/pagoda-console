@@ -1,37 +1,46 @@
-import Circles from '@/public/circles.svg';
-import Logo from '@/public/images/pagoda-logo.svg';
+import { useRouter } from 'next/router';
+
+import Logo from '@/public/images/brand/pagoda-logo.svg';
+import Circles from '@/public/images/circles.svg';
+
+import { Container } from './lib/Container';
+import { Flex } from './lib/Flex';
+import { H1 } from './lib/Heading';
+import { P } from './lib/Paragraph';
 
 export default function SmallScreenNotice() {
+  const router = useRouter();
+
+  if (router.pathname === '/ui') return null;
+
   return (
-    <div className="smallScreenOverlay">
+    <Flex
+      align="center"
+      justify="center"
+      css={{
+        display: 'none',
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1000,
+        background: 'var(--color-surface-3)',
+
+        '@tablet': {
+          display: 'flex',
+        },
+      }}
+    >
       <Circles style={{ position: 'absolute', top: 0, right: 0 }} />
-      <div className="centeredContainer">
-        <div className="contentContainer">
-          <h1>See you on the big screen!</h1>
-          <p>
+
+      <Container size="s">
+        <Flex stack gap="l">
+          <H1>See you on the big screen!</H1>
+          <P>
             We’re working to deliver the best mobile experience possible. In the meantime, please visit us on a device
             with a larger screen.
-          </p>
-          <Logo style={{ height: '40px', marginTop: '2.5rem' }} />
-        </div>
-      </div>
-      <style jsx>{`
-        .smallScreenOverlay {
-          width: 100%;
-          height: 100vh;
-          background: var(--color-accent-light-green);
-        }
-        .centeredContainer {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: 100%;
-        }
-        .contentContainer {
-          max-width: 25em;
-          padding: 3rem;
-        }
-      `}</style>
-    </div>
+          </P>
+          <Logo style={{ height: '40px' }} />
+        </Flex>
+      </Container>
+    </Flex>
   );
 }

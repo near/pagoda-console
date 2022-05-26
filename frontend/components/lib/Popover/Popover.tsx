@@ -13,6 +13,7 @@ type CloseButtonProps = ComponentProps<typeof S.CloseButton>;
 export const Root = PopoverPrimitive.Root;
 export const Trigger = PopoverPrimitive.Trigger;
 export const Close = PopoverPrimitive.Close;
+export const Anchor = PopoverPrimitive.Anchor;
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, color = 'neutral', ...props }, ref) => {
   return (

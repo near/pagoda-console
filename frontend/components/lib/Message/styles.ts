@@ -7,7 +7,6 @@ export const Container = styled('div', {
   padding: 'var(--space-m)',
   borderRadius: 'var(--border-radius-m)',
   background: 'var(--color-surface-2)',
-  border: '1px solid var(--color-surface-1)',
 
   variants: {
     type: {

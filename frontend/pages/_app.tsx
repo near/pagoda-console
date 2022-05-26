@@ -22,6 +22,7 @@ import { SWRConfig, useSWRConfig } from 'swr';
 import { DowntimeMode } from '@/components/DowntimeMode';
 import { SimpleLayout } from '@/components/layouts/SimpleLayout';
 import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
+import SmallScreenNotice from '@/components/SmallScreenNotice';
 import { usePageTracker } from '@/hooks/page-tracker';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
@@ -95,6 +96,8 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         </Head>
 
         <FeatherIconSheet />
+
+        <SmallScreenNotice />
 
         {config.downtimeMode ? (
           <SimpleLayout>

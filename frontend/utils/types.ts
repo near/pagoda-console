@@ -3,7 +3,6 @@ import type { ReactElement, ReactNode } from 'react';
 
 export type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode;
-  getFooter?: () => ReactElement;
 };
 export type NetOption = 'MAINNET' | 'TESTNET';
 export type TutorialOption = 'NFT_MARKET' | 'CROSSWORD';
