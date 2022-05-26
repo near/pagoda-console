@@ -27,7 +27,6 @@ export const Group = styled('div', {
           flexShrink: 0,
           flexGrow: 0,
           width: '12rem',
-          textAlign: 'right',
         },
       },
     },
