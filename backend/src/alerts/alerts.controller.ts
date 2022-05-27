@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { BearerAuthGuard } from 'src/auth/bearer-auth.guard';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
-import VError from 'verror';
+import { VError } from 'verror';
 import { AlertsService } from './alerts.service';
 import { CreateAlertRuleDto, CreateAlertRuleSchema } from './dto';
 

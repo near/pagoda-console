@@ -16,7 +16,7 @@ import {
 } from '@prisma/client';
 import { AppConfig } from 'src/config/validate';
 import { PrismaService } from 'src/prisma.service';
-import VError from 'verror';
+import { VError } from 'verror';
 
 type FnCallRuleSchema = { function: FnCallRule['function'] };
 type TxRuleSchema = { action?: TxRule['action'] };
