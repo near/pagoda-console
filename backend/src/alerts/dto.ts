@@ -28,9 +28,9 @@ export interface CreateEventRule {
   // data: object;
 }
 export const CreateEventRuleSchema = Joi.object({
-  standard: Joi.string(),
-  version: Joi.string(),
-  event: Joi.string(),
+  standard: Joi.string().required(),
+  version: Joi.string().required(),
+  event: Joi.string().required(),
   // data: Joi.object(),
 });
 
@@ -39,8 +39,10 @@ export interface CreateAcctBalRule {
   amount: number;
 }
 export const CreateAcctBalRuleSchema = Joi.object({
-  comparator: Joi.string(),
-  amount: Joi.number(),
+  comparator: Joi.string()
+    .allow('EQ', 'NEQ', 'LT', 'LTE', 'GT', 'GTE')
+    .required(),
+  amount: Joi.number().required(),
 });
 
 // create alert rule
@@ -54,18 +56,19 @@ export interface CreateAlertRuleDto {
 export const CreateAlertRuleSchema = Joi.object({
   name: Joi.string(),
   type: Joi.string().required(),
-  // TODO figure out how to perform validation on the rule.
-  // This one doesn't work
-  rule: Joi.any(), //Joi.alternatives().conditional('.type', {
-  // switch: [
-  //   { is: 'TX_SUCCESS', then: CreateTxRuleSchema },
-  //   { is: 'TX_FAILURE', then: CreateTxRuleSchema },
-  //   { is: 'FN_CALL', then: CreateFnCallRuleSchema },
-  //   { is: 'EVENT', then: CreateEventRuleSchema },
-  //   { is: 'ACCT_BAL_PCT', then: CreateAcctBalRuleSchema },
-  //   { is: 'ACCT_BAL_NUM', then: CreateAcctBalRuleSchema },
-  // ],
-  // }),
+  // The field `rule` is required but you can leave it empty if the schema permits it. E.g. `rule: {}`
+  rule: Joi.alternatives()
+    .conditional('type', {
+      switch: [
+        { is: 'TX_SUCCESS', then: CreateTxRuleSchema },
+        { is: 'TX_FAILURE', then: CreateTxRuleSchema },
+        { is: 'FN_CALL', then: CreateFnCallRuleSchema },
+        { is: 'EVENT', then: CreateEventRuleSchema },
+        { is: 'ACCT_BAL_PCT', then: CreateAcctBalRuleSchema },
+        { is: 'ACCT_BAL_NUM', then: CreateAcctBalRuleSchema },
+      ],
+    })
+    .required(),
   contract: Joi.number().required(),
   environment: Joi.number().required(),
 });
