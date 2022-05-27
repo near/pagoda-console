@@ -9,7 +9,6 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { Alert } from 'react-bootstrap';
 import type { SubmitErrorHandler, SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
@@ -21,6 +20,7 @@ import { Flex } from './lib/Flex';
 import * as Form from './lib/Form';
 import { HR } from './lib/HorizontalRule';
 import { TextLink } from './lib/TextLink';
+import { ErrorModal } from './modals/ErrorModal';
 
 const onFocus = () => {
   getAuth().currentUser?.reload();
@@ -35,7 +35,7 @@ interface RegisterFormData {
 
 export function RegisterForm() {
   const { getValues, register, handleSubmit, formState, watch } = useForm<RegisterFormData>();
-  const [errorAlert, setErrorAlert] = useState<string | null>();
+  const [registerError, setRegisterError] = useState<string | null>();
   const router = useRouter();
 
   useEffect(() => {
@@ -75,11 +75,12 @@ export function RegisterForm() {
   const handleInvalidSubmit: SubmitErrorHandler<RegisterFormData> = () => {
     analytics.track('DC Submitted email registration form');
     analytics.track('DC Registration form validation failed');
+    return false;
   };
 
   const signUpWithEmail: SubmitHandler<RegisterFormData> = async ({ email, password }) => {
     try {
-      setErrorAlert('');
+      setRegisterError('');
       analytics.track('DC Submitted email registration form');
       const auth = getAuth();
       const registerResult = await createUserWithEmailAndPassword(auth, email, password);
@@ -101,10 +102,10 @@ export function RegisterForm() {
 
       switch (errorCode) {
         case 'auth/email-already-in-use':
-          setErrorAlert('Email is already in use');
+          setRegisterError('Email is already in use');
           break;
         default:
-          setErrorAlert(errorMessage);
+          setRegisterError(errorMessage);
       }
 
       analytics.track('DC Signed up with email', {
@@ -114,10 +115,8 @@ export function RegisterForm() {
     }
   };
 
-  const isSubmitting = formState.isSubmitting || formState.isSubmitSuccessful;
-
   return (
-    <Form.Root disabled={isSubmitting} onSubmit={handleSubmit(signUpWithEmail, handleInvalidSubmit)}>
+    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(signUpWithEmail, handleInvalidSubmit)}>
       <Flex stack gap="l" align="center">
         <Flex stack>
           <Form.Group>
@@ -174,15 +173,11 @@ export function RegisterForm() {
           </Form.Group>
         </Flex>
 
+        <ErrorModal error={registerError} setError={setRegisterError} />
+
         <Button expand type="submit">
           Sign Up
         </Button>
-
-        {errorAlert && (
-          <div className="alertContainer">
-            <Alert variant="danger">{errorAlert}</Alert>
-          </div>
-        )}
 
         <HR />
 

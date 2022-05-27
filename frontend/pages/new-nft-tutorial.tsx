@@ -50,8 +50,6 @@ const NewNftTutorial: NextPageWithLayout = () => {
     }
   };
 
-  const isSubmitting = formState.isSubmitting || formState.isSubmitSuccessful;
-
   return (
     <Container size="m">
       <Flex gap="l">
@@ -69,7 +67,7 @@ const NewNftTutorial: NextPageWithLayout = () => {
             }
           </P>
 
-          <Form.Root disabled={isSubmitting} onSubmit={handleSubmit(createProject)}>
+          <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(createProject)}>
             <Flex stack align="end">
               <Form.Group>
                 <Form.Label htmlFor="projectName">Project Name</Form.Label>
@@ -82,7 +80,7 @@ const NewNftTutorial: NextPageWithLayout = () => {
                 <Form.Feedback>{formState.errors.projectName?.message}</Form.Feedback>
               </Form.Group>
 
-              <Button type="submit" loading={isSubmitting}>
+              <Button type="submit" loading={formState.isSubmitting}>
                 Create Project
               </Button>
             </Flex>

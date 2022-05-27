@@ -76,7 +76,7 @@ export function EmailForm({ isAuthenticating, setIsAuthenticating }: Props) {
     }
   };
 
-  const isSubmitting = formState.isSubmitting || formState.isSubmitSuccessful || isAuthenticating;
+  const isSubmitting = formState.isSubmitting || isAuthenticating;
 
   return (
     <>
