@@ -667,6 +667,7 @@ export default function TableOfContents() {
               display: block;
             }
           }
+
           .routeWrapper {
             border-left: 1px solid #abb5be;
             font-size: 1rem;

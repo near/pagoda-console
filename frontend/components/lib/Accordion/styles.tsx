@@ -13,7 +13,7 @@ const closeAnimation = keyframes({
 });
 
 export const Accordion = styled(AccordionPrimitive.Root, {
-  '--animation-speed': '200ms',
+  '--animation-speed': '300ms',
   '--border-radius': 'var(--border-radius-m)',
   display: 'flex',
   flexDirection: 'column',

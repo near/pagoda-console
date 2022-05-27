@@ -13,13 +13,14 @@ const closeAnimation = keyframes({
 });
 
 export const Content = styled(TooltipPrimitive.Content, {
-  borderRadius: 'var(--border-radius-s)',
+  borderRadius: 'var(--border-radius-xs)',
   padding: 'var(--space-s) var(--space-m)',
   display: 'flex',
   alignItems: 'center',
   gap: 'var(--space-s)',
   backgroundColor: 'var(--background-color)',
   boxShadow: 'var(--shadow-softer)',
+  zIndex: 1000,
 
   '&[data-state="delayed-open"]': {
     animation: `${openAnimation} 200ms`,

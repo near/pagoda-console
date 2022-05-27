@@ -20,6 +20,12 @@ export const Flex = styled('div', {
       },
     },
 
+    autoWidth: {
+      true: {
+        width: 'auto',
+      },
+    },
+
     gap: {
       none: {
         gap: '0',

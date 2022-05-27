@@ -1,5 +1,6 @@
 import { Table } from 'react-bootstrap';
 
+import { P } from '../lib/Paragraph';
 import { Anchor, H1Anchor, H2Anchor, H3Anchor } from './Anchors';
 import Blockquote from './Blockquote';
 import MdxCodeBlock from './MdxCodeBlock';
@@ -14,6 +15,7 @@ const components = {
   h2: H2Anchor,
   h3: H3Anchor,
   a: Anchor,
+  p: P,
   Anchor: Anchor,
   code: MdxCodeBlock,
   Info: (props: any) => {
