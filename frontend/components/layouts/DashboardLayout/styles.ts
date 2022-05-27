@@ -3,7 +3,7 @@ import { styled } from '@/styles/stitches';
 export const Wrapper = styled('div', {
   display: 'flex',
   flexDirection: 'column',
-  height: '100%',
+  minHeight: '100%',
   width: '100%',
 });
 

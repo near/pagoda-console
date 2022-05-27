@@ -1,6 +1,10 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
+import { Box } from '../lib/Box';
+import { Flex } from '../lib/Flex';
+import { TextLink } from '../lib/TextLink';
+
 interface Route {
   label: string;
   path: string;
@@ -606,11 +610,16 @@ const ROUTES: Route[] = [
 // Top-level links are not children but every link under the top-level is considered a child link.
 function RouteList({ routes, isChild = false }: { routes: Route[]; isChild?: boolean }) {
   return (
-    <ul>
+    <Box
+      as="ul"
+      css={{
+        paddingLeft: isChild ? 'var(--space-m)' : '0',
+      }}
+    >
       {routes.map((route) => (
         <RouteItem key={route.path} route={route} isChild={isChild} />
       ))}
-    </ul>
+    </Box>
   );
 }
 
@@ -626,70 +635,57 @@ function RouteItem({ route, isChild }: { route: Route; isChild: boolean }) {
   const isCurrentRoute = router.pathname.startsWith(`${BASE_PATH}${route.path}`);
 
   return (
-    <>
-      <li>
-        {path.startsWith('#') && <a href={path}>{route.label}</a>}
-        {!path.startsWith('#') && (
-          <Link href={path}>
-            <a>{route.label}</a>
-          </Link>
-        )}
-        {(isCurrentRoute || isChild) && route.children && <RouteList routes={route.children} isChild={true} />}
-      </li>
-      <style jsx>{`
-        a {
-          text-decoration: none;
-        }
-      `}</style>
-    </>
+    <Box
+      as="li"
+      css={{
+        lineHeight: 1.2,
+      }}
+    >
+      {path.startsWith('#') && (
+        <TextLink
+          href={path}
+          css={{ fontWeight: 400, border: 'none', whiteSpace: 'pre-line', padding: 'var(--space-xs) 0' }}
+        >
+          {route.label}
+        </TextLink>
+      )}
+      {!path.startsWith('#') && (
+        <Link href={path} passHref>
+          <TextLink
+            color="neutral"
+            css={{ fontWeight: 400, border: 'none', whiteSpace: 'pre-line', padding: 'var(--space-xs) 0' }}
+          >
+            {route.label}
+          </TextLink>
+        </Link>
+      )}
+      {(isCurrentRoute || isChild) && route.children && <RouteList routes={route.children} isChild={true} />}
+    </Box>
   );
 }
 
 // TODO make this component dynamic based on tutorial project
 export default function TableOfContents() {
   return (
-    <>
-      <div className="smallScreen"></div>
-      <div className="largeScreen">
-        <div className="routeWrapper">
-          <RouteList routes={ROUTES} />
-        </div>
-        <style jsx>{`
-          .smallScreen {
-            display: none;
-          }
+    <Box
+      css={{
+        width: '28rem',
+        maxHeight: 'calc(100vh - calc(var(--size-header-height) + var(--space-l)))',
+        position: 'sticky',
+        top: 'calc(var(--size-header-height) + var(--space-l))',
+        borderLeft: '1px solid var(--color-surface-1)',
+        paddingLeft: 'var(--space-l)',
+        overflowY: 'auto',
+        scrollBehavior: 'smooth',
 
-          @media only screen and (max-width: 79.9rem) {
-            .largeScreen {
-              display: none;
-            }
-            .smallScreen {
-              display: block;
-            }
-          }
-
-          .routeWrapper {
-            border-left: 1px solid #abb5be;
-            font-size: 1rem;
-            text-decoration: none;
-            position: fixed;
-            top: 8rem;
-            margin-right: 2rem;
-            left: calc(var(--layout-sidebar-width) + 7.5rem + 46rem + 2rem);
-          }
-          .routeWrapper :global(li) {
-            padding-bottom: 0.25rem;
-          }
-          .routeWrapper :global(ul) {
-            list-style-type: none;
-          }
-          .routeWrapper :global(ul) :global(ul) {
-            color: var(--color-primary);
-            padding-top: 0.25rem;
-            padding-left: 1rem;
-          }
-        `}</style>
-      </div>
-    </>
+        '@media (max-width: 1280px)': {
+          display: 'none',
+        },
+      }}
+    >
+      <Flex stack>
+        <RouteList routes={ROUTES} />
+      </Flex>
+    </Box>
   );
 }

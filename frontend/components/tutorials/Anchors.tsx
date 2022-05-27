@@ -52,8 +52,7 @@ export function H2Anchor(props: any) {
   return (
     <H2
       css={{
-        marginBottom: '1.5rem',
-        marginTop: '3rem',
+        marginTop: '2rem',
         a: {
           visibility: 'hidden',
           textDecoration: 'none',
@@ -77,8 +76,7 @@ export function H3Anchor(props: any) {
   return (
     <H3
       css={{
-        marginBottom: '1.5rem',
-        marginTop: '3rem',
+        marginTop: '2rem',
         a: {
           visibility: 'hidden',
           textDecoration: 'none',

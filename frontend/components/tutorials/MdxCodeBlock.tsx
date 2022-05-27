@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 
 import CodeBlock from '../CodeBlock';
+import { TextLink } from '../lib/TextLink';
 
 export interface GitHubReference {
   url: string;
@@ -34,12 +35,13 @@ export default function MdxCodeBlock(props: any) {
       <>
         <CodeBlock language={props.className.replace('language-', '')}>{content}</CodeBlock>
         <div className="githubLink">
-          <a href={props.children.slice(0, -1)} target="_blank" rel="noreferrer">
+          <TextLink color="neutral" target="_blank" rel="noreferrer" css={{ fontWeight: 400 }}>
             See full example on Github
-          </a>
+          </TextLink>
         </div>
         <style jsx>{`
           .githubLink {
+            padding-top: 0.5rem;
             text-align: center;
           }
         `}</style>
@@ -52,11 +54,6 @@ export default function MdxCodeBlock(props: any) {
         <div className="codeWrapper">
           <CodeBlock language={props.className.replace('language-', '')}>{props.children.slice(0, -1)}</CodeBlock>
         </div>
-        <style jsx>{`
-          .codeWrapper {
-            margin-bottom: -1rem;
-          }
-        `}</style>
       </>
     );
   } else if (props.children.split('\n').length > 1) {
@@ -66,11 +63,6 @@ export default function MdxCodeBlock(props: any) {
         <div className="codeWrapper">
           <CodeBlock language="text">{props.children.slice(0, -1)}</CodeBlock>
         </div>
-        <style jsx>{`
-          .codeWrapper {
-            margin-bottom: -1rem;
-          }
-        `}</style>
       </>
     );
   }
@@ -80,13 +72,16 @@ export default function MdxCodeBlock(props: any) {
       <code>{props.children}</code>
       <style jsx>{`
         code {
-          border-style: solid;
-          border-width: 0.1rem;
           border-radius: 0.4rem;
-          border-color: var(--color-light-gray);
-          background-color: var(--color-white);
-          padding: 0.1rem;
+          border: none;
+          background-color: var(--color-surface-1);
+          padding: 0.1rem 0.3rem;
           margin: 0.1rem;
+          font-size: 0.875em;
+          color: #e43b8f;
+          word-wrap: break-word;
+          font-family: Source Code Pro, monospace;
+          background
         }
       `}</style>
     </>
