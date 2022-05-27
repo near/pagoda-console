@@ -54,16 +54,18 @@ export interface CreateAlertRuleDto {
 export const CreateAlertRuleSchema = Joi.object({
   name: Joi.string(),
   type: Joi.string().required(),
-  rule: Joi.alternatives().conditional('.type', {
-    switch: [
-      { is: 'TX_SUCCESS', then: CreateTxRuleSchema },
-      { is: 'TX_FAILURE', then: CreateTxRuleSchema },
-      { is: 'FN_CALL', then: CreateFnCallRuleSchema },
-      { is: 'EVENT', then: CreateEventRuleSchema },
-      { is: 'ACCT_BAL_PCT', then: CreateAcctBalRuleSchema },
-      { is: 'ACCT_BAL_NUM', then: CreateAcctBalRuleSchema },
-    ],
-  }),
+  // TODO figure out how to perform validation on the rule.
+  // This one doesn't work
+  rule: Joi.any(), //Joi.alternatives().conditional('.type', {
+  // switch: [
+  //   { is: 'TX_SUCCESS', then: CreateTxRuleSchema },
+  //   { is: 'TX_FAILURE', then: CreateTxRuleSchema },
+  //   { is: 'FN_CALL', then: CreateFnCallRuleSchema },
+  //   { is: 'EVENT', then: CreateEventRuleSchema },
+  //   { is: 'ACCT_BAL_PCT', then: CreateAcctBalRuleSchema },
+  //   { is: 'ACCT_BAL_NUM', then: CreateAcctBalRuleSchema },
+  // ],
+  // }),
   contract: Joi.number().required(),
   environment: Joi.number().required(),
 });

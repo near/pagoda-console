@@ -60,71 +60,11 @@ export class AlertsService {
   ): Promise<{ name: AlertRule['name']; id: AlertRule['id'] }> {
     let alert;
 
-    // let ruleInput;
-
-    // switch (type) {
-    //   case 'FN_CALL':
-    //     const r = rule as FnCallRuleSchema;
-    //     ruleInput = {
-    //       fnCallRule: {
-    //         create: {
-    //           function: r.function,
-    //         },
-    //       },
-    //     };
-    //     break;
-    //   case 'EVENT':
-    //     const r = rule as EventRuleSchema;
-    //     ruleInput = {
-    //       eventRule: {
-    //         create: {
-    //           function: r.function,
-    //         },
-    //       },
-    //     };
-    //     break;
-    // }
-
     try {
       const alertInput: Prisma.AlertRuleCreateInput = {
         name: name || (await this.buildName(contract, type, rule)),
         description: '',
         type,
-        //...ruleInput,
-        // txRule: (type === 'TX_SUCCESS' || type === 'TX_FAILURE') && {
-        //   create: {
-        //     action: (rule as TxRuleSchema).action,
-        //   },
-        // },
-        fnCallRule:
-          type === 'FN_CALL'
-            ? {
-                create: {
-                  function: (rule as FnCallRuleSchema).function,
-                  params: {},
-                },
-              }
-            : undefined,
-        eventRule:
-          type === 'EVENT'
-            ? {
-                create: {
-                  standard: (rule as EventRuleSchema).standard,
-                  version: (rule as EventRuleSchema).version,
-                  event: (rule as EventRuleSchema).event,
-                  data: {},
-                },
-              }
-            : undefined,
-        acctBalRule:
-          type === 'ACCT_BAL_NUM' || type === 'ACCT_BAL_PCT'
-            ? {
-                create: {
-                  comparator: (rule as AcctBalRuleSchema).comparator,
-                  amount: (rule as AcctBalRuleSchema).amount,
-                },
-              }
-            : undefined,
         contract: {
           connect: {
             id: contract,
@@ -146,6 +86,44 @@ export class AlertsService {
           },
         },
       };
+
+      switch (type) {
+        case 'TX_SUCCESS':
+        case 'TX_FAILURE':
+          alertInput.txRule = {
+            create: {
+              action: (rule as TxRuleSchema).action,
+            },
+          };
+          break;
+        case 'FN_CALL':
+          alertInput.fnCallRule = {
+            create: {
+              function: (rule as FnCallRuleSchema).function,
+              params: {},
+            },
+          };
+          break;
+        case 'EVENT':
+          alertInput.eventRule = {
+            create: {
+              standard: (rule as EventRuleSchema).standard,
+              version: (rule as EventRuleSchema).version,
+              event: (rule as EventRuleSchema).event,
+              data: {},
+            },
+          };
+          break;
+        case 'ACCT_BAL_NUM':
+        case 'ACCT_BAL_PCT':
+          alertInput.acctBalRule = {
+            create: {
+              comparator: (rule as AcctBalRuleSchema).comparator,
+              amount: (rule as AcctBalRuleSchema).amount,
+            },
+          };
+          break;
+      }
 
       alert = await this.prisma.alertRule.create({
         data: alertInput,

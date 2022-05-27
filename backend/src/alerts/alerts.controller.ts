@@ -27,45 +27,6 @@ export class AlertsController {
       throw mapError(e);
     }
   }
-
-  // @Post('createTxSuccessRule')
-  // @UseGuards(BearerAuthGuard)
-  // @UsePipes(new JoiValidationPipe(CreateAlertRuleSchema))
-  // async createTxSuccessRule(
-  //   @Request() req,
-  //   @Body() dto: CreateTxSuccessRuleDto,
-  // ) {
-  //   try {
-  //     return await this.alertsService.createTxSuccessRule(req.user, dto);
-  //   } catch (e) {
-  //     throw mapError(e);
-  //   }
-  // }
-
-  // @Post('createTxFailureRule')
-  // @UseGuards(BearerAuthGuard)
-  // @UsePipes(new JoiValidationPipe(CreateAlertRuleSchema))
-  // async createTxFailureRule(
-  //   @Request() req,
-  //   @Body() dto: CreateTxFailureRuleDto,
-  // ) {
-  //   try {
-  //     return await this.alertsService.createTxFailureRule(req.user, dto);
-  //   } catch (e) {
-  //     throw mapError(e);
-  //   }
-  // }
-
-  // @Post('createFnCallRule')
-  // @UseGuards(BearerAuthGuard)
-  // @UsePipes(new JoiValidationPipe(CreateAlertRuleSchema))
-  // async createFnCallRule(@Request() req, @Body() dto: CreateFnCallRuleDto) {
-  //   try {
-  //     return await this.alertsService.createFnCallRule(req.user, dto);
-  //   } catch (e) {
-  //     throw mapError(e);
-  //   }
-  // }
 }
 
 function mapError(e: Error) {
