@@ -23,6 +23,7 @@ import * as Popover from '@/components/lib/Popover';
 import { Section } from '@/components/lib/Section';
 import * as Tabs from '@/components/lib/Tabs';
 import { TextLink } from '@/components/lib/TextLink';
+import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { ThemeToggle } from '@/components/ThemeToggle/ThemeToggle';
 import { styled } from '@/styles/stitches';
@@ -405,6 +406,16 @@ const Settings: NextPageWithLayout = () => {
             </DropdownMenu.Root>
 
             <DropdownMenu.Root>
+              <DropdownMenu.Button css={{ width: '20rem' }}>
+                <TextOverflow>Size + Trucation - This Text Will Get Cut Off</TextOverflow>
+              </DropdownMenu.Button>
+              <DropdownMenu.Content>
+                <DropdownMenu.Item>New Tab</DropdownMenu.Item>
+                <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+
+            <DropdownMenu.Root>
               <DropdownMenu.Button size="small">Small</DropdownMenu.Button>
               <DropdownMenu.Content>
                 <DropdownMenu.Item>New Tab</DropdownMenu.Item>
@@ -589,6 +600,7 @@ const Settings: NextPageWithLayout = () => {
             onSubmit={handleSubmit((value) => {
               alert(JSON.stringify(value));
             })}
+            css={{ maxWidth: 'var(--size-max-container-width-xs)' }}
           >
             <Flex stack gap="l">
               <Form.Group>
@@ -622,11 +634,6 @@ const Settings: NextPageWithLayout = () => {
               <Form.Group>
                 <Form.Label>Disabled</Form.Label>
                 <Form.Input disabled />
-              </Form.Group>
-
-              <Form.Group maxWidth="xl">
-                <Form.Label>Max Width XL</Form.Label>
-                <Form.Input />
               </Form.Group>
 
               <Form.Fieldset>
@@ -798,6 +805,10 @@ const Settings: NextPageWithLayout = () => {
           <Message type="success" content="Here is a success message." />
           <Message type="success" content="With a custom icon." icon="zap" />
           <Message type="error" content={errorMessage} dismiss={() => setErrorMessage('')} />
+          <Message>
+            <H5>Custom Content</H5>
+            <P>Hello there! Here is more content.</P>
+          </Message>
         </Flex>
       </Section>
 
@@ -949,6 +960,16 @@ const Settings: NextPageWithLayout = () => {
               <TextLink size="small">Small Link</TextLink>
             </Link>
           </Flex>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
+          <H2>Text Overflow</H2>
+
+          <P css={{ maxWidth: '18rem' }}>
+            <TextOverflow>Sometimes you need to cut off text at a certain point.</TextOverflow>
+          </P>
         </Flex>
       </Section>
 

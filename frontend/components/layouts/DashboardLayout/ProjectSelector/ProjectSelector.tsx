@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { Badge } from '@/components/lib/Badge';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
+import { TextOverflow } from '@/components/lib/TextOverflow';
 import { useProjects } from '@/hooks/projects';
 import { useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
@@ -32,14 +33,15 @@ export function ProjectSelector() {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button color="neutral">{project?.name || '...'}</DropdownMenu.Button>
+      <DropdownMenu.Button color="neutral" css={{ width: '22rem' }}>
+        <TextOverflow>{project?.name || '...'}</TextOverflow>
+      </DropdownMenu.Button>
 
       <DropdownMenu.Content align="start">
         {otherProjects?.map((p) => {
           return (
             <DropdownMenu.Item key={p.id} onSelect={() => onSelectProject(p)}>
               {p.name}
-
               {p.tutorial && <Badge size="small">Tutorial</Badge>}
             </DropdownMenu.Item>
           );

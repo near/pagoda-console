@@ -10,7 +10,7 @@ export const Indicator = styled('span', {
   borderRadius: 'var(--border-radius-xs)',
   background: 'var(--color-surface-1)',
   border: '1px solid var(--color-surface-5)',
-  transition: 'background var(--transition-speed), border-color var(--transition-speed)',
+  transition: 'var(--transitions)',
 
   svg: {
     width: '0.6rem',

@@ -5,7 +5,7 @@ export const TextLink = styled('a', {
   cursor: 'pointer',
   fontWeight: 700,
   fontFamily: 'var(--font-body)',
-  transition: 'color var(--transition-speed)',
+  transition: 'var(--transitions)',
   borderBottom: '1px solid',
   whiteSpace: 'nowrap',
 

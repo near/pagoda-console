@@ -50,7 +50,7 @@ export const NavLink = styled('a', {
   cursor: 'pointer',
   padding: 'var(--space-s)',
   borderRadius: 'var(--border-radius-s)',
-  transition: 'color var(--transition-speed), background var(--transition-speed)',
+  transition: 'var(--transitions)',
 
   '&:hover': {
     color: 'var(--color-cta-primary)',

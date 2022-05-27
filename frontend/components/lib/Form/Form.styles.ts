@@ -104,7 +104,7 @@ export const Input = styled('input', {
   height: 'var(--size-input-m)',
   padding: '0 var(--space-m)',
   borderRadius: 'var(--border-radius-s)',
-  transition: 'background var(--transition-speed), border var(--transition-speed), opacity var(--transition-speed)',
+  transition: 'var(--transitions)',
 
   '&::placeholder': {
     fontSize: 'var(--font-size-body)',

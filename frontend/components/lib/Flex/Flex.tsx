@@ -21,6 +21,9 @@ export const Flex = styled('div', {
     },
 
     gap: {
+      none: {
+        gap: '0',
+      },
       xs: {
         gap: 'var(--space-xs)',
       },

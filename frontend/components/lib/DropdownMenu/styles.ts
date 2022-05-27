@@ -53,7 +53,7 @@ const itemStyles: StitchesCSS = {
   position: 'relative',
   userSelect: 'none',
   cursor: 'pointer',
-  transition: 'background var(--transition-speed)',
+  transition: 'var(--transitions)',
 
   '&[data-disabled]': {
     opacity: '0.3',

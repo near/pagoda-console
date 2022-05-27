@@ -69,6 +69,24 @@ import * as DropdownMenu from '@/components/lib/DropdownMenu';
 </DropdownMenu.Root>
 ```
 
+## Text Overflow
+
+When a user selects a value that can have a really long text value, it's usually necessary to truncate the text at a certain point. You can implement this using the `TextOverflow` component like so:
+
+```tsx
+import { TextOverflow } from '@/components/lib/TextOverflow';
+
+...
+
+<DropdownMenu.Root>
+  <DropdownMenu.Button css={{ width: '15rem' }}>
+    <TextOverflow>Some Really Long Content Would Go Here</TextOverflow>
+  </DropdownMenu.Button>
+
+  <DropdownMenu.Content>...</DropdownMenu.Content>
+</DropdownMenu.Root>
+```
+
 ## Nested Menus
 
 In the above example, note the used of the `nested` prop on the nested menu content component: `<DropdownMenu.Content nested>`. This will set proper offsets for the menu and arrow for nested menus. This prop shouldn't be used on the root menu - only on child menus inside.

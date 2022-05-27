@@ -1,6 +1,8 @@
 import { styled } from '@/styles/stitches';
 
 export const Svg = styled('svg', {
+  flexShrink: 0,
+
   variants: {
     color: {
       current: {

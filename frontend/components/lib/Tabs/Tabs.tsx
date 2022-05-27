@@ -34,17 +34,13 @@ export const Trigger = styled(TabsPrimitive.Trigger, {
   fontWeight: 500,
   justifyContent: 'center',
   padding: 'var(--space-m)',
-  transition: 'color var(--transition-speed), background var(--transition-speed), box-shadow var(--transition-speed)',
+  transition: 'var(--transitions)',
   userSelect: 'none',
   whiteSpace: 'nowrap',
   border: '1px solid transparent',
   borderTopRightRadius: 'var(--border-radius-m)',
   borderTopLeftRadius: 'var(--border-radius-m)',
   borderBottom: 'none',
-
-  '> *': {
-    transition: 'color var(--transition-speed)',
-  },
 
   '&:hover': {
     color: 'var(--color-text-1)',

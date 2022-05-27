@@ -9,6 +9,7 @@ export const Content = styled('span', {
   display: 'flex',
   gap: 'var(--space-s)',
   alignItems: 'center',
+  overflow: 'hidden',
 });
 
 export const Button = styled('button', {
@@ -22,7 +23,7 @@ export const Button = styled('button', {
   fontFamily: 'var(--font-code)',
   padding: '0 var(--space-m)',
   flexShrink: 0,
-  transition: 'background var(--transition-speed), opacity var(--transition-speed)',
+  transition: 'var(--transitions)',
   position: 'relative',
   userSelect: 'none',
   whiteSpace: 'nowrap',

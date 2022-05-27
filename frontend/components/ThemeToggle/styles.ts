@@ -23,7 +23,7 @@ export const Button = styled('button', {
   cursor: 'pointer',
   padding: 'var(--space-s)',
   borderRadius: 'var(--border-radius-s)',
-  transition: 'color var(--transition-speed), background var(--transition-speed)',
+  transition: 'var(--transitions)',
   whiteSpace: 'nowrap',
 
   '&:hover': {

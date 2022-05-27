@@ -18,8 +18,9 @@ export function EnvironmentSelector() {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button color="neutral">
-        <Icon environment={environment} /> {environment?.name || '...'}
+      <DropdownMenu.Button color="neutral" css={{ width: '11rem' }}>
+        <Icon environment={environment} />
+        {environment?.name || '...'}
       </DropdownMenu.Button>
 
       <DropdownMenu.Content align="start">

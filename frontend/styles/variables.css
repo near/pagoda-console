@@ -5,6 +5,7 @@
   --border-radius-s: 8px;
   --border-radius-m: 12px;
   --border-radius-l: 20px;
+  --border-radius-xl: 40px;
 
   --color-text-1: #f5f5f5;
   --color-text-2: #bcc3cd;
@@ -92,6 +93,8 @@
   --space-xl: 4rem;
 
   --transition-speed: 150ms;
+  --transitions: color var(--transition-speed), border-color var(--transition-speed),
+    background-color var(--transition-speed), box-shadow var(--transition-speed), opacity var(--transition-speed);
 }
 
 .light-theme,
