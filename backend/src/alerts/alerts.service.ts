@@ -58,6 +58,8 @@ export class AlertsService {
       rule: Rule;
     },
   ): Promise<{ name: AlertRule['name']; id: AlertRule['id'] }> {
+    await this.checkUserPermission(user.id, environment, contract);
+
     let alert;
 
     try {
@@ -230,6 +232,49 @@ export class AlertsService {
         },
       },
     });
+  }
+
+  // Confirms the contract belongs to the environment
+  // and the user is a member of the environment's project.
+  private async checkUserPermission(
+    userId: number,
+    environmentId: number,
+    contractId: number,
+  ): Promise<void> {
+    const res = await this.prisma.teamMember.findFirst({
+      where: {
+        userId,
+        active: true,
+        team: {
+          active: true,
+          teamProjects: {
+            some: {
+              active: true,
+              project: {
+                active: true,
+                environments: {
+                  some: {
+                    id: environmentId,
+                    contracts: {
+                      some: {
+                        id: contractId,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!res) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'User does not have rights to manage these alerts',
+      );
+    }
   }
 
   //   async delete(
