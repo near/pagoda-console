@@ -192,6 +192,46 @@ export class AlertsService {
     return address;
   }
 
+  async list(user: User, environment: number) {
+    return await this.prisma.alertRule.findMany({
+      where: {
+        active: true,
+        environment: {
+          active: true,
+          id: environment,
+          project: {
+            active: true,
+            teamProjects: {
+              some: {
+                active: true,
+                team: {
+                  active: true,
+                  teamMembers: {
+                    some: {
+                      active: true,
+                      userId: user.id,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      include: {
+        fnCallRule: true,
+        txRule: true,
+        acctBalRule: true,
+        eventRule: true,
+        contract: {
+          select: {
+            address: true,
+          },
+        },
+      },
+    });
+  }
+
   //   async delete(
   //     callingUser: User,
   //     projectWhereUnique: Prisma.ProjectWhereUniqueInput,

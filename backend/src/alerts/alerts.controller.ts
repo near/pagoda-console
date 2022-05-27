@@ -11,7 +11,12 @@ import { BearerAuthGuard } from 'src/auth/bearer-auth.guard';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 import { VError } from 'verror';
 import { AlertsService } from './alerts.service';
-import { CreateAlertRuleDto, CreateAlertRuleSchema } from './dto';
+import {
+  CreateAlertRuleDto,
+  CreateAlertRuleSchema,
+  ListAlertRuleDto,
+  ListAlertRuleSchema,
+} from './dto';
 
 @Controller('alerts')
 export class AlertsController {
@@ -26,6 +31,13 @@ export class AlertsController {
     } catch (e) {
       throw mapError(e);
     }
+  }
+
+  @Post('list')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(ListAlertRuleSchema))
+  async list(@Request() req, @Body() { environment }: ListAlertRuleDto) {
+    return await this.alertsService.list(req.user, environment);
   }
 }
 

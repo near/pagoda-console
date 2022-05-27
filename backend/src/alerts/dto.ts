@@ -73,6 +73,13 @@ export const CreateAlertRuleSchema = Joi.object({
   environment: Joi.number().required(),
 });
 
+export interface ListAlertRuleDto {
+  environment: number;
+}
+export const ListAlertRuleSchema = Joi.object({
+  environment: Joi.number().required(),
+});
+
 // // delete alert
 // export interface DeleteAlertDto {
 //   slug: string;
