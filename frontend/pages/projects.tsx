@@ -108,7 +108,7 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
         onDelete={props.onDelete}
       />
 
-      <Link href={`/project-analytics?project=${props.project.slug}`} passHref>
+      <Link href={`/contracts?project=${props.project.slug}`} passHref>
         <H4
           as="a"
           css={{

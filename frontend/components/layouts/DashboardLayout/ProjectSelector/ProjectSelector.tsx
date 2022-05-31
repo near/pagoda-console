@@ -21,7 +21,7 @@ export function ProjectSelector() {
     selectProject(project.slug);
 
     if (router.pathname.startsWith('/tutorials/') && !project.tutorial) {
-      router.push('/project-analytics');
+      router.push('/contracts');
     }
 
     analytics.track('DC Switch Project');

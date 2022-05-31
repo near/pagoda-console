@@ -29,7 +29,7 @@ const Marketplace: NextPageWithLayout = () => {
               name={project.name}
               show={showModal}
               setShow={setShowModal}
-              onEject={() => router.push('/project-analytics')}
+              onEject={() => router.push('/contracts')}
             />
           </TutorialFooter>
         )}

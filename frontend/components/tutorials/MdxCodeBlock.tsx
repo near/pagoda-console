@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 
 import CodeBlock from '../CodeBlock';
+import { Box } from '../lib/Box';
 import { TextLink } from '../lib/TextLink';
 
 export interface GitHubReference {
@@ -34,17 +35,11 @@ export default function MdxCodeBlock(props: any) {
     return (
       <>
         <CodeBlock language={props.className.replace('language-', '')}>{content}</CodeBlock>
-        <div className="githubLink">
+        <Box css={{ paddingTop: 'var(--space-s)', textAlign: 'center' }}>
           <TextLink color="neutral" target="_blank" rel="noreferrer" css={{ fontWeight: 400 }}>
             See full example on Github
           </TextLink>
-        </div>
-        <style jsx>{`
-          .githubLink {
-            padding-top: 0.5rem;
-            text-align: center;
-          }
-        `}</style>
+        </Box>
       </>
     );
   } else if (props.className) {
@@ -69,21 +64,22 @@ export default function MdxCodeBlock(props: any) {
   // Single tick code blocks that do not require a whole highlight block.
   return (
     <>
-      <code>{props.children}</code>
-      <style jsx>{`
-        code {
-          border-radius: 0.4rem;
-          border: none;
-          background-color: var(--color-surface-1);
-          padding: 0.1rem 0.3rem;
-          margin: 0.1rem;
-          font-size: 0.875em;
-          color: #e43b8f;
-          word-wrap: break-word;
-          font-family: Source Code Pro, monospace;
-          background
-        }
-      `}</style>
+      <Box
+        as="code"
+        css={{
+          borderRadius: '0.4rem',
+          border: 'none',
+          background: 'var(--color-surface-1)',
+          padding: '0.1rem 0.3rem',
+          margin: '0.1rem',
+          fontSize: '0.875em',
+          color: '#e43b8f',
+          wordWrap: 'break-word',
+          fontFamily: 'var(--font-code)',
+        }}
+      >
+        {props.children}
+      </Box>
     </>
   );
 }
