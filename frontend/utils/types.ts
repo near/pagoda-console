@@ -1,3 +1,4 @@
+import type BN from 'bn.js';
 import type { NextPage } from 'next';
 import type { ReactElement, ReactNode } from 'react';
 
@@ -63,4 +64,9 @@ export interface NetUsageData {
   methods: Record<string, number>;
   calls: number;
   responseCodes: Record<string, number>;
+}
+
+export interface FinalityStatus {
+  finalBlockHeight: number;
+  finalBlockTimestampNanosecond: BN;
 }

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import * as Accordion from '@/components/lib/Accordion';
 import { useApiKeys } from '@/hooks/api-keys';
 import { useSelectedProject } from '@/hooks/selected-project';
-import Config from '@/utils/config';
+import config from '@/utils/config';
 import type { NetOption } from '@/utils/types';
 
 import CodeBlock from './CodeBlock';
@@ -89,15 +89,15 @@ export default function StarterGuide() {
     setStarterCode({
       naj: NAJ_STARTER_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(
         /<RPC service url>/,
-        Config.url.rpc.recommended[net],
+        config.url.rpc.recommended[net],
       ),
       rust: RUST_STARTER_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(
         /<RPC service url>/,
-        Config.url.rpc.recommended[net],
+        config.url.rpc.recommended[net],
       ),
       cliUrl: CLI_URL_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(
         /<RPC service url>/,
-        Config.url.rpc.recommended[net],
+        config.url.rpc.recommended[net],
       ),
       cliKey: CLI_KEY_TEMPLATE.replace(/<your API Key>/, keys[net]!),
     });
@@ -136,7 +136,7 @@ export default function StarterGuide() {
               </ListItem>
               <ListItem>
                 <Flex stack gap="s">
-                  Configure your API key:
+                  configure your API key:
                   <CodeBlock language="bash">{starterCode.cliKey}</CodeBlock>
                 </Flex>
               </ListItem>

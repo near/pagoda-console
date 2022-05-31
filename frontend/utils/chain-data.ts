@@ -2,9 +2,9 @@ import * as nearAPI from 'near-api-js';
 import type { AccountView } from 'near-api-js/lib/providers/provider';
 import useSWR from 'swr';
 
-import Config from '@/utils/config';
+import config from '@/utils/config';
 
-const RPC_API_ENDPOINT = Config.url.rpc.default.TESTNET;
+const RPC_API_ENDPOINT = config.url.rpc.default.TESTNET;
 
 let near: nearAPI.Near;
 
@@ -145,14 +145,14 @@ export async function initializeNaj() {
     return;
   }
   const keyStore = new nearAPI.keyStores.BrowserLocalStorageKeyStore();
-  const nearConfig = {
+  const nearconfig = {
     networkId: 'testnet',
     keyStore,
     nodeUrl: RPC_API_ENDPOINT,
     headers: {},
   };
 
-  near = await nearAPI.connect(nearConfig);
+  near = await nearAPI.connect(nearconfig);
 }
 
 type ContractInfo = Partial<AccountView> & { codeDeployed?: boolean; accountExists?: boolean };
