@@ -17,8 +17,8 @@ export const FeatherIcon = ({ icon, strokeWidth = 2, ...props }: Props) => {
 
   return (
     <S.Svg
-      width="50"
-      height="50"
+      width="20"
+      height="20"
       fill="none"
       stroke="currentColor"
       strokeWidth={strokeWidth}

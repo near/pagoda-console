@@ -24,11 +24,13 @@ import { Placeholder } from '@/components/lib/Placeholder';
 import * as Popover from '@/components/lib/Popover';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
+import { SvgIcon } from '@/components/lib/SvgIcon';
 import * as Tabs from '@/components/lib/Tabs';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { ThemeToggle } from '@/components/ThemeToggle/ThemeToggle';
+import ExampleIcon from '@/public/images/icons/ui-example.svg';
 import { styled } from '@/styles/stitches';
 import config from '@/utils/config';
 import { formValidations } from '@/utils/constants';
@@ -919,7 +921,7 @@ const Settings: NextPageWithLayout = () => {
         </Flex>
       </Section>
 
-      <Section color="surface2">
+      <Section>
         <Flex stack>
           <H2>Spinner</H2>
 
@@ -929,7 +931,41 @@ const Settings: NextPageWithLayout = () => {
             <Spinner size="m" />
           </Flex>
 
+          <HR />
+
+          <H4>Center</H4>
+
           <Spinner size="m" center />
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
+          <H2>SVG Icon</H2>
+
+          <P>
+            Sometimes we need to pull in custom SVG icons. This component can be used to wrap an imported SVG and apply
+            standard colors and sizes.
+          </P>
+
+          <Flex>
+            <SvgIcon size="xl" icon={ExampleIcon} />
+            <SvgIcon size="l" icon={ExampleIcon} />
+            <SvgIcon size="m" icon={ExampleIcon} />
+            <SvgIcon size="s" icon={ExampleIcon} />
+            <SvgIcon size="xs" icon={ExampleIcon} />
+          </Flex>
+
+          <Flex>
+            <Font css={{ color: 'orange' }}>
+              <SvgIcon icon={ExampleIcon} />
+            </Font>
+            <SvgIcon color="primary" icon={ExampleIcon} />
+            <SvgIcon color="danger" icon={ExampleIcon} />
+            <SvgIcon color="text1" icon={ExampleIcon} />
+            <SvgIcon color="text2" icon={ExampleIcon} />
+            <SvgIcon color="text3" icon={ExampleIcon} />
+          </Flex>
         </Flex>
       </Section>
 
