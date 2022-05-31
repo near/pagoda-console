@@ -12,6 +12,7 @@ type InputProps = Omit<ComponentProps<typeof S.Input>, 'invalid'> & {
 };
 
 export const Fieldset = S.Fieldset;
+export const HorizontalGroup = S.HorizontalGroup;
 export const Group = S.Group;
 export const Label = S.Label;
 export const LabelDescription = S.LabelDescription;

@@ -159,7 +159,7 @@ function ProviderButton(props: {
 
   return (
     <Button
-      expand
+      stretch
       disabled={props.isAuthenticating}
       css={{
         color: props.provider.color,

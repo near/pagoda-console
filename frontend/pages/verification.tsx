@@ -61,7 +61,7 @@ const Verification: NextPageWithLayout = () => {
         <P>A verification message {existing ? 'was previously' : 'has been'} sent to your email address.</P>
 
         {!hasResent ? (
-          <Button expand disabled={hasResent} onClick={resendVerification}>
+          <Button stretch disabled={hasResent} onClick={resendVerification}>
             Send Again
           </Button>
         ) : (

@@ -14,23 +14,9 @@ export const Group = styled('div', {
   display: 'flex',
   width: '100%',
   flexDirection: 'column',
+  justifyContent: 'center',
 
   variants: {
-    horizontal: {
-      true: {
-        flexDirection: 'row',
-        gap: 'var(--space-m)',
-        minHeight: 'var(--size-input-m)',
-        alignItems: 'center',
-
-        '& > :first-child': {
-          flexShrink: 0,
-          flexGrow: 0,
-          width: '12rem',
-        },
-      },
-    },
-
     gap: {
       xs: {
         gap: 'var(--space-xs)',
@@ -70,6 +56,19 @@ export const Group = styled('div', {
 
   defaultVariants: {
     gap: 'xs',
+  },
+});
+
+export const HorizontalGroup = styled('div', {
+  display: 'grid',
+  gridTemplateColumns: 'fit-content(15rem) 1fr',
+  alignItems: 'center',
+  columnGap: 'var(--space-l)',
+  rowGap: 'var(--space-m)',
+  width: '100%',
+
+  [`${Group}`]: {
+    minHeight: 'var(--size-input-m)',
   },
 });
 

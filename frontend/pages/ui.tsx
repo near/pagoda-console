@@ -46,7 +46,7 @@ const Block = styled('div', {
   borderRadius: 'var(--border-radius-m)',
 
   variants: {
-    expand: {
+    stretch: {
       true: {
         width: '100%',
       },
@@ -276,31 +276,31 @@ const Settings: NextPageWithLayout = () => {
           <H2>Container</H2>
 
           <Container size="xxs">
-            <Block expand>
+            <Block stretch>
               <P>xxs</P>
             </Block>
           </Container>
 
           <Container size="xs">
-            <Block expand>
+            <Block stretch>
               <P>xs</P>
             </Block>
           </Container>
 
           <Container size="s">
-            <Block expand>
+            <Block stretch>
               <P>s</P>
             </Block>
           </Container>
 
           <Container size="m">
-            <Block expand>
+            <Block stretch>
               <P>m</P>
             </Block>
           </Container>
 
           <Container size="l">
-            <Block expand>
+            <Block stretch>
               <P>l</P>
             </Block>
           </Container>
@@ -710,48 +710,56 @@ const Settings: NextPageWithLayout = () => {
 
           <HR />
 
+          <H4>Horizontal</H4>
+
+          <Form.Root>
+            <Form.HorizontalGroup>
+              <Form.Label>Horizontal</Form.Label>
+              <Form.Group>
+                <Form.Input />
+              </Form.Group>
+
+              <Form.Label>Horizontal Field Two</Form.Label>
+              <Form.Group maxWidth="l">
+                <Form.Input />
+                <Form.Feedback type="neutral">Here is some feedback.</Form.Feedback>
+              </Form.Group>
+
+              <Form.Label>Horizontal Field With a Really Long Label</Form.Label>
+              <Form.Group maxWidth="m">
+                <Form.Input />
+              </Form.Group>
+            </Form.HorizontalGroup>
+          </Form.Root>
+
+          <HR />
+
+          <H4>Max Width</H4>
+
           <Form.Root>
             <Flex stack>
-              <Form.Group horizontal>
-                <Form.Label>Horizontal</Form.Label>
-
-                <Form.Group>
-                  <Form.Input />
-                  <Form.Feedback type="neutral">Here is some feedback.</Form.Feedback>
-                </Form.Group>
-              </Form.Group>
-
-              <Form.Group horizontal>
-                <Form.Label>Horizontal M</Form.Label>
-
-                <Form.Group maxWidth="m">
-                  <Form.Input />
-                  <Form.Feedback type="neutral">Here is some feedback.</Form.Feedback>
-                </Form.Group>
-              </Form.Group>
-
               <Form.Group maxWidth="xs">
-                <Form.Label>Max Width XS</Form.Label>
+                <Form.Label>XS</Form.Label>
                 <Form.Input />
               </Form.Group>
 
               <Form.Group maxWidth="s">
-                <Form.Label>Max Width S</Form.Label>
+                <Form.Label>S</Form.Label>
                 <Form.Input />
               </Form.Group>
 
               <Form.Group maxWidth="m">
-                <Form.Label>Max Width M</Form.Label>
+                <Form.Label>M</Form.Label>
                 <Form.Input />
               </Form.Group>
 
               <Form.Group maxWidth="l">
-                <Form.Label>Max Width L</Form.Label>
+                <Form.Label>L</Form.Label>
                 <Form.Input />
               </Form.Group>
 
               <Form.Group maxWidth="xl">
-                <Form.Label>Max Width XL</Form.Label>
+                <Form.Label>XL</Form.Label>
                 <Form.Input />
               </Form.Group>
             </Flex>

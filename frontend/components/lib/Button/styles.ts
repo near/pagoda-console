@@ -81,12 +81,6 @@ export const Button = styled('button', {
       },
     },
 
-    expand: {
-      true: {
-        width: '100%',
-      },
-    },
-
     loading: {
       true: {
         '&:disabled': {
@@ -125,6 +119,12 @@ export const Button = styled('button', {
       standard: {
         fontSize: 'var(--font-size-body)',
         height: 'var(--size-input-m)',
+      },
+    },
+
+    stretch: {
+      true: {
+        width: '100%',
       },
     },
   },

@@ -8,8 +8,6 @@ function getUser(userId: string, state: SettingsStore) {
     projects: {},
   };
 
-  console.log(userId);
-
   return state.users[userId]!;
 }
 

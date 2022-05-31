@@ -106,12 +106,12 @@ export function EmailForm({ isAuthenticating, setIsAuthenticating }: Props) {
             <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
           </Form.Group>
 
-          <Button type="submit" expand>
+          <Button type="submit" stretch>
             Continue
           </Button>
 
           <Link href="/register" passHref>
-            <ButtonLink color="neutral" expand onClick={() => analytics.track('DC Clicked Sign Up on Login')}>
+            <ButtonLink color="neutral" stretch onClick={() => analytics.track('DC Clicked Sign Up on Login')}>
               Sign Up
             </ButtonLink>
           </Link>

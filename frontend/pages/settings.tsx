@@ -73,32 +73,27 @@ const Settings: NextPageWithLayout = () => {
 
           {error && <Message type="error" content="Could not fetch account data." />}
 
-          <Flex stack gap="s">
-            <Form.Group horizontal>
-              <Form.Label htmlFor="displayName">Display Name</Form.Label>
-
-              <Form.Group maxWidth="m">
-                {isEditing ? (
-                  <>
-                    <Form.Input
-                      id="displayName"
-                      isInvalid={!!formState.errors.displayName}
-                      placeholder="John Nearian"
-                      {...register('displayName', formValidations.displayName)}
-                    />
-                    <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
-                  </>
-                ) : (
-                  <>{isLoading ? <Spinner size="xs" /> : user?.name}</>
-                )}
-              </Form.Group>
+          <Form.HorizontalGroup>
+            <Form.Label htmlFor="displayName">Display Name:</Form.Label>
+            <Form.Group maxWidth="m">
+              {isEditing ? (
+                <>
+                  <Form.Input
+                    id="displayName"
+                    isInvalid={!!formState.errors.displayName}
+                    placeholder="John Nearian"
+                    {...register('displayName', formValidations.displayName)}
+                  />
+                  <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
+                </>
+              ) : (
+                <>{isLoading ? <Spinner size="xs" /> : user?.name}</>
+              )}
             </Form.Group>
 
-            <Form.Group horizontal>
-              <Form.Label>Email</Form.Label>
-              <Form.Group maxWidth="m">{isLoading ? <Spinner size="xs" /> : user?.email}</Form.Group>
-            </Form.Group>
-          </Flex>
+            <Form.Label>Email:</Form.Label>
+            <Form.Group maxWidth="m">{isLoading ? <Spinner size="xs" /> : user?.email}</Form.Group>
+          </Form.HorizontalGroup>
         </Flex>
       </Form.Root>
     </Section>

@@ -175,7 +175,7 @@ export function RegisterForm() {
 
         <ErrorModal error={registerError} setError={setRegisterError} />
 
-        <Button expand type="submit">
+        <Button stretch type="submit">
           Sign Up
         </Button>
 
