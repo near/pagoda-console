@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import * as Accordion from '@/components/lib/Accordion';
@@ -29,6 +30,7 @@ import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { ThemeToggle } from '@/components/ThemeToggle/ThemeToggle';
 import { styled } from '@/styles/stitches';
+import config from '@/utils/config';
 import { formValidations } from '@/utils/constants';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -108,6 +110,14 @@ const Settings: NextPageWithLayout = () => {
   const [person, setPerson] = useState('pedro');
   const [errorMessage, setErrorMessage] = useState('This is a dismissable error message');
   const { register, handleSubmit, formState } = useForm<FakeForm>();
+  const router = useRouter();
+
+  useEffect(() => {
+    // Don't allow users to visit /ui in production
+    if (config.deployEnv === 'PRODUCTION') {
+      router.replace('/');
+    }
+  }, [router]);
 
   const favoriteFoodOptions = [
     {
