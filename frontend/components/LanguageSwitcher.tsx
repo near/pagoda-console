@@ -1,6 +1,15 @@
+export function LanguageSwitcher() {
+  return null;
+}
+
+export default LanguageSwitcher;
+
+/*
+
+TODO: When this component is needed, refactor using new library dropdown primitives
+
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import { Dropdown, DropdownButton } from 'react-bootstrap';
 
 function LanguageSwitcher() {
   const { t } = useTranslation('common');
@@ -25,3 +34,4 @@ function LanguageSwitcher() {
 }
 
 export default LanguageSwitcher;
+*/

@@ -4,7 +4,6 @@ import '@/styles/variables.css';
 import '@/styles/global.css';
 
 import * as FullStory from '@fullstory/browser';
-import { SSRProvider } from '@restart/ui/ssr'; // UI_TODO: Remove // workaround for react-bootstrap bug https://github.com/react-bootstrap/react-bootstrap/issues/6026
 import { initializeApp } from 'firebase/app';
 import type { User } from 'firebase/auth';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -75,35 +74,33 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page);
 
   return (
-    <SSRProvider>
-      <SWRConfig
-        value={{
-          onErrorRetry: customErrorRetry,
-        }}
-      >
-        <Head>
-          <title>Pagoda Developer Console</title>
-          <meta
-            name="description"
-            content="Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics."
-          />
-          <link rel="icon" href="/favicon.ico" />
-          <link href="/favicon-256x256.png" rel="apple-touch-icon" />
-        </Head>
+    <SWRConfig
+      value={{
+        onErrorRetry: customErrorRetry,
+      }}
+    >
+      <Head>
+        <title>Pagoda Developer Console</title>
+        <meta
+          name="description"
+          content="Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics."
+        />
+        <link rel="icon" href="/favicon.ico" />
+        <link href="/favicon-256x256.png" rel="apple-touch-icon" />
+      </Head>
 
-        <FeatherIconSheet />
+      <FeatherIconSheet />
 
-        <SmallScreenNotice />
+      <SmallScreenNotice />
 
-        {config.downtimeMode ? (
-          <SimpleLayout>
-            <DowntimeMode />
-          </SimpleLayout>
-        ) : (
-          getLayout(<Component {...pageProps} />)
-        )}
-      </SWRConfig>
-    </SSRProvider>
+      {config.downtimeMode ? (
+        <SimpleLayout>
+          <DowntimeMode />
+        </SimpleLayout>
+      ) : (
+        getLayout(<Component {...pageProps} />)
+      )}
+    </SWRConfig>
   );
 }
 
