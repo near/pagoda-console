@@ -3,7 +3,6 @@ import { useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
-import BorderSpinner from '@/components/BorderSpinner';
 import { Button } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
@@ -11,6 +10,7 @@ import { H1 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Message } from '@/components/lib/Message';
 import { Section } from '@/components/lib/Section';
+import { Spinner } from '@/components/lib/Spinner';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useAccount, useIdentity } from '@/hooks/user';
@@ -89,14 +89,14 @@ const Settings: NextPageWithLayout = () => {
                     <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
                   </>
                 ) : (
-                  <>{isLoading ? <BorderSpinner /> : user?.name}</>
+                  <>{isLoading ? <Spinner size="xs" /> : user?.name}</>
                 )}
               </Form.Group>
             </Form.Group>
 
             <Form.Group horizontal>
               <Form.Label>Email</Form.Label>
-              <Form.Group maxWidth="m">{isLoading ? <BorderSpinner /> : user?.email}</Form.Group>
+              <Form.Group maxWidth="m">{isLoading ? <Spinner size="xs" /> : user?.email}</Form.Group>
             </Form.Group>
           </Flex>
         </Flex>

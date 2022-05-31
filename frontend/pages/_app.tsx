@@ -2,10 +2,6 @@ import '@/styles/reset.css';
 import '@/styles/fonts.css';
 import '@/styles/variables.css';
 import '@/styles/global.css';
-import '@fortawesome/fontawesome-svg-core/styles.css';
-
-import { config as svgConfig } from '@fortawesome/fontawesome-svg-core';
-svgConfig.autoAddCss = false;
 
 import * as FullStory from '@fullstory/browser';
 import { SSRProvider } from '@restart/ui/ssr'; // UI_TODO: Remove // workaround for react-bootstrap bug https://github.com/react-bootstrap/react-bootstrap/issues/6026

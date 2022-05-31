@@ -19,8 +19,10 @@ import { Info } from '@/components/lib/Info';
 import { List, ListItem } from '@/components/lib/List';
 import { Message } from '@/components/lib/Message';
 import { P } from '@/components/lib/Paragraph';
+import { Placeholder } from '@/components/lib/Placeholder';
 import * as Popover from '@/components/lib/Popover';
 import { Section } from '@/components/lib/Section';
+import { Spinner } from '@/components/lib/Spinner';
 import * as Tabs from '@/components/lib/Tabs';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
@@ -823,6 +825,16 @@ const Settings: NextPageWithLayout = () => {
 
       <Section>
         <Flex stack>
+          <H2>Placeholder</H2>
+
+          <Placeholder css={{ width: '30rem', height: '5rem' }} />
+          <Placeholder css={{ width: '20rem', height: '2rem' }} />
+          <Placeholder css={{ width: '10rem', height: '1.5rem' }} />
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
           <H2>Popover</H2>
 
           <Flex wrap>
@@ -894,6 +906,20 @@ const Settings: NextPageWithLayout = () => {
             Each UI section is wrapped by a section component. This section is using the &quot;surface2&quot; color
             background.
           </P>
+        </Flex>
+      </Section>
+
+      <Section color="surface2">
+        <Flex stack>
+          <H2>Spinner</H2>
+
+          <Flex align="center">
+            <Spinner size="xs" />
+            <Spinner size="s" />
+            <Spinner size="m" />
+          </Flex>
+
+          <Spinner size="m" center />
         </Flex>
       </Section>
 

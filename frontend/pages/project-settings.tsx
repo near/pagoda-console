@@ -1,6 +1,5 @@
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
-import { Placeholder } from 'react-bootstrap';
 
 import { Button } from '@/components/lib/Button';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -8,6 +7,7 @@ import { Flex } from '@/components/lib/Flex';
 import { Font } from '@/components/lib/Font';
 import { H4, H5 } from '@/components/lib/Heading';
 import { P } from '@/components/lib/Paragraph';
+import { Placeholder } from '@/components/lib/Placeholder';
 import * as Popover from '@/components/lib/Popover';
 import { Section } from '@/components/lib/Section';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
@@ -180,7 +180,7 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: () => void }
   return (
     <Flex align="center" justify="spaceBetween">
       <Flex align="center" gap="l">
-        <H5>{props.name}</H5>
+        <H5 css={{ width: '4.5rem' }}>{props.name}</H5>
 
         <Font family="number">
           {props.token ? (
@@ -190,9 +190,7 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: () => void }
               props.token
             )
           ) : (
-            <Placeholder animation="glow">
-              <Placeholder xs={4} size="sm" style={{ borderRadius: '0.5em' }} />
-            </Placeholder>
+            <Placeholder css={{ width: '10rem', height: '1rem' }} />
           )}
         </Font>
       </Flex>

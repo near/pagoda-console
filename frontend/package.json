@@ -33,6 +33,7 @@
     "@radix-ui/react-popover": "^0.1.6",
     "@radix-ui/react-tabs": "^0.1.5",
     "@radix-ui/react-tooltip": "^0.1.7",
+    "@radix-ui/react-visually-hidden": "^0.1.4",
     "@stitches/react": "^1.2.8",
     "bn.js": "^5.2.0",
     "bootstrap": "^5.1.3",

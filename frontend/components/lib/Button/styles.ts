@@ -1,6 +1,6 @@
 import { keyframes, styled } from '@/styles/stitches';
 
-const loadingAnimation = keyframes({
+const spinAnimation = keyframes({
   from: { transform: 'rotate(0deg)' },
   to: { transform: 'rotate(360deg)' },
 });
@@ -110,7 +110,7 @@ export const Button = styled('button', {
           borderRadius: '100%',
           border: '3px solid currentColor',
           borderTopColor: 'transparent',
-          animation: `${loadingAnimation} 700ms linear infinite`,
+          animation: `${spinAnimation} 700ms linear infinite`,
         },
       },
     },

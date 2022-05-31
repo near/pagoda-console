@@ -5,7 +5,6 @@ import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import useSWR from 'swr';
 
-import BorderSpinner from '@/components/BorderSpinner';
 import TransactionAction from '@/components/explorer/components/transactions/TransactionAction';
 import { Box } from '@/components/lib/Box';
 import { Button } from '@/components/lib/Button';
@@ -18,6 +17,7 @@ import { H1, H2 } from '@/components/lib/Heading';
 import { Message } from '@/components/lib/Message';
 import { P } from '@/components/lib/Paragraph';
 import { Section } from '@/components/lib/Section';
+import { Spinner } from '@/components/lib/Spinner';
 import { TextLink } from '@/components/lib/TextLink';
 import { useContracts } from '@/hooks/contracts';
 import { useDebounce } from '@/hooks/debounce';
@@ -42,7 +42,7 @@ const Contracts: NextPageWithLayout = () => {
   if (!user || !project || !environment) {
     return (
       <Section>
-        <BorderSpinner />
+        <Spinner />
       </Section>
     );
   }
@@ -84,7 +84,7 @@ function ContractsTable(props: { project: string; environment: Environment }) {
   if (!contracts && !error) {
     return (
       <Section>
-        <BorderSpinner />
+        <Spinner center />
       </Section>
     );
   }
@@ -338,7 +338,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
       {data ? (
         <Font family="number">{(data.result.amount / 10 ** 24).toFixed(5)} Ⓝ</Font>
       ) : !error ? (
-        <BorderSpinner />
+        <Spinner size="xs" />
       ) : (
         <Font family="number">N/A</Font>
       )}
@@ -346,7 +346,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
       {data ? (
         <Font family="number">{data.result.storage_usage} B</Font>
       ) : !error ? (
-        <BorderSpinner />
+        <Spinner size="xs" />
       ) : (
         <Font family="number">N/A</Font>
       )}

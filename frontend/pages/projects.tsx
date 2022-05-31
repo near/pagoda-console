@@ -1,17 +1,15 @@
-import { faTrashAlt } from '@fortawesome/free-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-import BorderSpinner from '@/components/BorderSpinner';
 import { Badge } from '@/components/lib/Badge';
 import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
-import { H1, H3 } from '@/components/lib/Heading';
+import { H1, H4 } from '@/components/lib/Heading';
 import { Message } from '@/components/lib/Message';
+import { Spinner } from '@/components/lib/Spinner';
 import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useProjects } from '@/hooks/projects';
@@ -80,7 +78,7 @@ const Projects: NextPageWithLayout = () => {
             })}
           </Flex>
         ) : (
-          <BorderSpinner />
+          <Spinner center />
         )}
       </Flex>
     </Container>
@@ -111,7 +109,7 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
       />
 
       <Link href={`/project-analytics?project=${props.project.slug}`} passHref>
-        <H3
+        <H4
           as="a"
           css={{
             display: 'block',
@@ -132,14 +130,14 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
               {props.project.tutorial && <Badge>Tutorial</Badge>}
             </Flex>
 
-            {!props.showDelete && <FeatherIcon icon="chevrons-right" size="l" />}
+            {!props.showDelete && <FeatherIcon icon="chevrons-right" size="m" />}
           </Flex>
-        </H3>
+        </H4>
       </Link>
 
       {props.showDelete && (
         <Button size="small" color="danger" onClick={() => setShowModal(true)}>
-          <FontAwesomeIcon icon={faTrashAlt} />
+          <FeatherIcon icon="trash-2" size="xs" />
         </Button>
       )}
     </Flex>
