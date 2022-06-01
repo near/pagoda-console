@@ -10,7 +10,7 @@ import CodeBlock from './CodeBlock';
 import { Flex } from './lib/Flex';
 import { H4 } from './lib/Heading';
 import { List, ListItem } from './lib/List';
-import { P } from './lib/Paragraph';
+import { Text } from './lib/Text';
 
 const NAJ_STARTER_TEMPLATE = `const { connect, keyStores } = require("near-api-js");
 
@@ -107,10 +107,10 @@ export default function StarterGuide() {
     <Flex stack>
       <H4>Using Your API Keys</H4>
 
-      <P>
+      <Text>
         Follow the instructions below to get started with making requests to the NEAR RPC service.
         {keys && " We've already filled in your API keys in these instructions."}
-      </P>
+      </Text>
 
       <Accordion.Root type="multiple">
         <Accordion.Item value="cli">
@@ -173,7 +173,7 @@ export default function StarterGuide() {
           <Accordion.Trigger>Rust (near-jsonrpc-client)</Accordion.Trigger>
           <Accordion.Content>
             <Flex stack>
-              <P>Example of asynchronously fetching the latest block using tokio:</P>
+              <Text>Example of asynchronously fetching the latest block using tokio:</Text>
               <CodeBlock language="rust">{starterCode.rust}</CodeBlock>
             </Flex>
           </Accordion.Content>

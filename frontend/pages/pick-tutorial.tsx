@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import { H1 } from '@/components/lib/Heading';
-import { P } from '@/components/lib/Paragraph';
+import { Text } from '@/components/lib/Text';
 import { ProjectCard } from '@/components/ProjectCard';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -39,7 +39,7 @@ const PickTutorial: NextPageWithLayout = () => {
       <Flex stack gap="l">
         <H1>Select Tutorial</H1>
 
-        <P>Choose from a variety of interactive tutorials. Each one ends with a production-ready project.</P>
+        <Text>Choose from a variety of interactive tutorials. Each one ends with a production-ready project.</Text>
 
         <Flex>
           {projects.map((project) => (

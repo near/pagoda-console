@@ -4,7 +4,7 @@ import { Badge } from '../lib/Badge';
 import { FeatherIcon } from '../lib/FeatherIcon';
 import { Flex } from '../lib/Flex';
 import { H3 } from '../lib/Heading';
-import { P } from '../lib/Paragraph';
+import { Text } from '../lib/Text';
 import * as S from './styles';
 
 type Props = ComponentProps<typeof S.Card> & {
@@ -33,7 +33,7 @@ export function ProjectCard({ isComingSoon, title, description, icon, readonly, 
           {isButton && <FeatherIcon icon={icon || 'chevrons-right'} size="m" color="primary" />}
         </Flex>
 
-        <P>{description}</P>
+        <Text>{description}</Text>
       </S.CardBottom>
     </S.Card>
   );

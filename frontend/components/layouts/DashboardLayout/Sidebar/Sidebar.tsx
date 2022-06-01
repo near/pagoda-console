@@ -37,8 +37,8 @@ function useProjectPages(): Page[] {
     });
   }
 
-  pages.push({ display: 'Analytics', route: '/project-analytics', icon: 'bar-chart-2' });
   pages.push({ display: 'Contracts', route: `/contracts`, icon: 'zap' });
+  pages.push({ display: 'Analytics', route: '/project-analytics', icon: 'bar-chart-2' });
   pages.push({ display: 'Deploys', route: '', icon: 'git-merge' });
   pages.push({ display: 'Alerts', route: '', icon: 'bell' });
   pages.push({ display: 'Settings', route: `/project-settings`, icon: 'settings' });

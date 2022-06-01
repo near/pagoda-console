@@ -25,11 +25,11 @@ import * as Popover from '@/components/lib/Popover';
         <Popover.CloseButton />
       </Flex>
 
-      <P>
+      <Text>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas metus turpis, auctor eget imperdiet
         in, tincidunt ac sem. Aliquam erat volutpat. Integer eleifend metus orci, ac vehicula tortor luctus
         non.
-      </P>
+      </Text>
 
       <Popover.Close asChild>
         <Button
@@ -70,7 +70,7 @@ const [isOpen, setIsOpen] = useState(false);
 
 <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
   <Popover.Anchor asChild>
-    <P>Popover Near Me</P>
+    <Text>Popover Near Me</Text>
   </Popover.Anchor>
 
   <Popover.Content>

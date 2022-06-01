@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import { H1 } from '@/components/lib/Heading';
-import { P } from '@/components/lib/Paragraph';
+import { Text } from '@/components/lib/Text';
 import { ProjectCard } from '@/components/ProjectCard';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
@@ -50,12 +50,12 @@ const PickProject: NextPageWithLayout = () => {
         <H1>New Project</H1>
 
         {isOnboarding ? (
-          <P>
+          <Text>
             One last thing! Before we let you loose on the Developer Console, you’ll need to create a blank project or
             get some guidance with a tutorial. Projects contain API keys and any smart contracts you wish to track.
-          </P>
+          </Text>
         ) : (
-          <P>Start with a blank project or get some guidance with a tutorial.</P>
+          <Text>Start with a blank project or get some guidance with a tutorial.</Text>
         )}
 
         <Flex>

@@ -7,7 +7,7 @@ import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H1 } from '@/components/lib/Heading';
-import { P } from '@/components/lib/Paragraph';
+import { Text } from '@/components/lib/Text';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
@@ -63,10 +63,10 @@ const NewProject: NextPageWithLayout = () => {
         <H1>New Project</H1>
 
         {isOnboarding && (
-          <P>
+          <Text>
             One last thing! Before we let you loose on the Developer Console, you’ll need to create a project. Projects
             contain API keys and any smart contracts you wish to track.
-          </P>
+          </Text>
         )}
 
         <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(createProject)}>

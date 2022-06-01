@@ -8,11 +8,10 @@ import { AnalyticsCard } from '@/components/AnalyticsCard';
 import { Box } from '@/components/lib/Box';
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
-import { Font } from '@/components/lib/Font';
 import { H3 } from '@/components/lib/Heading';
-import { P } from '@/components/lib/Paragraph';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
+import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
@@ -324,7 +323,7 @@ const ProjectAnalytics: NextPageWithLayout = () => {
       <Section>
         <Flex align="center">
           <Spinner />
-          <P>Fetching RPC usage data. This may take a few seconds.</P>
+          <Text>Fetching RPC usage data. This may take a few seconds.</Text>
         </Flex>
       </Section>
     );
@@ -348,14 +347,14 @@ function AnalyticsEmptyState({ fetchedAt }: { fetchedAt?: string }) {
             </Box>
 
             <Flex stack css={{ width: '50%' }}>
-              <P>
+              <Text>
                 Follow the instructions on the{' '}
                 <Link href="/project-settings" passHref>
                   <TextLink>Project Settings</TextLink>
                 </Link>{' '}
                 page (&#34;Settings&#34; in the navbar) to get started with making requests to the NEAR RPC service.
-              </P>
-              <P>Once you make some requests you’ll see usage data populate here.</P>
+              </Text>
+              <Text>Once you make some requests you’ll see usage data populate here.</Text>
             </Flex>
           </Flex>
 
@@ -369,8 +368,8 @@ function AnalyticsEmptyState({ fetchedAt }: { fetchedAt?: string }) {
 function LastFetchedInfo({ fetchedAt }: { fetchedAt: string }) {
   return (
     <Flex justify="spaceBetween">
-      <Font color="text3">Last updated at: {new Date(fetchedAt).toLocaleString()}</Font>
-      <Font color="text3">Data may be fetched once per hour</Font>
+      <Text color="text3">Last updated at: {new Date(fetchedAt).toLocaleString()}</Text>
+      <Text color="text3">Data may be fetched once per hour</Text>
     </Flex>
   );
 }

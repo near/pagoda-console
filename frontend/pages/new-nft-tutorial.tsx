@@ -7,7 +7,7 @@ import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H1 } from '@/components/lib/Heading';
-import { P } from '@/components/lib/Paragraph';
+import { Text } from '@/components/lib/Text';
 import { ProjectCard } from '@/components/ProjectCard';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import analytics from '@/utils/analytics';
@@ -61,11 +61,11 @@ const NewNftTutorial: NextPageWithLayout = () => {
 
         <Flex stack gap="l">
           <H1>{"Let's Go!"}</H1>
-          <P>
+          <Text>
             {
               "In this Zero to Hero series, you'll find a set of tutorials that will cover every aspect of a non-fungible token (NFT) smart contract. You'll start by minting an NFT using a pre-deployed contract and by the end you'll end up building a fully-fledged NFT smart contract that supports every extension."
             }
-          </P>
+          </Text>
 
           <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(createProject)}>
             <Flex stack align="end">

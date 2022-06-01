@@ -11,8 +11,7 @@ import { formValidations } from '@/utils/constants';
 import { Button } from '../lib/Button';
 import { FeatherIcon } from '../lib/FeatherIcon';
 import { Flex } from '../lib/Flex';
-import { Font } from '../lib/Font';
-import { P } from '../lib/Paragraph';
+import { Text } from '../lib/Text';
 
 interface ForgotPasswordFormData {
   email: string;
@@ -70,9 +69,12 @@ const ModalContent = ({ setShow }: Props) => {
         <Flex stack align="center" css={{ textAlign: 'center' }}>
           <FeatherIcon icon="check-circle" color="success" size="l" />
 
-          <P>
-            A reset email has been sent to your address: <Font color="text1">{getValues('email')}</Font>
-          </P>
+          <Text>
+            A reset email has been sent to your address:{' '}
+            <Text as="span" color="text1">
+              {getValues('email')}
+            </Text>
+          </Text>
 
           <Button onClick={() => setShow(false)}>Okay</Button>
         </Flex>

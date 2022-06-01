@@ -5,7 +5,7 @@ import * as Dialog from '@/components/lib/Dialog';
 import { Button } from '../lib/Button';
 import { FeatherIcon } from '../lib/FeatherIcon';
 import { Flex } from '../lib/Flex';
-import { P } from '../lib/Paragraph';
+import { Text } from '../lib/Text';
 
 interface Props {
   error?: string | null;
@@ -29,7 +29,7 @@ export const ErrorModal = ({ error, setError }: Props) => {
       <Dialog.Content size="s">
         <Flex stack gap="l" align="center">
           <FeatherIcon icon="alert-circle" color="danger" size="l" />
-          <P size="l">{errorCopy}</P>
+          <Text size="h5">{errorCopy}</Text>
           <Button color="neutral" onClick={close}>
             Dismiss
           </Button>

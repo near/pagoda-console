@@ -12,20 +12,19 @@ import * as Dialog from '@/components/lib/Dialog';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
-import { Font } from '@/components/lib/Font';
 import * as Form from '@/components/lib/Form';
 import { H1, H2, H3, H4, H5, H6 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Info } from '@/components/lib/Info';
 import { List, ListItem } from '@/components/lib/List';
 import { Message } from '@/components/lib/Message';
-import { P } from '@/components/lib/Paragraph';
 import { Placeholder } from '@/components/lib/Placeholder';
 import * as Popover from '@/components/lib/Popover';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { SvgIcon } from '@/components/lib/SvgIcon';
 import * as Tabs from '@/components/lib/Tabs';
+import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { openToast } from '@/components/lib/Toast';
@@ -67,41 +66,41 @@ interface FakeForm {
 const Lipsum = () => {
   return (
     <>
-      <P>
+      <Text>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas metus turpis, auctor eget imperdiet in,
         tincidunt ac sem. Aliquam erat volutpat. Integer eleifend metus orci, ac vehicula tortor luctus non. Integer
         dignissim, orci eget egestas mattis, eros lacus auctor diam, id elementum ipsum nulla ac dolor. Pellentesque
         placerat lectus eget turpis rutrum, vitae placerat ex eleifend. Cras vitae tellus ultricies nisl congue
         molestie. Quisque id varius nisi, quis pretium metus.
-      </P>
-      <P>
+      </Text>
+      <Text>
         Donec fringilla massa in diam ultrices pretium. Suspendisse ut quam in erat tincidunt mollis. Maecenas pulvinar,
         arcu eu sodales imperdiet, mauris orci pellentesque quam, quis fermentum sapien risus nec nulla.
-      </P>
-      <P>
+      </Text>
+      <Text>
         Vestibulum vel viverra sem. Suspendisse nec nisi turpis. Curabitur tristique magna sed turpis ullamcorper
         commodo. Nunc mattis mi sed ex pretium, et iaculis odio facilisis. Maecenas tempor nulla magna, quis dignissim
         magna convallis blandit. Sed convallis sapien risus, at tincidunt justo blandit vitae. Aliquam erat volutpat.
         Duis blandit metus mauris, vitae lacinia nibh lobortis eu.
-      </P>
-      <P>
+      </Text>
+      <Text>
         Donec et sagittis ligula. Morbi et consequat nibh, nec cursus mauris. Sed dapibus lectus nec felis porta dictum.
         Duis ac blandit justo, sed facilisis ante. Fusce eleifend turpis leo, a ultricies quam mattis ac. Mauris
         sagittis, urna et malesuada facilisis, augue elit suscipit nunc, ut accumsan mi urna a eros. Maecenas blandit
         hendrerit malesuada.
-      </P>
-      <P>
+      </Text>
+      <Text>
         Quisque risus velit, consectetur in commodo in, ultrices ut est. Suspendisse est diam, commodo non luctus nec,
         pellentesque et ex. Etiam at velit porta, malesuada odio ut, lobortis libero. Quisque pretium, quam sit amet
         suscipit tempor, enim quam volutpat lacus, in pharetra nunc magna quis dui. Praesent elementum pulvinar
         consectetur.
-      </P>
-      <P>
+      </Text>
+      <Text>
         Nunc non bibendum erat, vel eleifend sapien. Etiam nec auctor ligula, ut scelerisque risus. Integer ac eros nec
         eros eleifend rutrum sit amet at sapien. In lacinia sem ac neque rhoncus, quis finibus sapien ultricies. Sed
         varius non orci a consectetur. Duis ut blandit justo, tincidunt vulputate neque. Ut placerat turpis in eleifend
         dignissim.
-      </P>
+      </Text>
     </>
   );
 };
@@ -146,7 +145,7 @@ const Settings: NextPageWithLayout = () => {
         <Flex align="center" justify="spaceBetween" wrap>
           <Flex stack css={{ width: 'auto' }}>
             <H1>Stitches & Radix UI</H1>
-            <P>This page shows examples of all our shared components.</P>
+            <Text>This page shows examples of all our shared components.</Text>
           </Flex>
 
           <ThemeToggle css={{ width: 'auto' }} />
@@ -162,8 +161,8 @@ const Settings: NextPageWithLayout = () => {
               <Accordion.Trigger>Is it accessible?</Accordion.Trigger>
               <Accordion.Content>
                 <Flex stack>
-                  <P>Yes. It adheres to the WAI-ARIA design pattern.</P>
-                  <P>Here is another paragraph.</P>
+                  <Text>Yes. It adheres to the WAI-ARIA design pattern.</Text>
+                  <Text>Here is another paragraph.</Text>
 
                   <div>
                     <Button>Click Me</Button>
@@ -176,7 +175,7 @@ const Settings: NextPageWithLayout = () => {
               <Accordion.Trigger>Is it unstyled?</Accordion.Trigger>
               <Accordion.Content>
                 <Flex stack>
-                  <P>Yes. It is unstyled by default, giving you freedom over the look and feel.</P>
+                  <Text>Yes. It is unstyled by default, giving you freedom over the look and feel.</Text>
                 </Flex>
               </Accordion.Content>
             </Accordion.Item>
@@ -185,11 +184,11 @@ const Settings: NextPageWithLayout = () => {
               <Accordion.Trigger>
                 <FeatherIcon icon="eye" />
                 Some Title
-                <P>With a subtitle</P>
+                <Text>With a subtitle</Text>
               </Accordion.Trigger>
               <Accordion.Content>
                 <Flex stack>
-                  <P>Yes! You can animate the Accordion with CSS or JavaScript.</P>
+                  <Text>Yes! You can animate the Accordion with CSS or JavaScript.</Text>
                 </Flex>
               </Accordion.Content>
             </Accordion.Item>
@@ -230,7 +229,7 @@ const Settings: NextPageWithLayout = () => {
             }}
           >
             <H4>This is a box.</H4>
-            <P>A box is an unstyled div that you can apply your own styles to via the css prop.</P>
+            <Text>A box is an unstyled div that you can apply your own styles to via the css prop.</Text>
           </Box>
         </Flex>
       </Section>
@@ -278,31 +277,31 @@ const Settings: NextPageWithLayout = () => {
 
           <Container size="xxs">
             <Block stretch>
-              <P>xxs</P>
+              <Text>xxs</Text>
             </Block>
           </Container>
 
           <Container size="xs">
             <Block stretch>
-              <P>xs</P>
+              <Text>xs</Text>
             </Block>
           </Container>
 
           <Container size="s">
             <Block stretch>
-              <P>s</P>
+              <Text>s</Text>
             </Block>
           </Container>
 
           <Container size="m">
             <Block stretch>
-              <P>m</P>
+              <Text>m</Text>
             </Block>
           </Container>
 
           <Container size="l">
             <Block stretch>
-              <P>l</P>
+              <Text>l</Text>
             </Block>
           </Container>
         </Flex>
@@ -312,7 +311,7 @@ const Settings: NextPageWithLayout = () => {
         <Flex stack>
           <H2>Dialog</H2>
 
-          <P>Open/close via trigger:</P>
+          <Text>Open/close via trigger:</Text>
 
           <Dialog.Root>
             <Dialog.Trigger asChild>
@@ -337,7 +336,7 @@ const Settings: NextPageWithLayout = () => {
 
           <HR />
 
-          <P>Open/close via control:</P>
+          <Text>Open/close via control:</Text>
 
           <Button
             onClick={() => {
@@ -351,10 +350,10 @@ const Settings: NextPageWithLayout = () => {
             <Dialog.Content>
               <Flex stack>
                 <H1>Controlled</H1>
-                <P>
+                <Text>
                   This is a controlled dialog. You can ommit the title prop to avoid rendering the default title and
                   close button - this would allow you to render your own.
-                </P>
+                </Text>
                 <Dialog.Close asChild>
                   <Button>Close Me</Button>
                 </Dialog.Close>
@@ -444,13 +443,13 @@ const Settings: NextPageWithLayout = () => {
       <Section>
         <Flex stack>
           <H2>Feather Icon</H2>
-          <P>
+          <Text>
             View all Feather Icons{' '}
             <TextLink href="https://feathericons.com/" target="_blank">
               here
             </TextLink>
             .
-          </P>
+          </Text>
 
           <Flex>
             <FeatherIcon icon="home" size="xl" />
@@ -461,9 +460,9 @@ const Settings: NextPageWithLayout = () => {
           </Flex>
 
           <Flex>
-            <Font css={{ color: 'orange' }}>
+            <Text css={{ color: 'orange' }}>
               <FeatherIcon icon="cpu" />
-            </Font>
+            </Text>
             <FeatherIcon icon="cpu" color="primary" />
             <FeatherIcon icon="cpu" color="danger" />
             <FeatherIcon icon="cpu" color="text1" />
@@ -484,7 +483,7 @@ const Settings: NextPageWithLayout = () => {
           <H2>Flex</H2>
 
           <Flex stack>
-            <P>Default</P>
+            <Text>Default</Text>
 
             <Flex>
               <Block />
@@ -496,7 +495,7 @@ const Settings: NextPageWithLayout = () => {
           <HR />
 
           <Flex stack>
-            <P>Custom Gap & Justify</P>
+            <Text>Custom Gap & Justify</Text>
 
             <Flex gap="xl" justify="end">
               <Block />
@@ -508,7 +507,7 @@ const Settings: NextPageWithLayout = () => {
           <HR />
 
           <Flex stack>
-            <P>Stack</P>
+            <Text>Stack</Text>
 
             <Flex stack>
               <Block />
@@ -518,7 +517,7 @@ const Settings: NextPageWithLayout = () => {
           </Flex>
 
           <Flex stack>
-            <P>Breakpoint Stack</P>
+            <Text>Breakpoint Stack</Text>
 
             <Flex
               stack={{
@@ -534,7 +533,7 @@ const Settings: NextPageWithLayout = () => {
           <HR />
 
           <Flex stack>
-            <P>Wrap</P>
+            <Text>Wrap</Text>
 
             <Flex wrap>
               <Block />
@@ -544,68 +543,6 @@ const Settings: NextPageWithLayout = () => {
               <Block />
               <Block />
             </Flex>
-          </Flex>
-        </Flex>
-      </Section>
-
-      <Section>
-        <Flex stack>
-          <H2>Font</H2>
-
-          <P>Renders a span element that can be set to a specific family, size, and/or color.</P>
-
-          <HR />
-
-          <Flex as="p" gap="l" wrap>
-            <Font size="h1">Size H1</Font>
-            <Font size="h2">Size H2</Font>
-            <Font size="h3">Size H3</Font>
-            <Font size="h4">Size H4</Font>
-            <Font size="h5">Size H5</Font>
-            <Font size="h6">Size H6</Font>
-          </Flex>
-
-          <HR />
-
-          <Flex as="p" gap="l" wrap>
-            <Font size="h3" family="action">
-              Family Action
-            </Font>
-            <Font size="h3" family="body">
-              Family Body
-            </Font>
-            <Font size="h3" family="code">
-              Family Code
-            </Font>
-            <Font size="h3" family="heading">
-              Family Heading
-            </Font>
-            <Font size="h3" family="number">
-              Family Number
-            </Font>
-          </Flex>
-
-          <HR />
-
-          <Flex as="p" gap="l" wrap>
-            <Font size="h3" color="danger">
-              Danger
-            </Font>
-
-            <Font size="h3" color="primary">
-              Primary
-            </Font>
-
-            <Font size="h3" color="text1">
-              Text 1
-            </Font>
-
-            <Font size="h3" color="text2">
-              Text 2
-            </Font>
-            <Font size="h3" color="text3">
-              Text 3
-            </Font>
           </Flex>
         </Flex>
       </Section>
@@ -638,7 +575,7 @@ const Settings: NextPageWithLayout = () => {
                   <Info content="This would provide even more context." />
                 </Flex>
 
-                <P>This could provide a description for a confusing field.</P>
+                <Text>This could provide a description for a confusing field.</Text>
 
                 <Form.Input
                   id="email"
@@ -670,7 +607,7 @@ const Settings: NextPageWithLayout = () => {
                         })}
                       >
                         {option.display}
-                        <P size="s">{option.description}</P>
+                        <Text size="bodySmall">{option.description}</Text>
                       </Form.Checkbox>
                     ))}
                   </Form.CheckboxGroup>
@@ -788,11 +725,11 @@ const Settings: NextPageWithLayout = () => {
         <Flex stack>
           <H2>Horizontal Rule</H2>
 
-          <P>Here is some content split with a horizontal rule.</P>
+          <Text>Here is some content split with a horizontal rule.</Text>
 
           <HR />
 
-          <P>Here is more content.</P>
+          <Text>Here is more content.</Text>
         </Flex>
       </Section>
 
@@ -833,17 +770,8 @@ const Settings: NextPageWithLayout = () => {
           <Message type="error" content={errorMessage} dismiss={() => setErrorMessage('')} />
           <Message>
             <H5>Custom Content</H5>
-            <P>Hello there! Here is more content.</P>
+            <Text>Hello there! Here is more content.</Text>
           </Message>
-        </Flex>
-      </Section>
-
-      <Section>
-        <Flex stack>
-          <H2>Paragraph</H2>
-          <P size="s">A small paragraph.</P>
-          <P>A standard paragraph.</P>
-          <P size="l">A large paragraph.</P>
         </Flex>
       </Section>
 
@@ -874,11 +802,11 @@ const Settings: NextPageWithLayout = () => {
                     <Popover.CloseButton />
                   </Flex>
 
-                  <P>
+                  <Text>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas metus turpis, auctor eget
                     imperdiet in, tincidunt ac sem. Aliquam erat volutpat. Integer eleifend metus orci, ac vehicula
                     tortor luctus non.
-                  </P>
+                  </Text>
 
                   <Popover.Close asChild>
                     <Button
@@ -899,11 +827,11 @@ const Settings: NextPageWithLayout = () => {
               <Popover.Button>Standard</Popover.Button>
 
               <Popover.Content>
-                <P>
+                <Text>
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas metus turpis, auctor eget imperdiet
                   in, tincidunt ac sem. Aliquam erat volutpat. Integer eleifend metus orci, ac vehicula tortor luctus
                   non.
-                </P>
+                </Text>
               </Popover.Content>
             </Popover.Root>
 
@@ -911,11 +839,11 @@ const Settings: NextPageWithLayout = () => {
               <Popover.Button size="s">Small</Popover.Button>
 
               <Popover.Content>
-                <P>
+                <Text>
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas metus turpis, auctor eget imperdiet
                   in, tincidunt ac sem. Aliquam erat volutpat. Integer eleifend metus orci, ac vehicula tortor luctus
                   non.
-                </P>
+                </Text>
               </Popover.Content>
             </Popover.Root>
           </Flex>
@@ -926,10 +854,10 @@ const Settings: NextPageWithLayout = () => {
         <Flex stack>
           <H2>Section</H2>
 
-          <P>
+          <Text>
             Each UI section is wrapped by a section component. This section is using the &quot;surface2&quot; color
             background.
-          </P>
+          </Text>
         </Flex>
       </Section>
 
@@ -955,10 +883,10 @@ const Settings: NextPageWithLayout = () => {
         <Flex stack>
           <H2>SVG Icon</H2>
 
-          <P>
+          <Text>
             Sometimes we need to pull in custom SVG icons. This component can be used to wrap an imported SVG and apply
             standard colors and sizes.
-          </P>
+          </Text>
 
           <Flex>
             <SvgIcon size="xl" icon={ExampleIcon} />
@@ -969,9 +897,9 @@ const Settings: NextPageWithLayout = () => {
           </Flex>
 
           <Flex>
-            <Font css={{ color: 'orange' }}>
+            <Text css={{ color: 'orange' }}>
               <SvgIcon icon={ExampleIcon} />
-            </Font>
+            </Text>
             <SvgIcon color="primary" icon={ExampleIcon} />
             <SvgIcon color="danger" icon={ExampleIcon} />
             <SvgIcon color="text1" icon={ExampleIcon} />
@@ -999,31 +927,98 @@ const Settings: NextPageWithLayout = () => {
             <Tabs.Content value="tab-1">
               <Flex stack>
                 <H4>Tab 1</H4>
-                <P>Some tab 1 content.</P>
+                <Text>Some tab 1 content.</Text>
               </Flex>
             </Tabs.Content>
 
             <Tabs.Content value="tab-2">
               <Flex stack>
                 <H4>Tab 2</H4>
-                <P>Some tab 2 content.</P>
+                <Text>Some tab 2 content.</Text>
               </Flex>
             </Tabs.Content>
 
             <Tabs.Content value="tab-3">
               <Flex stack>
                 <H4>Tab 3</H4>
-                <P>Some tab 3 content.</P>
+                <Text>Some tab 3 content.</Text>
               </Flex>
             </Tabs.Content>
 
             <Tabs.Content value="tab-4">
               <Flex stack>
                 <H4>Tab 4</H4>
-                <P>Some tab 4 content.</P>
+                <Text>Some tab 4 content.</Text>
               </Flex>
             </Tabs.Content>
           </Tabs.Root>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
+          <H2>Text</H2>
+
+          <Text>
+            Renders a &quot;p&quot; element that can be set to a specific family, size, and/or color. Use the
+            &quot;as&quot; property to change the underlying tag (eg: as=&quot;span&quot;).
+          </Text>
+
+          <HR />
+
+          <Flex gap="l" wrap>
+            <Text size="h1">Size H1</Text>
+            <Text size="h2">Size H2</Text>
+            <Text size="h3">Size H3</Text>
+            <Text size="h4">Size H4</Text>
+            <Text size="h5">Size H5</Text>
+            <Text size="h6">Size H6</Text>
+          </Flex>
+
+          <HR />
+
+          <Flex gap="l" wrap>
+            <Text size="h3" family="action">
+              Family Action
+            </Text>
+            <Text size="h3" family="body">
+              Family Body
+            </Text>
+            <Text size="h3" family="code">
+              Family Code
+            </Text>
+            <Text size="h3" family="heading">
+              Family Heading
+            </Text>
+            <Text size="h3" family="number">
+              Family Number
+            </Text>
+          </Flex>
+
+          <HR />
+
+          <Flex as="p" gap="l" wrap>
+            <span style={{ color: 'orange' }}>
+              <Text size="h3" color="current">
+                Current
+              </Text>
+            </span>
+            <Text size="h3" color="danger">
+              Danger
+            </Text>
+            <Text size="h3" color="primary">
+              Primary
+            </Text>
+            <Text size="h3" color="text1">
+              Text 1
+            </Text>
+            <Text size="h3" color="text2">
+              Text 2
+            </Text>
+            <Text size="h3" color="text3">
+              Text 3
+            </Text>
+          </Flex>
         </Flex>
       </Section>
 
@@ -1053,9 +1048,9 @@ const Settings: NextPageWithLayout = () => {
         <Flex stack>
           <H2>Text Overflow</H2>
 
-          <P css={{ maxWidth: '18rem' }}>
+          <Text css={{ maxWidth: '18rem' }}>
             <TextOverflow>Sometimes you need to cut off text at a certain point.</TextOverflow>
-          </P>
+          </Text>
         </Flex>
       </Section>
 
@@ -1185,23 +1180,23 @@ const Settings: NextPageWithLayout = () => {
                 </>
               }
             >
-              <P>With Icon</P>
+              <Text>With Icon</Text>
             </Tooltip>
 
             <Tooltip color="primary" content="Primary!">
-              <P>Primary</P>
+              <Text>Primary</Text>
             </Tooltip>
 
             <Tooltip color="danger" content="Danger!">
-              <P>Danger</P>
+              <Text>Danger</Text>
             </Tooltip>
 
             <Tooltip color="reverse" content="Reverse!">
-              <P>Reverse</P>
+              <Text>Reverse</Text>
             </Tooltip>
 
             <Tooltip content="Right side!" side="right">
-              <P>Side</P>
+              <Text>Side</Text>
             </Tooltip>
           </Flex>
         </Flex>

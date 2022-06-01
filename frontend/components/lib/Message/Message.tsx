@@ -44,7 +44,7 @@ export const Message = ({
               {children}
             </Flex>
           ) : (
-            <S.Text>{content}</S.Text>
+            <S.Content>{content}</S.Content>
           )}
         </Flex>
 

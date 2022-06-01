@@ -5,8 +5,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
-import { Font } from '@/components/lib/Font';
-import { P } from '@/components/lib/Paragraph';
+import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
@@ -58,16 +57,14 @@ const Verification: NextPageWithLayout = () => {
   return (
     <Container size="xs" css={{ textAlign: 'center' }}>
       <Flex stack align="center">
-        <P>A verification message {existing ? 'was previously' : 'has been'} sent to your email address.</P>
+        <Text>A verification message {existing ? 'was previously' : 'has been'} sent to your email address.</Text>
 
         {!hasResent ? (
           <Button stretch disabled={hasResent} onClick={resendVerification}>
             Send Again
           </Button>
         ) : (
-          <Font as="p" color="primary">
-            Sent!
-          </Font>
+          <Text color="primary">Sent!</Text>
         )}
         <TextLink color="neutral" as="button" type="button" onClick={logOut}>
           Log Out

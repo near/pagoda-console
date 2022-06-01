@@ -4,12 +4,11 @@ import { useRef, useState } from 'react';
 import { Button } from '@/components/lib/Button';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
-import { Font } from '@/components/lib/Font';
 import { H4, H5 } from '@/components/lib/Heading';
-import { P } from '@/components/lib/Paragraph';
 import { Placeholder } from '@/components/lib/Placeholder';
 import * as Popover from '@/components/lib/Popover';
 import { Section } from '@/components/lib/Section';
+import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
 import StarterGuide from '@/components/StarterGuide';
@@ -90,7 +89,7 @@ const ProjectSettings: NextPageWithLayout = () => {
                 show={showMainnetRotationModal}
                 title="Rotate Mainnet Key?"
               >
-                <P>{ROTATION_WARNING}</P>
+                <Text>{ROTATION_WARNING}</Text>
               </ConfirmModal>
 
               <KeyRow name="Mainnet" token={keys?.MAINNET} onRotateKey={() => setShowMainnetRotationModal(true)} />
@@ -104,7 +103,7 @@ const ProjectSettings: NextPageWithLayout = () => {
             show={showTestnetRotationModal}
             title="Rotate Testnet Key?"
           >
-            <P>{ROTATION_WARNING}</P>
+            <Text>{ROTATION_WARNING}</Text>
           </ConfirmModal>
 
           <KeyRow name="Testnet" token={keys?.TESTNET} onRotateKey={() => setShowTestnetRotationModal(true)} />
@@ -182,7 +181,7 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: () => void }
       <Flex align="center" gap="l">
         <H5 css={{ width: '4.5rem' }}>{props.name}</H5>
 
-        <Font family="number">
+        <Text family="number" color="text1">
           {props.token ? (
             keyObscured ? (
               getObscuredKey(props.token)
@@ -192,7 +191,7 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: () => void }
           ) : (
             <Placeholder css={{ width: '10rem', height: '1rem' }} />
           )}
-        </Font>
+        </Text>
       </Flex>
 
       <Button color="neutral" onClick={() => setKeyObscured(!keyObscured)} disabled={!props.token}>
@@ -207,7 +206,7 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: () => void }
         </Popover.Anchor>
 
         <Popover.Content side="top">
-          <P>Copied!</P>
+          <Text>Copied!</Text>
         </Popover.Content>
       </Popover.Root>
 

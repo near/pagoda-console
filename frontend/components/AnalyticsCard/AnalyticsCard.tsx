@@ -2,7 +2,7 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 
 import { Flex } from '../lib/Flex';
-import { Font } from '../lib/Font';
+import { Text } from '../lib/Text';
 import * as S from './styles';
 
 export function AnalyticsCard({
@@ -36,8 +36,12 @@ export function AnalyticsCard({
     return (
       <S.Card css={{ height: '100%', background: 'var(--color-surface-1)', display: 'flex', alignItems: 'center' }}>
         <Flex as="p" stack align="center">
-          <Font size="h5">{simple.label}</Font>
-          <Font size="h1">{simple.value}</Font>
+          <Text as="span" color="text1" size="h5">
+            {simple.label}
+          </Text>
+          <Text as="span" color="text1" size="h1">
+            {simple.value}
+          </Text>
         </Flex>
       </S.Card>
     );

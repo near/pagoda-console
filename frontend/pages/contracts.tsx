@@ -11,13 +11,12 @@ import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
-import { Font } from '@/components/lib/Font';
 import * as Form from '@/components/lib/Form';
 import { H1, H2 } from '@/components/lib/Heading';
 import { Message } from '@/components/lib/Message';
-import { P } from '@/components/lib/Paragraph';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
+import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useContracts } from '@/hooks/contracts';
 import { useDebounce } from '@/hooks/debounce';
@@ -119,8 +118,12 @@ function ContractsTable(props: { project: string; environment: Environment }) {
               }}
             >
               <span />
-              <Font css={{ fontWeight: 600 }}>Account Balance</Font>
-              <Font css={{ fontWeight: 600 }}>Storage Used</Font>
+              <Text color="text1" as="span" css={{ fontWeight: 600 }}>
+                Account Balance
+              </Text>
+              <Text color="text1" as="span" css={{ fontWeight: 600 }}>
+                Storage Used
+              </Text>
               {isEditing && <span></span>}
               {contracts &&
                 contracts.map((contract) => (
@@ -161,12 +164,12 @@ function ContractsEmptyState({
           </Box>
 
           <Flex css={{ width: '50%' }} stack>
-            <P>
-              <Font color="text1" css={{ fontWeight: 600 }}>
+            <Text>
+              <Text as="span" color="text1" css={{ fontWeight: 600 }}>
                 To see focused explorer views and aggregate transactions:
-              </Font>{' '}
+              </Text>{' '}
               add contracts to this project.{' '}
-            </P>
+            </Text>
 
             <AddContractForm project={project} environment={environment} onAdd={mutateContracts} />
           </Flex>
@@ -336,19 +339,19 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
       </Box>
 
       {data ? (
-        <Font family="number">{(data.result.amount / 10 ** 24).toFixed(5)} Ⓝ</Font>
+        <Text family="number">{(data.result.amount / 10 ** 24).toFixed(5)} Ⓝ</Text>
       ) : !error ? (
         <Spinner size="xs" />
       ) : (
-        <Font family="number">N/A</Font>
+        <Text family="number">N/A</Text>
       )}
 
       {data ? (
-        <Font family="number">{data.result.storage_usage} B</Font>
+        <Text family="number">{data.result.storage_usage} B</Text>
       ) : !error ? (
         <Spinner size="xs" />
       ) : (
-        <Font family="number">N/A</Font>
+        <Text family="number">N/A</Text>
       )}
 
       {props.showDelete && (
@@ -416,7 +419,7 @@ function RecentTransactionList({ contracts, net }: { contracts: Contract[]; net:
                     <TransactionAction transaction={t} net={net} finalityStatus={finalityStatus} />
                   </Box>
 
-                  <Font
+                  <Text
                     css={{
                       marginTop: 'auto',
                       marginBottom: 'auto',
@@ -425,7 +428,7 @@ function RecentTransactionList({ contracts, net }: { contracts: Contract[]; net:
                     }}
                   >
                     {t.sourceContract}
-                  </Font>
+                  </Text>
                 </Flex>
               );
             })}

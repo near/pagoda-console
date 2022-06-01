@@ -1,8 +1,11 @@
 import { styled } from '@/styles/stitches';
 
-export const Font = styled('span', {
+export const Text = styled('p', {
   variants: {
     color: {
+      current: {
+        color: 'CurrentColor',
+      },
       danger: {
         color: 'var(--color-danger)',
       },
@@ -73,5 +76,11 @@ export const Font = styled('span', {
         lineHeight: 'var(--line-height-body-small)',
       },
     },
+  },
+
+  defaultVariants: {
+    color: 'text2',
+    family: 'body',
+    size: 'body',
   },
 });

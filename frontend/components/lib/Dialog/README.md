@@ -29,7 +29,7 @@ const [dialogIsOpen, setDialogIsOpen] = useState(false);
 
 <Dialog.Root open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
   <Dialog.Content title="Your Modal Title">
-    <P>Your modal content.</P>
+    <Text>Your modal content.</Text>
   </Dialog.Content>
 </Dialog.Root>
 ```
@@ -45,7 +45,7 @@ A trigger dialog doesn't give you a programmatic way of opening or closing the d
   </Dialog.Trigger>
 
   <Dialog.Content title="Your Modal Title">
-    <P>You modal content.</P>
+    <Text>You modal content.</Text>
 
     <Dialog.Close asChild>
       <Button>Close Modal</Button>
@@ -69,7 +69,7 @@ A `ReactNode` can also be passed if you want to use a custom set of elements to 
   title={
     <>
       <Dialog.Title>Your Modal Title</Dialog.Title>
-      <P>Your Modal Subtitle</P>
+      <Text>Your Modal Subtitle</Text>
     </>
   }
 ></Dialog.Content>
@@ -81,7 +81,7 @@ If you omit the `title` prop entirely, no default title or close button will be 
 <Dialog.Content>
   <Dialog.Title>Your Modal Title</Dialog.Title>
 
-  <P>You modal content.</P>
+  <Text>You modal content.</Text>
 
   <Dialog.Close asChild>
     <Button>Close Modal</Button>

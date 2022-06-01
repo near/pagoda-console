@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { deleteProject } from '@/hooks/projects';
 import { useIdentity } from '@/hooks/user';
 
-import { P } from '../lib/Paragraph';
+import { Text } from '../lib/Text';
 import { ConfirmModal } from './ConfirmModal';
 
 interface Props {
@@ -46,10 +46,10 @@ export default function DeleteProjectModal({ slug, name, show, setShow, onDelete
       show={show}
       title={`Remove ${name}`}
     >
-      <P>
+      <Text>
         Removing this project may have unintended consequences, make sure the API keys for this project are no longer in
         use before removing it.
-      </P>
+      </Text>
     </ConfirmModal>
   );
 }

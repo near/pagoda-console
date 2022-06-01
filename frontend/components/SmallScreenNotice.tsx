@@ -6,7 +6,7 @@ import Circles from '@/public/images/circles.svg';
 import { Container } from './lib/Container';
 import { Flex } from './lib/Flex';
 import { H1 } from './lib/Heading';
-import { P } from './lib/Paragraph';
+import { Text } from './lib/Text';
 
 export default function SmallScreenNotice() {
   const router = useRouter();
@@ -34,10 +34,10 @@ export default function SmallScreenNotice() {
       <Container size="s">
         <Flex stack gap="l">
           <H1>See you on the big screen!</H1>
-          <P>
+          <Text>
             We’re working to deliver the best mobile experience possible. In the meantime, please visit us on a device
             with a larger screen.
-          </P>
+          </Text>
           <Logo style={{ height: '40px' }} />
         </Flex>
       </Container>

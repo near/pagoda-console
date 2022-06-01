@@ -18,9 +18,8 @@ import { Box } from '../lib/Box';
 import { Button } from '../lib/Button';
 import { FeatherIcon } from '../lib/FeatherIcon';
 import { Flex } from '../lib/Flex';
-import { Font } from '../lib/Font';
 import { H3, H4 } from '../lib/Heading';
-import { P } from '../lib/Paragraph';
+import { Text } from '../lib/Text';
 import { TextLink } from '../lib/TextLink';
 import { TextOverflow } from '../lib/TextOverflow';
 import * as S from './styles';
@@ -88,10 +87,10 @@ export function NftInfoCard() {
 
       <S.Body>
         {!savedContractAddress && (
-          <P>
+          <Text>
             I’ll show you contract metrics here. Paste in your NFT contract address below and info will update here as
             you progress through the tutorial.
-          </P>
+          </Text>
         )}
 
         {isEditing || !savedContractAddress ? (
@@ -116,9 +115,9 @@ export function NftInfoCard() {
           </Form.Root>
         ) : (
           <Flex justify="spaceBetween" align="center">
-            <Font color="text1" css={{ fontWeight: 600 }}>
+            <Text as="span" color="text1" css={{ fontWeight: 600 }}>
               {savedContractAddress}
-            </Font>
+            </Text>
             <Button
               color="neutral"
               size="s"
@@ -141,11 +140,7 @@ export function NftInfoCard() {
               />
             )}
 
-            {metadataError && (
-              <P>
-                <Font color="danger">{metadataError}</Font>
-              </P>
-            )}
+            {metadataError && <Text color="danger">{metadataError}</Text>}
 
             {nftData && nftData.claimsSpec && nftData.initialized && <NftInfo nftData={nftData} />}
           </>
@@ -175,19 +170,11 @@ function NftInfo({ nftData }: { nftData: NftData }) {
         />
       )}
 
-      {nftData?.errors.metadata && (
-        <P>
-          <Font color="danger">Couldn&#39;t fetch contract metadata from nft_metadata()</Font>
-        </P>
-      )}
+      {nftData?.errors.metadata && <Text color="danger">Couldn&#39;t fetch contract metadata from nft_metadata()</Text>}
 
       <H4>Tokens</H4>
 
-      {tokenError && (
-        <P>
-          <Font color="danger">{tokenError}</Font>
-        </P>
-      )}
+      {tokenError && <Text color="danger">{tokenError}</Text>}
 
       {nftData?.tokenJson && (
         <TokenList
@@ -196,7 +183,7 @@ function NftInfo({ nftData }: { nftData: NftData }) {
         />
       )}
 
-      {nftData?.supply === 0 && <P>Mint an NFT to see it here!</P>}
+      {nftData?.supply === 0 && <Text>Mint an NFT to see it here!</Text>}
     </Flex>
   );
 }
@@ -229,7 +216,7 @@ function NftOverview({
       <S.GridKey>Symbol</S.GridKey>
       <S.GridValue>{metadata.symbol}</S.GridValue>
       <S.GridKey>Minted</S.GridKey>
-      <S.GridValue>{supplyErrorMessage ? <Font color="danger">{supplyErrorMessage}</Font> : supply}</S.GridValue>
+      <S.GridValue>{supplyErrorMessage ? <Text color="danger">{supplyErrorMessage}</Text> : supply}</S.GridValue>
     </S.Grid>
   );
 }
@@ -268,14 +255,14 @@ function TokenList({ tokenJson, listCapped = false }: { tokenJson: Token[]; list
       </Accordion.Root>
 
       {listCapped && (
-        <P>
+        <Text>
           There’s more where that came from! We can only show 30 tokens here at a time, but you can query the rest as
           shown in the{' '}
           <Link href="/tutorials/nfts/enumeration#nft-tokens" passHref>
             <TextLink>{'Enumerating tokens > NFT tokens'}</TextLink>
           </Link>{' '}
           section.
-        </P>
+        </Text>
       )}
     </Flex>
   );

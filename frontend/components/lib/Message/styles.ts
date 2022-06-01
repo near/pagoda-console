@@ -1,6 +1,6 @@
 import { styled } from '@/styles/stitches';
 
-import { P } from '../Paragraph';
+import { Text } from '../Text';
 
 export const Container = styled('div', {
   width: '100%',
@@ -23,6 +23,6 @@ export const Container = styled('div', {
   },
 });
 
-export const Text = styled(P, {
+export const Content = styled(Text, {
   color: 'CurrentColor',
 });

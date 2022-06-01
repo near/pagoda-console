@@ -4,7 +4,7 @@ import { ejectTutorial } from '@/hooks/projects';
 
 import { FeatherIcon } from '../lib/FeatherIcon';
 import { Flex } from '../lib/Flex';
-import { P } from '../lib/Paragraph';
+import { Text } from '../lib/Text';
 import { ConfirmModal } from './ConfirmModal';
 
 interface Props {
@@ -51,10 +51,10 @@ export const EjectProjectModal = ({ slug, name, show, setShow, onEject }: Props)
         <FeatherIcon icon="layers" size="m" />
       </Flex>
 
-      <P>
+      <Text>
         Completing this tutorial will turn it into a full project. Doing so will remove the Tutorial from the menu bar
         and create a mainnet API key. This action is irreversible.
-      </P>
+      </Text>
     </ConfirmModal>
   );
 };

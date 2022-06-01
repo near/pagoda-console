@@ -17,14 +17,14 @@ import * as Accordion from '@/components/lib/Accordion';
   <Accordion.Item value="item-1">
     <Accordion.Trigger>Header 1</Accordion.Trigger>
     <Accordion.Content>
-      <P>Content 1</P>
+      <Text>Content 1</Text>
     </Accordion.Content>
   </Accordion.Item>
 
   <Accordion.Item value="item-2">
     <Accordion.Trigger>Header 2</Accordion.Trigger>
     <Accordion.Content>
-      <P>Content 2</P>
+      <Text>Content 2</Text>
     </Accordion.Content>
   </Accordion.Item>
 </Accordion.Root>

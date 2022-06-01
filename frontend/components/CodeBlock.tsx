@@ -8,7 +8,7 @@ import * as Popover from '@/components/lib/Popover';
 
 import { Box } from './lib/Box';
 import { FeatherIcon } from './lib/FeatherIcon';
-import { P } from './lib/Paragraph';
+import { Text } from './lib/Text';
 
 export default function CodeBlock({ children, ...passedProps }: { children: ReactNode; language: string }) {
   const isChildString = typeof children === 'string';
@@ -70,7 +70,7 @@ export default function CodeBlock({ children, ...passedProps }: { children: Reac
         </Popover.Anchor>
 
         <Popover.Content side="top">
-          <P>Copied!</P>
+          <Text>Copied!</Text>
         </Popover.Content>
       </Popover.Root>
     </Box>

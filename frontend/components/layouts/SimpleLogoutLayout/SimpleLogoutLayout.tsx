@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
-import { Font } from '@/components/lib/Font';
+import { Text } from '@/components/lib/Text';
 import { useAccount } from '@/hooks/user';
 import LogoSvg from '@/public/images/brand/pagoda-logo.svg';
 import { logOut } from '@/utils/auth';
@@ -27,9 +27,9 @@ export function SimpleLogoutLayout({ children }: { children: ReactElement }) {
           <DropdownMenu.Root>
             <DropdownMenu.Button color="transparent">
               <FeatherIcon icon="user" />
-              <Font family="body" css={{ fontWeight: 600 }}>
+              <Text as="span" color="text1" family="body" css={{ fontWeight: 600 }}>
                 {user?.name}
-              </Font>
+              </Text>
             </DropdownMenu.Button>
 
             <DropdownMenu.Content align="end">

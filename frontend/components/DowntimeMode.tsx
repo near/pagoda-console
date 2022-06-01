@@ -3,7 +3,7 @@ import config from '@/utils/config';
 import { assertUnreachable } from '@/utils/helpers';
 
 import { Flex } from './lib/Flex';
-import { P } from './lib/Paragraph';
+import { Text } from './lib/Text';
 
 export function DowntimeMode() {
   if (!config.downtimeMode) return <></>;
@@ -28,9 +28,9 @@ export function DowntimeMode() {
     <Flex gap="l" stack align="center">
       <IconSvg style={{ width: '114px', height: 'auto', maxWidth: '100%' }} />
 
-      <P size="l" css={{ whiteSpace: 'pre-line', textAlign: 'center' }}>
+      <Text size="h5" css={{ whiteSpace: 'pre-line', textAlign: 'center' }}>
         {message}
-      </P>
+      </Text>
     </Flex>
   );
 }

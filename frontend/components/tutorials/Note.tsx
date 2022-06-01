@@ -1,6 +1,6 @@
 import { Flex } from '../lib/Flex';
 import { Message } from '../lib/Message';
-import { P } from '../lib/Paragraph';
+import { Text } from '../lib/Text';
 
 export default function Note(props: any) {
   let icon;
@@ -16,7 +16,7 @@ export default function Note(props: any) {
     <>
       <Message icon={icon}>
         <Flex stack gap="s">
-          <P>{props.children[0] ? props.children[0].props.children : props.children.props.children}</P>
+          <Text>{props.children[0] ? props.children[0].props.children : props.children.props.children}</Text>
           {props.children[0] && props.children.slice(1)}
         </Flex>
       </Message>
