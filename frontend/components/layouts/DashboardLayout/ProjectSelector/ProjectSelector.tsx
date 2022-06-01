@@ -42,7 +42,7 @@ export function ProjectSelector() {
           return (
             <DropdownMenu.Item key={p.id} onSelect={() => onSelectProject(p)}>
               {p.name}
-              {p.tutorial && <Badge size="small">Tutorial</Badge>}
+              {p.tutorial && <Badge size="s">Tutorial</Badge>}
             </DropdownMenu.Item>
           );
         })}

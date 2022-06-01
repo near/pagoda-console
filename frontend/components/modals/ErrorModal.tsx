@@ -26,10 +26,10 @@ export const ErrorModal = ({ error, setError }: Props) => {
 
   return (
     <Dialog.Root open={!!error}>
-      <Dialog.Content size="small">
+      <Dialog.Content size="s">
         <Flex stack gap="l" align="center">
           <FeatherIcon icon="alert-circle" color="danger" size="l" />
-          <P size="large">{errorCopy}</P>
+          <P size="l">{errorCopy}</P>
           <Button color="neutral" onClick={close}>
             Dismiss
           </Button>

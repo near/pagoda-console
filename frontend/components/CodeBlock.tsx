@@ -51,7 +51,7 @@ export default function CodeBlock({ children, ...passedProps }: { children: Reac
         <Popover.Anchor asChild>
           <Button
             color="neutral"
-            size="small"
+            size="s"
             onClick={copyCode}
             disabled={!isChildString}
             css={{

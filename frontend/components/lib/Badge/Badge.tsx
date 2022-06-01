@@ -30,10 +30,10 @@ export const Badge = styled('span', {
     },
 
     size: {
-      standard: {
+      m: {
         fontSize: 'var(--font-size-body)',
       },
-      small: {
+      s: {
         fontSize: 'var(--font-size-body-small)',
       },
     },
@@ -41,6 +41,6 @@ export const Badge = styled('span', {
 
   defaultVariants: {
     color: 'neutral',
-    size: 'standard',
+    size: 'm',
   },
 });

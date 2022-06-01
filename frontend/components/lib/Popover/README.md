@@ -33,7 +33,7 @@ import * as Popover from '@/components/lib/Popover';
 
       <Popover.Close asChild>
         <Button
-          size="small"
+          size="s"
           color="danger"
           onClick={() => {
             console.log(1);

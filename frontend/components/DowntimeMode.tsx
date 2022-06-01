@@ -28,7 +28,7 @@ export function DowntimeMode() {
     <Flex gap="l" stack align="center">
       <IconSvg style={{ width: '114px', height: 'auto', maxWidth: '100%' }} />
 
-      <P size="large" css={{ whiteSpace: 'pre-line', textAlign: 'center' }}>
+      <P size="l" css={{ whiteSpace: 'pre-line', textAlign: 'center' }}>
         {message}
       </P>
     </Flex>

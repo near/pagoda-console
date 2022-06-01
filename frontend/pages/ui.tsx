@@ -210,7 +210,7 @@ const Settings: NextPageWithLayout = () => {
             <Badge>Neutral</Badge>
             <Badge color="primary">Primary</Badge>
             <Badge color="danger">Danger</Badge>
-            <Badge size="small">Small</Badge>
+            <Badge size="s">Small</Badge>
           </H2>
         </Flex>
       </Section>
@@ -251,10 +251,10 @@ const Settings: NextPageWithLayout = () => {
             <Button color="danger">Danger</Button>
             <Button color="neutral">Neutral</Button>
             <Button color="transparent">Transparent</Button>
-            <Button color="neutral" size="small">
+            <Button color="neutral" size="s">
               Small
             </Button>
-            <Button color="neutral" size="small" loading>
+            <Button color="neutral" size="s" loading>
               Small
             </Button>
           </Flex>
@@ -263,7 +263,7 @@ const Settings: NextPageWithLayout = () => {
             <ButtonDropdown>Dropdown</ButtonDropdown>
 
             <Link href="/project-settings" passHref>
-              <ButtonLink color="neutral" size="small" css={{ '@mobile': { background: 'red' } }}>
+              <ButtonLink color="neutral" size="s" css={{ '@mobile': { background: 'red' } }}>
                 Link
               </ButtonLink>
             </Link>
@@ -318,7 +318,7 @@ const Settings: NextPageWithLayout = () => {
               <Button>Trigger</Button>
             </Dialog.Trigger>
 
-            <Dialog.Content title="Your Modal Title" size="small">
+            <Dialog.Content title="Your Modal Title" size="s">
               <Flex stack>
                 <H4>This is a small modal with a default title and close button.</H4>
                 <Button
@@ -430,7 +430,7 @@ const Settings: NextPageWithLayout = () => {
             </DropdownMenu.Root>
 
             <DropdownMenu.Root>
-              <DropdownMenu.Button size="small">Small</DropdownMenu.Button>
+              <DropdownMenu.Button size="s">Small</DropdownMenu.Button>
               <DropdownMenu.Content>
                 <DropdownMenu.Item>New Tab</DropdownMenu.Item>
                 <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
@@ -666,7 +666,7 @@ const Settings: NextPageWithLayout = () => {
                         })}
                       >
                         {option.display}
-                        <P size="small">{option.description}</P>
+                        <P size="s">{option.description}</P>
                       </Form.Checkbox>
                     ))}
                   </Form.CheckboxGroup>
@@ -837,9 +837,9 @@ const Settings: NextPageWithLayout = () => {
       <Section>
         <Flex stack>
           <H2>Paragraph</H2>
-          <P size="small">A small paragraph.</P>
+          <P size="s">A small paragraph.</P>
           <P>A standard paragraph.</P>
-          <P size="large">A large paragraph.</P>
+          <P size="l">A large paragraph.</P>
         </Flex>
       </Section>
 
@@ -878,7 +878,7 @@ const Settings: NextPageWithLayout = () => {
 
                   <Popover.Close asChild>
                     <Button
-                      size="small"
+                      size="s"
                       color="danger"
                       onClick={() => {
                         console.log(1);
@@ -904,7 +904,7 @@ const Settings: NextPageWithLayout = () => {
             </Popover.Root>
 
             <Popover.Root>
-              <Popover.Button size="small">Small</Popover.Button>
+              <Popover.Button size="s">Small</Popover.Button>
 
               <Popover.Content>
                 <P>
@@ -1037,7 +1037,7 @@ const Settings: NextPageWithLayout = () => {
               <TextLink color="neutral">Neutral Link</TextLink>
             </Link>
             <Link href="/project-settings" passHref>
-              <TextLink size="small">Small Link</TextLink>
+              <TextLink size="s">Small Link</TextLink>
             </Link>
           </Flex>
         </Flex>

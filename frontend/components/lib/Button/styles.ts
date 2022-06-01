@@ -110,15 +110,15 @@ export const Button = styled('button', {
     },
 
     size: {
-      small: {
+      s: {
         fontSize: 'var(--font-size-body-small)',
-        height: 'var(--size-input-s)',
+        height: 'var(--size-input-height-s)',
         padding: '0 var(--space-s)',
         borderRadius: 'var(--border-radius-xs)',
       },
-      standard: {
+      m: {
         fontSize: 'var(--font-size-body)',
-        height: 'var(--size-input-m)',
+        height: 'var(--size-input-height-m)',
       },
     },
 
@@ -131,6 +131,6 @@ export const Button = styled('button', {
 
   defaultVariants: {
     color: 'primary',
-    size: 'standard',
+    size: 'm',
   },
 });

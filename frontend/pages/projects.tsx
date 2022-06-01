@@ -136,7 +136,7 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
       </Link>
 
       {props.showDelete && (
-        <Button size="small" color="danger" onClick={() => setShowModal(true)}>
+        <Button size="s" color="danger" onClick={() => setShowModal(true)}>
           <FeatherIcon icon="trash-2" size="xs" />
         </Button>
       )}

@@ -49,7 +49,7 @@ export const Message = ({
         </Flex>
 
         {dismiss && (
-          <Button size="small" color="neutral" onClick={dismiss}>
+          <Button size="s" color="neutral" onClick={dismiss}>
             {dismissText || 'Dismiss'}
           </Button>
         )}

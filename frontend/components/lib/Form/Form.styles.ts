@@ -68,7 +68,7 @@ export const HorizontalGroup = styled('div', {
   width: '100%',
 
   [`${Group}`]: {
-    minHeight: 'var(--size-input-m)',
+    minHeight: 'var(--size-input-height-m)',
   },
 });
 
@@ -100,7 +100,7 @@ export const Input = styled('input', {
   fontSize: 'var(--font-size-body)',
   fontFamily: 'var(--font-body)',
   fontWeight: 400,
-  height: 'var(--size-input-m)',
+  height: 'var(--size-input-height-m)',
   padding: '0 var(--space-m)',
   borderRadius: 'var(--border-radius-s)',
   transition: 'var(--transitions)',

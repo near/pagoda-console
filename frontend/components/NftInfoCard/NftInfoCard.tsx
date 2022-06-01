@@ -121,7 +121,7 @@ export function NftInfoCard() {
             </Font>
             <Button
               color="neutral"
-              size="small"
+              size="s"
               onClick={() => {
                 setIsEditing(true);
               }}

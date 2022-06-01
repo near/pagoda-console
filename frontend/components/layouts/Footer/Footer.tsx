@@ -11,10 +11,10 @@ export function Footer(props: Props) {
   return (
     <S.Footer {...props}>
       <Flex justify="center">
-        <TextLink size="small" color="neutral" href="/Terms.pdf" target="_blank" rel="noopener noreferrer">
+        <TextLink size="s" color="neutral" href="/Terms.pdf" target="_blank" rel="noopener noreferrer">
           Terms of Use
         </TextLink>
-        <TextLink size="small" color="neutral" href="/PrivacyPolicy.pdf" target="_blank" rel="noopener noreferrer">
+        <TextLink size="s" color="neutral" href="/PrivacyPolicy.pdf" target="_blank" rel="noopener noreferrer">
           Privacy Policy
         </TextLink>
       </Flex>

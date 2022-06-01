@@ -27,7 +27,7 @@ import { ButtonLink } from '@/components/lib/Button';
 ...
 
 <Link href="/project-settings" passHref>
-  <ButtonLink color="neutral" size="small">
+  <ButtonLink color="neutral" size="s">
     Link
   </ButtonLink>
 </Link>

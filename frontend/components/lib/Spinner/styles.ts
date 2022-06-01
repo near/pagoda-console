@@ -19,18 +19,18 @@ export const Spinner = styled('div', {
     },
     size: {
       xs: {
-        width: 'var(--size-input-xs)',
-        height: 'var(--size-input-xs)',
+        width: 'var(--size-input-height-xs)',
+        height: 'var(--size-input-height-xs)',
         borderWidth: '2px',
       },
       s: {
-        width: 'var(--size-input-s)',
-        height: 'var(--size-input-s)',
+        width: 'var(--size-input-height-s)',
+        height: 'var(--size-input-height-s)',
         borderWidth: '3px',
       },
       m: {
-        width: 'var(--size-input-m)',
-        height: 'var(--size-input-m)',
+        width: 'var(--size-input-height-m)',
+        height: 'var(--size-input-height-m)',
         borderWidth: '4px',
       },
     },

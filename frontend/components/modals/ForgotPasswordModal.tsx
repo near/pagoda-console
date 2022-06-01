@@ -105,7 +105,7 @@ const ModalContent = ({ setShow }: Props) => {
 export const ForgotPasswordModal = (props: Props) => {
   return (
     <Dialog.Root open={props.show} onOpenChange={props.setShow}>
-      <Dialog.Content title="Password Reset" size="small">
+      <Dialog.Content title="Password Reset" size="s">
         {/* The modal content is broken out in to its own component so
         that we'll have a fresh instance each time this modal opens.
         Otherwise, we'd have to worry about manually resetting the state

@@ -41,9 +41,13 @@ export const TextLink = styled('a', {
     },
 
     size: {
-      small: {
+      s: {
         fontSize: 'var(--font-size-body-small)',
         fontWeight: 400,
+      },
+
+      m: {
+        fontSize: 'var(--font-size-body)',
       },
     },
   },

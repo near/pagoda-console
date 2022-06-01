@@ -23,7 +23,7 @@ interface Props {
 export function ConfirmModal(props: Props) {
   return (
     <Dialog.Root open={props.show} onOpenChange={props.setShow}>
-      <Dialog.Content title={props.title} size="small">
+      <Dialog.Content title={props.title} size="s">
         <Flex stack gap="l">
           {props.children}
 

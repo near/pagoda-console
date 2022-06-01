@@ -64,20 +64,20 @@ export const Content = styled(DialogPrimitive.Content, {
 
   variants: {
     size: {
-      small: {
+      s: {
         maxWidth: 'var(--size-max-container-width-s)',
       },
-      medium: {
+      m: {
         maxWidth: 'var(--size-max-container-width-m)',
       },
-      large: {
+      l: {
         maxWidth: 'var(--size-max-container-width-l)',
       },
     },
   },
 
   defaultVariants: {
-    size: 'medium',
+    size: 'm',
   },
 });
 

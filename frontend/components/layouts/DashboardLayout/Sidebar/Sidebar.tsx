@@ -74,7 +74,7 @@ export function Sidebar({ children, ...props }: Props) {
                 <S.NavLink as="span" disabled>
                   <FeatherIcon icon={page.icon} />
                   {page.display}
-                  <Badge size="small">Soon</Badge>
+                  <Badge size="s">Soon</Badge>
                 </S.NavLink>
               )}
             </S.NavItem>

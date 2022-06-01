@@ -2,7 +2,7 @@ import { styled } from '@/styles/stitches';
 
 export const Root = styled('div', {
   height: '100%',
-  paddingLeft: 'var(--size-sidebar-expanded)',
+  paddingLeft: 'var(--size-sidebar-width-expanded)',
 });
 
 export const Sidebar = styled('nav', {
@@ -10,7 +10,7 @@ export const Sidebar = styled('nav', {
   flexDirection: 'column',
   justifyContent: 'space-between',
   gap: 'var(--space-l)',
-  width: 'var(--size-sidebar-expanded)',
+  width: 'var(--size-sidebar-width-expanded)',
   position: 'fixed',
   zIndex: 500,
   top: 0,

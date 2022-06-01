@@ -352,7 +352,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
       )}
 
       {props.showDelete && (
-        <Button size="small" color="danger" onClick={() => removeContract()} disabled={!canDelete}>
+        <Button size="s" color="danger" onClick={() => removeContract()} disabled={!canDelete}>
           <FeatherIcon icon="trash-2" size="xs" />
         </Button>
       )}

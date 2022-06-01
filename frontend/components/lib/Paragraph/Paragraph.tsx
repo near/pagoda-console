@@ -8,19 +8,19 @@ export const P = styled('p', {
 
   variants: {
     size: {
-      small: {
+      s: {
         fontSize: 'var(--font-size-body-small)',
       },
-      standard: {
+      m: {
         fontSize: 'var(--font-size-body)',
       },
-      large: {
+      l: {
         fontSize: 'var(--font-size-h4)',
       },
     },
   },
 
   defaultVariants: {
-    size: 'standard',
+    size: 'm',
   },
 });
