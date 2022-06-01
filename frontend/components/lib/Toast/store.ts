@@ -77,10 +77,10 @@ export const useToasterStore = create<ToasterStore>((set) => ({
     };
 
     set((state) => {
-      if (options.id && state.toasts.find((t) => t.id === options.id && t.isOpen)) return {};
+      const toasts = state.toasts.filter((t) => t.id !== newToast.id);
 
       return {
-        toasts: [...state.toasts, newToast],
+        toasts: [...toasts, newToast],
       };
     });
   },
