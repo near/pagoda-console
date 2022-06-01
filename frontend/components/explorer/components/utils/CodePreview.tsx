@@ -20,9 +20,8 @@ const CodePreview = (props: Props) => {
       <textarea readOnly className="code-preview" value={props.value} />
       {/* </ReactTextCollapse> */}
       <style jsx>{`
-        @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap');
         .code-preview {
-          font-family: 'Source Code Pro', monospace;
+          font-family: var(--font-code);
           background: #424957;
           color: white;
           padding: 20px;

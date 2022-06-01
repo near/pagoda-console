@@ -28,8 +28,6 @@ export const Viewport = styled(ToastPrimitive.Viewport, {
   maxHeight: '100vh',
   maxWidth: 'var(--size-max-container-width-s)',
   zIndex: 5000,
-  overflowY: 'auto',
-  scrollBehavior: 'smooth',
 });
 
 export const Root = styled(ToastPrimitive.Root, {
@@ -80,9 +78,10 @@ export const Root = styled(ToastPrimitive.Root, {
 });
 
 export const Title = styled(ToastPrimitive.Title, {
+  fontFamily: 'var(--font-body)',
   fontSize: 'var(--font-size-body)',
   lineHeight: 'var(--line-height-body)',
-  fontWeight: 700,
+  fontWeight: 600,
   color: 'CurrentColor',
 });
 

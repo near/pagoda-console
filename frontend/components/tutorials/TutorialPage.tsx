@@ -53,7 +53,7 @@ export function TutorialPage(props: Props) {
             },
 
             th: {
-              fontWeight: 700,
+              fontWeight: 600,
               borderBottom: '2px solid var(--color-surface-3)',
             },
           }}

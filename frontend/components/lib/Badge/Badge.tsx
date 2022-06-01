@@ -7,7 +7,7 @@ export const Badge = styled('span', {
   borderRadius: '100px',
   fontSize: 'var(--font-size-body)',
   fontWeight: 400,
-  fontFamily: 'var(--font-code)',
+  fontFamily: 'var(--font-body)',
   lineHeight: 1,
   whiteSpace: 'nowrap',
 

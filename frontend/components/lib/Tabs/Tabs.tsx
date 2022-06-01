@@ -29,6 +29,7 @@ export const Trigger = styled(TabsPrimitive.Trigger, {
   gap: 'var(--space-s)',
   color: 'var(--color-text-2)',
   cursor: 'pointer',
+  fontFamily: 'var(--font-action)',
   fontSize: 'var(--font-size-h6)',
   lineHeight: 'var(--line-height-h6)',
   fontWeight: 500,

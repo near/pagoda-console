@@ -39,7 +39,8 @@ export default function CodeBlock({ children, ...passedProps }: { children: Reac
       <SyntaxHighlighter
         style={atomOneDark}
         customStyle={{
-          borderRadius: '8px',
+          fontFamily: 'var(--font-code)',
+          borderRadius: 'var(--border-radius-m)',
           padding: '1rem 3rem 1rem 1.2rem',
         }}
         {...passedProps}
@@ -60,7 +61,7 @@ export default function CodeBlock({ children, ...passedProps }: { children: Reac
               right: '0rem',
               background: 'transparent',
               boxShadow: 'none',
-              borderRadius: '0 8px 0 8px',
+              borderRadius: '0 var(--border-radius-m) 0 var(--border-radius-m)',
               padding: '0 6px',
             }}
           >

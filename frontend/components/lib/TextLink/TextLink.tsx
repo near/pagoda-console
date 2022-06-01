@@ -3,8 +3,8 @@ import { styled } from '@/styles/stitches';
 export const TextLink = styled('a', {
   display: 'inline-block',
   cursor: 'pointer',
-  fontWeight: 700,
-  fontFamily: 'var(--font-body)',
+  fontWeight: 500,
+  fontFamily: 'var(--font-action)',
   transition: 'var(--transitions)',
   borderBottom: '1px solid',
   whiteSpace: 'nowrap',

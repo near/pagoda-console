@@ -1,10 +1,10 @@
 @font-face {
-  font-family: 'New Spirit';
-  src: url('/fonts/NewSpirit-Light.otf');
-  font-weight: 300;
+  font-family: 'NB International Pro';
+  src: url('/fonts/NB-International-Pro-Edition-OTF/NBInternationalProMed.otf');
+  font-weight: 600;
 }
 
-@font-face {
+/* @font-face {
   font-family: 'NB International Pro';
   src: url('/fonts/NB-International-Pro-Edition-OTF/NBInternationalProLig.otf');
   font-weight: 400;
@@ -15,7 +15,7 @@
   src: url('/fonts/NB-International-Pro-Edition-OTF/NBInternationalProLigIta.otf');
   font-weight: 400;
   font-style: italic;
-}
+} */
 
 /* This is the "book" style of NB International Pro. It is somewhere between light and regular. */
 /* @font-face {
@@ -29,7 +29,7 @@
   font-style: italic;
 } */
 
-@font-face {
+/* @font-face {
   font-family: 'NB International Pro';
   src: url('/fonts/NB-International-Pro-Edition-OTF/NBInternationalProReg.otf');
   font-weight: 500;
@@ -40,14 +40,9 @@
   src: url('/fonts/NB-International-Pro-Edition-OTF/NBInternationalProIta.otf');
   font-weight: 500;
   font-style: italic;
-}
+} */
 
-@font-face {
-  font-family: 'NB International Pro';
-  src: url('/fonts/NB-International-Pro-Edition-OTF/NBInternationalProMed.otf');
-  font-weight: 600;
-}
-
+/* 
 @font-face {
   font-family: 'NB International Pro';
   src: url('/fonts/NB-International-Pro-Edition-OTF/NBInternationalProMedIta.otf');
@@ -66,10 +61,4 @@
   src: url('/fonts/NB-International-Pro-Edition-OTF/NBInternationalProBolIta.otf');
   font-weight: 700;
   font-style: italic;
-}
-
-/* We are currently not using the mono style of this font. */
-/* @font-face {
-  font-family: 'NB International Pro Mono', monospace;
-  src: url('/fonts/NB-International-Pro-Edition-OTF/NBInternationalProMono.otf');
 } */

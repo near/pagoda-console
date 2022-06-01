@@ -21,15 +21,18 @@ export const Font = styled('span', {
     },
 
     family: {
-      accent: {
-        fontWeight: 300,
-        fontFamily: 'var(--font-accent)',
+      action: {
+        fontFamily: 'var(--font-action)',
       },
       body: {
         fontFamily: 'var(--font-body)',
       },
       code: {
         fontFamily: 'var(--font-code)',
+      },
+      heading: {
+        fontWeight: 600,
+        fontFamily: 'var(--font-heading)',
       },
       number: {
         fontFamily: 'var(--font-number)',

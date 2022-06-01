@@ -42,7 +42,7 @@ export const Trigger = styled(AccordionPrimitive.Trigger, {
   cursor: 'pointer',
   display: 'flex',
   flex: '1',
-  fontWeight: '500',
+  fontWeight: 600,
   justifyContent: 'space-between',
   padding: 'var(--space-m)',
   borderRadius: 'var(--border-radius)',

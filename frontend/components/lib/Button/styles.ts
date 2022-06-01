@@ -20,7 +20,7 @@ export const Button = styled('button', {
   justifyContent: 'center',
   cursor: 'pointer',
   fontWeight: 500,
-  fontFamily: 'var(--font-code)',
+  fontFamily: 'var(--font-action)',
   padding: '0 var(--space-m)',
   flexShrink: 0,
   transition: 'var(--transitions)',

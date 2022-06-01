@@ -113,8 +113,8 @@ export const HeaderContent = styled('div', {
 
 export const Title = styled(DialogPrimitive.Title, {
   color: 'var(--color-text-1)',
-  fontFamily: 'var(--font-body)',
-  fontWeight: 500,
+  fontFamily: 'var(--font-heading)',
+  fontWeight: 600,
   fontSize: 'var(--font-size-h4)',
   lineHeight: 'var(--line-height-h4)',
 });

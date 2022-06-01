@@ -75,14 +75,14 @@ export const HorizontalGroup = styled('div', {
 export const Legend = styled('legend', {
   color: 'var(--color-text-1)',
   fontFamily: 'var(--font-body)',
-  fontWeight: 500,
+  fontWeight: 600,
   lineHeight: 'var(--line-height-body)',
 });
 
 export const Label = styled('label', {
   color: 'var(--color-text-1)',
   fontFamily: 'var(--font-body)',
-  fontWeight: 500,
+  fontWeight: 600,
   lineHeight: 'var(--line-height-body)',
 });
 

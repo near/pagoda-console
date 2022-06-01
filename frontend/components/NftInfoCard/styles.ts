@@ -72,7 +72,7 @@ export const Grid = styled('div', {
 });
 
 export const GridKey = styled('span', {
-  fontWeight: 700,
+  fontWeight: 600,
 });
 
 export const GridValue = styled('span', {

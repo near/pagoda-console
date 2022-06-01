@@ -41,7 +41,8 @@ export const ItemUnselectedIndicator = styled('div', {
 });
 
 const itemStyles: StitchesCSS = {
-  font: 'var(--font-body)',
+  fontFamily: 'var(--font-body)',
+  fontWeight: 400,
   fontSize: 'var(--font-size-body)',
   lineHeight: 'var(--line-height-body)',
   color: 'var(--color-text-1)',

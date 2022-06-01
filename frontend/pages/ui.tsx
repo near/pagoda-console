@@ -568,14 +568,17 @@ const Settings: NextPageWithLayout = () => {
           <HR />
 
           <Flex as="p" gap="l" wrap>
-            <Font size="h3" family="accent">
-              Family Accent
+            <Font size="h3" family="action">
+              Family Action
             </Font>
             <Font size="h3" family="body">
               Family Body
             </Font>
             <Font size="h3" family="code">
               Family Code
+            </Font>
+            <Font size="h3" family="heading">
+              Family Heading
             </Font>
             <Font size="h3" family="number">
               Family Number
