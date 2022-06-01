@@ -9,6 +9,7 @@ body {
   font-family: var(--font-body);
   line-height: var(--line-height-body);
   height: 100%;
+  padding-right: 0 !important;
 }
 
 body > div {
