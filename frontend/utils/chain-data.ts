@@ -145,14 +145,14 @@ export async function initializeNaj() {
     return;
   }
   const keyStore = new nearAPI.keyStores.BrowserLocalStorageKeyStore();
-  const nearconfig = {
+  const nearConfig = {
     networkId: 'testnet',
     keyStore,
     nodeUrl: RPC_API_ENDPOINT,
     headers: {},
   };
 
-  near = await nearAPI.connect(nearconfig);
+  near = await nearAPI.connect(nearConfig);
 }
 
 type ContractInfo = Partial<AccountView> & { codeDeployed?: boolean; accountExists?: boolean };
