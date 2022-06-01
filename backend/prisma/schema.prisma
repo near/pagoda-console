@@ -173,13 +173,13 @@ model AlertRule {
   description   String
   isPaused      Boolean       @default(false)
   fnCallRule    FnCallRule?   @relation(fields: [fnCallRuleId], references: [id])
-  fnCallRuleId  Int?
+  fnCallRuleId  Int?          @unique
   txRule        TxRule?       @relation(fields: [txRuleId], references: [id])
-  txRuleId      Int?
+  txRuleId      Int?          @unique
   acctBalRule   AcctBalRule?  @relation(fields: [acctBalRuleId], references: [id])
-  acctBalRuleId Int?
+  acctBalRuleId Int?          @unique
   eventRule     EventRule?    @relation(fields: [eventRuleId], references: [id])
-  eventRuleId   Int?
+  eventRuleId   Int?          @unique
   contract      Contract      @relation(fields: [contractId], references: [id])
   contractId    Int
   environment   Environment   @relation(fields: [environmentId], references: [id])
@@ -203,16 +203,16 @@ enum AlertRuleType {
 }
 
 model FnCallRule {
-  id         Int         @id @default(autoincrement())
-  function   String
-  params     Json
-  alertRules AlertRule[]
+  id        Int        @id @default(autoincrement())
+  function  String
+  params    Json
+  alertRule AlertRule?
 }
 
 model TxRule {
-  id         Int         @id @default(autoincrement())
-  action     TxAction?
-  alertRules AlertRule[]
+  id        Int        @id @default(autoincrement())
+  action    TxAction?
+  alertRule AlertRule?
 }
 
 enum TxAction {
@@ -227,19 +227,19 @@ enum TxAction {
 }
 
 model EventRule {
-  id         Int         @id @default(autoincrement())
-  standard   String
-  version    String
-  event      String
-  data       Json
-  alertRules AlertRule[]
+  id        Int        @id @default(autoincrement())
+  standard  String
+  version   String
+  event     String
+  data      Json
+  alertRule AlertRule?
 }
 
 model AcctBalRule {
   id         Int              @id @default(autoincrement())
   comparator NumberComparator
   amount     Int
-  alertRules AlertRule[]
+  alertRule  AlertRule?
 }
 
 enum NumberComparator {

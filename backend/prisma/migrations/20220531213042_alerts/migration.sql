@@ -72,6 +72,18 @@ CREATE TABLE "AcctBalRule" (
     CONSTRAINT "AcctBalRule_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateIndex
+CREATE UNIQUE INDEX "AlertRule_fnCallRuleId_key" ON "AlertRule"("fnCallRuleId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AlertRule_txRuleId_key" ON "AlertRule"("txRuleId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AlertRule_acctBalRuleId_key" ON "AlertRule"("acctBalRuleId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AlertRule_eventRuleId_key" ON "AlertRule"("eventRuleId");
+
 -- AddForeignKey
 ALTER TABLE "AlertRule" ADD CONSTRAINT "AlertRule_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
