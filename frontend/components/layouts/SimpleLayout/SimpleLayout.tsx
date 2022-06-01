@@ -16,7 +16,7 @@ export function SimpleLayout({ children }: { children: ReactElement }) {
 
           <H1
             css={{
-              fontSize: '2.45rem',
+              fontSize: '2.4rem',
               fontFamily: 'var(--font-body)',
               fontWeight: 400,
               letterSpacing: '-0.02em',
