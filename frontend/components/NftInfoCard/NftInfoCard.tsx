@@ -85,7 +85,7 @@ export function NftInfoCard() {
         <FeatherIcon icon="chevron-down" size="l" data-arrow-icon />
       </S.Header>
 
-      <S.Body>
+      <Flex stack>
         {!savedContractAddress && (
           <Text>
             I’ll show you contract metrics here. Paste in your NFT contract address below and info will update here as
@@ -145,7 +145,7 @@ export function NftInfoCard() {
             {nftData && nftData.claimsSpec && nftData.initialized && <NftInfo nftData={nftData} />}
           </>
         )}
-      </S.Body>
+      </Flex>
     </S.Root>
   );
 }

@@ -59,12 +59,6 @@ export const Header = styled('button', {
   },
 });
 
-export const Body = styled('div', {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 'var(--space-m)',
-});
-
 export const Grid = styled('div', {
   display: 'grid',
   gridTemplateColumns: 'auto 1fr',
