@@ -1,9 +1,8 @@
-import type { Toast, ToastType } from '@/stores/toaster';
-import { useToasterStore } from '@/stores/toaster';
-
 import { Button } from '../Button';
 import { FeatherIcon } from '../FeatherIcon';
 import { Flex } from '../Flex';
+import type { Toast, ToastType } from './store';
+import { useToasterStore } from './store';
 import * as T from './Toast';
 
 export function Toaster() {
