@@ -32,10 +32,11 @@ You can pass other options too:
 <Button
   onClick={() =>
     openToast({
-      type: 'success',
+      type: 'success', // success | info | error
       title: 'Toast Title',
       description: 'This is a great toast description.',
-      icon: 'zap',
+      icon: 'zap', // feather icon
+      duration: 20000, // milliseconds (pass Infinity to disable auto close)
       action: () => {
         alert(1);
       },

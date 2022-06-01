@@ -1115,6 +1115,30 @@ const Settings: NextPageWithLayout = () => {
             </Button>
 
             <Button
+              color="neutral"
+              onClick={() =>
+                openToast({
+                  duration: 1000,
+                  description: 'This is a toast description',
+                })
+              }
+            >
+              Custom Duration
+            </Button>
+
+            <Button
+              color="neutral"
+              onClick={() =>
+                openToast({
+                  duration: Infinity,
+                  description: 'This is a toast description',
+                })
+              }
+            >
+              No Duration
+            </Button>
+
+            <Button
               color="danger"
               onClick={() =>
                 openToast({

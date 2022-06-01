@@ -25,7 +25,13 @@ export function Toaster() {
         const icon = toast.icon || iconsByType[type];
 
         return (
-          <T.Root type={type} open={toast.isOpen} onOpenChange={(open) => onOpenChange(open, toast)} key={toast.id}>
+          <T.Root
+            type={type}
+            duration={toast.duration}
+            open={toast.isOpen}
+            onOpenChange={(open) => onOpenChange(open, toast)}
+            key={toast.id}
+          >
             {icon && <FeatherIcon icon={icon} css={{ alignSelf: 'center' }} size="m" />}
 
             <Flex stack gap="m">
