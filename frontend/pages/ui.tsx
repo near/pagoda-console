@@ -1119,7 +1119,7 @@ const Settings: NextPageWithLayout = () => {
               onClick={() =>
                 openToast({
                   duration: 1000,
-                  description: 'This is a toast description',
+                  description: 'This will close in 1 second',
                 })
               }
             >
@@ -1131,11 +1131,11 @@ const Settings: NextPageWithLayout = () => {
               onClick={() =>
                 openToast({
                   duration: Infinity,
-                  description: 'This is a toast description',
+                  description: 'This will never auto close',
                 })
               }
             >
-              No Duration
+              No Auto Close
             </Button>
 
             <Button
