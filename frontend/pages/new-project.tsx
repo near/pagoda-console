@@ -83,7 +83,7 @@ const NewProject: NextPageWithLayout = () => {
             </Form.Group>
 
             <Button loading={formState.isSubmitting} type="submit">
-              Create a Project
+              Create Project
             </Button>
           </Flex>
         </Form.Root>

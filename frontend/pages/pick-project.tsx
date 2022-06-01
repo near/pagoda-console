@@ -11,6 +11,7 @@ import { useRouteParam } from '@/hooks/route';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface Project {
+  id: string;
   title: string;
   path: string;
   description: string;
@@ -19,12 +20,14 @@ interface Project {
 
 const projects: Project[] = [
   {
+    id: 'blank',
     title: 'Blank',
     path: '/new-project',
     description: 'A blank project with mainnet and testnet API keys.',
     icon: 'plus-circle',
   },
   {
+    id: 'tutorial',
     title: 'Tutorial',
     path: '/pick-tutorial',
     description: 'Choose from a variety of interactive tutorials.',
@@ -56,9 +59,10 @@ const PickProject: NextPageWithLayout = () => {
         )}
 
         <Flex>
-          {projects.map((project, idx) => (
+          {projects.map((project) => (
             <ProjectCard
-              key={idx}
+              key={project.id}
+              id={project.id}
               title={project.title}
               description={project.description}
               icon={project.icon}

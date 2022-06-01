@@ -16,6 +16,7 @@ enum Tutorial {
 // Not including a path attribute will grey-out the tile and it will not be clickable.
 const projects = [
   {
+    id: 'nft-market',
     tutorial: Tutorial.NftMarket,
     title: 'NFT Market',
     path: '/new-nft-tutorial',
@@ -23,6 +24,7 @@ const projects = [
       'Start by minting an NFT using a pre-deployed contract, then build up to a fully-fledged NFT marketplace.',
   },
   {
+    id: 'crossword',
     tutorial: Tutorial.Crossword,
     title: 'Crossword',
     description: 'Learn about access keys by building a crossword puzzle that pays out the daily winner.',
@@ -40,9 +42,10 @@ const PickTutorial: NextPageWithLayout = () => {
         <P>Choose from a variety of interactive tutorials. Each one ends with a production-ready project.</P>
 
         <Flex>
-          {projects.map((project, idx) => (
-            <div key={idx}>
+          {projects.map((project) => (
+            <div key={project.id}>
               <ProjectCard
+                id={project.id}
                 isComingSoon={!project.path}
                 title={project.title}
                 description={project.description}
