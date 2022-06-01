@@ -26,6 +26,7 @@ export const LogoContainer = styled('div', {
   display: 'flex',
   alignItems: 'center',
   height: 'var(--size-header-height)',
+  padding: '0 var(--space-s)',
 });
 
 export const Nav = styled('ul', {

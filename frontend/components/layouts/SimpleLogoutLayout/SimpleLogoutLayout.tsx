@@ -21,7 +21,7 @@ export function SimpleLogoutLayout({ children }: { children: ReactElement }) {
     <S.Wrapper>
       <S.Header>
         <Flex align="center" justify="spaceBetween">
-          <LogoSvg style={{ height: '2.125rem' }} />
+          <LogoSvg style={{ height: '2.125rem', marginLeft: 'var(--space-s)' }} />
 
           <DropdownMenu.Root>
             <DropdownMenu.Button color="transparent">
