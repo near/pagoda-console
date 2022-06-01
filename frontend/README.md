@@ -16,7 +16,7 @@ Identity Management: [Firebase Auth](https://firebase.google.com/docs/auth)
 
 ## Local Environment Variables
 
-Environment variables are loaded automatically from a `.env.local` file at the root of the project. Please copy the `.env.local.example` file as a starting point and ask the team for the secrets.
+Environment variables are loaded automatically from `.env` and `.env.local` file at the root of the project. Use `.env.local` to override any values in `.env`. Please copy the `.env.local.example` file as a starting point for your own `.env.local` file and ask the team for any secrets if there are any.
 
 To make the environment variable available in the browser at runtime, it must be prefixed with `NEXT_PUBLIC_`
 
