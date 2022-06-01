@@ -21,6 +21,7 @@ export const Content = styled(TooltipPrimitive.Content, {
   backgroundColor: 'var(--background-color)',
   boxShadow: 'var(--shadow-softer)',
   zIndex: 1000,
+  maxWidth: 'var(--size-max-container-width-xs)',
 
   '&[data-state="delayed-open"]': {
     animation: `${openAnimation} 200ms`,

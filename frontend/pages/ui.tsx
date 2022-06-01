@@ -735,6 +735,25 @@ const Settings: NextPageWithLayout = () => {
 
       <Section>
         <Flex stack>
+          <H2>Info</H2>
+
+          <Text>
+            An info component renders a help circle icon that opens a tooltip with more context when hovered. Clicking
+            the icon will toggle the tooltip.
+          </Text>
+
+          <Flex align="center">
+            <H4>Contract ABI</H4>{' '}
+            <Info
+              content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas metus turpis, auctor eget imperdiet in,
+              tincidunt ac sem."
+            />
+          </Flex>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
           <H2>List</H2>
 
           <H5>Unordered</H5>
