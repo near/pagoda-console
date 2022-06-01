@@ -47,6 +47,24 @@ You can pass other options too:
 </Button>
 ```
 
+## Deduplicate
+
+If you need to ensure only a single instance of a toast is ever displayed at once, you can deduplicate by passing a unique `id` key. If a toast with the passed `id` is currently open, a new toast will not be opened:
+
+```tsx
+<Button
+  onClick={() =>
+    openToast({
+      id: 'my-unique-toast',
+      title: 'Toast Title',
+      description: 'This is a great toast description.',
+    })
+  }
+>
+  Deduplicated Toast
+</Button>
+```
+
 ## Custom Toast
 
 If you need something more custom, you can render a custom toast using `lib/Toast/Toaster.tsx` as an example like so:

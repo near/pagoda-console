@@ -1094,6 +1094,19 @@ const Settings: NextPageWithLayout = () => {
               color="neutral"
               onClick={() =>
                 openToast({
+                  id: 'my-toast-123',
+                  title: 'Toast Title',
+                  description: 'This is a great toast description.',
+                })
+              }
+            >
+              Deduplicate
+            </Button>
+
+            <Button
+              color="neutral"
+              onClick={() =>
+                openToast({
                   description: 'This is a toast description',
                 })
               }

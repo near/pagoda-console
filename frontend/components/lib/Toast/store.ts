@@ -20,6 +20,7 @@ export interface OpenToastOptions {
   description?: string;
   duration?: number;
   icon?: string;
+  id?: string;
   title?: string;
   type?: ToastType;
 }
@@ -71,11 +72,13 @@ export const useToasterStore = create<ToasterStore>((set) => ({
     const newToast = {
       ...options,
       isOpen: true,
-      id: Date.now().toString(),
+      id: options.id || Date.now().toString(),
       type: options.type || 'info',
     };
 
     set((state) => {
+      if (options.id && state.toasts.find((t) => t.id === options.id && t.isOpen)) return {};
+
       return {
         toasts: [...state.toasts, newToast],
       };
