@@ -28,6 +28,7 @@ import { SvgIcon } from '@/components/lib/SvgIcon';
 import * as Tabs from '@/components/lib/Tabs';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
+import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { ThemeToggle } from '@/components/ThemeToggle/ThemeToggle';
 import ExampleIcon from '@/public/images/icons/ui-example.svg';
@@ -1037,7 +1038,9 @@ const Settings: NextPageWithLayout = () => {
               <TextLink color="neutral">Neutral Link</TextLink>
             </Link>
             <Link href="/project-settings" passHref>
-              <TextLink size="s">Small Link</TextLink>
+              <TextLink size="s" color="neutral">
+                Small Link
+              </TextLink>
             </Link>
           </Flex>
         </Flex>
@@ -1050,6 +1053,79 @@ const Settings: NextPageWithLayout = () => {
           <P css={{ maxWidth: '18rem' }}>
             <TextOverflow>Sometimes you need to cut off text at a certain point.</TextOverflow>
           </P>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack>
+          <H2>Toast</H2>
+
+          <Flex wrap>
+            <Button
+              color="neutral"
+              onClick={() =>
+                openToast({
+                  title: 'Toast Title',
+                  description: 'This is a great toast description.',
+                })
+              }
+            >
+              Open a Toast
+            </Button>
+
+            <Button
+              color="neutral"
+              onClick={() =>
+                openToast({
+                  title: 'Toast Title',
+                  description: 'This is a great toast description.',
+                  icon: 'zap',
+                  action: () => {
+                    alert(1);
+                  },
+                  actionText: 'Do Action',
+                })
+              }
+            >
+              With an Action + Icon
+            </Button>
+
+            <Button
+              color="neutral"
+              onClick={() =>
+                openToast({
+                  description: 'This is a toast description',
+                })
+              }
+            >
+              No Title
+            </Button>
+
+            <Button
+              color="danger"
+              onClick={() =>
+                openToast({
+                  title: 'Toast Title',
+                  description: 'This is a toast description. It can be as long as you need.',
+                  type: 'error',
+                })
+              }
+            >
+              Error
+            </Button>
+
+            <Button
+              onClick={() =>
+                openToast({
+                  title: 'Toast Title',
+                  description: 'This is a toast description. It can be as long as you need.',
+                  type: 'success',
+                })
+              }
+            >
+              Success
+            </Button>
+          </Flex>
         </Flex>
       </Section>
 

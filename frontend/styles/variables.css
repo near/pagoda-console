@@ -28,6 +28,9 @@
   --color-cta-primary: var(--color-primary);
   --color-cta-primary-highlight: var(--color-primary-highlight);
   --color-cta-primary-text: #000000;
+  --color-cta-success: var(--color-success);
+  --color-cta-success-highlight: var(--color-success-highlight);
+  --color-cta-success-text: #000000;
   --color-cta-danger: var(--color-danger);
   --color-cta-danger-highlight: var(--color-danger-highlight);
   --color-cta-danger-text: #000000;
