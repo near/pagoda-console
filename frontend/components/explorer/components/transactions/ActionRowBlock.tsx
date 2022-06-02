@@ -1,11 +1,10 @@
 import { Component } from 'react';
-import { Row, Col } from 'react-bootstrap';
 
 import AccountLink from '../utils/AccountLink';
 import Timer from '../utils/Timer';
 
 // import { Translate } from "react-localize-redux";
-import Translate from './Translate';
+// import Translate from './Translate';
 
 export type ViewMode = 'sparse' | 'compact';
 export type DetalizationMode = 'detailed' | 'minimal';
@@ -47,31 +46,31 @@ class ActionRowBlock extends Component<Props> {
 
     return (
       <>
-        <Row className={`action-${viewMode}-row mx-0 ${className}`}>
-          <Col xs="auto">
+        <div className={`action-${viewMode}-row mx-0 row ${className}`}>
+          <div className="col-auto">
             <div className="action-row-img">{icon}</div>
-          </Col>
-          <Col className="action-row-details">
-            <Row className="action-row-message">
-              <Col md="8" xs="7">
-                <Row>
-                  <Col className="action-row-title">{title}</Col>
-                </Row>
+          </div>
+          <div className="col action-row-details">
+            <div className="action-row-message row">
+              <div className="col-md-8 col-7">
+                <div className="row">
+                  <div className="action-row-title col">{title}</div>
+                </div>
                 {detalizationMode === 'detailed' ? (
-                  <Row>
-                    <Col className="action-row-text">
+                  <div className="row">
+                    <div className="action-row-text col">
                       <>by</> <AccountLink accountId={signerId} />
-                    </Col>
-                  </Row>
+                    </div>
+                  </div>
                 ) : null}
-              </Col>
+              </div>
               {detalizationMode === 'detailed' ? (
-                <Col md="4" xs="5" className="ml-auto text-right">
-                  <Row>
-                    <Col className="action-row-txid">{detailsLink}</Col>
-                  </Row>
-                  <Row>
-                    <Col className="action-row-timer">
+                <div className="ml-auto text-right col-md-4 col-5">
+                  <div className="row">
+                    <div className="action-row-txid col">{detailsLink}</div>
+                  </div>
+                  <div className="row">
+                    <div className="action-row-timer col">
                       <span className="action-row-timer-status">
                         {status ?? <>Fetching Status...</>}
                         {isFinal === undefined
@@ -81,20 +80,20 @@ class ActionRowBlock extends Component<Props> {
                           : '/' + 'Finalizing'}
                       </span>{' '}
                       {blockTimestamp && <Timer time={blockTimestamp} />}
-                    </Col>
-                  </Row>
-                </Col>
+                    </div>
+                  </div>
+                </div>
               ) : null}
-            </Row>
+            </div>
             {children}
-          </Col>
-        </Row>
+          </div>
+        </div>
         <style jsx global>
           {`
             .action-sparse-row {
               padding-top: 10px;
               padding-bottom: 10px;
-              border-top: solid 2px #f8f8f8;
+              border-top: solid 2px var(--color-surface-1);
             }
             .action-sparse-row .action-sparse-row {
               border-top: 0;
@@ -105,7 +104,7 @@ class ActionRowBlock extends Component<Props> {
             }
 
             .action-compact-row .action-row-details {
-              border-bottom: 2px solid #f8f8f8;
+              border-bottom: 2px solid var(--color-surface-1);
               margin: 0.1em 0 0;
               padding-bottom: 8px;
             }
@@ -117,8 +116,8 @@ class ActionRowBlock extends Component<Props> {
             .action-compact-row .action-row-img {
               width: 24px;
               height: 24px;
-              border: solid 2px #f8f8f8;
-              background-color: #ffffff;
+              border: solid 2px var(--color-surface-1);
+              background-color: var(--color-surface-1);
               border-radius: 50%;
               margin-right: 8px;
               text-align: center;
@@ -138,7 +137,7 @@ class ActionRowBlock extends Component<Props> {
             }
 
             .action-row-bottom {
-              border-bottom: solid 2px #f8f8f8;
+              border-bottom: solid 2px var(--color-surface-1);
             }
 
             .action-compact-row .action-row-img svg {
@@ -154,30 +153,30 @@ class ActionRowBlock extends Component<Props> {
             .action-row-title {
               font-size: 14px;
               font-weight: 500;
-              color: #24272a;
+              color: var(--color-text-1);
             }
 
             .action-row-title a {
-              color: #666;
+              color: var(--color-text-2);
             }
 
             .action-row-title a:hover {
-              color: #24272a;
+              color: var(--color-text-1);
             }
 
             .action-row-text {
               font-size: 12px;
               font-weight: 500;
               line-height: 1.5;
-              color: #999999;
+              color: var(--color-text-2);
             }
 
             .action-row-text a {
-              color: #999999;
+              color: var(--color-text-2);
             }
 
             .action-row-text a:hover {
-              color: #24272a;
+              color: var(--color-text-1);
             }
 
             .action-row-txid {
@@ -189,7 +188,7 @@ class ActionRowBlock extends Component<Props> {
 
             .action-row-timer {
               font-size: 12px;
-              color: #999999;
+              color: var(--color-text-2);
               font-weight: 100;
             }
 

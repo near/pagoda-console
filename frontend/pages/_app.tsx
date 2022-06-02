@@ -1,12 +1,9 @@
-import '../styles/globals.scss';
-import '../public/fonts/fonts.css';
-import '@fortawesome/fontawesome-svg-core/styles.css';
-
-import { config as svgConfig } from '@fortawesome/fontawesome-svg-core';
-svgConfig.autoAddCss = false;
+import '@/styles/reset.css';
+import '@/styles/fonts.css';
+import '@/styles/variables.css';
+import '@/styles/global.css';
 
 import * as FullStory from '@fullstory/browser';
-import { SSRProvider } from '@restart/ui/ssr'; // workaround for react-bootstrap bug https://github.com/react-bootstrap/react-bootstrap/issues/6026
 import { initializeApp } from 'firebase/app';
 import type { User } from 'firebase/auth';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -17,8 +14,10 @@ import { appWithTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 import { SWRConfig, useSWRConfig } from 'swr';
 
-import DowntimeMode from '@/components/DowntimeMode';
-import SimpleLayout from '@/components/layouts/SimpleLayout';
+import { DowntimeMode } from '@/components/DowntimeMode';
+import { SimpleLayout } from '@/components/layouts/SimpleLayout';
+import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
+import { Toaster } from '@/components/lib/Toast';
 import SmallScreenNotice from '@/components/SmallScreenNotice';
 import { usePageTracker } from '@/hooks/page-tracker';
 import analytics from '@/utils/analytics';
@@ -35,7 +34,7 @@ type AppPropsWithLayout = AppProps & {
 initializeApp(config.firebaseConfig);
 analytics.init();
 
-const unauthedPaths = ['/', '/register'];
+const unauthedPaths = ['/', '/register', '/ui'];
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   usePageTracker();
@@ -64,7 +63,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       if (user) {
         analytics.identify(user.uid);
       } else if (!user && !unauthedPaths.includes(router.pathname)) {
-        // user is signed out, clear all data and redirect back to login
         analytics.reset();
         cache.clear();
         router.push('/');
@@ -74,56 +72,36 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     return () => unsubscribe(); // TODO why lambda function?
   }, [router, cache]);
 
-  // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
-  const getFooter = Component.getFooter ?? (() => null);
 
   return (
-    <SSRProvider>
-      <SWRConfig
-        value={{
-          onErrorRetry: customErrorRetry,
-        }}
-      >
-        <Head>
-          <title>Pagoda Developer Console</title>
-          <meta
-            name="description"
-            content="Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics."
-          />
-          <link rel="icon" href="/favicon.ico" />
-          <link href="/favicon-256x256.png" rel="apple-touch-icon" />
-        </Head>
+    <SWRConfig
+      value={{
+        onErrorRetry: customErrorRetry,
+      }}
+    >
+      <Head>
+        <title>Pagoda Developer Console</title>
+        <meta
+          name="description"
+          content="Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics."
+        />
+        <link rel="icon" href="/favicon.ico" />
+        <link href="/favicon-256x256.png" rel="apple-touch-icon" />
+      </Head>
 
-        {config.downtimeMode ? (
-          <SimpleLayout footer={null}>
-            <DowntimeMode />
-          </SimpleLayout>
-        ) : (
-          <>
-            <div className="largeScreen">{getLayout(<Component {...pageProps} />, getFooter())}</div>
-            <div className="smallScreen">
-              <SmallScreenNotice />
-            </div>
-          </>
-        )}
+      <FeatherIconSheet />
+      <SmallScreenNotice />
+      <Toaster />
 
-        <style jsx>{`
-          .smallScreen {
-            display: none;
-          }
-
-          @media only screen and (max-width: 61.9rem) {
-            .largeScreen {
-              display: none;
-            }
-            .smallScreen {
-              display: block;
-            }
-          }
-        `}</style>
-      </SWRConfig>
-    </SSRProvider>
+      {config.downtimeMode ? (
+        <SimpleLayout>
+          <DowntimeMode />
+        </SimpleLayout>
+      ) : (
+        getLayout(<Component {...pageProps} />)
+      )}
+    </SWRConfig>
   );
 }
 

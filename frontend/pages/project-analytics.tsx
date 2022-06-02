@@ -4,9 +4,15 @@ import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import { useEffect } from 'react';
 
-import AnalyticsCard from '@/components/AnalyticsCard';
-import BorderSpinner from '@/components/BorderSpinner';
-import ProjectSelector from '@/components/ProjectSelector';
+import { AnalyticsCard } from '@/components/AnalyticsCard';
+import { Box } from '@/components/lib/Box';
+import { Container } from '@/components/lib/Container';
+import { Flex } from '@/components/lib/Flex';
+import { H3 } from '@/components/lib/Heading';
+import { Section } from '@/components/lib/Section';
+import { Spinner } from '@/components/lib/Spinner';
+import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useIdentity } from '@/hooks/user';
@@ -279,157 +285,92 @@ const ProjectAnalytics: NextPageWithLayout = () => {
   let content;
   if (usageData && net && usageData.nets[net].calls > 0) {
     content = (
-      <div className="analyticsContainer">
-        <div className="usageCards">
-          {methodBreakdownChartOptions && (
-            <div className="primary">
-              <AnalyticsCard chartOptions={methodBreakdownChartOptions} />
-            </div>
-          )}
-          <div className="secondary">
-            <AnalyticsCard simple={{ label: 'Calls', value: formatTotalCalls(usageData.nets[net].calls) }} />
-          </div>
-          {responseCodeChartOptions && Object.keys(usageData.nets[net].responseCodes).length > 0 && (
-            <div className="tertiary">
-              <AnalyticsCard chartOptions={responseCodeChartOptions} />
-            </div>
-          )}
-        </div>
-        <LastFetchedInfo fetchedAt={usageData.fetchedAt} />
-        <style jsx>{`
-          .usageCards {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto;
-            column-gap: 2rem;
-            row-gap: 2rem;
-            grid-template-areas:
-              'primary primary'
-              'secondary tertiary';
-          }
-          .primary {
-            grid-area: primary;
-          }
-          .secondary {
-            grid-area: secondary;
-          }
-          .tertiary {
-            grid-area: tertiary;
-          }
-          .analyticsContainer {
-            display: flex;
-            flex-direction: column;
-          }
-        `}</style>
-      </div>
+      <Section>
+        <Flex stack gap="l">
+          <Box
+            css={{
+              width: '100%',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gridTemplateRows: 'auto',
+              columnGap: 'var(--space-l)',
+              rowGap: 'var(--space-l)',
+              gridTemplateAreas: "'primary primary' 'secondary tertiary'",
+            }}
+          >
+            {methodBreakdownChartOptions && (
+              <Box css={{ gridArea: 'primary' }}>
+                <AnalyticsCard chartOptions={methodBreakdownChartOptions} />
+              </Box>
+            )}
+            <Box css={{ gridArea: 'secondary' }}>
+              <AnalyticsCard simple={{ label: 'Calls', value: formatTotalCalls(usageData.nets[net].calls) }} />
+            </Box>
+            {responseCodeChartOptions && Object.keys(usageData.nets[net].responseCodes).length > 0 && (
+              <Box css={{ gridArea: 'tertiary' }}>
+                <AnalyticsCard chartOptions={responseCodeChartOptions} />
+              </Box>
+            )}
+          </Box>
+
+          <LastFetchedInfo fetchedAt={usageData.fetchedAt} />
+        </Flex>
+      </Section>
     );
   } else if (usageData === undefined) {
     // loading
     content = (
-      <div className="rpcLoading">
-        <div className="spinnerContainer">
-          <BorderSpinner />
-        </div>
-        Fetching RPC usage data. This may take a few seconds.
-        <style jsx>{`
-          .rpcLoading {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            margin-top: 1rem;
-          }
-          .spinnerContainer {
-            margin-right: 1rem;
-          }
-        `}</style>
-      </div>
+      <Section>
+        <Flex align="center">
+          <Spinner />
+          <Text>Fetching RPC usage data. This may take a few seconds.</Text>
+        </Flex>
+      </Section>
     );
   } else {
     content = <AnalyticsEmptyState fetchedAt={usageData?.fetchedAt} />;
   }
 
-  return (
-    <div>
-      <div className="pageContainer">
-        <ProjectSelector />
-        {content}
-      </div>
-      <style jsx>{`
-        .pageContainer {
-          display: flex;
-          flex-direction: column;
-        }
-      `}</style>
-    </div>
-  );
+  return content;
 };
 
 function AnalyticsEmptyState({ fetchedAt }: { fetchedAt?: string }) {
   return (
-    <div className="emptyStateWrapper">
-      <h3 className="welcomeText">&#128075; Welcome to your new project</h3>
-      <div className="emptyStateContainer">
-        <div className="imageContainer">
-          <Image src={AnalyticsPreview} alt="Preview of populated analytics page" />
-        </div>
-        <div className="onboarding">
-          <div className="onboardingText">
-            <p>
-              Follow the instructions on the{' '}
-              <Link href="/project-settings">
-                <a>Project Settings screen</a>
-              </Link>{' '}
-              (&#34;Settings&#34; in the navbar) to get started with making requests to the NEAR RPC service.
-            </p>
-            <span>Once you make some requests you’ll see usage data populate here.</span>
-          </div>
-        </div>
-      </div>
-      {fetchedAt && <LastFetchedInfo fetchedAt={fetchedAt} />}
-      <style jsx>{`
-        .emptyStateContainer {
-          display: flex;
-          flex-direction: row;
-          column-gap: 1.5rem;
-          align-items: center;
-        }
-        .imageContainer,
-        .onboarding {
-          width: 50%;
-        }
-        .welcomeText {
-          margin-top: 2rem;
-        }
-        .onboardingText {
-          margin-bottom: 3rem;
-        }
-        .boldText {
-          font-weight: 700;
-        }
-        .emptyStateWrapper {
-          display: flex;
-          flex-direction: column;
-          row-gap: 1.5rem;
-        }
-      `}</style>
-    </div>
+    <Section>
+      <Container size="m">
+        <Flex stack gap="l">
+          <H3>&#128075; Welcome to your new project</H3>
+
+          <Flex gap="l" align="center">
+            <Box css={{ width: '50%' }}>
+              <Image src={AnalyticsPreview} alt="Preview of populated analytics page" />
+            </Box>
+
+            <Flex stack css={{ width: '50%' }}>
+              <Text>
+                Follow the instructions on the{' '}
+                <Link href="/project-settings" passHref>
+                  <TextLink>Project Settings</TextLink>
+                </Link>{' '}
+                page (&#34;Settings&#34; in the navbar) to get started with making requests to the NEAR RPC service.
+              </Text>
+              <Text>Once you make some requests you’ll see usage data populate here.</Text>
+            </Flex>
+          </Flex>
+
+          {fetchedAt && <LastFetchedInfo fetchedAt={fetchedAt} />}
+        </Flex>
+      </Container>
+    </Section>
   );
 }
 
 function LastFetchedInfo({ fetchedAt }: { fetchedAt: string }) {
   return (
-    <div className="lastUpdated">
-      <span>Last updated at: {new Date(fetchedAt).toLocaleString()}</span>
-      <span>Data may be fetched once per hour</span>
-      <style jsx>{`
-        .lastUpdated {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 0.5rem;
-          color: var(--color-text-secondary);
-        }
-      `}</style>
-    </div>
+    <Flex justify="spaceBetween">
+      <Text color="text3">Last updated at: {new Date(fetchedAt).toLocaleString()}</Text>
+      <Text color="text3">Data may be fetched once per hour</Text>
+    </Flex>
   );
 }
 

@@ -1,9 +1,9 @@
+import type BN from 'bn.js';
 import type { NextPage } from 'next';
 import type { ReactElement, ReactNode } from 'react';
 
 export type NextPageWithLayout = NextPage & {
-  getLayout?: (page: ReactElement, footer: ReactElement | null) => ReactNode;
-  getFooter?: () => ReactElement;
+  getLayout?: (page: ReactElement) => ReactNode;
 };
 export type NetOption = 'MAINNET' | 'TESTNET';
 export type TutorialOption = 'NFT_MARKET' | 'CROSSWORD';
@@ -64,4 +64,9 @@ export interface NetUsageData {
   methods: Record<string, number>;
   calls: number;
   responseCodes: Record<string, number>;
+}
+
+export interface FinalityStatus {
+  finalBlockHeight: number;
+  finalBlockTimestampNanosecond: BN;
 }

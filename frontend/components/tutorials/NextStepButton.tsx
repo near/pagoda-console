@@ -1,10 +1,11 @@
 import Link from 'next/link';
-import { Button } from 'react-bootstrap';
+
+import { ButtonLink } from '../lib/Button';
 
 export default function NextStepButton({ label, path }: { label: string; path: string }) {
   return (
     <Link passHref href={path}>
-      <Button variant="primary">{label}</Button>
+      <ButtonLink>{label}</ButtonLink>
     </Link>
   );
 }

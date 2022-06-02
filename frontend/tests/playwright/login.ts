@@ -8,7 +8,7 @@ export async function login(page: Page) {
   await page.goto('/', { waitUntil: 'networkidle' });
   await page.fill('input[id="email"]', process.env.TEST_EMAIL);
   await page.fill('input[id="password"]', process.env.TEST_PASSWORD);
-  await page.click('text=Continue');
+  await page.click('button[type="submit"]');
 
   await page.locator('text=Projects').waitFor({ state: 'visible' });
 }

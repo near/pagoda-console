@@ -8,7 +8,7 @@ Language: Typescript
 
 Framework: [Next.js](https://nextjs.org/)
 
-UI Kit: [React Bootstrap](https://react-bootstrap.github.io/)
+UI: [Radix](https://www.radix-ui.com/) & [Stitches](https://stitches.dev/)
 
 Identity Management: [Firebase Auth](https://firebase.google.com/docs/auth)
 
@@ -50,22 +50,7 @@ All environment variables are read into a config object in [utils/config.ts](uti
 
 ## CSS-in-JS
 
-This project uses [styled-jsx](https://github.com/vercel/styled-jsx). This remains open to evaluation. See [this issue](https://github.com/near/developer-console-framework/issues/7) for context
-
-### Styling third party components with styled-jsx
-
-To style third party components which do not accept a custom `className` (e.g. React Bootstrap components) with styled-jsx, it is necessary to use a child or descendent selector and a global class name.
-
-```tsx
-<div className="buttonContainer">
-  <Button>Click me</Button>
-  <style jsx>{`
-    .buttonContainer :global(.btn) {
-      height: 3rem;
-    }
-  `}</style>
-</div>
-```
+This project uses [Radix](https://www.radix-ui.com/) and [Stitches](https://stitches.dev/). We have built out a library of generic, reusable components in `components/lib/`. You can also view all of these components by visiting `/ui` when running the server locally. More detailed documentation will follow soon.
 
 ## Page Layouts
 

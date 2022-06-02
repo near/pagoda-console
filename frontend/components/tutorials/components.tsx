@@ -1,5 +1,3 @@
-import { Table } from 'react-bootstrap';
-
 import { Anchor, H1Anchor, H2Anchor, H3Anchor } from './Anchors';
 import Blockquote from './Blockquote';
 import MdxCodeBlock from './MdxCodeBlock';
@@ -24,11 +22,7 @@ const components = {
   },
   Note: Note,
   Table: (props: any) => {
-    return (
-      <Table striped bordered hover responsive style={{ marginBottom: '1rem', backgroundColor: 'var(--color-white)' }}>
-        {props.children}
-      </Table>
-    );
+    return <table>{props.children}</table>;
   },
   blockquote: Blockquote,
   SetApiKey: SetApiKey,

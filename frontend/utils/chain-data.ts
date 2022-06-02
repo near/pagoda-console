@@ -2,9 +2,9 @@ import * as nearAPI from 'near-api-js';
 import type { AccountView } from 'near-api-js/lib/providers/provider';
 import useSWR from 'swr';
 
-import Config from '@/utils/config';
+import config from '@/utils/config';
 
-const RPC_API_ENDPOINT = Config.url.rpc.default.TESTNET;
+const RPC_API_ENDPOINT = config.url.rpc.default.TESTNET;
 
 let near: nearAPI.Near;
 

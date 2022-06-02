@@ -1,18 +1,11 @@
 import type { ReactNode } from 'react';
 
+import { Flex } from '../lib/Flex';
+
 export default function TutorialFooter({ children }: { children: ReactNode }) {
   return (
-    <>
-      <div className="footerContainer">{children}</div>
-      <style jsx>{`
-        .footerContainer {
-          margin-top: 1.25rem;
-          display: flex;
-          flex-direction: row;
-          justify-content: flex-end;
-          align-items: center;
-        }
-      `}</style>
-    </>
+    <Flex justify="end" align="center" css={{ marginTop: '1.25rem' }}>
+      {children}
+    </Flex>
   );
 }
