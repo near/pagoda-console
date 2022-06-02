@@ -54,7 +54,7 @@ export class AlertsService {
   ): Promise<{ name: AlertRule['name']; id: AlertRule['id'] }> {
     const address = await this.getContractAddress(rule.contract);
 
-    const alertInput = this.buildRuleInput(user, {
+    const alertInput = this.buildCreateRuleInput(user, {
       ...rule,
       name: rule.name || `Successful transaction in ${address}`,
     });
@@ -74,7 +74,7 @@ export class AlertsService {
   ): Promise<{ name: AlertRule['name']; id: AlertRule['id'] }> {
     const address = await this.getContractAddress(rule.contract);
 
-    const alertInput = this.buildRuleInput(user, {
+    const alertInput = this.buildCreateRuleInput(user, {
       ...rule,
       name: rule.name || `Failed transaction in ${address}`,
     });
@@ -94,7 +94,7 @@ export class AlertsService {
   ): Promise<{ name: AlertRule['name']; id: AlertRule['id'] }> {
     const address = await this.getContractAddress(rule.contract);
 
-    const alertInput = this.buildRuleInput(user, {
+    const alertInput = this.buildCreateRuleInput(user, {
       ...rule,
       name:
         rule.name ||
@@ -117,7 +117,7 @@ export class AlertsService {
   ): Promise<{ name: AlertRule['name']; id: AlertRule['id'] }> {
     const address = await this.getContractAddress(rule.contract);
 
-    const alertInput = this.buildRuleInput(user, {
+    const alertInput = this.buildCreateRuleInput(user, {
       ...rule,
       name: rule.name || `Event ${rule.eventRule.event} logged in ${address}`,
     });
@@ -138,7 +138,7 @@ export class AlertsService {
   ): Promise<{ name: AlertRule['name']; id: AlertRule['id'] }> {
     const address = await this.getContractAddress(rule.contract);
 
-    const alertInput = this.buildRuleInput(user, {
+    const alertInput = this.buildCreateRuleInput(user, {
       ...rule,
       name: rule.name || `Account balance changed in ${address}`,
     });
@@ -176,7 +176,7 @@ export class AlertsService {
     return address;
   }
 
-  private buildRuleInput(
+  private buildCreateRuleInput(
     user: User,
     rule: AlertRuleBaseSchema,
   ): Prisma.AlertRuleCreateInput {
