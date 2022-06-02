@@ -31,20 +31,12 @@ export class UsersController {
   @UseGuards(BearerAuthGuard)
   async deleteAccount(@Request() req) {
     const { uid } = req.user;
-    firebaseAdmin
-      .auth()
-      .deleteUser(uid)
-      .then(() => {
-        console.log(
-          'Firebase account deleted successfully. Deactivating user...',
-        );
-        this.usersService.deactivateUser(uid);
-        console.log('User deactivated successfully.');
-      })
-      .catch((e) => {
-        console.log('An error occured while deleting an account: ' + e);
-        throw new InternalServerErrorException();
-      });
+    try {
+      await firebaseAdmin.auth().deleteUser(uid);
+      await this.usersService.deactivateUser(uid);
+    } catch (e) {
+      throw new InternalServerErrorException();
+    }
   }
 
   // @Post('updateDetails')
