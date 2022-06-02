@@ -33,11 +33,11 @@ export class AlertsController {
     }
   }
 
-  @Post('list')
+  @Post('listRules')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(ListAlertRuleSchema))
-  async list(@Request() req, @Body() { environment }: ListAlertRuleDto) {
-    return await this.alertsService.list(req.user, environment);
+  async listRules(@Request() req, @Body() { environment }: ListAlertRuleDto) {
+    return await this.alertsService.listRules(req.user, environment);
   }
 }
 

@@ -5,74 +5,103 @@
 import { AlertRuleType, NumberComparator, TxAction } from '.prisma/client';
 import * as Joi from 'joi';
 
-export interface CreateFnCallRule {
-  function: string;
-  // params: object;
+// create alert rule
+interface CreateAlertRuleBaseDto {
+  name?: string;
+  type: AlertRuleType;
+  contract: number;
+  environment: number;
 }
-export const CreateFnCallRuleSchema = Joi.object({
-  function: Joi.string().required(),
-  // params: Joi.object(),
-});
-
-export interface CreateTxRule {
+interface CreateTxRuleDto {
   action?: TxAction;
 }
-export const CreateTxRuleSchema = Joi.object({
-  action: Joi.string(),
-});
-
-export interface CreateEventRule {
+interface CreateTxRuleDto extends CreateAlertRuleBaseDto {
+  txRule: CreateTxRuleDto;
+}
+interface CreateFnCallRuleDto {
+  function: string;
+  // params?: object;
+}
+interface CreateFnCallRuleDto extends CreateAlertRuleBaseDto {
+  fnCallRule: CreateFnCallRuleDto;
+}
+interface CreateEventRuleDto {
   standard: string;
   version: string;
   event: string;
-  // data: object;
+  // data?: object;
 }
-export const CreateEventRuleSchema = Joi.object({
+interface CreateEventRuleDto extends CreateAlertRuleBaseDto {
+  eventRule: CreateEventRuleDto;
+}
+interface CreateAcctBalRuleDto {
+  comparator: NumberComparator;
+  amount: number;
+}
+interface CreateAcctBalRuleDto extends CreateAlertRuleBaseDto {
+  acctBalRule: CreateAcctBalRuleDto;
+}
+export type CreateAlertRuleDto =
+  | CreateTxRuleDto
+  | CreateFnCallRuleDto
+  | CreateEventRuleDto
+  | CreateAcctBalRuleDto;
+const CreateTxRuleSchema = Joi.object({
+  action: Joi.string(),
+});
+const CreateFnCallRuleSchema = Joi.object({
+  function: Joi.string().required(),
+  // params: Joi.object(),
+});
+const CreateEventRuleSchema = Joi.object({
   standard: Joi.string().required(),
   version: Joi.string().required(),
   event: Joi.string().required(),
   // data: Joi.object(),
 });
-
-export interface CreateAcctBalRule {
-  comparator: NumberComparator;
-  amount: number;
-}
-export const CreateAcctBalRuleSchema = Joi.object({
+const CreateAcctBalRuleSchema = Joi.object({
   comparator: Joi.string()
     .allow('EQ', 'NEQ', 'LT', 'LTE', 'GT', 'GTE')
     .required(),
   amount: Joi.number().required(),
 });
-
-// create alert rule
-export interface CreateAlertRuleDto {
-  name?: string;
-  type: AlertRuleType;
-  rule: CreateFnCallRule | CreateTxRule | CreateEventRule | CreateAcctBalRule;
-  contract: number;
-  environment: number;
-}
 export const CreateAlertRuleSchema = Joi.object({
   name: Joi.string(),
-  type: Joi.string().required(),
-  // The field `rule` is required but you can leave it empty if the schema permits it. E.g. `rule: {}`
-  rule: Joi.alternatives()
-    .conditional('type', {
-      switch: [
-        { is: 'TX_SUCCESS', then: CreateTxRuleSchema },
-        { is: 'TX_FAILURE', then: CreateTxRuleSchema },
-        { is: 'FN_CALL', then: CreateFnCallRuleSchema },
-        { is: 'EVENT', then: CreateEventRuleSchema },
-        { is: 'ACCT_BAL_PCT', then: CreateAcctBalRuleSchema },
-        { is: 'ACCT_BAL_NUM', then: CreateAcctBalRuleSchema },
-      ],
-    })
+  type: Joi.string()
+    .allow(
+      'TX_SUCCESS',
+      'TX_FAILURE',
+      'FN_CALL',
+      'EVENT',
+      'ACCT_BAL_PCT',
+      'ACCT_BAL_NUM',
+    )
     .required(),
+  txRule: CreateTxRuleSchema.when('type', {
+    is: ['TX_SUCCESS', 'TX_FAILURE'],
+    then: Joi.required(),
+    otherwise: Joi.disallow(),
+  }),
+  fnCallRule: CreateFnCallRuleSchema.when('type', {
+    is: 'FN_CALL',
+    then: Joi.required(),
+    otherwise: Joi.disallow(),
+  }),
+  eventRule: CreateEventRuleSchema.when('type', {
+    is: 'EVENT',
+    then: Joi.required(),
+    otherwise: Joi.disallow(),
+  }),
+  acctBalRule: CreateAcctBalRuleSchema.when('type', {
+    is: ['ACCT_BAL_PCT', 'ACCT_BAL_NUM'],
+    then: Joi.required(),
+    otherwise: Joi.disallow(),
+  }),
   contract: Joi.number().required(),
   environment: Joi.number().required(),
 });
 
+// list alert rules
 export interface ListAlertRuleDto {
   environment: number;
 }
@@ -80,26 +109,18 @@ export const ListAlertRuleSchema = Joi.object({
   environment: Joi.number().required(),
 });
 
-// // delete alert
-// export interface DeleteAlertDto {
-//   slug: string;
-// }
-// export const DeleteAlertSchema = Joi.object({
-//   slug: Joi.string().required(),
-// });
+// delete alert rule
+export interface DeleteAlertRuleDto {
+  id: number;
+}
+export const DeleteAlertRuleSchema = Joi.object({
+  id: Joi.number().required(),
+});
 
-// // is alert name unique
-// export interface IsAlertNameUniqueDto {
-//   name: string;
-// }
-// export const IsAlertNameUniqueSchema = Joi.object({
-//   name: alertNameSchema,
-// });
-
-// // get alert details
-// export interface GetAlertDetailsDto {
-//   slug: string;
-// }
-// export const GetAlertDetailsSchema = Joi.object({
-//   slug: Joi.string().required(),
-// });
+// get alert rule details
+export interface GetAlertRuleDetailsDto {
+  id: number;
+}
+export const GetAlertRuleDetailsSchema = Joi.object({
+  id: Joi.number().required(),
+});
