@@ -26,7 +26,7 @@ To make the environment variable available in the browser at runtime, it must be
 
 ## Modules
 
-DevConsole consists of multiple modules owned by differnt teams within Pagoda. Each module has isolated directories within this repository for their work, and should refrain from touching files outside those directories.
+DevConsole consists of multiple modules owned by different teams within Pagoda. Each module has isolated directories within this repository for their work, and should refrain from touching files outside those directories.
 
 The folders are:
 
