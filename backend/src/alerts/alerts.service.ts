@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import {
   User,
   Prisma,
-  AlertRuleType,
   AlertRule,
   AcctBalRule,
   EventRule,
@@ -11,7 +10,6 @@ import {
   TxRule,
 } from '@prisma/client';
 import { AppConfig } from 'src/config/validate';
-import { assertUnreachable } from 'src/helpers';
 import { PrismaService } from 'src/prisma.service';
 import { VError } from 'verror';
 
@@ -50,122 +48,108 @@ export class AlertsService {
     private config: ConfigService<AppConfig>,
   ) {}
 
-  async createRule(
+  async createTxSuccessRule(
     user: User,
-    rule: TxRuleSchema | FnCallRuleSchema | EventRuleSchema | AcctBalRuleSchema,
+    rule: TxRuleSchema,
   ): Promise<{ name: AlertRule['name']; id: AlertRule['id'] }> {
-    const { name, type, environment, contract } = rule;
-    await this.checkUserPermission(user.id, environment, contract);
+    const address = await this.getContractAddress(rule.contract);
 
-    let alert;
+    const alertInput = this.buildRuleInput(user, {
+      ...rule,
+      name: rule.name || `Successful transaction in ${address}`,
+    });
 
-    try {
-      const alertInput: Prisma.AlertRuleCreateInput = {
-        name: name || (await this.buildName(contract, type, rule)),
-        description: '',
-        type,
-        contract: {
-          connect: {
-            id: contract,
-          },
-        },
-        environment: {
-          connect: {
-            id: environment,
-          },
-        },
-        createdByUser: {
-          connect: {
-            id: user.id,
-          },
-        },
-        updatedByUser: {
-          connect: {
-            id: user.id,
-          },
-        },
-      };
-
-      switch (type) {
-        case 'TX_SUCCESS':
-        case 'TX_FAILURE':
-          alertInput.txRule = {
-            create: {
-              ...(rule as TxRuleSchema).txRule,
-            },
-          };
-          break;
-        case 'FN_CALL':
-          alertInput.fnCallRule = {
-            create: {
-              params: null, // TODO this can be removed once params can be set in the Dto
-              ...(rule as FnCallRuleSchema).fnCallRule,
-            },
-          };
-          break;
-        case 'EVENT':
-          alertInput.eventRule = {
-            create: {
-              data: null, // TODO this can be removed once data can be set in the Dto
-              ...(rule as EventRuleSchema).eventRule,
-            },
-          };
-          break;
-        case 'ACCT_BAL_NUM':
-        case 'ACCT_BAL_PCT':
-          alertInput.acctBalRule = {
-            create: {
-              ...(rule as AcctBalRuleSchema).acctBalRule,
-            },
-          };
-          break;
-        default:
-          assertUnreachable(type);
-      }
-
-      alert = await this.prisma.alertRule.create({
-        data: alertInput,
-        select: {
-          name: true,
-          id: true,
-        },
-      });
-    } catch (e) {
-      throw new VError(e, 'Failed while executing alert creation query');
-    }
-
-    return {
-      name: alert.name,
-      id: alert.id,
+    alertInput.txRule = {
+      create: {
+        ...rule.txRule,
+      },
     };
+
+    return this.createRule(alertInput);
   }
 
-  private async buildName(
-    contractId: number,
-    ruleType: AlertRuleType,
-    rule: TxRuleSchema | FnCallRuleSchema | EventRuleSchema | AcctBalRuleSchema,
-  ): Promise<string> {
-    const address = await this.getContractAddress(contractId);
+  async createTxFailureRule(
+    user: User,
+    rule: TxRuleSchema,
+  ): Promise<{ name: AlertRule['name']; id: AlertRule['id'] }> {
+    const address = await this.getContractAddress(rule.contract);
 
-    switch (ruleType) {
-      case 'TX_SUCCESS':
-        return `Successful transaction in ${address}`;
-      case 'TX_FAILURE':
-        return `Failed transaction in ${address}`;
-      case 'FN_CALL':
-        return `Function ${
-          (rule as FnCallRuleSchema).fnCallRule.function
-        } called in ${address}`;
-      case 'ACCT_BAL_PCT':
-      case 'ACCT_BAL_NUM':
-        return `Account balance changed in ${address}`;
-      case 'EVENT':
-        return `Event ${
-          (rule as EventRuleSchema).eventRule.event
-        } logged in ${address}`;
-      default:
-        assertUnreachable(ruleType);
-    }
+    const alertInput = this.buildRuleInput(user, {
+      ...rule,
+      name: rule.name || `Failed transaction in ${address}`,
+    });
+
+    alertInput.txRule = {
+      create: {
+        ...rule.txRule,
+      },
+    };
+
+    return this.createRule(alertInput);
+  }
+
+  async createFnCallRule(
+    user: User,
+    rule: FnCallRuleSchema,
+  ): Promise<{ name: AlertRule['name']; id: AlertRule['id'] }> {
+    const address = await this.getContractAddress(rule.contract);
+
+    const alertInput = this.buildRuleInput(user, {
+      ...rule,
+      name:
+        rule.name ||
+        `Function ${rule.fnCallRule.function} called in ${address}`,
+    });
+
+    alertInput.fnCallRule = {
+      create: {
+        params: {}, // TODO remove this when it can be set from the client
+        ...rule.fnCallRule,
+      },
+    };
+
+    return this.createRule(alertInput);
+  }
+
+  async createEventRule(
+    user: User,
+    rule: EventRuleSchema,
+  ): Promise<{ name: AlertRule['name']; id: AlertRule['id'] }> {
+    const address = await this.getContractAddress(rule.contract);
+
+    const alertInput = this.buildRuleInput(user, {
+      ...rule,
+      name: rule.name || `Event ${rule.eventRule.event} logged in ${address}`,
+    });
+
+    alertInput.eventRule = {
+      create: {
+        data: {}, // TODO remove this when it can be set from the client
+        ...rule.eventRule,
+      },
+    };
+
+    return this.createRule(alertInput);
+  }
+
+  async createAcctBalRule(
+    user: User,
+    rule: AcctBalRuleSchema,
+  ): Promise<{ name: AlertRule['name']; id: AlertRule['id'] }> {
+    const address = await this.getContractAddress(rule.contract);
+
+    const alertInput = this.buildRuleInput(user, {
+      ...rule,
+      name: rule.name || `Account balance changed in ${address}`,
+    });
+
+    alertInput.acctBalRule = {
+      create: {
+        ...rule.acctBalRule,
+      },
+    };
+
+    return this.createRule(alertInput);
   }
 
   private async getContractAddress(contractId: number): Promise<string> {
@@ -190,6 +174,60 @@ export class AlertsService {
       throw new VError(e, 'Failed to find contract');
     }
     return address;
+  }
+
+  private buildRuleInput(
+    user: User,
+    rule: AlertRuleBaseSchema,
+  ): Prisma.AlertRuleCreateInput {
+    const { name, type, environment, contract } = rule;
+
+    const alertInput: Prisma.AlertRuleCreateInput = {
+      name,
+      description: '',
+      type,
+      contract: {
+        connect: {
+          id: contract,
+        },
+      },
+      environment: {
+        connect: {
+          id: environment,
+        },
+      },
+      createdByUser: {
+        connect: {
+          id: user.id,
+        },
+      },
+      updatedByUser: {
+        connect: {
+          id: user.id,
+        },
+      },
+    };
+
+    return alertInput;
+  }
+
+  private async createRule(
+    data: Prisma.AlertRuleCreateInput,
+  ): Promise<{ name: AlertRule['name']; id: AlertRule['id'] }> {
+    let alert;
+
+    try {
+      alert = await this.prisma.alertRule.create({
+        data,
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while executing alert creation query');
+    }
+
+    return {
+      name: alert.name,
+      id: alert.id,
+    };
   }
 
   async listRules(user: User, environment: number) {

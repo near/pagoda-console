@@ -12,33 +12,33 @@ interface CreateAlertRuleBaseDto {
   contract: number;
   environment: number;
 }
-interface CreateTxRuleDto {
+export interface CreateTxRuleDto {
   action?: TxAction;
 }
-interface CreateTxRuleDto extends CreateAlertRuleBaseDto {
+export interface CreateTxRuleDto extends CreateAlertRuleBaseDto {
   txRule: CreateTxRuleDto;
 }
-interface CreateFnCallRuleDto {
+export interface CreateFnCallRuleDto {
   function: string;
   // params?: object;
 }
-interface CreateFnCallRuleDto extends CreateAlertRuleBaseDto {
+export interface CreateFnCallRuleDto extends CreateAlertRuleBaseDto {
   fnCallRule: CreateFnCallRuleDto;
 }
-interface CreateEventRuleDto {
+export interface CreateEventRuleDto {
   standard: string;
   version: string;
   event: string;
   // data?: object;
 }
-interface CreateEventRuleDto extends CreateAlertRuleBaseDto {
+export interface CreateEventRuleDto extends CreateAlertRuleBaseDto {
   eventRule: CreateEventRuleDto;
 }
-interface CreateAcctBalRuleDto {
+export interface CreateAcctBalRuleDto {
   comparator: NumberComparator;
   amount: number;
 }
-interface CreateAcctBalRuleDto extends CreateAlertRuleBaseDto {
+export interface CreateAcctBalRuleDto extends CreateAlertRuleBaseDto {
   acctBalRule: CreateAcctBalRuleDto;
 }
 export type CreateAlertRuleDto =
