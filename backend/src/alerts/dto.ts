@@ -38,7 +38,7 @@ const EventRuleSchema = Joi.object({
 });
 const AcctBalRuleSchema = Joi.object({
   comparator: Joi.string()
-    .allow('EQ', 'NEQ', 'LT', 'LTE', 'GT', 'GTE')
+    .valid('EQ', 'NEQ', 'LT', 'LTE', 'GT', 'GTE')
     .required(),
   amount: Joi.number().required(),
 });
@@ -70,7 +70,7 @@ export type CreateAlertRuleDto =
 export const CreateAlertRuleSchema = Joi.object({
   name: Joi.string(),
   type: Joi.string()
-    .allow(
+    .valid(
       'TX_SUCCESS',
       'TX_FAILURE',
       'FN_CALL',
