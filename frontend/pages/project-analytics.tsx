@@ -10,6 +10,7 @@ import { H1 } from '@/components/lib/Heading';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
 import { useThemeStore } from '@/components/ThemeToggle/store';
 import { useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
@@ -25,7 +26,11 @@ const ProjectAnalytics: NextPageWithLayout = () => {
   }
 
   if (environment?.net === 'TESTNET') {
-    return <TestnetPlaceholder />;
+    return <TestnetNotice />;
+  }
+
+  if (contracts.length === 0) {
+    return <NoContractsNotice />;
   }
 
   return (
@@ -61,7 +66,34 @@ function AnalyticsIframe({ contracts }: { contracts: Contract[] }) {
   );
 }
 
-function TestnetPlaceholder() {
+function NoContractsNotice() {
+  return (
+    <Section css={{ margin: 'auto', textAlign: 'center' }}>
+      <Container size="s">
+        <Flex stack gap="l" align="center">
+          <H1>Analytics</H1>
+
+          <Text>
+            Your selected project and environment doesn&apos;t have any saved contracts yet. Visit the{' '}
+            <Link href="/contracts" passHref>
+              <TextLink>Contracts</TextLink>
+            </Link>{' '}
+            page to add a contract.
+          </Text>
+
+          <Link href="/contracts" passHref>
+            <ButtonLink>
+              <FeatherIcon icon="zap" />
+              Contracts
+            </ButtonLink>
+          </Link>
+        </Flex>
+      </Container>
+    </Section>
+  );
+}
+
+function TestnetNotice() {
   const { selectEnvironment, environments } = useSelectedProject();
 
   const mainnetEnvironment = environments?.find((env) => env.net === 'MAINNET');
@@ -70,7 +102,7 @@ function TestnetPlaceholder() {
     return (
       <Section css={{ margin: 'auto', textAlign: 'center' }}>
         <Container size="s">
-          <Flex stack align="center">
+          <Flex stack gap="l" align="center">
             <H1>Analytics</H1>
 
             <Text>
@@ -100,7 +132,7 @@ function TestnetPlaceholder() {
   return (
     <Section css={{ margin: 'auto', textAlign: 'center' }}>
       <Container size="s">
-        <Flex stack align="center">
+        <Flex stack gap="l" align="center">
           <H1>Analytics</H1>
 
           <Text>
