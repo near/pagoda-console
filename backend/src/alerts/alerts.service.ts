@@ -11,6 +11,7 @@ import {
   TxRule,
 } from '@prisma/client';
 import { AppConfig } from 'src/config/validate';
+import { assertUnreachable } from 'src/helpers';
 import { PrismaService } from 'src/prisma.service';
 import { VError } from 'verror';
 
@@ -118,6 +119,8 @@ export class AlertsService {
             },
           };
           break;
+        default:
+          assertUnreachable(type);
       }
 
       alert = await this.prisma.alertRule.create({
@@ -161,7 +164,7 @@ export class AlertsService {
           (rule as EventRuleSchema).eventRule.event
         } logged in ${address}`;
       default:
-        return `Alert for ${address}`;
+        assertUnreachable(ruleType);
     }
   }
 
