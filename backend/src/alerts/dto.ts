@@ -130,7 +130,7 @@ export type UpdateAlertRuleDto =
   | UpdateEventRuleDto
   | UpdateAcctBalRuleDto;
 export const UpdateAlertRuleSchema = Joi.object({
-  id: Joi.string().required(),
+  id: Joi.number().required(),
   name: Joi.string().required(),
   description: Joi.string().required(),
   type: Joi.string()

@@ -78,6 +78,7 @@ export class AlertsController {
   }
 
   @Post('updateRule')
+  @HttpCode(204)
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(UpdateAlertRuleSchema))
   async updateRule(@Request() req, @Body() { id, ...dto }: UpdateAlertRuleDto) {
