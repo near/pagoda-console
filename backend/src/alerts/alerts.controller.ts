@@ -6,6 +6,8 @@ import {
   UseGuards,
   UsePipes,
   Request,
+  HttpCode,
+  BadRequestException,
 } from '@nestjs/common';
 import { BearerAuthGuard } from 'src/auth/bearer-auth.guard';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
@@ -14,6 +16,8 @@ import { AlertsService } from './alerts.service';
 import {
   CreateAlertRuleDto,
   CreateAlertRuleSchema,
+  DeleteAlertRuleDto,
+  DeleteAlertRuleSchema,
   ListAlertRuleDto,
   ListAlertRuleSchema,
 } from './dto';
@@ -39,6 +43,18 @@ export class AlertsController {
   async listRules(@Request() req, @Body() { environment }: ListAlertRuleDto) {
     return await this.alertsService.listRules(req.user, environment);
   }
+
+  @Post('deleteRule')
+  @HttpCode(204)
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(DeleteAlertRuleSchema))
+  async delete(@Request() req, @Body() { id }: DeleteAlertRuleDto) {
+    try {
+      return await this.alertsService.deleteRule(req.user, { id });
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
 }
 
 function mapError(e: Error) {
@@ -47,10 +63,8 @@ function mapError(e: Error) {
   switch (VError.info(e)?.code) {
     case 'PERMISSION_DENIED':
       return new ForbiddenException();
-    // case 'BAD_ALERT':
-    //   return new BadRequestException();
-    // case 'NAME_CONFLICT':
-    //   return new ConflictException('Name already exists');
+    case 'BAD_ALERT':
+      return new BadRequestException();
     default:
       return e;
   }

@@ -232,6 +232,58 @@ export class AlertsService {
     });
   }
 
+  async deleteRule(
+    callingUser: User,
+    alertWhereUnique: Prisma.AlertRuleWhereUniqueInput,
+  ): Promise<void> {
+    // check that project is valid for deletion
+    let rule;
+    try {
+      rule = await this.prisma.alertRule.findUnique({
+        where: alertWhereUnique,
+        select: {
+          id: true,
+          active: true,
+        },
+      });
+      if (!rule || !rule.active) {
+        throw new VError(
+          { info: { code: 'BAD_ALERT' } },
+          'Alert rule not found or it is already inactive',
+        );
+      }
+    } catch (e) {
+      throw new VError(
+        e,
+        'Failed while determining alert rule eligibility for deletion',
+      );
+    }
+
+    // throw an error if the user doesn't have permission to perform this action
+    await this.checkUserPermission(
+      callingUser.id,
+      rule.environmentId,
+      rule.contractId,
+    );
+
+    // soft delete the alert rule
+    try {
+      await this.prisma.alertRule.update({
+        where: alertWhereUnique,
+        data: {
+          active: false,
+          updatedByUser: {
+            connect: {
+              id: callingUser.id,
+            },
+          },
+        },
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while soft deleting alert rule');
+    }
+  }
+
   // Confirms the contract belongs to the environment
   // and the user is a member of the environment's project.
   private async checkUserPermission(
