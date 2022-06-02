@@ -19,12 +19,18 @@ import {
   CreateAlertRuleDto,
   CreateAlertRuleSchema,
   CreateEventRuleDto,
-  CreateFnCallRuleDto,
   CreateTxRuleDto,
   DeleteAlertRuleDto,
   DeleteAlertRuleSchema,
   ListAlertRuleDto,
   ListAlertRuleSchema,
+  CreateFnCallRuleDto,
+  UpdateTxRuleDto,
+  UpdateAlertRuleDto,
+  UpdateAlertRuleSchema,
+  UpdateAcctBalRuleDto,
+  UpdateEventRuleDto,
+  UpdateFnCallRuleDto,
 } from './dto';
 
 @Controller('alerts')
@@ -65,6 +71,47 @@ export class AlertsController {
           );
         default:
           assertUnreachable(dto.type);
+      }
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('updateRule')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(UpdateAlertRuleSchema))
+  async updateRule(@Request() req, @Body() { id, ...dto }: UpdateAlertRuleDto) {
+    try {
+      const type = await this.alertsService.getRuleType(id);
+      switch (type) {
+        case 'TX_SUCCESS':
+        case 'TX_FAILURE':
+          return await this.alertsService.updateTxRule(
+            req.user,
+            id,
+            dto as UpdateTxRuleDto,
+          );
+        case 'FN_CALL':
+          return await this.alertsService.updateFnCallRule(
+            req.user,
+            id,
+            dto as UpdateFnCallRuleDto,
+          );
+        case 'EVENT':
+          return await this.alertsService.updateEventRule(
+            req.user,
+            id,
+            dto as UpdateEventRuleDto,
+          );
+        case 'ACCT_BAL_NUM':
+        case 'ACCT_BAL_PCT':
+          return await this.alertsService.updateAcctBalRule(
+            req.user,
+            id,
+            dto as UpdateAcctBalRuleDto,
+          );
+        default:
+          assertUnreachable(type);
       }
     } catch (e) {
       throw mapError(e);
