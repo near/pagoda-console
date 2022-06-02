@@ -40,6 +40,11 @@ CREATE TABLE "FnCallRule" (
     "id" SERIAL NOT NULL,
     "function" TEXT NOT NULL,
     "params" JSONB NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" INTEGER,
+    "updatedAt" TIMESTAMP(3),
+    "updatedBy" INTEGER,
 
     CONSTRAINT "FnCallRule_pkey" PRIMARY KEY ("id")
 );
@@ -48,6 +53,11 @@ CREATE TABLE "FnCallRule" (
 CREATE TABLE "TxRule" (
     "id" SERIAL NOT NULL,
     "action" "TxAction",
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" INTEGER,
+    "updatedAt" TIMESTAMP(3),
+    "updatedBy" INTEGER,
 
     CONSTRAINT "TxRule_pkey" PRIMARY KEY ("id")
 );
@@ -59,6 +69,11 @@ CREATE TABLE "EventRule" (
     "version" TEXT NOT NULL,
     "event" TEXT NOT NULL,
     "data" JSONB NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" INTEGER,
+    "updatedAt" TIMESTAMP(3),
+    "updatedBy" INTEGER,
 
     CONSTRAINT "EventRule_pkey" PRIMARY KEY ("id")
 );
@@ -68,6 +83,11 @@ CREATE TABLE "AcctBalRule" (
     "id" SERIAL NOT NULL,
     "comparator" "NumberComparator" NOT NULL,
     "amount" INTEGER NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "createdBy" INTEGER,
+    "updatedAt" TIMESTAMP(3),
+    "updatedBy" INTEGER,
 
     CONSTRAINT "AcctBalRule_pkey" PRIMARY KEY ("id")
 );
@@ -107,3 +127,27 @@ ALTER TABLE "AlertRule" ADD CONSTRAINT "AlertRule_eventRuleId_fkey" FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE "AlertRule" ADD CONSTRAINT "AlertRule_acctBalRuleId_fkey" FOREIGN KEY ("acctBalRuleId") REFERENCES "AcctBalRule"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FnCallRule" ADD CONSTRAINT "FnCallRule_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FnCallRule" ADD CONSTRAINT "FnCallRule_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TxRule" ADD CONSTRAINT "TxRule_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TxRule" ADD CONSTRAINT "TxRule_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "EventRule" ADD CONSTRAINT "EventRule_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "EventRule" ADD CONSTRAINT "EventRule_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AcctBalRule" ADD CONSTRAINT "AcctBalRule_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AcctBalRule" ADD CONSTRAINT "AcctBalRule_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

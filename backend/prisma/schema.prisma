@@ -33,6 +33,14 @@ model User {
   userActions         UserAction[]
   createdAlertRules   AlertRule[]   @relation("UserCreatedAlert")
   updatedAlertRules   AlertRule[]   @relation("UserUpdatedAlert")
+  createdFnCallRules  FnCallRule[]  @relation("UserCreatedFnCallRule")
+  updatedFnCallRules  FnCallRule[]  @relation("UserUpdatedFnCallRule")
+  createdTxRules      TxRule[]      @relation("UserCreatedTxRule")
+  updatedTxRules      TxRule[]      @relation("UserUpdatedTxRule")
+  createdEventRules   EventRule[]   @relation("UserCreatedEventRule")
+  updatedEventRules   EventRule[]   @relation("UserUpdatedEventRule")
+  createdAcctBalRules AcctBalRule[] @relation("UserCreatedAcctBalRule")
+  updatedAcctBalRules AcctBalRule[] @relation("UserUpdatedAcctBalRule")
 }
 
 model Team {
@@ -203,16 +211,30 @@ enum AlertRuleType {
 }
 
 model FnCallRule {
-  id        Int        @id @default(autoincrement())
-  function  String
-  params    Json
-  alertRule AlertRule?
+  id            Int        @id @default(autoincrement())
+  function      String
+  params        Json
+  alertRule     AlertRule?
+  active        Boolean    @default(true)
+  createdAt     DateTime?  @default(now())
+  createdByUser User?      @relation(name: "UserCreatedFnCallRule", fields: [createdBy], references: [id])
+  createdBy     Int?
+  updatedAt     DateTime?  @updatedAt
+  updatedByUser User?      @relation(name: "UserUpdatedFnCallRule", fields: [updatedBy], references: [id])
+  updatedBy     Int?
 }
 
 model TxRule {
-  id        Int        @id @default(autoincrement())
-  action    TxAction?
-  alertRule AlertRule?
+  id            Int        @id @default(autoincrement())
+  action        TxAction?
+  alertRule     AlertRule?
+  active        Boolean    @default(true)
+  createdAt     DateTime?  @default(now())
+  createdByUser User?      @relation(name: "UserCreatedTxRule", fields: [createdBy], references: [id])
+  createdBy     Int?
+  updatedAt     DateTime?  @updatedAt
+  updatedByUser User?      @relation(name: "UserUpdatedTxRule", fields: [updatedBy], references: [id])
+  updatedBy     Int?
 }
 
 enum TxAction {
@@ -227,19 +249,33 @@ enum TxAction {
 }
 
 model EventRule {
-  id        Int        @id @default(autoincrement())
-  standard  String
-  version   String
-  event     String
-  data      Json
-  alertRule AlertRule?
+  id            Int        @id @default(autoincrement())
+  standard      String
+  version       String
+  event         String
+  data          Json
+  alertRule     AlertRule?
+  active        Boolean    @default(true)
+  createdAt     DateTime?  @default(now())
+  createdByUser User?      @relation(name: "UserCreatedEventRule", fields: [createdBy], references: [id])
+  createdBy     Int?
+  updatedAt     DateTime?  @updatedAt
+  updatedByUser User?      @relation(name: "UserUpdatedEventRule", fields: [updatedBy], references: [id])
+  updatedBy     Int?
 }
 
 model AcctBalRule {
-  id         Int              @id @default(autoincrement())
-  comparator NumberComparator
-  amount     Int
-  alertRule  AlertRule?
+  id            Int              @id @default(autoincrement())
+  comparator    NumberComparator
+  amount        Int
+  alertRule     AlertRule?
+  active        Boolean          @default(true)
+  createdAt     DateTime?        @default(now())
+  createdByUser User?            @relation(name: "UserCreatedAcctBalRule", fields: [createdBy], references: [id])
+  createdBy     Int?
+  updatedAt     DateTime?        @updatedAt
+  updatedByUser User?            @relation(name: "UserUpdatedAcctBalRule", fields: [updatedBy], references: [id])
+  updatedBy     Int?
 }
 
 enum NumberComparator {

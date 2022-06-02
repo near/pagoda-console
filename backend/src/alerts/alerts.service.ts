@@ -11,6 +11,7 @@ import {
   AlertRuleType,
 } from '@prisma/client';
 import { AppConfig } from 'src/config/validate';
+import { assertUnreachable } from 'src/helpers';
 import { PrismaService } from 'src/prisma.service';
 import { VError } from 'verror';
 
@@ -55,6 +56,7 @@ type CreateAlertRuleResponse = { name: AlertRule['name']; id: AlertRule['id'] };
 type UpdateAlertRuleBaseSchema = {
   name: AlertRule['name'];
   description: AlertRule['description'];
+  type: AlertRule['type'];
   isPaused: AlertRule['isPaused'];
   contract: AlertRule['contractId'];
 };
@@ -89,6 +91,8 @@ export class AlertsService {
     alertInput.txRule = {
       create: {
         ...rule.txRule,
+        createdBy: user.id,
+        updatedBy: user.id,
       },
     };
 
@@ -114,6 +118,8 @@ export class AlertsService {
     alertInput.txRule = {
       create: {
         ...rule.txRule,
+        createdBy: user.id,
+        updatedBy: user.id,
       },
     };
 
@@ -142,6 +148,8 @@ export class AlertsService {
       create: {
         params: {}, // TODO remove this when it can be set from the client
         ...rule.fnCallRule,
+        createdBy: user.id,
+        updatedBy: user.id,
       },
     };
 
@@ -168,6 +176,8 @@ export class AlertsService {
       create: {
         data: {}, // TODO remove this when it can be set from the client
         ...rule.eventRule,
+        createdBy: user.id,
+        updatedBy: user.id,
       },
     };
 
@@ -193,6 +203,8 @@ export class AlertsService {
     alertInput.acctBalRule = {
       create: {
         ...rule.acctBalRule,
+        createdBy: user.id,
+        updatedBy: user.id,
       },
     };
 
@@ -279,15 +291,23 @@ export class AlertsService {
 
   async updateTxRule(user: User, ruleId: number, rule: UpdateTxRuleSchema) {
     await this.checkUserRulePermission(user.id, ruleId, rule.contract);
-    const alertInput = this.buildUpdateRuleInput(user, rule);
+    const alertInput = await this.buildUpdateRuleInput(user, ruleId, rule);
 
     alertInput.txRule = {
-      update: {
-        ...rule.txRule,
+      upsert: {
+        create: {
+          ...rule.txRule,
+          createdBy: user.id,
+          updatedBy: user.id,
+        },
+        update: {
+          ...rule.txRule,
+          updatedBy: user.id,
+        },
       },
     };
 
-    this.updateRule(ruleId, alertInput);
+    await this.updateRule(ruleId, alertInput);
   }
 
   async updateFnCallRule(
@@ -296,16 +316,25 @@ export class AlertsService {
     rule: UpdateFnCallRuleSchema,
   ) {
     await this.checkUserRulePermission(user.id, ruleId, rule.contract);
-    const alertInput = this.buildUpdateRuleInput(user, rule);
+    const alertInput = await this.buildUpdateRuleInput(user, ruleId, rule);
 
     alertInput.fnCallRule = {
-      update: {
-        params: {}, // TODO remove this when it can be set from the client
-        ...rule.fnCallRule,
+      upsert: {
+        create: {
+          params: {}, // TODO remove this when it can be set from the client
+          ...rule.fnCallRule,
+          createdBy: user.id,
+          updatedBy: user.id,
+        },
+        update: {
+          params: {}, // TODO remove this when it can be set from the client
+          ...rule.fnCallRule,
+          updatedBy: user.id,
+        },
       },
     };
 
-    this.updateRule(ruleId, alertInput);
+    await this.updateRule(ruleId, alertInput);
   }
 
   async updateEventRule(
@@ -314,16 +343,25 @@ export class AlertsService {
     rule: UpdateEventRuleSchema,
   ) {
     await this.checkUserRulePermission(user.id, ruleId, rule.contract);
-    const alertInput = this.buildUpdateRuleInput(user, rule);
+    const alertInput = await this.buildUpdateRuleInput(user, ruleId, rule);
 
     alertInput.eventRule = {
-      update: {
-        data: {}, // TODO remove this when it can be set from the client
-        ...rule.eventRule,
+      upsert: {
+        create: {
+          data: {}, // TODO remove this when it can be set from the client
+          ...rule.eventRule,
+          createdBy: user.id,
+          updatedBy: user.id,
+        },
+        update: {
+          data: {}, // TODO remove this when it can be set from the client
+          ...rule.eventRule,
+          updatedBy: user.id,
+        },
       },
     };
 
-    this.updateRule(ruleId, alertInput);
+    await this.updateRule(ruleId, alertInput);
   }
 
   async updateAcctBalRule(
@@ -332,26 +370,36 @@ export class AlertsService {
     rule: UpdateAcctBalRuleSchema,
   ) {
     await this.checkUserRulePermission(user.id, ruleId, rule.contract);
-    const alertInput = this.buildUpdateRuleInput(user, rule);
+    const alertInput = await this.buildUpdateRuleInput(user, ruleId, rule);
 
     alertInput.acctBalRule = {
-      update: {
-        ...rule.acctBalRule,
+      upsert: {
+        create: {
+          ...rule.acctBalRule,
+          createdBy: user.id,
+          updatedBy: user.id,
+        },
+        update: {
+          ...rule.acctBalRule,
+          updatedBy: user.id,
+        },
       },
     };
 
-    this.updateRule(ruleId, alertInput);
+    await this.updateRule(ruleId, alertInput);
   }
 
-  private buildUpdateRuleInput(
+  private async buildUpdateRuleInput(
     user: User,
+    ruleId: number,
     rule: UpdateAlertRuleBaseSchema,
-  ): Prisma.AlertRuleUpdateInput {
-    const { name, description, isPaused, contract } = rule;
+  ): Promise<Prisma.AlertRuleUpdateInput> {
+    const { name, description, type, isPaused, contract } = rule;
 
     const alertInput: Prisma.AlertRuleUpdateInput = {
       name,
       description,
+      type,
       isPaused,
       contract: {
         connect: {
@@ -364,6 +412,43 @@ export class AlertsService {
         },
       },
     };
+
+    // If the type was updated, then we need to delete the existing rule and create a new one under a different type.
+    const currType = await this.getRuleType(ruleId);
+
+    if (currType === type) {
+      return alertInput;
+    }
+
+    const updates = {
+      update: {
+        active: false,
+        updatedByUser: {
+          connect: {
+            id: user.id,
+          },
+        },
+      },
+    };
+
+    switch (currType) {
+      case 'TX_SUCCESS':
+      case 'TX_FAILURE':
+        alertInput.txRule = updates;
+        break;
+      case 'FN_CALL':
+        alertInput.fnCallRule = updates;
+        break;
+      case 'EVENT':
+        alertInput.eventRule = updates;
+        break;
+      case 'ACCT_BAL_PCT':
+      case 'ACCT_BAL_NUM':
+        alertInput.acctBalRule = updates;
+        break;
+      default:
+        assertUnreachable(currType);
+    }
 
     return alertInput;
   }
