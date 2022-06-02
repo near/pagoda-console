@@ -84,22 +84,22 @@ export const CreateAlertRuleSchema = Joi.object({
   txRule: TxRuleSchema.when('type', {
     is: ['TX_SUCCESS', 'TX_FAILURE'],
     then: Joi.required(),
-    otherwise: Joi.disallow(),
+    otherwise: Joi.forbidden(),
   }),
   fnCallRule: FnCallRuleSchema.when('type', {
     is: 'FN_CALL',
     then: Joi.required(),
-    otherwise: Joi.disallow(),
+    otherwise: Joi.forbidden(),
   }),
   eventRule: EventRuleSchema.when('type', {
     is: 'EVENT',
     then: Joi.required(),
-    otherwise: Joi.disallow(),
+    otherwise: Joi.forbidden(),
   }),
   acctBalRule: AcctBalRuleSchema.when('type', {
     is: ['ACCT_BAL_PCT', 'ACCT_BAL_NUM'],
     then: Joi.required(),
-    otherwise: Joi.disallow(),
+    otherwise: Joi.forbidden(),
   }),
 });
 
@@ -107,6 +107,7 @@ export const CreateAlertRuleSchema = Joi.object({
 interface UpdateAlertRuleBaseDto {
   id: number;
   name: string;
+  type: AlertRuleType;
   description: string;
   isPaused: boolean;
   contract: number;
@@ -132,27 +133,37 @@ export const UpdateAlertRuleSchema = Joi.object({
   id: Joi.string().required(),
   name: Joi.string().required(),
   description: Joi.string().required(),
+  type: Joi.string()
+    .valid(
+      'TX_SUCCESS',
+      'TX_FAILURE',
+      'FN_CALL',
+      'EVENT',
+      'ACCT_BAL_PCT',
+      'ACCT_BAL_NUM',
+    )
+    .required(),
   isPaused: Joi.boolean().required(),
   contract: Joi.number().required(),
   txRule: TxRuleSchema.when('type', {
     is: ['TX_SUCCESS', 'TX_FAILURE'],
     then: Joi.required(),
-    otherwise: Joi.disallow(),
+    otherwise: Joi.forbidden(),
   }),
   fnCallRule: FnCallRuleSchema.when('type', {
     is: 'FN_CALL',
     then: Joi.required(),
-    otherwise: Joi.disallow(),
+    otherwise: Joi.forbidden(),
   }),
   eventRule: EventRuleSchema.when('type', {
     is: 'EVENT',
     then: Joi.required(),
-    otherwise: Joi.disallow(),
+    otherwise: Joi.forbidden(),
   }),
   acctBalRule: AcctBalRuleSchema.when('type', {
     is: ['ACCT_BAL_PCT', 'ACCT_BAL_NUM'],
     then: Joi.required(),
-    otherwise: Joi.disallow(),
+    otherwise: Joi.forbidden(),
   }),
 });
 

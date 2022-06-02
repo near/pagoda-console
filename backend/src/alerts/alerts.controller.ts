@@ -82,8 +82,7 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(UpdateAlertRuleSchema))
   async updateRule(@Request() req, @Body() { id, ...dto }: UpdateAlertRuleDto) {
     try {
-      const type = await this.alertsService.getRuleType(id);
-      switch (type) {
+      switch (dto.type) {
         case 'TX_SUCCESS':
         case 'TX_FAILURE':
           return await this.alertsService.updateTxRule(
@@ -111,7 +110,7 @@ export class AlertsController {
             dto as UpdateAcctBalRuleDto,
           );
         default:
-          assertUnreachable(type);
+          assertUnreachable(dto.type);
       }
     } catch (e) {
       throw mapError(e);
