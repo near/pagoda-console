@@ -14,7 +14,7 @@ export const Spinner = styled('div', {
   variants: {
     center: {
       true: {
-        margin: '0 auto',
+        margin: 'auto',
       },
     },
     size: {

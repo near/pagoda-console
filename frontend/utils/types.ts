@@ -45,27 +45,6 @@ export interface User {
   photoUrl?: string;
 }
 
-export interface UserData {
-  projectData: Record<string, UserProjectData>;
-  usageData: Record<string, UsageData>;
-}
-
-export interface UserProjectData {
-  selectedEnvironment: number;
-  nftContract?: string;
-}
-
-export interface UsageData {
-  nets: Record<NetOption, NetUsageData>;
-  fetchedAt: string;
-}
-
-export interface NetUsageData {
-  methods: Record<string, number>;
-  calls: number;
-  responseCodes: Record<string, number>;
-}
-
 export interface FinalityStatus {
   finalBlockHeight: number;
   finalBlockTimestampNanosecond: BN;

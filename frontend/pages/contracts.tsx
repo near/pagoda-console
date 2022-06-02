@@ -39,11 +39,7 @@ const Contracts: NextPageWithLayout = () => {
   const user = useIdentity();
 
   if (!user || !project || !environment) {
-    return (
-      <Section>
-        <Spinner />
-      </Section>
-    );
+    return <Spinner center />;
   }
 
   // TODO (NTH) lean into automatic static optimization and rework checks so that the
@@ -81,11 +77,7 @@ function ContractsTable(props: { project: string; environment: Environment }) {
   }
 
   if (!contracts && !error) {
-    return (
-      <Section>
-        <Spinner center />
-      </Section>
-    );
+    return <Spinner center />;
   }
 
   if (error) {

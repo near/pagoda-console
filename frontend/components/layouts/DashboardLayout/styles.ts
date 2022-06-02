@@ -8,7 +8,10 @@ export const Wrapper = styled('div', {
 });
 
 export const Main = styled('main', {
+  display: 'flex',
+  flexDirection: 'column',
   flex: '1 0 auto',
+  position: 'relative',
 });
 
 export const Header = styled('header', {
