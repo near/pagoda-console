@@ -10,6 +10,7 @@ import { H1 } from '@/components/lib/Heading';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
+import { useThemeStore } from '@/components/ThemeToggle/store';
 import { useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
@@ -35,16 +36,18 @@ const ProjectAnalytics: NextPageWithLayout = () => {
 };
 
 function AnalyticsIframe({ contracts }: { contracts: Contract[] }) {
+  const { activeTheme } = useThemeStore();
+
   useEffect(() => {
     iframeResizer({}, 'iframe');
   }, []);
 
-  let contractQueryParams = '';
+  const themeParam = activeTheme === 'dark' ? '#theme=night' : '';
+  let contractParams = '';
   contracts.forEach((contract) => {
-    contractQueryParams += `&contract=${contract.address}`;
+    contractParams += `&contract=${contract.address}`;
   });
-
-  const iframeUrl = `https://metabase.near.datrics.ai/public/dashboard/457ac13a-f8cf-41dc-81ad-ef7bd70466b8?${contractQueryParams}#theme=night`;
+  const iframeUrl = `https://metabase.near.datrics.ai/public/dashboard/457ac13a-f8cf-41dc-81ad-ef7bd70466b8?${contractParams}${themeParam}`;
 
   return (
     <iframe
