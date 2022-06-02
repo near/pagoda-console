@@ -1,3 +1,4 @@
+import { Root as VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
 
@@ -196,12 +197,14 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: () => void }
 
       <Button color="neutral" onClick={() => setKeyObscured(!keyObscured)} disabled={!props.token}>
         <FeatherIcon icon={keyObscured ? 'eye-off' : 'eye'} />
+        <VisuallyHidden>{keyObscured ? 'Reveal' : 'Obscure'} API Key</VisuallyHidden>
       </Button>
 
       <Popover.Root open={showCopiedAlert} onOpenChange={setShowCopiedAlert}>
         <Popover.Anchor asChild>
           <Button color="neutral" onClick={copyKey} disabled={!props.token}>
             <FeatherIcon icon="copy" />
+            <VisuallyHidden>Copy API Key</VisuallyHidden>
           </Button>
         </Popover.Anchor>
 
