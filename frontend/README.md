@@ -24,6 +24,40 @@ To make the environment variable available in the browser at runtime, it must be
 
 # Contributing
 
+## Modules
+
+DevConsole consists of multiple modules owned by different teams within Pagoda. Each module has isolated directories within this repository for their work, and should refrain from touching files outside those directories.
+
+The folders are:
+
+- `/modules/{module}/`: This directory is instantiated with a few subdirectories for suggested organization, but it is entirely owned by the module team to use as they see fit. It should contain all non-page files necessary to build the module
+- `/pages/{module}/`: Contains all pages to be rendered for this module as `.tsx` files. See the [Next.js Pages](https://nextjs.org/docs/basic-features/pages) doc for more information
+
+#### Example
+
+Given a module named `alerts` with the following files
+
+```
+/modules
+  /alerts
+    /utils
+    /components
+      AlertDetailCard.tsx
+    /hooks
+/pages
+  /alerts
+    index.tsx
+    new-alert.tsx
+```
+
+Two pages will be available in the UI: `/alerts`(`index.tsx`) and `/alerts/new-alert`. The page files `/pages/alerts/index.tsx` and `/pages/alerts/new-alert.tsx` likely have the following import:
+
+```
+import { AlertDetailCard } from '@/modules/alerts/components/AlertDetailCard'
+```
+
+## Environment
+
 The recommended way to run a development instance of this project is with VS Code and Dev Containers via the `ms-azuretools.vscode-docker` extension (which you will need to install manually). The container definitions are part of this repository (`.devcontainer/`), so using dev containers will allow you to easily keep your environment in sync with other team members.
 
 If VS Code is not your preferred development environment, you are more than welcome to stray from this recommendation and run the containers with Docker directly.
