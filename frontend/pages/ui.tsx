@@ -153,8 +153,10 @@ const Settings: NextPageWithLayout = () => {
       </Section>
 
       <Section>
-        <Flex stack>
+        <Flex stack gap="l">
           <H2>Accordion</H2>
+
+          <H4>Standard</H4>
 
           <Accordion.Root type="multiple">
             <Accordion.Item value="item-1">
@@ -172,23 +174,63 @@ const Settings: NextPageWithLayout = () => {
             </Accordion.Item>
 
             <Accordion.Item value="item-2">
-              <Accordion.Trigger>Is it unstyled?</Accordion.Trigger>
+              <Accordion.Trigger>
+                <FeatherIcon icon="eye" />
+                Some Title
+                <Text size="bodySmall">With a subtitle</Text>
+              </Accordion.Trigger>
               <Accordion.Content>
                 <Flex stack>
-                  <Text>Yes. It is unstyled by default, giving you freedom over the look and feel.</Text>
+                  <Text>Yes! You can animate the Accordion with CSS or JavaScript.</Text>
                 </Flex>
               </Accordion.Content>
             </Accordion.Item>
 
             <Accordion.Item value="item-3">
-              <Accordion.Trigger>
-                <FeatherIcon icon="eye" />
-                Some Title
-                <Text>With a subtitle</Text>
-              </Accordion.Trigger>
+              <Accordion.Trigger disabled>This one is disabled</Accordion.Trigger>
               <Accordion.Content>
                 <Flex stack>
-                  <Text>Yes! You can animate the Accordion with CSS or JavaScript.</Text>
+                  <Text>This whole area is disabled.</Text>
+                </Flex>
+              </Accordion.Content>
+            </Accordion.Item>
+          </Accordion.Root>
+
+          <H4>Inline</H4>
+
+          <Accordion.Root type="multiple" inline>
+            <Accordion.Item value="item-1">
+              <Accordion.Trigger>Is it accessible?</Accordion.Trigger>
+              <Accordion.Content>
+                <Flex stack>
+                  <Text>Yes. It adheres to the WAI-ARIA design pattern.</Text>
+                  <Text>Here is another paragraph.</Text>
+
+                  <div>
+                    <Button>Click Me</Button>
+                  </div>
+                </Flex>
+              </Accordion.Content>
+            </Accordion.Item>
+
+            <Accordion.Item value="item-2">
+              <Accordion.Trigger disabled>This one is disabled</Accordion.Trigger>
+              <Accordion.Content>
+                <Flex stack>
+                  <Text>This whole area is disabled.</Text>
+                </Flex>
+              </Accordion.Content>
+            </Accordion.Item>
+          </Accordion.Root>
+
+          <H4>No Arrow</H4>
+
+          <Accordion.Root type="multiple" noArrow>
+            <Accordion.Item value="item-1">
+              <Accordion.Trigger>This has no arrow indicator</Accordion.Trigger>
+              <Accordion.Content>
+                <Flex stack>
+                  <Text>Here is another paragraph.</Text>
                 </Flex>
               </Accordion.Content>
             </Accordion.Item>
@@ -235,7 +277,7 @@ const Settings: NextPageWithLayout = () => {
       </Section>
 
       <Section>
-        <Flex stack>
+        <Flex stack gap="l">
           <H2>Button</H2>
 
           <Flex wrap>
@@ -263,7 +305,7 @@ const Settings: NextPageWithLayout = () => {
             <ButtonDropdown>Dropdown</ButtonDropdown>
 
             <Link href="/project-settings" passHref>
-              <ButtonLink color="neutral" size="s" css={{ '@mobile': { background: 'red' } }}>
+              <ButtonLink color="neutral" css={{ '@mobile': { background: 'red' } }}>
                 Link
               </ButtonLink>
             </Link>
