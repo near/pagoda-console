@@ -467,11 +467,41 @@ export class AlertsService {
           },
         },
       },
-      include: {
-        fnCallRule: true,
-        txRule: true,
-        acctBalRule: true,
-        eventRule: true,
+      select: {
+        id: true,
+        type: true,
+        name: true,
+        description: true,
+        isPaused: true,
+        fnCallRule: {
+          select: {
+            id: true,
+            function: true,
+            params: true,
+          },
+        },
+        txRule: {
+          select: {
+            id: true,
+            action: true,
+          },
+        },
+        acctBalRule: {
+          select: {
+            id: true,
+            comparator: true,
+            amount: true,
+          },
+        },
+        eventRule: {
+          select: {
+            id: true,
+            standard: true,
+            version: true,
+            event: true,
+            data: true,
+          },
+        },
         contract: {
           select: {
             address: true,
