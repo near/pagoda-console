@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import VError from 'verror';
+import { VError } from 'verror';
 import { ConfigService } from '@nestjs/config';
 
 import { BN } from 'bn.js';
