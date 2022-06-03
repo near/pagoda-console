@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import {
   User,
   Prisma,
@@ -10,7 +9,6 @@ import {
   TxRule,
   AlertRuleType,
 } from '@prisma/client';
-import { AppConfig } from 'src/config/validate';
 import { assertUnreachable } from 'src/helpers';
 import { PrismaService } from 'src/prisma.service';
 import { VError } from 'verror';
@@ -67,10 +65,7 @@ type UpdateAcctBalRuleSchema = UpdateAlertRuleBaseSchema & AcctBalRuleSchema;
 
 @Injectable()
 export class AlertsService {
-  constructor(
-    private prisma: PrismaService,
-    private config: ConfigService<AppConfig>,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async createTxSuccessRule(
     user: User,
@@ -224,7 +219,6 @@ export class AlertsService {
         },
       });
 
-      // will throw if no team found
       if (!contractFind) {
         throw new VError('Query to find contract came back empty');
       }
@@ -290,8 +284,9 @@ export class AlertsService {
   }
 
   async updateTxRule(user: User, ruleId: number, rule: UpdateTxRuleSchema) {
+    const currType = (await this.fetchRule(ruleId)).type;
     await this.checkUserRulePermission(user.id, ruleId, rule.contract);
-    const alertInput = await this.buildUpdateRuleInput(user, ruleId, rule);
+    const alertInput = await this.buildUpdateRuleInput(user, rule, currType);
 
     alertInput.txRule = {
       upsert: {
@@ -302,6 +297,7 @@ export class AlertsService {
         },
         update: {
           ...rule.txRule,
+          active: true, // Important, because the rule might be pre-existing but soft-deleted.
           updatedBy: user.id,
         },
       },
@@ -315,8 +311,9 @@ export class AlertsService {
     ruleId: number,
     rule: UpdateFnCallRuleSchema,
   ) {
+    const currType = (await this.fetchRule(ruleId)).type;
     await this.checkUserRulePermission(user.id, ruleId, rule.contract);
-    const alertInput = await this.buildUpdateRuleInput(user, ruleId, rule);
+    const alertInput = await this.buildUpdateRuleInput(user, rule, currType);
 
     alertInput.fnCallRule = {
       upsert: {
@@ -329,6 +326,7 @@ export class AlertsService {
         update: {
           params: {}, // TODO remove this when it can be set from the client
           ...rule.fnCallRule,
+          active: true, // Important, because the rule might be pre-existing but soft-deleted.
           updatedBy: user.id,
         },
       },
@@ -342,8 +340,9 @@ export class AlertsService {
     ruleId: number,
     rule: UpdateEventRuleSchema,
   ) {
+    const currType = (await this.fetchRule(ruleId)).type;
     await this.checkUserRulePermission(user.id, ruleId, rule.contract);
-    const alertInput = await this.buildUpdateRuleInput(user, ruleId, rule);
+    const alertInput = await this.buildUpdateRuleInput(user, rule, currType);
 
     alertInput.eventRule = {
       upsert: {
@@ -356,6 +355,7 @@ export class AlertsService {
         update: {
           data: {}, // TODO remove this when it can be set from the client
           ...rule.eventRule,
+          active: true, // Important, because the rule might be pre-existing but soft-deleted.
           updatedBy: user.id,
         },
       },
@@ -369,8 +369,9 @@ export class AlertsService {
     ruleId: number,
     rule: UpdateAcctBalRuleSchema,
   ) {
+    const currType = (await this.fetchRule(ruleId)).type;
     await this.checkUserRulePermission(user.id, ruleId, rule.contract);
-    const alertInput = await this.buildUpdateRuleInput(user, ruleId, rule);
+    const alertInput = await this.buildUpdateRuleInput(user, rule, currType);
 
     alertInput.acctBalRule = {
       upsert: {
@@ -381,6 +382,7 @@ export class AlertsService {
         },
         update: {
           ...rule.acctBalRule,
+          active: true, // Important, because the rule might be pre-existing but soft-deleted.
           updatedBy: user.id,
         },
       },
@@ -391,10 +393,19 @@ export class AlertsService {
 
   private async buildUpdateRuleInput(
     user: User,
-    ruleId: number,
     rule: UpdateAlertRuleBaseSchema,
+    currentRuleType: AlertRuleType,
   ): Promise<Prisma.AlertRuleUpdateInput> {
     const { name, description, type, isPaused, contract } = rule;
+
+    // If the type was updated, then we need to delete the existing rule and upsert a new one under a different type.
+    let deleteRuleInput;
+    if (currentRuleType !== type) {
+      deleteRuleInput = await this.buildDeleteSubRuleInput(
+        user.id,
+        currentRuleType,
+      );
+    }
 
     const alertInput: Prisma.AlertRuleUpdateInput = {
       name,
@@ -411,44 +422,8 @@ export class AlertsService {
           id: user.id,
         },
       },
+      ...deleteRuleInput,
     };
-
-    // If the type was updated, then we need to delete the existing rule and create a new one under a different type.
-    const currType = await this.getRuleType(ruleId);
-
-    if (currType === type) {
-      return alertInput;
-    }
-
-    const updates = {
-      update: {
-        active: false,
-        updatedByUser: {
-          connect: {
-            id: user.id,
-          },
-        },
-      },
-    };
-
-    switch (currType) {
-      case 'TX_SUCCESS':
-      case 'TX_FAILURE':
-        alertInput.txRule = updates;
-        break;
-      case 'FN_CALL':
-        alertInput.fnCallRule = updates;
-        break;
-      case 'EVENT':
-        alertInput.eventRule = updates;
-        break;
-      case 'ACCT_BAL_PCT':
-      case 'ACCT_BAL_NUM':
-        alertInput.acctBalRule = updates;
-        break;
-      default:
-        assertUnreachable(currType);
-    }
 
     return alertInput;
   }
@@ -506,44 +481,22 @@ export class AlertsService {
     });
   }
 
-  async deleteRule(
-    callingUser: User,
-    alertWhereUnique: Prisma.AlertRuleWhereUniqueInput,
-  ): Promise<void> {
-    // check that project is valid for deletion
-    let rule;
-    try {
-      rule = await this.prisma.alertRule.findUnique({
-        where: alertWhereUnique,
-        select: {
-          id: true,
-          active: true,
-        },
-      });
-      if (!rule || !rule.active) {
-        throw new VError(
-          { info: { code: 'BAD_ALERT' } },
-          'Alert rule not found or it is already inactive',
-        );
-      }
-    } catch (e) {
-      throw new VError(
-        e,
-        'Failed while determining alert rule eligibility for deletion',
-      );
-    }
+  async deleteRule(callingUser: User, ruleId: number): Promise<void> {
+    const rule = await this.fetchRule(ruleId);
 
     // throw an error if the user doesn't have permission to perform this action
-    await this.checkUserProjectPermission(
-      callingUser.id,
-      rule.environmentId,
-      rule.contractId,
-    );
+    await this.checkUserRulePermission(callingUser.id, ruleId, rule.contractId);
 
+    const deleteSubRuleInput = await this.buildDeleteSubRuleInput(
+      callingUser.id,
+      rule.type,
+    );
     // soft delete the alert rule
     try {
       await this.prisma.alertRule.update({
-        where: alertWhereUnique,
+        where: {
+          id: ruleId,
+        },
         data: {
           active: false,
           updatedByUser: {
@@ -551,10 +504,47 @@ export class AlertsService {
               id: callingUser.id,
             },
           },
+          ...deleteSubRuleInput,
         },
       });
     } catch (e) {
       throw new VError(e, 'Failed while soft deleting alert rule');
+    }
+  }
+
+  private async buildDeleteSubRuleInput(
+    userId: number,
+    type: AlertRuleType,
+  ): Promise<
+    | { txRule: Prisma.TxRuleUpdateOneWithoutAlertRuleInput }
+    | { fnCallRule: Prisma.FnCallRuleUpdateOneWithoutAlertRuleInput }
+    | { eventRule: Prisma.EventRuleUpdateOneWithoutAlertRuleInput }
+    | { acctBalRule: Prisma.AcctBalRuleUpdateOneWithoutAlertRuleInput }
+  > {
+    const updates = {
+      update: {
+        active: false,
+        updatedByUser: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+    };
+
+    switch (type) {
+      case 'TX_SUCCESS':
+      case 'TX_FAILURE':
+        return { txRule: updates };
+      case 'FN_CALL':
+        return { fnCallRule: updates };
+      case 'EVENT':
+        return { eventRule: updates };
+      case 'ACCT_BAL_PCT':
+      case 'ACCT_BAL_NUM':
+        return { acctBalRule: updates };
+      default:
+        assertUnreachable(type);
     }
   }
 
@@ -648,15 +638,31 @@ export class AlertsService {
     }
   }
 
-  async getRuleType(id: number): Promise<AlertRuleType> {
-    const rule = await this.prisma.alertRule.findUnique({
-      where: {
-        id,
-      },
-      select: {
-        type: true,
-      },
-    });
-    return rule.type;
+  private async fetchRule(id: number): Promise<AlertRule> {
+    try {
+      const rule = await this.prisma.alertRule.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      if (!rule) {
+        throw new VError(
+          { info: { code: 'BAD_ALERT' } },
+          'Alert rule not found',
+        );
+      }
+
+      if (!rule.active) {
+        throw new VError(
+          { info: { code: 'BAD_ALERT' } },
+          'Alert rule is inactive',
+        );
+      }
+
+      return rule;
+    } catch (e) {
+      throw new VError(e, 'Failed while getting alert rule type');
+    }
   }
 }

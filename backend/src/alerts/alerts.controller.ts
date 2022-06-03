@@ -131,7 +131,7 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(DeleteAlertRuleSchema))
   async delete(@Request() req, @Body() { id }: DeleteAlertRuleDto) {
     try {
-      return await this.alertsService.deleteRule(req.user, { id });
+      return await this.alertsService.deleteRule(req.user, id);
     } catch (e) {
       throw mapError(e);
     }
