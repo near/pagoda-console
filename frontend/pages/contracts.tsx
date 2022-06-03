@@ -365,7 +365,6 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
 
 function RecentTransactionList({ contracts, net }: { contracts: Contract[]; net: NetOption }) {
   const [finalityStatus, setFinalityStatus] = useState<FinalityStatus>();
-
   const { transactions } = useRecentTransactions(
     contracts.map((c) => c.address),
     net,
@@ -409,6 +408,8 @@ function RecentTransactionList({ contracts, net }: { contracts: Contract[]; net:
     <Section>
       <Flex stack>
         <H2>Recent Transactions</H2>
+
+        {!transactions && <Spinner center />}
 
         <Box css={{ width: '100%' }}>
           {transactions &&

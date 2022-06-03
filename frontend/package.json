@@ -62,6 +62,7 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/bn.js": "^5.1.0",
     "@types/lodash-es": "^4.17.5",
+    "@types/luxon": "^2.3.2",
     "@types/mdx": "^2.0.1",
     "@types/mixpanel-browser": "^2.36.0",
     "@types/react": "17.0.38",
