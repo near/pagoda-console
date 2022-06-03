@@ -8,6 +8,8 @@ import {
   FnCallRule,
   TxRule,
   AlertRuleType,
+  Contract,
+  Environment,
 } from '@prisma/client';
 import { assertUnreachable } from 'src/helpers';
 import { PrismaService } from 'src/prisma.service';
@@ -206,7 +208,9 @@ export class AlertsService {
     return this.createRule(alertInput);
   }
 
-  private async getContractAddress(contractId: number): Promise<string> {
+  private async getContractAddress(
+    contractId: Contract['id'],
+  ): Promise<string> {
     let address;
     try {
       const contractFind = await this.prisma.contract.findFirst({
@@ -283,7 +287,11 @@ export class AlertsService {
     };
   }
 
-  async updateTxRule(user: User, ruleId: number, rule: UpdateTxRuleSchema) {
+  async updateTxRule(
+    user: User,
+    ruleId: AlertRule['id'],
+    rule: UpdateTxRuleSchema,
+  ) {
     const currType = (await this.fetchRule(ruleId)).type;
     await this.checkUserRulePermission(user.id, ruleId, rule.contract);
     const alertInput = await this.buildUpdateRuleInput(user, rule, currType);
@@ -308,7 +316,7 @@ export class AlertsService {
 
   async updateFnCallRule(
     user: User,
-    ruleId: number,
+    ruleId: AlertRule['id'],
     rule: UpdateFnCallRuleSchema,
   ) {
     const currType = (await this.fetchRule(ruleId)).type;
@@ -337,7 +345,7 @@ export class AlertsService {
 
   async updateEventRule(
     user: User,
-    ruleId: number,
+    ruleId: AlertRule['id'],
     rule: UpdateEventRuleSchema,
   ) {
     const currType = (await this.fetchRule(ruleId)).type;
@@ -366,7 +374,7 @@ export class AlertsService {
 
   async updateAcctBalRule(
     user: User,
-    ruleId: number,
+    ruleId: AlertRule['id'],
     rule: UpdateAcctBalRuleSchema,
   ) {
     const currType = (await this.fetchRule(ruleId)).type;
@@ -428,7 +436,10 @@ export class AlertsService {
     return alertInput;
   }
 
-  private async updateRule(id: number, data: Prisma.AlertRuleUpdateInput) {
+  private async updateRule(
+    id: AlertRule['id'],
+    data: Prisma.AlertRuleUpdateInput,
+  ) {
     try {
       await this.prisma.alertRule.update({
         where: {
@@ -441,7 +452,7 @@ export class AlertsService {
     }
   }
 
-  async listRules(user: User, environment: number) {
+  async listRules(user: User, environment: Environment['id']) {
     return await this.prisma.alertRule.findMany({
       where: {
         active: true,
@@ -511,7 +522,7 @@ export class AlertsService {
     });
   }
 
-  async deleteRule(callingUser: User, ruleId: number): Promise<void> {
+  async deleteRule(callingUser: User, ruleId: AlertRule['id']): Promise<void> {
     const rule = await this.fetchRule(ruleId);
 
     // throw an error if the user doesn't have permission to perform this action
@@ -543,7 +554,7 @@ export class AlertsService {
   }
 
   private async buildDeleteSubRuleInput(
-    userId: number,
+    userId: User['id'],
     type: AlertRuleType,
   ): Promise<
     | { txRule: Prisma.TxRuleUpdateOneWithoutAlertRuleInput }
@@ -581,9 +592,9 @@ export class AlertsService {
   // Confirms the contract belongs to the environment
   // and the user is a member of the environment's project.
   private async checkUserProjectPermission(
-    userId: number,
-    environmentId: number,
-    contractId: number,
+    userId: User['id'],
+    environmentId: Environment['id'],
+    contractId: Contract['id'],
   ): Promise<void> {
     const res = await this.prisma.teamMember.findFirst({
       where: {
@@ -624,9 +635,9 @@ export class AlertsService {
   // Confirms the contract belongs to the same environment that the rule is in
   // and the user is a member of the rule's project.
   private async checkUserRulePermission(
-    userId: number,
-    ruleId: number,
-    contractId: number,
+    userId: User['id'],
+    ruleId: AlertRule['id'],
+    contractId: Contract['id'],
   ): Promise<void> {
     const res = await this.prisma.teamMember.findFirst({
       where: {
@@ -668,7 +679,7 @@ export class AlertsService {
     }
   }
 
-  private async fetchRule(id: number): Promise<AlertRule> {
+  private async fetchRule(id: AlertRule['id']): Promise<AlertRule> {
     try {
       const rule = await this.prisma.alertRule.findUnique({
         where: {
