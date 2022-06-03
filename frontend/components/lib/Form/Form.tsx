@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 import { forwardRef } from 'react';
 
-import * as S from './Form.styles';
+import * as S from './styles';
 
 type FeedbackProps = ComponentProps<typeof S.Feedback>;
 type FormProps = ComponentProps<typeof S.Form> & {
@@ -16,7 +16,6 @@ export const HorizontalGroup = S.HorizontalGroup;
 export const Group = S.Group;
 export const Label = S.Label;
 export const LabelDescription = S.LabelDescription;
-export const Legend = S.Legend;
 
 export const Root = forwardRef<HTMLFormElement, FormProps>(
   ({ children, disabled, noValidate = true, ...props }, ref) => {

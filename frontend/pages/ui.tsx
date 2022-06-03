@@ -7,6 +7,7 @@ import * as Accordion from '@/components/lib/Accordion';
 import { Badge } from '@/components/lib/Badge';
 import { Box } from '@/components/lib/Box';
 import { Button, ButtonDropdown, ButtonLink } from '@/components/lib/Button';
+import { Checkbox, CheckboxGroup } from '@/components/lib/Checkbox';
 import { Container } from '@/components/lib/Container';
 import * as Dialog from '@/components/lib/Dialog';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
@@ -196,11 +197,24 @@ const Settings: NextPageWithLayout = () => {
             </Accordion.Item>
           </Accordion.Root>
 
+          <H4>No Arrow</H4>
+
+          <Accordion.Root type="multiple" noArrow>
+            <Accordion.Item value="item-1">
+              <Accordion.Trigger>This has no arrow indicator</Accordion.Trigger>
+              <Accordion.Content>
+                <Flex stack>
+                  <Text>Here is another paragraph.</Text>
+                </Flex>
+              </Accordion.Content>
+            </Accordion.Item>
+          </Accordion.Root>
+
           <H4>Inline</H4>
 
           <Accordion.Root type="multiple" inline>
             <Accordion.Item value="item-1">
-              <Accordion.Trigger>Is it accessible?</Accordion.Trigger>
+              <Accordion.Trigger>Section One</Accordion.Trigger>
               <Accordion.Content>
                 <Flex stack>
                   <Text>Yes. It adheres to the WAI-ARIA design pattern.</Text>
@@ -214,23 +228,19 @@ const Settings: NextPageWithLayout = () => {
             </Accordion.Item>
 
             <Accordion.Item value="item-2">
-              <Accordion.Trigger disabled>This one is disabled</Accordion.Trigger>
-              <Accordion.Content>
-                <Flex stack>
-                  <Text>This whole area is disabled.</Text>
-                </Flex>
-              </Accordion.Content>
-            </Accordion.Item>
-          </Accordion.Root>
-
-          <H4>No Arrow</H4>
-
-          <Accordion.Root type="multiple" noArrow>
-            <Accordion.Item value="item-1">
-              <Accordion.Trigger>This has no arrow indicator</Accordion.Trigger>
+              <Accordion.Trigger>Section Two</Accordion.Trigger>
               <Accordion.Content>
                 <Flex stack>
                   <Text>Here is another paragraph.</Text>
+                </Flex>
+              </Accordion.Content>
+            </Accordion.Item>
+
+            <Accordion.Item value="item-3">
+              <Accordion.Trigger disabled>Section 3 - Disabled</Accordion.Trigger>
+              <Accordion.Content>
+                <Flex stack>
+                  <Text>This whole area is disabled.</Text>
                 </Flex>
               </Accordion.Content>
             </Accordion.Item>
@@ -310,6 +320,58 @@ const Settings: NextPageWithLayout = () => {
               </ButtonLink>
             </Link>
           </Flex>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack gap="l">
+          <H2>Checkbox / Radio</H2>
+
+          <H4>Single Checkbox</H4>
+
+          <Checkbox>
+            I agree to the{' '}
+            <TextLink href="/" target="_blank">
+              Terms & Conditions
+            </TextLink>
+          </Checkbox>
+
+          <H4>Group (Checkbox)</H4>
+
+          <CheckboxGroup aria-label="Select your favorite foods">
+            {favoriteFoodOptions.map((option) => (
+              <Checkbox
+                key={option.value}
+                value={option.value}
+                isInvalid={!!formState.errors.favoriteFood}
+                {...register('favoriteFood', {
+                  required: 'You must select a favorite food.',
+                })}
+              >
+                {option.display}
+                <Text size="bodySmall">{option.description}</Text>
+              </Checkbox>
+            ))}
+          </CheckboxGroup>
+
+          <H4>Group (Radio)</H4>
+
+          <CheckboxGroup aria-label="Select your favorite food">
+            {favoriteFoodOptions.map((option) => (
+              <Checkbox
+                radio
+                key={option.value}
+                value={option.value}
+                isInvalid={!!formState.errors.favoriteFood}
+                {...register('favoriteFood', {
+                  required: 'You must select a favorite food.',
+                })}
+              >
+                {option.display}
+                <Text size="bodySmall">{option.description}</Text>
+              </Checkbox>
+            ))}
+          </CheckboxGroup>
         </Flex>
       </Section>
 
@@ -633,46 +695,42 @@ const Settings: NextPageWithLayout = () => {
                 <Form.Input disabled />
               </Form.Group>
 
-              <Form.Fieldset>
-                <Form.Group gap="m">
-                  <Form.Legend>Favorite Food</Form.Legend>
+              <Form.Group gap="m">
+                <Form.Label>Favorite Food</Form.Label>
 
-                  <Form.CheckboxGroup>
-                    {favoriteFoodOptions.map((option) => (
-                      <Form.Checkbox
-                        radio
-                        key={option.value}
-                        value={option.value}
-                        isInvalid={!!formState.errors.favoriteFood}
-                        {...register('favoriteFood', {
-                          required: 'You must select a favorite food.',
-                        })}
-                      >
-                        {option.display}
-                        <Text size="bodySmall">{option.description}</Text>
-                      </Form.Checkbox>
-                    ))}
-                  </Form.CheckboxGroup>
+                <CheckboxGroup aria-label="Pick your favorite food">
+                  {favoriteFoodOptions.map((option) => (
+                    <Checkbox
+                      radio
+                      key={option.value}
+                      value={option.value}
+                      isInvalid={!!formState.errors.favoriteFood}
+                      {...register('favoriteFood', {
+                        required: 'You must select a favorite food.',
+                      })}
+                    >
+                      {option.display}
+                      <Text size="bodySmall">{option.description}</Text>
+                    </Checkbox>
+                  ))}
+                </CheckboxGroup>
 
-                  <Form.Feedback>{formState.errors.favoriteFood?.message}</Form.Feedback>
-                </Form.Group>
-              </Form.Fieldset>
+                <Form.Feedback>{formState.errors.favoriteFood?.message}</Form.Feedback>
+              </Form.Group>
 
-              <Form.Fieldset>
-                <Form.Group gap="m">
-                  <Form.Legend>Favorite Colors</Form.Legend>
+              <Form.Group gap="m">
+                <Form.Label>Favorite Colors</Form.Label>
 
-                  <Form.CheckboxGroup>
-                    <Form.Checkbox {...register('favoriteColorsOrange')}>Orange</Form.Checkbox>
-                    <Form.Checkbox {...register('favoriteColorsBlue')}>Blue</Form.Checkbox>
-                  </Form.CheckboxGroup>
-                </Form.Group>
-              </Form.Fieldset>
+                <CheckboxGroup aria-label="Pick a favorite color">
+                  <Checkbox {...register('favoriteColorsOrange')}>Orange</Checkbox>
+                  <Checkbox {...register('favoriteColorsBlue')}>Blue</Checkbox>
+                </CheckboxGroup>
+              </Form.Group>
 
               <HR />
 
               <Form.Group>
-                <Form.Checkbox
+                <Checkbox
                   isInvalid={!!formState.errors.termsAccepted}
                   {...register('termsAccepted', {
                     required: 'You must accept the terms.',
@@ -682,7 +740,7 @@ const Settings: NextPageWithLayout = () => {
                   <TextLink href="/" target="_blank">
                     Terms & Conditions
                   </TextLink>
-                </Form.Checkbox>
+                </Checkbox>
 
                 <Form.Feedback>{formState.errors.termsAccepted?.message}</Form.Feedback>
               </Form.Group>
@@ -958,9 +1016,9 @@ const Settings: NextPageWithLayout = () => {
           </Flex>
 
           <Flex>
-            <Text css={{ color: 'orange' }}>
+            <Box css={{ color: 'orange' }}>
               <SvgIcon icon={ExampleIcon} />
-            </Text>
+            </Box>
             <SvgIcon color="primary" icon={ExampleIcon} />
             <SvgIcon color="danger" icon={ExampleIcon} />
             <SvgIcon color="text1" icon={ExampleIcon} />
@@ -1058,7 +1116,7 @@ const Settings: NextPageWithLayout = () => {
 
           <HR />
 
-          <Flex as="p" gap="l" wrap>
+          <Flex gap="l" wrap>
             <span style={{ color: 'orange' }}>
               <Text size="h3" color="current">
                 Current
