@@ -92,7 +92,13 @@ export class UsersService {
         }),
         this.prisma.teamProject.updateMany({
           where: {
-            createdBy: user.id,
+            team: {
+              teamMembers: {
+                every: {
+                  userId: user.id,
+                },
+              },
+            },
           },
           data: {
             active: false,
@@ -101,7 +107,17 @@ export class UsersService {
         }),
         this.prisma.project.updateMany({
           where: {
-            createdBy: user.id,
+            teamProjects: {
+              every: {
+                team: {
+                  teamMembers: {
+                    every: {
+                      userId: user.id,
+                    },
+                  },
+                },
+              },
+            },
           },
           data: {
             active: false,
@@ -110,7 +126,19 @@ export class UsersService {
         }),
         this.prisma.environment.updateMany({
           where: {
-            createdBy: user.id,
+            project: {
+              teamProjects: {
+                every: {
+                  team: {
+                    teamMembers: {
+                      every: {
+                        userId: user.id,
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
           data: {
             active: false,
@@ -119,7 +147,21 @@ export class UsersService {
         }),
         this.prisma.contract.updateMany({
           where: {
-            createdBy: user.id,
+            environment: {
+              project: {
+                teamProjects: {
+                  every: {
+                    team: {
+                      teamMembers: {
+                        every: {
+                          userId: user.id,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
           data: {
             active: false,
