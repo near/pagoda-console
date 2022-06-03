@@ -6,7 +6,7 @@ import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useSelectedProject } from '@/hooks/selected-project';
-import TemplateEntries from '@/modules/template/sidebarEntries';
+import templateEntries from '@/modules/template/sidebarEntries';
 import type { SidebarEntry } from '@/shared/utils/types';
 import { logOut } from '@/utils/auth';
 
@@ -39,7 +39,7 @@ function useProjectPages(): SidebarEntry[] {
   pages.push({ display: 'Settings', route: `/project-settings`, icon: 'settings' });
 
   // example of pulling in module pages
-  pages = pages.concat(TemplateEntries);
+  pages = pages.concat(templateEntries);
 
   return pages;
 }
