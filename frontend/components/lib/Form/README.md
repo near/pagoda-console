@@ -133,6 +133,36 @@ You could also use `aria-labelledby` instead of `aria-label`:
 </Flex>
 ```
 
+## Max Width & Containers
+
+Sometimes it makes sense to wrap your entire form in a `Container` component to set a max width like so:
+
+```tsx
+  import { Container } from '@/components/lib/Container';
+  ...
+  <Container size="s">
+    <Form.Root>...</Form.Root>
+  </Container>
+```
+
+Other times, it makes more sense to set max widths on each `Form.Group` individually:
+
+```tsx
+<Form.Root>
+  <Form.Group maxWidth="s">
+    <Form.Label htmlFor="firstInput">Field One</Form.Label>
+    <Form.Input id="firstInput" />
+    <Form.Feedback>...</Form.Feedback>
+  </Form.Group>
+
+  <Form.Group maxWidth="l">
+    <Form.Label htmlFor="secondInput">Field Two</Form.Label>
+    <Form.Input id="secondInput" />
+    <Form.Feedback>...</Form.Feedback>
+  </Form.Group>
+</Form.Root>
+```
+
 ## Checkboxes & Radios
 
 View the `Checkbox/README.md` file for information on including checkboxes and radios.
