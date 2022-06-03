@@ -6,6 +6,8 @@ import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useSelectedProject } from '@/hooks/selected-project';
+import TemplateEntries from '@/modules/template/sidebarEntries';
+import type { SidebarEntry } from '@/shared/utils/types';
 import { logOut } from '@/utils/auth';
 
 import { Logo } from './Logo';
@@ -13,16 +15,8 @@ import * as S from './styles';
 
 type Props = ComponentProps<typeof S.Root>;
 
-interface Page {
-  display: string;
-  icon: string;
-  route: string;
-  routeMatchPattern?: string;
-  debug?: boolean;
-}
-
-function useProjectPages(): Page[] {
-  const pages = [];
+function useProjectPages(): SidebarEntry[] {
+  let pages: SidebarEntry[] = [];
 
   const { project } = useSelectedProject({
     enforceSelectedProject: false,
@@ -37,11 +31,15 @@ function useProjectPages(): Page[] {
     });
   }
 
+  // pushed individually so that module pages can be placed at any point
   pages.push({ display: 'Contracts', route: `/contracts`, icon: 'zap' });
   pages.push({ display: 'Analytics', route: '/project-analytics', icon: 'bar-chart-2' });
   pages.push({ display: 'Deploys', route: '', icon: 'git-merge' });
   pages.push({ display: 'Alerts', route: '', icon: 'bell' });
   pages.push({ display: 'Settings', route: `/project-settings`, icon: 'settings' });
+
+  // example of pulling in module pages
+  pages = pages.concat(TemplateEntries);
 
   return pages;
 }
@@ -50,7 +48,7 @@ export function Sidebar({ children, ...props }: Props) {
   const router = useRouter();
   const pages = useProjectPages();
 
-  function isLinkSelected(page: Page): boolean {
+  function isLinkSelected(page: SidebarEntry): boolean {
     const matchesPattern = page.routeMatchPattern ? router.pathname.startsWith(page.routeMatchPattern) : false;
     return router.pathname === page.route || matchesPattern;
   }
