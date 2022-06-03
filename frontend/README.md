@@ -115,6 +115,10 @@ Where helpful, utilize [Better Comments](https://marketplace.visualstudio.com/it
 
 Next JS supports `tsconfig.json` path aliases out of the box. We've set up a root `@/` alias that will allow us to write `@/utils/abc.tsx` instead of `../../../utils/abc.tsx`. This alias should be preferred most of the time when referencing root folders like `utils`, `public`, or `components`.
 
+## Date Formatting
+
+For date formatting, we use [Luxon](https://moment.github.io/luxon).
+
 ## Tutorial Pages
 
 Tutorial pages consist of 2 files per page.

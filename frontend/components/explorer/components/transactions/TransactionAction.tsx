@@ -12,7 +12,7 @@ import config from '../../../../utils/config';
 
 // import { Translate } from "react-localize-redux";
 
-import moment from 'moment';
+import { DateTime } from 'luxon';
 
 export interface Props {
   transaction: T.Transaction;
@@ -127,17 +127,18 @@ async function getTransactionStatus(
   net: NetOption,
   forceArchival?: boolean,
 ): Promise<any> {
-  // TODO replace moment with a modern alternative for better web performance
-  // https://momentjs.com/docs/#/-project-status/
-
   let rpcUrl;
   if (forceArchival) {
     console.log(`retrying: ${transaction.hash}`);
     // this is a retry, the default node returned UNKNOWN_TRANSACTION
     rpcUrl = config.url.rpc.archival[net];
   } else {
-    const blockMoment = moment(transaction.blockTimestamp);
-    if (blockMoment.isBefore(moment().subtract(2.5, 'days'))) {
+    const blockDate = DateTime.fromMillis(transaction.blockTimestamp);
+    const historicalDate = DateTime.now().minus({
+      days: 2.5,
+    });
+
+    if (blockDate < historicalDate) {
       // send to archival node. From the NEAR RPC docs:
       // > Querying historical data (older than 5 epochs or ~2.5 days), you
       // > may get responses that the data is not available anymore. In that
