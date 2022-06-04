@@ -113,13 +113,6 @@ export const Text = styled('p', {
         fontWeight: 500,
       },
     },
-    {
-      family: 'heading',
-      weight: 'regular',
-      css: {
-        fontWeight: 600,
-      },
-    },
   ],
 
   defaultVariants: {
