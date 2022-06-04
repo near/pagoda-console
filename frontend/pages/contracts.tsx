@@ -118,10 +118,10 @@ function ContractsTable(props: { project: string; environment: Environment }) {
               }}
             >
               <span />
-              <Text color="text1" as="span" css={{ fontWeight: 600 }}>
+              <Text color="text1" weight="semibold" as="span">
                 Account Balance
               </Text>
-              <Text color="text1" as="span" css={{ fontWeight: 600 }}>
+              <Text color="text1" weight="semibold" as="span">
                 Storage Used
               </Text>
               {isEditing && <span></span>}
@@ -165,7 +165,7 @@ function ContractsEmptyState({
 
           <Flex css={{ width: '50%' }} stack>
             <Text>
-              <Text as="span" color="text1" css={{ fontWeight: 600 }}>
+              <Text color="text1" weight="semibold" as="span">
                 To see focused explorer views and aggregate transactions:
               </Text>{' '}
               add contracts to this project.{' '}

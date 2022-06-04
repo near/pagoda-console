@@ -115,7 +115,7 @@ export function NftInfoCard() {
           </Form.Root>
         ) : (
           <Flex justify="spaceBetween" align="center">
-            <Text as="span" color="text1" css={{ fontWeight: 600 }}>
+            <Text as="span" color="text1" weight="semibold">
               {savedContractAddress}
             </Text>
             <Button

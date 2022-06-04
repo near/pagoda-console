@@ -161,7 +161,66 @@ const Settings: NextPageWithLayout = () => {
 
           <Accordion.Root type="multiple">
             <Accordion.Item value="item-1">
-              <Accordion.Trigger>Is it accessible?</Accordion.Trigger>
+              <Accordion.Trigger>Section One</Accordion.Trigger>
+              <Accordion.Content>
+                <Flex stack>
+                  <Text>Here is a paragraph.</Text>
+                  <Button>Click Me</Button>
+                </Flex>
+              </Accordion.Content>
+            </Accordion.Item>
+
+            <Accordion.Item value="item-2">
+              <Accordion.Trigger>Section Two</Accordion.Trigger>
+              <Accordion.Content>
+                <Flex stack>
+                  <Text>Here is a paragraph.</Text>
+                </Flex>
+              </Accordion.Content>
+            </Accordion.Item>
+
+            <Accordion.Item value="item-3">
+              <Accordion.Trigger disabled>Section 3 - Disabled</Accordion.Trigger>
+              <Accordion.Content>
+                <Flex stack>
+                  <Text>This whole area is disabled.</Text>
+                </Flex>
+              </Accordion.Content>
+            </Accordion.Item>
+          </Accordion.Root>
+
+          <H4>No Arrow</H4>
+
+          <Accordion.Root type="multiple" noArrow>
+            <Accordion.Item value="item-1">
+              <Accordion.Trigger>Section One</Accordion.Trigger>
+              <Accordion.Content>
+                <Flex stack>
+                  <Text>Here is another paragraph.</Text>
+                </Flex>
+              </Accordion.Content>
+            </Accordion.Item>
+
+            <Accordion.Item value="item-1">
+              <Accordion.Trigger>Section Two</Accordion.Trigger>
+              <Accordion.Content>
+                <Flex stack>
+                  <Text>Here is another paragraph.</Text>
+                </Flex>
+              </Accordion.Content>
+            </Accordion.Item>
+          </Accordion.Root>
+
+          <H4>Inline</H4>
+
+          <Accordion.Root type="multiple" inline>
+            <Accordion.Item value="item-1">
+              <Accordion.Trigger>
+                <FeatherIcon icon="zap" size="m" />
+                <Text size="h4" color="current">
+                  Section One
+                </Text>
+              </Accordion.Trigger>
               <Accordion.Content>
                 <Flex stack>
                   <Text>Yes. It adheres to the WAI-ARIA design pattern.</Text>
@@ -176,68 +235,25 @@ const Settings: NextPageWithLayout = () => {
 
             <Accordion.Item value="item-2">
               <Accordion.Trigger>
-                <FeatherIcon icon="eye" />
-                Some Title
-                <Text size="bodySmall">With a subtitle</Text>
+                <FeatherIcon icon="eye" size="m" />
+                <Text size="h4" color="current">
+                  Section Two
+                </Text>
               </Accordion.Trigger>
               <Accordion.Content>
                 <Flex stack>
-                  <Text>Yes! You can animate the Accordion with CSS or JavaScript.</Text>
-                </Flex>
-              </Accordion.Content>
-            </Accordion.Item>
-
-            <Accordion.Item value="item-3">
-              <Accordion.Trigger disabled>This one is disabled</Accordion.Trigger>
-              <Accordion.Content>
-                <Flex stack>
-                  <Text>This whole area is disabled.</Text>
-                </Flex>
-              </Accordion.Content>
-            </Accordion.Item>
-          </Accordion.Root>
-
-          <H4>No Arrow</H4>
-
-          <Accordion.Root type="multiple" noArrow>
-            <Accordion.Item value="item-1">
-              <Accordion.Trigger>This has no arrow indicator</Accordion.Trigger>
-              <Accordion.Content>
-                <Flex stack>
-                  <Text>Here is another paragraph.</Text>
-                </Flex>
-              </Accordion.Content>
-            </Accordion.Item>
-          </Accordion.Root>
-
-          <H4>Inline</H4>
-
-          <Accordion.Root type="multiple" inline>
-            <Accordion.Item value="item-1">
-              <Accordion.Trigger>Section One</Accordion.Trigger>
-              <Accordion.Content>
-                <Flex stack>
-                  <Text>Yes. It adheres to the WAI-ARIA design pattern.</Text>
-                  <Text>Here is another paragraph.</Text>
-
-                  <div>
-                    <Button>Click Me</Button>
-                  </div>
-                </Flex>
-              </Accordion.Content>
-            </Accordion.Item>
-
-            <Accordion.Item value="item-2">
-              <Accordion.Trigger>Section Two</Accordion.Trigger>
-              <Accordion.Content>
-                <Flex stack>
                   <Text>Here is another paragraph.</Text>
                 </Flex>
               </Accordion.Content>
             </Accordion.Item>
 
             <Accordion.Item value="item-3">
-              <Accordion.Trigger disabled>Section 3 - Disabled</Accordion.Trigger>
+              <Accordion.Trigger disabled>
+                <FeatherIcon icon="circle" size="m" />
+                <Text size="h4" color="current">
+                  Section Three - Disabled
+                </Text>
+              </Accordion.Trigger>
               <Accordion.Content>
                 <Flex stack>
                   <Text>This whole area is disabled.</Text>
@@ -1137,6 +1153,13 @@ const Settings: NextPageWithLayout = () => {
             <Text size="h3" color="text3">
               Text 3
             </Text>
+          </Flex>
+
+          <HR />
+
+          <Flex gap="l" wrap>
+            <Text weight="regular">Regular Weight</Text>
+            <Text weight="semibold">Semibold Weight</Text>
           </Flex>
         </Flex>
       </Section>
