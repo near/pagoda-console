@@ -34,14 +34,14 @@ export function TutorialPage(props: Props) {
             hr: {
               width: '100%',
               height: '1px',
-              background: 'var(--color-surface-1)',
+              background: 'var(--color-border-1)',
               marginTop: 'var(--space-l)',
             },
 
             'th, td': {
               padding: 'var(--space-s)',
               background: 'var(--color-surface-1)',
-              borderRight: '2px solid var(--color-surface-3)',
+              borderRight: '2px solid var(--color-border-1)',
 
               '&:last-child': {
                 borderRight: 'none',
@@ -54,7 +54,7 @@ export function TutorialPage(props: Props) {
 
             th: {
               fontWeight: 600,
-              borderBottom: '2px solid var(--color-surface-3)',
+              borderBottom: '2px solid var(--color-border-1)',
             },
           }}
         >

@@ -93,7 +93,7 @@ class ActionRowBlock extends Component<Props> {
             .action-sparse-row {
               padding-top: 10px;
               padding-bottom: 10px;
-              border-top: solid 2px var(--color-surface-1);
+              border-top: solid 2px var(--color-border-1);
             }
             .action-sparse-row .action-sparse-row {
               border-top: 0;
@@ -104,7 +104,7 @@ class ActionRowBlock extends Component<Props> {
             }
 
             .action-compact-row .action-row-details {
-              border-bottom: 2px solid var(--color-surface-1);
+              border-bottom: 2px solid var(--color-border-1);
               margin: 0.1em 0 0;
               padding-bottom: 8px;
             }
@@ -116,8 +116,8 @@ class ActionRowBlock extends Component<Props> {
             .action-compact-row .action-row-img {
               width: 24px;
               height: 24px;
-              border: solid 2px var(--color-surface-1);
-              background-color: var(--color-surface-1);
+              border: solid 2px var(--color-border-1);
+              background-color: var(--color-border-1);
               border-radius: 50%;
               margin-right: 8px;
               text-align: center;
@@ -137,7 +137,7 @@ class ActionRowBlock extends Component<Props> {
             }
 
             .action-row-bottom {
-              border-bottom: solid 2px var(--color-surface-1);
+              border-bottom: solid 2px var(--color-border-1);
             }
 
             .action-compact-row .action-row-img svg {

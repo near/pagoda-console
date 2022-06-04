@@ -673,7 +673,7 @@ export default function TableOfContents() {
         maxHeight: 'calc(100vh - calc(var(--size-header-height) + var(--space-l)))',
         position: 'sticky',
         top: 'calc(var(--size-header-height) + var(--space-l))',
-        borderLeft: '1px solid var(--color-surface-1)',
+        borderLeft: '1px solid var(--color-border-1)',
         paddingLeft: 'var(--space-l)',
         overflowY: 'auto',
         scrollBehavior: 'smooth',

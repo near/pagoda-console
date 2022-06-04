@@ -3,7 +3,7 @@ import { styled } from '@/styles/stitches';
 export const Section = styled('section', {
   padding: 'var(--space-l)',
   background: 'var(--color-surface-1)',
-  borderBottom: '1px solid var(--color-surface-1)',
+  borderBottom: '1px solid var(--color-border-1)',
 
   '&:last-child': {
     borderBottom: 'none',

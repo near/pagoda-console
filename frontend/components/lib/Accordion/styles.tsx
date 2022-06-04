@@ -105,12 +105,12 @@ export const Root = styled(AccordionPrimitive.Root, {
       true: {
         '--border-radius': 0,
         gap: 0,
-        borderTop: '1px solid var(--color-surface-1)',
+        borderTop: '1px solid var(--color-border-1)',
 
         [`${Item}`]: {
           padding: 'var(--space-m) 0',
           background: 'none',
-          borderBottom: '1px solid var(--color-surface-1)',
+          borderBottom: '1px solid var(--color-border-1)',
         },
 
         [`${Trigger}`]: {

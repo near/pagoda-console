@@ -89,7 +89,7 @@ export const Input = styled('input', {
   flexGrow: 1,
   color: 'var(--color-text-1)',
   background: 'var(--color-surface-2)',
-  border: '1px solid var(--color-surface-1)',
+  border: '1px solid var(--color-border-1)',
   fontSize: 'var(--font-size-body)',
   fontFamily: 'var(--font-body)',
   fontWeight: 400,
