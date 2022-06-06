@@ -56,6 +56,7 @@ const Block = styled('div', {
 });
 
 interface FakeForm {
+  age: number;
   displayName: string;
   email: string;
   favoriteFood: string;
@@ -356,14 +357,7 @@ const Settings: NextPageWithLayout = () => {
 
           <CheckboxGroup aria-label="Select your favorite foods">
             {favoriteFoodOptions.map((option) => (
-              <Checkbox
-                key={option.value}
-                value={option.value}
-                isInvalid={!!formState.errors.favoriteFood}
-                {...register('favoriteFood', {
-                  required: 'You must select a favorite food.',
-                })}
-              >
+              <Checkbox key={option.value} value={option.value} name={`exampleCheckbox1${option.value}`}>
                 {option.display}
                 <Text size="bodySmall">{option.description}</Text>
               </Checkbox>
@@ -374,15 +368,7 @@ const Settings: NextPageWithLayout = () => {
 
           <CheckboxGroup aria-label="Select your favorite food">
             {favoriteFoodOptions.map((option) => (
-              <Checkbox
-                radio
-                key={option.value}
-                value={option.value}
-                isInvalid={!!formState.errors.favoriteFood}
-                {...register('favoriteFood', {
-                  required: 'You must select a favorite food.',
-                })}
-              >
+              <Checkbox radio key={option.value} value={option.value} name="exampleRadio1">
                 {option.display}
                 <Text size="bodySmall">{option.description}</Text>
               </Checkbox>
@@ -704,6 +690,30 @@ const Settings: NextPageWithLayout = () => {
                   {...register('email', formValidations.email)}
                 />
                 <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
+              </Form.Group>
+
+              <Form.Group>
+                <Form.FloatingLabelInput
+                  type="number"
+                  label="Age - Floating Label"
+                  isInvalid={!!formState.errors.age}
+                  {...register('age', {
+                    required: 'Please enter your age',
+                    min: {
+                      value: 12,
+                      message: 'Must be at least 12 years old',
+                    },
+                  })}
+                />
+                <Form.Feedback>{formState.errors.age?.message}</Form.Feedback>
+              </Form.Group>
+
+              <Form.Group>
+                <Form.FloatingLabelInput
+                  type="number"
+                  label="Age - Floating Label + Placeholder"
+                  placeholder="eg: 35"
+                />
               </Form.Group>
 
               <Form.Group>

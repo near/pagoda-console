@@ -10,6 +10,9 @@ type FormProps = ComponentProps<typeof S.Form> & {
 type InputProps = Omit<ComponentProps<typeof S.Input>, 'invalid'> & {
   isInvalid?: boolean;
 };
+type FloatingLabelInputProps = InputProps & {
+  label: string;
+};
 
 export const Fieldset = S.Fieldset;
 export const HorizontalGroup = S.HorizontalGroup;
@@ -32,6 +35,25 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({ isInvalid, type
   return <S.Input invalid={isInvalid} aria-invalid={isInvalid} type={type} ref={ref} {...props} />;
 });
 Input.displayName = 'Input';
+
+export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInputProps>(
+  ({ isInvalid, label, type = 'text', placeholder = ' ', ...props }, ref) => {
+    return (
+      <S.FloatingWrapper>
+        <S.Input
+          aria-invalid={isInvalid}
+          invalid={isInvalid}
+          placeholder={placeholder}
+          ref={ref}
+          type={type}
+          {...props}
+        />
+        <S.FloatingLabel>{label}</S.FloatingLabel>
+      </S.FloatingWrapper>
+    );
+  },
+);
+FloatingLabelInput.displayName = 'FloatingLabelInput';
 
 export const Feedback = ({ children, ...props }: FeedbackProps) => {
   if (!children) return null;
