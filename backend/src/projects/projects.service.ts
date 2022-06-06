@@ -984,7 +984,11 @@ export class ProjectsService {
   async deleteProjectsAndApiKeysForUser(user: User) {
     try {
       const projects = await this.list(user);
-      projects.forEach(async (p) => await this.delete(user, { id: p.id }));
+      await Promise.all(
+        projects.map(async (p) => {
+          await this.delete(user, { id: p.id });
+        }),
+      );
     } catch (e) {
       throw new VError(e, 'Failed to delete projects and API keys for user');
     }
