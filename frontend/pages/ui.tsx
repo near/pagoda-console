@@ -698,6 +698,7 @@ const Settings: NextPageWithLayout = () => {
                   label="Age - Floating Label"
                   isInvalid={!!formState.errors.age}
                   {...register('age', {
+                    valueAsNumber: true,
                     required: 'Please enter your age',
                     min: {
                       value: 12,
