@@ -1,6 +1,8 @@
 # Checkbox / Radio
 
-Accessible checkboxes and radios are made possible using the following HTML (all that's needed is some CSS magic to make them look nice):
+Accessible checkboxes and radios are made possible using the following HTML (all that's needed is some CSS magic to make them look nice).
+
+A single checkbox:
 
 ```html
 <label>
@@ -9,15 +11,19 @@ Accessible checkboxes and radios are made possible using the following HTML (all
 </label>
 ```
 
+A group of radios or checkboxes:
+
 ```html
-<label>
-  <input type="radio" name="myRadio" value="1" />
-  Option 1
-</label>
-<label>
-  <input type="radio" name="myRadio" value="2" />
-  Option 2
-</label>
+<div role="group" aria-label="Select an option">
+  <label>
+    <input type="radio" name="myRadio" value="1" />
+    Option 1
+  </label>
+  <label>
+    <input type="radio" name="myRadio" value="2" />
+    Option 2
+  </label>
+</div>
 ```
 
 The `Checkbox` component is based on the simple HTML structure above. If you need to create a custom checkbox or radio component, feel free to copy this component as a good starting point.
