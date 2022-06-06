@@ -41,9 +41,12 @@ export default function DeleteAccountModal({
       setErrorText={setErrorText}
       setShow={setShow}
       show={show}
-      title={`Delete account ${identity?.email}`}
+      title={`Delete Account`}
     >
-      <Text>Do you really want to delete your account?</Text>
+      <Text>
+        This action is permanent and can&apos;t be undone. Are you sure you want to delete the following account?
+      </Text>
+      <Text color="text1">{identity?.email}</Text>
     </ConfirmModal>
   );
 }

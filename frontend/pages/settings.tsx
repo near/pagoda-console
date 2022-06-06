@@ -116,7 +116,7 @@ const Settings: NextPageWithLayout = () => {
         <Flex justify="spaceBetween" align="center">
           <H4>Delete</H4>
           <Button color="danger" onClick={() => setShowDeleteAccountModal(true)}>
-            Delete account
+            Delete Account
           </Button>
         </Flex>
       </Section>
