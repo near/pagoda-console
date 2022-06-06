@@ -14,6 +14,7 @@ model User {
   id                  Int           @id @default(autoincrement())
   uid                 String        @unique
   email               String        @unique
+  /// If 'false', the record was soft-deleted by a user.
   active              Boolean       @default(true)
   teamMembers         TeamMember[]
   createdAt           DateTime?     @default(now())
@@ -46,14 +47,17 @@ model User {
 model Team {
   id            Int           @id @default(autoincrement())
   name          String
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean       @default(true)
   teamMembers   TeamMember[]
   teamProjects  TeamProject[]
   createdAt     DateTime?     @default(now())
   createdByUser User?         @relation(name: "UserCreatedTeam", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?         @relation(name: "UserUpdatedTeam", fields: [updatedBy], references: [id])
   updatedAt     DateTime?     @updatedAt
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }
 
@@ -62,12 +66,15 @@ model TeamMember {
   userId        Int
   team          Team      @relation(fields: [teamId], references: [id])
   teamId        Int
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean   @default(true)
   createdAt     DateTime? @default(now())
   createdByUser User?     @relation(name: "UserCreatedTeamMember", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?     @relation(name: "UserUpdatedTeamMember", fields: [updatedBy], references: [id])
   updatedAt     DateTime? @updatedAt
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 
   @@id([userId, teamId])
@@ -77,15 +84,18 @@ model Project {
   id            Int              @id @default(autoincrement())
   name          String
   slug          String           @unique
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean          @default(true)
   teamProjects  TeamProject[]
   environments  Environment[]
   tutorial      ProjectTutorial?
   createdAt     DateTime?        @default(now())
   createdByUser User?            @relation(name: "UserCreatedProject", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?            @relation(name: "UserUpdatedProject", fields: [updatedBy], references: [id])
   updatedAt     DateTime?        @updatedAt
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }
 
@@ -94,12 +104,15 @@ model TeamProject {
   teamId        Int
   project       Project   @relation(fields: [projectId], references: [id])
   projectId     Int
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean   @default(true)
   createdAt     DateTime? @default(now())
   createdByUser User?     @relation(name: "UserCreatedTeamProject", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?     @relation(name: "UserUpdatedTeamProject", fields: [updatedBy], references: [id])
   updatedAt     DateTime? @updatedAt
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 
   @@id([teamId, projectId])
@@ -115,6 +128,7 @@ model ApiKey {
   net           Net
   environment   Environment @relation(fields: [environmentId], references: [id])
   environmentId Int
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean     @default(true)
 }
 
@@ -125,14 +139,17 @@ model Environment {
   projectId     Int
   net           Net
   subId         Int
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean    @default(true)
   apiKeys       ApiKey[]
   contracts     Contract[]
   createdAt     DateTime?  @default(now())
   createdByUser User?      @relation(name: "UserCreatedEnvironment", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?      @relation(name: "UserUpdatedEnvironment", fields: [updatedBy], references: [id])
   updatedAt     DateTime?  @updatedAt
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
   alerts        Alert[]
 
@@ -145,13 +162,16 @@ model Contract {
   environmentId Int
   address       String
   net           Net
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean     @default(true)
   alerts        Alert[]
   createdAt     DateTime?   @default(now())
   createdByUser User?       @relation(name: "UserCreatedContract", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?       @relation(name: "UserUpdatedContract", fields: [updatedBy], references: [id])
   updatedAt     DateTime?   @updatedAt
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }
 
@@ -160,7 +180,7 @@ enum ProjectTutorial {
   CROSSWORD
 }
 
-// UserAction is used to audit user actions that can't be captured in the Audit table.
+/// UserAction is used to audit user actions that can't be captured in the Audit table.
 model UserAction {
   id              Int            @id @default(autoincrement())
   action          UserActionType
@@ -174,22 +194,29 @@ enum UserActionType {
   ROTATE_API_KEY
 }
 
+/// Stores info about an alert and has a 1-1 relationship with one of the various Rule tables.
 model Alert {
   id            Int         @id @default(autoincrement())
   type          RuleType
   name          String
   description   String
+  /// A user can pause the alert from triggering by setting to 'true', in case they need to pause for some time.
   isPaused      Boolean     @default(false)
+  /// The rule's target contract address. This contract is associated with the attached environment.
   contract      Contract    @relation(fields: [contractId], references: [id])
   contractId    Int
+  /// Represents the environment that this alert belongs to. Can be used to determine if the alert should trigger off of mainnet or testnet and which project this alert belongs to.
   environment   Environment @relation(fields: [environmentId], references: [id])
   environmentId Int
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean     @default(true)
   createdAt     DateTime?   @default(now())
   createdByUser User?       @relation(name: "UserCreatedAlert", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedAt     DateTime?   @updatedAt
   updatedByUser User?       @relation(name: "UserUpdatedAlert", fields: [updatedBy], references: [id])
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 
   fnCallRule  FnCallRule?
@@ -198,44 +225,63 @@ model Alert {
   acctBalRule AcctBalRule?
 }
 
+/// Represents the various alert rule types.
 enum RuleType {
+  /// Successful Transaction
   TX_SUCCESS
+  /// Failed Transaction
   TX_FAILURE
+  /// Function Call
   FN_CALL
+  /// Event Logged
   EVENT
+  /// Account Balance Changed by some Percentage
   ACCT_BAL_PCT
+  /// Account Balance Changed by some Amount
   ACCT_BAL_NUM
 }
 
+/// Stores details for alerts of type FN_CALL.
 model FnCallRule {
   id            Int       @id @default(autoincrement())
+  /// Stores the function name to trigger off of.
   function      String
+  /// Future: Stores details on which params to trigger off of within the function. Will most likely be represented by mongodb style filters.
   params        Json
   alert         Alert     @relation(fields: [alertId], references: [id])
   alertId       Int       @unique
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean   @default(true)
   createdAt     DateTime? @default(now())
   createdByUser User?     @relation(name: "UserCreatedFnCallRule", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedAt     DateTime? @updatedAt
   updatedByUser User?     @relation(name: "UserUpdatedFnCallRule", fields: [updatedBy], references: [id])
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }
 
+/// Stores details for alerts of type TX_SUCCESS and TX_FAILURE.
 model TxRule {
   id            Int       @id @default(autoincrement())
+  /// Stores which, if any, transaction action to trigger off of.
   action        TxAction?
   alert         Alert     @relation(fields: [alertId], references: [id])
   alertId       Int       @unique
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean   @default(true)
   createdAt     DateTime? @default(now())
   createdByUser User?     @relation(name: "UserCreatedTxRule", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedAt     DateTime? @updatedAt
   updatedByUser User?     @relation(name: "UserUpdatedTxRule", fields: [updatedBy], references: [id])
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }
 
+/// Represents the available actions on transactions: https://docs.near.org/docs/concepts/transaction#action
 enum TxAction {
   CREATE_ACCOUNT
   DEPLOY_CONTRACT
@@ -247,43 +293,64 @@ enum TxAction {
   DELETE_ACCOUNT
 }
 
+/// Stores details for alerts of type EVENT.
 model EventRule {
   id            Int       @id @default(autoincrement())
+  /// The event standard to trigger off of.
   standard      String
+  /// The event version to trigger off of.
   version       String
+  /// The event name to trigger off of.
   event         String
+  /// Future: Stores details on which data within the 'data' field to trigger off of on the logged event. Will most likely be represented by mongodb style filters.
   data          Json
   alert         Alert     @relation(fields: [alertId], references: [id])
   alertId       Int       @unique
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean   @default(true)
   createdAt     DateTime? @default(now())
   createdByUser User?     @relation(name: "UserCreatedEventRule", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedAt     DateTime? @updatedAt
   updatedByUser User?     @relation(name: "UserUpdatedEventRule", fields: [updatedBy], references: [id])
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }
 
+/// Stores details for alerts of type ACCT_BAL_PCT and ACCT_BAL_NUM.
 model AcctBalRule {
   id            Int              @id @default(autoincrement())
+  /// Represents a numeric comparator. Used in combination with the `amount` field.
   comparator    NumberComparator
+  /// Represents a percentage or a specified amount of tokens depending on the alert type.
   amount        Int
   alert         Alert            @relation(fields: [alertId], references: [id])
   alertId       Int              @unique
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean          @default(true)
   createdAt     DateTime?        @default(now())
   createdByUser User?            @relation(name: "UserCreatedAcctBalRule", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedAt     DateTime?        @updatedAt
   updatedByUser User?            @relation(name: "UserUpdatedAcctBalRule", fields: [updatedBy], references: [id])
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }
 
+/// Represents common comparators used with numbers.
 enum NumberComparator {
+  /// Equal
   EQ
+  /// Not Equal
   NEQ
+  /// Less Than
   LT
+  /// Less Than or Equal
   LTE
+  /// Greater Than
   GT
+  /// Greater Than or Equal
   GTE
 }
