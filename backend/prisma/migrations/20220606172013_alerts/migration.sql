@@ -20,10 +20,6 @@ CREATE TABLE "Alert" (
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "isPaused" BOOLEAN NOT NULL DEFAULT false,
-    "fnCallRuleId" INTEGER,
-    "txRuleId" INTEGER,
-    "acctBalRuleId" INTEGER,
-    "eventRuleId" INTEGER,
     "contractId" INTEGER NOT NULL,
     "environmentId" INTEGER NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
@@ -40,6 +36,7 @@ CREATE TABLE "FnCallRule" (
     "id" SERIAL NOT NULL,
     "function" TEXT NOT NULL,
     "params" JSONB NOT NULL,
+    "alertId" INTEGER NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "createdBy" INTEGER,
@@ -53,6 +50,7 @@ CREATE TABLE "FnCallRule" (
 CREATE TABLE "TxRule" (
     "id" SERIAL NOT NULL,
     "action" "TxAction",
+    "alertId" INTEGER NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "createdBy" INTEGER,
@@ -69,6 +67,7 @@ CREATE TABLE "EventRule" (
     "version" TEXT NOT NULL,
     "event" TEXT NOT NULL,
     "data" JSONB NOT NULL,
+    "alertId" INTEGER NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "createdBy" INTEGER,
@@ -83,6 +82,7 @@ CREATE TABLE "AcctBalRule" (
     "id" SERIAL NOT NULL,
     "comparator" "NumberComparator" NOT NULL,
     "amount" INTEGER NOT NULL,
+    "alertId" INTEGER NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "createdBy" INTEGER,
@@ -93,16 +93,16 @@ CREATE TABLE "AcctBalRule" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Alert_fnCallRuleId_key" ON "Alert"("fnCallRuleId");
+CREATE UNIQUE INDEX "FnCallRule_alertId_key" ON "FnCallRule"("alertId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Alert_txRuleId_key" ON "Alert"("txRuleId");
+CREATE UNIQUE INDEX "TxRule_alertId_key" ON "TxRule"("alertId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Alert_acctBalRuleId_key" ON "Alert"("acctBalRuleId");
+CREATE UNIQUE INDEX "EventRule_alertId_key" ON "EventRule"("alertId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Alert_eventRuleId_key" ON "Alert"("eventRuleId");
+CREATE UNIQUE INDEX "AcctBalRule_alertId_key" ON "AcctBalRule"("alertId");
 
 -- AddForeignKey
 ALTER TABLE "Alert" ADD CONSTRAINT "Alert_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -117,22 +117,13 @@ ALTER TABLE "Alert" ADD CONSTRAINT "Alert_environmentId_fkey" FOREIGN KEY ("envi
 ALTER TABLE "Alert" ADD CONSTRAINT "Alert_contractId_fkey" FOREIGN KEY ("contractId") REFERENCES "Contract"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Alert" ADD CONSTRAINT "Alert_fnCallRuleId_fkey" FOREIGN KEY ("fnCallRuleId") REFERENCES "FnCallRule"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Alert" ADD CONSTRAINT "Alert_txRuleId_fkey" FOREIGN KEY ("txRuleId") REFERENCES "TxRule"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Alert" ADD CONSTRAINT "Alert_eventRuleId_fkey" FOREIGN KEY ("eventRuleId") REFERENCES "EventRule"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Alert" ADD CONSTRAINT "Alert_acctBalRuleId_fkey" FOREIGN KEY ("acctBalRuleId") REFERENCES "AcctBalRule"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "FnCallRule" ADD CONSTRAINT "FnCallRule_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "FnCallRule" ADD CONSTRAINT "FnCallRule_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FnCallRule" ADD CONSTRAINT "FnCallRule_alertId_fkey" FOREIGN KEY ("alertId") REFERENCES "Alert"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TxRule" ADD CONSTRAINT "TxRule_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -141,13 +132,22 @@ ALTER TABLE "TxRule" ADD CONSTRAINT "TxRule_createdBy_fkey" FOREIGN KEY ("create
 ALTER TABLE "TxRule" ADD CONSTRAINT "TxRule_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "TxRule" ADD CONSTRAINT "TxRule_alertId_fkey" FOREIGN KEY ("alertId") REFERENCES "Alert"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "EventRule" ADD CONSTRAINT "EventRule_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "EventRule" ADD CONSTRAINT "EventRule_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "EventRule" ADD CONSTRAINT "EventRule_alertId_fkey" FOREIGN KEY ("alertId") REFERENCES "Alert"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "AcctBalRule" ADD CONSTRAINT "AcctBalRule_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "AcctBalRule" ADD CONSTRAINT "AcctBalRule_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AcctBalRule" ADD CONSTRAINT "AcctBalRule_alertId_fkey" FOREIGN KEY ("alertId") REFERENCES "Alert"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

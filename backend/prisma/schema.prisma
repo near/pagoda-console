@@ -175,30 +175,27 @@ enum UserActionType {
 }
 
 model Alert {
-  id            Int          @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   type          RuleType
   name          String
   description   String
-  isPaused      Boolean      @default(false)
-  fnCallRule    FnCallRule?  @relation(fields: [fnCallRuleId], references: [id])
-  fnCallRuleId  Int?         @unique
-  txRule        TxRule?      @relation(fields: [txRuleId], references: [id])
-  txRuleId      Int?         @unique
-  acctBalRule   AcctBalRule? @relation(fields: [acctBalRuleId], references: [id])
-  acctBalRuleId Int?         @unique
-  eventRule     EventRule?   @relation(fields: [eventRuleId], references: [id])
-  eventRuleId   Int?         @unique
-  contract      Contract     @relation(fields: [contractId], references: [id])
+  isPaused      Boolean     @default(false)
+  contract      Contract    @relation(fields: [contractId], references: [id])
   contractId    Int
-  environment   Environment  @relation(fields: [environmentId], references: [id])
+  environment   Environment @relation(fields: [environmentId], references: [id])
   environmentId Int
-  active        Boolean      @default(true)
-  createdAt     DateTime?    @default(now())
-  createdByUser User?        @relation(name: "UserCreatedAlert", fields: [createdBy], references: [id])
+  active        Boolean     @default(true)
+  createdAt     DateTime?   @default(now())
+  createdByUser User?       @relation(name: "UserCreatedAlert", fields: [createdBy], references: [id])
   createdBy     Int?
-  updatedAt     DateTime?    @updatedAt
-  updatedByUser User?        @relation(name: "UserUpdatedAlert", fields: [updatedBy], references: [id])
+  updatedAt     DateTime?   @updatedAt
+  updatedByUser User?       @relation(name: "UserUpdatedAlert", fields: [updatedBy], references: [id])
   updatedBy     Int?
+
+  fnCallRule  FnCallRule?
+  txRule      TxRule?
+  eventRule   EventRule?
+  acctBalRule AcctBalRule?
 }
 
 enum RuleType {
@@ -214,7 +211,8 @@ model FnCallRule {
   id            Int       @id @default(autoincrement())
   function      String
   params        Json
-  alert         Alert?
+  alert         Alert     @relation(fields: [alertId], references: [id])
+  alertId       Int       @unique
   active        Boolean   @default(true)
   createdAt     DateTime? @default(now())
   createdByUser User?     @relation(name: "UserCreatedFnCallRule", fields: [createdBy], references: [id])
@@ -227,7 +225,8 @@ model FnCallRule {
 model TxRule {
   id            Int       @id @default(autoincrement())
   action        TxAction?
-  alert         Alert?
+  alert         Alert     @relation(fields: [alertId], references: [id])
+  alertId       Int       @unique
   active        Boolean   @default(true)
   createdAt     DateTime? @default(now())
   createdByUser User?     @relation(name: "UserCreatedTxRule", fields: [createdBy], references: [id])
@@ -254,7 +253,8 @@ model EventRule {
   version       String
   event         String
   data          Json
-  alert         Alert?
+  alert         Alert     @relation(fields: [alertId], references: [id])
+  alertId       Int       @unique
   active        Boolean   @default(true)
   createdAt     DateTime? @default(now())
   createdByUser User?     @relation(name: "UserCreatedEventRule", fields: [createdBy], references: [id])
@@ -268,7 +268,8 @@ model AcctBalRule {
   id            Int              @id @default(autoincrement())
   comparator    NumberComparator
   amount        Int
-  alert         Alert?
+  alert         Alert            @relation(fields: [alertId], references: [id])
+  alertId       Int              @unique
   active        Boolean          @default(true)
   createdAt     DateTime?        @default(now())
   createdByUser User?            @relation(name: "UserCreatedAcctBalRule", fields: [createdBy], references: [id])
