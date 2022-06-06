@@ -8,7 +8,7 @@ import * as S from './styles';
 type ContentProps = ComponentProps<typeof S.Content>;
 type TriggerProps = ComponentProps<typeof S.Trigger>;
 
-export const Root = S.Accordion;
+export const Root = S.Root;
 export const Item = S.Item;
 
 export const Trigger = forwardRef<HTMLButtonElement, TriggerProps>(({ children, ...props }, ref) => {

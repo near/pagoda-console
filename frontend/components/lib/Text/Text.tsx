@@ -25,12 +25,15 @@ export const Text = styled('p', {
 
     family: {
       action: {
+        fontWeight: 500,
         fontFamily: 'var(--font-action)',
       },
       body: {
+        fontWeight: 400,
         fontFamily: 'var(--font-body)',
       },
       code: {
+        fontWeight: 400,
         fontFamily: 'var(--font-code)',
       },
       heading: {
@@ -38,6 +41,7 @@ export const Text = styled('p', {
         fontFamily: 'var(--font-heading)',
       },
       number: {
+        fontWeight: 400,
         fontFamily: 'var(--font-number)',
       },
     },
@@ -76,7 +80,40 @@ export const Text = styled('p', {
         lineHeight: 'var(--line-height-body-small)',
       },
     },
+
+    weight: {
+      regular: {
+        fontWeight: 400,
+      },
+      semibold: {
+        fontWeight: 600,
+      },
+    },
   },
+
+  compoundVariants: [
+    {
+      family: 'action',
+      weight: 'semibold',
+      css: {
+        fontWeight: 500,
+      },
+    },
+    {
+      family: 'code',
+      weight: 'semibold',
+      css: {
+        fontWeight: 500,
+      },
+    },
+    {
+      family: 'number',
+      weight: 'semibold',
+      css: {
+        fontWeight: 500,
+      },
+    },
+  ],
 
   defaultVariants: {
     color: 'text2',

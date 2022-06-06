@@ -24,10 +24,10 @@ export const Root = DropdownMenuPrimitive.Root;
 export const Separator = S.Separator;
 export const Trigger = DropdownMenuPrimitive.Trigger;
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, color = 'neutral', ...props }, ref) => {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, ...props }, ref) => {
   return (
     <Trigger asChild>
-      <ButtonDropdown color={color} ref={ref} {...props}>
+      <ButtonDropdown ref={ref} {...props}>
         {children}
       </ButtonDropdown>
     </Trigger>

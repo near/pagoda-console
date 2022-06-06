@@ -27,7 +27,7 @@ export function SimpleLogoutLayout({ children }: { children: ReactElement }) {
           <DropdownMenu.Root>
             <DropdownMenu.Button color="transparent">
               <FeatherIcon icon="user" />
-              <Text as="span" color="text1" family="body" css={{ fontWeight: 600 }}>
+              <Text as="span" color="text1" family="body" weight="semibold">
                 {user?.name}
               </Text>
             </DropdownMenu.Button>

@@ -55,7 +55,7 @@ export const CheckboxGroup = styled('div', {
   background: 'var(--color-surface-2)',
 
   [`${Label}`]: {
-    borderTop: '1px solid var(--color-surface-1)',
+    borderTop: '1px solid var(--color-border-1)',
     padding: 'var(--space-m)',
     gap: 'var(--space-m)',
 

@@ -33,7 +33,7 @@ export function ProjectSelector() {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button color="neutral" css={{ width: '22rem' }}>
+      <DropdownMenu.Button css={{ width: '22rem' }}>
         <TextOverflow>{project?.name || '...'}</TextOverflow>
       </DropdownMenu.Button>
 

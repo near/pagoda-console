@@ -72,13 +72,6 @@ export const HorizontalGroup = styled('div', {
   },
 });
 
-export const Legend = styled('legend', {
-  color: 'var(--color-text-1)',
-  fontFamily: 'var(--font-body)',
-  fontWeight: 600,
-  lineHeight: 'var(--line-height-body)',
-});
-
 export const Label = styled('label', {
   color: 'var(--color-text-1)',
   fontFamily: 'var(--font-body)',
@@ -96,7 +89,7 @@ export const Input = styled('input', {
   flexGrow: 1,
   color: 'var(--color-text-1)',
   background: 'var(--color-surface-2)',
-  border: '1px solid var(--color-surface-1)',
+  border: '1px solid var(--color-border-2)',
   fontSize: 'var(--font-size-body)',
   fontFamily: 'var(--font-body)',
   fontWeight: 400,
@@ -104,6 +97,11 @@ export const Input = styled('input', {
   padding: '0 var(--space-m)',
   borderRadius: 'var(--border-radius-s)',
   transition: 'var(--transitions)',
+
+  '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': {
+    '-webkit-appearance': 'none',
+    margin: 0,
+  },
 
   '&::placeholder': {
     fontSize: 'var(--font-size-body)',
@@ -113,6 +111,7 @@ export const Input = styled('input', {
   '&:disabled': {
     opacity: 0.5,
     pointerEvents: 'none',
+    borderColor: 'var(--color-surface-2)',
   },
 
   '&:focus': {
@@ -151,5 +150,45 @@ export const Feedback = styled('p', {
 
   defaultVariants: {
     type: 'invalid',
+  },
+});
+
+export const FloatingLabel = styled('span', {
+  display: 'block',
+  position: 'absolute',
+  top: '1rem',
+  left: 'var(--space-m)',
+  color: 'var(--color-text-3)',
+  fontFamily: 'var(--font-body)',
+  fontWeight: 400,
+  fontSize: 'var(--font-size-body)',
+  lineHeight: 1,
+  transition: 'top var(--transition-speed), font-size var(--transition-speed)',
+
+  [`${Input}:not(:placeholder-shown) + &, ${Input}:focus + &`]: {
+    top: '0.5rem',
+    fontSize: '0.625rem',
+  },
+});
+
+export const FloatingWrapper = styled('label', {
+  display: 'block',
+  position: 'relative',
+  flexGrow: 1,
+
+  [`${Input}`]: {
+    width: '100%',
+    paddingTop: '1rem',
+
+    '&::placeholder': {
+      opacity: 0,
+      transition: 'opacity var(--transition-speed)',
+    },
+
+    '&:focus': {
+      '&::placeholder': {
+        opacity: 1,
+      },
+    },
   },
 });

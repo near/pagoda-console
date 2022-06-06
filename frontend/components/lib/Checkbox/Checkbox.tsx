@@ -2,16 +2,24 @@ import type { ComponentProps } from 'react';
 import { forwardRef } from 'react';
 
 import { FeatherIcon } from '../FeatherIcon';
-import * as S from './Checkbox.styles';
+import * as S from './styles';
 
-type Props = Omit<ComponentProps<typeof S.Input>, 'type' | 'radioGroup'> & {
+type CheckboxProps = Omit<ComponentProps<typeof S.Input>, 'type' | 'radioGroup'> & {
   isInvalid?: boolean;
   radio?: boolean;
 };
 
-export const CheckboxGroup = S.CheckboxGroup;
+type CheckboxGroupProps = ComponentProps<typeof S.CheckboxGroup>;
 
-export const Checkbox = forwardRef<HTMLInputElement, Props>(
+export const CheckboxGroup = ({ children, ...props }: CheckboxGroupProps) => {
+  return (
+    <S.CheckboxGroup role="group" {...props}>
+      {children}
+    </S.CheckboxGroup>
+  );
+};
+
+export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
   ({ children, css, isInvalid, radio = false, ...props }, ref) => {
     const type = radio ? 'radio' : 'checkbox';
 

@@ -25,7 +25,7 @@ export const Message = ({
   ...props
 }: Props) => {
   const iconsByType: Record<MessageType, string> = {
-    info: 'help-circle',
+    info: 'info',
     error: 'alert-circle',
     success: 'check-circle',
   };

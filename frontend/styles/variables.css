@@ -18,6 +18,9 @@
   --color-surface-4: #383838;
   --color-surface-5: #464646;
 
+  --color-border-1: #242625;
+  --color-border-2: #464646;
+
   --color-primary: #87bb81;
   --color-primary-highlight: #a8daa4;
   --color-danger: #e64747;
@@ -114,8 +117,11 @@
   --color-surface-1: #ffffff;
   --color-surface-2: #f6f7f9;
   --color-surface-3: #eff1f5;
-  --color-surface-4: #cdd3db;
+  --color-surface-4: #d9dee6;
   --color-surface-5: #bcc3cd;
+
+  --color-border-1: #d9dee6;
+  --color-border-2: #bcc3cd;
 
   --color-cta-neutral: #bcc3cd;
   --color-cta-neutral-highlight: #a9b0ba;

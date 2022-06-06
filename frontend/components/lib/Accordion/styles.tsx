@@ -12,15 +12,6 @@ const closeAnimation = keyframes({
   to: { height: 0 },
 });
 
-export const Accordion = styled(AccordionPrimitive.Root, {
-  '--animation-speed': '300ms',
-  '--border-radius': 'var(--border-radius-m)',
-  display: 'flex',
-  flexDirection: 'column',
-  width: '100%',
-  gap: 'var(--space-m)',
-});
-
 export const Header = styled(AccordionPrimitive.Header, {
   display: 'flex',
 });
@@ -37,6 +28,7 @@ export const Item = styled(AccordionPrimitive.Item, {
 });
 
 export const Trigger = styled(AccordionPrimitive.Trigger, {
+  '--icon-color': 'var(--color-text-3)',
   alignItems: 'center',
   color: 'var(--color-text-1)',
   cursor: 'pointer',
@@ -47,7 +39,7 @@ export const Trigger = styled(AccordionPrimitive.Trigger, {
   padding: 'var(--space-m)',
   borderRadius: 'var(--border-radius)',
   background: 'var(--color-surface-2)',
-  transition: 'background var(--animation-speed), border-radius var(--animation-speed)',
+  transition: 'color var(--transition-speed), background var(--animation-speed), border-radius var(--animation-speed)',
 
   '&[data-state="open"]': {
     boxShadow: 'inset 0 -1px 0 var(--color-surface-3)',
@@ -59,21 +51,34 @@ export const Trigger = styled(AccordionPrimitive.Trigger, {
     },
   },
 
-  '&:hover': { backgroundColor: 'var(--color-surface-1)' },
+  '&:hover': {
+    backgroundColor: 'var(--color-surface-1)',
+    '--icon-color': 'var(--color-primary)',
+  },
 
   '&:focus': {
     outline: 'var(--focus-outline)',
     outlineOffset: '0px',
   },
 
+  '&:disabled': {
+    color: 'var(--color-text-3)',
+    pointerEvents: 'none',
+    '& > svg': {
+      display: 'none',
+    },
+  },
+
   '& > svg': {
-    color: 'var(--color-cta-primary)',
-    transition: 'transform var(--animation-speed)',
+    color: 'var(--icon-color)',
+    transition: 'transform var(--animation-speed), color var(--transition-speed)',
   },
 });
 
 export const Content = styled(AccordionPrimitive.Content, {
   overflow: 'hidden',
+  padding: '1rem',
+  margin: '-1rem',
 
   '&[data-state="open"]': {
     animation: `${openAnimation} var(--animation-speed) ease`,
@@ -85,4 +90,51 @@ export const Content = styled(AccordionPrimitive.Content, {
 
 export const ContentContainer = styled('div', {
   padding: 'var(--space-m)',
+});
+
+export const Root = styled(AccordionPrimitive.Root, {
+  '--animation-speed': '300ms',
+  '--border-radius': 'var(--border-radius-m)',
+  display: 'flex',
+  flexDirection: 'column',
+  width: '100%',
+  gap: 'var(--space-m)',
+
+  variants: {
+    inline: {
+      true: {
+        '--border-radius': 0,
+        gap: 0,
+        borderTop: '1px solid var(--color-border-1)',
+
+        [`${Item}`]: {
+          padding: 'var(--space-m) 0',
+          background: 'none',
+          borderBottom: '1px solid var(--color-border-1)',
+        },
+
+        [`${Trigger}`]: {
+          background: 'none',
+          padding: 'calc(var(--space-m) / 2) 0',
+          margin: 'calc(var(--space-m) / 2) 0',
+          '&:hover': { color: 'var(--color-primary)' },
+          '&:focus': {
+            outlineOffset: 'var(--focus-outline-offset)',
+          },
+        },
+
+        [`${ContentContainer}`]: {
+          padding: 'var(--space-m) 0',
+        },
+      },
+    },
+
+    noArrow: {
+      true: {
+        [`${Trigger} > svg`]: {
+          display: 'none',
+        },
+      },
+    },
+  },
 });
