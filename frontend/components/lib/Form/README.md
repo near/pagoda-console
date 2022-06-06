@@ -133,6 +133,39 @@ You could also use `aria-labelledby` instead of `aria-label`:
 </Flex>
 ```
 
+## Floating Labels
+
+To save space and reduce clutter in the UI, most of the time it will make sense to use the `FloatingLabelInput` component over the separate `Input` and `Label` components like so:
+
+```tsx
+...
+<Form.Group>
+  <Form.FloatingLabelInput
+    label="Age"
+    type="number"
+    isInvalid={!!formState.errors.age}
+    {...register('age', {
+      valueAsNumber: true,
+      required: 'Please enter your age',
+      min: {
+        value: 12,
+        message: 'Must be at least 12 years old',
+      },
+    })}
+  />
+  <Form.Feedback>{formState.errors.age?.message}</Form.Feedback>
+</Form.Group>
+...
+```
+
+As a bonus, you do not need to worry about passing valid `id` and `htmlFor` values since the label automatically wraps the input - providing proper semantics and accessibility.
+
+You can also pass a value for `placeholder` to show extra context when a user focuses an empty input:
+
+```tsx
+<Form.FloatingLabelInput label="Age" placeholder="eg: 35" />
+```
+
 ## Max Width & Containers
 
 Sometimes it makes sense to wrap your entire form in a `Container` component to set a max width like so:
