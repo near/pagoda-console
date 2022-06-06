@@ -22,14 +22,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, ty
 });
 Button.displayName = 'Button';
 
-export const ButtonDropdown = forwardRef<HTMLButtonElement, ButtonDropdownProps>(({ children, ...props }, ref) => {
-  return (
-    <S.Button disabled={props.disabled || props.loading === true} type="button" ref={ref} {...props}>
-      <S.Content css={{ width: '100%' }}>{children}</S.Content>
-      <FeatherIcon fill="currentColor" stroke="none" icon="chevron-down" data-icon="arrow-down" />
-    </S.Button>
-  );
-});
+export const ButtonDropdown = forwardRef<HTMLButtonElement, ButtonDropdownProps>(
+  ({ children, color = 'input', ...props }, ref) => {
+    return (
+      <S.Button color={color} disabled={props.disabled || props.loading === true} type="button" ref={ref} {...props}>
+        <S.Content css={{ width: '100%' }}>{children}</S.Content>
+        <FeatherIcon fill="currentColor" stroke="none" icon="chevron-down" data-icon-arrow />
+      </S.Button>
+    );
+  },
+);
 ButtonDropdown.displayName = 'ButtonDropdown';
 
 export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(({ children, ...props }, ref) => {

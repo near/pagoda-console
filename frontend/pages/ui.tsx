@@ -320,6 +320,9 @@ const Settings: NextPageWithLayout = () => {
             <Button color="danger">Danger</Button>
             <Button color="neutral">Neutral</Button>
             <Button color="transparent">Transparent</Button>
+          </Flex>
+
+          <Flex wrap>
             <Button color="neutral" size="s">
               Small
             </Button>
@@ -330,11 +333,8 @@ const Settings: NextPageWithLayout = () => {
 
           <Flex wrap>
             <ButtonDropdown>Dropdown</ButtonDropdown>
-
             <Link href="/project-settings" passHref>
-              <ButtonLink color="neutral" css={{ '@mobile': { background: 'red' } }}>
-                Link
-              </ButtonLink>
+              <ButtonLink color="neutral">Link</ButtonLink>
             </Link>
           </Flex>
         </Flex>

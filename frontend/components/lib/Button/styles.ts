@@ -38,13 +38,13 @@ export const Button = styled('button', {
     outlineOffset: 'var(--focus-outline-offset)',
   },
 
-  '& > [data-icon="arrow-down"]': {
+  '& > [data-icon-arrow]': {
     opacity: 0.5,
     transition: 'transform 200ms',
     transform: 'rotate(0deg)',
   },
 
-  '&[data-state="open"] > [data-icon="arrow-down"]': {
+  '&[data-state="open"] > [data-icon-arrow]': {
     transform: 'rotate(-180deg)',
   },
 
@@ -72,6 +72,18 @@ export const Button = styled('button', {
           background: 'var(--color-surface-1)',
         },
       },
+      input: {
+        background: 'var(--color-surface-2)',
+        border: '1px solid var(--color-border-2)',
+        color: 'var(--color-text-1)',
+        '&:hover': {
+          background: 'var(--color-surface-1)',
+        },
+        '&:focus': {
+          outline: 'none',
+          borderColor: 'var(--focus-outline-color)',
+        },
+      },
       transparent: {
         background: 'transparent',
         color: 'var(--color-text-1)',
@@ -83,6 +95,8 @@ export const Button = styled('button', {
 
     loading: {
       true: {
+        pointerEvents: 'none',
+
         '&:disabled': {
           opacity: 1,
         },

@@ -15,10 +15,10 @@ export const Trigger = PopoverPrimitive.Trigger;
 export const Close = PopoverPrimitive.Close;
 export const Anchor = PopoverPrimitive.Anchor;
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, color = 'neutral', ...props }, ref) => {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, ...props }, ref) => {
   return (
     <Trigger asChild>
-      <ButtonDropdown color={color} ref={ref} {...props}>
+      <ButtonDropdown ref={ref} {...props}>
         {children}
       </ButtonDropdown>
     </Trigger>
