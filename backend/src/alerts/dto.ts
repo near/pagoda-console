@@ -2,7 +2,7 @@
 // because class-validator was experiencing issues at the time of implementation
 // and had many unaddressed github issues
 
-import { AlertRuleType, NumberComparator, TxAction } from '.prisma/client';
+import { RuleType, NumberComparator, TxAction } from '.prisma/client';
 import * as Joi from 'joi';
 
 export interface TxRuleDto {
@@ -43,31 +43,31 @@ const AcctBalRuleSchema = Joi.object({
   amount: Joi.number().required(),
 });
 
-// create alert rule
-interface CreateAlertRuleBaseDto {
+// create alert
+interface CreateAlertBaseDto {
   name?: string;
-  type: AlertRuleType;
+  type: RuleType;
   contract: number;
   environment: number;
 }
-export interface CreateTxRuleDto extends CreateAlertRuleBaseDto {
+export interface CreateTxRuleDto extends CreateAlertBaseDto {
   txRule: TxRuleDto;
 }
-export interface CreateFnCallRuleDto extends CreateAlertRuleBaseDto {
+export interface CreateFnCallRuleDto extends CreateAlertBaseDto {
   fnCallRule: FnCallRuleDto;
 }
-export interface CreateEventRuleDto extends CreateAlertRuleBaseDto {
+export interface CreateEventRuleDto extends CreateAlertBaseDto {
   eventRule: EventRuleDto;
 }
-export interface CreateAcctBalRuleDto extends CreateAlertRuleBaseDto {
+export interface CreateAcctBalRuleDto extends CreateAlertBaseDto {
   acctBalRule: AcctBalRuleDto;
 }
-export type CreateAlertRuleDto =
+export type CreateAlertDto =
   | CreateTxRuleDto
   | CreateFnCallRuleDto
   | CreateEventRuleDto
   | CreateAcctBalRuleDto;
-export const CreateAlertRuleSchema = Joi.object({
+export const CreateAlertSchema = Joi.object({
   name: Joi.string(),
   type: Joi.string()
     .valid(
@@ -103,33 +103,33 @@ export const CreateAlertRuleSchema = Joi.object({
   }),
 });
 
-// update alert rule
-interface UpdateAlertRuleBaseDto {
+// update alert
+interface UpdateAlertBaseDto {
   id: number;
   name: string;
-  type: AlertRuleType;
+  type: RuleType;
   description: string;
   isPaused: boolean;
   contract: number;
 }
-export interface UpdateTxRuleDto extends UpdateAlertRuleBaseDto {
+export interface UpdateTxRuleDto extends UpdateAlertBaseDto {
   txRule: TxRuleDto;
 }
-export interface UpdateFnCallRuleDto extends UpdateAlertRuleBaseDto {
+export interface UpdateFnCallRuleDto extends UpdateAlertBaseDto {
   fnCallRule: FnCallRuleDto;
 }
-export interface UpdateEventRuleDto extends UpdateAlertRuleBaseDto {
+export interface UpdateEventRuleDto extends UpdateAlertBaseDto {
   eventRule: EventRuleDto;
 }
-export interface UpdateAcctBalRuleDto extends UpdateAlertRuleBaseDto {
+export interface UpdateAcctBalRuleDto extends UpdateAlertBaseDto {
   acctBalRule: AcctBalRuleDto;
 }
-export type UpdateAlertRuleDto =
+export type UpdateAlertDto =
   | UpdateTxRuleDto
   | UpdateFnCallRuleDto
   | UpdateEventRuleDto
   | UpdateAcctBalRuleDto;
-export const UpdateAlertRuleSchema = Joi.object({
+export const UpdateAlertSchema = Joi.object({
   id: Joi.number().required(),
   name: Joi.string().required(),
   description: Joi.string().required(),
@@ -167,26 +167,26 @@ export const UpdateAlertRuleSchema = Joi.object({
   }),
 });
 
-// list alert rules
-export interface ListAlertRuleDto {
+// list alerts
+export interface ListAlertDto {
   environment: number;
 }
-export const ListAlertRuleSchema = Joi.object({
+export const ListAlertSchema = Joi.object({
   environment: Joi.number().required(),
 });
 
-// delete alert rule
-export interface DeleteAlertRuleDto {
+// delete alert
+export interface DeleteAlertDto {
   id: number;
 }
-export const DeleteAlertRuleSchema = Joi.object({
+export const DeleteAlertSchema = Joi.object({
   id: Joi.number().required(),
 });
 
-// get alert rule details
-export interface GetAlertRuleDetailsDto {
+// get alert details
+export interface GetAlertDetailsDto {
   id: number;
 }
-export const GetAlertRuleDetailsSchema = Joi.object({
+export const GetAlertDetailsSchema = Joi.object({
   id: Joi.number().required(),
 });

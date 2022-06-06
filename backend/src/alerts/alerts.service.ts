@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import {
   User,
   Prisma,
-  AlertRule,
+  Alert,
   AcctBalRule,
   EventRule,
   FnCallRule,
   TxRule,
-  AlertRuleType,
+  RuleType,
   Contract,
   Environment,
 } from '@prisma/client';
@@ -40,30 +40,30 @@ type AcctBalRuleSchema = {
   };
 };
 
-type CreateAlertRuleBaseSchema = {
-  name?: AlertRule['name'];
-  type: AlertRule['type'];
-  environment: AlertRule['environmentId'];
-  contract: AlertRule['contractId'];
+type CreateAlertBaseSchema = {
+  name?: Alert['name'];
+  type: Alert['type'];
+  environment: Alert['environmentId'];
+  contract: Alert['contractId'];
 };
-type CreateTxRuleSchema = CreateAlertRuleBaseSchema & TxRuleSchema;
-type CreateFnCallRuleSchema = CreateAlertRuleBaseSchema & FnCallRuleSchema;
-type CreateEventRuleSchema = CreateAlertRuleBaseSchema & EventRuleSchema;
-type CreateAcctBalRuleSchema = CreateAlertRuleBaseSchema & AcctBalRuleSchema;
+type CreateTxRuleSchema = CreateAlertBaseSchema & TxRuleSchema;
+type CreateFnCallRuleSchema = CreateAlertBaseSchema & FnCallRuleSchema;
+type CreateEventRuleSchema = CreateAlertBaseSchema & EventRuleSchema;
+type CreateAcctBalRuleSchema = CreateAlertBaseSchema & AcctBalRuleSchema;
 
-type CreateAlertRuleResponse = { name: AlertRule['name']; id: AlertRule['id'] };
+type CreateAlertResponse = { name: Alert['name']; id: Alert['id'] };
 
-type UpdateAlertRuleBaseSchema = {
-  name: AlertRule['name'];
-  description: AlertRule['description'];
-  type: AlertRule['type'];
-  isPaused: AlertRule['isPaused'];
-  contract: AlertRule['contractId'];
+type UpdateAlertBaseSchema = {
+  name: Alert['name'];
+  description: Alert['description'];
+  type: Alert['type'];
+  isPaused: Alert['isPaused'];
+  contract: Alert['contractId'];
 };
-type UpdateTxRuleSchema = UpdateAlertRuleBaseSchema & TxRuleSchema;
-type UpdateFnCallRuleSchema = UpdateAlertRuleBaseSchema & FnCallRuleSchema;
-type UpdateEventRuleSchema = UpdateAlertRuleBaseSchema & EventRuleSchema;
-type UpdateAcctBalRuleSchema = UpdateAlertRuleBaseSchema & AcctBalRuleSchema;
+type UpdateTxRuleSchema = UpdateAlertBaseSchema & TxRuleSchema;
+type UpdateFnCallRuleSchema = UpdateAlertBaseSchema & FnCallRuleSchema;
+type UpdateEventRuleSchema = UpdateAlertBaseSchema & EventRuleSchema;
+type UpdateAcctBalRuleSchema = UpdateAlertBaseSchema & AcctBalRuleSchema;
 
 @Injectable()
 export class AlertsService {
@@ -72,7 +72,7 @@ export class AlertsService {
   async createTxSuccessRule(
     user: User,
     rule: CreateTxRuleSchema,
-  ): Promise<CreateAlertRuleResponse> {
+  ): Promise<CreateAlertResponse> {
     await this.checkUserProjectPermission(
       user.id,
       rule.environment,
@@ -99,7 +99,7 @@ export class AlertsService {
   async createTxFailureRule(
     user: User,
     rule: CreateTxRuleSchema,
-  ): Promise<CreateAlertRuleResponse> {
+  ): Promise<CreateAlertResponse> {
     await this.checkUserProjectPermission(
       user.id,
       rule.environment,
@@ -126,7 +126,7 @@ export class AlertsService {
   async createFnCallRule(
     user: User,
     rule: CreateFnCallRuleSchema,
-  ): Promise<CreateAlertRuleResponse> {
+  ): Promise<CreateAlertResponse> {
     await this.checkUserProjectPermission(
       user.id,
       rule.environment,
@@ -156,7 +156,7 @@ export class AlertsService {
   async createEventRule(
     user: User,
     rule: CreateEventRuleSchema,
-  ): Promise<CreateAlertRuleResponse> {
+  ): Promise<CreateAlertResponse> {
     await this.checkUserProjectPermission(
       user.id,
       rule.environment,
@@ -184,7 +184,7 @@ export class AlertsService {
   async createAcctBalRule(
     user: User,
     rule: CreateAcctBalRuleSchema,
-  ): Promise<CreateAlertRuleResponse> {
+  ): Promise<CreateAlertResponse> {
     await this.checkUserProjectPermission(
       user.id,
       rule.environment,
@@ -235,11 +235,11 @@ export class AlertsService {
 
   private buildCreateRuleInput(
     user: User,
-    rule: CreateAlertRuleBaseSchema,
-  ): Prisma.AlertRuleCreateInput {
+    rule: CreateAlertBaseSchema,
+  ): Prisma.AlertCreateInput {
     const { name, type, environment, contract } = rule;
 
-    const alertInput: Prisma.AlertRuleCreateInput = {
+    const alertInput: Prisma.AlertCreateInput = {
       name,
       description: '',
       type,
@@ -269,12 +269,12 @@ export class AlertsService {
   }
 
   private async createRule(
-    data: Prisma.AlertRuleCreateInput,
-  ): Promise<CreateAlertRuleResponse> {
+    data: Prisma.AlertCreateInput,
+  ): Promise<CreateAlertResponse> {
     let alert;
 
     try {
-      alert = await this.prisma.alertRule.create({
+      alert = await this.prisma.alert.create({
         data,
       });
     } catch (e) {
@@ -289,10 +289,10 @@ export class AlertsService {
 
   async updateTxRule(
     user: User,
-    ruleId: AlertRule['id'],
+    ruleId: Alert['id'],
     rule: UpdateTxRuleSchema,
   ) {
-    const currType = (await this.fetchRule(ruleId)).type;
+    const currType = (await this.fetchAlert(ruleId)).type;
     await this.checkUserRulePermission(user.id, ruleId, rule.contract);
     const alertInput = await this.buildUpdateRuleInput(user, rule, currType);
 
@@ -316,10 +316,10 @@ export class AlertsService {
 
   async updateFnCallRule(
     user: User,
-    ruleId: AlertRule['id'],
+    ruleId: Alert['id'],
     rule: UpdateFnCallRuleSchema,
   ) {
-    const currType = (await this.fetchRule(ruleId)).type;
+    const currType = (await this.fetchAlert(ruleId)).type;
     await this.checkUserRulePermission(user.id, ruleId, rule.contract);
     const alertInput = await this.buildUpdateRuleInput(user, rule, currType);
 
@@ -345,10 +345,10 @@ export class AlertsService {
 
   async updateEventRule(
     user: User,
-    ruleId: AlertRule['id'],
+    ruleId: Alert['id'],
     rule: UpdateEventRuleSchema,
   ) {
-    const currType = (await this.fetchRule(ruleId)).type;
+    const currType = (await this.fetchAlert(ruleId)).type;
     await this.checkUserRulePermission(user.id, ruleId, rule.contract);
     const alertInput = await this.buildUpdateRuleInput(user, rule, currType);
 
@@ -374,10 +374,10 @@ export class AlertsService {
 
   async updateAcctBalRule(
     user: User,
-    ruleId: AlertRule['id'],
+    ruleId: Alert['id'],
     rule: UpdateAcctBalRuleSchema,
   ) {
-    const currType = (await this.fetchRule(ruleId)).type;
+    const currType = (await this.fetchAlert(ruleId)).type;
     await this.checkUserRulePermission(user.id, ruleId, rule.contract);
     const alertInput = await this.buildUpdateRuleInput(user, rule, currType);
 
@@ -401,9 +401,9 @@ export class AlertsService {
 
   private async buildUpdateRuleInput(
     user: User,
-    rule: UpdateAlertRuleBaseSchema,
-    currentRuleType: AlertRuleType,
-  ): Promise<Prisma.AlertRuleUpdateInput> {
+    rule: UpdateAlertBaseSchema,
+    currentRuleType: RuleType,
+  ): Promise<Prisma.AlertUpdateInput> {
     const { name, description, type, isPaused, contract } = rule;
 
     // If the type was updated, then we need to delete the existing rule and upsert a new one under a different type.
@@ -415,7 +415,7 @@ export class AlertsService {
       );
     }
 
-    const alertInput: Prisma.AlertRuleUpdateInput = {
+    const alertInput: Prisma.AlertUpdateInput = {
       name,
       description,
       type,
@@ -436,12 +436,9 @@ export class AlertsService {
     return alertInput;
   }
 
-  private async updateRule(
-    id: AlertRule['id'],
-    data: Prisma.AlertRuleUpdateInput,
-  ) {
+  private async updateRule(id: Alert['id'], data: Prisma.AlertUpdateInput) {
     try {
-      await this.prisma.alertRule.update({
+      await this.prisma.alert.update({
         where: {
           id,
         },
@@ -453,7 +450,7 @@ export class AlertsService {
   }
 
   async listRules(user: User, environment: Environment['id']) {
-    return await this.prisma.alertRule.findMany({
+    return await this.prisma.alert.findMany({
       where: {
         active: true,
         environment: {
@@ -522,8 +519,8 @@ export class AlertsService {
     });
   }
 
-  async deleteRule(callingUser: User, ruleId: AlertRule['id']): Promise<void> {
-    const rule = await this.fetchRule(ruleId);
+  async deleteRule(callingUser: User, ruleId: Alert['id']): Promise<void> {
+    const rule = await this.fetchAlert(ruleId);
 
     // throw an error if the user doesn't have permission to perform this action
     await this.checkUserRulePermission(callingUser.id, ruleId, rule.contractId);
@@ -534,7 +531,7 @@ export class AlertsService {
     );
     // soft delete the alert rule
     try {
-      await this.prisma.alertRule.update({
+      await this.prisma.alert.update({
         where: {
           id: ruleId,
         },
@@ -555,12 +552,12 @@ export class AlertsService {
 
   private async buildDeleteSubRuleInput(
     userId: User['id'],
-    type: AlertRuleType,
+    type: RuleType,
   ): Promise<
-    | { txRule: Prisma.TxRuleUpdateOneWithoutAlertRuleInput }
-    | { fnCallRule: Prisma.FnCallRuleUpdateOneWithoutAlertRuleInput }
-    | { eventRule: Prisma.EventRuleUpdateOneWithoutAlertRuleInput }
-    | { acctBalRule: Prisma.AcctBalRuleUpdateOneWithoutAlertRuleInput }
+    | { txRule: Prisma.TxRuleUpdateOneWithoutAlertInput }
+    | { fnCallRule: Prisma.FnCallRuleUpdateOneWithoutAlertInput }
+    | { eventRule: Prisma.EventRuleUpdateOneWithoutAlertInput }
+    | { acctBalRule: Prisma.AcctBalRuleUpdateOneWithoutAlertInput }
   > {
     const updates = {
       update: {
@@ -636,7 +633,7 @@ export class AlertsService {
   // and the user is a member of the rule's project.
   private async checkUserRulePermission(
     userId: User['id'],
-    ruleId: AlertRule['id'],
+    ruleId: Alert['id'],
     contractId: Contract['id'],
   ): Promise<void> {
     const res = await this.prisma.teamMember.findFirst({
@@ -657,7 +654,7 @@ export class AlertsService {
                         id: contractId,
                       },
                     },
-                    alertRules: {
+                    alerts: {
                       some: {
                         id: ruleId,
                       },
@@ -679,26 +676,20 @@ export class AlertsService {
     }
   }
 
-  private async fetchRule(id: AlertRule['id']): Promise<AlertRule> {
+  private async fetchAlert(id: Alert['id']): Promise<Alert> {
     try {
-      const rule = await this.prisma.alertRule.findUnique({
+      const rule = await this.prisma.alert.findUnique({
         where: {
           id,
         },
       });
 
       if (!rule) {
-        throw new VError(
-          { info: { code: 'BAD_ALERT' } },
-          'Alert rule not found',
-        );
+        throw new VError({ info: { code: 'BAD_ALERT' } }, 'Alert not found');
       }
 
       if (!rule.active) {
-        throw new VError(
-          { info: { code: 'BAD_ALERT' } },
-          'Alert rule is inactive',
-        );
+        throw new VError({ info: { code: 'BAD_ALERT' } }, 'Alert is inactive');
       }
 
       return rule;

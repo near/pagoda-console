@@ -16,18 +16,18 @@ import { VError } from 'verror';
 import { AlertsService } from './alerts.service';
 import {
   CreateAcctBalRuleDto,
-  CreateAlertRuleDto,
-  CreateAlertRuleSchema,
+  CreateAlertDto,
+  CreateAlertSchema,
   CreateEventRuleDto,
   CreateTxRuleDto,
-  DeleteAlertRuleDto,
-  DeleteAlertRuleSchema,
-  ListAlertRuleDto,
-  ListAlertRuleSchema,
+  DeleteAlertDto,
+  DeleteAlertSchema,
+  ListAlertDto,
+  ListAlertSchema,
   CreateFnCallRuleDto,
   UpdateTxRuleDto,
-  UpdateAlertRuleDto,
-  UpdateAlertRuleSchema,
+  UpdateAlertDto,
+  UpdateAlertSchema,
   UpdateAcctBalRuleDto,
   UpdateEventRuleDto,
   UpdateFnCallRuleDto,
@@ -37,10 +37,10 @@ import {
 export class AlertsController {
   constructor(private readonly alertsService: AlertsService) {}
 
-  @Post('createRule')
+  @Post('createAlert')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(CreateAlertRuleSchema))
-  async createRule(@Request() req, @Body() dto: CreateAlertRuleDto) {
+  @UsePipes(new JoiValidationPipe(CreateAlertSchema))
+  async createRule(@Request() req, @Body() dto: CreateAlertDto) {
     try {
       switch (dto.type) {
         case 'TX_SUCCESS':
@@ -77,11 +77,11 @@ export class AlertsController {
     }
   }
 
-  @Post('updateRule')
+  @Post('updateAlert')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(UpdateAlertRuleSchema))
-  async updateRule(@Request() req, @Body() { id, ...dto }: UpdateAlertRuleDto) {
+  @UsePipes(new JoiValidationPipe(UpdateAlertSchema))
+  async updateRule(@Request() req, @Body() { id, ...dto }: UpdateAlertDto) {
     try {
       switch (dto.type) {
         case 'TX_SUCCESS':
@@ -118,18 +118,18 @@ export class AlertsController {
     }
   }
 
-  @Post('listRules')
+  @Post('listAlerts')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(ListAlertRuleSchema))
-  async listRules(@Request() req, @Body() { environment }: ListAlertRuleDto) {
+  @UsePipes(new JoiValidationPipe(ListAlertSchema))
+  async listRules(@Request() req, @Body() { environment }: ListAlertDto) {
     return await this.alertsService.listRules(req.user, environment);
   }
 
-  @Post('deleteRule')
+  @Post('deleteAlert')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(DeleteAlertRuleSchema))
-  async delete(@Request() req, @Body() { id }: DeleteAlertRuleDto) {
+  @UsePipes(new JoiValidationPipe(DeleteAlertSchema))
+  async delete(@Request() req, @Body() { id }: DeleteAlertDto) {
     try {
       return await this.alertsService.deleteRule(req.user, id);
     } catch (e) {

@@ -31,8 +31,8 @@ model User {
   createdTeamProject  TeamProject[] @relation("UserCreatedTeamProject")
   updatedTeamProject  TeamProject[] @relation("UserUpdatedTeamProject")
   userActions         UserAction[]
-  createdAlertRules   AlertRule[]   @relation("UserCreatedAlert")
-  updatedAlertRules   AlertRule[]   @relation("UserUpdatedAlert")
+  createdAlerts       Alert[]       @relation("UserCreatedAlert")
+  updatedAlerts       Alert[]       @relation("UserUpdatedAlert")
   createdFnCallRules  FnCallRule[]  @relation("UserCreatedFnCallRule")
   updatedFnCallRules  FnCallRule[]  @relation("UserUpdatedFnCallRule")
   createdTxRules      TxRule[]      @relation("UserCreatedTxRule")
@@ -119,22 +119,22 @@ model ApiKey {
 }
 
 model Environment {
-  id            Int         @id @default(autoincrement())
+  id            Int        @id @default(autoincrement())
   name          String
-  project       Project     @relation(fields: [projectId], references: [id])
+  project       Project    @relation(fields: [projectId], references: [id])
   projectId     Int
   net           Net
   subId         Int
-  active        Boolean     @default(true)
+  active        Boolean    @default(true)
   apiKeys       ApiKey[]
   contracts     Contract[]
-  createdAt     DateTime?   @default(now())
-  createdByUser User?       @relation(name: "UserCreatedEnvironment", fields: [createdBy], references: [id])
+  createdAt     DateTime?  @default(now())
+  createdByUser User?      @relation(name: "UserCreatedEnvironment", fields: [createdBy], references: [id])
   createdBy     Int?
-  updatedByUser User?       @relation(name: "UserUpdatedEnvironment", fields: [updatedBy], references: [id])
-  updatedAt     DateTime?   @updatedAt
+  updatedByUser User?      @relation(name: "UserUpdatedEnvironment", fields: [updatedBy], references: [id])
+  updatedAt     DateTime?  @updatedAt
   updatedBy     Int?
-  alertRules    AlertRule[]
+  alerts        Alert[]
 
   @@unique([projectId, subId])
 }
@@ -146,7 +146,7 @@ model Contract {
   address       String
   net           Net
   active        Boolean     @default(true)
-  alertRules    AlertRule[]
+  alerts        Alert[]
   createdAt     DateTime?   @default(now())
   createdByUser User?       @relation(name: "UserCreatedContract", fields: [createdBy], references: [id])
   createdBy     Int?
@@ -174,34 +174,34 @@ enum UserActionType {
   ROTATE_API_KEY
 }
 
-model AlertRule {
-  id            Int           @id @default(autoincrement())
-  type          AlertRuleType
+model Alert {
+  id            Int          @id @default(autoincrement())
+  type          RuleType
   name          String
   description   String
-  isPaused      Boolean       @default(false)
-  fnCallRule    FnCallRule?   @relation(fields: [fnCallRuleId], references: [id])
-  fnCallRuleId  Int?          @unique
-  txRule        TxRule?       @relation(fields: [txRuleId], references: [id])
-  txRuleId      Int?          @unique
-  acctBalRule   AcctBalRule?  @relation(fields: [acctBalRuleId], references: [id])
-  acctBalRuleId Int?          @unique
-  eventRule     EventRule?    @relation(fields: [eventRuleId], references: [id])
-  eventRuleId   Int?          @unique
-  contract      Contract      @relation(fields: [contractId], references: [id])
+  isPaused      Boolean      @default(false)
+  fnCallRule    FnCallRule?  @relation(fields: [fnCallRuleId], references: [id])
+  fnCallRuleId  Int?         @unique
+  txRule        TxRule?      @relation(fields: [txRuleId], references: [id])
+  txRuleId      Int?         @unique
+  acctBalRule   AcctBalRule? @relation(fields: [acctBalRuleId], references: [id])
+  acctBalRuleId Int?         @unique
+  eventRule     EventRule?   @relation(fields: [eventRuleId], references: [id])
+  eventRuleId   Int?         @unique
+  contract      Contract     @relation(fields: [contractId], references: [id])
   contractId    Int
-  environment   Environment   @relation(fields: [environmentId], references: [id])
+  environment   Environment  @relation(fields: [environmentId], references: [id])
   environmentId Int
-  active        Boolean       @default(true)
-  createdAt     DateTime?     @default(now())
-  createdByUser User?         @relation(name: "UserCreatedAlert", fields: [createdBy], references: [id])
+  active        Boolean      @default(true)
+  createdAt     DateTime?    @default(now())
+  createdByUser User?        @relation(name: "UserCreatedAlert", fields: [createdBy], references: [id])
   createdBy     Int?
-  updatedAt     DateTime?     @updatedAt
-  updatedByUser User?         @relation(name: "UserUpdatedAlert", fields: [updatedBy], references: [id])
+  updatedAt     DateTime?    @updatedAt
+  updatedByUser User?        @relation(name: "UserUpdatedAlert", fields: [updatedBy], references: [id])
   updatedBy     Int?
 }
 
-enum AlertRuleType {
+enum RuleType {
   TX_SUCCESS
   TX_FAILURE
   FN_CALL
@@ -211,29 +211,29 @@ enum AlertRuleType {
 }
 
 model FnCallRule {
-  id            Int        @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   function      String
   params        Json
-  alertRule     AlertRule?
-  active        Boolean    @default(true)
-  createdAt     DateTime?  @default(now())
-  createdByUser User?      @relation(name: "UserCreatedFnCallRule", fields: [createdBy], references: [id])
+  alert         Alert?
+  active        Boolean   @default(true)
+  createdAt     DateTime? @default(now())
+  createdByUser User?     @relation(name: "UserCreatedFnCallRule", fields: [createdBy], references: [id])
   createdBy     Int?
-  updatedAt     DateTime?  @updatedAt
-  updatedByUser User?      @relation(name: "UserUpdatedFnCallRule", fields: [updatedBy], references: [id])
+  updatedAt     DateTime? @updatedAt
+  updatedByUser User?     @relation(name: "UserUpdatedFnCallRule", fields: [updatedBy], references: [id])
   updatedBy     Int?
 }
 
 model TxRule {
-  id            Int        @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   action        TxAction?
-  alertRule     AlertRule?
-  active        Boolean    @default(true)
-  createdAt     DateTime?  @default(now())
-  createdByUser User?      @relation(name: "UserCreatedTxRule", fields: [createdBy], references: [id])
+  alert         Alert?
+  active        Boolean   @default(true)
+  createdAt     DateTime? @default(now())
+  createdByUser User?     @relation(name: "UserCreatedTxRule", fields: [createdBy], references: [id])
   createdBy     Int?
-  updatedAt     DateTime?  @updatedAt
-  updatedByUser User?      @relation(name: "UserUpdatedTxRule", fields: [updatedBy], references: [id])
+  updatedAt     DateTime? @updatedAt
+  updatedByUser User?     @relation(name: "UserUpdatedTxRule", fields: [updatedBy], references: [id])
   updatedBy     Int?
 }
 
@@ -249,18 +249,18 @@ enum TxAction {
 }
 
 model EventRule {
-  id            Int        @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   standard      String
   version       String
   event         String
   data          Json
-  alertRule     AlertRule?
-  active        Boolean    @default(true)
-  createdAt     DateTime?  @default(now())
-  createdByUser User?      @relation(name: "UserCreatedEventRule", fields: [createdBy], references: [id])
+  alert         Alert?
+  active        Boolean   @default(true)
+  createdAt     DateTime? @default(now())
+  createdByUser User?     @relation(name: "UserCreatedEventRule", fields: [createdBy], references: [id])
   createdBy     Int?
-  updatedAt     DateTime?  @updatedAt
-  updatedByUser User?      @relation(name: "UserUpdatedEventRule", fields: [updatedBy], references: [id])
+  updatedAt     DateTime? @updatedAt
+  updatedByUser User?     @relation(name: "UserUpdatedEventRule", fields: [updatedBy], references: [id])
   updatedBy     Int?
 }
 
@@ -268,7 +268,7 @@ model AcctBalRule {
   id            Int              @id @default(autoincrement())
   comparator    NumberComparator
   amount        Int
-  alertRule     AlertRule?
+  alert         Alert?
   active        Boolean          @default(true)
   createdAt     DateTime?        @default(now())
   createdByUser User?            @relation(name: "UserCreatedAcctBalRule", fields: [createdBy], references: [id])
