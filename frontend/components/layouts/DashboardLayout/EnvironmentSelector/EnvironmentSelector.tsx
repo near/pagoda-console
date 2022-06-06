@@ -42,9 +42,9 @@ function Icon({ environment }: { environment?: Environment }) {
 
   switch (environment.net) {
     case 'MAINNET':
-      return <FeatherIcon icon="layers" css={{ color: '#00BF89' }} />;
+      return <FeatherIcon icon="layers" css={{ color: 'var(--color-mainnet)' }} />;
     case 'TESTNET':
-      return <FeatherIcon icon="code" css={{ color: '#e9b870' }} />;
+      return <FeatherIcon icon="code" css={{ color: 'var(--color-testnet)' }} />;
     default:
       assertUnreachable(environment.net);
   }

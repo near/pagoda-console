@@ -2,20 +2,23 @@ import type { ComponentProps } from 'react';
 import { useEffect, useState } from 'react';
 
 import { FeatherIcon } from '../lib/FeatherIcon';
+import type { Theme } from './store';
+import { useThemeStore } from './store';
 import * as S from './styles';
 
 type Props = ComponentProps<typeof S.Button>;
 
 export const ThemeToggle = (props: Props) => {
-  const [activeTheme, setActiveTheme] = useState('dark');
+  const { activeTheme, setActiveTheme } = useThemeStore();
   const [shouldRender, setShouldRender] = useState(false);
   const darkThemeClass = 'dark-theme';
   const lightThemeClass = 'light-theme';
 
   useEffect(() => {
-    setActiveTheme(localStorage.getItem('theme') || 'dark');
+    const theme = (localStorage.getItem('theme') || 'dark') as Theme;
+    setActiveTheme(theme);
     setShouldRender(true);
-  }, []);
+  }, [setActiveTheme]);
 
   function toggleTheme() {
     if (activeTheme === 'dark') {
