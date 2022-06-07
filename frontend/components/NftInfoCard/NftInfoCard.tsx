@@ -82,7 +82,7 @@ export function NftInfoCard() {
       <S.Header onClick={toggleQuickInfo}>
         <H3 css={{ marginRight: 'auto' }}>Live Contract Data</H3>
         {(basicsError || nftError) && <ErrorIndicator />}
-        <FeatherIcon icon="chevron-down" size="l" data-arrow-icon />
+        <FeatherIcon icon="chevron-up" size="l" data-arrow-icon />
       </S.Header>
 
       <Flex stack>
