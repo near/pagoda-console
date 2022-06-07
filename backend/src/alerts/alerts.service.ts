@@ -46,10 +46,10 @@ type CreateAlertBaseSchema = {
   environment: Alert['environmentId'];
   contract: Alert['contractId'];
 };
-type CreateTxRuleSchema = CreateAlertBaseSchema & TxRuleSchema;
-type CreateFnCallRuleSchema = CreateAlertBaseSchema & FnCallRuleSchema;
-type CreateEventRuleSchema = CreateAlertBaseSchema & EventRuleSchema;
-type CreateAcctBalRuleSchema = CreateAlertBaseSchema & AcctBalRuleSchema;
+type CreateTxAlertSchema = CreateAlertBaseSchema & TxRuleSchema;
+type CreateFnCallAlertSchema = CreateAlertBaseSchema & FnCallRuleSchema;
+type CreateEventAlertSchema = CreateAlertBaseSchema & EventRuleSchema;
+type CreateAcctBalAlertSchema = CreateAlertBaseSchema & AcctBalRuleSchema;
 
 type CreateAlertResponse = { name: Alert['name']; id: Alert['id'] };
 
@@ -57,143 +57,143 @@ type CreateAlertResponse = { name: Alert['name']; id: Alert['id'] };
 export class AlertsService {
   constructor(private prisma: PrismaService) {}
 
-  async createTxSuccessRule(
+  async createTxSuccessAlert(
     user: User,
-    rule: CreateTxRuleSchema,
+    alert: CreateTxAlertSchema,
   ): Promise<CreateAlertResponse> {
     await this.checkUserProjectPermission(
       user.id,
-      rule.environment,
-      rule.contract,
+      alert.environment,
+      alert.contract,
     );
-    const address = await this.getContractAddress(rule.contract);
+    const address = await this.getContractAddress(alert.contract);
 
-    const alertInput = this.buildCreateRuleInput(user, {
-      ...rule,
-      name: rule.name || `Successful transaction in ${address}`,
+    const alertInput = this.buildCreateAlertInput(user, {
+      ...alert,
+      name: alert.name || `Successful transaction in ${address}`,
     });
 
     alertInput.txRule = {
       create: {
-        ...rule.txRule,
+        ...alert.txRule,
         createdBy: user.id,
         updatedBy: user.id,
       },
     };
 
-    return this.createRule(alertInput);
+    return this.createAlert(alertInput);
   }
 
-  async createTxFailureRule(
+  async createTxFailureAlert(
     user: User,
-    rule: CreateTxRuleSchema,
+    alert: CreateTxAlertSchema,
   ): Promise<CreateAlertResponse> {
     await this.checkUserProjectPermission(
       user.id,
-      rule.environment,
-      rule.contract,
+      alert.environment,
+      alert.contract,
     );
-    const address = await this.getContractAddress(rule.contract);
+    const address = await this.getContractAddress(alert.contract);
 
-    const alertInput = this.buildCreateRuleInput(user, {
-      ...rule,
-      name: rule.name || `Failed transaction in ${address}`,
+    const alertInput = this.buildCreateAlertInput(user, {
+      ...alert,
+      name: alert.name || `Failed transaction in ${address}`,
     });
 
     alertInput.txRule = {
       create: {
-        ...rule.txRule,
+        ...alert.txRule,
         createdBy: user.id,
         updatedBy: user.id,
       },
     };
 
-    return this.createRule(alertInput);
+    return this.createAlert(alertInput);
   }
 
-  async createFnCallRule(
+  async createFnCallAlert(
     user: User,
-    rule: CreateFnCallRuleSchema,
+    alert: CreateFnCallAlertSchema,
   ): Promise<CreateAlertResponse> {
     await this.checkUserProjectPermission(
       user.id,
-      rule.environment,
-      rule.contract,
+      alert.environment,
+      alert.contract,
     );
-    const address = await this.getContractAddress(rule.contract);
+    const address = await this.getContractAddress(alert.contract);
 
-    const alertInput = this.buildCreateRuleInput(user, {
-      ...rule,
+    const alertInput = this.buildCreateAlertInput(user, {
+      ...alert,
       name:
-        rule.name ||
-        `Function ${rule.fnCallRule.function} called in ${address}`,
+        alert.name ||
+        `Function ${alert.fnCallRule.function} called in ${address}`,
     });
 
     alertInput.fnCallRule = {
       create: {
         params: {}, // TODO remove this when it can be set from the client
-        ...rule.fnCallRule,
+        ...alert.fnCallRule,
         createdBy: user.id,
         updatedBy: user.id,
       },
     };
 
-    return this.createRule(alertInput);
+    return this.createAlert(alertInput);
   }
 
-  async createEventRule(
+  async createEventAlert(
     user: User,
-    rule: CreateEventRuleSchema,
+    alert: CreateEventAlertSchema,
   ): Promise<CreateAlertResponse> {
     await this.checkUserProjectPermission(
       user.id,
-      rule.environment,
-      rule.contract,
+      alert.environment,
+      alert.contract,
     );
-    const address = await this.getContractAddress(rule.contract);
+    const address = await this.getContractAddress(alert.contract);
 
-    const alertInput = this.buildCreateRuleInput(user, {
-      ...rule,
-      name: rule.name || `Event ${rule.eventRule.event} logged in ${address}`,
+    const alertInput = this.buildCreateAlertInput(user, {
+      ...alert,
+      name: alert.name || `Event ${alert.eventRule.event} logged in ${address}`,
     });
 
     alertInput.eventRule = {
       create: {
         data: {}, // TODO remove this when it can be set from the client
-        ...rule.eventRule,
+        ...alert.eventRule,
         createdBy: user.id,
         updatedBy: user.id,
       },
     };
 
-    return this.createRule(alertInput);
+    return this.createAlert(alertInput);
   }
 
-  async createAcctBalRule(
+  async createAcctBalAlert(
     user: User,
-    rule: CreateAcctBalRuleSchema,
+    alert: CreateAcctBalAlertSchema,
   ): Promise<CreateAlertResponse> {
     await this.checkUserProjectPermission(
       user.id,
-      rule.environment,
-      rule.contract,
+      alert.environment,
+      alert.contract,
     );
-    const address = await this.getContractAddress(rule.contract);
+    const address = await this.getContractAddress(alert.contract);
 
-    const alertInput = this.buildCreateRuleInput(user, {
-      ...rule,
-      name: rule.name || `Account balance changed in ${address}`,
+    const alertInput = this.buildCreateAlertInput(user, {
+      ...alert,
+      name: alert.name || `Account balance changed in ${address}`,
     });
 
     alertInput.acctBalRule = {
       create: {
-        ...rule.acctBalRule,
+        ...alert.acctBalRule,
         createdBy: user.id,
         updatedBy: user.id,
       },
     };
 
-    return this.createRule(alertInput);
+    return this.createAlert(alertInput);
   }
 
   private async getContractAddress(
@@ -221,11 +221,11 @@ export class AlertsService {
     return address;
   }
 
-  private buildCreateRuleInput(
+  private buildCreateAlertInput(
     user: User,
-    rule: CreateAlertBaseSchema,
+    alert: CreateAlertBaseSchema,
   ): Prisma.AlertCreateInput {
-    const { name, type, environment, contract } = rule;
+    const { name, type, environment, contract } = alert;
 
     const alertInput: Prisma.AlertCreateInput = {
       name,
@@ -255,7 +255,7 @@ export class AlertsService {
     return alertInput;
   }
 
-  private async createRule(
+  private async createAlert(
     data: Prisma.AlertCreateInput,
   ): Promise<CreateAlertResponse> {
     let alert;
@@ -280,7 +280,7 @@ export class AlertsService {
     name: Alert['name'],
     isPaused: Alert['isPaused'],
   ) {
-    await this.checkUserRulePermission(callingUser.id, id);
+    await this.checkUserAlertPermission(callingUser.id, id);
 
     try {
       await this.prisma.alert.update({
@@ -302,7 +302,7 @@ export class AlertsService {
     }
   }
 
-  async listRules(user: User, environment: Environment['id']) {
+  async listAlerts(user: User, environment: Environment['id']) {
     return await this.prisma.alert.findMany({
       where: {
         active: true,
@@ -371,21 +371,21 @@ export class AlertsService {
     });
   }
 
-  async deleteRule(callingUser: User, ruleId: Alert['id']): Promise<void> {
-    const rule = await this.fetchAlert(ruleId);
+  async deleteAlert(callingUser: User, id: Alert['id']): Promise<void> {
+    const alert = await this.fetchAlert(id);
 
     // throw an error if the user doesn't have permission to perform this action
-    await this.checkUserRulePermission(callingUser.id, ruleId, rule.contractId);
+    await this.checkUserAlertPermission(callingUser.id, id, alert.contractId);
 
-    const deleteSubRuleInput = await this.buildDeleteSubRuleInput(
+    const deleteRuleInput = await this.buildDeleteRuleInput(
       callingUser.id,
-      rule.type,
+      alert.type,
     );
-    // soft delete the alert rule
+    // soft delete the alert and rule
     try {
       await this.prisma.alert.update({
         where: {
-          id: ruleId,
+          id: id,
         },
         data: {
           active: false,
@@ -394,7 +394,7 @@ export class AlertsService {
               id: callingUser.id,
             },
           },
-          ...deleteSubRuleInput,
+          ...deleteRuleInput,
         },
       });
     } catch (e) {
@@ -402,7 +402,7 @@ export class AlertsService {
     }
   }
 
-  private async buildDeleteSubRuleInput(
+  private async buildDeleteRuleInput(
     userId: User['id'],
     type: RuleType,
   ): Promise<
@@ -483,9 +483,9 @@ export class AlertsService {
 
   // Confirms the contract, if provided, belongs to the same environment that the rule is in
   // and the user is a member of the rule's project.
-  private async checkUserRulePermission(
+  private async checkUserAlertPermission(
     userId: User['id'],
-    ruleId: Alert['id'],
+    id: Alert['id'],
     contractId?: Contract['id'],
   ): Promise<void> {
     let contractQuery;
@@ -515,7 +515,7 @@ export class AlertsService {
                     ...contractQuery,
                     alerts: {
                       some: {
-                        id: ruleId,
+                        id,
                       },
                     },
                   },

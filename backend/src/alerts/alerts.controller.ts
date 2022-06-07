@@ -15,16 +15,16 @@ import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 import { VError } from 'verror';
 import { AlertsService } from './alerts.service';
 import {
-  CreateAcctBalRuleDto,
+  CreateAcctBalAlertDto,
   CreateAlertDto,
   CreateAlertSchema,
-  CreateEventRuleDto,
-  CreateTxRuleDto,
+  CreateEventAlertDto,
+  CreateTxAlertDto,
   DeleteAlertDto,
   DeleteAlertSchema,
   ListAlertDto,
   ListAlertSchema,
-  CreateFnCallRuleDto,
+  CreateFnCallAlertDto,
   UpdateAlertSchema,
   UpdateAlertDto,
 } from './dto';
@@ -36,34 +36,34 @@ export class AlertsController {
   @Post('createAlert')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(CreateAlertSchema))
-  async createRule(@Request() req, @Body() dto: CreateAlertDto) {
+  async createAlert(@Request() req, @Body() dto: CreateAlertDto) {
     try {
       switch (dto.type) {
         case 'TX_SUCCESS':
-          return await this.alertsService.createTxSuccessRule(
+          return await this.alertsService.createTxSuccessAlert(
             req.user,
-            dto as CreateTxRuleDto,
+            dto as CreateTxAlertDto,
           );
         case 'TX_FAILURE':
-          return await this.alertsService.createTxFailureRule(
+          return await this.alertsService.createTxFailureAlert(
             req.user,
-            dto as CreateTxRuleDto,
+            dto as CreateTxAlertDto,
           );
         case 'FN_CALL':
-          return await this.alertsService.createFnCallRule(
+          return await this.alertsService.createFnCallAlert(
             req.user,
-            dto as CreateFnCallRuleDto,
+            dto as CreateFnCallAlertDto,
           );
         case 'EVENT':
-          return await this.alertsService.createEventRule(
+          return await this.alertsService.createEventAlert(
             req.user,
-            dto as CreateEventRuleDto,
+            dto as CreateEventAlertDto,
           );
         case 'ACCT_BAL_NUM':
         case 'ACCT_BAL_PCT':
-          return await this.alertsService.createAcctBalRule(
+          return await this.alertsService.createAcctBalAlert(
             req.user,
-            dto as CreateAcctBalRuleDto,
+            dto as CreateAcctBalAlertDto,
           );
         default:
           assertUnreachable(dto.type);
@@ -77,7 +77,7 @@ export class AlertsController {
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(UpdateAlertSchema))
-  async updateRule(
+  async updateAlert(
     @Request() req,
     @Body() { id, name, isPaused }: UpdateAlertDto,
   ) {
@@ -91,17 +91,17 @@ export class AlertsController {
   @Post('listAlerts')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(ListAlertSchema))
-  async listRules(@Request() req, @Body() { environment }: ListAlertDto) {
-    return await this.alertsService.listRules(req.user, environment);
+  async listAlerts(@Request() req, @Body() { environment }: ListAlertDto) {
+    return await this.alertsService.listAlerts(req.user, environment);
   }
 
   @Post('deleteAlert')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(DeleteAlertSchema))
-  async delete(@Request() req, @Body() { id }: DeleteAlertDto) {
+  async deleteAlert(@Request() req, @Body() { id }: DeleteAlertDto) {
     try {
-      return await this.alertsService.deleteRule(req.user, id);
+      return await this.alertsService.deleteAlert(req.user, id);
     } catch (e) {
       throw mapError(e);
     }

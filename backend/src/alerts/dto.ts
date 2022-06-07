@@ -50,23 +50,23 @@ interface CreateAlertBaseDto {
   contract: number;
   environment: number;
 }
-export interface CreateTxRuleDto extends CreateAlertBaseDto {
+export interface CreateTxAlertDto extends CreateAlertBaseDto {
   txRule: TxRuleDto;
 }
-export interface CreateFnCallRuleDto extends CreateAlertBaseDto {
+export interface CreateFnCallAlertDto extends CreateAlertBaseDto {
   fnCallRule: FnCallRuleDto;
 }
-export interface CreateEventRuleDto extends CreateAlertBaseDto {
+export interface CreateEventAlertDto extends CreateAlertBaseDto {
   eventRule: EventRuleDto;
 }
-export interface CreateAcctBalRuleDto extends CreateAlertBaseDto {
+export interface CreateAcctBalAlertDto extends CreateAlertBaseDto {
   acctBalRule: AcctBalRuleDto;
 }
 export type CreateAlertDto =
-  | CreateTxRuleDto
-  | CreateFnCallRuleDto
-  | CreateEventRuleDto
-  | CreateAcctBalRuleDto;
+  | CreateTxAlertDto
+  | CreateFnCallAlertDto
+  | CreateEventAlertDto
+  | CreateAcctBalAlertDto;
 export const CreateAlertSchema = Joi.object({
   name: Joi.string(),
   type: Joi.string()
