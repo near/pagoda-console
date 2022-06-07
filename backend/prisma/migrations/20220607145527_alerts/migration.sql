@@ -18,7 +18,6 @@ CREATE TABLE "Alert" (
     "id" SERIAL NOT NULL,
     "type" "RuleType" NOT NULL,
     "name" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
     "isPaused" BOOLEAN NOT NULL DEFAULT false,
     "contractId" INTEGER NOT NULL,
     "environmentId" INTEGER NOT NULL,

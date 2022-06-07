@@ -108,7 +108,6 @@ interface UpdateAlertBaseDto {
   id: number;
   name: string;
   type: RuleType;
-  description: string;
   isPaused: boolean;
   contract: number;
 }
@@ -132,7 +131,6 @@ export type UpdateAlertDto =
 export const UpdateAlertSchema = Joi.object({
   id: Joi.number().required(),
   name: Joi.string().required(),
-  description: Joi.string().required(),
   type: Joi.string()
     .valid(
       'TX_SUCCESS',

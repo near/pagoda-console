@@ -55,7 +55,6 @@ type CreateAlertResponse = { name: Alert['name']; id: Alert['id'] };
 
 type UpdateAlertBaseSchema = {
   name: Alert['name'];
-  description: Alert['description'];
   type: Alert['type'];
   isPaused: Alert['isPaused'];
   contract: Alert['contractId'];
@@ -241,7 +240,6 @@ export class AlertsService {
 
     const alertInput: Prisma.AlertCreateInput = {
       name,
-      description: '',
       type,
       contract: {
         connect: {
@@ -404,7 +402,7 @@ export class AlertsService {
     rule: UpdateAlertBaseSchema,
     currentRuleType: RuleType,
   ): Promise<Prisma.AlertUpdateInput> {
-    const { name, description, type, isPaused, contract } = rule;
+    const { name, type, isPaused, contract } = rule;
 
     // If the type was updated, then we need to delete the existing rule and upsert a new one under a different type.
     let deleteRuleInput;
@@ -417,7 +415,6 @@ export class AlertsService {
 
     const alertInput: Prisma.AlertUpdateInput = {
       name,
-      description,
       type,
       isPaused,
       contract: {
@@ -479,7 +476,6 @@ export class AlertsService {
         id: true,
         type: true,
         name: true,
-        description: true,
         isPaused: true,
         fnCallRule: {
           select: {

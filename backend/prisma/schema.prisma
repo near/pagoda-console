@@ -199,7 +199,6 @@ model Alert {
   id            Int         @id @default(autoincrement())
   type          RuleType
   name          String
-  description   String
   /// A user can pause the alert from triggering by setting to 'true', in case they need to pause for some time.
   isPaused      Boolean     @default(false)
   /// The rule's target contract address. This contract is associated with the attached environment.
