@@ -8,7 +8,7 @@ import type { NetOption } from '@/utils/types';
 export function useRecentTransactions(
   contracts: string[] | undefined,
   net: NetOption,
-): { transactions: Transaction[]; error: any } {
+): { transactions?: Transaction[]; error: any } {
   const identity = useIdentity();
   // TODO (P2+) look into whether using contracts as part of the SWR key will cause a large
   // amount of unnecessary caching, since every modification to the contract set will be a

@@ -8,7 +8,7 @@ Language: Typescript
 
 Framework: [Next.js](https://nextjs.org/)
 
-UI Kit: [React Bootstrap](https://react-bootstrap.github.io/)
+UI: [Radix](https://www.radix-ui.com/) & [Stitches](https://stitches.dev/)
 
 Identity Management: [Firebase Auth](https://firebase.google.com/docs/auth)
 
@@ -16,13 +16,47 @@ Identity Management: [Firebase Auth](https://firebase.google.com/docs/auth)
 
 ## Local Environment Variables
 
-Environment variables are loaded automatically from a `.env.local` file at the root of the project. Please copy the `.env.local.example` file as a starting point and ask the team for the secrets.
+Environment variables are loaded automatically from `.env` and `.env.local` file at the root of the project. Use `.env.local` to override any values in `.env`. Please copy the `.env.local.example` file as a starting point for your own `.env.local` file and ask the team for any secrets if there are any.
 
 To make the environment variable available in the browser at runtime, it must be prefixed with `NEXT_PUBLIC_`
 
 [Next.js Environment Variables docs](https://nextjs.org/docs/basic-features/environment-variables)
 
 # Contributing
+
+## Modules
+
+DevConsole consists of multiple modules owned by different teams within Pagoda. Each module has isolated directories within this repository for their work, and should refrain from touching files outside those directories.
+
+The folders are:
+
+- `/modules/{module}/`: This directory is instantiated with a few subdirectories for suggested organization, but it is entirely owned by the module team to use as they see fit. It should contain all non-page files necessary to build the module
+- `/pages/{module}/`: Contains all pages to be rendered for this module as `.tsx` files. See the [Next.js Pages](https://nextjs.org/docs/basic-features/pages) doc for more information
+
+#### Example
+
+Given a module named `alerts` with the following files
+
+```
+/modules
+  /alerts
+    /utils
+    /components
+      AlertDetailCard.tsx
+    /hooks
+/pages
+  /alerts
+    index.tsx
+    new-alert.tsx
+```
+
+Two pages will be available in the UI: `/alerts`(`index.tsx`) and `/alerts/new-alert`. The page files `/pages/alerts/index.tsx` and `/pages/alerts/new-alert.tsx` likely have the following import:
+
+```
+import { AlertDetailCard } from '@/modules/alerts/components/AlertDetailCard'
+```
+
+## Environment
 
 The recommended way to run a development instance of this project is with VS Code and Dev Containers via the `ms-azuretools.vscode-docker` extension (which you will need to install manually). The container definitions are part of this repository (`.devcontainer/`), so using dev containers will allow you to easily keep your environment in sync with other team members.
 
@@ -50,22 +84,7 @@ All environment variables are read into a config object in [utils/config.ts](uti
 
 ## CSS-in-JS
 
-This project uses [styled-jsx](https://github.com/vercel/styled-jsx). This remains open to evaluation. See [this issue](https://github.com/near/developer-console-framework/issues/7) for context
-
-### Styling third party components with styled-jsx
-
-To style third party components which do not accept a custom `className` (e.g. React Bootstrap components) with styled-jsx, it is necessary to use a child or descendent selector and a global class name.
-
-```tsx
-<div className="buttonContainer">
-  <Button>Click me</Button>
-  <style jsx>{`
-    .buttonContainer :global(.btn) {
-      height: 3rem;
-    }
-  `}</style>
-</div>
-```
+This project uses [Radix](https://www.radix-ui.com/) and [Stitches](https://stitches.dev/). We have built out a library of generic, reusable components in `components/lib/`. You can also view all of these components by visiting `/ui` when running the server locally. More detailed documentation will follow soon.
 
 ## Page Layouts
 
@@ -95,6 +114,10 @@ Where helpful, utilize [Better Comments](https://marketplace.visualstudio.com/it
 ## Path Alias
 
 Next JS supports `tsconfig.json` path aliases out of the box. We've set up a root `@/` alias that will allow us to write `@/utils/abc.tsx` instead of `../../../utils/abc.tsx`. This alias should be preferred most of the time when referencing root folders like `utils`, `public`, or `components`.
+
+## Date Formatting
+
+For date formatting, we use [Luxon](https://moment.github.io/luxon).
 
 ## Tutorial Pages
 

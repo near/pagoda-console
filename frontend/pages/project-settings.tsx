@@ -1,12 +1,17 @@
-import { faCopy, faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Root as VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
-import { Button, Overlay, Placeholder } from 'react-bootstrap';
 
-import CenterModal from '@/components/modals/CenterModal';
+import { Button } from '@/components/lib/Button';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
+import { Flex } from '@/components/lib/Flex';
+import { H4, H5 } from '@/components/lib/Heading';
+import { Placeholder } from '@/components/lib/Placeholder';
+import * as Popover from '@/components/lib/Popover';
+import { Section } from '@/components/lib/Section';
+import { Text } from '@/components/lib/Text';
+import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
-import ProjectSelector from '@/components/ProjectSelector';
 import StarterGuide from '@/components/StarterGuide';
 import { useApiKeys } from '@/hooks/api-keys';
 import { useDashboardLayout } from '@/hooks/layouts';
@@ -31,7 +36,9 @@ const ProjectSettings: NextPageWithLayout = () => {
   async function rotateKey(net: NetOption) {
     showMainnetRotationModal && setShowMainnetRotationModal(false);
     showTestnetRotationModal && setShowTestnetRotationModal(false);
+
     const subId = net === 'MAINNET' ? 2 : 1;
+
     try {
       // clear current key from the UI
       mutateKeys((cachedKeys: Record<NetOption, string>) => {
@@ -69,208 +76,148 @@ const ProjectSettings: NextPageWithLayout = () => {
   }
 
   return (
-    <div className="pageContainer">
-      <ProjectSelector />
-      <div className="content">
-        <div className="keysContainer">
-          <h4>API Keys</h4>
+    <>
+      <Section>
+        <Flex stack>
+          <H4>API Keys</H4>
+
           {hasMainnetKey && (
-            <CenterModal
-              show={showMainnetRotationModal}
-              title="Rotate Mainnet Key?"
-              content={ROTATION_WARNING}
-              onConfirm={() => rotateKey('MAINNET')}
-              confirmText="Rotate"
-              onHide={() => setShowMainnetRotationModal(false)}
-            />
+            <>
+              <ConfirmModal
+                confirmText="Rotate"
+                onConfirm={() => rotateKey('MAINNET')}
+                setShow={setShowMainnetRotationModal}
+                show={showMainnetRotationModal}
+                title="Rotate Mainnet Key?"
+              >
+                <Text>{ROTATION_WARNING}</Text>
+              </ConfirmModal>
+
+              <KeyRow name="Mainnet" token={keys?.MAINNET} onRotateKey={() => setShowMainnetRotationModal(true)} />
+            </>
           )}
-          {hasMainnetKey && (
-            <KeyRow name="Mainnet" token={keys?.MAINNET} onRotateKey={() => setShowMainnetRotationModal(true)} />
-          )}
-          <CenterModal
+
+          <ConfirmModal
+            confirmText="Rotate"
+            onConfirm={() => rotateKey('TESTNET')}
+            setShow={setShowTestnetRotationModal}
             show={showTestnetRotationModal}
             title="Rotate Testnet Key?"
-            content={ROTATION_WARNING}
-            onConfirm={() => rotateKey('TESTNET')}
-            confirmText="Rotate"
-            onHide={() => setShowTestnetRotationModal(false)}
-          />
-          <KeyRow name="Testnet" token={keys?.TESTNET} onRotateKey={() => setShowTestnetRotationModal(true)} />
-        </div>
-        <StarterGuide />
-        <DeleteProject />
-      </div>
+          >
+            <Text>{ROTATION_WARNING}</Text>
+          </ConfirmModal>
 
-      <style jsx>{`
-        .pageContainer {
-          display: flex;
-          flex-direction: column;
-        }
-        .content {
-          display: flex;
-          flex-direction: column;
-          row-gap: 2rem;
-        }
-        .titleContainer {
-          margin-bottom: 2.75rem;
-          display: flex;
-          flex-direction: row;
-          justify-content: space-between;
-        }
-        .keysContainer {
-          display: flex;
-          flex-direction: column;
-          row-gap: 1rem;
-        }
-      `}</style>
-    </div>
+          <KeyRow name="Testnet" token={keys?.TESTNET} onRotateKey={() => setShowTestnetRotationModal(true)} />
+        </Flex>
+      </Section>
+
+      <Section>
+        <StarterGuide />
+      </Section>
+
+      <DeleteProject />
+    </>
   );
 };
+
+ProjectSettings.getLayout = useDashboardLayout;
 
 function DeleteProject() {
   const { project } = useSelectedProject();
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
 
-  if (!project) {
-    return <></>;
-  }
+  if (!project) return null;
 
   return (
-    <>
-      <div className="deleteContainer">
-        <DeleteProjectModal
-          slug={project.slug}
-          name={project.name}
-          show={showModal}
-          setShow={setShowModal}
-          onDelete={() => router.push('/projects')}
-        />
-        <h4>Delete</h4>
-        <Button variant="danger" onClick={() => setShowModal(true)}>
+    <Section>
+      <Flex justify="spaceBetween" align="center">
+        <H4>Delete</H4>
+
+        <Button color="danger" onClick={() => setShowModal(true)}>
           Remove Project
         </Button>
-      </div>
-      <style jsx>{`
-        .deleteContainer {
-          display: flex;
-          flex-direction: row;
-          justify-content: space-between;
-        }
-      `}</style>
-    </>
+      </Flex>
+
+      <DeleteProjectModal
+        slug={project.slug}
+        name={project.name}
+        show={showModal}
+        setShow={setShowModal}
+        onDelete={() => router.push('/projects')}
+      />
+    </Section>
   );
 }
 
 function KeyRow(props: { name: string; token?: string; onRotateKey: () => void }) {
   const [keyObscured, setKeyObscured] = useState(true);
+  const [showCopiedAlert, setShowCopiedAlert] = useState(false);
+  const copiedTimer = useRef<NodeJS.Timeout>();
 
   function getObscuredKey(key: string) {
-    // const obscureChar = '*';
-    // return key.substring(0, 4) + obscureChar.repeat(key.length - 4);
     return key.substring(0, 8) + `-••••-••••-••••-••••••••••••`;
   }
 
-  const copyRef = useRef(null);
-  const [showCopiedAlert, setShowCopiedAlert] = useState(false);
-  const copiedTimer = useRef<NodeJS.Timeout>();
   function copyKey() {
     if (copiedTimer.current) {
       clearTimeout(copiedTimer.current);
     }
+
     props.token && navigator.clipboard.writeText(props.token);
+
     analytics.track('DC Copy API Key', {
       net: props.name,
     });
+
     setShowCopiedAlert(true);
+
     copiedTimer.current = setTimeout(() => {
       setShowCopiedAlert(false);
     }, 2000);
   }
 
   return (
-    <div className="keyRow">
-      <span className="keyTitle">{props.name}</span>
-      <span className="keyField">
-        {props.token ? (
-          keyObscured ? (
-            getObscuredKey(props.token)
+    <Flex align="center" justify="spaceBetween">
+      <Flex align="center" gap="l">
+        <H5 css={{ width: '4.5rem' }}>{props.name}</H5>
+
+        <Text family="number" color="text1">
+          {props.token ? (
+            keyObscured ? (
+              getObscuredKey(props.token)
+            ) : (
+              props.token
+            )
           ) : (
-            props.token
-          )
-        ) : (
-          <Placeholder animation="glow">
-            <Placeholder xs={4} size="sm" style={{ borderRadius: '0.5em' }} />
-          </Placeholder>
-        )}
-      </span>
-      <div className="buttonsContainer">
-        <Button variant="outline-primary" onClick={() => setKeyObscured(!keyObscured)} disabled={!props.token}>
-          <FontAwesomeIcon icon={keyObscured ? faEyeSlash : faEye} />
-        </Button>
-        <Button variant="outline-primary" onClick={copyKey} disabled={!props.token}>
-          <FontAwesomeIcon icon={faCopy} />
-        </Button>
-        <div className="rotateButton">
-          <Button variant="outline-danger" onClick={() => props.onRotateKey()} disabled={!props.token} ref={copyRef}>
-            Rotate
-          </Button>
-        </div>
-        <Overlay
-          target={copyRef}
-          show={showCopiedAlert}
-          popperConfig={{ modifiers: [{ name: 'offset', options: { offset: [0, 8] } }] }}
-          placement="right"
-        >
-          {(
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            { placement, arrowProps, show, popper, ...props },
-          ) => (
-            <div
-              {...props}
-              style={{
-                backgroundColor: 'gray',
-                padding: '0.25em 0.5em',
-                color: 'white',
-                borderRadius: 3,
-                ...props.style,
-              }}
-            >
-              Copied!
-            </div>
+            <Placeholder css={{ width: '10rem', height: '1rem' }} />
           )}
-        </Overlay>
-      </div>
-      <style jsx>{`
-        .keyRow {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-        }
-        .keyField {
-          flex-grow: 1;
-          font-family: 'Source Code Pro', monospace;
-        }
-        .buttonsContainer {
-          display: flex;
-          flex-direction: row;
-          column-gap: 0.5rem;
-        }
-        .buttonsContainer > :global(.btn) {
-          width: 3rem;
-        }
-        .rotateButton > :global(.btn) {
-          width: 6rem;
-        }
-        .keyTitle {
-          width: 6rem;
-          font-weight: 600;
-        }
-      `}</style>
-    </div>
+        </Text>
+      </Flex>
+
+      <Button color="neutral" onClick={() => setKeyObscured(!keyObscured)} disabled={!props.token}>
+        <FeatherIcon icon={keyObscured ? 'eye-off' : 'eye'} />
+        <VisuallyHidden>{keyObscured ? 'Reveal' : 'Obscure'} API Key</VisuallyHidden>
+      </Button>
+
+      <Popover.Root open={showCopiedAlert} onOpenChange={setShowCopiedAlert}>
+        <Popover.Anchor asChild>
+          <Button color="neutral" onClick={copyKey} disabled={!props.token}>
+            <FeatherIcon icon="copy" />
+            <VisuallyHidden>Copy API Key</VisuallyHidden>
+          </Button>
+        </Popover.Anchor>
+
+        <Popover.Content side="top">
+          <Text>Copied!</Text>
+        </Popover.Content>
+      </Popover.Root>
+
+      <Button color="neutral" onClick={() => props.onRotateKey()} disabled={!props.token}>
+        Rotate
+      </Button>
+    </Flex>
   );
 }
-
-ProjectSettings.getLayout = useDashboardLayout;
 
 export default ProjectSettings;

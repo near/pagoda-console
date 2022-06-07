@@ -1,4 +1,3 @@
-// example.spec.ts
 import { expect } from '@playwright/test';
 
 import { test } from '../fixtures';
@@ -16,7 +15,7 @@ test(`create blank project test`, async ({ page }) => {
   await page.click('text=Create');
   await page.locator('text=New Project').waitFor({ state: 'visible' });
 
-  await page.locator('text=BlankA blank project with mainnet and testnet API keys. >> div').first().click();
+  await page.locator('#blank').click();
 
   await expect(page).toHaveURL(`${process.env.TEST_URL}/new-project`);
 
@@ -26,7 +25,7 @@ test(`create blank project test`, async ({ page }) => {
     page.waitForNavigation({
       url: `${process.env.TEST_URL}/project-settings`,
     }),
-    page.locator('text=Create a Project').click(),
+    page.locator('text=Create Project').click(),
   ]);
 
   await page.click('text=Remove Project');
@@ -52,7 +51,7 @@ test(`create tutorial project test`, async ({ page }) => {
   await page.click('text=Create');
   await page.locator('text=New Project').waitFor({ state: 'visible' });
 
-  await page.click('text=Choose from a variety of interactive tutorials.');
+  await page.click('#tutorial');
 
   await expect(page).toHaveURL(`${process.env.TEST_URL}/pick-tutorial`);
 
@@ -60,7 +59,7 @@ test(`create tutorial project test`, async ({ page }) => {
     page.waitForNavigation({
       url: `${process.env.TEST_URL}/new-nft-tutorial`,
     }),
-    page.click('text=NFT Market'),
+    page.click('#nft-market'),
   ]);
 
   await page.locator('[placeholder="Cool New Project"]').fill(project);

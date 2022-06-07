@@ -1,13 +1,17 @@
+import { Box } from '../lib/Box';
+
 export default function Blockquote(props: any) {
   return (
     <>
-      <blockquote>{props.children}</blockquote>
-      <style jsx>{`
-        blockquote {
-          border-left: 0.5rem solid black;
-          padding-left: 1rem;
-        }
-      `}</style>
+      <Box
+        as="blockquote"
+        css={{
+          borderLeft: '0.5rem solid var(--color-surface-5)',
+          paddingLeft: 'var(--space-m)',
+        }}
+      >
+        {props.children}
+      </Box>
     </>
   );
 }

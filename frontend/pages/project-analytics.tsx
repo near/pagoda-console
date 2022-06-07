@@ -1,435 +1,159 @@
-import Highcharts from 'highcharts';
-import Image from 'next/image';
+import { iframeResizer } from 'iframe-resizer';
 import Link from 'next/link';
-import { useCallback, useState } from 'react';
 import { useEffect } from 'react';
 
-import AnalyticsCard from '@/components/AnalyticsCard';
-import BorderSpinner from '@/components/BorderSpinner';
-import ProjectSelector from '@/components/ProjectSelector';
+import { Button, ButtonLink } from '@/components/lib/Button';
+import { Container } from '@/components/lib/Container';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
+import { Flex } from '@/components/lib/Flex';
+import { H1 } from '@/components/lib/Heading';
+import { Section } from '@/components/lib/Section';
+import { Spinner } from '@/components/lib/Spinner';
+import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
+import { useThemeStore } from '@/components/ThemeToggle';
+import { useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
-import { useIdentity } from '@/hooks/user';
-import AnalyticsPreview from '@/public/analyticsPreview.png';
-import { getUserData, updateUserData } from '@/utils/cache';
-import config from '@/utils/config';
-import { authenticatedPost } from '@/utils/http';
-import type { NetOption, NetUsageData, UsageData } from '@/utils/types';
-import type { NextPageWithLayout } from '@/utils/types';
+import type { Contract, NextPageWithLayout } from '@/utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {
-  const identity = useIdentity();
-  const [usageData, setUsageData] = useState<UsageData | null>();
-  const [methodBreakdownChartOptions, setMethodBreakdownChartOptions] = useState<Highcharts.Options>();
-  const [responseCodeChartOptions, setResponseCodeChartOptions] = useState<Highcharts.Options>();
   const { environment, project } = useSelectedProject();
-  // TODO (P2+) determine net by other means than subId
-  const net: NetOption = environment?.subId === 2 ? 'MAINNET' : 'TESTNET';
+  const { contracts } = useContracts(project?.slug, environment?.subId);
 
-  useEffect(() => {
-    Highcharts.setOptions({
-      chart: {
-        style: {
-          fontFamily: 'NB International Pro, sans-serif',
-        },
-      },
-    });
-  }, []);
-
-  const processUsageChunk = useCallback(
-    async (
-      usageDataRaw: string,
-      keys: Record<NetOption, Array<string>>,
-      usage: UsageData,
-      start: number,
-    ): Promise<{ start: number; usage: UsageData }> => {
-      let processed = 0;
-      for (let i = start; i < usageDataRaw.length && processed < 10; i++) {
-        if (usageDataRaw[i] === '\n') {
-          const eventRaw = usageDataRaw.substring(start, i);
-          start = i + 1;
-          processed++;
-
-          const event = JSON.parse(eventRaw);
-
-          let net: NetOption | null = null;
-          if (!event?.properties?.distinct_id) {
-            // could not identify environment
-            continue;
-          }
-          for (const currentNet in keys) {
-            if (keys[currentNet as NetOption].includes(event.properties.distinct_id)) {
-              net = currentNet as NetOption;
-              break;
-            }
-          }
-          if (!net) {
-            // could not identify environment
-            continue;
-          }
-
-          switch (event.event) {
-            case 'request':
-              let requestBody = event.properties.body;
-
-              if (typeof requestBody === 'string') {
-                try {
-                  requestBody = JSON.parse(requestBody);
-                } catch {
-                  // not prepared to handle strings that aren't json
-                  requestBody = null;
-                }
-              }
-
-              // if we do not have a request body that we can extract meaningful data from, then
-              // we will default to an empty object so we can at least count this call in the charts
-              if (!requestBody) {
-                requestBody = {};
-              }
-
-              //calls for this method
-              let { method } = requestBody;
-
-              switch (method) {
-                case 'query':
-                  method = `query/${requestBody.params.request_type}`;
-                  break;
-                case 'block':
-                  // TODO (P2+) make this handle params dynamically so it wont break if rpc is updated
-                  if (requestBody.params) {
-                    method = `block/${requestBody.params.finality ? 'finality' : 'block_id'}`;
-                  }
-                  break;
-                case undefined:
-                  method = 'N/A';
-                  break;
-                default:
-                  break;
-              }
-
-              if (!usage.nets[net].methods[method]) {
-                usage.nets[net].methods[method] = 1;
-              } else {
-                usage.nets[net].methods[method]++;
-              }
-
-              // total calls
-              usage.nets[net].calls++;
-              break;
-            case 'response':
-              const { status_code } = event.properties;
-
-              // DEBUGGING - view all codes in pie chart
-              // if (Math.random() > 0.8) {
-              //     status_code = '403'
-              // } else if (Math.random() > 0.6) {
-              //     status_code = '400'
-              // }
-
-              if (!usage.nets[net].responseCodes[status_code]) {
-                usage.nets[net].responseCodes[status_code] = 1;
-              } else {
-                usage.nets[net].responseCodes[status_code]++;
-              }
-              break;
-            default:
-              break;
-          }
-        }
-      }
-      return { start, usage };
-    },
-    [],
-  );
-
-  const loadUsageData = useCallback(
-    async (uid: string, project: string, net: NetOption, usageData?: UsageData) => {
-      if (usageData) {
-        const previouslyFetchedAt = new Date(usageData.fetchedAt);
-        const difference = new Date().valueOf() - previouslyFetchedAt.valueOf();
-        if (difference > config.usagePersistenceMinutes * 60 * 1000) {
-          usageData = undefined;
-        }
-      }
-
-      if (!usageData) {
-        // fetch from API
-        const { events: usage, keys } = await authenticatedPost('/projects/getRpcUsage', { project });
-
-        // initialize
-        usageData = {
-          nets: {
-            MAINNET: {
-              methods: {},
-              responseCodes: {},
-              calls: 0,
-            },
-            TESTNET: {
-              methods: {},
-              responseCodes: {},
-              calls: 0,
-            },
-          },
-          fetchedAt: new Date().toISOString(),
-        };
-
-        if (usage) {
-          let start = 0;
-          while (start < usage.length) {
-            const { start: newStart } = await processUsageChunk(usage, keys, usageData, start);
-            start = newStart;
-          }
-        }
-
-        updateUserData(uid, { usageData: { [project]: usageData } });
-      }
-
-      setUsageData(usageData as UsageData);
-      setMethodBreakdownChartOptions(getMethodChartOptions(usageData.nets[net].methods!));
-      setResponseCodeChartOptions(getResponseChartOptions(usageData.nets[net].responseCodes!));
-    },
-    [processUsageChunk],
-  );
-
-  useEffect(() => {
-    // clear currently loaded data
-    setUsageData(undefined);
-
-    if (!project || !identity) return;
-
-    const cachedUserData = getUserData(identity.uid);
-    loadUsageData(identity.uid, project.slug, net, cachedUserData?.usageData?.[project.slug]);
-  }, [project, loadUsageData, identity, net]);
-
-  // TODO (P2+) extract to specialized component
-  function getMethodChartOptions(methodBreakdown: NetUsageData['methods']) {
-    if (methodBreakdown) {
-      const options: Highcharts.Options = {
-        title: {
-          text: 'Calls by Method',
-        },
-        chart: {
-          type: 'bar',
-          // backgroundColor: 'transparent',
-        },
-        yAxis: {
-          title: {
-            text: 'Method Calls',
-          },
-        },
-        xAxis: {
-          categories: Object.keys(methodBreakdown),
-        },
-        legend: {
-          enabled: false,
-        },
-        exporting: {
-          enabled: false,
-        },
-        series: [
-          {
-            type: 'bar',
-            name: 'Method Calls',
-            data: Object.keys(methodBreakdown).map((method) => methodBreakdown![method]),
-            color: '#5F8AFA', // NEAR accent blue
-          },
-        ],
-      };
-      return options;
-    }
+  if (!environment || !contracts || !project) {
+    return <Spinner center />;
   }
 
-  function getResponseChartOptions(responseCodes: NetUsageData['responseCodes']) {
-    const options: Highcharts.Options = {
-      title: {
-        text: 'Service Response Codes',
-      },
-      chart: {
-        type: 'pie',
-        backgroundColor: 'transparent',
-      },
-      exporting: {
-        enabled: false,
-      },
-      series: [
-        {
-          name: 'Response Codes',
-          type: 'pie',
-          data: Object.keys(responseCodes).map((code) => ({
-            name: code,
-            y: responseCodes[code],
-            ...(code === '200' ? { color: '#AAD055' } : {}),
-          })),
-        },
-      ],
-    };
-    return options;
+  if (environment?.net === 'TESTNET') {
+    return <TestnetNotice />;
   }
 
-  function formatTotalCalls(calls: number) {
-    if (calls < 1000) {
-      return calls.toString();
-    } else if (calls < 10000) {
-      return (calls / 1000).toFixed(1).toString() + 'K';
-    } else {
-      return (calls / 1000).toFixed(0).toString() + 'K';
-    }
-  }
-
-  let content;
-  if (usageData && net && usageData.nets[net].calls > 0) {
-    content = (
-      <div className="analyticsContainer">
-        <div className="usageCards">
-          {methodBreakdownChartOptions && (
-            <div className="primary">
-              <AnalyticsCard chartOptions={methodBreakdownChartOptions} />
-            </div>
-          )}
-          <div className="secondary">
-            <AnalyticsCard simple={{ label: 'Calls', value: formatTotalCalls(usageData.nets[net].calls) }} />
-          </div>
-          {responseCodeChartOptions && Object.keys(usageData.nets[net].responseCodes).length > 0 && (
-            <div className="tertiary">
-              <AnalyticsCard chartOptions={responseCodeChartOptions} />
-            </div>
-          )}
-        </div>
-        <LastFetchedInfo fetchedAt={usageData.fetchedAt} />
-        <style jsx>{`
-          .usageCards {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto;
-            column-gap: 2rem;
-            row-gap: 2rem;
-            grid-template-areas:
-              'primary primary'
-              'secondary tertiary';
-          }
-          .primary {
-            grid-area: primary;
-          }
-          .secondary {
-            grid-area: secondary;
-          }
-          .tertiary {
-            grid-area: tertiary;
-          }
-          .analyticsContainer {
-            display: flex;
-            flex-direction: column;
-          }
-        `}</style>
-      </div>
-    );
-  } else if (usageData === undefined) {
-    // loading
-    content = (
-      <div className="rpcLoading">
-        <div className="spinnerContainer">
-          <BorderSpinner />
-        </div>
-        Fetching RPC usage data. This may take a few seconds.
-        <style jsx>{`
-          .rpcLoading {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            margin-top: 1rem;
-          }
-          .spinnerContainer {
-            margin-right: 1rem;
-          }
-        `}</style>
-      </div>
-    );
-  } else {
-    content = <AnalyticsEmptyState fetchedAt={usageData?.fetchedAt} />;
+  if (contracts.length === 0) {
+    return <NoContractsNotice />;
   }
 
   return (
-    <div>
-      <div className="pageContainer">
-        <ProjectSelector />
-        {content}
-      </div>
-      <style jsx>{`
-        .pageContainer {
-          display: flex;
-          flex-direction: column;
-        }
-      `}</style>
-    </div>
+    <Section>
+      <AnalyticsIframe contracts={contracts} />
+    </Section>
   );
 };
 
-function AnalyticsEmptyState({ fetchedAt }: { fetchedAt?: string }) {
+function AnalyticsIframe({ contracts }: { contracts: Contract[] }) {
+  const { activeTheme } = useThemeStore();
+
+  useEffect(() => {
+    iframeResizer({}, 'iframe');
+  }, []);
+
+  const themeParam = activeTheme === 'dark' ? '#theme=night' : '';
+  let contractParams = '';
+  contracts.forEach((contract) => {
+    contractParams += `&contract=${contract.address}`;
+  });
+  const iframeUrl = `https://metabase.near.datrics.ai/public/dashboard/457ac13a-f8cf-41dc-81ad-ef7bd70466b8?${contractParams}${themeParam}`;
+
   return (
-    <div className="emptyStateWrapper">
-      <h3 className="welcomeText">&#128075; Welcome to your new project</h3>
-      <div className="emptyStateContainer">
-        <div className="imageContainer">
-          <Image src={AnalyticsPreview} alt="Preview of populated analytics page" />
-        </div>
-        <div className="onboarding">
-          <div className="onboardingText">
-            <p>
-              Follow the instructions on the{' '}
-              <Link href="/project-settings">
-                <a>Project Settings screen</a>
-              </Link>{' '}
-              (&#34;Settings&#34; in the navbar) to get started with making requests to the NEAR RPC service.
-            </p>
-            <span>Once you make some requests you’ll see usage data populate here.</span>
-          </div>
-        </div>
-      </div>
-      {fetchedAt && <LastFetchedInfo fetchedAt={fetchedAt} />}
-      <style jsx>{`
-        .emptyStateContainer {
-          display: flex;
-          flex-direction: row;
-          column-gap: 1.5rem;
-          align-items: center;
-        }
-        .imageContainer,
-        .onboarding {
-          width: 50%;
-        }
-        .welcomeText {
-          margin-top: 2rem;
-        }
-        .onboardingText {
-          margin-bottom: 3rem;
-        }
-        .boldText {
-          font-weight: 700;
-        }
-        .emptyStateWrapper {
-          display: flex;
-          flex-direction: column;
-          row-gap: 1.5rem;
-        }
-      `}</style>
-    </div>
+    <iframe
+      src={iframeUrl}
+      frameBorder="0"
+      style={{
+        width: '1px',
+        minWidth: '100%',
+      }}
+    ></iframe>
   );
 }
 
-function LastFetchedInfo({ fetchedAt }: { fetchedAt: string }) {
+function NoContractsNotice() {
   return (
-    <div className="lastUpdated">
-      <span>Last updated at: {new Date(fetchedAt).toLocaleString()}</span>
-      <span>Data may be fetched once per hour</span>
-      <style jsx>{`
-        .lastUpdated {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 0.5rem;
-          color: var(--color-text-secondary);
-        }
-      `}</style>
-    </div>
+    <Section css={{ margin: 'auto', textAlign: 'center' }}>
+      <Container size="s">
+        <Flex stack gap="l" align="center">
+          <H1>Analytics</H1>
+
+          <Text>
+            Your selected project and environment doesn&apos;t have any saved contracts yet. Visit the{' '}
+            <Link href="/contracts" passHref>
+              <TextLink>Contracts</TextLink>
+            </Link>{' '}
+            page to add a contract.
+          </Text>
+
+          <Link href="/contracts" passHref>
+            <ButtonLink>
+              <FeatherIcon icon="zap" />
+              Contracts
+            </ButtonLink>
+          </Link>
+        </Flex>
+      </Container>
+    </Section>
+  );
+}
+
+function TestnetNotice() {
+  const { selectEnvironment, environments } = useSelectedProject();
+
+  const mainnetEnvironment = environments?.find((env) => env.net === 'MAINNET');
+
+  if (!mainnetEnvironment) {
+    return (
+      <Section css={{ margin: 'auto', textAlign: 'center' }}>
+        <Container size="s">
+          <Flex stack gap="l" align="center">
+            <H1>Analytics</H1>
+
+            <Text>
+              Currently, analytics are only viewable for the{' '}
+              <Text as="span" color="text1" family="action">
+                Mainnet
+              </Text>{' '}
+              environment. When you complete the tutorial, your project will be set up with a{' '}
+              <Text as="span" color="text1" family="action">
+                Mainnet
+              </Text>{' '}
+              environment.
+            </Text>
+
+            <Link href="/tutorials/nfts/introduction" passHref>
+              <ButtonLink>
+                <FeatherIcon icon="book" />
+                View Tutorial
+              </ButtonLink>
+            </Link>
+          </Flex>
+        </Container>
+      </Section>
+    );
+  }
+
+  return (
+    <Section css={{ margin: 'auto', textAlign: 'center' }}>
+      <Container size="s">
+        <Flex stack gap="l" align="center">
+          <H1>Analytics</H1>
+
+          <Text>
+            Currently, analytics are only viewable for the{' '}
+            <Text as="span" color="text1" family="action">
+              Mainnet
+            </Text>{' '}
+            environment.{' '}
+            <Text as="span" color="text1" family="action">
+              Testnet
+            </Text>{' '}
+            will be supported soon!
+          </Text>
+
+          <Button color="neutral" onClick={() => selectEnvironment(mainnetEnvironment?.subId)}>
+            <FeatherIcon icon="layers" css={{ color: 'var(--color-mainnet)' }} />
+            Switch to Mainnet
+          </Button>
+        </Flex>
+      </Container>
+    </Section>
   );
 }
 

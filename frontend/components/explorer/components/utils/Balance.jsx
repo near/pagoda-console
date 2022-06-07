@@ -2,7 +2,7 @@
 import BN from 'bn.js';
 import { PureComponent } from 'react';
 // import { utils } from "near-api-js";
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Tooltip } from '@/components/lib/Tooltip';
 
 class Balance extends PureComponent {
   render() {
@@ -24,14 +24,16 @@ class Balance extends PureComponent {
     let amountShow = !formulatedAmount ? formatNEAR(amount, fracDigits) : formulatedAmount;
     let amountPrecise = showInYocto(amount);
     return (
-      <OverlayTrigger placement={'bottom'} overlay={<Tooltip>{amountPrecise}</Tooltip>}>
-        <span className={className}>
-          {amountShow}
-          {suffix}
-          &nbsp;
-          {label ?? defaultLabel}
-        </span>
-      </OverlayTrigger>
+      <>
+        <Tooltip content={amountPrecise} side="bottom">
+          <span className={className}>
+            {amountShow}
+            {suffix}
+            &nbsp;
+            {label ?? defaultLabel}
+          </span>
+        </Tooltip>
+      </>
     );
   }
 }

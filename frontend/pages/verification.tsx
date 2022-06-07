@@ -1,8 +1,12 @@
 import { getAuth, sendEmailVerification } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { Button } from 'react-bootstrap';
 
+import { Button } from '@/components/lib/Button';
+import { Container } from '@/components/lib/Container';
+import { Flex } from '@/components/lib/Flex';
+import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
@@ -51,46 +55,22 @@ const Verification: NextPageWithLayout = () => {
   }
 
   return (
-    <div className="pageContainer">
-      A verification message {existing ? 'was previously' : 'has been'} sent to your email address
-      {!hasResent ? (
-        <Button disabled={hasResent} onClick={resendVerification}>
-          Send Again
-        </Button>
-      ) : (
-        <div className="sentContainer">
-          <span>Sent!</span>
-        </div>
-      )}
-      <div className="signOut" onClick={logOut}>
-        Log Out
-      </div>
-      <style jsx>{`
-        .pageContainer {
-          display: flex;
-          flex-direction: column;
-          row-gap: 2rem;
-          align-content: center;
-          width: 20.35rem;
-          text-align: center;
-        }
-        .sentContainer {
-          height: 2.625rem;
-          color: var(--color-primary);
-          display: flex;
-        }
-        .sentContainer > span {
-          margin: auto auto;
-        }
-        .signOut {
-          cursor: pointer;
-          text-decoration: none;
-        }
-        .signOut:hover {
-          color: var(--color-primary);
-        }
-      `}</style>
-    </div>
+    <Container size="xs" css={{ textAlign: 'center' }}>
+      <Flex stack align="center">
+        <Text>A verification message {existing ? 'was previously' : 'has been'} sent to your email address.</Text>
+
+        {!hasResent ? (
+          <Button stretch disabled={hasResent} onClick={resendVerification}>
+            Send Again
+          </Button>
+        ) : (
+          <Text color="primary">Sent!</Text>
+        )}
+        <TextLink color="neutral" as="button" type="button" onClick={logOut}>
+          Log Out
+        </TextLink>
+      </Flex>
+    </Container>
   );
 };
 

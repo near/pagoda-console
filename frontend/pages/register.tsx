@@ -9,14 +9,28 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { Alert, Button, Form } from 'react-bootstrap';
 import type { SubmitErrorHandler, SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
+import { Button } from '@/components/lib/Button';
+import { Container } from '@/components/lib/Container';
+import { Flex } from '@/components/lib/Flex';
+import * as Form from '@/components/lib/Form';
+import { HR } from '@/components/lib/HorizontalRule';
+import { TextLink } from '@/components/lib/TextLink';
+import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useSimpleLayout } from '@/hooks/layouts';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import type { NextPageWithLayout } from '@/utils/types';
+
+const Register: NextPageWithLayout = () => {
+  return (
+    <Container size="xs">
+      <RegisterForm />
+    </Container>
+  );
+};
 
 const onFocus = () => {
   getAuth().currentUser?.reload();
@@ -29,9 +43,9 @@ interface RegisterFormData {
   passwordConfirm: string;
 }
 
-const Register: NextPageWithLayout = () => {
+export function RegisterForm() {
   const { getValues, register, handleSubmit, formState, watch } = useForm<RegisterFormData>();
-  const [errorAlert, setErrorAlert] = useState<string | null>();
+  const [registerError, setRegisterError] = useState<string | null>();
   const router = useRouter();
 
   useEffect(() => {
@@ -71,11 +85,12 @@ const Register: NextPageWithLayout = () => {
   const handleInvalidSubmit: SubmitErrorHandler<RegisterFormData> = () => {
     analytics.track('DC Submitted email registration form');
     analytics.track('DC Registration form validation failed');
+    return false;
   };
 
   const signUpWithEmail: SubmitHandler<RegisterFormData> = async ({ email, password }) => {
     try {
-      setErrorAlert('');
+      setRegisterError('');
       analytics.track('DC Submitted email registration form');
       const auth = getAuth();
       const registerResult = await createUserWithEmailAndPassword(auth, email, password);
@@ -97,10 +112,10 @@ const Register: NextPageWithLayout = () => {
 
       switch (errorCode) {
         case 'auth/email-already-in-use':
-          setErrorAlert('Email is already in use');
+          setRegisterError('Email is already in use');
           break;
         default:
-          setErrorAlert(errorMessage);
+          setRegisterError(errorMessage);
       }
 
       analytics.track('DC Signed up with email', {
@@ -110,106 +125,79 @@ const Register: NextPageWithLayout = () => {
     }
   };
 
-  const isSubmitting = formState.isSubmitting || formState.isSubmitSuccessful;
-
   return (
-    <div className="pageContainer">
-      <Form noValidate onSubmit={handleSubmit(signUpWithEmail, handleInvalidSubmit)}>
-        <fieldset disabled={isSubmitting}>
-          <div className="formFields">
-            <Form.Group controlId="formBasicEmail">
-              <Form.Label>Email address</Form.Label>
-              <Form.Control
-                type="email"
-                isInvalid={!!formState.errors.email}
-                placeholder="name@example.com"
-                {...register('email', formValidations.email)}
-              />
-              <Form.Control.Feedback type="invalid">{formState.errors.email?.message}</Form.Control.Feedback>
-            </Form.Group>
+    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(signUpWithEmail, handleInvalidSubmit)}>
+      <Flex stack gap="l" align="center">
+        <Flex stack>
+          <Form.Group>
+            <Form.Label htmlFor="email">Email address</Form.Label>
+            <Form.Input
+              id="email"
+              type="email"
+              isInvalid={!!formState.errors.email}
+              placeholder="name@example.com"
+              {...register('email', formValidations.email)}
+            />
+            <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
+          </Form.Group>
 
-            <Form.Group controlId="formBasicPassword">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                isInvalid={!!formState.errors.password}
-                placeholder="6+ characters"
-                {...register('password', formValidations.password)}
-              />
-              <Form.Control.Feedback type="invalid">{formState.errors.password?.message}</Form.Control.Feedback>
-            </Form.Group>
+          <Form.Group>
+            <Form.Label htmlFor="password">Password</Form.Label>
+            <Form.Input
+              id="password"
+              type="password"
+              isInvalid={!!formState.errors.password}
+              placeholder="6+ characters"
+              {...register('password', formValidations.password)}
+            />
+            <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
+          </Form.Group>
 
-            <Form.Group controlId="formBasicConfirmPassword">
-              <Form.Label>Confirm Password</Form.Label>
-              <Form.Control
-                type="password"
-                isInvalid={!!formState.errors.passwordConfirm}
-                {...register('passwordConfirm', {
-                  required: 'Please confirm your password',
-                  validate: (value) => {
-                    if (watch('password') !== value) {
-                      return 'Passwords do not match';
-                    }
-                  },
-                })}
-              />
-              <Form.Control.Feedback type="invalid">{formState.errors.passwordConfirm?.message}</Form.Control.Feedback>
-            </Form.Group>
+          <Form.Group>
+            <Form.Label htmlFor="confirmPassword">Confirm Password</Form.Label>
+            <Form.Input
+              id="confirmPassword"
+              type="password"
+              isInvalid={!!formState.errors.passwordConfirm}
+              {...register('passwordConfirm', {
+                required: 'Please confirm your password',
+                validate: (value) => {
+                  if (watch('password') !== value) {
+                    return 'Passwords do not match';
+                  }
+                },
+              })}
+            />
+            <Form.Feedback>{formState.errors.passwordConfirm?.message}</Form.Feedback>
+          </Form.Group>
 
-            <Form.Group controlId="formBasicDisplayName">
-              <Form.Label>Display Name</Form.Label>
-              <Form.Control
-                isInvalid={!!formState.errors.displayName}
-                placeholder="John Nearian"
-                {...register('displayName', formValidations.displayName)}
-              />
-              <Form.Control.Feedback type="invalid">{formState.errors.displayName?.message}</Form.Control.Feedback>
-            </Form.Group>
-          </div>
+          <Form.Group>
+            <Form.Label htmlFor="displayName">Display Name</Form.Label>
+            <Form.Input
+              id="displayName"
+              isInvalid={!!formState.errors.displayName}
+              placeholder="John Nearian"
+              {...register('displayName', formValidations.displayName)}
+            />
+            <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
+          </Form.Group>
+        </Flex>
 
-          <Button variant="primary" type="submit">
-            Sign Up
-          </Button>
-        </fieldset>
-      </Form>
+        <ErrorModal error={registerError} setError={setRegisterError} />
 
-      {errorAlert && (
-        <div className="alertContainer">
-          <Alert variant="danger">{errorAlert}</Alert>
-        </div>
-      )}
+        <Button stretch type="submit">
+          Sign Up
+        </Button>
 
-      <hr />
+        <HR />
 
-      <Link href="/">
-        <a>I already have an account</a>
-      </Link>
-
-      <style jsx>{`
-        .pageContainer {
-          display: flex;
-          flex-direction: column;
-          width: 20.35rem;
-        }
-        .formFields {
-          display: flex;
-          flex-direction: column;
-          row-gap: 1rem;
-          margin-bottom: 1.5rem;
-        }
-        .pageContainer :global(.btn) {
-          width: 100%;
-        }
-        a {
-          margin: 0 auto;
-        }
-        .alertContainer {
-          margin-top: 1.25rem;
-        }
-      `}</style>
-    </div>
+        <Link href="/" passHref>
+          <TextLink color="neutral">I already have an account</TextLink>
+        </Link>
+      </Flex>
+    </Form.Root>
   );
-};
+}
 
 Register.getLayout = useSimpleLayout;
 

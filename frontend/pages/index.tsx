@@ -1,6 +1,7 @@
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
-import AuthenticationForm from '@/components/AuthenticationForm';
+import { AuthenticationForm } from '@/components/AuthenticationForm';
+import { Container } from '@/components/lib/Container';
 import { useSimpleLayout } from '@/hooks/layouts';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -23,18 +24,9 @@ export async function getStaticProps({ locale }: { locale: string }) {
 
 const Login: NextPageWithLayout = () => {
   return (
-    <div className="pageContainer">
+    <Container size="xs">
       <AuthenticationForm />
-
-      <style jsx>{`
-        .pageContainer {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          width: 20.35rem;
-        }
-      `}</style>
-    </div>
+    </Container>
   );
 };
 

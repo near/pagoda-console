@@ -1,11 +1,11 @@
 import { PureComponent } from 'react';
-import Moment from '../../libraries/moment';
+import { DateTime } from 'luxon';
 
 class Timer extends PureComponent {
   constructor(props) {
     super(props);
 
-    const time = props.time === undefined ? new Date() : props.time;
+    const time = props.time === undefined ? Date.now() : props.time;
     this.state = {
       time,
       timeStr: this.formatTime(time),
@@ -29,7 +29,8 @@ class Timer extends PureComponent {
   }
 
   formatTime(time) {
-    return Moment(time).fromNow();
+    const date = DateTime.fromMillis(time);
+    return date.toRelative({ style: 'short' });
   }
 
   tick = () => {
