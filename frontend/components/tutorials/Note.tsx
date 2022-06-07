@@ -1,38 +1,25 @@
-import { faExclamationCircle, faInfoCircle, faLightbulb } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert } from 'react-bootstrap';
+import { Flex } from '../lib/Flex';
+import { Message } from '../lib/Message';
+import { Text } from '../lib/Text';
 
 export default function Note(props: any) {
   let icon;
   if (props.type === 'info') {
-    icon = faExclamationCircle;
+    icon = 'alert-circle';
   } else if (props.type === 'tip') {
-    icon = faLightbulb;
+    icon = 'zap';
   } else {
-    icon = faInfoCircle;
+    icon = 'help-circle';
   }
 
   return (
     <>
-      <Alert>
-        <div className="childrenWrapper">
-          <p>
-            <span className="iconWrapper">
-              <FontAwesomeIcon icon={icon} />
-            </span>
-            {props.children[0] ? props.children[0].props.children : props.children.props.children}
-          </p>
+      <Message icon={icon}>
+        <Flex stack gap="s">
+          <Text>{props.children[0] ? props.children[0].props.children : props.children.props.children}</Text>
           {props.children[0] && props.children.slice(1)}
-        </div>
-      </Alert>
-      <style jsx>{`
-        .iconWrapper {
-          margin-right: 0.5rem;
-        }
-        .childrenWrapper :global(p):last-child {
-          margin-bottom: 0rem;
-        }
-      `}</style>
+        </Flex>
+      </Message>
     </>
   );
 }

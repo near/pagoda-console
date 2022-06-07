@@ -1,9 +1,13 @@
 import { useRouter } from 'next/router';
-import { Button, Form } from 'react-bootstrap';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
-import BorderSpinner from '@/components/BorderSpinner';
+import { Button } from '@/components/lib/Button';
+import { Container } from '@/components/lib/Container';
+import { Flex } from '@/components/lib/Flex';
+import * as Form from '@/components/lib/Form';
+import { H1 } from '@/components/lib/Heading';
+import { Text } from '@/components/lib/Text';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
@@ -54,75 +58,37 @@ const NewProject: NextPageWithLayout = () => {
   };
 
   return (
-    <div className="newProjectContainer">
-      <h1>New Project</h1>
-      {isOnboarding && (
-        <div className="calloutText">
-          <span className="boldText">One last thing! </span>
-          Before we let you loose on the Developer Console, you’ll need to create a project. Projects contain API keys
-          and any smart contracts you wish to track.
-        </div>
-      )}
+    <Container size="s">
+      <Flex stack gap="l">
+        <H1>New Project</H1>
 
-      <Form noValidate className="newProjectForm" onSubmit={handleSubmit(createProject)}>
-        <fieldset disabled={formState.isSubmitting}>
-          <Form.Group className="formField" controlId="projectNameInput">
-            <Form.Label>Project Name</Form.Label>
-            <Form.Control
-              isInvalid={!!formState.errors.projectName}
-              placeholder="Cool New Project"
-              {...register('projectName', formValidations.projectName)}
-            />
-            <Form.Control.Feedback type="invalid">{formState.errors.projectName?.message}</Form.Control.Feedback>
-          </Form.Group>
+        {isOnboarding && (
+          <Text>
+            One last thing! Before we let you loose on the Developer Console, you’ll need to create a project. Projects
+            contain API keys and any smart contracts you wish to track.
+          </Text>
+        )}
 
-          <div className="submitRow">
-            <div className="submitContainer">
-              {formState.isSubmitting && <BorderSpinner />}
-              <Button variant="primary" type="submit">
-                Create a Project
-              </Button>
-            </div>
-          </div>
-        </fieldset>
-      </Form>
+        <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(createProject)}>
+          <Flex stack align="end">
+            <Form.Group>
+              <Form.Label htmlFor="projectName">Project Name</Form.Label>
+              <Form.Input
+                id="projectName"
+                isInvalid={!!formState.errors.projectName}
+                placeholder="Cool New Project"
+                {...register('projectName', formValidations.projectName)}
+              />
+              <Form.Feedback>{formState.errors.projectName?.message}</Form.Feedback>
+            </Form.Group>
 
-      <style jsx>{`
-        .newProjectContainer {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          width: 34rem;
-          margin: 0 auto;
-        }
-        .newProjectContainer :global(.newProjectForm) {
-          width: 100%;
-        }
-        .newProjectContainer :global(.formField) {
-          margin-bottom: 1rem;
-        }
-        h1 {
-          margin-bottom: 1.25rem;
-          width: 100%;
-        }
-        .calloutText {
-          margin-bottom: 1rem;
-        }
-        .boldText {
-          font-weight: 700;
-        }
-        .submitRow {
-          width: 100%;
-          display: flex;
-          justify-content: flex-end;
-        }
-        .submitContainer {
-          display: flex;
-          flex-direction: row;
-          column-gap: 1rem;
-        }
-      `}</style>
-    </div>
+            <Button loading={formState.isSubmitting} type="submit">
+              Create Project
+            </Button>
+          </Flex>
+        </Form.Root>
+      </Flex>
+    </Container>
   );
 };
 

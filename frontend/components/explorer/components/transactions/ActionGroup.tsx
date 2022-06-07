@@ -10,7 +10,7 @@ import BatchTransactionIcon from '../../../../public/static/images/icon-m-batch.
 import ActionRow from './ActionRow';
 import ActionRowBlock, { ViewMode } from './ActionRowBlock';
 import ActionsList from './ActionsList';
-import { FinalityStatus } from '../../../RecentTransactionList';
+import { FinalityStatus } from '@/utils/types';
 
 interface Props {
   actionGroup: Receipt | TransactionInfo;

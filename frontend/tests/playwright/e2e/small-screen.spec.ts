@@ -1,7 +1,9 @@
-import { devices, test } from '@playwright/test';
+import { devices } from '@playwright/test';
+
+import { test } from '../fixtures';
 
 test.use({
-  ...devices['iPhone 11'],
+  ...devices['Galaxy S9+'],
 });
 
 test('test', async ({ page }) => {

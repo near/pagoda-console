@@ -1,10 +1,14 @@
-import { faCopy } from '@fortawesome/free-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { ReactNode } from 'react';
 import { useRef, useState } from 'react';
-import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
+
+import { Button } from '@/components/lib/Button';
+import * as Popover from '@/components/lib/Popover';
+
+import { Box } from './lib/Box';
+import { FeatherIcon } from './lib/FeatherIcon';
+import { Text } from './lib/Text';
 
 export default function CodeBlock({ children, ...passedProps }: { children: ReactNode; language: string }) {
   const isChildString = typeof children === 'string';
@@ -12,7 +16,7 @@ export default function CodeBlock({ children, ...passedProps }: { children: Reac
   const [showCopiedAlert, setShowCopiedAlert] = useState(false);
   const copiedTimer = useRef<NodeJS.Timeout>();
 
-  function copyKey() {
+  function copyCode() {
     if (copiedTimer.current) {
       clearTimeout(copiedTimer.current);
     }
@@ -26,43 +30,49 @@ export default function CodeBlock({ children, ...passedProps }: { children: Reac
   }
 
   return (
-    <div className="codeContainer">
+    <Box
+      css={{
+        position: 'relative',
+        width: '100%',
+      }}
+    >
       <SyntaxHighlighter
         style={atomOneDark}
         customStyle={{
-          borderRadius: '0.5rem',
-          padding: '1rem 3rem 1rem 0.5rem',
+          fontFamily: 'var(--font-code)',
+          borderRadius: 'var(--border-radius-m)',
+          padding: '1rem 3rem 1rem 1.2rem',
         }}
         {...passedProps}
       >
         {children}
       </SyntaxHighlighter>
-      <Button variant="outline-light" size="sm" onClick={copyKey} disabled={!isChildString}>
-        <FontAwesomeIcon icon={faCopy} />
-      </Button>
-      <OverlayTrigger
-        show={showCopiedAlert}
-        placement="top"
-        trigger="click"
-        rootClose={true}
-        overlay={<Tooltip>Copied!</Tooltip>}
-      >
-        <Button variant="outline-light" size="sm" onClick={copyKey} disabled={!isChildString}>
-          <FontAwesomeIcon icon={faCopy} />
-        </Button>
-      </OverlayTrigger>
-      <style jsx>{`
-        .codeContainer {
-          position: relative;
-          font-size: var(--bs-body-font-size);
-        }
-        .codeContainer :global(.btn) {
-          position: absolute;
-          top: 0.25rem;
-          right: 0.25rem;
-          height: auto;
-        }
-      `}</style>
-    </div>
+
+      <Popover.Root open={showCopiedAlert} onOpenChange={setShowCopiedAlert}>
+        <Popover.Anchor asChild>
+          <Button
+            color="neutral"
+            size="s"
+            onClick={copyCode}
+            disabled={!isChildString}
+            css={{
+              position: 'absolute',
+              top: '0rem',
+              right: '0rem',
+              background: 'transparent',
+              boxShadow: 'none',
+              borderRadius: '0 var(--border-radius-m) 0 var(--border-radius-m)',
+              padding: '0 6px',
+            }}
+          >
+            <FeatherIcon icon="copy" size="xs" />
+          </Button>
+        </Popover.Anchor>
+
+        <Popover.Content side="top">
+          <Text>Copied!</Text>
+        </Popover.Content>
+      </Popover.Root>
+    </Box>
   );
 }

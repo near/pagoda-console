@@ -1,0 +1,17 @@
+html {
+  font-size: 100%;
+  height: 100%;
+}
+
+body {
+  background: var(--color-surface-3);
+  color: var(--color-text-1);
+  font-family: var(--font-body);
+  line-height: var(--line-height-body);
+  height: 100%;
+  padding-right: 0 !important;
+}
+
+body > div {
+  height: 100%;
+}

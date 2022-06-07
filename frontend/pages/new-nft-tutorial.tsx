@@ -1,10 +1,14 @@
 import { useRouter } from 'next/router';
-import { Button, Form } from 'react-bootstrap';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
-import BorderSpinner from '@/components/BorderSpinner';
-import ProjectCard from '@/components/ProjectCard';
+import { Button } from '@/components/lib/Button';
+import { Container } from '@/components/lib/Container';
+import { Flex } from '@/components/lib/Flex';
+import * as Form from '@/components/lib/Form';
+import { H1 } from '@/components/lib/Heading';
+import { Text } from '@/components/lib/Text';
+import { ProjectCard } from '@/components/ProjectCard';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
@@ -46,99 +50,44 @@ const NewNftTutorial: NextPageWithLayout = () => {
     }
   };
 
-  const isSubmitting = formState.isSubmitting || formState.isSubmitSuccessful;
-
   return (
-    <div className="newProjectContainer">
-      <div className="cardContainer">
+    <Container size="m">
+      <Flex gap="l">
         <ProjectCard
-          path="/tutorials/nfts/introduction"
           title="NFT Market"
           description="Start by minting an NFT using a pre-deployed contract, then build up to a fully-fledged NFT marketplace."
-          color="orange"
+          readonly
         />
-      </div>
-      <div className="contentContainer">
-        <div className="headerContainer">
-          <h1>{"Let's Go!"}</h1>
-          <p>
+
+        <Flex stack gap="l">
+          <H1>{"Let's Go!"}</H1>
+          <Text>
             {
               "In this Zero to Hero series, you'll find a set of tutorials that will cover every aspect of a non-fungible token (NFT) smart contract. You'll start by minting an NFT using a pre-deployed contract and by the end you'll end up building a fully-fledged NFT smart contract that supports every extension."
             }
-          </p>
-        </div>
-        <div className="formContainer">
-          <Form noValidate className="newProjectForm" onSubmit={handleSubmit(createProject)}>
-            <fieldset disabled={isSubmitting}>
-              <Form.Group className="formField" controlId="projectNameInput">
-                <Form.Label>Project Name</Form.Label>
-                <Form.Control
+          </Text>
+
+          <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(createProject)}>
+            <Flex stack align="end">
+              <Form.Group>
+                <Form.Label htmlFor="projectName">Project Name</Form.Label>
+                <Form.Input
+                  id="projectName"
                   isInvalid={!!formState.errors.projectName}
                   placeholder="Cool New Project"
                   {...register('projectName', formValidations.projectName)}
                 />
-                <Form.Control.Feedback type="invalid">{formState.errors.projectName?.message}</Form.Control.Feedback>
+                <Form.Feedback>{formState.errors.projectName?.message}</Form.Feedback>
               </Form.Group>
-              <div className="submitRow">
-                <div className="submitContainer">
-                  <Button variant="primary" type="submit" disabled={isSubmitting}>
-                    Create Project
-                  </Button>
-                  {isSubmitting && <BorderSpinner />}
-                </div>
-              </div>
-            </fieldset>
-          </Form>
-        </div>
-      </div>
-      <style jsx>{`
-        .newProjectContainer {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          align-content: space-between;
-          margin: 0 auto;
-          gap: 2rem;
-        }
-        .contentContainer {
-          margin-left: 1rem;
-          flex-direction: column;
-          align-items: flex-end;
-          align-content: space-between;
-          height: 21rem;
-        }
-        .newProjectContainer :global(.newProjectForm) {
-          width: 100%;
-        }
-        .newProjectContainer :global(.formField) {
-          margin-bottom: 1rem;
-        }
-        h1 {
-          margin-bottom: 1.25rem;
-          width: 100%;
-        }
-        .calloutText {
-          margin-bottom: 1rem;
-        }
-        .boldText {
-          font-weight: 700;
-        }
-        .submitRow {
-          width: 100%;
-          display: flex;
-          justify-content: flex-start;
-        }
-        .submitContainer {
-          display: flex;
-          flex-direction: row;
-          column-gap: 1rem;
-        }
-        .formContainer {
-          margin-top: 3rem;
-          width: 20rem;
-        }
-      `}</style>
-    </div>
+
+              <Button type="submit" loading={formState.isSubmitting}>
+                Create Project
+              </Button>
+            </Flex>
+          </Form.Root>
+        </Flex>
+      </Flex>
+    </Container>
   );
 };
 
