@@ -217,7 +217,7 @@ function AddContractForm(props: { project: string; environment: Environment; onA
     <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitNewContract)}>
       <Flex stack>
         {showAddForm && (
-          <Form.Group>
+          <Form.Group maxWidth="m">
             <Form.Input
               isInvalid={!!formState.errors.contractAddress}
               placeholder={props.environment.net === 'MAINNET' ? 'contract.near' : 'contract.testnet'}
