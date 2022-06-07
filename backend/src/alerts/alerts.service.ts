@@ -53,17 +53,6 @@ type CreateAcctBalRuleSchema = CreateAlertBaseSchema & AcctBalRuleSchema;
 
 type CreateAlertResponse = { name: Alert['name']; id: Alert['id'] };
 
-type UpdateAlertBaseSchema = {
-  name: Alert['name'];
-  type: Alert['type'];
-  isPaused: Alert['isPaused'];
-  contract: Alert['contractId'];
-};
-type UpdateTxRuleSchema = UpdateAlertBaseSchema & TxRuleSchema;
-type UpdateFnCallRuleSchema = UpdateAlertBaseSchema & FnCallRuleSchema;
-type UpdateEventRuleSchema = UpdateAlertBaseSchema & EventRuleSchema;
-type UpdateAcctBalRuleSchema = UpdateAlertBaseSchema & AcctBalRuleSchema;
-
 @Injectable()
 export class AlertsService {
   constructor(private prisma: PrismaService) {}
@@ -285,161 +274,28 @@ export class AlertsService {
     };
   }
 
-  async updateTxRule(
-    user: User,
-    ruleId: Alert['id'],
-    rule: UpdateTxRuleSchema,
+  async updateAlert(
+    callingUser: User,
+    id: Alert['id'],
+    name: Alert['name'],
+    isPaused: Alert['isPaused'],
   ) {
-    const currType = (await this.fetchAlert(ruleId)).type;
-    await this.checkUserRulePermission(user.id, ruleId, rule.contract);
-    const alertInput = await this.buildUpdateRuleInput(user, rule, currType);
+    await this.checkUserRulePermission(callingUser.id, id);
 
-    alertInput.txRule = {
-      upsert: {
-        create: {
-          ...rule.txRule,
-          createdBy: user.id,
-          updatedBy: user.id,
-        },
-        update: {
-          ...rule.txRule,
-          active: true, // Important, because the rule might be pre-existing but soft-deleted.
-          updatedBy: user.id,
-        },
-      },
-    };
-
-    await this.updateRule(ruleId, alertInput);
-  }
-
-  async updateFnCallRule(
-    user: User,
-    ruleId: Alert['id'],
-    rule: UpdateFnCallRuleSchema,
-  ) {
-    const currType = (await this.fetchAlert(ruleId)).type;
-    await this.checkUserRulePermission(user.id, ruleId, rule.contract);
-    const alertInput = await this.buildUpdateRuleInput(user, rule, currType);
-
-    alertInput.fnCallRule = {
-      upsert: {
-        create: {
-          params: {}, // TODO remove this when it can be set from the client
-          ...rule.fnCallRule,
-          createdBy: user.id,
-          updatedBy: user.id,
-        },
-        update: {
-          params: {}, // TODO remove this when it can be set from the client
-          ...rule.fnCallRule,
-          active: true, // Important, because the rule might be pre-existing but soft-deleted.
-          updatedBy: user.id,
-        },
-      },
-    };
-
-    await this.updateRule(ruleId, alertInput);
-  }
-
-  async updateEventRule(
-    user: User,
-    ruleId: Alert['id'],
-    rule: UpdateEventRuleSchema,
-  ) {
-    const currType = (await this.fetchAlert(ruleId)).type;
-    await this.checkUserRulePermission(user.id, ruleId, rule.contract);
-    const alertInput = await this.buildUpdateRuleInput(user, rule, currType);
-
-    alertInput.eventRule = {
-      upsert: {
-        create: {
-          data: {}, // TODO remove this when it can be set from the client
-          ...rule.eventRule,
-          createdBy: user.id,
-          updatedBy: user.id,
-        },
-        update: {
-          data: {}, // TODO remove this when it can be set from the client
-          ...rule.eventRule,
-          active: true, // Important, because the rule might be pre-existing but soft-deleted.
-          updatedBy: user.id,
-        },
-      },
-    };
-
-    await this.updateRule(ruleId, alertInput);
-  }
-
-  async updateAcctBalRule(
-    user: User,
-    ruleId: Alert['id'],
-    rule: UpdateAcctBalRuleSchema,
-  ) {
-    const currType = (await this.fetchAlert(ruleId)).type;
-    await this.checkUserRulePermission(user.id, ruleId, rule.contract);
-    const alertInput = await this.buildUpdateRuleInput(user, rule, currType);
-
-    alertInput.acctBalRule = {
-      upsert: {
-        create: {
-          ...rule.acctBalRule,
-          createdBy: user.id,
-          updatedBy: user.id,
-        },
-        update: {
-          ...rule.acctBalRule,
-          active: true, // Important, because the rule might be pre-existing but soft-deleted.
-          updatedBy: user.id,
-        },
-      },
-    };
-
-    await this.updateRule(ruleId, alertInput);
-  }
-
-  private async buildUpdateRuleInput(
-    user: User,
-    rule: UpdateAlertBaseSchema,
-    currentRuleType: RuleType,
-  ): Promise<Prisma.AlertUpdateInput> {
-    const { name, type, isPaused, contract } = rule;
-
-    // If the type was updated, then we need to delete the existing rule and upsert a new one under a different type.
-    let deleteRuleInput;
-    if (currentRuleType !== type) {
-      deleteRuleInput = await this.buildDeleteSubRuleInput(
-        user.id,
-        currentRuleType,
-      );
-    }
-
-    const alertInput: Prisma.AlertUpdateInput = {
-      name,
-      type,
-      isPaused,
-      contract: {
-        connect: {
-          id: contract,
-        },
-      },
-      updatedByUser: {
-        connect: {
-          id: user.id,
-        },
-      },
-      ...deleteRuleInput,
-    };
-
-    return alertInput;
-  }
-
-  private async updateRule(id: Alert['id'], data: Prisma.AlertUpdateInput) {
     try {
       await this.prisma.alert.update({
         where: {
           id,
         },
-        data,
+        data: {
+          name,
+          isPaused,
+          updatedByUser: {
+            connect: {
+              id: callingUser.id,
+            },
+          },
+        },
       });
     } catch (e) {
       throw new VError(e, 'Failed while executing alert update query');
@@ -625,13 +481,24 @@ export class AlertsService {
     }
   }
 
-  // Confirms the contract belongs to the same environment that the rule is in
+  // Confirms the contract, if provided, belongs to the same environment that the rule is in
   // and the user is a member of the rule's project.
   private async checkUserRulePermission(
     userId: User['id'],
     ruleId: Alert['id'],
-    contractId: Contract['id'],
+    contractId?: Contract['id'],
   ): Promise<void> {
+    let contractQuery;
+    if (contractId) {
+      contractQuery = {
+        contracts: {
+          some: {
+            id: contractId,
+          },
+        },
+      };
+    }
+
     const res = await this.prisma.teamMember.findFirst({
       where: {
         userId,
@@ -645,11 +512,7 @@ export class AlertsService {
                 active: true,
                 environments: {
                   some: {
-                    contracts: {
-                      some: {
-                        id: contractId,
-                      },
-                    },
+                    ...contractQuery,
                     alerts: {
                       some: {
                         id: ruleId,

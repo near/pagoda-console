@@ -104,65 +104,15 @@ export const CreateAlertSchema = Joi.object({
 });
 
 // update alert
-interface UpdateAlertBaseDto {
+export interface UpdateAlertDto {
   id: number;
   name: string;
-  type: RuleType;
   isPaused: boolean;
-  contract: number;
 }
-export interface UpdateTxRuleDto extends UpdateAlertBaseDto {
-  txRule: TxRuleDto;
-}
-export interface UpdateFnCallRuleDto extends UpdateAlertBaseDto {
-  fnCallRule: FnCallRuleDto;
-}
-export interface UpdateEventRuleDto extends UpdateAlertBaseDto {
-  eventRule: EventRuleDto;
-}
-export interface UpdateAcctBalRuleDto extends UpdateAlertBaseDto {
-  acctBalRule: AcctBalRuleDto;
-}
-export type UpdateAlertDto =
-  | UpdateTxRuleDto
-  | UpdateFnCallRuleDto
-  | UpdateEventRuleDto
-  | UpdateAcctBalRuleDto;
 export const UpdateAlertSchema = Joi.object({
   id: Joi.number().required(),
   name: Joi.string().required(),
-  type: Joi.string()
-    .valid(
-      'TX_SUCCESS',
-      'TX_FAILURE',
-      'FN_CALL',
-      'EVENT',
-      'ACCT_BAL_PCT',
-      'ACCT_BAL_NUM',
-    )
-    .required(),
   isPaused: Joi.boolean().required(),
-  contract: Joi.number().required(),
-  txRule: TxRuleSchema.when('type', {
-    is: ['TX_SUCCESS', 'TX_FAILURE'],
-    then: Joi.required(),
-    otherwise: Joi.forbidden(),
-  }),
-  fnCallRule: FnCallRuleSchema.when('type', {
-    is: 'FN_CALL',
-    then: Joi.required(),
-    otherwise: Joi.forbidden(),
-  }),
-  eventRule: EventRuleSchema.when('type', {
-    is: 'EVENT',
-    then: Joi.required(),
-    otherwise: Joi.forbidden(),
-  }),
-  acctBalRule: AcctBalRuleSchema.when('type', {
-    is: ['ACCT_BAL_PCT', 'ACCT_BAL_NUM'],
-    then: Joi.required(),
-    otherwise: Joi.forbidden(),
-  }),
 });
 
 // list alerts

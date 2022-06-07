@@ -25,12 +25,8 @@ import {
   ListAlertDto,
   ListAlertSchema,
   CreateFnCallRuleDto,
-  UpdateTxRuleDto,
-  UpdateAlertDto,
   UpdateAlertSchema,
-  UpdateAcctBalRuleDto,
-  UpdateEventRuleDto,
-  UpdateFnCallRuleDto,
+  UpdateAlertDto,
 } from './dto';
 
 @Controller('alerts')
@@ -81,38 +77,12 @@ export class AlertsController {
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(UpdateAlertSchema))
-  async updateRule(@Request() req, @Body() { id, ...dto }: UpdateAlertDto) {
+  async updateRule(
+    @Request() req,
+    @Body() { id, name, isPaused }: UpdateAlertDto,
+  ) {
     try {
-      switch (dto.type) {
-        case 'TX_SUCCESS':
-        case 'TX_FAILURE':
-          return await this.alertsService.updateTxRule(
-            req.user,
-            id,
-            dto as UpdateTxRuleDto,
-          );
-        case 'FN_CALL':
-          return await this.alertsService.updateFnCallRule(
-            req.user,
-            id,
-            dto as UpdateFnCallRuleDto,
-          );
-        case 'EVENT':
-          return await this.alertsService.updateEventRule(
-            req.user,
-            id,
-            dto as UpdateEventRuleDto,
-          );
-        case 'ACCT_BAL_NUM':
-        case 'ACCT_BAL_PCT':
-          return await this.alertsService.updateAcctBalRule(
-            req.user,
-            id,
-            dto as UpdateAcctBalRuleDto,
-          );
-        default:
-          assertUnreachable(dto.type);
-      }
+      return await this.alertsService.updateAlert(req.user, id, name, isPaused);
     } catch (e) {
       throw mapError(e);
     }
