@@ -113,13 +113,11 @@ const favoriteWeatherOptions = [
     id: 'weather-thunerstorm-123',
     display: 'Thunderstorm',
     icon: 'cloud-lightning',
-    disabled: false,
   },
   {
     id: 'weather-sunny-123',
     display: 'Sunny',
     icon: 'sun',
-    disabled: false,
   },
   {
     id: 'weather-snow-123',
@@ -775,6 +773,7 @@ const Settings: NextPageWithLayout = () => {
                           <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
                             {favoriteWeatherOptions.map((option) => (
                               <DropdownMenu.RadioItem
+                                disabled={option.disabled}
                                 indicator={<FeatherIcon icon={option.icon} />}
                                 value={option.id}
                                 key={option.id}
