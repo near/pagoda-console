@@ -24,6 +24,7 @@ import * as Popover from '@/components/lib/Popover';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { SvgIcon } from '@/components/lib/SvgIcon';
+import { Switch } from '@/components/lib/Switch';
 import * as Tabs from '@/components/lib/Tabs';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
@@ -121,7 +122,7 @@ const favoriteWeatherOptions = [
   },
   {
     id: 'weather-snow-123',
-    display: 'Snow',
+    display: 'Snow (Disabled)',
     icon: 'cloud-snow',
     disabled: true,
   },
@@ -1129,6 +1130,43 @@ const Settings: NextPageWithLayout = () => {
             <SvgIcon color="text1" icon={ExampleIcon} />
             <SvgIcon color="text2" icon={ExampleIcon} />
             <SvgIcon color="text3" icon={ExampleIcon} />
+          </Flex>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack gap="l">
+          <H2>Switch</H2>
+
+          <Switch aria-label="Turbo Mode" />
+
+          <HR />
+
+          <Flex as="label" align="center">
+            <Switch />
+            With a Label On Right
+          </Flex>
+
+          <Flex as="label" align="center">
+            With a Label On Left
+            <Switch />
+          </Flex>
+
+          <HR />
+
+          <Flex as="label" align="center">
+            <Switch>
+              <FeatherIcon icon="sun" size="xs" />
+            </Switch>
+            With an Icon
+          </Flex>
+
+          <Flex as="label" align="center">
+            <Switch>
+              <FeatherIcon icon="sun" size="xs" data-on />
+              <FeatherIcon icon="moon" size="xs" data-off />
+            </Switch>
+            With a Dynamic Icon
           </Flex>
         </Flex>
       </Section>
