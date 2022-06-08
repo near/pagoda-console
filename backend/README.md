@@ -10,21 +10,32 @@ ORM: [Prisma](https://www.prisma.io/)
 
 Identity Management: [Firebase Auth](https://firebase.google.com/docs/auth)
 
+# Quickstart
+
+The recommend way to run this project is with VS Code and Dev Containers.
+
+> The Visual Studio Code Remote - Containers extension lets you use a Docker container as a full-featured development environment. It allows you to open any folder inside (or mounted into) a container and take advantage of Visual Studio Code's full feature set.
+
+This will create a set of Docker containers with all required dependencies preconfigured by the DevConsole team.
+
+1. Follow the [official Installation instructions](https://code.visualstudio.com/docs/remote/containers#_installation) from VS Code to install Docker and the required extensions
+2. Open this directory in VS Code
+3. If prompted in the bottom right with the pictured message, click "Reopen in Container".
+   ![](./devResources/reopen-in-container.png)
+   Otherwise, open the VS Code command palette and run `Remote-Containers: Reopen in Container`.
+4. Wait for the build process to complete. You will now have two connected Docker containers running. One is your Node+Typescript development environment and one is a Postgres instance. Your files are mounted into the Node+Typescript container, so edits made through VS Code apply to the files on your local filesystem
+5. Open an in-editor terminal by selecting `Terminal > New Terminal` from the Menu Bar
+6. Run `npm install` to install dependecies
+7. Run `npx prisma migrate dev` to initialize the database
+8. Choose `Run > Start Debugging` or hit F5 to run the server in live-reload mode with breakpoint debugging enabled!
+
+Your server is available at `localhost:3001`
+
 # Usage
-
-## Local Environment Variables
-
-Environment variables are loaded for a `.env` file at the root of the project. These are not currently tracked in git, so you will need to obtain them from a fellow developer. In the future, the goal would be to have three files
-
-1. Secrets file: not tracked in git, must be obtained from another developer
-2. Base environment file: tracked in git, contains default settings for environment variables
-3. Local overrides: not tracked in git, allows overriding specific environment variables as needed for development
-
-For the most part, the project should be able to run without overrides, however there will be exceptions. For example, in order to avoid conflicts in the API key management service, each developer will need to have a different value for `PROJECT_REF_PREFIX`
 
 ## Database
 
-Initialize database with Prisma models
+Initialize database with Prisma models and generate Prisma Client for current schema
 
 ```
 npx prisma migrate dev
@@ -42,7 +53,7 @@ To create a new migration. This will attempt to delete the Audit table since it 
 npx prisma migrate dev --create-only
 ```
 
-To apply all migrations
+To apply all migrations in production mode
 
 ```
 npx prisma migrate deploy
@@ -58,15 +69,25 @@ You will need a password to view these docs, please ask the team for it.
 
 ### Update models
 
-Whenever models are changed,even locally, a new Prisma client must be generated
+Whenever models are changed, even locally, a new Prisma client must be generated
 
 ```
 npx prisma generate
 ```
 
 > The `prisma generate` command reads your Prisma schema and updates the generated Prisma Client library inside `node_modules/@prisma/client`.
+>
+> This results in the imported Prisma Client having proper TypeScript support for
+> your schema.
 
 ## Running the app
+
+### VS Code
+
+This repo includes a `.vscode/launch.json` which configures a debugging profile with breakpoint support. You can
+user _Run > Start Debugging_ from the Menu Bar or the default keybing of F5. This runs in live-reload mode
+
+### Other
 
 ```bash
 # run in watch mode to live-reload on changes
@@ -87,6 +108,18 @@ The recommended way to run a development instance of this project is with VS Cod
 If VS Code is not your preferred development environment, you are more than welcome to stray from this recommendation and run the containers with Docker directly.
 
 > TODO: Define a docker-compose stack for running without VS Code
+
+## Git inside Dev Container
+
+On Mac, you need to load your SSH key into ssh-agent in order for VS Code to make it available in your Dev Container. From a terminal outside the Dev Container, run
+
+```
+ssh-add <private key path>
+```
+
+e.g. `ssh-add ~/.ssh/id_rsa`
+
+After that, git commands from the integrated terminal should be able to use your SSH key to communitcate with GitHub.
 
 ## Endpoints
 
@@ -110,6 +143,8 @@ async exampleHandler(@Request() req) {
 
 ## Configuration
 
+All configuration relies on environment variables.
+
 See [./src/config/validate.ts](./src/config/validate.ts)
 
 Always set the type of ConfigService in the constructor and use `{infer: true}` in getter for proper typing and nested access
@@ -130,7 +165,7 @@ In the future, the need to add infer to ever call could be removed by extending 
 
 ### Local Config
 
-During local development, Nest loads config from dotenv files. There are three to use
+During local development, Nest loads environment variables from dotenv files. There are three to use
 
 `.env.nest`  
 Default and nonsensitive environment variables. This is tracked in git so that when new config values are added other developers do not need to manually make changes on their end.
