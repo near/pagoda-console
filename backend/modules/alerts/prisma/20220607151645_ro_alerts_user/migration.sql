@@ -19,19 +19,7 @@ BEGIN
 END
 $do$;
 
--- Grant access to the specific database depending on environment.
-DO
-$do$
-BEGIN
-    IF EXISTS (SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = 'pgdb') THEN
-        -- local
-        GRANT CONNECT ON DATABASE pgdb TO read_alerts;
-    ELSE
-        -- dev, prod
-        GRANT CONNECT ON DATABASE devconsole TO read_alerts;
-    END IF;
-END
-$do$;
+GRANT CONNECT ON DATABASE alerts TO read_alerts;
 
 GRANT USAGE ON SCHEMA public TO read_alerts;
 

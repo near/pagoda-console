@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  User,
   Prisma,
   Alert,
   AcctBalRule,
@@ -8,11 +7,12 @@ import {
   FnCallRule,
   TxRule,
   RuleType,
-  Contract,
-  Environment,
-} from '@prisma/client';
+} from '../../modules/alerts/prisma/generated';
+import { User, Environment, Contract } from '@prisma/client';
+
 import { assertUnreachable } from 'src/helpers';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from './prisma.service';
+import { PrismaService as PrismaConsoleService } from 'src/prisma.service';
 import { VError } from 'verror';
 
 type TxRuleSchema = {
@@ -55,7 +55,10 @@ type CreateAlertResponse = { name: Alert['name']; id: Alert['id'] };
 
 @Injectable()
 export class AlertsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private prismaConsole: PrismaConsoleService,
+  ) {}
 
   async createTxSuccessAlert(
     user: User,
@@ -201,7 +204,7 @@ export class AlertsService {
   ): Promise<string> {
     let address;
     try {
-      const contractFind = await this.prisma.contract.findFirst({
+      const contractFind = await this.prismaConsole.contract.findFirst({
         where: {
           id: contractId,
           active: true,
@@ -230,26 +233,10 @@ export class AlertsService {
     const alertInput: Prisma.AlertCreateInput = {
       name,
       type,
-      contract: {
-        connect: {
-          id: contract,
-        },
-      },
-      environment: {
-        connect: {
-          id: environment,
-        },
-      },
-      createdByUser: {
-        connect: {
-          id: user.id,
-        },
-      },
-      updatedByUser: {
-        connect: {
-          id: user.id,
-        },
-      },
+      contractId: contract,
+      environmentId: environment,
+      createdBy: user.id,
+      updatedBy: user.id,
     };
 
     return alertInput;
@@ -290,11 +277,7 @@ export class AlertsService {
         data: {
           name,
           isPaused,
-          updatedByUser: {
-            connect: {
-              id: callingUser.id,
-            },
-          },
+          updatedBy: callingUser.id,
         },
       });
     } catch (e) {
@@ -306,27 +289,31 @@ export class AlertsService {
     return await this.prisma.alert.findMany({
       where: {
         active: true,
-        environment: {
-          active: true,
-          id: environment,
-          project: {
-            active: true,
-            teamProjects: {
-              some: {
-                active: true,
-                team: {
-                  active: true,
-                  teamMembers: {
-                    some: {
-                      active: true,
-                      userId: user.id,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
+        // TODO how to determine permission/user access?
+        // Anytime a new user is added to a team, we may need to allow that new user access to the team's project's alerts.
+        // A similar situation will occur if a contract is removed or a teammember is removed.
+
+        // environment: {
+        //   active: true,
+        //   id: environment,
+        //   project: {
+        //     active: true,
+        //     teamProjects: {
+        //       some: {
+        //         active: true,
+        //         team: {
+        //           active: true,
+        //           teamMembers: {
+        //             some: {
+        //               active: true,
+        //               userId: user.id,
+        //             },
+        //           },
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
       },
       select: {
         id: true,
@@ -362,11 +349,13 @@ export class AlertsService {
             data: true,
           },
         },
-        contract: {
-          select: {
-            address: true,
-          },
-        },
+        // TODO how would we get the contract address? Should the UI stitch this data together or should we do it here?
+        contractId: true,
+        // contract: {
+        //   select: {
+        //     address: true,
+        //   },
+        // },
       },
     });
   }
@@ -389,11 +378,7 @@ export class AlertsService {
         },
         data: {
           active: false,
-          updatedByUser: {
-            connect: {
-              id: callingUser.id,
-            },
-          },
+          updatedBy: callingUser.id,
           ...deleteRuleInput,
         },
       });
@@ -445,7 +430,7 @@ export class AlertsService {
     environmentId: Environment['id'],
     contractId: Contract['id'],
   ): Promise<void> {
-    const res = await this.prisma.teamMember.findFirst({
+    const res = await this.prismaConsole.teamMember.findFirst({
       where: {
         userId,
         active: true,
@@ -499,7 +484,7 @@ export class AlertsService {
       };
     }
 
-    const res = await this.prisma.teamMember.findFirst({
+    const res = await this.prismaConsole.teamMember.findFirst({
       where: {
         userId,
         active: true,
@@ -513,11 +498,12 @@ export class AlertsService {
                 environments: {
                   some: {
                     ...contractQuery,
-                    alerts: {
-                      some: {
-                        id,
-                      },
-                    },
+                    // TODO make another query in the alerts db to determine access to the alert?
+                    // alerts: {
+                    //   some: {
+                    //     id,
+                    //   },
+                    // },
                   },
                 },
               },
@@ -537,21 +523,21 @@ export class AlertsService {
 
   private async fetchAlert(id: Alert['id']): Promise<Alert> {
     try {
-      const rule = await this.prisma.alert.findUnique({
+      const alert = await this.prisma.alert.findUnique({
         where: {
           id,
         },
       });
 
-      if (!rule) {
+      if (!alert) {
         throw new VError({ info: { code: 'BAD_ALERT' } }, 'Alert not found');
       }
 
-      if (!rule.active) {
+      if (!alert.active) {
         throw new VError({ info: { code: 'BAD_ALERT' } }, 'Alert is inactive');
       }
 
-      return rule;
+      return alert;
     } catch (e) {
       throw new VError(e, 'Failed while getting alert rule type');
     }
