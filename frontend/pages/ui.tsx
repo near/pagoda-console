@@ -21,6 +21,7 @@ import { List, ListItem } from '@/components/lib/List';
 import { Message } from '@/components/lib/Message';
 import { Placeholder } from '@/components/lib/Placeholder';
 import * as Popover from '@/components/lib/Popover';
+import { Progress } from '@/components/lib/Progress';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { SvgIcon } from '@/components/lib/SvgIcon';
@@ -150,6 +151,7 @@ const Settings: NextPageWithLayout = () => {
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [bookmarksChecked, setBookmarksChecked] = useState(true);
   const [urlsChecked, setUrlsChecked] = useState(false);
+  const [progressValue, setProgressValue] = useState(10);
   const [person, setPerson] = useState('pedro');
   const [errorMessage, setErrorMessage] = useState('This is a dismissable error message');
   const { register, handleSubmit, formState, control } = useForm<FakeForm>();
@@ -1071,6 +1073,31 @@ const Settings: NextPageWithLayout = () => {
                 </Text>
               </Popover.Content>
             </Popover.Root>
+          </Flex>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack gap="l">
+          <H2>Progress</H2>
+
+          <Flex justify="center" stack>
+            <Progress css={{ maxWidth: '30rem' }} value={progressValue} max={100} />
+            <Text family="number">{progressValue + '%'}</Text>
+          </Flex>
+
+          <Flex>
+            <Button color="neutral" onClick={() => setProgressValue(progressValue - 10)} disabled={progressValue <= 0}>
+              Decrease
+            </Button>
+
+            <Button
+              color="neutral"
+              onClick={() => setProgressValue(progressValue + 10)}
+              disabled={progressValue >= 100}
+            >
+              Increase
+            </Button>
           </Flex>
         </Flex>
       </Section>
