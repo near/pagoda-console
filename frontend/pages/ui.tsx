@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
 import * as Accordion from '@/components/lib/Accordion';
 import { Badge } from '@/components/lib/Badge';
 import { Box } from '@/components/lib/Box';
-import { Button, ButtonDropdown, ButtonLink } from '@/components/lib/Button';
+import { Button, ButtonLink } from '@/components/lib/Button';
 import { Checkbox, CheckboxGroup } from '@/components/lib/Checkbox';
 import { Container } from '@/components/lib/Container';
 import * as Dialog from '@/components/lib/Dialog';
@@ -62,6 +62,7 @@ interface FakeForm {
   favoriteFood: string;
   favoriteColorsBlue: boolean;
   favoriteColorsOrange: boolean;
+  favoriteWeather: string;
   termsAccepted: boolean;
 }
 
@@ -107,13 +108,52 @@ const Lipsum = () => {
   );
 };
 
+const favoriteWeatherOptions = [
+  {
+    id: 'weather-thunerstorm-123',
+    display: 'Thunderstorm',
+    icon: 'cloud-lightning',
+    disabled: false,
+  },
+  {
+    id: 'weather-sunny-123',
+    display: 'Sunny',
+    icon: 'sun',
+    disabled: false,
+  },
+  {
+    id: 'weather-snow-123',
+    display: 'Snow',
+    icon: 'cloud-snow',
+    disabled: true,
+  },
+];
+
+const favoriteFoodOptions = [
+  {
+    display: 'Pizza',
+    value: 'pizza',
+    description: 'Pepperoni pizza is delicious.',
+  },
+  {
+    display: 'Taco',
+    value: 'taco',
+    description: 'Taco Tuesday!',
+  },
+  {
+    display: 'Pasta',
+    value: 'pasta',
+    description: 'Spaghetti & meatballs with extra parmesan cheese.',
+  },
+];
+
 const Settings: NextPageWithLayout = () => {
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [bookmarksChecked, setBookmarksChecked] = useState(true);
   const [urlsChecked, setUrlsChecked] = useState(false);
   const [person, setPerson] = useState('pedro');
   const [errorMessage, setErrorMessage] = useState('This is a dismissable error message');
-  const { register, handleSubmit, formState } = useForm<FakeForm>();
+  const { register, handleSubmit, formState, control } = useForm<FakeForm>();
   const router = useRouter();
 
   useEffect(() => {
@@ -122,24 +162,6 @@ const Settings: NextPageWithLayout = () => {
       router.replace('/');
     }
   }, [router]);
-
-  const favoriteFoodOptions = [
-    {
-      display: 'Pizza',
-      value: 'pizza',
-      description: 'Pepperoni pizza is delicious.',
-    },
-    {
-      display: 'Taco',
-      value: 'taco',
-      description: 'Taco Tuesday!',
-    },
-    {
-      display: 'Pasta',
-      value: 'pasta',
-      description: 'Spaghetti & meatballs with extra parmesan cheese.',
-    },
-  ];
 
   return (
     <>
@@ -332,7 +354,6 @@ const Settings: NextPageWithLayout = () => {
           </Flex>
 
           <Flex wrap>
-            <ButtonDropdown>Dropdown</ButtonDropdown>
             <Link href="/project-settings" passHref>
               <ButtonLink color="neutral">Link</ButtonLink>
             </Link>
@@ -692,6 +713,10 @@ const Settings: NextPageWithLayout = () => {
                 <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
               </Form.Group>
 
+              <HR />
+
+              <H4>Floating Labels & Select Dropdowns</H4>
+
               <Form.Group>
                 <Form.FloatingLabelInput
                   type="number"
@@ -717,10 +742,64 @@ const Settings: NextPageWithLayout = () => {
                 />
               </Form.Group>
 
+              <Controller
+                name="favoriteWeather"
+                control={control}
+                rules={{
+                  required: 'Please select your favorite weather',
+                }}
+                render={({ field }) => {
+                  const favoriteWeather = favoriteWeatherOptions.find((option) => option.id === field.value);
+
+                  return (
+                    <Form.Group>
+                      <DropdownMenu.Root>
+                        <DropdownMenu.Trigger asChild>
+                          <Form.FloatingLabelSelect
+                            label="Favorite Weather"
+                            isInvalid={!!formState.errors.favoriteWeather}
+                            onBlur={field.onBlur}
+                            ref={field.ref}
+                            selection={
+                              favoriteWeather && (
+                                <>
+                                  <FeatherIcon icon={favoriteWeather.icon} color="primary" />
+                                  {favoriteWeather.display}
+                                </>
+                              )
+                            }
+                          />
+                        </DropdownMenu.Trigger>
+
+                        <DropdownMenu.Content align="start">
+                          <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
+                            {favoriteWeatherOptions.map((option) => (
+                              <DropdownMenu.RadioItem
+                                indicator={<FeatherIcon icon={option.icon} />}
+                                value={option.id}
+                                key={option.id}
+                              >
+                                {option.display}
+                              </DropdownMenu.RadioItem>
+                            ))}
+                          </DropdownMenu.RadioGroup>
+                        </DropdownMenu.Content>
+                      </DropdownMenu.Root>
+
+                      <Form.Feedback>{formState.errors.favoriteWeather?.message}</Form.Feedback>
+                    </Form.Group>
+                  );
+                }}
+              />
+
+              <HR />
+
               <Form.Group>
                 <Form.Label>Disabled</Form.Label>
                 <Form.Input disabled />
               </Form.Group>
+
+              <HR />
 
               <Form.Group gap="m">
                 <Form.Label>Favorite Food</Form.Label>
@@ -788,13 +867,13 @@ const Settings: NextPageWithLayout = () => {
               </Form.Group>
 
               <Form.Label>Horizontal Field Two</Form.Label>
-              <Form.Group maxWidth="l">
+              <Form.Group maxWidth="m">
                 <Form.Input />
                 <Form.Feedback type="neutral">Here is some feedback.</Form.Feedback>
               </Form.Group>
 
               <Form.Label>Horizontal Field With a Really Long Label</Form.Label>
-              <Form.Group maxWidth="m">
+              <Form.Group maxWidth="s">
                 <Form.Input />
               </Form.Group>
             </Form.HorizontalGroup>
@@ -806,6 +885,11 @@ const Settings: NextPageWithLayout = () => {
 
           <Form.Root>
             <Flex stack>
+              <Form.Group maxWidth="xxs">
+                <Form.Label>XXS</Form.Label>
+                <Form.Input />
+              </Form.Group>
+
               <Form.Group maxWidth="xs">
                 <Form.Label>XS</Form.Label>
                 <Form.Input />
@@ -823,11 +907,6 @@ const Settings: NextPageWithLayout = () => {
 
               <Form.Group maxWidth="l">
                 <Form.Label>L</Form.Label>
-                <Form.Input />
-              </Form.Group>
-
-              <Form.Group maxWidth="xl">
-                <Form.Label>XL</Form.Label>
                 <Form.Input />
               </Form.Group>
             </Flex>

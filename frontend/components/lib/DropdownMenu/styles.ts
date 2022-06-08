@@ -17,7 +17,7 @@ export const Content = styled(DropdownMenuPrimitive.Content, {
   '--animation-speed': '200ms',
   '--background-color': 'var(--color-surface-overlay)',
   minWidth: 'var(--size-max-container-width-xxs)',
-  maxWidth: 'var(--size-max-container-width-xs)',
+  maxWidth: 'var(--size-max-container-width-s)',
   backgroundColor: 'var(--background-color)',
   borderRadius: 'var(--border-radius-s)',
   padding: 'var(--space-s)',
@@ -34,10 +34,12 @@ export const Content = styled(DropdownMenuPrimitive.Content, {
 
 export const ItemSelectedIndicator = styled('div', {
   color: 'var(--color-cta-primary)',
+  alignItems: 'center',
 });
 
 export const ItemUnselectedIndicator = styled('div', {
-  color: 'var(--color-surface-5)',
+  color: 'var(--color-text-3)',
+  alignItems: 'center',
 });
 
 const itemStyles: StitchesCSS = {
@@ -62,16 +64,16 @@ const itemStyles: StitchesCSS = {
   },
 
   '&:focus': {
-    backgroundColor: 'var(--color-surface-3)',
+    backgroundColor: 'var(--color-surface-2)',
   },
 
   '&[data-state="open"]': {
-    backgroundColor: 'var(--color-surface-3)',
+    backgroundColor: 'var(--color-surface-2)',
   },
 
   '&[data-state="checked"]': {
     [`${ItemSelectedIndicator}`]: {
-      display: 'block',
+      display: 'flex',
     },
     [`${ItemUnselectedIndicator}`]: {
       display: 'none',
@@ -83,12 +85,15 @@ const itemStyles: StitchesCSS = {
       display: 'none',
     },
     [`${ItemUnselectedIndicator}`]: {
-      display: 'block',
+      display: 'flex',
     },
   },
 };
 
-export const Item = styled(DropdownMenuPrimitive.Item, { ...itemStyles, gap: 'var(--space-s)' });
+export const Item = styled(DropdownMenuPrimitive.Item, {
+  ...itemStyles,
+  gap: 'var(--space-s)',
+});
 
 export const TriggerItem = styled(DropdownMenuPrimitive.TriggerItem, {
   ...itemStyles,

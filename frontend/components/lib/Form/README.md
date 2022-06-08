@@ -85,7 +85,7 @@ To create a form where the labels and inputs are laid out horizontally in a grid
       </Form.Group>
 
       <Form.Label htmlFor="secondInput">Horizontal Field Two</Form.Label>
-      <Form.Group maxWidth="l">
+      <Form.Group maxWidth="m">
         <Form.Input id="secondInput" />
         <Form.Feedback>...</Form.Feedback>
       </Form.Group>
@@ -114,7 +114,7 @@ To get around this, we can simply use the `role="group"` and `aria-label="..."` 
       <Form.Feedback>...</Form.Feedback>
     </Form.Group>
 
-    <Form.Group maxWidth="l">
+    <Form.Group maxWidth="m">
       <Form.Label htmlFor="secondInput">Field Two</Form.Label>
       <Form.Input id="secondInput" />
       <Form.Feedback>...</Form.Feedback>
@@ -188,7 +188,7 @@ Other times, it makes more sense to set max widths on each `Form.Group` individu
     <Form.Feedback>...</Form.Feedback>
   </Form.Group>
 
-  <Form.Group maxWidth="l">
+  <Form.Group maxWidth="m">
     <Form.Label htmlFor="secondInput">Field Two</Form.Label>
     <Form.Input id="secondInput" />
     <Form.Feedback>...</Form.Feedback>
