@@ -1135,6 +1135,16 @@ const Settings: NextPageWithLayout = () => {
           </Switch>
           With a Dynamic Icon
         </Flex>
+
+        <HR />
+
+        <Flex as="label" align="center">
+          <Switch size="s">
+            <FeatherIcon icon="sun" size="xs" data-on />
+            <FeatherIcon icon="moon" size="xs" data-off />
+          </Switch>
+          Small Switch
+        </Flex>
       </DocSection>
 
       <DocSection title="Tabs">

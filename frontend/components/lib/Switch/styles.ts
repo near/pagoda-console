@@ -3,8 +3,8 @@ import * as SwitchPrimitive from '@radix-ui/react-switch';
 import { styled } from '@/styles/stitches';
 
 export const Switch = styled(SwitchPrimitive.Root, {
-  '--height': 'var(--size-input-height-s)',
-  '--width': 'calc((var(--height) * 2) - 4px)',
+  '--height': 'var(--size)',
+  '--width': 'calc((var(--size) * 2) - 4px)',
   width: 'var(--width)',
   height: 'var(--height)',
   flexShrink: 0,
@@ -22,6 +22,21 @@ export const Switch = styled(SwitchPrimitive.Root, {
 
   '&[data-state="checked"]': {
     backgroundColor: 'var(--color-primary)',
+  },
+
+  variants: {
+    size: {
+      m: {
+        '--size': 'var(--size-input-height-s)',
+      },
+      s: {
+        '--size': 'var(--size-input-height-xs)',
+      },
+    },
+  },
+
+  defaultVariants: {
+    size: 'm',
   },
 });
 
