@@ -23,7 +23,7 @@ There are two ways to run this project locally:
 
 However, before you start the project, you'll need to configure your environment variables:
 
-## Local Environment Variables
+### Local Environment Variables
 
 Environment variables are loaded automatically from `.env` and `.env.local` file at the root of the project. Use `.env.local` to override any values in `.env`. Please copy the `.env.local.example` file as a starting point for your own `.env.local` file and ask the team for any secrets if there are any.
 
@@ -33,7 +33,7 @@ All environment variables are read into a config object in [utils/config.ts](uti
 
 Now that your environment variables are set up, continue with one of the quickstart options below:
 
-## Option 1: VS Code Dev Containers (Docker)
+### Option 1: VS Code Dev Containers (Docker)
 
 1. Follow the [official Installation instructions](https://code.visualstudio.com/docs/remote/containers#_installation) from VS Code to install Docker and the required extensions.
 2. Open this directory in VS Code.
@@ -44,7 +44,7 @@ Now that your environment variables are set up, continue with one of the quickst
 7. Run `npm run dev` to start the server. All code changes will be hot reloaded.
 8. Your server is available at `localhost:3000`. VS Code will automatically expose the port from the Dev Container to the rest of your machine.
 
-## Option 2: Manually with NVM and NPM
+### Option 2: Manually with NVM and NPM
 
 If you're running in to performance issues running/building the app inside the Dev Container, another option is run the app locally via [NVM](https://github.com/nvm-sh/nvm).
 
@@ -55,7 +55,7 @@ If you're running in to performance issues running/building the app inside the D
 5. Run `npm run dev` to start the server. All code changes will be hot reloaded.
 6. Your server is available at `localhost:3000`.
 
-## Ngrok
+### Ngrok
 
 Now that you have the server running, you'll most likely want to set up `localhost:3000` with an `ngrok` proxy domain as detailed [here](https://nearinc.atlassian.net/wiki/spaces/DEVCONSOLE/pages/36438083/Onboarding).
 
@@ -93,10 +93,6 @@ Two pages will be available in the UI: `/alerts` and `/alerts/new-alert`. The pa
 import { AlertDetailCard } from '@/modules/alerts/components/AlertDetailCard'
 ```
 
-## JWT Reveal
-
-When running locally or in development (`NEXT_PUBLIC_DEPLOY_ENV` is `LOCAL` or `DEVELOPMENT`), you can easily grab the JWT for the current session by clicking on the Pagoda icon in the sidebar. This is useful for manual API testing through Postman.
-
 ## Styles & Components
 
 This project uses [Radix](https://www.radix-ui.com/) and [Stitches](https://stitches.dev/). We have built out a library of generic, reusable components in [components/lib/](./components/lib). You can view all of these components by visiting `/ui` when running the server locally or on the [development server](https://dev.console.pagoda.co/ui). The `/ui` route is hidden in production.
@@ -123,10 +119,6 @@ export default NewPage;
 ## Data Fetching
 
 [SWR](https://swr.vercel.app/) is used heavily for data fetching. This library makes it easy to build a UI that melds quick loading from cached data with frequent revalidation fetches to make sure the UI stays up to date. It is highly recommended to read the SWR docs in their entirety and familiarize yourself with how it works and what options are available. Data fetchers are defined in [utils/fetchers.ts](utils/fetchers.ts)
-
-## Comments
-
-Where helpful, utilize [Better Comments](https://marketplace.visualstudio.com/items?itemName=aaron-bond.better-comments) syntax to add context to your comments
 
 ## Path Alias
 
@@ -162,3 +154,11 @@ Go to the url of the environment you want to test:
 
 1. Setup a user with email and password. Store these in your `.env.test.local`.
 2. Create a tutorial project. Copy the slug from the url and set `TEST_NFT_TUTORIAL_PROJECT` in `.env.test.local`. This is important for both e2e and snapshot tests.
+
+## JWT Reveal
+
+When running locally or in development (`NEXT_PUBLIC_DEPLOY_ENV` is `LOCAL` or `DEVELOPMENT`), you can easily grab the JWT for the current session by clicking on the Pagoda icon in the sidebar. This is useful for manual API testing through Postman.
+
+## Comments
+
+Where helpful, utilize [Better Comments](https://marketplace.visualstudio.com/items?itemName=aaron-bond.better-comments) syntax to add context to your comments
