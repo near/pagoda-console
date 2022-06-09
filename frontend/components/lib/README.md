@@ -96,6 +96,8 @@ const MyElement = styled('div', {
 <MyElement padding="l" />
 ```
 
+> **NOTE:** When importing Stitches, make sure you import our configuration like so: `import { styled } from '@/styles/stitches';`. Don't be confused with `@stitches/react`. If you import the NPM package directly, you won't have access to our breakpoint theme tokens.
+
 ### Variables
 
 In order to maintain flexibility and simplicity, we use native [CSS Custom Properties](https://developer.mozilla.org/en-US/docs/Web/CSS/--*) (AKA variables) for all of our theme variables instead of using Stitches theme tokens. You can view all of the globally available variables in [styles/variables.css](../../styles/variables.css). You can reference these variables in any of your styles. For example:
