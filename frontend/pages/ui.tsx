@@ -23,6 +23,7 @@ import { Placeholder } from '@/components/lib/Placeholder';
 import * as Popover from '@/components/lib/Popover';
 import { Progress } from '@/components/lib/Progress';
 import { Section } from '@/components/lib/Section';
+import * as Slider from '@/components/lib/Slider';
 import { Spinner } from '@/components/lib/Spinner';
 import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Switch } from '@/components/lib/Switch';
@@ -1114,7 +1115,45 @@ const Settings: NextPageWithLayout = () => {
       </Section>
 
       <Section>
-        <Flex stack>
+        <Flex stack gap="l">
+          <H2>Slider</H2>
+
+          <H4>Single</H4>
+
+          <Slider.Root defaultValue={[25]} css={{ maxWidth: '30rem' }}>
+            <Slider.Track>
+              <Slider.Range />
+            </Slider.Track>
+            <Slider.Thumb />
+            <Slider.Thumb />
+          </Slider.Root>
+
+          <H4>Range</H4>
+
+          <Slider.Root defaultValue={[25, 75]} css={{ maxWidth: '30rem' }}>
+            <Slider.Track>
+              <Slider.Range />
+            </Slider.Track>
+            <Slider.Thumb />
+            <Slider.Thumb />
+          </Slider.Root>
+
+          <H4>Vertical</H4>
+
+          <Box css={{ height: '10rem' }}>
+            <Slider.Root defaultValue={[25]} orientation="vertical">
+              <Slider.Track>
+                <Slider.Range />
+              </Slider.Track>
+              <Slider.Thumb />
+              <Slider.Thumb />
+            </Slider.Root>
+          </Box>
+        </Flex>
+      </Section>
+
+      <Section>
+        <Flex stack gap="l">
           <H2>Spinner</H2>
 
           <Flex align="center">
