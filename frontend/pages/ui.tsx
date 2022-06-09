@@ -1067,9 +1067,9 @@ const Settings: NextPageWithLayout = () => {
 
       <DocSection title="Placeholder">
         <Flex stack>
-          <Placeholder css={{ width: '30rem', height: '5rem' }} />
-          <Placeholder css={{ width: '20rem', height: '2rem' }} />
-          <Placeholder css={{ width: '10rem', height: '1.5rem' }} />
+          <Placeholder css={{ maxWidth: '30rem', height: '5rem' }} />
+          <Placeholder css={{ maxWidth: '20rem', height: '2rem' }} />
+          <Placeholder css={{ maxWidth: '10rem', height: '1.5rem' }} />
         </Flex>
       </DocSection>
 
