@@ -6,7 +6,7 @@ import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useSelectedProject } from '@/hooks/selected-project';
-import templateEntries from '@/modules/template/sidebarEntries';
+import templateEntries from '@/modules/template/sidebar-entries';
 import type { SidebarEntry } from '@/shared/utils/types';
 import { logOut } from '@/utils/auth';
 
