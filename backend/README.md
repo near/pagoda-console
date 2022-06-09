@@ -1,10 +1,10 @@
-## **Backend Service for the NEAR Developer Console**
+## **Backend Service for the NEAR DevConsole**
 
 # Stack
 
 Language: Typescript
 
-Framework: [Nest.js](https://nestjs.com/)
+Framework: [NestJS](https://nestjs.com/)
 
 ORM: [Prisma](https://www.prisma.io/)
 
@@ -29,9 +29,19 @@ This will create a set of Docker containers with all required dependencies preco
 7. Run `npx prisma migrate dev` to initialize the database
 8. Choose `Run > Start Debugging` or hit F5 to run the server in live-reload mode with breakpoint debugging enabled!
 
-Your server is available at `localhost:3001`
+Your server is available at `localhost:3001`. VS Code will automatically expose the port from the Dev Container to the rest of your machine
+
+> Note: The default resource allocations for Docker are relatively low. If you plan to continue using VS Code Dev Containers,
+> it is recommended to raise them significantly in Docker Desktop's preferences so that your development environment can benefit
+> from the full power of your machine
 
 # Usage
+
+## ngrok
+
+If you need to expose your API beyond your local machine—e.g. to test the frontend on a mobile device—you can use `ngrok`. The DevConsole team has a shared account.
+
+More details [here](https://nearinc.atlassian.net/wiki/spaces/DEVCONSOLE/pages/36438083/Onboarding)
 
 ## Database
 
