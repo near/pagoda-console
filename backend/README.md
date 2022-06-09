@@ -28,8 +28,7 @@ This will create a set of Docker containers with all required dependencies preco
 6. Run `npm install` to install dependecies
 7. Run `npx prisma migrate dev` to initialize the database
 8. Choose `Run > Start Debugging` or hit F5 to run the server in live-reload mode with breakpoint debugging enabled!
-
-Your server is available at `localhost:3001`. VS Code will automatically expose the port from the Dev Container to the rest of your machine
+9. Your server is available at `localhost:3001`. VS Code will automatically expose the port from the Dev Container to the rest of your machine. Test that it is available by running `curl -X GET localhost:3001` from a terminal outside of the Dev Container
 
 > Note: The default resource allocations for Docker are relatively low. If you plan to continue using VS Code Dev Containers,
 > it is recommended to raise them significantly in Docker Desktop's preferences so that your development environment can benefit
