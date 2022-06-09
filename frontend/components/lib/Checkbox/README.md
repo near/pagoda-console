@@ -70,14 +70,14 @@ import { Checkbox, CheckboxGroup } from '@/components/lib/Checkbox';
 
 ## Radio Group
 
-To render a radio group, simply pass `type="radio"` to each `Checkbox`. Make sure to pass a **shared** `name` value for each. Also, use `aria-label` to apply an assistive description:
+To render a radio group, simply pass `radio` to each `Checkbox`. Make sure to pass a **shared** `name` value for each. Also, use `aria-label` to apply an assistive description:
 
 ```tsx
 <CheckboxGroup aria-label="Select your favorite food">
-  <Checkbox type="radio" name="myRadio">
+  <Checkbox radio name="myRadio">
     Tacos
   </Checkbox>
-  <Checkbox type="radio" name="myRadio">
+  <Checkbox radio name="myRadio">
     Pizza
   </Checkbox>
 </CheckboxGroup>
