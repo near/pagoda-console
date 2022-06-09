@@ -6,6 +6,8 @@ _If the current props and Stitches style overrides aren't enough to cover your u
 
 ## No Label
 
+If you don't want to display a label alongside the switch, use an `aria-label` attribute to describe the switch:
+
 ```tsx
 import { Switch } from '@/components/lib/Switch';
 
@@ -16,6 +18,8 @@ import { Switch } from '@/components/lib/Switch';
 
 ## With a Label
 
+If you wrap the switch with a `<label>` HTML tag, you don't need to use `aria-label`:
+
 ```tsx
 import { Flex } from '@/components/lib/Flex';
 import { Switch } from '@/components/lib/Switch';
@@ -24,11 +28,11 @@ import { Switch } from '@/components/lib/Switch';
 
 <Flex as="label" align="center">
   <Switch />
-  With a Label On Right
+  Turbo Mode (Label On Right)
 </Flex>
 
 <Flex as="label" align="center">
-  With a Label On Left
+  Turbo Mode (Label On Left)
   <Switch />
 </Flex>
 ```
@@ -41,7 +45,7 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 
 ...
 
-<Switch>
+<Switch aria-label="Zap Mode">
   <FeatherIcon icon="zap" size="xs" />
 </Switch>
 ```
