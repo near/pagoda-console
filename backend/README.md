@@ -21,7 +21,7 @@ This will create a set of Docker containers with all required dependencies preco
 1. Follow the [official Installation instructions](https://code.visualstudio.com/docs/remote/containers#_installation) from VS Code to install Docker and the required extensions
 2. Open this directory in VS Code
 3. If prompted in the bottom right with the pictured message, click "Reopen in Container".
-   ![](./devResources/reopen-in-container.png)
+   <img src="./devResources/reopen-in-container.png" width="500">  
    Otherwise, open the VS Code command palette and run `Remote-Containers: Reopen in Container`.
 4. Wait for the build process to complete. You will now have two connected Docker containers running. One is your Node+Typescript development environment and one is a Postgres instance. Your files are mounted into the Node+Typescript container, so edits made through VS Code apply to the files on your local filesystem
 5. Open an in-editor terminal by selecting `Terminal > New Terminal` from the Menu Bar
