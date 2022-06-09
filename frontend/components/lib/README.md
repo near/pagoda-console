@@ -4,7 +4,7 @@ This project uses [Radix](https://www.radix-ui.com/) and [Stitches](https://stit
 
 You can view all of these components by visiting `/ui` in your browser when running the server locally or on the [development server](https://dev.console.pagoda.co/ui). The `/ui` route is hidden in production.
 
-## Component Docs
+## Component Documentation
 
 Most of our components have their own `README.md` file that go over different examples and options when using the component. For example: [Accordion](./Accordion/README.md). We're still working on adding documentation - so some of our components might be lacking a `README.md` file.
 
