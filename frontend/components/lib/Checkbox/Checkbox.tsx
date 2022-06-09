@@ -9,13 +9,13 @@ type CheckboxProps = Omit<ComponentProps<typeof S.Input>, 'type' | 'radioGroup'>
   radio?: boolean;
 };
 
-type CheckboxGroupProps = ComponentProps<typeof S.CheckboxGroup>;
+type CheckboxGroupProps = ComponentProps<typeof S.Group>;
 
 export const CheckboxGroup = ({ children, ...props }: CheckboxGroupProps) => {
   return (
-    <S.CheckboxGroup role="group" {...props}>
+    <S.Group role="group" {...props}>
       {children}
-    </S.CheckboxGroup>
+    </S.Group>
   );
 };
 

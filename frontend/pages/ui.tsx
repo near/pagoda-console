@@ -9,6 +9,7 @@ import { Badge } from '@/components/lib/Badge';
 import { Box } from '@/components/lib/Box';
 import { Button, ButtonLink } from '@/components/lib/Button';
 import { Checkbox, CheckboxGroup } from '@/components/lib/Checkbox';
+import * as CheckboxCard from '@/components/lib/CheckboxCard';
 import { Container } from '@/components/lib/Container';
 import * as Dialog from '@/components/lib/Dialog';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
@@ -67,6 +68,7 @@ interface FakeForm {
   favoriteColorsBlue: boolean;
   favoriteColorsOrange: boolean;
   favoriteWeather: string;
+  favoriteIcon: string;
   termsAccepted: boolean;
 }
 
@@ -114,18 +116,40 @@ const Lipsum = () => {
 
 const favoriteWeatherOptions = [
   {
-    id: 'weather-thunerstorm-123',
+    id: '1',
     display: 'Thunderstorm',
     icon: 'cloud-lightning',
   },
   {
-    id: 'weather-sunny-123',
+    id: '2',
     display: 'Sunny',
     icon: 'sun',
   },
   {
-    id: 'weather-snow-123',
+    id: '3',
     display: 'Snow (Disabled)',
+    icon: 'cloud-snow',
+    disabled: true,
+  },
+];
+
+const favoriteIconOptions = [
+  {
+    id: '1',
+    title: 'Icon 1',
+    description: 'Icon 1 description goes here',
+    icon: 'cloud-lightning',
+  },
+  {
+    id: '2',
+    title: 'Icon 2',
+    description: 'Icon 2 description goes here',
+    icon: 'sun',
+  },
+  {
+    id: '3',
+    title: 'Icon 3',
+    description: 'This option is disabled',
     icon: 'cloud-snow',
     disabled: true,
   },
@@ -383,6 +407,81 @@ const Settings: NextPageWithLayout = () => {
             </Checkbox>
           ))}
         </CheckboxGroup>
+      </DocSection>
+
+      <DocSection title="Checkbox / Radio Card">
+        <H4>Card Group (Checkbox)</H4>
+
+        <CheckboxCard.Group aria-label="Select your favorite icons">
+          {favoriteIconOptions.map((option) => (
+            <CheckboxCard.Card
+              key={option.id}
+              disabled={option.disabled}
+              value={option.id}
+              name={`exampleCheckboxCard1${option.id}`}
+            >
+              <FeatherIcon icon={option.icon} />
+              <CheckboxCard.Title>{option.title}</CheckboxCard.Title>
+              <CheckboxCard.Description>{option.description}</CheckboxCard.Description>
+            </CheckboxCard.Card>
+          ))}
+        </CheckboxCard.Group>
+
+        <H4>Card Group (Radio)</H4>
+
+        <CheckboxCard.Group aria-label="Select your favorite icon">
+          {favoriteIconOptions.map((option) => (
+            <CheckboxCard.Card
+              radio
+              key={option.id}
+              disabled={option.disabled}
+              value={option.id}
+              name="exampleRadioCard1"
+            >
+              <FeatherIcon icon={option.icon} />
+              <CheckboxCard.Title>{option.title}</CheckboxCard.Title>
+              <CheckboxCard.Description>{option.description}</CheckboxCard.Description>
+            </CheckboxCard.Card>
+          ))}
+        </CheckboxCard.Group>
+
+        <H4>Stretch</H4>
+
+        <CheckboxCard.Group stretch aria-label="Select your favorite icon">
+          {favoriteIconOptions.map((option) => (
+            <CheckboxCard.Card
+              radio
+              key={option.id}
+              disabled={option.disabled}
+              value={option.id}
+              name="exampleRadioCard2"
+            >
+              <FeatherIcon icon={option.icon} />
+              <CheckboxCard.Title>{option.title}</CheckboxCard.Title>
+              <CheckboxCard.Description>{option.description}</CheckboxCard.Description>
+            </CheckboxCard.Card>
+          ))}
+        </CheckboxCard.Group>
+
+        <H4>Justify</H4>
+
+        <CheckboxCard.Group stretch aria-label="Select an option">
+          <CheckboxCard.Card radio justify="left" name="exampleRadioCard3">
+            <FeatherIcon icon="zap" />
+            <CheckboxCard.Title>Justify Left</CheckboxCard.Title>
+            <CheckboxCard.Description>Here is a card description.</CheckboxCard.Description>
+          </CheckboxCard.Card>
+          <CheckboxCard.Card radio justify="center" name="exampleRadioCard3">
+            <FeatherIcon icon="zap" />
+            <CheckboxCard.Title>Justify Center</CheckboxCard.Title>
+            <CheckboxCard.Description>Here is a card description.</CheckboxCard.Description>
+          </CheckboxCard.Card>
+          <CheckboxCard.Card radio justify="right" name="exampleRadioCard3">
+            <FeatherIcon icon="zap" />
+            <CheckboxCard.Title>Justify Right</CheckboxCard.Title>
+            <CheckboxCard.Description>Here is a card description.</CheckboxCard.Description>
+          </CheckboxCard.Card>
+        </CheckboxCard.Group>
       </DocSection>
 
       <DocSection title="Container">
@@ -647,7 +746,7 @@ const Settings: NextPageWithLayout = () => {
           onSubmit={handleSubmit((value) => {
             alert(JSON.stringify(value));
           })}
-          css={{ maxWidth: 'var(--size-max-container-width-xs)' }}
+          css={{ maxWidth: 'var(--size-max-container-width-s)' }}
         >
           <Flex stack gap="l">
             <Form.Group>
@@ -774,7 +873,7 @@ const Settings: NextPageWithLayout = () => {
                     value={option.value}
                     isInvalid={!!formState.errors.favoriteFood}
                     {...register('favoriteFood', {
-                      required: 'You must select a favorite food.',
+                      required: 'You must select a favorite food',
                     })}
                   >
                     {option.display}
@@ -793,6 +892,33 @@ const Settings: NextPageWithLayout = () => {
                 <Checkbox {...register('favoriteColorsOrange')}>Orange</Checkbox>
                 <Checkbox {...register('favoriteColorsBlue')}>Blue</Checkbox>
               </CheckboxGroup>
+            </Form.Group>
+
+            <HR />
+
+            <Form.Group gap="m">
+              <Form.Label>Favorite Icon</Form.Label>
+
+              <CheckboxCard.Group stretch aria-label="Select your favorite icon">
+                {favoriteIconOptions.map((option) => (
+                  <CheckboxCard.Card
+                    radio
+                    key={option.id}
+                    disabled={option.disabled}
+                    value={option.id}
+                    isInvalid={!!formState.errors.favoriteIcon}
+                    css={{ height: '6rem' }}
+                    {...register('favoriteIcon', {
+                      required: 'You must select a favorite icon',
+                    })}
+                  >
+                    <FeatherIcon icon={option.icon} />
+                    <CheckboxCard.Title>{option.title}</CheckboxCard.Title>
+                  </CheckboxCard.Card>
+                ))}
+              </CheckboxCard.Group>
+
+              <Form.Feedback>{formState.errors.favoriteIcon?.message}</Form.Feedback>
             </Form.Group>
 
             <HR />

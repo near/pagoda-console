@@ -165,17 +165,17 @@ const { register, handleSubmit, formState, control } = useForm<MyForm>();
 
 const favoriteWeatherOptions = [
   {
-    id: 1,
+    id: '1',
     display: 'Thunderstorm',
     icon: 'cloud-lightning',
   },
   {
-    id: 2,
+    id: '2',
     display: 'Sunny',
     icon: 'sun',
   },
   {
-    id: 3,
+    id: '3',
     display: 'Snow',
     icon: 'cloud-snow',
     disabled: true,
