@@ -1435,13 +1435,17 @@ function DocSection({ children, title, ...props }: DocSectionProps) {
           href={`#${id}`}
           css={{
             '[data-icon]': {
-              display: 'none',
+              opacity: 0,
+              transition: 'var(--transitions)',
             },
-            '&:hover': {
-              color: 'var(--color-primary)',
+            '&:hover, &:focus': {
               '[data-icon]': {
-                display: 'block',
+                opacity: 1,
               },
+            },
+            '&:focus': {
+              outline: 'var(--focus-outline)',
+              outlineOffset: 'var(--focus-outline-offset)',
             },
           }}
         >
