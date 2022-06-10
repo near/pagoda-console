@@ -1,4 +1,4 @@
-## **Pagoda Developer Console Frontend**
+# **Pagoda Developer Console Frontend**
 
 View at [http://console.near.dev]
 
@@ -12,15 +12,48 @@ UI: [Radix](https://www.radix-ui.com/) & [Stitches](https://stitches.dev/)
 
 Identity Management: [Firebase Auth](https://firebase.google.com/docs/auth)
 
-# Usage
+# Quickstart
 
-## Local Environment Variables
+Before getting started, make sure you have the [Dev Console API](https://github.com/near/developer-console-api) up and running. Once you have the API running, continue on with the frontend quickstart guide.
 
-Environment variables are loaded automatically from `.env` and `.env.local` file at the root of the project. Use `.env.local` to override any values in `.env`. Please copy the `.env.local.example` file as a starting point for your own `.env.local` file and ask the team for any secrets if there are any.
+There are two ways to run this project locally:
 
-To make the environment variable available in the browser at runtime, it must be prefixed with `NEXT_PUBLIC_`
+1. **VS Code Dev Containers (Docker).** This is the recommended approach when first starting with the project.
+2. **Manually with NVM and NPM.** This will provide the best performance, but you might run in to environment issues based on how your machine is configured.
 
-[Next.js Environment Variables docs](https://nextjs.org/docs/basic-features/environment-variables)
+However, before you start the project, you'll need to configure your environment variables:
+
+### Configure Environment Variables
+
+Environment variables are loaded automatically from `.env` and `.env.local` at the root of the project. Use `.env.local` to override any values in `.env`. Please copy the `.env.local.example` file as a starting point for your own `.env.local` file and ask the team for any secrets if there are any.
+
+Now that your environment variables are set up, continue with one of the quickstart options below:
+
+### Option 1: VS Code Dev Containers (Docker)
+
+1. Follow the [official Installation instructions](https://code.visualstudio.com/docs/remote/containers#_installation) from VS Code to install Docker and the required extensions.
+2. Open this directory in VS Code.
+3. If prompted in the bottom right of VS Code, click "Reopen in Container". Otherwise, open the VS Code command palette and run `Remote-Containers: Reopen in Container`.
+4. Wait for the build process to complete. You will now have a Docker container running. Your files are mounted into the container, so edits made through VS Code apply to the files on your local filesystem.
+5. Open an in-editor terminal by selecting `Terminal > New Terminal` from the Menu Bar.
+6. Run `npm install` to install dependecies.
+7. Run `npm run dev` to start the server. All code changes will be hot reloaded.
+8. Your server is available at `localhost:3000`. VS Code will automatically expose the port from the Dev Container to the rest of your machine.
+
+### Option 2: Manually with NVM and NPM
+
+If you're running in to performance issues running/building the app inside the Dev Container, another option is run the app locally via [NVM](https://github.com/nvm-sh/nvm).
+
+1. Install `NVM`.
+2. Open your preferred terminal and navigate to the project's root directory.
+3. Run `nvm use`. This will install and activate the correct version of `NPM` and `Node` within your terminal session.
+4. Run `npm install` to install dependecies.
+5. Run `npm run dev` to start the server. All code changes will be hot reloaded.
+6. Your server is available at `localhost:3000`.
+
+### Ngrok
+
+Now that you have the server running, you'll most likely want to set up `localhost:3000` with an `ngrok` proxy domain as detailed [here](https://nearinc.atlassian.net/wiki/spaces/DEVCONSOLE/pages/36438083/Onboarding).
 
 # Contributing
 
@@ -50,55 +83,31 @@ Given a module named `alerts` with the following files
     new-alert.tsx
 ```
 
-Two pages will be available in the UI: `/alerts`(`index.tsx`) and `/alerts/new-alert`. The page files `/pages/alerts/index.tsx` and `/pages/alerts/new-alert.tsx` likely have the following import:
+Two pages will be available in the UI: `/alerts` and `/alerts/new-alert`. The page files `/pages/alerts/index.tsx` and `/pages/alerts/new-alert.tsx` will likely have the following import:
 
 ```
 import { AlertDetailCard } from '@/modules/alerts/components/AlertDetailCard'
 ```
 
-## Environment
+## Styles & Components
 
-The recommended way to run a development instance of this project is with VS Code and Dev Containers via the `ms-azuretools.vscode-docker` extension (which you will need to install manually). The container definitions are part of this repository (`.devcontainer/`), so using dev containers will allow you to easily keep your environment in sync with other team members.
+This project uses [Radix](https://www.radix-ui.com/) and [Stitches](https://stitches.dev/). We have built out a library of generic, reusable components in [components/lib](./components/lib). You can view all of these components by visiting `/ui` when running the server locally or on the [development server](https://dev.console.pagoda.co/ui). The `/ui` route is hidden in production.
 
-If VS Code is not your preferred development environment, you are more than welcome to stray from this recommendation and run the containers with Docker directly.
-
-If you're running in to performance issues running/building the app inside the Dev Container, another option is run the app outside of it via `NVM`. Simply install `NVM` and then run `nvm use` in the project's root directory.
-
-## Getting Started
-
-Run the development server:
-
-```bash
-npm run dev
-```
-
-View at [http://localhost:3000](http://localhost:3000)
-
-## JWT Reveal
-
-When running locally or in development (`NEXT_PUBLIC_DEPLOY_ENV` is `LOCAL` or `DEVELOPMENT`), you can easily grab the JWT for the current session by clicking on the Pagoda icon in the sidebar. This is useful for manual API testing through Postman.
-
-## Config
-
-All environment variables are read into a config object in [utils/config.ts](utils/config.ts). This allows casting the values to their desired types in a central location and early process termination if any values were not defined
-
-## CSS-in-JS
-
-This project uses [Radix](https://www.radix-ui.com/) and [Stitches](https://stitches.dev/). We have built out a library of generic, reusable components in `components/lib/`. You can also view all of these components by visiting `/ui` when running the server locally. More detailed documentation will follow soon.
+View the [UI Library README](./components/lib/README.md) to learn more about our UI library, components, styling, and conventions.
 
 ## Page Layouts
 
-Pages take advantage of the Next.js [layouts](https://nextjs.org/docs/basic-features/layouts) feature. Currently there are three layouts: DashboardLayout, SimpleLayout, and SimpleLogoutLayout. Choose a layout by setting the `getLayout` property to the appropriate hook from the [hooks/layouts.tsx](hooks/layouts.tsx) file.
+Pages take advantage of the Next.js [layouts](https://nextjs.org/docs/basic-features/layouts) feature. Currently there are three layouts: `DashboardLayout`, `SimpleLayout`, and `SimpleLogoutLayout`. Choose a layout by setting the `getLayout` property to the appropriate hook from the [hooks/layouts.tsx](hooks/layouts.tsx) file.
 
 ```tsx
 import type { NextPageWithLayout } from '@/utils/types';
-import { useSimpleLayout } from '@/hooks/layouts';
+import { useDashboardLayout } from '@/hooks/layouts';
 
 const NewPage: NextPageWithLayout = () => {
   // page content
 };
 
-NewPage.getLayout = useSimpleLayout;
+NewPage.getLayout = useDashboardLayout;
 
 export default NewPage;
 ```
@@ -107,10 +116,6 @@ export default NewPage;
 
 [SWR](https://swr.vercel.app/) is used heavily for data fetching. This library makes it easy to build a UI that melds quick loading from cached data with frequent revalidation fetches to make sure the UI stays up to date. It is highly recommended to read the SWR docs in their entirety and familiarize yourself with how it works and what options are available. Data fetchers are defined in [utils/fetchers.ts](utils/fetchers.ts)
 
-## Comments
-
-Where helpful, utilize [Better Comments](https://marketplace.visualstudio.com/items?itemName=aaron-bond.better-comments) syntax to add context to your comments
-
 ## Path Alias
 
 Next JS supports `tsconfig.json` path aliases out of the box. We've set up a root `@/` alias that will allow us to write `@/utils/abc.tsx` instead of `../../../utils/abc.tsx`. This alias should be preferred most of the time when referencing root folders like `utils`, `public`, or `components`.
@@ -118,50 +123,6 @@ Next JS supports `tsconfig.json` path aliases out of the box. We've set up a roo
 ## Date Formatting
 
 For date formatting, we use [Luxon](https://moment.github.io/luxon).
-
-## Tutorial Pages
-
-Tutorial pages consist of 2 files per page.
-
-1. the .mdx file
-   - these are originally retrieved from the @near/docs project in Github. Download the .md file and change to .mdx.
-   - you can find the nfts tutorial pages [here](https://github.com/near/docs/tree/master/docs/tutorials/contracts/nfts)
-2. the .tsx file to load the markdown content and act as the next.js page
-
-The goal is to eventually leave the .mdx file intact and use remark plugins, etc to transform the markdown to JSX components that we can plug into a next.js page. We could go as far as processing the tutorial pages like docusaurus and build the whole tutorial section programmatically.
-
-For ETHDenver, it was easier to get MDX v2 working (without plugins) in the next.js project. This requires some changes to the .mdx file to get the page to look correctly. Currently @near/docs uses docusaurus which uses MDX v1. There is an issue on docusaurus to evaluate upgrading or moving to another project here: https://github.com/facebook/docusaurus/issues/4029. We will evaluate moving to MDX v1 after ETHDenver.
-
-Here are the changes that need to occur to each .md file that comes from @near/docs:
-
-- Remove `<!-- -->` html comments or comment them in JSX
-  - html comments are valid in mdx v1 but not in v2
-  - In v2, you will get a compile error that says ! is not allowed
-- Create a top h1 using `#` in markdown
-  - the title can be found in the frontmatter at the top of the file
-- Remove frontmatter. This is the `---` section at the top of each file.
-- Replace `:::note`, `:::tip`, etc with the applicable JSX component
-  ```
-  :::note -> <Note></Note>
-  :::tip -> <Tip></Tip>
-  :::info -> <Info></Info>
-  ```
-- Replace tables with `<Table>` component. Any html elements in the table like `<a>` or `<code>` tags will not use the `components.tsx` mapping. Html elements should either directly call the component within the `components.tsx` mapping or use markdown syntax.
-- Replace urls as necessary to match routes in the DC
-  - Any relative or absolute links will need to be updated
-  - image links that are used with `![` may need to be updated
-    - you may also be able to search for `/docs/assets`
-  - links that start with `](/docs/tutorials/contracts` may just need to be updated to `](/tutorials`
-  - remaining links that start with `](/docs/` may need to be changed to `](https://docs.near.org/docs/`
-  - any links that start with `](#` and contain a `.`, remove the `.`
-- Acorn `#` in headers need to be removed
-  e.g. In `## Viewing NFTs in the wallet {#viewing-nfts-in-wallet}`, the `{#...}` needs to be removed
-- Search for `<details>` tags and make sure no ` ``` ` code blocks are inside of `<p>` tags, if they are, remove the `<p>` surrounding the code block.
-- Replace ` ```sh ` with ` ```bash `
-- MDX isn't formatting ` ``` ` and `<code>` the same way so replace `<code>` with ` ``` `, if needed, to get the styling
-
-V2 docs: https://mdxjs.com/
-V1 docs: https://v1.mdxjs.com/
 
 ## E2E Testing
 
@@ -189,3 +150,19 @@ Go to the url of the environment you want to test:
 
 1. Setup a user with email and password. Store these in your `.env.test.local`.
 2. Create a tutorial project. Copy the slug from the url and set `TEST_NFT_TUTORIAL_PROJECT` in `.env.test.local`. This is important for both e2e and snapshot tests.
+
+## JWT Reveal
+
+When running locally or in development (`NEXT_PUBLIC_DEPLOY_ENV` is `LOCAL` or `DEVELOPMENT`), you can easily grab the JWT for the current session by clicking on the Pagoda icon in the sidebar. This is useful for manual API testing through Postman.
+
+## Comments
+
+Where helpful, utilize [Better Comments](https://marketplace.visualstudio.com/items?itemName=aaron-bond.better-comments) syntax to add context to your comments
+
+## Environment Variables
+
+To make the environment variable available in the browser at runtime, it must be prefixed with `NEXT_PUBLIC_`: [Next.js Environment Variables docs](https://nextjs.org/docs/basic-features/environment-variables)
+
+For our deployment servers, environment variables are currently managed by Vercel: https://vercel.com/docs/concepts/projects/environment-variables
+
+All environment variables are read into a config object in [utils/config.ts](utils/config.ts). This allows casting the values to their desired types in a central location and early process termination if any values were not defined.
