@@ -23,13 +23,9 @@ There are two ways to run this project locally:
 
 However, before you start the project, you'll need to configure your environment variables:
 
-### Local Environment Variables
+### Configure Environment Variables
 
-Environment variables are loaded automatically from `.env` and `.env.local` file at the root of the project. Use `.env.local` to override any values in `.env`. Please copy the `.env.local.example` file as a starting point for your own `.env.local` file and ask the team for any secrets if there are any.
-
-To make the environment variable available in the browser at runtime, it must be prefixed with `NEXT_PUBLIC_`: [Next.js Environment Variables docs](https://nextjs.org/docs/basic-features/environment-variables)
-
-All environment variables are read into a config object in [utils/config.ts](utils/config.ts). This allows casting the values to their desired types in a central location and early process termination if any values were not defined.
+Environment variables are loaded automatically from `.env` and `.env.local` at the root of the project. Use `.env.local` to override any values in `.env`. Please copy the `.env.local.example` file as a starting point for your own `.env.local` file and ask the team for any secrets if there are any.
 
 Now that your environment variables are set up, continue with one of the quickstart options below:
 
@@ -162,3 +158,11 @@ When running locally or in development (`NEXT_PUBLIC_DEPLOY_ENV` is `LOCAL` or `
 ## Comments
 
 Where helpful, utilize [Better Comments](https://marketplace.visualstudio.com/items?itemName=aaron-bond.better-comments) syntax to add context to your comments
+
+## Environment Variables
+
+To make the environment variable available in the browser at runtime, it must be prefixed with `NEXT_PUBLIC_`: [Next.js Environment Variables docs](https://nextjs.org/docs/basic-features/environment-variables)
+
+For our deployment servers, environment variables are currently managed by Vercel: https://vercel.com/docs/concepts/projects/environment-variables
+
+All environment variables are read into a config object in [utils/config.ts](utils/config.ts). This allows casting the values to their desired types in a central location and early process termination if any values were not defined.

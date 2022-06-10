@@ -161,7 +161,7 @@ export const MyElement = styled('div', {
 });
 ```
 
-2. Applying styles to an element via the `css` property a certain breakpoint:
+2. Applying styles to an element via the `css` property at a certain breakpoint:
 
 ```tsx
 import { Flex } from '@/components/lib/Flex';
