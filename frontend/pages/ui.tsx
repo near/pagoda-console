@@ -1475,6 +1475,23 @@ const Settings: NextPageWithLayout = () => {
         </Text>
       </DocSection>
 
+      <DocSection title="Theme Utility Classes">
+        <Section className="light-theme" noBorder>
+          <H4>.light-theme</H4>
+          <Text>This section will always be light.</Text>
+        </Section>
+
+        <Section className="dark-theme" noBorder>
+          <H4>.dark-theme</H4>
+          <Text>This section will always be dark.</Text>
+        </Section>
+
+        <Section className="reverse-theme" noBorder>
+          <H4>.reverse-theme</H4>
+          <Text>This section will always be reverse of the current theme.</Text>
+        </Section>
+      </DocSection>
+
       <DocSection title="Toast">
         <Flex wrap>
           <Button
