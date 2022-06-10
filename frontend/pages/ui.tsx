@@ -8,6 +8,7 @@ import * as Accordion from '@/components/lib/Accordion';
 import { Badge } from '@/components/lib/Badge';
 import { Box } from '@/components/lib/Box';
 import { Button, ButtonLink } from '@/components/lib/Button';
+import { Card } from '@/components/lib/Card';
 import { Checkbox, CheckboxGroup } from '@/components/lib/Checkbox';
 import * as CheckboxCard from '@/components/lib/CheckboxCard';
 import { Container } from '@/components/lib/Container';
@@ -192,7 +193,7 @@ const Settings: NextPageWithLayout = () => {
 
   return (
     <>
-      <Section color="surface2">
+      <Section background="surface2">
         <Flex align="center" justify="spaceBetween" wrap>
           <Flex stack css={{ width: 'auto' }}>
             <H1>Stitches & Radix UI</H1>
@@ -373,6 +374,70 @@ const Settings: NextPageWithLayout = () => {
           <Link href="/project-settings" passHref>
             <ButtonLink color="neutral">Link</ButtonLink>
           </Link>
+        </Flex>
+      </DocSection>
+
+      <DocSection title="Card">
+        <Flex equalStretch wrap>
+          <Card>
+            <Flex stack>
+              <FeatherIcon icon="box" size="m" />
+              <H4>Standard Card</H4>
+              <Text>Cards can contain anything.</Text>
+            </Flex>
+          </Card>
+
+          <Card clickable as="button" type="button" onClick={() => alert('Click!')}>
+            <Flex stack>
+              <FeatherIcon icon="box" size="m" color="primary" />
+              <H4>Clickable Card</H4>
+              <Text>Cards can be clickable.</Text>
+            </Flex>
+          </Card>
+
+          <Card clickable as="button" type="button" disabled>
+            <Flex stack>
+              <FeatherIcon icon="box" size="m" color="primary" />
+              <H4>Disabled Card</H4>
+              <Text>This card is disabled.</Text>
+            </Flex>
+          </Card>
+        </Flex>
+
+        <Flex equalStretch wrap>
+          <Card borderRadius="s">
+            <H5>Radius S</H5>
+          </Card>
+
+          <Card borderRadius="m">
+            <H5>Radius M</H5>
+          </Card>
+
+          <Card borderRadius="l">
+            <H5>Radius L</H5>
+          </Card>
+
+          <Card borderRadius="xl">
+            <H5>Radius XL</H5>
+          </Card>
+        </Flex>
+
+        <Flex equalStretch wrap>
+          <Card padding="s">
+            <H5>Padding S</H5>
+          </Card>
+
+          <Card padding="m">
+            <H5>Padding M</H5>
+          </Card>
+
+          <Card padding="l">
+            <H5>Padding L</H5>
+          </Card>
+
+          <Card padding="xl">
+            <H5>Padding XL</H5>
+          </Card>
         </Flex>
       </DocSection>
 
@@ -1149,7 +1214,7 @@ const Settings: NextPageWithLayout = () => {
         </Flex>
       </DocSection>
 
-      <DocSection title="Section" color="surface2">
+      <DocSection title="Section" background="surface2">
         <Text>
           Each UI section is wrapped by a section component. This section is using the &quot;surface2&quot; color
           background.

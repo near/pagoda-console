@@ -26,6 +26,14 @@ export const Flex = styled('div', {
       },
     },
 
+    equalStretch: {
+      true: {
+        '& > *': {
+          flex: '1',
+        },
+      },
+    },
+
     gap: {
       none: {
         gap: '0',

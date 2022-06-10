@@ -61,7 +61,7 @@ export const Card = styled('span', {
   lineHeight: 'var(--line-height-body)',
   color: 'var(--color-text-1)',
   background: 'var(--color-surface-2)',
-  border: '1px solid var(--color-border-2)',
+  border: '1px solid var(--color-surface-2)',
   borderRadius: 'var(--border-radius-s)',
   cursor: 'pointer',
   textAlign: 'var(--text-align)',
@@ -101,7 +101,7 @@ export const Input = styled('input', {
 
   '&:focus +': {
     [`${Card}`]: {
-      boxShadow: 'var(--shadow-soft)',
+      boxShadow: 'var(--shadow-softer)',
       outline: 'var(--focus-outline)',
       outlineOffset: 'var(--focus-outline-offset)',
     },
