@@ -527,26 +527,6 @@ const Settings: NextPageWithLayout = () => {
             </CheckboxCard.Card>
           ))}
         </CheckboxCard.Group>
-
-        <H4>Justify</H4>
-
-        <CheckboxCard.Group stretch aria-label="Select an option">
-          <CheckboxCard.Card radio justify="left" name="exampleRadioCard3">
-            <FeatherIcon icon="zap" />
-            <CheckboxCard.Title>Justify Left</CheckboxCard.Title>
-            <CheckboxCard.Description>Here is a card description.</CheckboxCard.Description>
-          </CheckboxCard.Card>
-          <CheckboxCard.Card radio justify="center" name="exampleRadioCard3">
-            <FeatherIcon icon="zap" />
-            <CheckboxCard.Title>Justify Center</CheckboxCard.Title>
-            <CheckboxCard.Description>Here is a card description.</CheckboxCard.Description>
-          </CheckboxCard.Card>
-          <CheckboxCard.Card radio justify="right" name="exampleRadioCard3">
-            <FeatherIcon icon="zap" />
-            <CheckboxCard.Title>Justify Right</CheckboxCard.Title>
-            <CheckboxCard.Description>Here is a card description.</CheckboxCard.Description>
-          </CheckboxCard.Card>
-        </CheckboxCard.Group>
       </DocSection>
 
       <DocSection title="Container">

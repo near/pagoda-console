@@ -9,6 +9,7 @@ import * as S from './styles';
 
 type ButtonProps = ComponentProps<typeof ButtonDropdown>;
 type ContentProps = ComponentProps<typeof S.Content> & {
+  maxHeight?: string;
   nested?: boolean;
 };
 type CheckboxItemProps = ComponentProps<typeof S.CheckboxItem> & {
@@ -37,14 +38,20 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, ..
 });
 Button.displayName = 'Button';
 
-export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, nested, ...props }, ref) => {
+export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, maxHeight, nested, ...props }, ref) => {
   const alignOffset = nested ? -6 : props.alignOffset;
   const sideOffset = nested ? 14 : props.sideOffset || 6;
   const arrowOffset = nested ? 24 : 16;
 
   return (
     <S.Content ref={ref} alignOffset={alignOffset} sideOffset={sideOffset} {...props}>
-      {children}
+      <S.ContentInner
+        css={{
+          maxHeight,
+        }}
+      >
+        {children}
+      </S.ContentInner>
       <S.Arrow offset={arrowOffset} />
     </S.Content>
   );

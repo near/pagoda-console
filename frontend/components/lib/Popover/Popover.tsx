@@ -7,7 +7,9 @@ import { FeatherIcon } from '../FeatherIcon';
 import * as S from './styles';
 
 type ButtonProps = ComponentProps<typeof ButtonDropdown>;
-type ContentProps = Omit<ComponentProps<typeof S.Content>, 'title'>;
+type ContentProps = Omit<ComponentProps<typeof S.Content>, 'title'> & {
+  maxHeight?: string;
+};
 type CloseButtonProps = ComponentProps<typeof S.CloseButton>;
 
 export const Root = PopoverPrimitive.Root;
@@ -26,14 +28,22 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, ..
 });
 Button.displayName = 'Button';
 
-export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, sideOffset = 6, ...props }, ref) => {
-  return (
-    <S.Content ref={ref} sideOffset={sideOffset} {...props}>
-      {children}
-      <S.Arrow offset={16} />
-    </S.Content>
-  );
-});
+export const Content = forwardRef<HTMLDivElement, ContentProps>(
+  ({ children, maxHeight, sideOffset = 6, ...props }, ref) => {
+    return (
+      <S.Content ref={ref} sideOffset={sideOffset} {...props}>
+        <S.ContentInner
+          css={{
+            maxHeight,
+          }}
+        >
+          {children}
+        </S.ContentInner>
+        <S.Arrow offset={16} />
+      </S.Content>
+    );
+  },
+);
 Content.displayName = 'Content';
 
 export const CloseButton = forwardRef<HTMLButtonElement, CloseButtonProps>((props, ref) => {
