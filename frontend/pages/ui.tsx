@@ -378,7 +378,11 @@ const Settings: NextPageWithLayout = () => {
       </DocSection>
 
       <DocSection title="Card">
-        <Flex equalStretch wrap>
+        <Flex
+          stack={{
+            '@tablet': true,
+          }}
+        >
           <Card>
             <Flex stack>
               <FeatherIcon icon="box" size="m" />
@@ -404,7 +408,11 @@ const Settings: NextPageWithLayout = () => {
           </Card>
         </Flex>
 
-        <Flex equalStretch wrap>
+        <Flex
+          stack={{
+            '@tablet': true,
+          }}
+        >
           <Card borderRadius="s">
             <H5>Radius S</H5>
           </Card>
@@ -422,7 +430,11 @@ const Settings: NextPageWithLayout = () => {
           </Card>
         </Flex>
 
-        <Flex equalStretch wrap>
+        <Flex
+          stack={{
+            '@tablet': true,
+          }}
+        >
           <Card padding="s">
             <H5>Padding S</H5>
           </Card>
