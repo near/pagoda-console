@@ -1,6 +1,7 @@
-import type { ComponentProps } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 import { forwardRef } from 'react';
 
+import { FeatherIcon } from '../FeatherIcon';
 import * as S from './styles';
 
 type FeedbackProps = ComponentProps<typeof S.Feedback>;
@@ -12,6 +13,11 @@ type InputProps = Omit<ComponentProps<typeof S.Input>, 'invalid'> & {
 };
 type FloatingLabelInputProps = InputProps & {
   label: string;
+};
+type FloatingLabelSelectProps = Omit<ComponentProps<typeof S.InputButton>, 'invalid'> & {
+  isInvalid?: boolean;
+  label: string;
+  selection?: ReactNode;
 };
 
 export const Fieldset = S.Fieldset;
@@ -54,6 +60,19 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
   },
 );
 FloatingLabelInput.displayName = 'FloatingLabelInput';
+
+export const FloatingLabelSelect = forwardRef<HTMLButtonElement, FloatingLabelSelectProps>(
+  ({ isInvalid, label, selection, ...props }, ref) => {
+    return (
+      <S.InputButton type="button" floating invalid={isInvalid} aria-invalid={isInvalid} ref={ref} {...props}>
+        <S.FloatingLabel shrink={!!selection}>{label}</S.FloatingLabel>
+        <S.InputButtonValue>{selection}</S.InputButtonValue>
+        <FeatherIcon fill="currentColor" stroke="none" icon="chevron-down" data-icon-arrow />
+      </S.InputButton>
+    );
+  },
+);
+FloatingLabelSelect.displayName = 'FloatingLabelSelect';
 
 export const Feedback = ({ children, ...props }: FeedbackProps) => {
   if (!children) return null;

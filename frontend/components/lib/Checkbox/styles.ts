@@ -50,7 +50,7 @@ export const Label = styled('label', {
   },
 });
 
-export const CheckboxGroup = styled('div', {
+export const Group = styled('div', {
   borderRadius: 'var(--border-radius-s)',
   background: 'var(--color-surface-2)',
 

@@ -39,9 +39,9 @@ export const Button = styled('button', {
   },
 
   '& > [data-icon-arrow]': {
-    opacity: 0.5,
-    transition: 'transform 200ms',
+    transition: 'transform var(--transition-speed)',
     transform: 'rotate(0deg)',
+    color: 'var(--color-text-3)',
   },
 
   '&[data-state="open"] > [data-icon-arrow]': {
