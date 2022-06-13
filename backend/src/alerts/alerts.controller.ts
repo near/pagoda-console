@@ -27,6 +27,8 @@ import {
   CreateFnCallAlertDto,
   UpdateAlertSchema,
   UpdateAlertDto,
+  CreateWebhookDestinationSchema,
+  CreateWebhookDestinationDto,
 } from './dto';
 
 @Controller('alerts')
@@ -102,6 +104,20 @@ export class AlertsController {
   async deleteAlert(@Request() req, @Body() { id }: DeleteAlertDto) {
     try {
       return await this.alertsService.deleteAlert(req.user, id);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('createWebhookDestination')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(CreateWebhookDestinationSchema))
+  async createWebhookDestination(
+    @Request() req,
+    @Body() dto: CreateWebhookDestinationDto,
+  ) {
+    try {
+      return await this.alertsService.createWebhookDestination(req.user, dto);
     } catch (e) {
       throw mapError(e);
     }

@@ -49,6 +49,7 @@ interface CreateAlertBaseDto {
   type: RuleType;
   contract: number;
   environment: number;
+  webhookDestinations?: Array<number>;
 }
 export interface CreateTxAlertDto extends CreateAlertBaseDto {
   txRule: TxRuleDto;
@@ -81,6 +82,7 @@ export const CreateAlertSchema = Joi.object({
     .required(),
   contract: Joi.number().required(),
   environment: Joi.number().required(),
+  webhookDestinations: Joi.array().items(Joi.number()).optional(),
   txRule: TxRuleSchema.when('type', {
     is: ['TX_SUCCESS', 'TX_FAILURE'],
     then: Joi.required(),
@@ -137,4 +139,14 @@ export interface GetAlertDetailsDto {
 }
 export const GetAlertDetailsSchema = Joi.object({
   id: Joi.number().required(),
+});
+
+// create webhook destination
+export interface CreateWebhookDestinationDto {
+  name?: string;
+  url: string;
+}
+export const CreateWebhookDestinationSchema = Joi.object({
+  name: Joi.string().optional(),
+  url: Joi.string().required(),
 });

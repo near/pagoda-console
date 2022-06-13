@@ -42,6 +42,10 @@ model User {
   updatedEventRules   EventRule[]   @relation("UserUpdatedEventRule")
   createdAcctBalRules AcctBalRule[] @relation("UserCreatedAcctBalRule")
   updatedAcctBalRules AcctBalRule[] @relation("UserUpdatedAcctBalRule")
+  createdWebhookDelivery WebhookDelivery[] @relation("UserCreatedWebhookDelivery")
+  updatedWebhookDelivery WebhookDelivery[] @relation("UserUpdatedWebhookDelivery") 
+  createdWebhookDestiantion WebhookDestination[] @relation("UserCreatedWebhookDestination")
+  updatedWebhookDestination WebhookDestination[] @relation("UserUpdatedWebhookDestination") 
 }
 
 model Team {
@@ -222,6 +226,7 @@ model Alert {
   txRule      TxRule?
   eventRule   EventRule?
   acctBalRule AcctBalRule?
+  webhookDeliveries WebhookDelivery[]
 }
 
 /// Represents the various alert rule types.
@@ -334,6 +339,43 @@ model AcctBalRule {
   createdBy     Int?
   updatedAt     DateTime?        @updatedAt
   updatedByUser User?            @relation(name: "UserUpdatedAcctBalRule", fields: [updatedBy], references: [id])
+  /// Reference to the user id who last updated the record.
+  updatedBy     Int?
+}
+
+model WebhookDelivery {
+  id            Int              @id @default(autoincrement())
+  alert         Alert            @relation(fields: [alertId], references: [id])
+  alertId       Int              
+  webhookDestination WebhookDestination @relation(fields: [webhookDestinationId], references: [id])
+  webhookDestinationId Int
+
+  active        Boolean     @default(true)
+  createdAt     DateTime?   @default(now())
+  createdByUser User?       @relation(name: "UserCreatedWebhookDelivery", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
+  createdBy     Int?
+  updatedAt     DateTime?   @updatedAt
+  updatedByUser User?       @relation(name: "UserUpdatedWebhookDelivery", fields: [updatedBy], references: [id])
+  /// Reference to the user id who last updated the record.
+  updatedBy     Int?
+}
+
+model WebhookDestination {
+  id            Int              @id @default(autoincrement())
+  name          String?
+  url           String
+  /// 
+  secret        String
+  webhookDelivery WebhookDelivery[]
+
+  active        Boolean     @default(true)
+  createdAt     DateTime?   @default(now())
+  createdByUser User?       @relation(name: "UserCreatedWebhookDestination", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
+  createdBy     Int?
+  updatedAt     DateTime?   @updatedAt
+  updatedByUser User?       @relation(name: "UserUpdatedWebhookDestination", fields: [updatedBy], references: [id])
   /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }
