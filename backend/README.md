@@ -62,7 +62,7 @@ To create a new migration. This will attempt to delete the Audit table since it 
 npx prisma migrate dev --create-only
 ```
 
-To apply all migrations in production mode
+To apply all migrations
 
 ```
 npx prisma migrate deploy
@@ -128,7 +128,7 @@ ssh-add <private key path>
 
 e.g. `ssh-add ~/.ssh/id_rsa`
 
-After that, git commands from the integrated terminal should be able to use your SSH key to communitcate with GitHub.
+After that, git commands from the integrated terminal should be able to use your SSH key to communicate with GitHub.
 
 ## Endpoints
 
