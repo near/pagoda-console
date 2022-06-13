@@ -55,18 +55,6 @@ To stretch the cards to fill the container equally, pass `stretch` on the `Group
 <CheckboxCard.Group stretch>...</CheckboxCard.Group>
 ```
 
-## Justify
-
-You can justify the content of each card as needed (`center` is default):
-
-```tsx
-<CheckboxCard.Group aria-label="Select your favorite option">
-  <CheckboxCard.Card justify="left">...</CheckboxCard.Card>
-  <CheckboxCard.Card justify="center">...</CheckboxCard.Card>
-  <CheckboxCard.Card justify="right">...</CheckboxCard.Card>
-</CheckboxCard.Group>
-```
-
 ## Customization
 
 You don't have to use `CheckboxCard.Title` or `CheckboxCard.Description` - you can use any combination of components and `css` overrides like so:
