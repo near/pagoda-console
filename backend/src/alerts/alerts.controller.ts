@@ -109,12 +109,12 @@ export class AlertsController {
     }
   }
 
-  @Post('getRuleDetails')
+  @Post('getAlertDetails')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(GetAlertDetailsSchema))
-  async getRuleDetails(@Request() req, @Body() { id }: GetAlertDetailsDto) {
+  async getAlertDetails(@Request() req, @Body() { id }: GetAlertDetailsDto) {
     try {
-      return await this.alertsService.getRuleDetails(req.user, id);
+      return await this.alertsService.getAlertDetails(req.user, id);
     } catch (e) {
       throw mapError(e);
     }

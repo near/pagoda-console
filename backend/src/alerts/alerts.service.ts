@@ -329,44 +329,7 @@ export class AlertsService {
         },
       },
       select: {
-        id: true,
-        type: true,
-        name: true,
-        isPaused: true,
-        fnCallRule: {
-          select: {
-            id: true,
-            function: true,
-            params: true,
-          },
-        },
-        txRule: {
-          select: {
-            id: true,
-            action: true,
-          },
-        },
-        acctBalRule: {
-          select: {
-            id: true,
-            comparator: true,
-            amount: true,
-          },
-        },
-        eventRule: {
-          select: {
-            id: true,
-            standard: true,
-            version: true,
-            event: true,
-            data: true,
-          },
-        },
-        contract: {
-          select: {
-            address: true,
-          },
-        },
+        ...this.buildSelectAlert(),
       },
     });
   }
@@ -557,26 +520,16 @@ export class AlertsService {
     }
   }
 
-  async getRuleDetails(callingUser: User, ruleId: Alert['id']): Promise<any> {
+  async getAlertDetails(callingUser: User, id: Alert['id']) {
     try {
-      await this.checkUserAlertPermission(callingUser.id, ruleId);
+      await this.checkUserAlertPermission(callingUser.id, id);
 
       const alert = await this.prisma.alert.findUnique({
         where: {
-          id: ruleId,
+          id,
         },
         select: {
-          id: true,
-          name: true,
-          type: true,
-          contract: {
-            select: {
-              id: true,
-              address: true,
-            },
-          },
-          txRule: true,
-          isPaused: true,
+          ...this.buildSelectAlert(),
           active: true,
         },
       });
@@ -591,5 +544,48 @@ export class AlertsService {
     } catch (e) {
       throw new VError(e, 'Failed to get alert rule details');
     }
+  }
+
+  private buildSelectAlert(): Prisma.AlertSelect {
+    return {
+      id: true,
+      type: true,
+      name: true,
+      isPaused: true,
+      fnCallRule: {
+        select: {
+          id: true,
+          function: true,
+          params: true,
+        },
+      },
+      txRule: {
+        select: {
+          id: true,
+          action: true,
+        },
+      },
+      acctBalRule: {
+        select: {
+          id: true,
+          comparator: true,
+          amount: true,
+        },
+      },
+      eventRule: {
+        select: {
+          id: true,
+          standard: true,
+          version: true,
+          event: true,
+          data: true,
+        },
+      },
+      contract: {
+        select: {
+          address: true,
+        },
+      },
+    };
   }
 }
