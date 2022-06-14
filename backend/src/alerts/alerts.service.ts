@@ -556,4 +556,40 @@ export class AlertsService {
       throw new VError(e, 'Failed while getting alert rule type');
     }
   }
+
+  async getRuleDetails(callingUser: User, ruleId: Alert['id']): Promise<any> {
+    try {
+      await this.checkUserAlertPermission(callingUser.id, ruleId);
+
+      const alert = await this.prisma.alert.findUnique({
+        where: {
+          id: ruleId,
+        },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          contract: {
+            select: {
+              id: true,
+              address: true,
+            },
+          },
+          txRule: true,
+          isPaused: true,
+          active: true,
+        },
+      });
+
+      const { active, ...alertWithoutActiveProp } = alert;
+
+      if (!active) {
+        throw new VError({ info: { code: 'BAD_ALERT' } }, 'Alert is inactive');
+      }
+
+      return alertWithoutActiveProp;
+    } catch (e) {
+      throw new VError(e, 'Failed to get alert rule details');
+    }
+  }
 }

@@ -27,6 +27,8 @@ import {
   CreateFnCallAlertDto,
   UpdateAlertSchema,
   UpdateAlertDto,
+  GetAlertDetailsSchema,
+  GetAlertDetailsDto,
 } from './dto';
 
 @Controller('alerts')
@@ -102,6 +104,17 @@ export class AlertsController {
   async deleteAlert(@Request() req, @Body() { id }: DeleteAlertDto) {
     try {
       return await this.alertsService.deleteAlert(req.user, id);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('getRuleDetails')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(GetAlertDetailsSchema))
+  async getRuleDetails(@Request() req, @Body() { id }: GetAlertDetailsDto) {
+    try {
+      return await this.alertsService.getRuleDetails(req.user, id);
     } catch (e) {
       throw mapError(e);
     }
