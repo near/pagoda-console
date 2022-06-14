@@ -1,3 +1,4 @@
+import type { StitchesCSS } from '@/styles/stitches';
 import { styled } from '@/styles/stitches';
 
 export const Form = styled('form', {
@@ -36,6 +37,9 @@ export const Group = styled('div', {
     },
 
     maxWidth: {
+      xxs: {
+        maxWidth: 'var(--size-max-input-width-xxs)',
+      },
       xs: {
         maxWidth: 'var(--size-max-input-width-xs)',
       },
@@ -47,9 +51,6 @@ export const Group = styled('div', {
       },
       l: {
         maxWidth: 'var(--size-max-input-width-l)',
-      },
-      xl: {
-        maxWidth: 'var(--size-max-input-width-xl)',
       },
     },
   },
@@ -85,7 +86,7 @@ export const LabelDescription = styled('p', {
   lineHeight: 'var(--line-height-body)',
 });
 
-export const Input = styled('input', {
+const inputStyles: StitchesCSS = {
   flexGrow: 1,
   color: 'var(--color-text-1)',
   background: 'var(--color-surface-2)',
@@ -118,11 +119,70 @@ export const Input = styled('input', {
     background: 'var(--color-surface-1)',
     borderColor: 'var(--focus-outline-color)',
   },
+};
+
+const inputInvalidStyles = {
+  borderColor: 'var(--color-danger) !important',
+};
+
+export const Input = styled('input', {
+  ...inputStyles,
 
   variants: {
     invalid: {
       true: {
-        borderColor: 'var(--color-danger) !important',
+        ...inputInvalidStyles,
+      },
+    },
+  },
+});
+
+export const InputButtonValue = styled('span', {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 'var(--space-s)',
+  flexGrow: 1,
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
+});
+
+export const InputButton = styled('button', {
+  ...inputStyles,
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 'var(--space-m)',
+  lineHeight: 1.4,
+  cursor: 'pointer',
+  padding: '0.25rem var(--space-m)',
+
+  '&:hover': {
+    background: 'var(--color-surface-1)',
+  },
+
+  '& > [data-icon-arrow]': {
+    color: 'var(--color-text-3)',
+    transition: 'transform var(--transition-speed)',
+    transform: 'rotate(0deg)',
+  },
+
+  '&[data-state="open"] > [data-icon-arrow]': {
+    transform: 'rotate(-180deg)',
+  },
+
+  variants: {
+    invalid: {
+      true: {
+        ...inputInvalidStyles,
+      },
+    },
+
+    floating: {
+      true: {
+        [`${InputButtonValue}`]: {
+          width: '100%',
+          paddingTop: '1.05rem',
+        },
       },
     },
   },
@@ -156,18 +216,24 @@ export const Feedback = styled('p', {
 export const FloatingLabel = styled('span', {
   display: 'block',
   position: 'absolute',
-  top: '1rem',
+  top: '1.05rem',
   left: 'var(--space-m)',
+  right: 'var(--space-m)',
   color: 'var(--color-text-3)',
   fontFamily: 'var(--font-body)',
   fontWeight: 400,
   fontSize: 'var(--font-size-body)',
   lineHeight: 1,
   transition: 'top var(--transition-speed), font-size var(--transition-speed)',
+  pointerEvents: 'none',
 
-  [`${Input}:not(:placeholder-shown) + &, ${Input}:focus + &`]: {
-    top: '0.5rem',
-    fontSize: '0.625rem',
+  variants: {
+    shrink: {
+      true: {
+        top: '0.5rem',
+        fontSize: '0.625rem',
+      },
+    },
   },
 });
 
@@ -176,9 +242,9 @@ export const FloatingWrapper = styled('label', {
   position: 'relative',
   flexGrow: 1,
 
-  [`${Input}`]: {
+  input: {
     width: '100%',
-    paddingTop: '1rem',
+    paddingTop: '1.05rem',
 
     '&::placeholder': {
       opacity: 0,
@@ -190,5 +256,10 @@ export const FloatingWrapper = styled('label', {
         opacity: 1,
       },
     },
+  },
+
+  [`input:not(:placeholder-shown) + ${FloatingLabel}, input:focus + ${FloatingLabel}`]: {
+    top: '0.5rem',
+    fontSize: '0.625rem',
   },
 });

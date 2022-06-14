@@ -1,5 +1,6 @@
 import type { User as FirebaseUser } from 'firebase/auth';
 import { getAuth, onAuthStateChanged, onIdTokenChanged } from 'firebase/auth';
+import mixpanel from 'mixpanel-browser';
 import { useEffect, useState } from 'react';
 import type { KeyedMutator } from 'swr';
 import useSWR from 'swr';
@@ -50,4 +51,24 @@ export function useIdentity(): FirebaseUser | null {
   }, []);
 
   return user;
+}
+
+export async function deleteAccount(uid: string | undefined) {
+  try {
+    await authenticatedPost('/users/deleteAccount');
+    mixpanel.track('Delete account', {
+      status: 'success',
+      uid,
+    });
+    return true;
+  } catch (e: any) {
+    mixpanel.track('Delete account', {
+      status: 'failure',
+      uid,
+      error: e.message,
+    });
+    // TODO
+    console.error('Failed to delete account');
+  }
+  return false;
 }

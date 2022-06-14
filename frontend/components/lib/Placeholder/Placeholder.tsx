@@ -15,7 +15,7 @@ const glowingAnimation = keyframes({
 export const Placeholder = styled('div', {
   borderRadius: 'var(--border-radius-s)',
   height: '1rem',
-  width: '10rem',
+  width: '100%',
   background: 'var(--color-surface-5)',
   animation: `${glowingAnimation} 1s infinite ease`,
 });

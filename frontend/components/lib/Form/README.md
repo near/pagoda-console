@@ -85,7 +85,7 @@ To create a form where the labels and inputs are laid out horizontally in a grid
       </Form.Group>
 
       <Form.Label htmlFor="secondInput">Horizontal Field Two</Form.Label>
-      <Form.Group maxWidth="l">
+      <Form.Group maxWidth="m">
         <Form.Input id="secondInput" />
         <Form.Feedback>...</Form.Feedback>
       </Form.Group>
@@ -114,7 +114,7 @@ To get around this, we can simply use the `role="group"` and `aria-label="..."` 
       <Form.Feedback>...</Form.Feedback>
     </Form.Group>
 
-    <Form.Group maxWidth="l">
+    <Form.Group maxWidth="m">
       <Form.Label htmlFor="secondInput">Field Two</Form.Label>
       <Form.Input id="secondInput" />
       <Form.Feedback>...</Form.Feedback>
@@ -188,7 +188,7 @@ Other times, it makes more sense to set max widths on each `Form.Group` individu
     <Form.Feedback>...</Form.Feedback>
   </Form.Group>
 
-  <Form.Group maxWidth="l">
+  <Form.Group maxWidth="m">
     <Form.Label htmlFor="secondInput">Field Two</Form.Label>
     <Form.Input id="secondInput" />
     <Form.Feedback>...</Form.Feedback>
@@ -198,4 +198,8 @@ Other times, it makes more sense to set max widths on each `Form.Group` individu
 
 ## Checkboxes & Radios
 
-View the `Checkbox/README.md` file for information on including checkboxes and radios.
+To implement checkboxes or radios in a form, please refer to `Checkbox/README.md` and `CheckboxCard/README.md`.
+
+## Select Dropdowns
+
+To implement a select dropdown in a form, please refer to the `Form Select Dropdown` section in `DropdownMenu/README.md`.

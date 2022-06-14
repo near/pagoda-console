@@ -83,17 +83,18 @@
   --size-icon-xl: 3.25rem;
   --size-input-height-xs: 1.25rem;
   --size-input-height-s: 1.75rem;
-  --size-input-height-m: 3rem;
+  --size-input-height-m: 3.125rem;
   --size-max-container-width-xxs: 10rem;
   --size-max-container-width-xs: 20rem;
   --size-max-container-width-s: 30rem;
   --size-max-container-width-m: 50rem;
   --size-max-container-width-l: 75rem;
-  --size-max-input-width-xs: 5rem;
-  --size-max-input-width-s: 10rem;
-  --size-max-input-width-m: 20rem;
-  --size-max-input-width-l: 30rem;
-  --size-max-input-width-xl: 40rem;
+  --size-max-dropdown-height: 20rem;
+  --size-max-input-width-xxs: 5rem;
+  --size-max-input-width-xs: 10rem;
+  --size-max-input-width-s: 20rem;
+  --size-max-input-width-m: 30rem;
+  --size-max-input-width-l: 50rem;
   --size-sidebar-width-expanded: 15.625rem;
 
   --space-xs: 0.25rem;
