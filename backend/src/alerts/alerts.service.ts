@@ -577,10 +577,17 @@ export class AlertsService {
           },
           txRule: true,
           isPaused: true,
+          active: true,
         },
       });
 
-      return alert;
+      const { active, ...alertWithoutActiveProp } = alert;
+
+      if (!active) {
+        throw new VError({ info: { code: 'BAD_ALERT' } }, 'Alert is inactive');
+      }
+
+      return alertWithoutActiveProp;
     } catch (e) {
       throw new VError(e, 'Failed to get alert rule details');
     }
