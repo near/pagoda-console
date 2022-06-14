@@ -11,6 +11,7 @@ import {
   Contract,
   Environment,
   WebhookDestination,
+  Project,
 } from '@prisma/client';
 import { customAlphabet } from 'nanoid';
 import { assertUnreachable } from 'src/helpers';
@@ -59,12 +60,14 @@ type CreateAlertResponse = { name: Alert['name']; id: Alert['id'] };
 type CreateWebhookDestinationSchema = {
   name?: WebhookDestination['name'];
   url: WebhookDestination['url'];
+  project: WebhookDestination['projectSlug'];
 };
 
 type CreateWebhookDestinationResponse = {
   id: WebhookDestination['id'];
   name?: WebhookDestination['name'];
   url: WebhookDestination['url'];
+  projectSlug: WebhookDestination['projectSlug'];
   secret: WebhookDestination['secret'];
 };
 
@@ -383,28 +386,36 @@ export class AlertsService {
 
   async createWebhookDestination(
     user: User,
-    webhookDestination: CreateWebhookDestinationSchema,
+    { name, url, project: projectSlug }: CreateWebhookDestinationSchema,
   ): Promise<CreateWebhookDestinationResponse> {
     try {
-      const data: Prisma.WebhookDestinationCreateInput = {
-        name: webhookDestination.name,
-        url: webhookDestination.url,
-        secret: nanoid(),
-        createdByUser: {
-          connect: {
-            id: user.id,
+      await this.checkProjectPermission(user.id, projectSlug);
+
+      return await this.prisma.webhookDestination.create({
+        data: {
+          name,
+          url,
+          projectSlug,
+          secret: nanoid(),
+          createdByUser: {
+            connect: {
+              id: user.id,
+            },
+          },
+          updatedByUser: {
+            connect: {
+              id: user.id,
+            },
           },
         },
-        updatedByUser: {
-          connect: {
-            id: user.id,
-          },
+        select: {
+          id: true,
+          name: true,
+          url: true,
+          projectSlug: true,
+          secret: true,
         },
-      };
-      const res = await this.prisma.webhookDestination.create({
-        data,
       });
-      return { id: res.id, name: res.name, url: res.url, secret: res.secret };
     } catch (e) {
       throw new VError(e, 'Failed to create webhook destination');
     }
@@ -485,6 +496,37 @@ export class AlertsService {
       throw new VError(
         { info: { code: 'PERMISSION_DENIED' } },
         'User does not have rights to manage these alerts',
+      );
+    }
+  }
+
+  private async checkProjectPermission(
+    userId: User['id'],
+    slug: Project['slug'],
+  ): Promise<void> {
+    const res = await this.prisma.teamMember.findFirst({
+      where: {
+        userId,
+        active: true,
+        team: {
+          active: true,
+          teamProjects: {
+            some: {
+              active: true,
+              project: {
+                active: true,
+                slug,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!res) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'User does not have rights to manage this project',
       );
     }
   }
@@ -573,18 +615,58 @@ export class AlertsService {
     const destinations = await this.prisma.webhookDestination.findMany({
       where: {
         id: { in: ids },
-        createdBy: userId,
+      },
+      select: {
+        active: true,
+        projectSlug: true,
       },
     });
 
-    destinations.forEach((element) => {
-      if (element.createdBy != userId) {
-        throw new VError(
-          { info: { code: 'PERMISSION_DENIED' } },
-          'Failed while checking permission for webhook destination',
-        );
-      }
+    if (destinations.length != ids.length) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'Failed while checking if webhook destinations exist',
+      );
+    }
+
+    if (destinations.find((d) => !d.active)) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'Failed while checking if webhook destinations are active',
+      );
+    }
+
+    // Check that all projectIds are active and contain the specified user.
+    const slugs = destinations.map((d) => d.projectSlug);
+    const projects = await this.prisma.project.findMany({
+      where: {
+        slug: { in: slugs },
+        active: true,
+        teamProjects: {
+          some: {
+            active: true,
+            team: {
+              active: true,
+              teamMembers: {
+                some: { active: true, userId },
+              },
+            },
+          },
+        },
+      },
+      select: {
+        slug: true,
+      },
     });
+
+    const matchedSlugs = projects.map((p) => p.slug);
+    const diff = slugs.filter((s) => !matchedSlugs.includes(s));
+    if (diff.length) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'Failed while checking permission for webhook destination',
+      );
+    }
   }
 
   // Checks user permission to create alert as well as permission for webhook destinations
@@ -597,6 +679,8 @@ export class AlertsService {
       alert.environment,
       alert.contract,
     );
+
+    // TODO inject projectSlug in this permission check
     if (alert.webhookDestinations) {
       await this.checkUserWebhookDestinationsPermission(
         user.id,

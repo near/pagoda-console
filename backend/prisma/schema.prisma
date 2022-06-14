@@ -11,41 +11,41 @@ generator client {
 }
 
 model User {
-  id                  Int           @id @default(autoincrement())
-  uid                 String        @unique
-  email               String        @unique
+  id                        Int                  @id @default(autoincrement())
+  uid                       String               @unique
+  email                     String               @unique
   /// If 'false', the record was soft-deleted by a user.
-  active              Boolean       @default(true)
-  teamMembers         TeamMember[]
-  createdAt           DateTime?     @default(now())
-  updatedAt           DateTime?     @updatedAt
-  createdTeams        Team[]        @relation("UserCreatedTeam")
-  updatedTeams        Team[]        @relation("UserUpdatedTeam")
-  createdTeamMembers  TeamMember[]  @relation("UserCreatedTeamMember")
-  updatedTeamMembers  TeamMember[]  @relation("UserUpdatedTeamMember")
-  createdProjects     Project[]     @relation("UserCreatedProject")
-  updatedProjects     Project[]     @relation("UserUpdatedProject")
-  createdEnvironments Environment[] @relation("UserCreatedEnvironment")
-  updatedEnvironments Environment[] @relation("UserUpdatedEnvironment")
-  createdContracts    Contract[]    @relation("UserCreatedContract")
-  updatedContracts    Contract[]    @relation("UserUpdatedContract")
-  createdTeamProject  TeamProject[] @relation("UserCreatedTeamProject")
-  updatedTeamProject  TeamProject[] @relation("UserUpdatedTeamProject")
-  userActions         UserAction[]
-  createdAlerts       Alert[]       @relation("UserCreatedAlert")
-  updatedAlerts       Alert[]       @relation("UserUpdatedAlert")
-  createdFnCallRules  FnCallRule[]  @relation("UserCreatedFnCallRule")
-  updatedFnCallRules  FnCallRule[]  @relation("UserUpdatedFnCallRule")
-  createdTxRules      TxRule[]      @relation("UserCreatedTxRule")
-  updatedTxRules      TxRule[]      @relation("UserUpdatedTxRule")
-  createdEventRules   EventRule[]   @relation("UserCreatedEventRule")
-  updatedEventRules   EventRule[]   @relation("UserUpdatedEventRule")
-  createdAcctBalRules AcctBalRule[] @relation("UserCreatedAcctBalRule")
-  updatedAcctBalRules AcctBalRule[] @relation("UserUpdatedAcctBalRule")
-  createdWebhookDelivery WebhookDelivery[] @relation("UserCreatedWebhookDelivery")
-  updatedWebhookDelivery WebhookDelivery[] @relation("UserUpdatedWebhookDelivery") 
+  active                    Boolean              @default(true)
+  teamMembers               TeamMember[]
+  createdAt                 DateTime?            @default(now())
+  updatedAt                 DateTime?            @updatedAt
+  createdTeams              Team[]               @relation("UserCreatedTeam")
+  updatedTeams              Team[]               @relation("UserUpdatedTeam")
+  createdTeamMembers        TeamMember[]         @relation("UserCreatedTeamMember")
+  updatedTeamMembers        TeamMember[]         @relation("UserUpdatedTeamMember")
+  createdProjects           Project[]            @relation("UserCreatedProject")
+  updatedProjects           Project[]            @relation("UserUpdatedProject")
+  createdEnvironments       Environment[]        @relation("UserCreatedEnvironment")
+  updatedEnvironments       Environment[]        @relation("UserUpdatedEnvironment")
+  createdContracts          Contract[]           @relation("UserCreatedContract")
+  updatedContracts          Contract[]           @relation("UserUpdatedContract")
+  createdTeamProject        TeamProject[]        @relation("UserCreatedTeamProject")
+  updatedTeamProject        TeamProject[]        @relation("UserUpdatedTeamProject")
+  userActions               UserAction[]
+  createdAlerts             Alert[]              @relation("UserCreatedAlert")
+  updatedAlerts             Alert[]              @relation("UserUpdatedAlert")
+  createdFnCallRules        FnCallRule[]         @relation("UserCreatedFnCallRule")
+  updatedFnCallRules        FnCallRule[]         @relation("UserUpdatedFnCallRule")
+  createdTxRules            TxRule[]             @relation("UserCreatedTxRule")
+  updatedTxRules            TxRule[]             @relation("UserUpdatedTxRule")
+  createdEventRules         EventRule[]          @relation("UserCreatedEventRule")
+  updatedEventRules         EventRule[]          @relation("UserUpdatedEventRule")
+  createdAcctBalRules       AcctBalRule[]        @relation("UserCreatedAcctBalRule")
+  updatedAcctBalRules       AcctBalRule[]        @relation("UserUpdatedAcctBalRule")
+  createdWebhookDelivery    WebhookDelivery[]    @relation("UserCreatedWebhookDelivery")
+  updatedWebhookDelivery    WebhookDelivery[]    @relation("UserUpdatedWebhookDelivery")
   createdWebhookDestiantion WebhookDestination[] @relation("UserCreatedWebhookDestination")
-  updatedWebhookDestination WebhookDestination[] @relation("UserUpdatedWebhookDestination") 
+  updatedWebhookDestination WebhookDestination[] @relation("UserUpdatedWebhookDestination")
 }
 
 model Team {
@@ -222,10 +222,10 @@ model Alert {
   /// Reference to the user id who last updated the record.
   updatedBy     Int?
 
-  fnCallRule  FnCallRule?
-  txRule      TxRule?
-  eventRule   EventRule?
-  acctBalRule AcctBalRule?
+  fnCallRule        FnCallRule?
+  txRule            TxRule?
+  eventRule         EventRule?
+  acctBalRule       AcctBalRule?
   webhookDeliveries WebhookDelivery[]
 }
 
@@ -344,38 +344,40 @@ model AcctBalRule {
 }
 
 model WebhookDelivery {
-  id            Int              @id @default(autoincrement())
-  alert         Alert            @relation(fields: [alertId], references: [id])
-  alertId       Int              
-  webhookDestination WebhookDestination @relation(fields: [webhookDestinationId], references: [id])
+  id                   Int                @id @default(autoincrement())
+  alert                Alert              @relation(fields: [alertId], references: [id])
+  alertId              Int
+  webhookDestination   WebhookDestination @relation(fields: [webhookDestinationId], references: [id])
   webhookDestinationId Int
 
-  active        Boolean     @default(true)
-  createdAt     DateTime?   @default(now())
-  createdByUser User?       @relation(name: "UserCreatedWebhookDelivery", fields: [createdBy], references: [id])
+  active        Boolean   @default(true)
+  createdAt     DateTime? @default(now())
+  createdByUser User?     @relation(name: "UserCreatedWebhookDelivery", fields: [createdBy], references: [id])
   /// Reference to the user id who created the record.
   createdBy     Int?
-  updatedAt     DateTime?   @updatedAt
-  updatedByUser User?       @relation(name: "UserUpdatedWebhookDelivery", fields: [updatedBy], references: [id])
+  updatedAt     DateTime? @updatedAt
+  updatedByUser User?     @relation(name: "UserUpdatedWebhookDelivery", fields: [updatedBy], references: [id])
   /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }
 
 model WebhookDestination {
-  id            Int              @id @default(autoincrement())
-  name          String?
-  url           String
-  /// 
-  secret        String
+  id              Int               @id @default(autoincrement())
+  /// The project that owns this destination.
+  projectSlug     String
+  name            String?
+  url             String
+  /// A webhook API token for verifiying the sender.
+  secret          String
   webhookDelivery WebhookDelivery[]
 
-  active        Boolean     @default(true)
-  createdAt     DateTime?   @default(now())
-  createdByUser User?       @relation(name: "UserCreatedWebhookDestination", fields: [createdBy], references: [id])
+  active        Boolean   @default(true)
+  createdAt     DateTime? @default(now())
+  createdByUser User?     @relation(name: "UserCreatedWebhookDestination", fields: [createdBy], references: [id])
   /// Reference to the user id who created the record.
   createdBy     Int?
-  updatedAt     DateTime?   @updatedAt
-  updatedByUser User?       @relation(name: "UserUpdatedWebhookDestination", fields: [updatedBy], references: [id])
+  updatedAt     DateTime? @updatedAt
+  updatedByUser User?     @relation(name: "UserUpdatedWebhookDestination", fields: [updatedBy], references: [id])
   /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }

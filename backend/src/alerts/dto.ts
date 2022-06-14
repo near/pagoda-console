@@ -145,8 +145,10 @@ export const GetAlertDetailsSchema = Joi.object({
 export interface CreateWebhookDestinationDto {
   name?: string;
   url: string;
+  project: string;
 }
 export const CreateWebhookDestinationSchema = Joi.object({
   name: Joi.string().optional(),
   url: Joi.string().required(),
+  project: Joi.string().required(),
 });

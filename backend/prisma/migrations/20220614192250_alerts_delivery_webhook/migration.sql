@@ -15,6 +15,7 @@ CREATE TABLE "WebhookDelivery" (
 -- CreateTable
 CREATE TABLE "WebhookDestination" (
     "id" SERIAL NOT NULL,
+    "projectSlug" TEXT NOT NULL,
     "name" TEXT,
     "url" TEXT NOT NULL,
     "secret" TEXT NOT NULL,
