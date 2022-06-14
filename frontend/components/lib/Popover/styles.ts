@@ -16,7 +16,6 @@ export const Content = styled(PopoverPrimitive.Content, {
   '--animation-speed': '200ms',
   '--background-color': 'var(--color-surface-overlay)',
   borderRadius: 'var(--border-radius-s)',
-  padding: 'var(--space-m)',
   maxWidth: 'var(--size-max-container-width-xs)',
   background: 'var(--background-color)',
   boxShadow: 'var(--shadow-softer)',
@@ -28,6 +27,13 @@ export const Content = styled(PopoverPrimitive.Content, {
   '&[data-state="closed"]': {
     animation: `${closeAnimation} var(--animation-speed)`,
   },
+});
+
+export const ContentInner = styled('div', {
+  padding: 'var(--space-m)',
+  maxHeight: 'var(--size-max-dropdown-height)',
+  overflow: 'auto',
+  scrollBehavior: 'smooth',
 });
 
 export const Arrow = styled(PopoverPrimitive.Arrow, {
