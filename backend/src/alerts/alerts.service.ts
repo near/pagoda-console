@@ -421,6 +421,24 @@ export class AlertsService {
     }
   }
 
+  async listWebhookDestinations(user: User, projectSlug: Project['slug']) {
+    // TODO Check user permission - can the user manage this project?
+
+    return await this.prisma.webhookDestination.findMany({
+      where: {
+        active: true,
+        projectSlug,
+      },
+      select: {
+        id: true,
+        name: true,
+        url: true,
+        secret: true,
+        projectSlug: true,
+      },
+    });
+  }
+
   private async buildDeleteRuleInput(
     userId: User['id'],
     type: RuleType,

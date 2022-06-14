@@ -152,3 +152,11 @@ export const CreateWebhookDestinationSchema = Joi.object({
   url: Joi.string().required(),
   project: Joi.string().required(),
 });
+
+// list webhook destinations
+export interface ListWebhookDestinationDto {
+  project: string;
+}
+export const ListWebhookDestinationSchema = Joi.object({
+  project: Joi.string().required(),
+});

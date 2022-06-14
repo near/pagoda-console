@@ -31,6 +31,8 @@ import {
   CreateWebhookDestinationDto,
   GetAlertDetailsSchema,
   GetAlertDetailsDto,
+  ListWebhookDestinationDto,
+  ListWebhookDestinationSchema,
 } from './dto';
 
 @Controller('alerts')
@@ -134,6 +136,16 @@ export class AlertsController {
     } catch (e) {
       throw mapError(e);
     }
+  }
+
+  @Post('listWebhookDestinations')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(ListWebhookDestinationSchema))
+  async listWebhookDestinations(
+    @Request() req,
+    @Body() { project }: ListWebhookDestinationDto,
+  ) {
+    return await this.alertsService.listWebhookDestinations(req.user, project);
   }
 }
 
