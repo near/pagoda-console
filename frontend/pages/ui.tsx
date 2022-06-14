@@ -521,24 +521,6 @@ const Settings: NextPageWithLayout = () => {
             </CheckboxCard.Card>
           ))}
         </CheckboxCard.Group>
-
-        <H4>Stretch</H4>
-
-        <CheckboxCard.Group stretch aria-label="Select your favorite icon">
-          {favoriteIconOptions.map((option) => (
-            <CheckboxCard.Card
-              radio
-              key={option.id}
-              disabled={option.disabled}
-              value={option.id}
-              name="exampleRadioCard2"
-            >
-              <FeatherIcon icon={option.icon} />
-              <CheckboxCard.Title>{option.title}</CheckboxCard.Title>
-              <CheckboxCard.Description>{option.description}</CheckboxCard.Description>
-            </CheckboxCard.Card>
-          ))}
-        </CheckboxCard.Group>
       </DocSection>
 
       <DocSection title="Container">
@@ -956,7 +938,7 @@ const Settings: NextPageWithLayout = () => {
             <Form.Group gap="m">
               <Form.Label>Favorite Icon</Form.Label>
 
-              <CheckboxCard.Group stretch aria-label="Select your favorite icon">
+              <CheckboxCard.Group aria-label="Select your favorite icon">
                 {favoriteIconOptions.map((option) => (
                   <CheckboxCard.Card
                     radio
@@ -964,7 +946,7 @@ const Settings: NextPageWithLayout = () => {
                     disabled={option.disabled}
                     value={option.id}
                     isInvalid={!!formState.errors.favoriteIcon}
-                    css={{ height: '6rem' }}
+                    css={{ width: '7rem', height: '7rem' }}
                     {...register('favoriteIcon', {
                       required: 'You must select a favorite icon',
                     })}

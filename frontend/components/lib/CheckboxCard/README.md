@@ -47,14 +47,6 @@ To render a radio group, simply pass `radio` to each `Card`. Make sure to pass a
 </CheckboxCard.Group>
 ```
 
-## Stretch
-
-To stretch the cards to fill the container equally, pass `stretch` on the `Group`:
-
-```tsx
-<CheckboxCard.Group stretch>...</CheckboxCard.Group>
-```
-
 ## Customization
 
 You don't have to use `CheckboxCard.Title` or `CheckboxCard.Description` - you can use any combination of components and `css` overrides like so:

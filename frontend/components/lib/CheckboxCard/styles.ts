@@ -17,17 +17,6 @@ export const Group = styled('div', {
   flexDirection: 'row',
   flexWrap: 'wrap',
   gap: 'var(--space-m)',
-
-  variants: {
-    stretch: {
-      true: {
-        [`${Label}`]: {
-          width: 'unset',
-          flex: '1',
-        },
-      },
-    },
-  },
 });
 
 export const Card = styled('span', {
