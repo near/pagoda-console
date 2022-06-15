@@ -6,41 +6,59 @@ import {
   RuleType,
   NumberComparator,
   TxAction,
+  Net,
 } from '../../modules/alerts/prisma/generated';
 import * as Joi from 'joi';
 
 export interface TxRuleDto {
+  contract: string;
   action?: TxAction;
 }
 export interface FnCallRuleDto {
+  contract: string;
   function: string;
   // params?: object;
 }
 export interface EventRuleDto {
+  contract: string;
   standard: string;
   version: string;
   event: string;
   // data?: object;
 }
 export interface AcctBalRuleDto {
+  contract: string;
   comparator: NumberComparator;
   amount: number;
 }
 
 const TxRuleSchema = Joi.object({
-  action: Joi.string(),
+  contract: Joi.string().required(),
+  action: Joi.string().valid(
+    'CREATE_ACCOUNT',
+    'DEPLOY_CONTRACT',
+    'FUNCTION_CALL',
+    'TRANSFER',
+    'STAKE',
+    'ADD_KEY',
+    'DELETE_KEY',
+    'DELETE_ACCOUNT',
+  ),
 });
 const FnCallRuleSchema = Joi.object({
+  contract: Joi.string().required(),
   function: Joi.string().required(),
   // params: Joi.object(),
 });
 const EventRuleSchema = Joi.object({
+  contract: Joi.string().required(),
   standard: Joi.string().required(),
   version: Joi.string().required(),
   event: Joi.string().required(),
   // data: Joi.object(),
 });
 const AcctBalRuleSchema = Joi.object({
+  contract: Joi.string().required(),
   comparator: Joi.string()
     .valid('EQ', 'NEQ', 'LT', 'LTE', 'GT', 'GTE')
     .required(),
@@ -51,8 +69,9 @@ const AcctBalRuleSchema = Joi.object({
 interface CreateAlertBaseDto {
   name?: string;
   type: RuleType;
-  contract: number;
-  environment: number;
+  projectSlug: string;
+  environmentSubId: number;
+  net: Net;
 }
 export interface CreateTxAlertDto extends CreateAlertBaseDto {
   txRule: TxRuleDto;
@@ -83,8 +102,9 @@ export const CreateAlertSchema = Joi.object({
       'ACCT_BAL_NUM',
     )
     .required(),
-  contract: Joi.number().required(),
-  environment: Joi.number().required(),
+  projectSlug: Joi.string().required(),
+  environmentSubId: Joi.number().required(),
+  net: Joi.string().valid('TESTNET', 'MAINNET').required(),
   txRule: TxRuleSchema.when('type', {
     is: ['TX_SUCCESS', 'TX_FAILURE'],
     then: Joi.required(),
@@ -121,10 +141,12 @@ export const UpdateAlertSchema = Joi.object({
 
 // list alerts
 export interface ListAlertDto {
-  environment: number;
+  projectSlug: string;
+  environmentSubId: number;
 }
 export const ListAlertSchema = Joi.object({
-  environment: Joi.number().required(),
+  projectSlug: Joi.string().required(),
+  environmentSubId: Joi.number().required(),
 });
 
 // delete alert

@@ -91,8 +91,19 @@ export class AlertsController {
   @Post('listAlerts')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(ListAlertSchema))
-  async listAlerts(@Request() req, @Body() { environment }: ListAlertDto) {
-    return await this.alertsService.listAlerts(req.user, environment);
+  async listAlerts(
+    @Request() req,
+    @Body() { projectSlug, environmentSubId }: ListAlertDto,
+  ) {
+    try {
+      return await this.alertsService.listAlerts(
+        req.user,
+        projectSlug,
+        environmentSubId,
+      );
+    } catch (e) {
+      throw mapError(e);
+    }
   }
 
   @Post('deleteAlert')

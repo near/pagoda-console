@@ -8,7 +8,7 @@ CREATE TYPE "TxAction" AS ENUM ('CREATE_ACCOUNT', 'DEPLOY_CONTRACT', 'FUNCTION_C
 CREATE TYPE "NumberComparator" AS ENUM ('EQ', 'NEQ', 'LT', 'LTE', 'GT', 'GTE');
 
 -- CreateEnum
-CREATE TYPE "Net" AS ENUM ('EQ', 'NEQ', 'LT', 'LTE', 'GT', 'GTE');
+CREATE TYPE "Net" AS ENUM ('MAINNET', 'TESTNET');
 
 -- CreateTable
 CREATE TABLE "Alert" (

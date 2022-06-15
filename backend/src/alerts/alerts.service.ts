@@ -8,7 +8,7 @@ import {
   TxRule,
   RuleType,
 } from '../../modules/alerts/prisma/generated';
-import { User, Environment, Contract } from '@prisma/client';
+import { User, Environment, Project } from '@prisma/client';
 
 import { assertUnreachable } from 'src/helpers';
 import { PrismaService } from './prisma.service';
@@ -16,17 +16,22 @@ import { PrismaService as PrismaConsoleService } from 'src/prisma.service';
 import { VError } from 'verror';
 
 type TxRuleSchema = {
-  txRule: { action?: TxRule['action'] };
+  txRule: {
+    contract: TxRule['contract'];
+    action?: TxRule['action'];
+  };
 };
 
 type FnCallRuleSchema = {
   fnCallRule: {
+    contract: FnCallRule['contract'];
     function: FnCallRule['function'];
   };
 };
 
 type EventRuleSchema = {
   eventRule: {
+    contract: EventRule['contract'];
     standard: EventRule['standard'];
     version: EventRule['version'];
     event: EventRule['event'];
@@ -35,6 +40,7 @@ type EventRuleSchema = {
 
 type AcctBalRuleSchema = {
   acctBalRule: {
+    contract: AcctBalRule['contract'];
     comparator: AcctBalRule['comparator'];
     amount: AcctBalRule['amount'];
   };
@@ -43,8 +49,9 @@ type AcctBalRuleSchema = {
 type CreateAlertBaseSchema = {
   name?: Alert['name'];
   type: Alert['type'];
-  environment: Alert['environmentId'];
-  contract: Alert['contractId'];
+  projectSlug: Alert['projectSlug'];
+  environmentSubId: Alert['environmentSubId'];
+  net: Alert['net'];
 };
 type CreateTxAlertSchema = CreateAlertBaseSchema & TxRuleSchema;
 type CreateFnCallAlertSchema = CreateAlertBaseSchema & FnCallRuleSchema;
@@ -64,13 +71,13 @@ export class AlertsService {
     user: User,
     alert: CreateTxAlertSchema,
   ): Promise<CreateAlertResponse> {
-    await this.checkUserProjectPermission(
+    await this.checkUserProjectEnvPermission(
       user.id,
-      alert.environment,
-      alert.contract,
+      alert.projectSlug,
+      alert.environmentSubId,
     );
-    const address = await this.getContractAddress(alert.contract);
 
+    const address = alert.txRule.contract;
     const alertInput = this.buildCreateAlertInput(user, {
       ...alert,
       name: alert.name || `Successful transaction in ${address}`,
@@ -91,13 +98,13 @@ export class AlertsService {
     user: User,
     alert: CreateTxAlertSchema,
   ): Promise<CreateAlertResponse> {
-    await this.checkUserProjectPermission(
+    await this.checkUserProjectEnvPermission(
       user.id,
-      alert.environment,
-      alert.contract,
+      alert.projectSlug,
+      alert.environmentSubId,
     );
-    const address = await this.getContractAddress(alert.contract);
 
+    const address = alert.txRule.contract;
     const alertInput = this.buildCreateAlertInput(user, {
       ...alert,
       name: alert.name || `Failed transaction in ${address}`,
@@ -118,13 +125,13 @@ export class AlertsService {
     user: User,
     alert: CreateFnCallAlertSchema,
   ): Promise<CreateAlertResponse> {
-    await this.checkUserProjectPermission(
+    await this.checkUserProjectEnvPermission(
       user.id,
-      alert.environment,
-      alert.contract,
+      alert.projectSlug,
+      alert.environmentSubId,
     );
-    const address = await this.getContractAddress(alert.contract);
 
+    const address = alert.fnCallRule.contract;
     const alertInput = this.buildCreateAlertInput(user, {
       ...alert,
       name:
@@ -148,13 +155,13 @@ export class AlertsService {
     user: User,
     alert: CreateEventAlertSchema,
   ): Promise<CreateAlertResponse> {
-    await this.checkUserProjectPermission(
+    await this.checkUserProjectEnvPermission(
       user.id,
-      alert.environment,
-      alert.contract,
+      alert.projectSlug,
+      alert.environmentSubId,
     );
-    const address = await this.getContractAddress(alert.contract);
 
+    const address = alert.eventRule.contract;
     const alertInput = this.buildCreateAlertInput(user, {
       ...alert,
       name: alert.name || `Event ${alert.eventRule.event} logged in ${address}`,
@@ -176,13 +183,13 @@ export class AlertsService {
     user: User,
     alert: CreateAcctBalAlertSchema,
   ): Promise<CreateAlertResponse> {
-    await this.checkUserProjectPermission(
+    await this.checkUserProjectEnvPermission(
       user.id,
-      alert.environment,
-      alert.contract,
+      alert.projectSlug,
+      alert.environmentSubId,
     );
-    const address = await this.getContractAddress(alert.contract);
 
+    const address = alert.acctBalRule.contract;
     const alertInput = this.buildCreateAlertInput(user, {
       ...alert,
       name: alert.name || `Account balance changed in ${address}`,
@@ -199,42 +206,18 @@ export class AlertsService {
     return this.createAlert(alertInput);
   }
 
-  private async getContractAddress(
-    contractId: Contract['id'],
-  ): Promise<string> {
-    let address;
-    try {
-      const contractFind = await this.prismaConsole.contract.findFirst({
-        where: {
-          id: contractId,
-          active: true,
-        },
-        select: {
-          address: true,
-        },
-      });
-
-      if (!contractFind) {
-        throw new VError('Query to find contract came back empty');
-      }
-      address = contractFind.address;
-    } catch (e) {
-      throw new VError(e, 'Failed to find contract');
-    }
-    return address;
-  }
-
   private buildCreateAlertInput(
     user: User,
     alert: CreateAlertBaseSchema,
   ): Prisma.AlertCreateInput {
-    const { name, type, environment, contract } = alert;
+    const { name, type, projectSlug, environmentSubId, net } = alert;
 
     const alertInput: Prisma.AlertCreateInput = {
       name,
       type,
-      contractId: contract,
-      environmentId: environment,
+      projectSlug,
+      environmentSubId,
+      net,
       createdBy: user.id,
       updatedBy: user.id,
     };
@@ -285,35 +268,22 @@ export class AlertsService {
     }
   }
 
-  async listAlerts(user: User, environment: Environment['id']) {
+  async listAlerts(
+    user: User,
+    projectSlug: Alert['projectSlug'],
+    environmentSubId: Alert['environmentSubId'],
+  ) {
+    await this.checkUserProjectEnvPermission(
+      user.id,
+      projectSlug,
+      environmentSubId,
+    );
+
     return await this.prisma.alert.findMany({
       where: {
         active: true,
-        // TODO how to determine permission/user access?
-        // Anytime a new user is added to a team, we may need to allow that new user access to the team's project's alerts.
-        // A similar situation will occur if a contract is removed or a teammember is removed.
-
-        // environment: {
-        //   active: true,
-        //   id: environment,
-        //   project: {
-        //     active: true,
-        //     teamProjects: {
-        //       some: {
-        //         active: true,
-        //         team: {
-        //           active: true,
-        //           teamMembers: {
-        //             some: {
-        //               active: true,
-        //               userId: user.id,
-        //             },
-        //           },
-        //         },
-        //       },
-        //     },
-        //   },
-        // },
+        projectSlug,
+        environmentSubId,
       },
       select: {
         id: true,
@@ -323,6 +293,7 @@ export class AlertsService {
         fnCallRule: {
           select: {
             id: true,
+            contract: true,
             function: true,
             params: true,
           },
@@ -330,12 +301,14 @@ export class AlertsService {
         txRule: {
           select: {
             id: true,
+            contract: true,
             action: true,
           },
         },
         acctBalRule: {
           select: {
             id: true,
+            contract: true,
             comparator: true,
             amount: true,
           },
@@ -343,28 +316,21 @@ export class AlertsService {
         eventRule: {
           select: {
             id: true,
+            contract: true,
             standard: true,
             version: true,
             event: true,
             data: true,
           },
         },
-        // TODO how would we get the contract address? Should the UI stitch this data together or should we do it here?
-        contractId: true,
-        // contract: {
-        //   select: {
-        //     address: true,
-        //   },
-        // },
       },
     });
   }
 
   async deleteAlert(callingUser: User, id: Alert['id']): Promise<void> {
-    const alert = await this.fetchAlert(id);
+    await this.checkUserAlertPermission(callingUser.id, id);
 
-    // throw an error if the user doesn't have permission to perform this action
-    await this.checkUserAlertPermission(callingUser.id, id, alert.contractId);
+    const alert = await this.fetchAlert(id);
 
     const deleteRuleInput = await this.buildDeleteRuleInput(
       callingUser.id,
@@ -399,11 +365,7 @@ export class AlertsService {
     const updates = {
       update: {
         active: false,
-        updatedByUser: {
-          connect: {
-            id: userId,
-          },
-        },
+        updatedBy: userId,
       },
     };
 
@@ -423,67 +385,50 @@ export class AlertsService {
     }
   }
 
-  // Confirms the contract belongs to the environment
-  // and the user is a member of the environment's project.
-  private async checkUserProjectPermission(
-    userId: User['id'],
-    environmentId: Environment['id'],
-    contractId: Contract['id'],
-  ): Promise<void> {
-    const res = await this.prismaConsole.teamMember.findFirst({
-      where: {
-        userId,
-        active: true,
-        team: {
-          active: true,
-          teamProjects: {
-            some: {
-              active: true,
-              project: {
-                active: true,
-                environments: {
-                  some: {
-                    id: environmentId,
-                    contracts: {
-                      some: {
-                        id: contractId,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!res) {
-      throw new VError(
-        { info: { code: 'PERMISSION_DENIED' } },
-        'User does not have rights to manage these alerts',
-      );
-    }
-  }
-
-  // Confirms the contract, if provided, belongs to the same environment that the rule is in
-  // and the user is a member of the rule's project.
+  // Confirms the user is a member of the alert's project.
   private async checkUserAlertPermission(
     userId: User['id'],
     id: Alert['id'],
-    contractId?: Contract['id'],
   ): Promise<void> {
-    let contractQuery;
-    if (contractId) {
-      contractQuery = {
-        contracts: {
-          some: {
-            id: contractId,
-          },
-        },
-      };
+    const alert = await this.prisma.alert.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        active: true,
+        projectSlug: true,
+        environmentSubId: true,
+      },
+    });
+
+    if (!alert) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'Failed to determine that alert exists',
+      );
     }
 
+    if (!alert.active) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'Alert is inactive',
+      );
+    }
+
+    const { projectSlug, environmentSubId } = alert;
+    await this.checkUserProjectEnvPermission(
+      userId,
+      projectSlug,
+      environmentSubId,
+    );
+  }
+
+  // TODO move to devconsole core
+  private async checkUserProjectEnvPermission(
+    userId: User['id'],
+    slug: Project['slug'],
+    subId: Environment['subId'],
+  ) {
     const res = await this.prismaConsole.teamMember.findFirst({
       where: {
         userId,
@@ -495,15 +440,11 @@ export class AlertsService {
               active: true,
               project: {
                 active: true,
+                slug,
                 environments: {
                   some: {
-                    ...contractQuery,
-                    // TODO make another query in the alerts db to determine access to the alert?
-                    // alerts: {
-                    //   some: {
-                    //     id,
-                    //   },
-                    // },
+                    active: true,
+                    subId,
                   },
                 },
               },
@@ -516,7 +457,7 @@ export class AlertsService {
     if (!res) {
       throw new VError(
         { info: { code: 'PERMISSION_DENIED' } },
-        'User does not have rights to manage these alerts',
+        'User does not have rights to manage this project and environment',
       );
     }
   }
