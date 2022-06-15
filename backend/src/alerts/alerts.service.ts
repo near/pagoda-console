@@ -286,43 +286,7 @@ export class AlertsService {
         environmentSubId,
       },
       select: {
-        id: true,
-        type: true,
-        name: true,
-        isPaused: true,
-        fnCallRule: {
-          select: {
-            id: true,
-            contract: true,
-            function: true,
-            params: true,
-          },
-        },
-        txRule: {
-          select: {
-            id: true,
-            contract: true,
-            action: true,
-          },
-        },
-        acctBalRule: {
-          select: {
-            id: true,
-            contract: true,
-            comparator: true,
-            amount: true,
-          },
-        },
-        eventRule: {
-          select: {
-            id: true,
-            contract: true,
-            standard: true,
-            version: true,
-            event: true,
-            data: true,
-          },
-        },
+        ...this.buildSelectAlert(),
       },
     });
   }
@@ -482,5 +446,73 @@ export class AlertsService {
     } catch (e) {
       throw new VError(e, 'Failed while getting alert rule type');
     }
+  }
+
+  async getAlertDetails(callingUser: User, id: Alert['id']) {
+    try {
+      await this.checkUserAlertPermission(callingUser.id, id);
+
+      const alert = await this.prisma.alert.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          ...this.buildSelectAlert(),
+          active: true,
+        },
+      });
+
+      const { active, ...alertWithoutActiveProp } = alert;
+
+      if (!active) {
+        throw new VError({ info: { code: 'BAD_ALERT' } }, 'Alert is inactive');
+      }
+
+      return alertWithoutActiveProp;
+    } catch (e) {
+      throw new VError(e, 'Failed to get alert rule details');
+    }
+  }
+
+  private buildSelectAlert(): Prisma.AlertSelect {
+    return {
+      id: true,
+      type: true,
+      name: true,
+      isPaused: true,
+      fnCallRule: {
+        select: {
+          id: true,
+          contract: true,
+          function: true,
+          params: true,
+        },
+      },
+      txRule: {
+        select: {
+          id: true,
+          contract: true,
+          action: true,
+        },
+      },
+      acctBalRule: {
+        select: {
+          id: true,
+          contract: true,
+          comparator: true,
+          amount: true,
+        },
+      },
+      eventRule: {
+        select: {
+          id: true,
+          contract: true,
+          standard: true,
+          version: true,
+          event: true,
+          data: true,
+        },
+      },
+    };
   }
 }
