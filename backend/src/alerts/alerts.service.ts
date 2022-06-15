@@ -366,17 +366,11 @@ export class AlertsService {
     });
 
     if (!alert) {
-      throw new VError(
-        { info: { code: 'PERMISSION_DENIED' } },
-        'Failed to determine that alert exists',
-      );
+      throw new VError({ info: { code: 'BAD_ALERT' } }, 'Alert not found');
     }
 
     if (!alert.active) {
-      throw new VError(
-        { info: { code: 'PERMISSION_DENIED' } },
-        'Alert is inactive',
-      );
+      throw new VError({ info: { code: 'BAD_ALERT' } }, 'Alert is inactive');
     }
 
     const { projectSlug, environmentSubId } = alert;
@@ -458,17 +452,10 @@ export class AlertsService {
         },
         select: {
           ...this.buildSelectAlert(),
-          active: true,
         },
       });
 
-      const { active, ...alertWithoutActiveProp } = alert;
-
-      if (!active) {
-        throw new VError({ info: { code: 'BAD_ALERT' } }, 'Alert is inactive');
-      }
-
-      return alertWithoutActiveProp;
+      return alert;
     } catch (e) {
       throw new VError(e, 'Failed to get alert rule details');
     }
