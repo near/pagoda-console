@@ -29,15 +29,13 @@ export const Group = S.Group;
 export const Label = S.Label;
 export const LabelDescription = S.LabelDescription;
 
-export const Root = forwardRef<HTMLFormElement, FormProps>(
-  ({ children, disabled, noValidate = true, ...props }, ref) => {
-    return (
-      <S.Form noValidate={noValidate} ref={ref} {...props}>
-        <S.Fieldset disabled={disabled}>{children}</S.Fieldset>
-      </S.Form>
-    );
-  },
-);
+export const Root = forwardRef<HTMLFormElement, FormProps>(({ children, noValidate = true, ...props }, ref) => {
+  return (
+    <S.Form noValidate={noValidate} ref={ref} {...props}>
+      {children}
+    </S.Form>
+  );
+});
 Root.displayName = 'Form';
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(({ isInvalid, type = 'text', ...props }, ref) => {

@@ -4,6 +4,14 @@ import { styled } from '@/styles/stitches';
 export const Form = styled('form', {
   display: 'block',
   width: '100%',
+
+  variants: {
+    disabled: {
+      true: {
+        pointerEvents: 'none',
+      },
+    },
+  },
 });
 
 export const Fieldset = styled('fieldset', {
