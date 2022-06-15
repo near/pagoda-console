@@ -1,15 +1,13 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
-import { Box } from '@/components/lib/Box';
-import { Button, ButtonLink } from '@/components/lib/Button';
-import * as DropdownMenu from '@/components/lib/DropdownMenu';
+import { Button } from '@/components/lib/Button';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
-import { H1, H2, H3, H4 } from '@/components/lib/Heading';
+import { H3, H4 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
@@ -17,14 +15,10 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
-import { useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { DeleteAlertModal } from '@/modules/alerts/components/DeleteAlertModal';
 import { useAlert } from '@/modules/alerts/hooks/alerts';
 import { alertTypes, amountComparators } from '@/modules/alerts/utils/constants';
-import type { AcctBalRule, Alert, AlertType, EventRule, FnCallRule, TxRule } from '@/modules/alerts/utils/types';
-import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface FormData {
@@ -34,12 +28,22 @@ interface FormData {
 const EditAlert: NextPageWithLayout = () => {
   const router = useRouter();
   const alertId = parseInt(router.query.alertId as string);
-  const { register, handleSubmit, formState, control } = useForm<FormData>();
+  const { handleSubmit, formState } = useForm<FormData>();
   const { alert } = useAlert(alertId);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [updateError, setUpdateError] = useState('');
 
-  async function updateAlert(data: FormData) {
+  async function submitForm(data: FormData) {
     console.log(data);
+  }
+
+  function onAlertDelete() {
+    openToast({
+      type: 'success',
+      title: 'Alert was deleted.',
+    });
+
+    router.replace('/alerts');
   }
 
   return (
@@ -60,7 +64,10 @@ const EditAlert: NextPageWithLayout = () => {
             <H3 as="h1">Edit Alert</H3>
           </Flex>
 
-          <Text>To preserve alert history integrity, most fields can&apos;t be edited after an alert is created.</Text>
+          <Text>
+            To preserve alert history integrity, most fields can&apos;t be edited after an alert is created. You can
+            update the alert&apos;s name and destinations.
+          </Text>
 
           <Link href="/alerts" passHref>
             <TextLink>
@@ -75,12 +82,27 @@ const EditAlert: NextPageWithLayout = () => {
         {!alert ? (
           <Spinner center />
         ) : (
-          <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(updateAlert)}>
+          <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
             <Flex stack gap="l">
+              <Flex justify="spaceBetween" align="center">
+                <H4>{alert.name}</H4>
+
+                <Button size="s" aria-label="Delete Alert" color="danger" onClick={() => setShowDeleteModal(true)}>
+                  <FeatherIcon icon="trash-2" size="xs" />
+                </Button>
+              </Flex>
+
+              <HR />
+
               <Flex stack>
                 <H4>Target</H4>
 
-                <Text>{alert.contract.address}</Text>
+                <Flex align="center">
+                  <FeatherIcon icon="zap" color="text3" />
+                  <Text color="text1" weight="semibold">
+                    {alert.contract.address}
+                  </Text>
+                </Flex>
               </Flex>
 
               <HR />
@@ -88,63 +110,89 @@ const EditAlert: NextPageWithLayout = () => {
               <Flex stack>
                 <H4>Condition</H4>
 
-                <Text>{alertTypes[alert.type].name}</Text>
+                <Flex align="center">
+                  <FeatherIcon icon={alertTypes[alert.type].icon} color="text3" />
+                  <Flex stack gap="none">
+                    <Text color="text1" weight="semibold">
+                      {alertTypes[alert.type].name}
+                    </Text>
+                    <Text>{alertTypes[alert.type].description}</Text>
+                  </Flex>
+                </Flex>
 
                 {(alert.type === 'ACCT_BAL_NUM' || alert.type === 'ACCT_BAL_PCT') && (
-                  <>
-                    <Text>Comp: {alert.acctBalRule?.comparator}</Text>
-                    <Text>Amount: {alert.acctBalRule?.amount}</Text>
-                  </>
+                  <Flex align="center">
+                    <FeatherIcon icon="settings" color="text3" />
+
+                    <Text>
+                      {amountComparators[alert.acctBalRule!.comparator].name}{' '}
+                      <Text as="span" color="text1" family="number">
+                        {alert.acctBalRule?.amount}
+                        {alert.type === 'ACCT_BAL_PCT' ? '%' : ''}
+                      </Text>
+                    </Text>
+                  </Flex>
                 )}
 
                 {alert.type === 'EVENT' && (
-                  <>
-                    <Text>Event Name: {alert.eventRule?.event}</Text>
-                    <Text>Standard: {alert.eventRule?.standard}</Text>
-                    <Text>Version: {alert.eventRule?.version}</Text>
-                  </>
+                  <Flex align="center">
+                    <FeatherIcon icon="settings" color="text3" />
+                    <Flex stack gap="none">
+                      <Text>
+                        Event Name:{' '}
+                        <Text as="span" color="text1" family="number">
+                          {alert.eventRule?.event}
+                        </Text>
+                      </Text>
+                      <Text>
+                        Standard:{' '}
+                        <Text as="span" color="text1" family="number">
+                          {alert.eventRule?.standard}
+                        </Text>
+                      </Text>
+                      <Text>
+                        Version:{' '}
+                        <Text as="span" color="text1" family="number">
+                          {alert.eventRule?.version}
+                        </Text>
+                      </Text>
+                    </Flex>
+                  </Flex>
                 )}
 
                 {alert.type === 'FN_CALL' && (
-                  <>
-                    <Text>Function Name: {alert.fnCallRule?.function}</Text>
-                  </>
+                  <Flex align="center">
+                    <FeatherIcon icon="settings" color="text3" />
+                    <Text>
+                      Function Name:{' '}
+                      <Text as="span" color="text1" family="number">
+                        {alert.fnCallRule?.function}
+                      </Text>
+                    </Text>
+                  </Flex>
                 )}
               </Flex>
 
               <HR />
 
               <Flex stack>
-                <H4>Destination</H4>
+                <H4>Destinations</H4>
 
                 <Text>TODO</Text>
               </Flex>
-
-              <HR />
-
-              <Flex justify="spaceBetween" align="center">
-                <H4>Delete</H4>
-
-                <Button color="danger">Delete Alert</Button>
-              </Flex>
-
-              <HR />
-
-              <Flex justify="spaceBetween" align="center">
-                <Button type="submit" loading={formState.isSubmitting}>
-                  <FeatherIcon icon="bell" /> Update Alert
-                </Button>
-
-                <Link href="/alerts" passHref>
-                  <TextLink color="neutral">Cancel</TextLink>
-                </Link>
-              </Flex>
             </Flex>
+
+            <ErrorModal error={updateError} setError={setUpdateError} />
+
+            <DeleteAlertModal
+              alert={alert}
+              show={showDeleteModal}
+              setShow={setShowDeleteModal}
+              onDelete={onAlertDelete}
+            />
           </Form.Root>
         )}
       </Flex>
-
-      <ErrorModal error={updateError} setError={setUpdateError} />
     </Section>
   );
 };

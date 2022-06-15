@@ -3,13 +3,12 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
-import { Box } from '@/components/lib/Box';
-import { Button, ButtonLink } from '@/components/lib/Button';
+import { Button } from '@/components/lib/Button';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
-import { H1, H2, H3, H4 } from '@/components/lib/Heading';
+import { H3, H4 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
@@ -20,19 +19,18 @@ import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
+import { createAlert } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
-import type { AcctBalRule, Alert, AlertType, EventRule, FnCallRule, TxRule } from '@/modules/alerts/utils/types';
-import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
+import type { AcctBalRule, AlertType, EventRule, FnCallRule, TxRule } from '@/modules/alerts/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface FormData {
   acctBalRule?: AcctBalRule;
-  alertType: AlertType;
   contractId: string;
   eventRule?: EventRule;
   fnCallRule?: FnCallRule;
   txRule?: TxRule;
+  type: AlertType;
 }
 
 const NewAlert: NextPageWithLayout = () => {
@@ -42,36 +40,23 @@ const NewAlert: NextPageWithLayout = () => {
   const { contracts } = useContracts(project?.slug, environment?.subId);
   const [createError, setCreateError] = useState('');
 
-  const selectedAlertType = watch('alertType');
+  const selectedAlertType = watch('type');
 
-  async function createAlert(data: FormData) {
+  async function submitForm(data: FormData) {
     try {
-      const txRule = data.alertType === 'TX_SUCCESS' || data.alertType === 'TX_FAILURE' ? data.txRule || {} : undefined;
-
-      const alert: Alert = await authenticatedPost(
-        '/alerts/createAlert',
-        {
-          type: data.alertType,
-          contract: parseInt(data.contractId),
-          environment: environment?.subId,
-          acctBalRule: data.acctBalRule,
-          eventRule: data.eventRule,
-          fnCallRule: data.fnCallRule,
-          txRule,
-        },
-        { forceRefresh: true },
-      );
-
-      analytics.track('DC Create New Alert', {
-        status: 'success',
-        name: alert.name,
-        id: alert.id,
+      await createAlert({
+        type: data.type,
+        contractId: parseInt(data.contractId),
+        environmentSubId: environment!.subId,
+        acctBalRule: data.acctBalRule,
+        eventRule: data.eventRule,
+        fnCallRule: data.fnCallRule,
+        txRule: data.txRule,
       });
 
       openToast({
         type: 'success',
-        title: 'Success!',
-        description: 'Your alert was created.',
+        title: 'Alert was created.',
       });
 
       await router.push('/alerts');
@@ -111,7 +96,7 @@ const NewAlert: NextPageWithLayout = () => {
           </Link>
         </Flex>
 
-        <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(createAlert)}>
+        <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
           <Flex stack gap="l">
             <Flex stack>
               <H4>
@@ -197,7 +182,7 @@ const NewAlert: NextPageWithLayout = () => {
               </H4>
 
               <Controller
-                name="alertType"
+                name="type"
                 control={control}
                 rules={{
                   required: 'Please select a condition',
@@ -211,7 +196,7 @@ const NewAlert: NextPageWithLayout = () => {
                         <DropdownMenu.Trigger asChild>
                           <Form.FloatingLabelSelect
                             label="Condition"
-                            isInvalid={!!formState.errors.alertType}
+                            isInvalid={!!formState.errors.type}
                             onBlur={field.onBlur}
                             ref={field.ref}
                             selection={
@@ -243,7 +228,7 @@ const NewAlert: NextPageWithLayout = () => {
                         </DropdownMenu.Content>
                       </DropdownMenu.Root>
 
-                      <Form.Feedback>{formState.errors.alertType?.message}</Form.Feedback>
+                      <Form.Feedback>{formState.errors.type?.message}</Form.Feedback>
                     </Form.Group>
                   );
                 }}
@@ -296,7 +281,7 @@ const NewAlert: NextPageWithLayout = () => {
                               </DropdownMenu.Content>
                             </DropdownMenu.Root>
 
-                            <Form.Feedback>{formState.errors.alertType?.message}</Form.Feedback>
+                            <Form.Feedback>{formState.errors.type?.message}</Form.Feedback>
                           </Form.Group>
                         );
                       }}
@@ -378,7 +363,7 @@ const NewAlert: NextPageWithLayout = () => {
                 <Text as="span" color="text3" size="h4" family="number">
                   3.
                 </Text>{' '}
-                Select Destination
+                Select Destinations
               </H4>
 
               <Text>TODO</Text>

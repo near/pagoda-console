@@ -15,6 +15,17 @@ export interface Alert {
   acctBalRule?: AcctBalRule;
 }
 
+export interface NewAlert {
+  type: AlertType;
+  contractId: number;
+  environmentSubId: number;
+  destinations?: number[];
+  txRule?: TxRule;
+  fnCallRule?: FnCallRule;
+  eventRule?: EventRule;
+  acctBalRule?: AcctBalRule;
+}
+
 export type TxRule = {
   action?:
     | 'CREATE_ACCOUNT'
