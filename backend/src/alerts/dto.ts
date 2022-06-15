@@ -132,13 +132,13 @@ export const CreateAlertSchema = Joi.object({
 // update alert
 export interface UpdateAlertDto {
   id: number;
-  name: string;
-  isPaused: boolean;
+  name?: string;
+  isPaused?: boolean;
 }
 export const UpdateAlertSchema = Joi.object({
   id: Joi.number().required(),
-  name: Joi.string().required(),
-  isPaused: Joi.boolean().required(),
+  name: Joi.string(),
+  isPaused: Joi.boolean(),
 });
 
 // list alerts
