@@ -615,6 +615,12 @@ const Settings: NextPageWithLayout = () => {
             </DropdownMenu.Trigger>
 
             <DropdownMenu.Content>
+              <DropdownMenu.ContentItem>
+                <Text>This can contain any read only content.</Text>
+              </DropdownMenu.ContentItem>
+
+              <DropdownMenu.Separator />
+
               <DropdownMenu.Item>New Tab</DropdownMenu.Item>
               <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
               <DropdownMenu.Item>

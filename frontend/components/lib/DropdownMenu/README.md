@@ -9,6 +9,7 @@ _If the current props and Stitches style overrides aren't enough to cover your u
 Here's an example using all of the dropdown menu features:
 
 ```tsx
+import { Text } from '@/components/lib/Text';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 
 ...
@@ -25,6 +26,10 @@ const [person, setPerson] = useState('pedro');
   </DropdownMenu.Button>
 
   <DropdownMenu.Content>
+    <DropdownMenu.ContentItem>
+      <Text>This can contain any read only content.</Text>
+    </DropdownMenu.ContentItem>
+
     <DropdownMenu.Item>New Tab</DropdownMenu.Item>
     <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
     <DropdownMenu.Item>

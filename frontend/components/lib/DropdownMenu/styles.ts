@@ -109,6 +109,11 @@ export const CheckboxItem = styled(DropdownMenuPrimitive.CheckboxItem, { ...drop
 
 export const RadioItem = styled(DropdownMenuPrimitive.RadioItem, { ...dropdownItemStyles });
 
+export const ContentItem = styled('div', {
+  padding: 'var(--space-s) var(--space-m)',
+  position: 'relative',
+});
+
 export const Label = styled(DropdownMenuPrimitive.Label, {
   ...dropdownItemStyles,
   fontSize: 'var(--font-size-body-small)',

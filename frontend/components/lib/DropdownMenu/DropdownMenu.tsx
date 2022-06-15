@@ -26,6 +26,7 @@ export const RadioGroup = DropdownMenuPrimitive.RadioGroup;
 export const Root = DropdownMenuPrimitive.Root;
 export const Separator = S.Separator;
 export const Trigger = DropdownMenuPrimitive.Trigger;
+export const ContentItem = S.ContentItem;
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, ...props }, ref) => {
   return (
