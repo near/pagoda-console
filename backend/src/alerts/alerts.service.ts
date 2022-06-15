@@ -8,7 +8,7 @@ import {
   TxRule,
   RuleType,
   WebhookDestination,
-} from './prisma/generated';
+} from '../../generated/alerts';
 import { User, Environment, Project } from '@prisma/client';
 import { customAlphabet } from 'nanoid';
 

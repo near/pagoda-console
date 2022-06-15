@@ -2,7 +2,12 @@
 // because class-validator was experiencing issues at the time of implementation
 // and had many unaddressed github issues
 
-import { RuleType, NumberComparator, TxAction, Net } from './prisma/generated';
+import {
+  RuleType,
+  NumberComparator,
+  TxAction,
+  Net,
+} from '../../generated/alerts';
 import * as Joi from 'joi';
 
 export interface TxRuleDto {
