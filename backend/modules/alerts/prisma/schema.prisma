@@ -13,28 +13,34 @@ generator client {
 
 /// Stores info about an alert and has a 1-1 relationship with one of the various Rule tables.
 model Alert {
-  id            Int       @id @default(autoincrement())
-  type          RuleType
-  name          String
+  id               Int       @id @default(autoincrement())
+  type             RuleType
+  name             String
   /// A user can pause the alert from triggering by setting to 'true', in case they need to pause for some time.
-  isPaused      Boolean   @default(false)
-  /// The rule's target contract address. This contract is associated with the attached environment.
-  contractId    Int
+  isPaused         Boolean   @default(false)
+  /// Represents the project that this alert belongs to. Can be used to determine if the alert should trigger off of mainnet or testnet and which project this alert belongs to.
+  projectSlug      String
   /// Represents the environment that this alert belongs to. Can be used to determine if the alert should trigger off of mainnet or testnet and which project this alert belongs to.
-  environmentId Int
+  environmentSubId Int
+  net              Net
   /// If 'false', the record was soft-deleted by a user.
-  active        Boolean   @default(true)
-  createdAt     DateTime  @default(now())
+  active           Boolean   @default(true)
+  createdAt        DateTime  @default(now())
   /// Reference to the user id who created the record.
-  createdBy     Int
-  updatedAt     DateTime? @updatedAt
+  createdBy        Int
+  updatedAt        DateTime? @updatedAt
   /// Reference to the user id who last updated the record.
-  updatedBy     Int?
+  updatedBy        Int?
 
   fnCallRule  FnCallRule?
   txRule      TxRule?
   eventRule   EventRule?
   acctBalRule AcctBalRule?
+}
+
+enum Net {
+  MAINNET
+  TESTNET
 }
 
 /// Represents the various alert rule types.
@@ -56,6 +62,8 @@ enum RuleType {
 /// Stores details for alerts of type FN_CALL.
 model FnCallRule {
   id        Int       @id @default(autoincrement())
+  /// The rule's target contract address.
+  contract  String
   /// Stores the function name to trigger off of.
   function  String
   /// Future: Stores details on which params to trigger off of within the function. Will most likely be represented by mongodb style filters.
@@ -75,6 +83,8 @@ model FnCallRule {
 /// Stores details for alerts of type TX_SUCCESS and TX_FAILURE.
 model TxRule {
   id        Int       @id @default(autoincrement())
+  /// The rule's target contract address.
+  contract  String
   /// Stores which, if any, transaction action to trigger off of.
   action    TxAction?
   alert     Alert     @relation(fields: [alertId], references: [id])
@@ -104,6 +114,8 @@ enum TxAction {
 /// Stores details for alerts of type EVENT.
 model EventRule {
   id        Int       @id @default(autoincrement())
+  /// The rule's target contract address.
+  contract  String
   /// The event standard to trigger off of.
   standard  String
   /// The event version to trigger off of.
@@ -127,6 +139,8 @@ model EventRule {
 /// Stores details for alerts of type ACCT_BAL_PCT and ACCT_BAL_NUM.
 model AcctBalRule {
   id         Int              @id @default(autoincrement())
+  /// The rule's target contract address.
+  contract   String
   /// Represents a numeric comparator. Used in combination with the `amount` field.
   comparator NumberComparator
   /// Represents a percentage or a specified amount of tokens depending on the alert type.

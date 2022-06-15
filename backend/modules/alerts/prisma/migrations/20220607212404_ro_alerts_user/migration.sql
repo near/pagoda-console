@@ -28,5 +28,3 @@ GRANT SELECT ON TABLE "FnCallRule" TO read_alerts;
 GRANT SELECT ON TABLE "TxRule" TO read_alerts;
 GRANT SELECT ON TABLE "EventRule" TO read_alerts;
 GRANT SELECT ON TABLE "AcctBalRule" TO read_alerts;
-GRANT SELECT ON TABLE "Contract" TO read_alerts;
-GRANT SELECT ON TABLE "Environment" TO read_alerts;

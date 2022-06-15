@@ -7,14 +7,18 @@ CREATE TYPE "TxAction" AS ENUM ('CREATE_ACCOUNT', 'DEPLOY_CONTRACT', 'FUNCTION_C
 -- CreateEnum
 CREATE TYPE "NumberComparator" AS ENUM ('EQ', 'NEQ', 'LT', 'LTE', 'GT', 'GTE');
 
+-- CreateEnum
+CREATE TYPE "Net" AS ENUM ('EQ', 'NEQ', 'LT', 'LTE', 'GT', 'GTE');
+
 -- CreateTable
 CREATE TABLE "Alert" (
     "id" SERIAL NOT NULL,
     "type" "RuleType" NOT NULL,
     "name" TEXT NOT NULL,
     "isPaused" BOOLEAN NOT NULL DEFAULT false,
-    "contractId" INTEGER NOT NULL,
-    "environmentId" INTEGER NOT NULL,
+    "projectSlug" TEXT NOT NULL,
+    "environmentSubId" INTEGER NOT NULL,
+    "net" "Net" NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdBy" INTEGER NOT NULL,
@@ -27,6 +31,7 @@ CREATE TABLE "Alert" (
 -- CreateTable
 CREATE TABLE "FnCallRule" (
     "id" SERIAL NOT NULL,
+    "contract" TEXT NOT NULL,
     "function" TEXT NOT NULL,
     "params" JSONB NOT NULL,
     "alertId" INTEGER NOT NULL,
@@ -42,6 +47,7 @@ CREATE TABLE "FnCallRule" (
 -- CreateTable
 CREATE TABLE "TxRule" (
     "id" SERIAL NOT NULL,
+    "contract" TEXT NOT NULL,
     "action" "TxAction",
     "alertId" INTEGER NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
@@ -56,6 +62,7 @@ CREATE TABLE "TxRule" (
 -- CreateTable
 CREATE TABLE "EventRule" (
     "id" SERIAL NOT NULL,
+    "contract" TEXT NOT NULL,
     "standard" TEXT NOT NULL,
     "version" TEXT NOT NULL,
     "event" TEXT NOT NULL,
@@ -73,6 +80,7 @@ CREATE TABLE "EventRule" (
 -- CreateTable
 CREATE TABLE "AcctBalRule" (
     "id" SERIAL NOT NULL,
+    "contract" TEXT NOT NULL,
     "comparator" "NumberComparator" NOT NULL,
     "amount" INTEGER NOT NULL,
     "alertId" INTEGER NOT NULL,
