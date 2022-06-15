@@ -7,8 +7,10 @@ import {
   FnCallRule,
   TxRule,
   RuleType,
+  WebhookDestination,
 } from '../../modules/alerts/prisma/generated';
 import { User, Environment, Project } from '@prisma/client';
+import { customAlphabet } from 'nanoid';
 
 import { assertUnreachable } from 'src/helpers';
 import { PrismaService } from './prisma.service';
@@ -52,6 +54,7 @@ type CreateAlertBaseSchema = {
   projectSlug: Alert['projectSlug'];
   environmentSubId: Alert['environmentSubId'];
   net: Alert['net'];
+  webhookDestinations?: Array<WebhookDestination['id']>;
 };
 type CreateTxAlertSchema = CreateAlertBaseSchema & TxRuleSchema;
 type CreateFnCallAlertSchema = CreateAlertBaseSchema & FnCallRuleSchema;
@@ -59,6 +62,25 @@ type CreateEventAlertSchema = CreateAlertBaseSchema & EventRuleSchema;
 type CreateAcctBalAlertSchema = CreateAlertBaseSchema & AcctBalRuleSchema;
 
 type CreateAlertResponse = { name: Alert['name']; id: Alert['id'] };
+
+type CreateWebhookDestinationSchema = {
+  name?: WebhookDestination['name'];
+  url: WebhookDestination['url'];
+  project: WebhookDestination['projectSlug'];
+};
+
+type CreateWebhookDestinationResponse = {
+  id: WebhookDestination['id'];
+  name?: WebhookDestination['name'];
+  url: WebhookDestination['url'];
+  projectSlug: WebhookDestination['projectSlug'];
+  secret: WebhookDestination['secret'];
+};
+
+const nanoid = customAlphabet(
+  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+  12,
+);
 
 @Injectable()
 export class AlertsService {
@@ -71,11 +93,7 @@ export class AlertsService {
     user: User,
     alert: CreateTxAlertSchema,
   ): Promise<CreateAlertResponse> {
-    await this.checkUserProjectEnvPermission(
-      user.id,
-      alert.projectSlug,
-      alert.environmentSubId,
-    );
+    await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.txRule.contract;
     const alertInput = this.buildCreateAlertInput(user, {
@@ -98,11 +116,7 @@ export class AlertsService {
     user: User,
     alert: CreateTxAlertSchema,
   ): Promise<CreateAlertResponse> {
-    await this.checkUserProjectEnvPermission(
-      user.id,
-      alert.projectSlug,
-      alert.environmentSubId,
-    );
+    await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.txRule.contract;
     const alertInput = this.buildCreateAlertInput(user, {
@@ -125,11 +139,7 @@ export class AlertsService {
     user: User,
     alert: CreateFnCallAlertSchema,
   ): Promise<CreateAlertResponse> {
-    await this.checkUserProjectEnvPermission(
-      user.id,
-      alert.projectSlug,
-      alert.environmentSubId,
-    );
+    await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.fnCallRule.contract;
     const alertInput = this.buildCreateAlertInput(user, {
@@ -155,11 +165,7 @@ export class AlertsService {
     user: User,
     alert: CreateEventAlertSchema,
   ): Promise<CreateAlertResponse> {
-    await this.checkUserProjectEnvPermission(
-      user.id,
-      alert.projectSlug,
-      alert.environmentSubId,
-    );
+    await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.eventRule.contract;
     const alertInput = this.buildCreateAlertInput(user, {
@@ -183,11 +189,7 @@ export class AlertsService {
     user: User,
     alert: CreateAcctBalAlertSchema,
   ): Promise<CreateAlertResponse> {
-    await this.checkUserProjectEnvPermission(
-      user.id,
-      alert.projectSlug,
-      alert.environmentSubId,
-    );
+    await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.acctBalRule.contract;
     const alertInput = this.buildCreateAlertInput(user, {
@@ -210,7 +212,14 @@ export class AlertsService {
     user: User,
     alert: CreateAlertBaseSchema,
   ): Prisma.AlertCreateInput {
-    const { name, type, projectSlug, environmentSubId, net } = alert;
+    const {
+      name,
+      type,
+      projectSlug,
+      environmentSubId,
+      net,
+      webhookDestinations,
+    } = alert;
 
     const alertInput: Prisma.AlertCreateInput = {
       name,
@@ -220,6 +229,17 @@ export class AlertsService {
       net,
       createdBy: user.id,
       updatedBy: user.id,
+      webhookDeliveries: {
+        createMany: {
+          data: webhookDestinations
+            ? webhookDestinations.map((el) => ({
+                webhookDestinationId: el,
+                createdBy: user.id,
+                updatedBy: user.id,
+              }))
+            : [],
+        },
+      },
     };
 
     return alertInput;
@@ -315,6 +335,53 @@ export class AlertsService {
     } catch (e) {
       throw new VError(e, 'Failed while soft deleting alert rule');
     }
+  }
+
+  async createWebhookDestination(
+    user: User,
+    { name, url, project: projectSlug }: CreateWebhookDestinationSchema,
+  ): Promise<CreateWebhookDestinationResponse> {
+    await this.checkUserProjectPermission(user.id, projectSlug);
+
+    try {
+      return await this.prisma.webhookDestination.create({
+        data: {
+          name,
+          url,
+          projectSlug,
+          secret: nanoid(),
+          createdBy: user.id,
+          updatedBy: user.id,
+        },
+        select: {
+          id: true,
+          name: true,
+          url: true,
+          projectSlug: true,
+          secret: true,
+        },
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed to create webhook destination');
+    }
+  }
+
+  async listWebhookDestinations(user: User, projectSlug: Project['slug']) {
+    await this.checkUserProjectPermission(user.id, projectSlug);
+
+    return await this.prisma.webhookDestination.findMany({
+      where: {
+        active: true,
+        projectSlug,
+      },
+      select: {
+        id: true,
+        name: true,
+        url: true,
+        secret: true,
+        projectSlug: true,
+      },
+    });
   }
 
   private async buildDeleteRuleInput(
@@ -420,6 +487,38 @@ export class AlertsService {
     }
   }
 
+  // TODO move to devconsole core
+  private async checkUserProjectPermission(
+    userId: User['id'],
+    slug: Project['slug'],
+  ) {
+    const res = await this.prismaConsole.teamMember.findFirst({
+      where: {
+        userId,
+        active: true,
+        team: {
+          active: true,
+          teamProjects: {
+            some: {
+              active: true,
+              project: {
+                active: true,
+                slug,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!res) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'User does not have rights to manage this project',
+      );
+    }
+  }
+
   private async fetchAlert(id: Alert['id']): Promise<Alert> {
     try {
       const alert = await this.prisma.alert.findUnique({
@@ -439,6 +538,68 @@ export class AlertsService {
       return alert;
     } catch (e) {
       throw new VError(e, 'Failed while getting alert rule type');
+    }
+  }
+
+  // Checks user permission to create alert as well as permission for webhook destinations
+  private async checkUserCreateAlertPermission(
+    user: User,
+    alert: CreateAlertBaseSchema,
+  ) {
+    // Verify the user has access to this project in order to create the alert.
+    await this.checkUserProjectEnvPermission(
+      user.id,
+      alert.projectSlug,
+      alert.environmentSubId,
+    );
+
+    // Verify that the destinations belong to the same project as the alert.
+    if (alert.webhookDestinations) {
+      await this.checkUserWebhookDestinationsPermission(
+        alert.projectSlug,
+        alert.webhookDestinations,
+      );
+    }
+  }
+
+  // Checks that all webhooks belong to the given project.
+  private async checkUserWebhookDestinationsPermission(
+    projectSlug: Project['slug'],
+    ids: Array<WebhookDestination['id']>,
+  ) {
+    const destinations = await this.prisma.webhookDestination.findMany({
+      where: {
+        id: { in: ids },
+      },
+      select: {
+        active: true,
+        projectSlug: true,
+      },
+    });
+
+    if (destinations.length !== ids.length) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'Failed while checking if webhook destinations exist',
+      );
+    }
+
+    if (destinations.find((d) => !d.active)) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'Failed while checking if webhook destinations are active',
+      );
+    }
+
+    const invalidDestinations = destinations.filter(
+      (d) => d.projectSlug != projectSlug,
+    );
+
+    if (invalidDestinations.length) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'Failed while checking if webhook destinations are part of the specified project',
+      );
     }
   }
 

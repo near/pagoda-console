@@ -33,10 +33,11 @@ model Alert {
   /// Reference to the user id who last updated the record.
   updatedBy        Int?
 
-  fnCallRule  FnCallRule?
-  txRule      TxRule?
-  eventRule   EventRule?
-  acctBalRule AcctBalRule?
+  fnCallRule        FnCallRule?
+  txRule            TxRule?
+  eventRule         EventRule?
+  acctBalRule       AcctBalRule?
+  webhookDeliveries WebhookDelivery[]
 }
 
 enum Net {
@@ -172,4 +173,37 @@ enum NumberComparator {
   GT
   /// Greater Than or Equal
   GTE
+}
+
+model WebhookDelivery {
+  id                   Int                @id @default(autoincrement())
+  alert                Alert              @relation(fields: [alertId], references: [id])
+  alertId              Int
+  webhookDestination   WebhookDestination @relation(fields: [webhookDestinationId], references: [id])
+  webhookDestinationId Int
+  active               Boolean            @default(true)
+  createdAt            DateTime?          @default(now())
+  /// Reference to the user id who created the record.
+  createdBy            Int?
+  updatedAt            DateTime?          @updatedAt
+  /// Reference to the user id who last updated the record.
+  updatedBy            Int?
+}
+
+model WebhookDestination {
+  id              Int               @id @default(autoincrement())
+  /// The project that owns this destination.
+  projectSlug     String
+  name            String?
+  url             String
+  /// A webhook API token for verifiying the sender.
+  secret          String
+  webhookDelivery WebhookDelivery[]
+  active          Boolean           @default(true)
+  createdAt       DateTime?         @default(now())
+  /// Reference to the user id who created the record.
+  createdBy       Int?
+  updatedAt       DateTime?         @updatedAt
+  /// Reference to the user id who last updated the record.
+  updatedBy       Int?
 }

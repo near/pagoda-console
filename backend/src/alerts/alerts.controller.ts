@@ -27,8 +27,12 @@ import {
   CreateFnCallAlertDto,
   UpdateAlertSchema,
   UpdateAlertDto,
+  CreateWebhookDestinationSchema,
+  CreateWebhookDestinationDto,
   GetAlertDetailsSchema,
   GetAlertDetailsDto,
+  ListWebhookDestinationDto,
+  ListWebhookDestinationSchema,
 } from './dto';
 
 @Controller('alerts')
@@ -126,6 +130,37 @@ export class AlertsController {
   async getAlertDetails(@Request() req, @Body() { id }: GetAlertDetailsDto) {
     try {
       return await this.alertsService.getAlertDetails(req.user, id);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('createWebhookDestination')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(CreateWebhookDestinationSchema))
+  async createWebhookDestination(
+    @Request() req,
+    @Body() dto: CreateWebhookDestinationDto,
+  ) {
+    try {
+      return await this.alertsService.createWebhookDestination(req.user, dto);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('listWebhookDestinations')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(ListWebhookDestinationSchema))
+  async listWebhookDestinations(
+    @Request() req,
+    @Body() { project }: ListWebhookDestinationDto,
+  ) {
+    try {
+      return await this.alertsService.listWebhookDestinations(
+        req.user,
+        project,
+      );
     } catch (e) {
       throw mapError(e);
     }
