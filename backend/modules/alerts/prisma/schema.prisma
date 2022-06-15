@@ -22,6 +22,7 @@ model Alert {
   projectSlug      String
   /// Represents the environment that this alert belongs to. Can be used to determine if the alert should trigger off of mainnet or testnet and which project this alert belongs to.
   environmentSubId Int
+  /// Which network the rule applies to.
   net              Net
   /// If 'false', the record was soft-deleted by a user.
   active           Boolean   @default(true)
