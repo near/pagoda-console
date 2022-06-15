@@ -9,13 +9,13 @@ import {
   RuleType,
   WebhookDestination,
 } from '../../generated/alerts';
-import { User, Environment, Project } from '@prisma/client';
+import { User, Project } from '@prisma/client';
 import { customAlphabet } from 'nanoid';
 
 import { assertUnreachable } from 'src/helpers';
 import { PrismaService } from './prisma.service';
-import { PrismaService as PrismaConsoleService } from 'src/prisma.service';
 import { VError } from 'verror';
+import { PermissionsService as ProjectPermissionsService } from 'src/projects/permissions.service';
 
 type TxRuleSchema = {
   txRule: {
@@ -86,7 +86,7 @@ const nanoid = customAlphabet(
 export class AlertsService {
   constructor(
     private prisma: PrismaService,
-    private prismaConsole: PrismaConsoleService,
+    private projectPermissions: ProjectPermissionsService,
   ) {}
 
   async createTxSuccessAlert(
@@ -293,7 +293,7 @@ export class AlertsService {
     projectSlug: Alert['projectSlug'],
     environmentSubId: Alert['environmentSubId'],
   ) {
-    await this.checkUserProjectEnvPermission(
+    await this.projectPermissions.checkUserProjectEnvPermission(
       user.id,
       projectSlug,
       environmentSubId,
@@ -341,7 +341,10 @@ export class AlertsService {
     user: User,
     { name, url, project: projectSlug }: CreateWebhookDestinationSchema,
   ): Promise<CreateWebhookDestinationResponse> {
-    await this.checkUserProjectPermission(user.id, projectSlug);
+    await this.projectPermissions.checkUserProjectPermission(
+      user.id,
+      projectSlug,
+    );
 
     try {
       return await this.prisma.webhookDestination.create({
@@ -367,7 +370,10 @@ export class AlertsService {
   }
 
   async listWebhookDestinations(user: User, projectSlug: Project['slug']) {
-    await this.checkUserProjectPermission(user.id, projectSlug);
+    await this.projectPermissions.checkUserProjectPermission(
+      user.id,
+      projectSlug,
+    );
 
     return await this.prisma.webhookDestination.findMany({
       where: {
@@ -441,82 +447,11 @@ export class AlertsService {
     }
 
     const { projectSlug, environmentSubId } = alert;
-    await this.checkUserProjectEnvPermission(
+    await this.projectPermissions.checkUserProjectEnvPermission(
       userId,
       projectSlug,
       environmentSubId,
     );
-  }
-
-  // TODO move to devconsole core
-  private async checkUserProjectEnvPermission(
-    userId: User['id'],
-    slug: Project['slug'],
-    subId: Environment['subId'],
-  ) {
-    const res = await this.prismaConsole.teamMember.findFirst({
-      where: {
-        userId,
-        active: true,
-        team: {
-          active: true,
-          teamProjects: {
-            some: {
-              active: true,
-              project: {
-                active: true,
-                slug,
-                environments: {
-                  some: {
-                    active: true,
-                    subId,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!res) {
-      throw new VError(
-        { info: { code: 'PERMISSION_DENIED' } },
-        'User does not have rights to manage this project and environment',
-      );
-    }
-  }
-
-  // TODO move to devconsole core
-  private async checkUserProjectPermission(
-    userId: User['id'],
-    slug: Project['slug'],
-  ) {
-    const res = await this.prismaConsole.teamMember.findFirst({
-      where: {
-        userId,
-        active: true,
-        team: {
-          active: true,
-          teamProjects: {
-            some: {
-              active: true,
-              project: {
-                active: true,
-                slug,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!res) {
-      throw new VError(
-        { info: { code: 'PERMISSION_DENIED' } },
-        'User does not have rights to manage this project',
-      );
-    }
   }
 
   private async fetchAlert(id: Alert['id']): Promise<Alert> {
@@ -547,7 +482,7 @@ export class AlertsService {
     alert: CreateAlertBaseSchema,
   ) {
     // Verify the user has access to this project in order to create the alert.
-    await this.checkUserProjectEnvPermission(
+    await this.projectPermissions.checkUserProjectEnvPermission(
       user.id,
       alert.projectSlug,
       alert.environmentSubId,
