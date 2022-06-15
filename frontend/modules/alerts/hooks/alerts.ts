@@ -26,6 +26,8 @@ export async function createAlert(data: NewAlert) {
     { forceRefresh: true },
   );
 
+  // TODO: Mutate cache
+
   analytics.track('DC Create New Alert', {
     status: 'success',
     name: alert.name,
@@ -42,11 +44,9 @@ export async function deleteAlert(alert: Alert) {
       status: 'success',
       name: alert.id,
     });
-    // TODO
-    // Update the SWR cache before a refetch for better UX.
-    // mutate<Alert[]>(userId ? ['/alerts/alerts/list', userId] : null, async (alerts) => {
-    //   return alerts?.filter((r) => r.id !== alertId);
-    // });
+
+    // TODO: Mutate cache
+
     return true;
   } catch (e: any) {
     mixpanel.track('DC Remove Alert', {
