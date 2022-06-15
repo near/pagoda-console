@@ -661,6 +661,18 @@ export class AlertsService {
           data: true,
         },
       },
+      webhookDeliveries: {
+        select: {
+          id: true,
+          webhookDestination: {
+            select: {
+              id: true,
+              name: true,
+              url: true,
+            },
+          },
+        },
+      },
     };
   }
 }
