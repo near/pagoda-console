@@ -262,8 +262,8 @@ export class AlertsService {
   async updateAlert(
     callingUser: User,
     id: Alert['id'],
-    name: Alert['name'],
-    isPaused: Alert['isPaused'],
+    name?: Alert['name'],
+    isPaused?: Alert['isPaused'],
   ) {
     await this.checkUserAlertPermission(callingUser.id, id);
 
