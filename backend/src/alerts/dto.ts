@@ -163,6 +163,14 @@ export const CreateWebhookDestinationSchema = Joi.object({
   project: Joi.string().required(),
 });
 
+// delete webhook destinations
+export interface DeleteWebhookDestinationDto {
+  id: number;
+}
+export const DeleteWebhookDestinationSchema = Joi.object({
+  id: Joi.number().required(),
+});
+
 // list webhook destinations
 export interface ListWebhookDestinationDto {
   project: string;

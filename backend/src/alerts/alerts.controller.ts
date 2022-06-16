@@ -33,6 +33,8 @@ import {
   GetAlertDetailsDto,
   ListWebhookDestinationDto,
   ListWebhookDestinationSchema,
+  DeleteWebhookDestinationDto,
+  DeleteWebhookDestinationSchema,
 } from './dto';
 
 @Controller('alerts')
@@ -148,6 +150,21 @@ export class AlertsController {
     }
   }
 
+  @Post('deleteWebhookDestination')
+  @HttpCode(204)
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(DeleteWebhookDestinationSchema))
+  async deleteWebhookDestination(
+    @Request() req,
+    @Body() { id }: DeleteWebhookDestinationDto,
+  ) {
+    try {
+      return await this.alertsService.deleteWebhookDestination(req.user, id);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
   @Post('listWebhookDestinations')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(ListWebhookDestinationSchema))
@@ -172,6 +189,7 @@ function mapError(e: Error) {
   switch (VError.info(e)?.code) {
     case 'PERMISSION_DENIED':
       return new ForbiddenException();
+    case 'BAD_DESTINATION':
     case 'BAD_ALERT':
       return new BadRequestException();
     default:

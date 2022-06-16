@@ -357,6 +357,33 @@ export class AlertsService {
     }
   }
 
+  async deleteWebhookDestination(
+    user: User,
+    id: WebhookDestination['id'],
+  ): Promise<void> {
+    await this.checkUserWebhookPermission(user.id, id);
+
+    try {
+      await this.prisma.webhookDestination.update({
+        where: {
+          id: id,
+        },
+        data: {
+          active: false,
+          updatedBy: user.id,
+          webhookDelivery: {
+            updateMany: {
+              where: {},
+              data: { active: false, updatedBy: user.id },
+            },
+          },
+        },
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while soft deleting alert');
+    }
+  }
+
   async listWebhookDestinations(user: User, projectSlug: Project['slug']) {
     await this.projectPermissions.checkUserProjectPermission(
       user.id,
@@ -407,6 +434,41 @@ export class AlertsService {
       userId,
       projectSlug,
       environmentSubId,
+    );
+  }
+
+  // Confirms the user is a member of the webhook's project.
+  private async checkUserWebhookPermission(
+    userId: User['id'],
+    id: WebhookDestination['id'],
+  ): Promise<void> {
+    const webhook = await this.prisma.webhookDestination.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        active: true,
+        projectSlug: true,
+      },
+    });
+
+    if (!webhook) {
+      throw new VError(
+        { info: { code: 'BAD_DESTINATION' } },
+        'Webhook destination not found',
+      );
+    }
+
+    if (!webhook.active) {
+      throw new VError(
+        { info: { code: 'BAD_DESTINATION' } },
+        'Webhook destination is inactive',
+      );
+    }
+
+    await this.projectPermissions.checkUserProjectPermission(
+      userId,
+      webhook.projectSlug,
     );
   }
 
