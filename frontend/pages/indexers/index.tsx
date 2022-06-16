@@ -13,7 +13,7 @@ import type { NextPageWithLayout } from '@/utils/types';
 
 const Indexers: NextPageWithLayout = () => {
   return (
-    <Section>
+    <Section css={{ margin: 'auto' }}>
       <Flex stack gap="xl">
         <H1>Create your own indexer using NEAR Lake!</H1>
         <Flex>
