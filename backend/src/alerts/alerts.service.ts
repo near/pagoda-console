@@ -87,10 +87,7 @@ export class AlertsService {
     private projectPermissions: ProjectPermissionsService,
   ) {}
 
-  async createTxSuccessAlert(
-    user: User,
-    alert: CreateTxAlertSchema,
-  ): Promise<CreateAlertResponse> {
+  async createTxSuccessAlert(user: User, alert: CreateTxAlertSchema) {
     await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.txRule.contract;
@@ -112,10 +109,7 @@ export class AlertsService {
     return this.createAlert(alertInput);
   }
 
-  async createTxFailureAlert(
-    user: User,
-    alert: CreateTxAlertSchema,
-  ): Promise<CreateAlertResponse> {
+  async createTxFailureAlert(user: User, alert: CreateTxAlertSchema) {
     await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.txRule.contract;
@@ -138,10 +132,7 @@ export class AlertsService {
     return this.createAlert(alertInput);
   }
 
-  async createFnCallAlert(
-    user: User,
-    alert: CreateFnCallAlertSchema,
-  ): Promise<CreateAlertResponse> {
+  async createFnCallAlert(user: User, alert: CreateFnCallAlertSchema) {
     await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.fnCallRule.contract;
@@ -167,10 +158,7 @@ export class AlertsService {
     return this.createAlert(alertInput);
   }
 
-  async createEventAlert(
-    user: User,
-    alert: CreateEventAlertSchema,
-  ): Promise<CreateAlertResponse> {
+  async createEventAlert(user: User, alert: CreateEventAlertSchema) {
     await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.eventRule.contract;
@@ -197,10 +185,7 @@ export class AlertsService {
     return this.createAlert(alertInput);
   }
 
-  async createAcctBalAlert(
-    user: User,
-    alert: CreateAcctBalAlertSchema,
-  ): Promise<CreateAlertResponse> {
+  async createAcctBalAlert(user: User, alert: CreateAcctBalAlertSchema) {
     await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.acctBalRule.contract;
@@ -265,23 +250,15 @@ export class AlertsService {
     return alertInput;
   }
 
-  private async createAlert(
-    data: Prisma.AlertCreateInput,
-  ): Promise<CreateAlertResponse> {
-    let alert;
-
+  private async createAlert(data: Prisma.AlertCreateInput) {
     try {
-      alert = await this.prisma.alert.create({
+      return await this.prisma.alert.create({
         data,
+        select: this.buildSelectAlert(),
       });
     } catch (e) {
       throw new VError(e, 'Failed while executing alert creation query');
     }
-
-    return {
-      name: alert.name,
-      id: alert.id,
-    };
   }
 
   async updateAlert(
