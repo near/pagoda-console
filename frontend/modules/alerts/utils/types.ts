@@ -8,11 +8,11 @@ export interface Alert {
   type: AlertType;
   contract: Contract;
   environment: Environment;
-  destinations?: Destination[];
   txRule?: TxRule;
   fnCallRule?: FnCallRule;
   eventRule?: EventRule;
   acctBalRule?: AcctBalRule;
+  webhookDeliveries?: Delivery[];
 }
 
 export interface NewAlert {
@@ -72,3 +72,8 @@ export interface NewWebhookDestination {
 }
 
 export type DestinationType = 'webhook' | 'email' | 'sms' | 'telegram';
+
+interface Delivery {
+  id: number;
+  webhookDestination: Destination;
+}

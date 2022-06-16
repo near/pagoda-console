@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
@@ -17,8 +17,10 @@ import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { DeleteAlertModal } from '@/modules/alerts/components/DeleteAlertModal';
+import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
 import { useAlert } from '@/modules/alerts/hooks/alerts';
 import { alertTypes, amountComparators } from '@/modules/alerts/utils/constants';
+import type { Destination } from '@/modules/alerts/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface FormData {
@@ -32,6 +34,19 @@ const EditAlert: NextPageWithLayout = () => {
   const { alert } = useAlert(alertId);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [updateError, setUpdateError] = useState('');
+  const [selectedDestinationIds, setSelectedDestinationIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    const destinationIds: number[] = [];
+
+    if (alert) {
+      alert.webhookDeliveries?.forEach((delivery) => {
+        destinationIds.push(delivery.webhookDestination.id);
+      });
+    }
+
+    setSelectedDestinationIds(destinationIds);
+  }, [alert]);
 
   async function submitForm(data: FormData) {
     console.log(data);
@@ -44,6 +59,18 @@ const EditAlert: NextPageWithLayout = () => {
     });
 
     router.replace('/alerts');
+  }
+
+  function updateSelectedDestination(isSelected: boolean, destination: Destination) {
+    // TODO: Call endpoints to update
+
+    openToast({
+      type: 'success',
+      title: 'Alert Updated',
+      description: isSelected
+        ? `Destination was enabled: ${destination.name}`
+        : `Destination was disabled: ${destination.name}`,
+    });
   }
 
   return (
@@ -178,7 +205,13 @@ const EditAlert: NextPageWithLayout = () => {
               <Flex stack>
                 <H4>Destinations</H4>
 
-                <Text>TODO</Text>
+                <DestinationsSelector
+                  selectedIds={selectedDestinationIds}
+                  onChange={(event) => {
+                    setSelectedDestinationIds(event.selectedIds);
+                    updateSelectedDestination(event.isSelected, event.destination);
+                  }}
+                />
               </Flex>
             </Flex>
 

@@ -151,7 +151,13 @@ function WebhookDestinationForm({
     );
 
   return (
-    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
+    <Form.Root
+      disabled={formState.isSubmitting}
+      onSubmit={(e) => {
+        e.stopPropagation(); // This prevents any parent forms from being submitted
+        handleSubmit(submitForm)(e);
+      }}
+    >
       <Flex stack gap="l">
         <Flex stack>
           <Form.Group>

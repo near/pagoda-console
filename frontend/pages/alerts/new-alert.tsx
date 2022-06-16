@@ -19,6 +19,7 @@ import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
+import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
 import { createAlert } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
 import type { AcctBalRule, AlertType, EventRule, FnCallRule, TxRule } from '@/modules/alerts/utils/types';
@@ -37,18 +38,27 @@ const NewAlert: NextPageWithLayout = () => {
   const router = useRouter();
   const { register, handleSubmit, formState, control, watch } = useForm<FormData>();
   const { project, environment } = useSelectedProject();
+  // const { mutate } = useAlerts(environment?.subId);
   const { contracts } = useContracts(project?.slug, environment?.subId);
   const [createError, setCreateError] = useState('');
+  const [selectedDestinationIds, setSelectedDestinationIds] = useState<number[]>([]);
 
   const selectedAlertType = watch('type');
 
   async function submitForm(data: FormData) {
     try {
+      // const alert = await createAlert({
       await createAlert({
         ...data,
         contractId: parseInt(data.contractId),
+        destinations: selectedDestinationIds,
         environmentSubId: environment!.subId,
       });
+
+      // TODO: Create alert endpoint doesn't actually return created alert
+      // mutate((alerts) => {
+      //   return [...(alerts || []), alert];
+      // });
 
       openToast({
         type: 'success',
@@ -362,7 +372,10 @@ const NewAlert: NextPageWithLayout = () => {
                 Select Destinations
               </H4>
 
-              <Text>TODO</Text>
+              <DestinationsSelector
+                selectedIds={selectedDestinationIds}
+                onChange={({ selectedIds }) => setSelectedDestinationIds(selectedIds)}
+              />
             </Flex>
 
             <HR />

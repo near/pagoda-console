@@ -17,8 +17,6 @@ export async function createWebhookDestination(data: NewWebhookDestination) {
     { forceRefresh: true },
   );
 
-  // TODO: Mutate cache
-
   analytics.track('DC Create New Webhook Destination', {
     status: 'success',
     name: destination.name,
@@ -28,7 +26,27 @@ export async function createWebhookDestination(data: NewWebhookDestination) {
   return destination;
 }
 
-export function useDestinations(project: string | undefined): {
+export async function deleteDestination(destination: Destination) {
+  try {
+    await authenticatedPost('/alerts/deleteDestination', { id: destination.id });
+    analytics.track('DC Remove Destination', {
+      status: 'success',
+      name: destination.id,
+    });
+    return true;
+  } catch (e: any) {
+    analytics.track('DC Remove Destination', {
+      status: 'failure',
+      name,
+      error: e.message,
+    });
+    // TODO
+    console.error('Failed to delete alert');
+  }
+  return false;
+}
+
+export function useDestinations(projectSlug: string | undefined): {
   destinations?: Destination[];
   error?: any;
   mutate: KeyedMutator<Destination[]>;
@@ -40,8 +58,8 @@ export function useDestinations(project: string | undefined): {
     error,
     mutate,
     isValidating,
-  } = useSWR(identity && project ? ['/alerts/listWebhookDestinations', project, identity.uid] : null, (key) => {
-    return authenticatedPost(key, { project });
+  } = useSWR(identity && projectSlug ? ['/alerts/listWebhookDestinations', projectSlug, identity.uid] : null, (key) => {
+    return authenticatedPost(key, { project: projectSlug });
   });
 
   return { destinations, error, mutate, isValidating };

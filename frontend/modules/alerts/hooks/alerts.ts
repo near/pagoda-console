@@ -21,11 +21,10 @@ export async function createAlert(data: NewAlert) {
       eventRule: data.eventRule,
       fnCallRule: data.fnCallRule,
       txRule,
+      webhookDestinations: data.destinations, // TODO: Need to consider other destination types
     },
     { forceRefresh: true },
   );
-
-  // TODO: Mutate cache
 
   analytics.track('DC Create New Alert', {
     status: 'success',
@@ -43,9 +42,6 @@ export async function deleteAlert(alert: Alert) {
       status: 'success',
       name: alert.id,
     });
-
-    // TODO: Mutate cache
-
     return true;
   } catch (e: any) {
     analytics.track('DC Remove Alert', {
@@ -75,7 +71,7 @@ export function useAlert(alertId: number | undefined): { alert?: Alert; error?: 
 export function useAlerts(environmentId: number | undefined): {
   alerts?: Alert[];
   error?: any;
-  mutate: KeyedMutator<any>;
+  mutate: KeyedMutator<Alert[]>;
   isValidating: boolean;
 } {
   const identity = useIdentity();
