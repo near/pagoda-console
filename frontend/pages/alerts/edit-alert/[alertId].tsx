@@ -24,45 +24,77 @@ import { alertTypes, amountComparators } from '@/modules/alerts/utils/constants'
 import type { Destination } from '@/modules/alerts/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
-interface FormData {
-  something: string;
+interface NameFormData {
+  name: string;
 }
 
 const EditAlert: NextPageWithLayout = () => {
   const router = useRouter();
   const alertId = parseInt(router.query.alertId as string);
-  const { handleSubmit, formState } = useForm<FormData>();
-  const { alert } = useAlert(alertId);
+  const nameForm = useForm<NameFormData>();
+  const { alert, mutate } = useAlert(alertId);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [updateError, setUpdateError] = useState('');
   const [alertIsActive, setAlertIsActive] = useState(true);
+  const [isEditingName, setIsEditingName] = useState(false);
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<number[]>([]);
 
   useEffect(() => {
     const destinationIds: number[] = [];
 
     if (alert) {
+      setAlertIsActive(!alert.isPaused);
+      nameForm.setValue('name', alert.name);
+
       alert.webhookDeliveries?.forEach((delivery) => {
         destinationIds.push(delivery.webhookDestination.id);
       });
-
-      setAlertIsActive(!alert.isPaused);
     }
 
     setSelectedDestinationIds(destinationIds);
-  }, [alert]);
+  }, [alert, nameForm]);
 
-  async function submitForm(data: FormData) {
-    console.log(data);
+  function openNameForm() {
+    setIsEditingName(true);
+
+    setTimeout(() => {
+      nameForm.setFocus('name', {
+        shouldSelect: true,
+      });
+    }, 100);
   }
 
   function onDelete() {
+    const name = alert?.name;
+
     openToast({
       type: 'success',
-      title: 'Alert was deleted.',
+      title: 'Alert Deleted',
+      description: name,
     });
 
     router.replace('/alerts');
+  }
+
+  async function submitNameForm(data: NameFormData) {
+    const wasUpdated = await update({
+      name: data.name,
+    });
+
+    mutate({
+      ...alert!,
+      name: data.name,
+    });
+
+    setIsEditingName(false);
+
+    if (wasUpdated) {
+      openToast({
+        type: 'success',
+        title: 'Alert Updated',
+        description: 'Alert name has been updated.',
+      });
+    }
   }
 
   async function update(data: { isPaused?: boolean; name?: string }) {
@@ -153,127 +185,169 @@ const EditAlert: NextPageWithLayout = () => {
         {!alert ? (
           <Spinner center />
         ) : (
-          <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
-            <Flex stack gap="l">
+          <Flex stack gap="l">
+            <Form.Root disabled={nameForm.formState.isSubmitting} onSubmit={nameForm.handleSubmit(submitNameForm)}>
               <Flex stack>
-                <Flex justify="spaceBetween" align="center">
-                  <H3>{alert.name}</H3>
+                <Flex justify="spaceBetween" gap="l">
+                  {isEditingName && (
+                    <Flex gap="none">
+                      <Form.Group>
+                        <Form.FloatingLabelInput
+                          label="Alert Name"
+                          isInvalid={!!nameForm.formState.errors.name}
+                          css={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+                          {...nameForm.register('name', {
+                            required: 'Please enter an alert name',
+                            maxLength: {
+                              value: 100,
+                              message: 'Alert name must be 100 characters or less',
+                            },
+                          })}
+                        />
+                        <Form.Feedback>{nameForm.formState.errors.name?.message}</Form.Feedback>
+                      </Form.Group>
 
-                  <Button size="s" aria-label="Edit Alert Name" color="transparent" css={{ marginRight: 'auto' }}>
-                    <FeatherIcon icon="edit-2" size="xs" />
-                  </Button>
-
-                  <Switch aria-label="Alert Is Active" checked={alertIsActive} onCheckedChange={updateIsActive}>
-                    <FeatherIcon icon="bell" size="xs" data-on />
-                    <FeatherIcon icon="pause" size="xs" data-off />
-                  </Switch>
-
-                  <Button size="s" aria-label="Delete Alert" color="danger" onClick={() => setShowDeleteModal(true)}>
-                    <FeatherIcon icon="trash-2" size="xs" />
-                  </Button>
-                </Flex>
-              </Flex>
-
-              <HR />
-
-              <Flex stack>
-                <H4>Target</H4>
-
-                <Flex align="center">
-                  <FeatherIcon icon="zap" color="text3" />
-                  <Text color="text1" weight="semibold">
-                    {alert.contract.address}
-                  </Text>
-                </Flex>
-              </Flex>
-
-              <HR />
-
-              <Flex stack>
-                <H4>Condition</H4>
-
-                <Flex align="center">
-                  <FeatherIcon icon={alertTypes[alert.type].icon} color="text3" />
-                  <Flex stack gap="none">
-                    <Text color="text1" weight="semibold">
-                      {alertTypes[alert.type].name}
-                    </Text>
-                    <Text>{alertTypes[alert.type].description}</Text>
-                  </Flex>
-                </Flex>
-
-                {(alert.type === 'ACCT_BAL_NUM' || alert.type === 'ACCT_BAL_PCT') && (
-                  <Flex align="center">
-                    <FeatherIcon icon="settings" color="text3" />
-
-                    <Text>
-                      {amountComparators[alert.acctBalRule!.comparator].name}{' '}
-                      <Text as="span" color="text1" family="number">
-                        {alert.acctBalRule?.amount}
-                        {alert.type === 'ACCT_BAL_PCT' ? '%' : ''}
-                      </Text>
-                    </Text>
-                  </Flex>
-                )}
-
-                {alert.type === 'EVENT' && (
-                  <Flex align="center">
-                    <FeatherIcon icon="settings" color="text3" />
-                    <Flex stack gap="none">
-                      <Text>
-                        Event Name:{' '}
-                        <Text as="span" color="text1" family="number">
-                          {alert.eventRule?.event}
-                        </Text>
-                      </Text>
-                      <Text>
-                        Standard:{' '}
-                        <Text as="span" color="text1" family="number">
-                          {alert.eventRule?.standard}
-                        </Text>
-                      </Text>
-                      <Text>
-                        Version:{' '}
-                        <Text as="span" color="text1" family="number">
-                          {alert.eventRule?.version}
-                        </Text>
-                      </Text>
+                      <Button
+                        aria-label="Save Alert Name"
+                        loading={nameForm.formState.isSubmitting}
+                        type="submit"
+                        color="neutral"
+                        css={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+                      >
+                        <FeatherIcon icon="check" color="primary" />
+                      </Button>
                     </Flex>
-                  </Flex>
-                )}
+                  )}
 
-                {alert.type === 'FN_CALL' && (
-                  <Flex align="center">
-                    <FeatherIcon icon="settings" color="text3" />
-                    <Text>
-                      Function Name:{' '}
-                      <Text as="span" color="text1" family="number">
-                        {alert.fnCallRule?.function}
-                      </Text>
-                    </Text>
+                  {!isEditingName && (
+                    <Flex align="center" css={{ minHeight: 'var(--size-input-height-m)' }}>
+                      <H3>
+                        {alert.name}{' '}
+                        <Button
+                          size="s"
+                          aria-label="Edit Alert Name"
+                          color="transparent"
+                          onClick={openNameForm}
+                          css={{ verticalAlign: 'middle' }}
+                        >
+                          <FeatherIcon icon="edit-2" size="xs" color="primary" />
+                        </Button>
+                      </H3>
+                    </Flex>
+                  )}
+
+                  <Flex align="center" css={{ width: 'auto', minHeight: 'var(--size-input-height-m)' }}>
+                    <Switch aria-label="Alert Is Active" checked={alertIsActive} onCheckedChange={updateIsActive}>
+                      <FeatherIcon icon="bell" size="xs" data-on />
+                      <FeatherIcon icon="pause" size="xs" data-off />
+                    </Switch>
+
+                    <Button size="s" aria-label="Delete Alert" color="danger" onClick={() => setShowDeleteModal(true)}>
+                      <FeatherIcon icon="trash-2" size="xs" />
+                    </Button>
                   </Flex>
-                )}
+                </Flex>
               </Flex>
+            </Form.Root>
 
-              <HR />
+            <HR />
 
-              <Flex stack>
-                <H4>Destinations</H4>
+            <Flex stack>
+              <H4>Target</H4>
 
-                <DestinationsSelector
-                  selectedIds={selectedDestinationIds}
-                  onChange={(event) => {
-                    setSelectedDestinationIds(event.selectedIds);
-                    updateSelectedDestination(event.isSelected, event.destination);
-                  }}
-                />
+              <Flex align="center">
+                <FeatherIcon icon="zap" color="text3" />
+                <Text color="text1" weight="semibold">
+                  {alert.contract.address}
+                </Text>
               </Flex>
             </Flex>
 
-            <ErrorModal error={updateError} setError={setUpdateError} />
+            <HR />
 
+            <Flex stack>
+              <H4>Condition</H4>
+
+              <Flex align="center">
+                <FeatherIcon icon={alertTypes[alert.type].icon} color="text3" />
+                <Flex stack gap="none">
+                  <Text color="text1" weight="semibold">
+                    {alertTypes[alert.type].name}
+                  </Text>
+                  <Text>{alertTypes[alert.type].description}</Text>
+                </Flex>
+              </Flex>
+
+              {(alert.type === 'ACCT_BAL_NUM' || alert.type === 'ACCT_BAL_PCT') && (
+                <Flex align="center">
+                  <FeatherIcon icon="settings" color="text3" />
+
+                  <Text>
+                    {amountComparators[alert.acctBalRule!.comparator].name}{' '}
+                    <Text as="span" color="text1" family="number">
+                      {alert.acctBalRule?.amount}
+                      {alert.type === 'ACCT_BAL_PCT' ? '%' : ''}
+                    </Text>
+                  </Text>
+                </Flex>
+              )}
+
+              {alert.type === 'EVENT' && (
+                <Flex align="center">
+                  <FeatherIcon icon="settings" color="text3" />
+                  <Flex stack gap="none">
+                    <Text>
+                      Event Name:{' '}
+                      <Text as="span" color="text1" family="number">
+                        {alert.eventRule?.event}
+                      </Text>
+                    </Text>
+                    <Text>
+                      Standard:{' '}
+                      <Text as="span" color="text1" family="number">
+                        {alert.eventRule?.standard}
+                      </Text>
+                    </Text>
+                    <Text>
+                      Version:{' '}
+                      <Text as="span" color="text1" family="number">
+                        {alert.eventRule?.version}
+                      </Text>
+                    </Text>
+                  </Flex>
+                </Flex>
+              )}
+
+              {alert.type === 'FN_CALL' && (
+                <Flex align="center">
+                  <FeatherIcon icon="settings" color="text3" />
+                  <Text>
+                    Function Name:{' '}
+                    <Text as="span" color="text1" family="number">
+                      {alert.fnCallRule?.function}
+                    </Text>
+                  </Text>
+                </Flex>
+              )}
+            </Flex>
+
+            <HR />
+
+            <Flex stack>
+              <H4>Destinations</H4>
+
+              <DestinationsSelector
+                selectedIds={selectedDestinationIds}
+                onChange={(event) => {
+                  setSelectedDestinationIds(event.selectedIds);
+                  updateSelectedDestination(event.isSelected, event.destination);
+                }}
+              />
+            </Flex>
+
+            <ErrorModal error={updateError} setError={setUpdateError} />
             <DeleteAlertModal alert={alert} show={showDeleteModal} setShow={setShowDeleteModal} onDelete={onDelete} />
-          </Form.Root>
+          </Flex>
         )}
       </Flex>
     </Section>
@@ -281,5 +355,3 @@ const EditAlert: NextPageWithLayout = () => {
 };
 
 EditAlert.getLayout = useDashboardLayout;
-
-export default EditAlert;

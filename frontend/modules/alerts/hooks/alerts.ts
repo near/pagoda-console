@@ -73,17 +73,18 @@ export async function updateAlert(data: UpdateAlert) {
   return alert;
 }
 
-export function useAlert(alertId: number | undefined): { alert?: Alert; error?: any } {
+export function useAlert(alertId: number | undefined): { alert?: Alert; error?: any; mutate: KeyedMutator<Alert> } {
   const identity = useIdentity();
 
-  const { data: alert, error } = useSWR(
-    identity && alertId ? ['/alerts/getAlertDetails', alertId, identity.uid] : null,
-    async (key, alertId) => {
-      return authenticatedPost(key, { id: alertId });
-    },
-  );
+  const {
+    data: alert,
+    error,
+    mutate,
+  } = useSWR(identity && alertId ? ['/alerts/getAlertDetails', alertId, identity.uid] : null, async (key, alertId) => {
+    return authenticatedPost(key, { id: alertId });
+  });
 
-  return { alert, error };
+  return { alert, error, mutate };
 }
 
 export function useAlerts(environmentId: number | undefined): {

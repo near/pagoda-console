@@ -85,7 +85,7 @@ export function DestinationsSelector({ onChange, selectedIds }: Props) {
                 </Flex>
                 <Badge size="s">{destinationType.name}</Badge>
                 <Button size="s" color="transparent" onClick={() => openDestination(destination)}>
-                  <FeatherIcon icon="edit-2" size="xs" />
+                  <FeatherIcon icon="edit-2" size="xs" color="primary" />
                 </Button>
               </Flex>
             </Card>
