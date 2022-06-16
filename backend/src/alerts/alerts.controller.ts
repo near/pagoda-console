@@ -80,7 +80,6 @@ export class AlertsController {
   }
 
   @Post('updateAlert')
-  @HttpCode(204)
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(UpdateAlertSchema))
   async updateAlert(

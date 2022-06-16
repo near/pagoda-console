@@ -59,8 +59,6 @@ type CreateFnCallAlertSchema = CreateAlertBaseSchema & FnCallRuleSchema;
 type CreateEventAlertSchema = CreateAlertBaseSchema & EventRuleSchema;
 type CreateAcctBalAlertSchema = CreateAlertBaseSchema & AcctBalRuleSchema;
 
-type CreateAlertResponse = { name: Alert['name']; id: Alert['id'] };
-
 type CreateWebhookDestinationSchema = {
   name?: WebhookDestination['name'];
   url: WebhookDestination['url'];
@@ -270,7 +268,7 @@ export class AlertsService {
     await this.checkUserAlertPermission(callingUser.id, id);
 
     try {
-      await this.prisma.alert.update({
+      return await this.prisma.alert.update({
         where: {
           id,
         },
@@ -279,6 +277,7 @@ export class AlertsService {
           isPaused,
           updatedBy: callingUser.id,
         },
+        select: this.buildSelectAlert(),
       });
     } catch (e) {
       throw new VError(e, 'Failed while executing alert update query');
