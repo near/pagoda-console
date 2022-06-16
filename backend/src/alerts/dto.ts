@@ -56,7 +56,7 @@ interface CreateAlertBaseDto {
   projectSlug: string;
   environmentSubId: number;
   net: Net;
-  webhookDestinations?: Array<number>;
+  destinations?: Array<number>;
 }
 export interface CreateTxAlertDto extends CreateAlertBaseDto {
   txRule: TxRuleDto;
@@ -90,7 +90,7 @@ export const CreateAlertSchema = Joi.object({
   projectSlug: Joi.string().required(),
   environmentSubId: Joi.number().required(),
   net: Joi.string().valid('TESTNET', 'MAINNET').required(),
-  webhookDestinations: Joi.array().items(Joi.number()).optional(),
+  destinations: Joi.array().items(Joi.number()).optional(),
   txRule: TxRuleSchema.when('type', {
     is: ['TX_SUCCESS', 'TX_FAILURE'],
     then: Joi.required(),
@@ -163,18 +163,18 @@ export const CreateWebhookDestinationSchema = Joi.object({
   project: Joi.string().required(),
 });
 
-// delete webhook destinations
-export interface DeleteWebhookDestinationDto {
+// delete destinations
+export interface DeleteDestinationDto {
   id: number;
 }
-export const DeleteWebhookDestinationSchema = Joi.object({
+export const DeleteDestinationSchema = Joi.object({
   id: Joi.number().required(),
 });
 
-// list webhook destinations
-export interface ListWebhookDestinationDto {
+// list destinations
+export interface ListDestinationDto {
   project: string;
 }
-export const ListWebhookDestinationSchema = Joi.object({
+export const ListDestinationSchema = Joi.object({
   project: Joi.string().required(),
 });

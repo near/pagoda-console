@@ -4,9 +4,11 @@ import {
   Alert,
   WebhookDestination,
   AlertRuleKind,
+  Destination,
 } from '../../generated/prisma/alerts';
 
 // TODO should we re-export these types from the core module? So there is no dependency on the core prisma/client
+// yes
 import { User, Project } from '@prisma/client';
 import { PermissionsService as ProjectPermissionsService } from 'src/projects/permissions.service';
 
@@ -52,7 +54,7 @@ type CreateAlertBaseSchema = {
   projectSlug: Alert['projectSlug'];
   environmentSubId: Alert['environmentSubId'];
   net: Net;
-  webhookDestinations?: Array<WebhookDestination['id']>;
+  destinations?: Array<Destination['id']>;
 };
 type CreateTxAlertSchema = CreateAlertBaseSchema & TxRuleSchema;
 type CreateFnCallAlertSchema = CreateAlertBaseSchema & FnCallRuleSchema;
@@ -60,16 +62,16 @@ type CreateEventAlertSchema = CreateAlertBaseSchema & EventRuleSchema;
 type CreateAcctBalAlertSchema = CreateAlertBaseSchema & AcctBalRuleSchema;
 
 type CreateWebhookDestinationSchema = {
-  name?: WebhookDestination['name'];
+  name?: Destination['name'];
+  project: Destination['projectSlug'];
   url: WebhookDestination['url'];
-  project: WebhookDestination['projectSlug'];
 };
 
 type CreateWebhookDestinationResponse = {
   id: WebhookDestination['id'];
-  name?: WebhookDestination['name'];
+  name?: Destination['name'];
+  projectSlug: Destination['projectSlug'];
   url: WebhookDestination['url'];
-  projectSlug: WebhookDestination['projectSlug'];
   secret: WebhookDestination['secret'];
 };
 
@@ -220,7 +222,7 @@ export class AlertsService {
       projectSlug,
       environmentSubId,
       net: chainId,
-      webhookDestinations,
+      destinations,
     } = alert;
 
     const alertInput: Prisma.AlertCreateInput = {
@@ -232,11 +234,11 @@ export class AlertsService {
       chainId,
       createdBy: user.id,
       updatedBy: user.id,
-      webhookDeliveries: {
+      enabledDestinations: {
         createMany: {
-          data: webhookDestinations
-            ? webhookDestinations.map((el) => ({
-                webhookDestinationId: el,
+          data: destinations
+            ? destinations.map((el) => ({
+                destinationId: el,
                 createdBy: user.id,
                 updatedBy: user.id,
               }))
@@ -335,47 +337,60 @@ export class AlertsService {
     );
 
     try {
-      return await this.prisma.webhookDestination.create({
+      const c = await this.prisma.destination.create({
         data: {
           name,
-          url,
           projectSlug,
-          secret: nanoid(),
+          type: 'WEBHOOK',
           createdBy: user.id,
           updatedBy: user.id,
+          webhookDestination: {
+            create: {
+              secret: nanoid(),
+              createdBy: user.id,
+              updatedBy: user.id,
+              url,
+            },
+          },
         },
         select: {
           id: true,
           name: true,
-          url: true,
           projectSlug: true,
-          secret: true,
+          webhookDestination: {
+            select: {
+              url: true,
+              secret: true,
+            },
+          },
         },
       });
+
+      return {
+        id: c.id,
+        name: c.name,
+        projectSlug: c.projectSlug,
+        url: c.webhookDestination.url,
+        secret: c.webhookDestination.secret,
+      };
     } catch (e) {
       throw new VError(e, 'Failed to create webhook destination');
     }
   }
 
-  async deleteWebhookDestination(
-    user: User,
-    id: WebhookDestination['id'],
-  ): Promise<void> {
-    await this.checkUserWebhookPermission(user.id, id);
+  async deleteDestination(user: User, id: Destination['id']): Promise<void> {
+    await this.checkUserDestinationPermission(user.id, id);
 
     try {
-      await this.prisma.webhookDestination.update({
+      await this.prisma.destination.update({
         where: {
           id: id,
         },
         data: {
           active: false,
           updatedBy: user.id,
-          webhookDelivery: {
-            updateMany: {
-              where: {},
-              data: { active: false, updatedBy: user.id },
-            },
+          EnabledDestination: {
+            deleteMany: {},
           },
         },
       });
@@ -384,13 +399,13 @@ export class AlertsService {
     }
   }
 
-  async listWebhookDestinations(user: User, projectSlug: Project['slug']) {
+  async listDestinations(user: User, projectSlug: Project['slug']) {
     await this.projectPermissions.checkUserProjectPermission(
       user.id,
       projectSlug,
     );
 
-    return await this.prisma.webhookDestination.findMany({
+    return await this.prisma.destination.findMany({
       where: {
         active: true,
         projectSlug,
@@ -398,9 +413,14 @@ export class AlertsService {
       select: {
         id: true,
         name: true,
-        url: true,
-        secret: true,
         projectSlug: true,
+        type: true,
+        webhookDestination: {
+          select: {
+            url: true,
+            secret: true,
+          },
+        },
       },
     });
   }
@@ -438,11 +458,11 @@ export class AlertsService {
   }
 
   // Confirms the user is a member of the webhook's project.
-  private async checkUserWebhookPermission(
+  private async checkUserDestinationPermission(
     userId: User['id'],
-    id: WebhookDestination['id'],
+    id: Destination['id'],
   ): Promise<void> {
-    const webhook = await this.prisma.webhookDestination.findUnique({
+    const destination = await this.prisma.destination.findUnique({
       where: {
         id,
       },
@@ -452,23 +472,23 @@ export class AlertsService {
       },
     });
 
-    if (!webhook) {
+    if (!destination) {
       throw new VError(
         { info: { code: 'BAD_DESTINATION' } },
-        'Webhook destination not found',
+        'Destination not found',
       );
     }
 
-    if (!webhook.active) {
+    if (!destination.active) {
       throw new VError(
         { info: { code: 'BAD_DESTINATION' } },
-        'Webhook destination is inactive',
+        'Destination is inactive',
       );
     }
 
     await this.projectPermissions.checkUserProjectPermission(
       userId,
-      webhook.projectSlug,
+      destination.projectSlug,
     );
   }
 
@@ -485,20 +505,20 @@ export class AlertsService {
     );
 
     // Verify that the destinations belong to the same project as the alert.
-    if (alert.webhookDestinations) {
-      await this.checkUserWebhookDestinationsPermission(
+    if (alert.destinations) {
+      await this.checkAlertDestinationCompatibility(
         alert.projectSlug,
-        alert.webhookDestinations,
+        alert.destinations,
       );
     }
   }
 
-  // Checks that all webhooks belong to the given project.
-  private async checkUserWebhookDestinationsPermission(
+  // Checks that the destination belongs to the same project as the alert
+  private async checkAlertDestinationCompatibility(
     projectSlug: Project['slug'],
-    ids: Array<WebhookDestination['id']>,
+    ids: Array<Destination['id']>,
   ) {
-    const destinations = await this.prisma.webhookDestination.findMany({
+    const destinations = await this.prisma.destination.findMany({
       where: {
         id: { in: ids },
       },
@@ -511,14 +531,14 @@ export class AlertsService {
     if (destinations.length !== ids.length) {
       throw new VError(
         { info: { code: 'PERMISSION_DENIED' } },
-        'Failed while checking if webhook destinations exist',
+        'Failed to find destinations while checking alert compatibility',
       );
     }
 
     if (destinations.find((d) => !d.active)) {
       throw new VError(
         { info: { code: 'PERMISSION_DENIED' } },
-        'Failed while checking if webhook destinations are active',
+        'Destination inactive while checking alert compatibility',
       );
     }
 
@@ -529,7 +549,7 @@ export class AlertsService {
     if (invalidDestinations.length) {
       throw new VError(
         { info: { code: 'PERMISSION_DENIED' } },
-        'Failed while checking if webhook destinations are part of the specified project',
+        'Found destination not compatible with alert',
       );
     }
   }
@@ -562,14 +582,17 @@ export class AlertsService {
       projectSlug: true,
       environmentSubId: true,
       chainId: true,
-      webhookDeliveries: {
+      enabledDestinations: {
         select: {
-          id: true,
-          webhookDestination: {
+          destination: {
             select: {
               id: true,
               name: true,
-              url: true,
+              webhookDestination: {
+                select: {
+                  url: true,
+                },
+              },
             },
           },
         },

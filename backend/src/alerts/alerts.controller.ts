@@ -31,10 +31,10 @@ import {
   CreateWebhookDestinationDto,
   GetAlertDetailsSchema,
   GetAlertDetailsDto,
-  ListWebhookDestinationDto,
-  ListWebhookDestinationSchema,
-  DeleteWebhookDestinationDto,
-  DeleteWebhookDestinationSchema,
+  ListDestinationDto,
+  ListDestinationSchema,
+  DeleteDestinationDto,
+  DeleteDestinationSchema,
 } from './dto';
 
 @Controller('alerts')
@@ -150,33 +150,30 @@ export class AlertsController {
     }
   }
 
-  @Post('deleteWebhookDestination')
+  @Post('deleteDestination')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(DeleteWebhookDestinationSchema))
-  async deleteWebhookDestination(
+  @UsePipes(new JoiValidationPipe(DeleteDestinationSchema))
+  async deleteDestination(
     @Request() req,
-    @Body() { id }: DeleteWebhookDestinationDto,
+    @Body() { id }: DeleteDestinationDto,
   ) {
     try {
-      return await this.alertsService.deleteWebhookDestination(req.user, id);
+      return await this.alertsService.deleteDestination(req.user, id);
     } catch (e) {
       throw mapError(e);
     }
   }
 
-  @Post('listWebhookDestinations')
+  @Post('listDestinations')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(ListWebhookDestinationSchema))
-  async listWebhookDestinations(
+  @UsePipes(new JoiValidationPipe(ListDestinationSchema))
+  async listDestinations(
     @Request() req,
-    @Body() { project }: ListWebhookDestinationDto,
+    @Body() { project }: ListDestinationDto,
   ) {
     try {
-      return await this.alertsService.listWebhookDestinations(
-        req.user,
-        project,
-      );
+      return await this.alertsService.listDestinations(req.user, project);
     } catch (e) {
       throw mapError(e);
     }
