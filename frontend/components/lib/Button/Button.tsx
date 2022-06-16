@@ -11,7 +11,7 @@ type Props = StitchesProps<typeof S.Button> & {
 };
 type ButtonProps = Props & ButtonHTMLAttributes<HTMLButtonElement>;
 type ButtonDropdownProps = Props & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'>;
-type ButtonLinkProps = Props & AnchorHTMLAttributes<HTMLAnchorElement>;
+type ButtonLinkProps = Props & AnchorHTMLAttributes<HTMLAnchorElement> & { external?: boolean };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, type = 'button', ...props }, ref) => {
   return (
@@ -34,10 +34,19 @@ export const ButtonDropdown = forwardRef<HTMLButtonElement, ButtonDropdownProps>
 );
 ButtonDropdown.displayName = 'ButtonDropdown';
 
-export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(({ children, ...props }, ref) => {
+export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(({ children, external, ...props }, ref) => {
   return (
-    <S.Button as="a" ref={ref} {...props}>
-      <S.Content>{children}</S.Content>
+    <S.Button
+      as="a"
+      ref={ref}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noop noreferrer' : undefined}
+      {...props}
+    >
+      <S.Content>
+        {children}
+        {external ? <FeatherIcon icon="external-link" /> : <></>}
+      </S.Content>
     </S.Button>
   );
 });

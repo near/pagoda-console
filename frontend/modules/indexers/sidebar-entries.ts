@@ -10,6 +10,7 @@ import type { SidebarEntry } from '@/shared/utils/types';
 
 const entries: SidebarEntry[] = [
   //e.g. { display: 'Security', route: `/security`, icon: 'lock' },
+  { display: 'Indexers', route: `/indexers`, icon: 'database' },
 ];
 
 // uses default export instead of named export to avoid collisions when
