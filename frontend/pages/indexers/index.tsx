@@ -16,6 +16,7 @@ const Indexers: NextPageWithLayout = () => {
     <Section css={{ margin: 'auto' }}>
       <Flex stack gap="xl">
         <H1>Create your own indexer using NEAR Lake!</H1>
+
         <Flex>
           <Box
             css={{
