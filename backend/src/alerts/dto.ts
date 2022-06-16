@@ -2,17 +2,11 @@
 // because class-validator was experiencing issues at the time of implementation
 // and had many unaddressed github issues
 
-import {
-  RuleType,
-  NumberComparator,
-  TxAction,
-  Net,
-} from '../../generated/alerts';
 import * as Joi from 'joi';
+import { Net, NumberComparator, RuleType } from './types';
 
 export interface TxRuleDto {
   contract: string;
-  action?: TxAction;
 }
 export interface FnCallRuleDto {
   contract: string;
@@ -34,16 +28,6 @@ export interface AcctBalRuleDto {
 
 const TxRuleSchema = Joi.object({
   contract: Joi.string().required(),
-  action: Joi.string().valid(
-    'CREATE_ACCOUNT',
-    'DEPLOY_CONTRACT',
-    'FUNCTION_CALL',
-    'TRANSFER',
-    'STAKE',
-    'ADD_KEY',
-    'DELETE_KEY',
-    'DELETE_ACCOUNT',
-  ),
 });
 const FnCallRuleSchema = Joi.object({
   contract: Joi.string().required(),
