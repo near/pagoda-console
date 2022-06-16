@@ -11,6 +11,7 @@ import { H3, H4 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
+import { Switch } from '@/components/lib/Switch';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
@@ -111,12 +112,23 @@ const EditAlert: NextPageWithLayout = () => {
         ) : (
           <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
             <Flex stack gap="l">
-              <Flex justify="spaceBetween" align="center">
-                <H4>{alert.name}</H4>
+              <Flex stack>
+                <Flex justify="spaceBetween" align="center">
+                  <H4>{alert.name}</H4>
 
-                <Button size="s" aria-label="Delete Alert" color="danger" onClick={() => setShowDeleteModal(true)}>
-                  <FeatherIcon icon="trash-2" size="xs" />
-                </Button>
+                  <Button size="s" aria-label="Edit Alert Name" color="transparent" css={{ marginRight: 'auto' }}>
+                    <FeatherIcon icon="edit-2" size="xs" />
+                  </Button>
+
+                  <Switch aria-label="Active">
+                    <FeatherIcon icon="play" size="xs" data-on />
+                    <FeatherIcon icon="pause" size="xs" data-off />
+                  </Switch>
+
+                  <Button size="s" aria-label="Delete Alert" color="danger" onClick={() => setShowDeleteModal(true)}>
+                    <FeatherIcon icon="trash-2" size="xs" />
+                  </Button>
+                </Flex>
               </Flex>
 
               <HR />

@@ -1,17 +1,18 @@
 import type { Contract, Environment } from '@/utils/types';
 
 export interface Alert {
-  id: number;
-  name: string;
-  description: string;
-  active?: boolean;
-  type: AlertType;
-  contract: Contract;
-  environment: Environment;
-  txRule?: TxRule;
-  fnCallRule?: FnCallRule;
-  eventRule?: EventRule;
   acctBalRule?: AcctBalRule;
+  active?: boolean;
+  contract: Contract;
+  description: string;
+  environment: Environment;
+  eventRule?: EventRule;
+  fnCallRule?: FnCallRule;
+  id: number;
+  isPaused: boolean;
+  name: string;
+  txRule?: TxRule;
+  type: AlertType;
   webhookDeliveries?: Delivery[];
 }
 
