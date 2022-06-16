@@ -24,6 +24,7 @@ export const Group = styled('div', {
   width: '100%',
   flexDirection: 'column',
   justifyContent: 'center',
+  position: 'relative',
 
   variants: {
     gap: {

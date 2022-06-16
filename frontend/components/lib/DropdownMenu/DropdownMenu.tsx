@@ -1,5 +1,8 @@
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import type { ComponentProps, ReactNode } from 'react';
+import { useState } from 'react';
+import { useEffect } from 'react';
+import { useRef } from 'react';
 import { forwardRef } from 'react';
 
 import { ButtonDropdown } from '../Button';
@@ -9,6 +12,7 @@ import * as S from './styles';
 
 type ButtonProps = ComponentProps<typeof ButtonDropdown>;
 type ContentProps = ComponentProps<typeof S.Content> & {
+  matchTriggerWidth?: boolean;
   maxHeight?: string;
   nested?: boolean;
 };
@@ -39,24 +43,58 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, ..
 });
 Button.displayName = 'Button';
 
-export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, maxHeight, nested, ...props }, ref) => {
-  const alignOffset = nested ? -6 : props.alignOffset;
-  const sideOffset = nested ? 14 : props.sideOffset || 6;
-  const arrowOffset = nested ? 24 : 16;
+export const Content = forwardRef<HTMLDivElement, ContentProps>(
+  ({ children, matchTriggerWidth, maxHeight, nested, ...props }, ref) => {
+    const alignOffset = nested ? -6 : props.alignOffset;
+    const sideOffset = nested ? 14 : props.sideOffset || 6;
+    const arrowOffset = nested ? 24 : 16;
+    const containerRef = useRef<HTMLDivElement>();
+    const [triggerWidth, setTriggerWidth] = useState<number | undefined>();
 
-  return (
-    <S.Content ref={ref} alignOffset={alignOffset} sideOffset={sideOffset} {...props}>
-      <S.ContentInner
-        css={{
-          maxHeight,
-        }}
+    useEffect(() => {
+      window.addEventListener('resize', onWindowResize);
+      return () => {
+        window.removeEventListener('resize', onWindowResize);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    function onWindowResize() {
+      calculateWidth();
+    }
+
+    function calculateWidth(container?: HTMLDivElement) {
+      if (!matchTriggerWidth) return;
+      containerRef.current = container || containerRef.current;
+      if (!containerRef.current) return;
+
+      const triggerId = containerRef.current.getAttribute('aria-labelledby');
+      if (!triggerId) return;
+      const trigger = document.getElementById(triggerId);
+      setTriggerWidth(trigger?.offsetWidth);
+    }
+
+    return (
+      <S.Content
+        onAnimationStart={(e) => calculateWidth(e.currentTarget)}
+        ref={ref}
+        alignOffset={alignOffset}
+        sideOffset={sideOffset}
+        style={matchTriggerWidth ? { width: triggerWidth, maxWidth: 'unset' } : undefined}
+        {...props}
       >
-        {children}
-      </S.ContentInner>
-      <S.Arrow offset={arrowOffset} />
-    </S.Content>
-  );
-});
+        <S.ContentInner
+          css={{
+            maxHeight,
+          }}
+        >
+          {children}
+        </S.ContentInner>
+        <S.Arrow offset={arrowOffset} />
+      </S.Content>
+    );
+  },
+);
 Content.displayName = 'Content';
 
 export const CheckboxItem = forwardRef<HTMLDivElement, CheckboxItemProps>(({ children, indicator, ...props }, ref) => {
