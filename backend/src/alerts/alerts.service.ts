@@ -163,7 +163,7 @@ export class AlertsService {
 
     const address = alert.eventRule.contract;
     const rule = {
-      rule: '???', // TODO rule structure is not clearly defined and may change
+      rule: 'EVENT_ANY', // TODO rule structure is not clearly defined and may change
       affected_account_id: address,
       status: 'ANY',
       event: alert.eventRule.event,
@@ -190,7 +190,7 @@ export class AlertsService {
 
     const address = alert.acctBalRule.contract;
     const rule = {
-      rule: 'STATE_CHANGES_ACCOUNT_BALANCE', // TODO rule structure is not clearly defined and may change
+      rule: 'STATE_CHANGE_ACCOUNT_BALANCE', // TODO rule structure is not clearly defined and may change
       affected_account_id: address,
       status: 'ANY',
       amount: alert.acctBalRule.amount,
