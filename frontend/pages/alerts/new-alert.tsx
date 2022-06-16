@@ -45,13 +45,9 @@ const NewAlert: NextPageWithLayout = () => {
   async function submitForm(data: FormData) {
     try {
       await createAlert({
-        type: data.type,
+        ...data,
         contractId: parseInt(data.contractId),
         environmentSubId: environment!.subId,
-        acctBalRule: data.acctBalRule,
-        eventRule: data.eventRule,
-        fnCallRule: data.fnCallRule,
-        txRule: data.txRule,
       });
 
       openToast({

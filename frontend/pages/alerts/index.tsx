@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 
-import { ButtonLink } from '@/components/lib/Button';
+import { Button, ButtonLink } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
@@ -13,15 +14,19 @@ import { Text } from '@/components/lib/Text';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
+import { NewDestinationModal } from '@/modules/alerts/components/NewDestinationModal';
 import { useAlerts } from '@/modules/alerts/hooks/alerts';
-import { alertTypes } from '@/modules/alerts/utils/constants';
+import { useDestinations } from '@/modules/alerts/hooks/destinations';
+import { alertTypes, destinationTypes } from '@/modules/alerts/utils/constants';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ListAlerts: NextPageWithLayout = () => {
   const router = useRouter();
   const selectedTab = useRouteParam('tab');
-  const { environment } = useSelectedProject();
+  const { environment, project } = useSelectedProject();
   const { alerts } = useAlerts(environment?.subId);
+  const { destinations } = useDestinations(project?.slug);
+  const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
 
   function onTabChange(value: string) {
     router.replace(`?tab=${value}`);
@@ -35,7 +40,7 @@ const ListAlerts: NextPageWithLayout = () => {
             <FeatherIcon icon="bell" /> Alerts
           </Tabs.Trigger>
           <Tabs.Trigger value="destinations">
-            <FeatherIcon icon="external-link" /> Destinations
+            <FeatherIcon icon="inbox" /> Destinations
           </Tabs.Trigger>
         </Tabs.List>
 
@@ -65,10 +70,7 @@ const ListAlerts: NextPageWithLayout = () => {
                     <Card as="a" clickable padding="m" borderRadius="m">
                       <Flex align="center">
                         <FeatherIcon icon={alertType.icon} color="primary" />
-                        <Flex stack gap="none">
-                          <Text color="text1">{alert.name}</Text>
-                          <Text size="bodySmall">Destination or other meta info here...</Text>
-                        </Flex>
+                        <Text color="text1">{alert.name}</Text>
                       </Flex>
                     </Card>
                   </Link>
@@ -79,12 +81,48 @@ const ListAlerts: NextPageWithLayout = () => {
         </Tabs.Content>
 
         <Tabs.Content value="destinations">
-          <Flex stack>
-            <H1>Destinations</H1>
-            <Text>Some tab 2 content.</Text>
+          <Flex stack gap="l">
+            <Flex justify="spaceBetween">
+              <H1>Destinations</H1>
+              <Button onClick={() => setShowNewDestinationModal(true)}>
+                <FeatherIcon icon="plus" /> New Destination
+              </Button>
+            </Flex>
+
+            {!destinations && <Spinner center />}
+
+            {destinations?.length === 0 && (
+              <Text>{`You don't have any destinations configured for your selected project yet.`}</Text>
+            )}
+
+            <Flex stack gap="s">
+              {destinations?.map((destination) => {
+                const destinationType = destinationTypes['webhook'];
+
+                return (
+                  <Card as="button" type="button" clickable padding="m" borderRadius="m" key={destination.id}>
+                    <Flex align="center">
+                      <FeatherIcon icon={destinationType.icon} color="primary" />
+                      <Text color="text1">{destination.name}</Text>
+                      <Text family="number" size="bodySmall">
+                        {destination.url}
+                      </Text>
+                    </Flex>
+                  </Card>
+                );
+              })}
+            </Flex>
           </Flex>
         </Tabs.Content>
       </Tabs.Root>
+
+      {project && (
+        <NewDestinationModal
+          projectSlug={project.slug}
+          show={showNewDestinationModal}
+          setShow={setShowNewDestinationModal}
+        />
+      )}
     </Section>
   );
 };

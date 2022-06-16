@@ -1,4 +1,4 @@
-import type { AlertType, AmountComparator } from './types';
+import type { AlertType, AmountComparator, DestinationType } from './types';
 
 interface AlertTypeOption {
   description: string;
@@ -101,4 +101,49 @@ export const amountComparatorOptions = [
   amountComparators.LTE,
   amountComparators.GT,
   amountComparators.GTE,
+];
+
+interface DestinationTypeOption {
+  description: string;
+  disabled?: boolean;
+  icon: string;
+  name: string;
+  value: DestinationType;
+}
+
+export const destinationTypes: Record<DestinationType, DestinationTypeOption> = {
+  email: {
+    description: 'Send alerts to an email address.',
+    icon: 'mail',
+    name: 'Email',
+    value: 'email',
+    disabled: true,
+  },
+  sms: {
+    description: 'Send alerts to a SMS number.',
+    icon: 'message-square',
+    name: 'SMS',
+    value: 'sms',
+    disabled: true,
+  },
+  telegram: {
+    description: 'Send alerts to a Telegram account.',
+    icon: 'send',
+    name: 'Telegram',
+    value: 'telegram',
+    disabled: true,
+  },
+  webhook: {
+    description: 'Send alerts to a webhook.',
+    icon: 'terminal',
+    name: 'Webhook',
+    value: 'webhook',
+  },
+};
+
+export const destinationTypeOptions = [
+  destinationTypes.webhook,
+  destinationTypes.email,
+  destinationTypes.sms,
+  destinationTypes.telegram,
 ];

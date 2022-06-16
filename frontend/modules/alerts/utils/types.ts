@@ -58,7 +58,17 @@ export type AcctBalRule = {
 export type AlertType = 'TX_SUCCESS' | 'TX_FAILURE' | 'EVENT' | 'FN_CALL' | 'ACCT_BAL_PCT' | 'ACCT_BAL_NUM';
 
 export interface Destination {
-  type: DestinationType;
+  id: number;
+  name: string;
+  projectSlug: string;
+  secret: string;
+  url: string;
+}
+
+export interface NewWebhookDestination {
+  name: string;
+  project: string;
+  url: string;
 }
 
 export type DestinationType = 'webhook' | 'email' | 'sms' | 'telegram';

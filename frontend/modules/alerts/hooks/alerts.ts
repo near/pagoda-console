@@ -1,4 +1,3 @@
-import mixpanel from 'mixpanel-browser';
 import type { KeyedMutator } from 'swr';
 import useSWR from 'swr';
 
@@ -40,7 +39,7 @@ export async function createAlert(data: NewAlert) {
 export async function deleteAlert(alert: Alert) {
   try {
     await authenticatedPost('/alerts/deleteAlert', { id: alert.id });
-    mixpanel.track('DC Remove Alert', {
+    analytics.track('DC Remove Alert', {
       status: 'success',
       name: alert.id,
     });
@@ -49,7 +48,7 @@ export async function deleteAlert(alert: Alert) {
 
     return true;
   } catch (e: any) {
-    mixpanel.track('DC Remove Alert', {
+    analytics.track('DC Remove Alert', {
       status: 'failure',
       name,
       error: e.message,
