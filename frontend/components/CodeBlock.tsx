@@ -51,6 +51,7 @@ export default function CodeBlock({ children, ...passedProps }: { children: Reac
       <Popover.Root open={showCopiedAlert} onOpenChange={setShowCopiedAlert}>
         <Popover.Anchor asChild>
           <Button
+            aria-label="Copy code to clipboard"
             color="neutral"
             size="s"
             onClick={copyCode}
