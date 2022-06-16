@@ -8,7 +8,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../../../generated/alerts"
+  output   = "../../../generated/prisma/alerts"
 }
 
 /// Stores info about an alert and has a 1-1 relationship with one of the various Rule tables.
