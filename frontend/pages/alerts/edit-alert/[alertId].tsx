@@ -355,3 +355,5 @@ const EditAlert: NextPageWithLayout = () => {
 };
 
 EditAlert.getLayout = useDashboardLayout;
+
+export default EditAlert;
