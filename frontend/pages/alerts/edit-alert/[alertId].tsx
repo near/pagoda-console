@@ -19,7 +19,7 @@ import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { DeleteAlertModal } from '@/modules/alerts/components/DeleteAlertModal';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
-import { useAlert } from '@/modules/alerts/hooks/alerts';
+import { updateAlert, useAlert } from '@/modules/alerts/hooks/alerts';
 import { alertTypes, amountComparators } from '@/modules/alerts/utils/constants';
 import type { Destination } from '@/modules/alerts/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -35,6 +35,7 @@ const EditAlert: NextPageWithLayout = () => {
   const { alert } = useAlert(alertId);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [updateError, setUpdateError] = useState('');
+  const [alertIsActive, setAlertIsActive] = useState(true);
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<number[]>([]);
 
   useEffect(() => {
@@ -44,6 +45,8 @@ const EditAlert: NextPageWithLayout = () => {
       alert.webhookDeliveries?.forEach((delivery) => {
         destinationIds.push(delivery.webhookDestination.id);
       });
+
+      setAlertIsActive(!alert.isPaused);
     }
 
     setSelectedDestinationIds(destinationIds);
@@ -53,13 +56,53 @@ const EditAlert: NextPageWithLayout = () => {
     console.log(data);
   }
 
-  function onAlertDelete() {
+  function onDelete() {
     openToast({
       type: 'success',
       title: 'Alert was deleted.',
     });
 
     router.replace('/alerts');
+  }
+
+  async function update(data: { isPaused?: boolean; name?: string }) {
+    if (!alert) return;
+
+    try {
+      const name = data.name || alert.name;
+      const isPaused = data.isPaused !== undefined ? data.isPaused : alert.isPaused;
+
+      await updateAlert({
+        id: alert.id,
+        isPaused,
+        name,
+      });
+
+      return true;
+    } catch (e: any) {
+      console.error('Failed to update alert', e);
+      setUpdateError('Failed to update alert.');
+
+      return false;
+    }
+  }
+
+  async function updateIsActive(isActive: boolean) {
+    setAlertIsActive(isActive);
+
+    const wasUpdated = await update({
+      isPaused: !isActive,
+    });
+
+    if (wasUpdated) {
+      openToast({
+        type: 'success',
+        title: 'Alert Updated',
+        description: isActive
+          ? `Alert has been activated. New events will be recorded.`
+          : `Alert has been paused. New events won't be recorded.`,
+      });
+    }
   }
 
   function updateSelectedDestination(isSelected: boolean, destination: Destination) {
@@ -114,14 +157,14 @@ const EditAlert: NextPageWithLayout = () => {
             <Flex stack gap="l">
               <Flex stack>
                 <Flex justify="spaceBetween" align="center">
-                  <H4>{alert.name}</H4>
+                  <H3>{alert.name}</H3>
 
                   <Button size="s" aria-label="Edit Alert Name" color="transparent" css={{ marginRight: 'auto' }}>
                     <FeatherIcon icon="edit-2" size="xs" />
                   </Button>
 
-                  <Switch aria-label="Active">
-                    <FeatherIcon icon="play" size="xs" data-on />
+                  <Switch aria-label="Alert Is Active" checked={alertIsActive} onCheckedChange={updateIsActive}>
+                    <FeatherIcon icon="bell" size="xs" data-on />
                     <FeatherIcon icon="pause" size="xs" data-off />
                   </Switch>
 
@@ -229,12 +272,7 @@ const EditAlert: NextPageWithLayout = () => {
 
             <ErrorModal error={updateError} setError={setUpdateError} />
 
-            <DeleteAlertModal
-              alert={alert}
-              show={showDeleteModal}
-              setShow={setShowDeleteModal}
-              onDelete={onAlertDelete}
-            />
+            <DeleteAlertModal alert={alert} show={showDeleteModal} setShow={setShowDeleteModal} onDelete={onDelete} />
           </Form.Root>
         )}
       </Flex>

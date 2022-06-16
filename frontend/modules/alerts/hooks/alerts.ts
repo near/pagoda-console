@@ -6,7 +6,7 @@ import { useIdentity } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 
-import type { Alert, NewAlert } from '../utils/types';
+import type { Alert, NewAlert, UpdateAlert } from '../utils/types';
 
 export async function createAlert(data: NewAlert) {
   const txRule = data.type === 'TX_SUCCESS' || data.type === 'TX_FAILURE' ? data.txRule || {} : undefined;
@@ -53,6 +53,24 @@ export async function deleteAlert(alert: Alert) {
     console.error('Failed to delete alert');
   }
   return false;
+}
+
+export async function updateAlert(data: UpdateAlert) {
+  const alert: Alert = await authenticatedPost(
+    '/alerts/updateAlert',
+    {
+      ...data,
+    },
+    { forceRefresh: true },
+  );
+
+  analytics.track('DC Update Alert', {
+    status: 'success',
+    name: alert.name,
+    id: alert.id,
+  });
+
+  return alert;
 }
 
 export function useAlert(alertId: number | undefined): { alert?: Alert; error?: any } {

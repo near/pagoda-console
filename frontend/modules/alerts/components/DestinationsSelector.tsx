@@ -57,6 +57,10 @@ export function DestinationsSelector({ onChange, selectedIds }: Props) {
     <Flex stack>
       {!destinations && <Spinner center />}
 
+      {destinations?.length === 0 && (
+        <Text>{`Your selected project doesn't have any destinations configured yet.`}</Text>
+      )}
+
       <Flex stack gap="s">
         {destinations?.map((destination) => {
           const destinationType = destinationTypes['webhook'];

@@ -27,6 +27,12 @@ export interface NewAlert {
   acctBalRule?: AcctBalRule;
 }
 
+export interface UpdateAlert {
+  id: number;
+  isPaused: boolean;
+  name: string;
+}
+
 export type TxRule = {
   action?:
     | 'CREATE_ACCOUNT'

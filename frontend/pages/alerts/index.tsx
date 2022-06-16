@@ -67,9 +67,7 @@ const ListAlerts: NextPageWithLayout = () => {
 
             {!alerts && <Spinner center />}
 
-            {alerts?.length === 0 && (
-              <Text>{`You don't have any alerts configured for your selected environment yet.`}</Text>
-            )}
+            {alerts?.length === 0 && <Text>{`Your selected environment doesn't have any alerts configured yet.`}</Text>}
 
             <Flex stack gap="s">
               {alerts?.map((alert) => {
@@ -84,6 +82,15 @@ const ListAlerts: NextPageWithLayout = () => {
                         <Badge size="s" css={{ marginLeft: 'auto' }}>
                           {alertType.name}
                         </Badge>
+                        {alert.isPaused ? (
+                          <Badge size="s">
+                            <FeatherIcon icon="pause" size="xs" /> Paused
+                          </Badge>
+                        ) : (
+                          <Badge size="s">
+                            <FeatherIcon icon="bell" size="xs" /> Active
+                          </Badge>
+                        )}
                       </Flex>
                     </Card>
                   </Link>
@@ -105,7 +112,7 @@ const ListAlerts: NextPageWithLayout = () => {
             {!destinations && <Spinner center />}
 
             {destinations?.length === 0 && (
-              <Text>{`You don't have any destinations configured for your selected project yet.`}</Text>
+              <Text>{`Your selected project doesn't have any destinations configured yet.`}</Text>
             )}
 
             <Flex stack gap="s">
