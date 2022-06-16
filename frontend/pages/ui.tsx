@@ -369,10 +369,14 @@ const Settings: NextPageWithLayout = () => {
           </Button>
         </Flex>
 
+        <H4>ButtonLink</H4>
         <Flex wrap>
           <Link href="/project-settings" passHref>
-            <ButtonLink color="neutral">Link</ButtonLink>
+            <ButtonLink>Link</ButtonLink>
           </Link>
+          <ButtonLink href="https://github.com/near/developer-console-framework" external>
+            External Link
+          </ButtonLink>
         </Flex>
       </DocSection>
 
