@@ -17,7 +17,7 @@ import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useContracts } from '@/hooks/contracts';
-import { useDashboardLayout } from '@/hooks/layouts';
+import { dashboardLayoutWithOptions } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
 import { createAlert } from '@/modules/alerts/hooks/alerts';
@@ -398,6 +398,12 @@ const NewAlert: NextPageWithLayout = () => {
   );
 };
 
-NewAlert.getLayout = useDashboardLayout;
+NewAlert.getLayout = dashboardLayoutWithOptions({
+  redirect: {
+    environmentChange: true,
+    projectChange: true,
+    url: '/alerts',
+  },
+});
 
 export default NewAlert;

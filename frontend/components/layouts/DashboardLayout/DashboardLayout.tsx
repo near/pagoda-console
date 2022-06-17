@@ -7,15 +7,21 @@ import { Footer } from '../Footer';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import * as S from './styles';
+import type { Redirect } from './types';
 
-export function DashboardLayout({ children }: { children: ReactNode }) {
+interface Props {
+  children: ReactNode;
+  redirect?: Redirect;
+}
+
+export function DashboardLayout({ children, redirect }: Props) {
   const router = useRouter();
 
   return (
     <>
       <Sidebar>
         <S.Wrapper>
-          <Header />
+          <Header redirect={redirect} />
           <S.Main>{children}</S.Main>
           <Footer />
         </S.Wrapper>

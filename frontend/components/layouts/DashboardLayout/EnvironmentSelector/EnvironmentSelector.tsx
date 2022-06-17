@@ -5,10 +5,22 @@ import analytics from '@/utils/analytics';
 import { assertUnreachable } from '@/utils/helpers';
 import type { Environment } from '@/utils/types';
 
-export function EnvironmentSelector() {
+interface Props {
+  onBeforeChange?: (environment: Environment, selectEnvironment: (environment: Environment) => void) => void;
+}
+
+export function EnvironmentSelector(props: Props) {
   const { environment, environments, selectEnvironment } = useSelectedProject();
 
   function onSelectEnvironment(environment: Environment) {
+    if (props.onBeforeChange) {
+      props.onBeforeChange(environment, (env) => {
+        selectEnvironment(env.subId);
+        analytics.track('DC Switch Network');
+      });
+      return;
+    }
+
     selectEnvironment(environment.subId);
     analytics.track('DC Switch Network', {
       status: 'success',

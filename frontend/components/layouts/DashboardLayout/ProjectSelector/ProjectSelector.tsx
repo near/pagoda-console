@@ -9,7 +9,11 @@ import { useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
 import type { Project } from '@/utils/types';
 
-export function ProjectSelector() {
+interface Props {
+  onBeforeChange?: (project: Project, selectProject: (project: Project) => void) => void;
+}
+
+export function ProjectSelector(props: Props) {
   const { project, selectProject } = useSelectedProject();
   const { projects } = useProjects();
   const router = useRouter();
@@ -18,6 +22,14 @@ export function ProjectSelector() {
   const otherProjects = otherProjectsList?.length ? otherProjectsList : null;
 
   function onSelectProject(project: Project) {
+    if (props.onBeforeChange) {
+      props.onBeforeChange(project, (p) => {
+        selectProject(p.slug);
+        analytics.track('DC Switch Project');
+      });
+      return;
+    }
+
     selectProject(project.slug);
 
     if (router.pathname.startsWith('/tutorials/') && !project.tutorial) {
