@@ -94,10 +94,8 @@ const NewAlert: NextPageWithLayout = () => {
 
           <Link href="/alerts" passHref>
             <TextLink>
-              <Flex align="center" gap="s" as="span">
-                <FeatherIcon icon="arrow-left" />
-                Alerts
-              </Flex>
+              <FeatherIcon icon="arrow-left" />
+              Alerts
             </TextLink>
           </Link>
         </Flex>
