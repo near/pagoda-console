@@ -16,8 +16,6 @@ const closeAnimation = keyframes({
 export const Content = styled(DropdownMenuPrimitive.Content, {
   '--animation-speed': '200ms',
   '--background-color': 'var(--color-surface-overlay)',
-  minWidth: 'var(--size-max-container-width-xxs)',
-  maxWidth: 'var(--size-max-container-width-s)',
   backgroundColor: 'var(--background-color)',
   borderRadius: 'var(--border-radius-s)',
   boxShadow: 'var(--shadow-softer)',
@@ -29,11 +27,32 @@ export const Content = styled(DropdownMenuPrimitive.Content, {
   '&[data-state="closed"]': {
     animation: `${closeAnimation} var(--animation-speed)`,
   },
+
+  variants: {
+    width: {
+      auto: {
+        maxWidth: 'min(85vw, var(--size-max-container-width-s))',
+      },
+
+      maxTrigger: {
+        maxWidth: 'var(--trigger-width, var(--size-max-container-width-s))',
+      },
+
+      trigger: {
+        maxWidth: 'unset',
+        width: 'var(--trigger-width, var(--size-max-container-width-s))',
+      },
+    },
+  },
+
+  defaultVariants: {
+    width: 'auto',
+  },
 });
 
 export const ContentInner = styled('div', {
   padding: 'var(--space-s)',
-  maxHeight: 'var(--size-max-dropdown-height)',
+  maxHeight: 'min(60vh, var(--size-max-dropdown-height))',
   overflow: 'auto',
   scrollBehavior: 'smooth',
 });

@@ -141,7 +141,7 @@ const NewAlert: NextPageWithLayout = () => {
                           />
                         </DropdownMenu.Trigger>
 
-                        <DropdownMenu.Content matchTriggerWidth>
+                        <DropdownMenu.Content width="trigger">
                           {!contracts && (
                             <DropdownMenu.ContentItem>
                               <Spinner center size="s" />
@@ -216,7 +216,7 @@ const NewAlert: NextPageWithLayout = () => {
                           />
                         </DropdownMenu.Trigger>
 
-                        <DropdownMenu.Content matchTriggerWidth>
+                        <DropdownMenu.Content css={{ width: '3rem' }}>
                           <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
                             {alertTypeOptions.map((option) => (
                               <DropdownMenu.RadioItem

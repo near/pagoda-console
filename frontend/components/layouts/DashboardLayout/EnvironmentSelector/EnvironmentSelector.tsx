@@ -23,7 +23,7 @@ export function EnvironmentSelector() {
         {environment?.name || '...'}
       </DropdownMenu.Button>
 
-      <DropdownMenu.Content matchTriggerWidth>
+      <DropdownMenu.Content width="trigger">
         {environments?.map((e) => {
           return (
             <DropdownMenu.Item key={e.subId} onSelect={() => onSelectEnvironment(e)}>

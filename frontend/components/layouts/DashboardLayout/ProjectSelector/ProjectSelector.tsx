@@ -37,7 +37,7 @@ export function ProjectSelector() {
         <TextOverflow>{project?.name || '...'}</TextOverflow>
       </DropdownMenu.Button>
 
-      <DropdownMenu.Content matchTriggerWidth>
+      <DropdownMenu.Content width="trigger">
         {otherProjects?.map((p) => {
           return (
             <DropdownMenu.Item key={p.id} onSelect={() => onSelectProject(p)}>

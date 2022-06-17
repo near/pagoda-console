@@ -27,11 +27,32 @@ export const Content = styled(PopoverPrimitive.Content, {
   '&[data-state="closed"]': {
     animation: `${closeAnimation} var(--animation-speed)`,
   },
+
+  variants: {
+    width: {
+      auto: {
+        maxWidth: 'min(85vw, var(--size-max-container-width-s))',
+      },
+
+      maxTrigger: {
+        maxWidth: 'var(--trigger-width, var(--size-max-container-width-s))',
+      },
+
+      trigger: {
+        maxWidth: 'unset',
+        width: 'var(--trigger-width, var(--size-max-container-width-s))',
+      },
+    },
+  },
+
+  defaultVariants: {
+    width: 'auto',
+  },
 });
 
 export const ContentInner = styled('div', {
   padding: 'var(--space-m)',
-  maxHeight: 'var(--size-max-dropdown-height)',
+  maxHeight: 'min(60vh, var(--size-max-dropdown-height))',
   overflow: 'auto',
   scrollBehavior: 'smooth',
 });
