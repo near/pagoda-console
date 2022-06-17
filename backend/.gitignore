@@ -45,4 +45,4 @@ ignore
 .eslintcache
 
 # prisma for modules
-**/generated
+generated
