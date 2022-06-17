@@ -34,20 +34,23 @@ export const ButtonDropdown = forwardRef<HTMLButtonElement, ButtonDropdownProps>
 );
 ButtonDropdown.displayName = 'ButtonDropdown';
 
-export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(({ children, external, ...props }, ref) => {
-  return (
-    <S.Button
-      as="a"
-      ref={ref}
-      target={external ? '_blank' : undefined}
-      rel={external ? 'noop noreferrer' : undefined}
-      {...props}
-    >
-      <S.Content>
-        {children}
-        {external ? <FeatherIcon icon="external-link" /> : <></>}
-      </S.Content>
-    </S.Button>
-  );
-});
+export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
+  ({ children, external, size, ...props }, ref) => {
+    return (
+      <S.Button
+        as="a"
+        ref={ref}
+        size={size}
+        target={external ? '_blank' : undefined}
+        rel={external ? 'noop noreferrer' : undefined}
+        {...props}
+      >
+        <S.Content>
+          {children}
+          {external ? <FeatherIcon icon="external-link" size={size === 's' ? 'xs' : 's'} /> : <></>}
+        </S.Content>
+      </S.Button>
+    );
+  },
+);
 ButtonLink.displayName = 'ButtonLink';
