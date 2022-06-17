@@ -18,10 +18,12 @@ export function useSimpleLogoutLayout(page: ReactElement) {
   return <SimpleLogoutLayout>{page}</SimpleLogoutLayout>;
 }
 
-export function dashboardLayoutWithOptions(options: DashboardLayoutProps) {
+export function wrapDashboardLayoutWithOptions(options: DashboardLayoutProps) {
   /*
-    If we name this function "useDashboardLayoutWithOptions", ES Lint throws
-    an error to help prevent invalid use of hooks on the top level.
+    If we named this function "useDashboardLayoutWithOptions", ES Lint throws
+    an error to help prevent invalid use of hooks on the top level. We might
+    want to consider renaming the exports of this file and moving it to the
+    "/utils" folder since these functions aren't being used as actual hooks.
   */
 
   const useLayout = (page: ReactElement) => {

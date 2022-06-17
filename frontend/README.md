@@ -117,9 +117,9 @@ export default NewPage;
 When using our `DashboardLayout`, sometimes we need to define properties that handle more advanced requirements. A common use case for this is on pages that should be redirected away from when the user changes their selected project and/or environment:
 
 ```ts
-import { dashboardLayoutWithOptions } from '@/hooks/layouts';
+import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 
-NewPage.getLayout = dashboardLayoutWithOptions({
+NewPage.getLayout = wrapDashboardLayoutWithOptions({
   redirect: {
     environmentChange: true,
     projectChange: true,

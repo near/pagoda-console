@@ -54,12 +54,10 @@ export function Header({ redirect, ...props }: Props) {
             <ProjectSelector
               onBeforeChange={
                 redirect?.projectChange
-                  ? (project, selectProject) => {
+                  ? (change) => {
                       openConfirmRedirectModal(
                         'Changing projects will redirect you away from your current page. Would you like to change?',
-                        () => {
-                          selectProject(project);
-                        },
+                        change,
                       );
                     }
                   : undefined
@@ -69,12 +67,10 @@ export function Header({ redirect, ...props }: Props) {
             <EnvironmentSelector
               onBeforeChange={
                 redirect?.environmentChange
-                  ? (environment, selectEnvironment) => {
+                  ? (change) => {
                       openConfirmRedirectModal(
                         'Changing environments will redirect you away from your current page. Would you like to change?',
-                        () => {
-                          selectEnvironment(environment);
-                        },
+                        change,
                       );
                     }
                   : undefined

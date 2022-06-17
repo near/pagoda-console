@@ -17,7 +17,7 @@ import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useContracts } from '@/hooks/contracts';
-import { dashboardLayoutWithOptions } from '@/hooks/layouts';
+import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
 import { createAlert } from '@/modules/alerts/hooks/alerts';
@@ -216,7 +216,7 @@ const NewAlert: NextPageWithLayout = () => {
                           />
                         </DropdownMenu.Trigger>
 
-                        <DropdownMenu.Content css={{ width: '3rem' }}>
+                        <DropdownMenu.Content width="trigger">
                           <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
                             {alertTypeOptions.map((option) => (
                               <DropdownMenu.RadioItem
@@ -398,7 +398,7 @@ const NewAlert: NextPageWithLayout = () => {
   );
 };
 
-NewAlert.getLayout = dashboardLayoutWithOptions({
+NewAlert.getLayout = wrapDashboardLayoutWithOptions({
   redirect: {
     environmentChange: true,
     projectChange: true,

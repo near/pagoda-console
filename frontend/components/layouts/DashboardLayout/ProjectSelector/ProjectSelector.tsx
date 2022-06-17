@@ -10,7 +10,7 @@ import analytics from '@/utils/analytics';
 import type { Project } from '@/utils/types';
 
 interface Props {
-  onBeforeChange?: (project: Project, selectProject: (project: Project) => void) => void;
+  onBeforeChange?: (change: () => void) => void;
 }
 
 export function ProjectSelector(props: Props) {
@@ -23,8 +23,8 @@ export function ProjectSelector(props: Props) {
 
   function onSelectProject(project: Project) {
     if (props.onBeforeChange) {
-      props.onBeforeChange(project, (p) => {
-        selectProject(p.slug);
+      props.onBeforeChange(() => {
+        selectProject(project.slug);
         analytics.track('DC Switch Project');
       });
       return;

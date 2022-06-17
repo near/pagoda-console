@@ -6,7 +6,7 @@ import { assertUnreachable } from '@/utils/helpers';
 import type { Environment } from '@/utils/types';
 
 interface Props {
-  onBeforeChange?: (environment: Environment, selectEnvironment: (environment: Environment) => void) => void;
+  onBeforeChange?: (change: () => void) => void;
 }
 
 export function EnvironmentSelector(props: Props) {
@@ -14,8 +14,8 @@ export function EnvironmentSelector(props: Props) {
 
   function onSelectEnvironment(environment: Environment) {
     if (props.onBeforeChange) {
-      props.onBeforeChange(environment, (env) => {
-        selectEnvironment(env.subId);
+      props.onBeforeChange(() => {
+        selectEnvironment(environment.subId);
         analytics.track('DC Switch Network');
       });
       return;

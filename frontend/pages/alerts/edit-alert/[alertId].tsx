@@ -16,7 +16,7 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
-import { dashboardLayoutWithOptions } from '@/hooks/layouts';
+import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { DeleteAlertModal } from '@/modules/alerts/components/DeleteAlertModal';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
 import { updateAlert, useAlert } from '@/modules/alerts/hooks/alerts';
@@ -354,7 +354,7 @@ const EditAlert: NextPageWithLayout = () => {
   );
 };
 
-EditAlert.getLayout = dashboardLayoutWithOptions({
+EditAlert.getLayout = wrapDashboardLayoutWithOptions({
   redirect: {
     environmentChange: true,
     projectChange: true,
