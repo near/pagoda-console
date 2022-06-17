@@ -120,14 +120,9 @@ export default function StarterGuide() {
             <List as="ol" gap="l">
               <ListItem>
                 If you don&#39;t yet have near-cli installed on your machine, follow the instructions in the{' '}
-                <TextLink
-                  href="https://docs.near.org/docs/tools/near-cli#installation"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  near-cli installation documentation
+                <TextLink href="https://docs.near.org/docs/tools/near-cli#installation" external>
+                  near-cli installation docs
                 </TextLink>
-                .
               </ListItem>
               <ListItem>
                 <Flex stack gap="s">

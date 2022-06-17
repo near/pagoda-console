@@ -32,7 +32,7 @@ import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Switch } from '@/components/lib/Switch';
 import * as Tabs from '@/components/lib/Tabs';
 import { Text } from '@/components/lib/Text';
-import { TextLink } from '@/components/lib/TextLink';
+import { TextButton, TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
@@ -1440,6 +1440,11 @@ const Settings: NextPageWithLayout = () => {
               Small Link
             </TextLink>
           </Link>
+        </Flex>
+
+        <Flex wrap>
+          <TextLink external>External Link</TextLink>
+          <TextButton onClick={() => alert('Hi!')}>Button</TextButton>
         </Flex>
       </DocSection>
 
