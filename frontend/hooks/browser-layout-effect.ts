@@ -1,5 +1,5 @@
 /*
-  There are rare cases that requires use of useLayoutEffect() - EG: when needing to
+  There are rare cases that require use of useLayoutEffect() - EG: when needing to
   access a DOM element ref on component mount.
 
   Next JS throws a console warning when using useLayoutEffect() directly. This hook
