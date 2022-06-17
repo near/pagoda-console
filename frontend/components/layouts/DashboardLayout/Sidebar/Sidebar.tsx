@@ -6,6 +6,7 @@ import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useSelectedProject } from '@/hooks/selected-project';
+import indexersEntries from '@/modules/indexers/sidebar-entries';
 import templateEntries from '@/modules/template/sidebar-entries';
 import type { SidebarEntry } from '@/shared/utils/types';
 import { logOut } from '@/utils/auth';
@@ -34,6 +35,7 @@ function useProjectPages(): SidebarEntry[] {
   // pushed individually so that module pages can be placed at any point
   pages.push({ display: 'Contracts', route: `/contracts`, icon: 'zap' });
   pages.push({ display: 'Analytics', route: '/project-analytics', icon: 'bar-chart-2' });
+  pages = pages.concat(indexersEntries);
   pages.push({ display: 'Deploys', route: '', icon: 'git-merge' });
   pages.push({ display: 'Alerts', route: '', icon: 'bell' });
   pages.push({ display: 'Settings', route: `/project-settings`, icon: 'settings' });
