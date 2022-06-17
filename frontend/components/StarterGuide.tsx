@@ -11,6 +11,7 @@ import { Flex } from './lib/Flex';
 import { H4 } from './lib/Heading';
 import { List, ListItem } from './lib/List';
 import { Text } from './lib/Text';
+import { TextLink } from './lib/TextLink';
 
 const NAJ_STARTER_TEMPLATE = `const { connect, keyStores } = require("near-api-js");
 
@@ -119,14 +120,9 @@ export default function StarterGuide() {
             <List as="ol" gap="l">
               <ListItem>
                 If you don&#39;t yet have near-cli installed on your machine, follow the instructions in the{' '}
-                <a
-                  href="https://docs.near.org/docs/tools/near-cli#installation"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  near-cli installation documentation
-                </a>
-                .
+                <TextLink href="https://docs.near.org/docs/tools/near-cli#installation" external>
+                  near-cli installation docs
+                </TextLink>
               </ListItem>
               <ListItem>
                 <Flex stack gap="s">
@@ -150,13 +146,13 @@ export default function StarterGuide() {
             <List as="ol" gap="l">
               <ListItem>
                 If you don&#39;t yet have near-api-js installed in your project, follow the instructions from the{' '}
-                <a
+                <TextLink
                   href="https://docs.near.org/docs/api/naj-quick-reference#install"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   near-api-js quick reference guide
-                </a>
+                </TextLink>
                 .
               </ListItem>
               <ListItem>

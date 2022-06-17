@@ -1,7 +1,8 @@
 import type { ComponentProps, ReactNode } from 'react';
-import { useLayoutEffect } from 'react';
 import { useRef } from 'react';
 import { forwardRef } from 'react';
+
+import { useBrowserLayoutEffect } from '@/hooks/browser-layout-effect';
 
 import { FeatherIcon } from '../FeatherIcon';
 import * as S from './styles';
@@ -52,7 +53,7 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
 
     const wrapperRef = useRef<HTMLLabelElement | null>(null);
 
-    useLayoutEffect(() => {
+    useBrowserLayoutEffect(() => {
       /*
         When using this component with a custom input via `children`, make sure
         the placeholder attribute is set - this is critical for our CSS to render
