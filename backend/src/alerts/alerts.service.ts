@@ -15,22 +15,25 @@ import { customAlphabet } from 'nanoid';
 import { PrismaService } from './prisma.service';
 import { VError } from 'verror';
 import { NumberComparator, RuleType, Net } from './types';
+import { RuleSerializerService } from './serde/rule-serializer/rule-serializer.service';
+import { RuleDeserializerService } from './serde/rule-deserializer/rule-deserializer.service';
+import { AcctBalMatchingRule, MatchingRule } from './serde/db.types';
 
 type TxRuleSchema = {
-  txRule: {
+  rule: {
     contract: string;
   };
 };
 
 type FnCallRuleSchema = {
-  fnCallRule: {
+  rule: {
     contract: string;
     function: string;
   };
 };
 
 type EventRuleSchema = {
-  eventRule: {
+  rule: {
     contract: string;
     standard: string;
     version: string;
@@ -39,7 +42,7 @@ type EventRuleSchema = {
 };
 
 type AcctBalRuleSchema = {
-  acctBalRule: {
+  rule: {
     contract: string;
     comparator: NumberComparator;
     amount: number;
@@ -78,22 +81,25 @@ const nanoid = customAlphabet(
   12,
 );
 
+type AlertWithDestinations = Alert & {
+  webhookDeliveries: {
+    webhookDestination: WebhookDestination;
+  }[];
+};
+
 @Injectable()
 export class AlertsService {
   constructor(
     private prisma: PrismaService,
     private projectPermissions: ProjectPermissionsService,
+    private ruleSerializer: RuleSerializerService,
+    private ruleDeserializer: RuleDeserializerService,
   ) {}
 
   async createTxSuccessAlert(user: User, alert: CreateTxAlertSchema) {
     await this.checkUserCreateAlertPermission(user, alert);
 
-    const address = alert.txRule.contract;
-    const rule = {
-      rule: 'ACTION_ANY',
-      affected_account_id: address,
-      status: 'SUCCESS',
-    };
+    const address = alert.rule.contract;
     const alertInput = this.buildCreateAlertInput(
       user,
       {
@@ -101,7 +107,7 @@ export class AlertsService {
         name: alert.name || `Successful transaction in ${address}`,
       },
       AlertRuleKind.ACTIONS,
-      rule,
+      this.ruleSerializer.toTxSuccessJson(alert.rule),
     );
 
     return this.createAlert(alertInput);
@@ -110,13 +116,7 @@ export class AlertsService {
   async createTxFailureAlert(user: User, alert: CreateTxAlertSchema) {
     await this.checkUserCreateAlertPermission(user, alert);
 
-    const address = alert.txRule.contract;
-    const rule = {
-      rule: 'ACTION_ANY',
-      affected_account_id: address,
-      status: 'FAIL',
-    };
-
+    const address = alert.rule.contract;
     const alertInput = this.buildCreateAlertInput(
       user,
       {
@@ -124,7 +124,7 @@ export class AlertsService {
         name: alert.name || `Failed transaction in ${address}`,
       },
       AlertRuleKind.ACTIONS,
-      rule,
+      this.ruleSerializer.toTxFailureJson(alert.rule),
     );
 
     return this.createAlert(alertInput);
@@ -133,24 +133,16 @@ export class AlertsService {
   async createFnCallAlert(user: User, alert: CreateFnCallAlertSchema) {
     await this.checkUserCreateAlertPermission(user, alert);
 
-    const address = alert.fnCallRule.contract;
-    const rule = {
-      rule: 'ACTION_FUNCTION_CALL', // TODO rule structure is not clearly defined and may change
-      affected_account_id: address,
-      status: 'ANY',
-      function: alert.fnCallRule.function,
-    };
-
+    const address = alert.rule.contract;
     const alertInput = this.buildCreateAlertInput(
       user,
       {
         ...alert,
         name:
-          alert.name ||
-          `Function ${alert.fnCallRule.function} called in ${address}`,
+          alert.name || `Function ${alert.rule.function} called in ${address}`,
       },
       AlertRuleKind.ACTIONS,
-      rule,
+      this.ruleSerializer.toFnCallJson(alert.rule),
     );
 
     return this.createAlert(alertInput);
@@ -159,25 +151,15 @@ export class AlertsService {
   async createEventAlert(user: User, alert: CreateEventAlertSchema) {
     await this.checkUserCreateAlertPermission(user, alert);
 
-    const address = alert.eventRule.contract;
-    const rule = {
-      rule: 'EVENT_ANY', // TODO rule structure is not clearly defined and may change
-      affected_account_id: address,
-      status: 'ANY',
-      event: alert.eventRule.event,
-      standard: alert.eventRule.standard,
-      version: alert.eventRule.version,
-    };
-
+    const address = alert.rule.contract;
     const alertInput = this.buildCreateAlertInput(
       user,
       {
         ...alert,
-        name:
-          alert.name || `Event ${alert.eventRule.event} logged in ${address}`,
+        name: alert.name || `Event ${alert.rule.event} logged in ${address}`,
       },
       AlertRuleKind.EVENTS,
-      rule,
+      this.ruleSerializer.toEventJson(alert.rule),
     );
 
     return this.createAlert(alertInput);
@@ -186,16 +168,7 @@ export class AlertsService {
   async createAcctBalAlert(user: User, alert: CreateAcctBalAlertSchema) {
     await this.checkUserCreateAlertPermission(user, alert);
 
-    const address = alert.acctBalRule.contract;
-    const rule = {
-      rule: 'STATE_CHANGE_ACCOUNT_BALANCE', // TODO rule structure is not clearly defined and may change
-      affected_account_id: address,
-      status: 'ANY',
-      amount: alert.acctBalRule.amount,
-      comparator: alert.acctBalRule.comparator,
-      percentage: alert.type === 'ACCT_BAL_PCT',
-    };
-
+    const address = alert.rule.contract;
     const alertInput = this.buildCreateAlertInput(
       user,
       {
@@ -203,7 +176,10 @@ export class AlertsService {
         name: alert.name || `Account balance changed in ${address}`,
       },
       AlertRuleKind.STATE_CHANGES,
-      rule,
+      this.ruleSerializer.toAcctBalJson(
+        alert.rule,
+        alert.type === 'ACCT_BAL_PCT',
+      ),
     );
 
     return this.createAlert(alertInput);
@@ -250,10 +226,18 @@ export class AlertsService {
 
   private async createAlert(data: Prisma.AlertCreateInput) {
     try {
-      return await this.prisma.alert.create({
+      const alert = await this.prisma.alert.create({
         data,
-        select: this.buildSelectAlert(),
+        include: {
+          webhookDeliveries: {
+            select: {
+              webhookDestination: {},
+            },
+          },
+        },
       });
+
+      return this.toAlertDto(alert);
     } catch (e) {
       throw new VError(e, 'Failed while executing alert creation query');
     }
@@ -268,7 +252,7 @@ export class AlertsService {
     await this.checkUserAlertPermission(callingUser.id, id);
 
     try {
-      return await this.prisma.alert.update({
+      const alert = await this.prisma.alert.update({
         where: {
           id,
         },
@@ -277,8 +261,15 @@ export class AlertsService {
           isPaused,
           updatedBy: callingUser.id,
         },
-        select: this.buildSelectAlert(),
+        include: {
+          webhookDeliveries: {
+            select: {
+              webhookDestination: {},
+            },
+          },
+        },
       });
+      return this.toAlertDto(alert);
     } catch (e) {
       throw new VError(e, 'Failed while executing alert update query');
     }
@@ -295,15 +286,89 @@ export class AlertsService {
       environmentSubId,
     );
 
-    return await this.prisma.alert.findMany({
+    const alerts = await this.prisma.alert.findMany({
       where: {
         active: true,
         projectSlug,
         environmentSubId,
       },
-      select: {
-        ...this.buildSelectAlert(),
+      include: {
+        webhookDeliveries: {
+          select: {
+            webhookDestination: {},
+          },
+        },
       },
+    });
+
+    return alerts.map((a) => this.toAlertDto(a));
+  }
+
+  async getAlertDetails(callingUser: User, id: Alert['id']) {
+    try {
+      await this.checkUserAlertPermission(callingUser.id, id);
+
+      const alert = await this.prisma.alert.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          webhookDeliveries: {
+            select: {
+              webhookDestination: {},
+            },
+          },
+        },
+      });
+
+      return this.toAlertDto(alert);
+    } catch (e) {
+      throw new VError(e, 'Failed to get alert rule details');
+    }
+  }
+
+  private toAlertDto(alert: AlertWithDestinations) {
+    const { id, name, isPaused, projectSlug, environmentSubId, matchingRule } =
+      alert;
+    const rule = matchingRule as object as MatchingRule;
+    return {
+      id,
+      type: this.toAlertType(rule),
+      name,
+      isPaused,
+      projectSlug,
+      environmentSubId,
+      rule: this.ruleDeserializer.toRuleDto(rule),
+      webhookDeliveries: alert.webhookDeliveries,
+    };
+  }
+
+  private toAlertType(rule: MatchingRule): RuleType {
+    if (rule.rule === 'ACTION_ANY' && rule.status === 'SUCCESS') {
+      return 'TX_SUCCESS';
+    }
+
+    if (rule.rule === 'ACTION_ANY' && rule.status === 'FAIL') {
+      return 'TX_FAILURE';
+    }
+
+    if (rule.rule === 'ACTION_FUNCTION_CALL') {
+      return 'FN_CALL';
+    }
+
+    if (rule.rule === 'EVENT_ANY') {
+      return 'EVENT';
+    }
+
+    if (rule.rule === 'STATE_CHANGE_ACCOUNT_BALANCE') {
+      return (rule as AcctBalMatchingRule).percentage
+        ? 'ACCT_BAL_PCT'
+        : 'ACCT_BAL_NUM';
+    }
+
+    throw new VError('Failed while deserializing alert type', {
+      rule: rule.rule,
+      status: rule.status,
     });
   }
 
@@ -532,48 +597,5 @@ export class AlertsService {
         'Failed while checking if webhook destinations are part of the specified project',
       );
     }
-  }
-
-  async getAlertDetails(callingUser: User, id: Alert['id']) {
-    try {
-      await this.checkUserAlertPermission(callingUser.id, id);
-
-      const alert = await this.prisma.alert.findUnique({
-        where: {
-          id,
-        },
-        select: {
-          ...this.buildSelectAlert(),
-        },
-      });
-
-      return alert;
-    } catch (e) {
-      throw new VError(e, 'Failed to get alert rule details');
-    }
-  }
-
-  private buildSelectAlert(): Prisma.AlertSelect {
-    return {
-      id: true,
-      alertRuleKind: true,
-      name: true,
-      isPaused: true,
-      projectSlug: true,
-      environmentSubId: true,
-      chainId: true,
-      webhookDeliveries: {
-        select: {
-          id: true,
-          webhookDestination: {
-            select: {
-              id: true,
-              name: true,
-              url: true,
-            },
-          },
-        },
-      },
-    };
   }
 }

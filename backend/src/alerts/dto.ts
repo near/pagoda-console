@@ -3,28 +3,14 @@
 // and had many unaddressed github issues
 
 import * as Joi from 'joi';
-import { Net, NumberComparator, RuleType } from './types';
-
-export interface TxRuleDto {
-  contract: string;
-}
-export interface FnCallRuleDto {
-  contract: string;
-  function: string;
-  // params?: object;
-}
-export interface EventRuleDto {
-  contract: string;
-  standard: string;
-  version: string;
-  event: string;
-  // data?: object;
-}
-export interface AcctBalRuleDto {
-  contract: string;
-  comparator: NumberComparator;
-  amount: number;
-}
+import {
+  AcctBalRuleDto,
+  EventRuleDto,
+  FnCallRuleDto,
+  Net,
+  RuleType,
+  TxRuleDto,
+} from './serde/dto.types';
 
 const TxRuleSchema = Joi.object({
   contract: Joi.string().required(),
@@ -55,20 +41,24 @@ interface CreateAlertBaseDto {
   type: RuleType;
   projectSlug: string;
   environmentSubId: number;
-  net: Net;
+  net: Net; // TODO remove this and load it up from environment on create.
   webhookDestinations?: Array<number>;
 }
 export interface CreateTxAlertDto extends CreateAlertBaseDto {
-  txRule: TxRuleDto;
+  type: 'TX_SUCCESS' | 'TX_FAILURE';
+  rule: TxRuleDto;
 }
 export interface CreateFnCallAlertDto extends CreateAlertBaseDto {
-  fnCallRule: FnCallRuleDto;
+  type: 'FN_CALL';
+  rule: FnCallRuleDto;
 }
 export interface CreateEventAlertDto extends CreateAlertBaseDto {
-  eventRule: EventRuleDto;
+  type: 'EVENT';
+  rule: EventRuleDto;
 }
 export interface CreateAcctBalAlertDto extends CreateAlertBaseDto {
-  acctBalRule: AcctBalRuleDto;
+  type: 'ACCT_BAL_NUM' | 'ACCT_BAL_PCT';
+  rule: AcctBalRuleDto;
 }
 export type CreateAlertDto =
   | CreateTxAlertDto
@@ -91,26 +81,18 @@ export const CreateAlertSchema = Joi.object({
   environmentSubId: Joi.number().required(),
   net: Joi.string().valid('TESTNET', 'MAINNET').required(),
   webhookDestinations: Joi.array().items(Joi.number()).optional(),
-  txRule: TxRuleSchema.when('type', {
-    is: ['TX_SUCCESS', 'TX_FAILURE'],
-    then: Joi.required(),
-    otherwise: Joi.forbidden(),
-  }),
-  fnCallRule: FnCallRuleSchema.when('type', {
-    is: 'FN_CALL',
-    then: Joi.required(),
-    otherwise: Joi.forbidden(),
-  }),
-  eventRule: EventRuleSchema.when('type', {
-    is: 'EVENT',
-    then: Joi.required(),
-    otherwise: Joi.forbidden(),
-  }),
-  acctBalRule: AcctBalRuleSchema.when('type', {
-    is: ['ACCT_BAL_PCT', 'ACCT_BAL_NUM'],
-    then: Joi.required(),
-    otherwise: Joi.forbidden(),
-  }),
+  rule: Joi.alternatives()
+    .conditional('type', {
+      switch: [
+        { is: 'TX_SUCCESS', then: TxRuleSchema },
+        { is: 'TX_FAILURE', then: TxRuleSchema },
+        { is: 'FN_CALL', then: FnCallRuleSchema },
+        { is: 'EVENT', then: EventRuleSchema },
+        { is: 'ACCT_BAL_PCT', then: AcctBalRuleSchema },
+        { is: 'ACCT_BAL_NUM', then: AcctBalRuleSchema },
+      ],
+    })
+    .required(),
 });
 
 // update alert
