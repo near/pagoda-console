@@ -6,7 +6,7 @@ import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
-import { TextLink } from '@/components/lib/TextLink';
+import { TextButton } from '@/components/lib/TextLink';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
@@ -66,9 +66,9 @@ const Verification: NextPageWithLayout = () => {
         ) : (
           <Text color="primary">Sent!</Text>
         )}
-        <TextLink color="neutral" as="button" type="button" onClick={logOut}>
+        <TextButton color="neutral" onClick={logOut}>
           Log Out
-        </TextLink>
+        </TextButton>
       </Flex>
     </Container>
   );

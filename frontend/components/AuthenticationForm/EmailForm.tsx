@@ -11,7 +11,7 @@ import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 
 import { Flex } from '../lib/Flex';
-import { TextLink } from '../lib/TextLink';
+import { TextButton } from '../lib/TextLink';
 import { ForgotPasswordModal } from '../modals/ForgotPasswordModal';
 
 interface Props {
@@ -116,9 +116,9 @@ export function EmailForm({ isAuthenticating, setIsAuthenticating }: Props) {
             </ButtonLink>
           </Link>
 
-          <TextLink as="button" type="button" color="neutral" onClick={() => setShowResetModal(true)}>
+          <TextButton color="neutral" onClick={() => setShowResetModal(true)}>
             Forgot Password?
-          </TextLink>
+          </TextButton>
         </Flex>
       </Form.Root>
 
