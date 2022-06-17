@@ -7,7 +7,6 @@ import {
   AcctBalRuleDto,
   EventRuleDto,
   FnCallRuleDto,
-  Net,
   RuleType,
   TxRuleDto,
 } from './serde/dto.types';
@@ -41,7 +40,6 @@ interface CreateAlertBaseDto {
   type: RuleType;
   projectSlug: string;
   environmentSubId: number;
-  net: Net; // TODO remove this and load it up from environment on create.
   webhookDestinations?: Array<number>;
 }
 export interface CreateTxAlertDto extends CreateAlertBaseDto {
@@ -79,7 +77,6 @@ export const CreateAlertSchema = Joi.object({
     .required(),
   projectSlug: Joi.string().required(),
   environmentSubId: Joi.number().required(),
-  net: Joi.string().valid('TESTNET', 'MAINNET').required(),
   webhookDestinations: Joi.array().items(Joi.number()).optional(),
   rule: Joi.alternatives()
     .conditional('type', {

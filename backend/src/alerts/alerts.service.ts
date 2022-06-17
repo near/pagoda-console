@@ -14,10 +14,11 @@ import { customAlphabet } from 'nanoid';
 
 import { PrismaService } from './prisma.service';
 import { VError } from 'verror';
-import { NumberComparator, RuleType, Net } from './types';
+import { NumberComparator, RuleType } from './types';
 import { RuleSerializerService } from './serde/rule-serializer/rule-serializer.service';
 import { RuleDeserializerService } from './serde/rule-deserializer/rule-deserializer.service';
 import { AcctBalMatchingRule, MatchingRule } from './serde/db.types';
+import { ReadonlyService as ProjectsReadonlyService } from 'src/projects/readonly.service';
 
 type TxRuleSchema = {
   rule: {
@@ -54,7 +55,6 @@ type CreateAlertBaseSchema = {
   type: RuleType;
   projectSlug: Alert['projectSlug'];
   environmentSubId: Alert['environmentSubId'];
-  net: Net;
   webhookDestinations?: Array<WebhookDestination['id']>;
 };
 type CreateTxAlertSchema = CreateAlertBaseSchema & TxRuleSchema;
@@ -92,6 +92,7 @@ export class AlertsService {
   constructor(
     private prisma: PrismaService,
     private projectPermissions: ProjectPermissionsService,
+    private projects: ProjectsReadonlyService,
     private ruleSerializer: RuleSerializerService,
     private ruleDeserializer: RuleDeserializerService,
   ) {}
@@ -100,7 +101,7 @@ export class AlertsService {
     await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.rule.contract;
-    const alertInput = this.buildCreateAlertInput(
+    const alertInput = await this.buildCreateAlertInput(
       user,
       {
         ...alert,
@@ -117,7 +118,7 @@ export class AlertsService {
     await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.rule.contract;
-    const alertInput = this.buildCreateAlertInput(
+    const alertInput = await this.buildCreateAlertInput(
       user,
       {
         ...alert,
@@ -134,7 +135,7 @@ export class AlertsService {
     await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.rule.contract;
-    const alertInput = this.buildCreateAlertInput(
+    const alertInput = await this.buildCreateAlertInput(
       user,
       {
         ...alert,
@@ -152,7 +153,7 @@ export class AlertsService {
     await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.rule.contract;
-    const alertInput = this.buildCreateAlertInput(
+    const alertInput = await this.buildCreateAlertInput(
       user,
       {
         ...alert,
@@ -169,7 +170,7 @@ export class AlertsService {
     await this.checkUserCreateAlertPermission(user, alert);
 
     const address = alert.rule.contract;
-    const alertInput = this.buildCreateAlertInput(
+    const alertInput = await this.buildCreateAlertInput(
       user,
       {
         ...alert,
@@ -185,19 +186,18 @@ export class AlertsService {
     return this.createAlert(alertInput);
   }
 
-  private buildCreateAlertInput(
+  private async buildCreateAlertInput(
     user: User,
     alert: CreateAlertBaseSchema,
     alertRuleKind: AlertRuleKind,
     matchingRule,
-  ): Prisma.AlertCreateInput {
-    const {
-      name,
+  ): Promise<Prisma.AlertCreateInput> {
+    const { name, projectSlug, environmentSubId, webhookDestinations } = alert;
+
+    const chainId = await this.projects.getEnvironmentNet(
       projectSlug,
       environmentSubId,
-      net: chainId,
-      webhookDestinations,
-    } = alert;
+    );
 
     const alertInput: Prisma.AlertCreateInput = {
       name,
