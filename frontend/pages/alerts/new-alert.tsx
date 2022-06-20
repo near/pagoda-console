@@ -11,54 +11,58 @@ import * as Form from '@/components/lib/Form';
 import { H3, H4 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Section } from '@/components/lib/Section';
-import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
-import { useContracts } from '@/hooks/contracts';
+// import { useContracts } from '@/hooks/contracts';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
-import { createAlert } from '@/modules/alerts/hooks/alerts';
+import { createAlert, useAlerts } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
-import type { AcctBalRule, AlertType, EventRule, FnCallRule, TxRule } from '@/modules/alerts/utils/types';
-import type { NextPageWithLayout } from '@/utils/types';
+import type { AlertType, AmountComparator } from '@/modules/alerts/utils/types';
+import { NewAlert } from '@/modules/alerts/utils/types';
+import { assertUnreachable, returnContractAddressRegex } from '@/utils/helpers';
+import type { Environment, NextPageWithLayout, Project } from '@/utils/types';
 
 interface FormData {
-  acctBalRule?: AcctBalRule;
-  contractId: string;
-  eventRule?: EventRule;
-  fnCallRule?: FnCallRule;
-  txRule?: TxRule;
+  contract: string;
   type: AlertType;
+  acctBalRule?: {
+    amount: number;
+    comparator: AmountComparator;
+  };
+  eventRule?: {
+    standard: string;
+    version: string;
+    event: string;
+  };
+  fnCallRule?: {
+    function: string;
+  };
 }
 
 const NewAlert: NextPageWithLayout = () => {
   const router = useRouter();
   const { register, handleSubmit, formState, control, watch } = useForm<FormData>();
   const { project, environment } = useSelectedProject();
-  // const { mutate } = useAlerts(environment?.subId);
-  const { contracts } = useContracts(project?.slug, environment?.subId);
+  const { mutate } = useAlerts(project?.slug, environment?.subId);
   const [createError, setCreateError] = useState('');
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<number[]>([]);
+  // const { contracts } = useContracts(project?.slug, environment?.subId);
 
+  const contractAddressRegex = returnContractAddressRegex(environment);
   const selectedAlertType = watch('type');
 
   async function submitForm(data: FormData) {
     try {
-      // const alert = await createAlert({
-      await createAlert({
-        ...data,
-        contractId: parseInt(data.contractId),
-        destinations: selectedDestinationIds,
-        environmentSubId: environment!.subId,
-      });
+      const body = returnNewAlertBody(data, selectedDestinationIds, project, environment);
+      const alert = await createAlert(body);
 
-      // TODO: Create alert endpoint doesn't actually return created alert
-      // mutate((alerts) => {
-      //   return [...(alerts || []), alert];
-      // });
+      mutate((alerts) => {
+        return [...(alerts || []), alert];
+      });
 
       openToast({
         type: 'success',
@@ -110,69 +114,21 @@ const NewAlert: NextPageWithLayout = () => {
                 Select Target
               </H4>
 
-              <Controller
-                name="contractId"
-                control={control}
-                rules={{
-                  required: 'Please select a contract',
-                }}
-                render={({ field }) => {
-                  const selection = contracts?.find((c) => c.id.toString() === field.value);
-
-                  return (
-                    <Form.Group>
-                      <DropdownMenu.Root>
-                        <DropdownMenu.Trigger asChild>
-                          <Form.FloatingLabelSelect
-                            label="Contract Address"
-                            isInvalid={!!formState.errors.contractId}
-                            onBlur={field.onBlur}
-                            ref={field.ref}
-                            selection={
-                              selection && (
-                                <>
-                                  <FeatherIcon icon="zap" color="primary" size="xs" />
-                                  {selection.address}
-                                </>
-                              )
-                            }
-                          />
-                        </DropdownMenu.Trigger>
-
-                        <DropdownMenu.Content width="trigger">
-                          {!contracts && (
-                            <DropdownMenu.ContentItem>
-                              <Spinner center size="s" />
-                            </DropdownMenu.ContentItem>
-                          )}
-
-                          {contracts?.length === 0 && (
-                            <DropdownMenu.ContentItem>
-                              <Text>
-                                You don&apos;t have any contracts saved for this environment yet. Visit the{' '}
-                                <Link href="/contracts" passHref>
-                                  <TextLink>Contracts</TextLink>
-                                </Link>{' '}
-                                page to save a contract.
-                              </Text>
-                            </DropdownMenu.ContentItem>
-                          )}
-
-                          <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
-                            {contracts?.map((contract) => (
-                              <DropdownMenu.RadioItem value={contract.id.toString()} key={contract.id}>
-                                {contract.address}
-                              </DropdownMenu.RadioItem>
-                            ))}
-                          </DropdownMenu.RadioGroup>
-                        </DropdownMenu.Content>
-                      </DropdownMenu.Root>
-
-                      <Form.Feedback>{formState.errors.contractId?.message}</Form.Feedback>
-                    </Form.Group>
-                  );
-                }}
-              />
+              <Form.Group>
+                <Form.FloatingLabelInput
+                  label="Contract Address"
+                  isInvalid={!!formState.errors.contract}
+                  placeholder={environment?.net === 'MAINNET' ? 'contract.near' : 'contract.testnet'}
+                  {...register('contract', {
+                    required: 'Contract address field is required',
+                    pattern: {
+                      value: contractAddressRegex,
+                      message: 'Invalid address format',
+                    },
+                  })}
+                />
+                <Form.Feedback>{formState.errors.contract?.message}</Form.Feedback>
+              </Form.Group>
             </Flex>
 
             <HR />
@@ -403,5 +359,77 @@ NewAlert.getLayout = wrapDashboardLayoutWithOptions({
     url: '/alerts',
   },
 });
+
+function returnNewAlertBody(
+  data: FormData,
+  destinations: number[],
+  project?: Project,
+  environment?: Environment,
+): NewAlert {
+  if (!project || !environment) throw new Error('No project or environment selected.');
+
+  const base = {
+    destinations,
+    environmentSubId: environment.subId,
+    projectSlug: project.slug,
+  };
+
+  switch (data.type) {
+    case 'ACCT_BAL_NUM':
+      return {
+        ...base,
+        type: 'ACCT_BAL_NUM',
+        rule: {
+          contract: data.contract,
+          ...data.acctBalRule!,
+        },
+      };
+    case 'ACCT_BAL_PCT':
+      return {
+        ...base,
+        type: 'ACCT_BAL_PCT',
+        rule: {
+          contract: data.contract,
+          ...data.acctBalRule!,
+        },
+      };
+    case 'EVENT':
+      return {
+        ...base,
+        type: 'EVENT',
+        rule: {
+          contract: data.contract,
+          ...data.eventRule!,
+        },
+      };
+    case 'FN_CALL':
+      return {
+        ...base,
+        type: 'FN_CALL',
+        rule: {
+          contract: data.contract,
+          ...data.fnCallRule!,
+        },
+      };
+    case 'TX_FAILURE':
+      return {
+        ...base,
+        type: 'TX_FAILURE',
+        rule: {
+          contract: data.contract,
+        },
+      };
+    case 'TX_SUCCESS':
+      return {
+        ...base,
+        type: 'TX_SUCCESS',
+        rule: {
+          contract: data.contract,
+        },
+      };
+    default:
+      assertUnreachable(data.type);
+  }
+}
 
 export default NewAlert;

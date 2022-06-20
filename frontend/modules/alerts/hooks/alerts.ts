@@ -1,7 +1,6 @@
 import type { KeyedMutator } from 'swr';
 import useSWR from 'swr';
 
-// import { mutate } from 'swr';
 import { useIdentity } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
@@ -9,22 +8,9 @@ import { authenticatedPost } from '@/utils/http';
 import type { Alert, NewAlert, UpdateAlert } from '../utils/types';
 
 export async function createAlert(data: NewAlert) {
-  const txRule = data.type === 'TX_SUCCESS' || data.type === 'TX_FAILURE' ? data.txRule || {} : undefined;
-
-  const alert: Alert = await authenticatedPost(
-    '/alerts/createAlert',
-    {
-      type: data.type,
-      contract: data.contractId,
-      environment: data.environmentSubId,
-      acctBalRule: data.acctBalRule,
-      eventRule: data.eventRule,
-      fnCallRule: data.fnCallRule,
-      txRule,
-      webhookDestinations: data.destinations, // TODO: Need to consider other destination types
-    },
-    { forceRefresh: true },
-  );
+  const alert: Alert = await authenticatedPost('/alerts/createAlert', {
+    ...data,
+  });
 
   analytics.track('DC Create New Alert', {
     status: 'success',
@@ -55,14 +41,36 @@ export async function deleteAlert(alert: Alert) {
   return false;
 }
 
+export async function disableDestinationForAlert(alertId: number, destinationId: number) {
+  await authenticatedPost('/alerts/disableDestination', {
+    alert: alertId,
+    destination: destinationId,
+  });
+
+  analytics.track('DC Disable Destination for Alert', {
+    status: 'success',
+    id: alertId,
+    destinationId: destinationId,
+  });
+}
+
+export async function enableDestinationForAlert(alertId: number, destinationId: number) {
+  await authenticatedPost('/alerts/enableDestination', {
+    alert: alertId,
+    destination: destinationId,
+  });
+
+  analytics.track('DC Enable Destination for Alert', {
+    status: 'success',
+    id: alertId,
+    destinationId: destinationId,
+  });
+}
+
 export async function updateAlert(data: UpdateAlert) {
-  const alert: Alert = await authenticatedPost(
-    '/alerts/updateAlert',
-    {
-      ...data,
-    },
-    { forceRefresh: true },
-  );
+  const alert: Alert = await authenticatedPost('/alerts/updateAlert', {
+    ...data,
+  });
 
   analytics.track('DC Update Alert', {
     status: 'success',
@@ -87,7 +95,10 @@ export function useAlert(alertId: number | undefined): { alert?: Alert; error?: 
   return { alert, error, mutate };
 }
 
-export function useAlerts(environmentId: number | undefined): {
+export function useAlerts(
+  projectSlug: string | undefined,
+  environmentSubId: number | undefined,
+): {
   alerts?: Alert[];
   error?: any;
   mutate: KeyedMutator<Alert[]>;
@@ -99,9 +110,14 @@ export function useAlerts(environmentId: number | undefined): {
     error,
     mutate,
     isValidating,
-  } = useSWR(identity && environmentId ? ['/alerts/listAlerts', environmentId, identity.uid] : null, (key) => {
-    return authenticatedPost(key, { environment: environmentId });
-  });
+  } = useSWR(
+    identity && projectSlug && environmentSubId
+      ? ['/alerts/listAlerts', projectSlug, environmentSubId, identity.uid]
+      : null,
+    (key) => {
+      return authenticatedPost(key, { environmentSubId, projectSlug });
+    },
+  );
 
   return { alerts, error, mutate, isValidating };
 }

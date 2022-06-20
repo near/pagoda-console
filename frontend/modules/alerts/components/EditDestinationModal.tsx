@@ -8,6 +8,7 @@ import { H5 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Text } from '@/components/lib/Text';
 
+import { useDestinations } from '../hooks/destinations';
 import { destinationTypes } from '../utils/constants';
 import type { Destination } from '../utils/types';
 import { DeleteDestinationModal } from './DeleteDestinationModal';
@@ -36,7 +37,16 @@ export function EditDestinationModal(props: Props) {
 
 function ModalContent(props: Props) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const destinationType = destinationTypes.webhook; // TODO: Needs to be dynamic
+  const destinationType = destinationTypes[props.destination.type];
+  const { mutate } = useDestinations(props.destination.projectSlug);
+
+  function onDelete() {
+    mutate((data) => {
+      return data?.filter((d) => d.id !== props.destination.id);
+    });
+
+    props.setShow(false);
+  }
 
   return (
     <>
@@ -60,7 +70,7 @@ function ModalContent(props: Props) {
 
       <DeleteDestinationModal
         destination={props.destination}
-        onDelete={() => props.setShow(false)}
+        onDelete={onDelete}
         show={showDeleteModal}
         setShow={setShowDeleteModal}
       />
@@ -69,10 +79,12 @@ function ModalContent(props: Props) {
 }
 
 function WebhookDestinationForm({ destination }: Props) {
+  if (destination.type !== 'WEBHOOK') return null;
+
   return (
     <Flex stack gap="l">
       <Text color="text1" family="number">
-        {destination.url}
+        {destination.config.url}
       </Text>
 
       <HR />

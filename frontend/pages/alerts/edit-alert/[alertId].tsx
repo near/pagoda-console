@@ -15,11 +15,15 @@ import { Switch } from '@/components/lib/Switch';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
-import { ErrorModal } from '@/components/modals/ErrorModal';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { DeleteAlertModal } from '@/modules/alerts/components/DeleteAlertModal';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
-import { updateAlert, useAlert } from '@/modules/alerts/hooks/alerts';
+import {
+  disableDestinationForAlert,
+  enableDestinationForAlert,
+  updateAlert,
+  useAlert,
+} from '@/modules/alerts/hooks/alerts';
 import { alertTypes, amountComparators } from '@/modules/alerts/utils/constants';
 import type { Destination } from '@/modules/alerts/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -34,7 +38,6 @@ const EditAlert: NextPageWithLayout = () => {
   const nameForm = useForm<NameFormData>();
   const { alert, mutate } = useAlert(alertId);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [updateError, setUpdateError] = useState('');
   const [alertIsActive, setAlertIsActive] = useState(true);
   const [isEditingName, setIsEditingName] = useState(false);
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<number[]>([]);
@@ -46,8 +49,8 @@ const EditAlert: NextPageWithLayout = () => {
       setAlertIsActive(!alert.isPaused);
       nameForm.setValue('name', alert.name);
 
-      alert.webhookDeliveries?.forEach((delivery) => {
-        destinationIds.push(delivery.webhookDestination.id);
+      alert.enabledDestinations?.forEach((destination) => {
+        destinationIds.push(destination.id);
       });
     }
 
@@ -101,19 +104,20 @@ const EditAlert: NextPageWithLayout = () => {
     if (!alert) return;
 
     try {
-      const name = data.name || alert.name;
-      const isPaused = data.isPaused !== undefined ? data.isPaused : alert.isPaused;
-
       await updateAlert({
         id: alert.id,
-        isPaused,
-        name,
+        ...data,
       });
 
       return true;
     } catch (e: any) {
       console.error('Failed to update alert', e);
-      setUpdateError('Failed to update alert.');
+
+      openToast({
+        type: 'error',
+        title: 'Update Error',
+        description: 'Failed to update alert.',
+      });
 
       return false;
     }
@@ -137,16 +141,30 @@ const EditAlert: NextPageWithLayout = () => {
     }
   }
 
-  function updateSelectedDestination(isSelected: boolean, destination: Destination) {
-    // TODO: Call endpoints to update
+  async function updateSelectedDestination(isSelected: boolean, destination: Destination) {
+    try {
+      if (isSelected) {
+        await enableDestinationForAlert(alert!.id, destination.id);
+      } else {
+        await disableDestinationForAlert(alert!.id, destination.id);
+      }
 
-    openToast({
-      type: 'success',
-      title: 'Alert Updated',
-      description: isSelected
-        ? `Destination was enabled: ${destination.name}`
-        : `Destination was disabled: ${destination.name}`,
-    });
+      openToast({
+        type: 'success',
+        title: 'Alert Updated',
+        description: isSelected
+          ? `Destination was enabled: ${destination.name}`
+          : `Destination was disabled: ${destination.name}`,
+      });
+    } catch (e: any) {
+      console.error('Failed to enable/disable destination', e);
+
+      openToast({
+        type: 'error',
+        title: 'Update Error',
+        description: 'Failed to update alert destination.',
+      });
+    }
   }
 
   return (
@@ -256,7 +274,7 @@ const EditAlert: NextPageWithLayout = () => {
               <Flex align="center">
                 <FeatherIcon icon="zap" color="text3" />
                 <Text color="text1" weight="semibold">
-                  {alert.contract.address}
+                  {alert.rule.contract}
                 </Text>
               </Flex>
             </Flex>
@@ -281,9 +299,9 @@ const EditAlert: NextPageWithLayout = () => {
                   <FeatherIcon icon="settings" color="text3" />
 
                   <Text>
-                    {amountComparators[alert.acctBalRule!.comparator].name}{' '}
+                    {amountComparators[alert.rule.comparator].name}{' '}
                     <Text as="span" color="text1" family="number">
-                      {alert.acctBalRule?.amount}
+                      {alert.rule.amount}
                       {alert.type === 'ACCT_BAL_PCT' ? '%' : ''}
                     </Text>
                   </Text>
@@ -297,19 +315,19 @@ const EditAlert: NextPageWithLayout = () => {
                     <Text>
                       Event Name:{' '}
                       <Text as="span" color="text1" family="number">
-                        {alert.eventRule?.event}
+                        {alert.rule.event}
                       </Text>
                     </Text>
                     <Text>
                       Standard:{' '}
                       <Text as="span" color="text1" family="number">
-                        {alert.eventRule?.standard}
+                        {alert.rule.standard}
                       </Text>
                     </Text>
                     <Text>
                       Version:{' '}
                       <Text as="span" color="text1" family="number">
-                        {alert.eventRule?.version}
+                        {alert.rule.version}
                       </Text>
                     </Text>
                   </Flex>
@@ -322,7 +340,7 @@ const EditAlert: NextPageWithLayout = () => {
                   <Text>
                     Function Name:{' '}
                     <Text as="span" color="text1" family="number">
-                      {alert.fnCallRule?.function}
+                      {alert.rule.function}
                     </Text>
                   </Text>
                 </Flex>
@@ -343,7 +361,6 @@ const EditAlert: NextPageWithLayout = () => {
               />
             </Flex>
 
-            <ErrorModal error={updateError} setError={setUpdateError} />
             <DeleteAlertModal alert={alert} show={showDeleteModal} setShow={setShowDeleteModal} onDelete={onDelete} />
           </Flex>
         )}

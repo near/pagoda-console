@@ -1,23 +1,18 @@
 import type { KeyedMutator } from 'swr';
 import useSWR from 'swr';
 
-// import { mutate } from 'swr';
 import { useIdentity } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 
-import type { Destination, NewWebhookDestination } from '../utils/types';
+import type { Destination, NewDestination } from '../utils/types';
 
-export async function createWebhookDestination(data: NewWebhookDestination) {
-  const destination: Destination = await authenticatedPost(
-    '/alerts/createWebhookDestination',
-    {
-      ...data,
-    },
-    { forceRefresh: true },
-  );
+export async function createDestination(data: NewDestination) {
+  const destination: Destination = await authenticatedPost('/alerts/createDestination', {
+    ...data,
+  });
 
-  analytics.track('DC Create New Webhook Destination', {
+  analytics.track('DC Create New Destination', {
     status: 'success',
     name: destination.name,
     id: destination.id,
@@ -58,8 +53,8 @@ export function useDestinations(projectSlug: string | undefined): {
     error,
     mutate,
     isValidating,
-  } = useSWR(identity && projectSlug ? ['/alerts/listWebhookDestinations', projectSlug, identity.uid] : null, (key) => {
-    return authenticatedPost(key, { project: projectSlug });
+  } = useSWR(identity && projectSlug ? ['/alerts/listDestinations', projectSlug, identity.uid] : null, (key) => {
+    return authenticatedPost(key, { projectSlug });
   });
 
   return { destinations, error, mutate, isValidating };

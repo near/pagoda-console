@@ -112,38 +112,38 @@ interface DestinationTypeOption {
 }
 
 export const destinationTypes: Record<DestinationType, DestinationTypeOption> = {
-  email: {
+  EMAIL: {
     description: 'Send alerts to an email address.',
     icon: 'mail',
     name: 'Email',
-    value: 'email',
+    value: 'EMAIL',
     disabled: true,
   },
-  sms: {
+  SMS: {
     description: 'Send alerts to a SMS number.',
     icon: 'message-square',
     name: 'SMS',
-    value: 'sms',
+    value: 'SMS',
     disabled: true,
   },
-  telegram: {
+  TELEGRAM: {
     description: 'Send alerts to a Telegram account.',
     icon: 'send',
     name: 'Telegram',
-    value: 'telegram',
+    value: 'TELEGRAM',
     disabled: true,
   },
-  webhook: {
+  WEBHOOK: {
     description: 'Send alerts to a webhook.',
     icon: 'terminal',
     name: 'Webhook',
-    value: 'webhook',
+    value: 'WEBHOOK',
   },
 };
 
 export const destinationTypeOptions = [
-  destinationTypes.webhook,
-  destinationTypes.email,
-  destinationTypes.sms,
-  destinationTypes.telegram,
+  destinationTypes.WEBHOOK,
+  destinationTypes.EMAIL,
+  destinationTypes.SMS,
+  destinationTypes.TELEGRAM,
 ];

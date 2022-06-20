@@ -14,14 +14,16 @@ interface Props {
 }
 
 export function WebhookDestinationSecret({ destination }: Props) {
-  function copySecret() {
-    navigator.clipboard.writeText(`Bearer ${destination.secret}`);
+  function copySecret(secret: string) {
+    navigator.clipboard.writeText(`Bearer ${secret}`);
 
     openToast({
       type: 'success',
       title: 'Secret copied to clipboard.',
     });
   }
+
+  if (destination.type !== 'WEBHOOK') return null;
 
   return (
     <Flex stack>
@@ -34,9 +36,14 @@ export function WebhookDestinationSecret({ destination }: Props) {
         <Flex>
           <Text family="code">Authorization:</Text>
           <Text family="code" color="text1" weight="semibold">
-            Bearer {destination.secret}
+            Bearer {destination.config.secret}
           </Text>
-          <Button size="s" color="transparent" onClick={copySecret} css={{ marginLeft: 'auto' }}>
+          <Button
+            size="s"
+            color="transparent"
+            onClick={() => copySecret(destination.config.secret)}
+            css={{ marginLeft: 'auto' }}
+          >
             <FeatherIcon icon="copy" size="xs" />
             <VisuallyHidden>Copy Secret</VisuallyHidden>
           </Button>

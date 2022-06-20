@@ -63,7 +63,7 @@ export function DestinationsSelector({ onChange, selectedIds }: Props) {
 
       <Flex stack gap="s">
         {destinations?.map((destination) => {
-          const destinationType = destinationTypes['webhook'];
+          const destinationType = destinationTypes[destination.type];
           const isChecked = !!selectedIds.find((id) => id === destination.id);
 
           return (
@@ -80,7 +80,7 @@ export function DestinationsSelector({ onChange, selectedIds }: Props) {
                     {destination.name}
                   </Text>
                   <Text size="bodySmall" family="code">
-                    {destination.url}
+                    {destination.type === 'WEBHOOK' && destination.config.url}
                   </Text>
                 </Flex>
                 <Badge size="s">{destinationType.name}</Badge>

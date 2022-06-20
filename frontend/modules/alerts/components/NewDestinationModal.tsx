@@ -14,7 +14,7 @@ import { Message } from '@/components/lib/Message';
 import { Text } from '@/components/lib/Text';
 import { formValidations } from '@/utils/constants';
 
-import { createWebhookDestination, useDestinations } from '../hooks/destinations';
+import { createDestination, useDestinations } from '../hooks/destinations';
 import { destinationTypeOptions } from '../utils/constants';
 import type { Destination, DestinationType } from '../utils/types';
 import { WebhookDestinationSecret } from './WebhookDestinationSecret';
@@ -42,7 +42,7 @@ export function NewDestinationModal(props: Props) {
 }
 
 function ModalContent(props: Props) {
-  const [destinationType, setDestinationType] = useState<DestinationType>('webhook');
+  const [destinationType, setDestinationType] = useState<DestinationType>('WEBHOOK');
   const [isCreated, setIsCreated] = useState(false);
 
   return (
@@ -80,7 +80,7 @@ function ModalContent(props: Props) {
         </CheckboxCard.Group>
       )}
 
-      {destinationType === 'webhook' && <WebhookDestinationForm setIsCreated={setIsCreated} {...props} />}
+      {destinationType === 'WEBHOOK' && <WebhookDestinationForm setIsCreated={setIsCreated} {...props} />}
     </Flex>
   );
 }
@@ -113,9 +113,13 @@ function WebhookDestinationForm({
 
   async function submitForm(data: WebhookFormData) {
     try {
-      const destination = await createWebhookDestination({
-        ...data,
-        project: projectSlug,
+      const destination = await createDestination({
+        config: {
+          url: data.url,
+        },
+        name: data.name,
+        projectSlug,
+        type: 'WEBHOOK',
       });
 
       mutate((data) => {

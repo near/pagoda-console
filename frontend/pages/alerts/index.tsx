@@ -27,7 +27,7 @@ const ListAlerts: NextPageWithLayout = () => {
   const router = useRouter();
   const selectedTab = useRouteParam('tab');
   const { environment, project } = useSelectedProject();
-  const { alerts } = useAlerts(environment?.subId);
+  const { alerts } = useAlerts(project?.slug, environment?.subId);
   const { destinations } = useDestinations(project?.slug);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
@@ -117,7 +117,7 @@ const ListAlerts: NextPageWithLayout = () => {
 
             <Flex stack gap="s">
               {destinations?.map((destination) => {
-                const destinationType = destinationTypes['webhook']; // TODO: Needs to be dynamic
+                const destinationType = destinationTypes[destination.type];
 
                 return (
                   <Card
@@ -133,7 +133,7 @@ const ListAlerts: NextPageWithLayout = () => {
                       <FeatherIcon icon={destinationType.icon} color="primary" size="m" />
                       <Text color="text1">{destination.name}</Text>
                       <Text family="code" size="bodySmall">
-                        {destination.url}
+                        {destination.type === 'WEBHOOK' && destination.config.url}
                       </Text>
                       <Badge size="s" css={{ marginLeft: 'auto' }}>
                         {destinationType.name}
