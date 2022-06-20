@@ -35,6 +35,7 @@ import {
   ListDestinationSchema,
   DeleteDestinationDto,
   DeleteDestinationSchema,
+  AlertDetailsResponseDto,
 } from './dto';
 
 @Controller('alerts')
@@ -44,7 +45,10 @@ export class AlertsController {
   @Post('createAlert')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(CreateAlertSchema))
-  async createAlert(@Request() req, @Body() dto: CreateAlertDto) {
+  async createAlert(
+    @Request() req,
+    @Body() dto: CreateAlertDto,
+  ): Promise<AlertDetailsResponseDto> {
     try {
       const ruleType = dto.type;
       switch (ruleType) {
@@ -88,7 +92,7 @@ export class AlertsController {
   async updateAlert(
     @Request() req,
     @Body() { id, name, isPaused }: UpdateAlertDto,
-  ) {
+  ): Promise<AlertDetailsResponseDto> {
     try {
       return await this.alertsService.updateAlert(req.user, id, name, isPaused);
     } catch (e) {
@@ -102,7 +106,7 @@ export class AlertsController {
   async listAlerts(
     @Request() req,
     @Body() { projectSlug, environmentSubId }: ListAlertDto,
-  ) {
+  ): Promise<AlertDetailsResponseDto[]> {
     try {
       return await this.alertsService.listAlerts(
         req.user,
@@ -129,7 +133,10 @@ export class AlertsController {
   @Post('getAlertDetails')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(GetAlertDetailsSchema))
-  async getAlertDetails(@Request() req, @Body() { id }: GetAlertDetailsDto) {
+  async getAlertDetails(
+    @Request() req,
+    @Body() { id }: GetAlertDetailsDto,
+  ): Promise<AlertDetailsResponseDto> {
     try {
       return await this.alertsService.getAlertDetails(req.user, id);
     } catch (e) {

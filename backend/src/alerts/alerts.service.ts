@@ -85,11 +85,15 @@ const nanoid = customAlphabet(
 );
 
 type AlertWithDestinations = Alert & {
-  enabledDestinations: (EnabledDestination & {
-    destination: Destination & {
-      webhookDestination: WebhookDestination;
+  enabledDestinations: Array<{
+    destination: {
+      id: Destination['id'];
+      name: Destination['name'];
+      webhookDestination?: {
+        url: WebhookDestination['url'];
+      };
     };
-  })[];
+  }>;
 };
 
 @Injectable()
@@ -235,10 +239,16 @@ export class AlertsService {
         data,
         include: {
           enabledDestinations: {
-            include: {
+            select: {
               destination: {
-                include: {
-                  webhookDestination: {},
+                select: {
+                  id: true,
+                  name: true,
+                  webhookDestination: {
+                    select: {
+                      url: true,
+                    },
+                  },
                 },
               },
             },
@@ -272,10 +282,16 @@ export class AlertsService {
         },
         include: {
           enabledDestinations: {
-            include: {
+            select: {
               destination: {
-                include: {
-                  webhookDestination: {},
+                select: {
+                  id: true,
+                  name: true,
+                  webhookDestination: {
+                    select: {
+                      url: true,
+                    },
+                  },
                 },
               },
             },
@@ -307,10 +323,16 @@ export class AlertsService {
       },
       include: {
         enabledDestinations: {
-          include: {
+          select: {
             destination: {
-              include: {
-                webhookDestination: {},
+              select: {
+                id: true,
+                name: true,
+                webhookDestination: {
+                  select: {
+                    url: true,
+                  },
+                },
               },
             },
           },
@@ -331,10 +353,16 @@ export class AlertsService {
         },
         include: {
           enabledDestinations: {
-            include: {
+            select: {
               destination: {
-                include: {
-                  webhookDestination: {},
+                select: {
+                  id: true,
+                  name: true,
+                  webhookDestination: {
+                    select: {
+                      url: true,
+                    },
+                  },
                 },
               },
             },
@@ -349,8 +377,15 @@ export class AlertsService {
   }
 
   private toAlertDto(alert: AlertWithDestinations) {
-    const { id, name, isPaused, projectSlug, environmentSubId, matchingRule } =
-      alert;
+    const {
+      id,
+      name,
+      isPaused,
+      projectSlug,
+      environmentSubId,
+      matchingRule,
+      enabledDestinations,
+    } = alert;
     const rule = matchingRule as object as MatchingRule;
     return {
       id,
@@ -360,7 +395,7 @@ export class AlertsService {
       projectSlug,
       environmentSubId,
       rule: this.ruleDeserializer.toRuleDto(rule),
-      enabledDestinations: alert.enabledDestinations,
+      enabledDestinations,
     };
   }
 

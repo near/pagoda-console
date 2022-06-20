@@ -130,6 +130,25 @@ export const GetAlertDetailsSchema = Joi.object({
   id: Joi.number().required(),
 });
 
+export interface AlertDetailsResponseDto {
+  id: number;
+  type: RuleType;
+  name: string;
+  isPaused: boolean;
+  projectSlug: string;
+  environmentSubId: number;
+  rule: TxRuleDto | FnCallRuleDto | EventRuleDto | AcctBalRuleDto;
+  enabledDestinations: Array<{
+    destination: {
+      id: number;
+      name: string;
+      webhookDestination?: {
+        url: string;
+      };
+    };
+  }>;
+}
+
 // create webhook destination
 export interface CreateWebhookDestinationDto {
   name?: string;
