@@ -21,6 +21,7 @@ import { RuleSerializerService } from './serde/rule-serializer/rule-serializer.s
 import { RuleDeserializerService } from './serde/rule-deserializer/rule-deserializer.service';
 import { AcctBalMatchingRule, MatchingRule } from './serde/db.types';
 import { ReadonlyService as ProjectsReadonlyService } from 'src/projects/readonly.service';
+import { assertUnreachable } from 'src/helpers';
 
 type TxRuleSchema = {
   rule: {
@@ -529,7 +530,7 @@ export class AlertsService {
       projectSlug,
     );
 
-    return await this.prisma.destination.findMany({
+    const destinations = await this.prisma.destination.findMany({
       where: {
         active: true,
         projectSlug,
@@ -546,6 +547,25 @@ export class AlertsService {
           },
         },
       },
+    });
+
+    return destinations.map((destination) => {
+      const { id, name, projectSlug, type } = destination;
+      let config;
+      switch (type) {
+        case 'WEBHOOK':
+          config = destination.webhookDestination;
+          break;
+        default:
+          assertUnreachable(type);
+      }
+      return {
+        id,
+        name,
+        projectSlug,
+        type,
+        config,
+      };
     });
   }
 

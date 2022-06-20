@@ -192,8 +192,8 @@ export const DeleteDestinationSchema = Joi.object({
 // TODO update to projectSlug
 // list destinations
 export interface ListDestinationDto {
-  project: string;
+  projectSlug: string;
 }
 export const ListDestinationSchema = Joi.object({
-  project: Joi.string().required(),
+  projectSlug: Joi.string().required(),
 });

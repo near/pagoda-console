@@ -184,10 +184,10 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(ListDestinationSchema))
   async listDestinations(
     @Request() req,
-    @Body() { project }: ListDestinationDto,
+    @Body() { projectSlug }: ListDestinationDto,
   ) {
     try {
-      return await this.alertsService.listDestinations(req.user, project);
+      return await this.alertsService.listDestinations(req.user, projectSlug);
     } catch (e) {
       throw mapError(e);
     }
