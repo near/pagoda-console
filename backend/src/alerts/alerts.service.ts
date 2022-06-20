@@ -93,6 +93,7 @@ type AlertWithDestinations = Alert & {
     destination: {
       id: Destination['id'];
       name: Destination['name'];
+      type: Destination['type'];
       webhookDestination?: {
         url: WebhookDestination['url'];
       };
@@ -248,6 +249,7 @@ export class AlertsService {
                 select: {
                   id: true,
                   name: true,
+                  type: true,
                   webhookDestination: {
                     select: {
                       url: true,
@@ -291,6 +293,7 @@ export class AlertsService {
                 select: {
                   id: true,
                   name: true,
+                  type: true,
                   webhookDestination: {
                     select: {
                       url: true,
@@ -332,6 +335,7 @@ export class AlertsService {
               select: {
                 id: true,
                 name: true,
+                type: true,
                 webhookDestination: {
                   select: {
                     url: true,
@@ -362,6 +366,7 @@ export class AlertsService {
                 select: {
                   id: true,
                   name: true,
+                  type: true,
                   webhookDestination: {
                     select: {
                       url: true,
@@ -399,7 +404,24 @@ export class AlertsService {
       projectSlug,
       environmentSubId,
       rule: this.ruleDeserializer.toRuleDto(rule),
-      enabledDestinations,
+      enabledDestinations: enabledDestinations.map((enabledDestination) => {
+        const { id, name, type, webhookDestination } =
+          enabledDestination.destination;
+        let config;
+        switch (type) {
+          case 'WEBHOOK':
+            config = webhookDestination;
+            break;
+          default:
+            assertUnreachable(type);
+        }
+        return {
+          id,
+          name,
+          type,
+          config,
+        };
+      }),
     };
   }
 

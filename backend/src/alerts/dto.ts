@@ -130,6 +130,9 @@ export const GetAlertDetailsSchema = Joi.object({
   id: Joi.number().required(),
 });
 
+interface WebhookDestinationResponseDto {
+  url: string;
+}
 export interface AlertDetailsResponseDto {
   id: number;
   type: RuleType;
@@ -139,15 +142,10 @@ export interface AlertDetailsResponseDto {
   environmentSubId: number;
   rule: TxRuleDto | FnCallRuleDto | EventRuleDto | AcctBalRuleDto;
   enabledDestinations: Array<{
-    // TODO remove this extra destination field by mapping
-    destination: {
-      id: number;
-      name: string;
-      webhookDestination?: {
-        // TODO change to config
-        url: string;
-      };
-    };
+    id: number;
+    name: string;
+    type: DestinationType;
+    config: WebhookDestinationResponseDto;
   }>;
 }
 
