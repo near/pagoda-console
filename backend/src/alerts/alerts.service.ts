@@ -76,6 +76,7 @@ type CreateWebhookDestinationSchema = {
 type CreateWebhookDestinationResponse = {
   id: WebhookDestination['id'];
   name?: Destination['name'];
+  type: 'WEBHOOK';
   projectSlug: Destination['projectSlug'];
   config: {
     url: WebhookDestination['url'];
@@ -501,6 +502,7 @@ export class AlertsService {
         select: {
           id: true,
           name: true,
+          type: true,
           projectSlug: true,
           webhookDestination: {
             select: {
@@ -514,6 +516,7 @@ export class AlertsService {
       return {
         id: c.id,
         name: c.name,
+        type: c.type,
         projectSlug: c.projectSlug,
         config: {
           url: c.webhookDestination.url,
@@ -591,6 +594,48 @@ export class AlertsService {
     });
   }
 
+  async enableDestination(
+    callingUser: User,
+    alertId: Alert['id'],
+    destinationId: Destination['id'],
+  ) {
+    await this.checkUserAlertPermission(callingUser.id, alertId);
+    await this.checkAlertDestinationPermission(alertId, destinationId);
+
+    try {
+      await this.prisma.enabledDestination.create({
+        data: {
+          alertId,
+          destinationId,
+          createdBy: callingUser.id,
+          updatedBy: callingUser.id,
+        },
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while creating enabled destination');
+    }
+  }
+
+  async disableDestination(
+    callingUser: User,
+    alertId: Alert['id'],
+    destinationId: Destination['id'],
+  ) {
+    await this.checkUserAlertPermission(callingUser.id, alertId);
+    try {
+      // This looks like it's going to delete many but in reality there will be at most 1
+      // enabledDestination with this unique alertId and destinationId combo.
+      await this.prisma.enabledDestination.deleteMany({
+        where: {
+          alertId,
+          destinationId,
+        },
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while deleting enabled destination');
+    }
+  }
+
   // Confirms the user is a member of the alert's project.
   private async checkUserAlertPermission(
     userId: User['id'],
@@ -658,6 +703,63 @@ export class AlertsService {
     );
   }
 
+  /**
+   * Check that a destination is assignable to a given alert
+   *
+   * Throws if destination and alert are not compatible
+   *
+   * Assumes alert validity has already been checked
+   */
+  private async checkAlertDestinationPermission(
+    alertId: number,
+    destinationId: number,
+  ) {
+    const alert = await this.prisma.alert.findUnique({
+      where: {
+        id: alertId,
+      },
+      select: {
+        projectSlug: true,
+      },
+    });
+
+    if (!alert) {
+      // extra safeguard, should have already been checked by another function
+      throw new VError({ info: { code: 'BAD_ALERT' } }, 'Alert not found');
+    }
+
+    const matchedDestination = await this.prisma.destination.findUnique({
+      where: {
+        id: destinationId,
+      },
+      select: {
+        projectSlug: true,
+        active: true,
+      },
+    });
+
+    if (!matchedDestination) {
+      throw new VError(
+        { info: { code: 'BAD_DESTINATION' } },
+        'Destination not found',
+      );
+    }
+
+    if (!matchedDestination.active) {
+      throw new VError(
+        { info: { code: 'BAD_DESTINATION' } },
+        'Destination is inactive',
+      );
+    }
+
+    if (matchedDestination.projectSlug !== alert.projectSlug) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'Destination cannot be assigned to alert',
+      );
+    }
+  }
+
   // Checks user permission to create alert as well as permission for webhook destinations
   private async checkUserCreateAlertPermission(
     user: User,
@@ -718,32 +820,5 @@ export class AlertsService {
         'Found destination not compatible with alert',
       );
     }
-  }
-
-  private buildSelectAlert(): Prisma.AlertSelect {
-    return {
-      id: true,
-      alertRuleKind: true,
-      name: true,
-      isPaused: true,
-      projectSlug: true,
-      environmentSubId: true,
-      chainId: true,
-      enabledDestinations: {
-        select: {
-          destination: {
-            select: {
-              id: true,
-              name: true,
-              webhookDestination: {
-                select: {
-                  url: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    };
   }
 }

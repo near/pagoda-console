@@ -36,6 +36,10 @@ import {
   AlertDetailsResponseDto,
   CreateDestinationDto,
   CreateDestinationSchema,
+  DisableDestinationDto,
+  DisableDestinationSchema,
+  EnableDestinationDto,
+  EnableDestinationSchema,
 } from './dto';
 
 @Controller('alerts')
@@ -188,6 +192,42 @@ export class AlertsController {
   ) {
     try {
       return await this.alertsService.listDestinations(req.user, projectSlug);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('enableDestination')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(EnableDestinationSchema))
+  async enableDestination(
+    @Request() req,
+    @Body() { alert, destination }: EnableDestinationDto,
+  ) {
+    try {
+      return await this.alertsService.enableDestination(
+        req.user,
+        alert,
+        destination,
+      );
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('disableDestination')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(DisableDestinationSchema))
+  async disableDestination(
+    @Request() req,
+    @Body() { alert, destination }: DisableDestinationDto,
+  ) {
+    try {
+      return await this.alertsService.disableDestination(
+        req.user,
+        alert,
+        destination,
+      );
     } catch (e) {
       throw mapError(e);
     }

@@ -187,7 +187,6 @@ export const DeleteDestinationSchema = Joi.object({
   id: Joi.number().required(),
 });
 
-// TODO update to projectSlug
 // list destinations
 export interface ListDestinationDto {
   projectSlug: string;
@@ -195,3 +194,17 @@ export interface ListDestinationDto {
 export const ListDestinationSchema = Joi.object({
   projectSlug: Joi.string().required(),
 });
+
+// enable destination
+export interface EnableDestinationDto {
+  alert: number;
+  destination: number;
+}
+export const EnableDestinationSchema = Joi.object({
+  alert: Joi.number().required(),
+  destination: Joi.number().required(),
+});
+
+// disable destination
+export type DisableDestinationDto = EnableDestinationDto;
+export const DisableDestinationSchema = EnableDestinationSchema;
