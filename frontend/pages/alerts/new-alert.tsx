@@ -15,7 +15,7 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
-// import { useContracts } from '@/hooks/contracts';
+import { useContracts } from '@/hooks/contracts';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
@@ -50,7 +50,7 @@ const NewAlert: NextPageWithLayout = () => {
   const { mutate } = useAlerts(project?.slug, environment?.subId);
   const [createError, setCreateError] = useState('');
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<number[]>([]);
-  // const { contracts } = useContracts(project?.slug, environment?.subId);
+  const { contracts } = useContracts(project?.slug, environment?.subId);
 
   const contractAddressRegex = returnContractAddressRegex(environment);
   const selectedAlertType = watch('type');
@@ -119,6 +119,7 @@ const NewAlert: NextPageWithLayout = () => {
                   label="Contract Address"
                   isInvalid={!!formState.errors.contract}
                   placeholder={environment?.net === 'MAINNET' ? 'contract.near' : 'contract.testnet'}
+                  list="contractsDatalist"
                   {...register('contract', {
                     required: 'Contract address field is required',
                     pattern: {
@@ -129,6 +130,12 @@ const NewAlert: NextPageWithLayout = () => {
                 />
                 <Form.Feedback>{formState.errors.contract?.message}</Form.Feedback>
               </Form.Group>
+
+              <datalist id="contractsDatalist">
+                {contracts?.map((c) => {
+                  return <option value={c.address} key={c.id} />;
+                })}
+              </datalist>
             </Flex>
 
             <HR />

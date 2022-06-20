@@ -113,6 +113,10 @@ const inputStyles: StitchesCSS = {
     margin: 0,
   },
 
+  '&[list]::-webkit-calendar-picker-indicator': {
+    display: 'none !important',
+  },
+
   '&::placeholder': {
     fontSize: 'var(--font-size-body)',
     color: 'var(--color-text-3)',
