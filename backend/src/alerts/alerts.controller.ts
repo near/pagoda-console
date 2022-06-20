@@ -46,7 +46,8 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(CreateAlertSchema))
   async createAlert(@Request() req, @Body() dto: CreateAlertDto) {
     try {
-      switch (dto.type) {
+      const ruleType = dto.type;
+      switch (ruleType) {
         case 'TX_SUCCESS':
           return await this.alertsService.createTxSuccessAlert(
             req.user,
@@ -74,7 +75,7 @@ export class AlertsController {
             dto as CreateAcctBalAlertDto,
           );
         default:
-          assertUnreachable(dto.type);
+          assertUnreachable(ruleType);
       }
     } catch (e) {
       throw mapError(e);
