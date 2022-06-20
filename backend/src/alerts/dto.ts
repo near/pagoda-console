@@ -40,7 +40,7 @@ interface CreateAlertBaseDto {
   type: RuleType;
   projectSlug: string;
   environmentSubId: number;
-  webhookDestinations?: Array<number>;
+  destinations?: Array<number>;
 }
 export interface CreateTxAlertDto extends CreateAlertBaseDto {
   type: 'TX_SUCCESS' | 'TX_FAILURE';
@@ -77,7 +77,7 @@ export const CreateAlertSchema = Joi.object({
     .required(),
   projectSlug: Joi.string().required(),
   environmentSubId: Joi.number().required(),
-  webhookDestinations: Joi.array().items(Joi.number()).optional(),
+  destinations: Joi.array().items(Joi.number()).optional(),
   rule: Joi.alternatives()
     .conditional('type', {
       switch: [
@@ -130,6 +130,25 @@ export const GetAlertDetailsSchema = Joi.object({
   id: Joi.number().required(),
 });
 
+export interface AlertDetailsResponseDto {
+  id: number;
+  type: RuleType;
+  name: string;
+  isPaused: boolean;
+  projectSlug: string;
+  environmentSubId: number;
+  rule: TxRuleDto | FnCallRuleDto | EventRuleDto | AcctBalRuleDto;
+  enabledDestinations: Array<{
+    destination: {
+      id: number;
+      name: string;
+      webhookDestination?: {
+        url: string;
+      };
+    };
+  }>;
+}
+
 // create webhook destination
 export interface CreateWebhookDestinationDto {
   name?: string;
@@ -142,18 +161,18 @@ export const CreateWebhookDestinationSchema = Joi.object({
   project: Joi.string().required(),
 });
 
-// delete webhook destinations
-export interface DeleteWebhookDestinationDto {
+// delete destinations
+export interface DeleteDestinationDto {
   id: number;
 }
-export const DeleteWebhookDestinationSchema = Joi.object({
+export const DeleteDestinationSchema = Joi.object({
   id: Joi.number().required(),
 });
 
-// list webhook destinations
-export interface ListWebhookDestinationDto {
+// list destinations
+export interface ListDestinationDto {
   project: string;
 }
-export const ListWebhookDestinationSchema = Joi.object({
+export const ListDestinationSchema = Joi.object({
   project: Joi.string().required(),
 });

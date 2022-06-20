@@ -34,8 +34,7 @@ model Alert {
   /// Reference to the user id who last updated the record.
   updatedBy        Int?          @map("updated_by")
 
-  webhookDeliveries WebhookDelivery[]
-
+  enabledDestinations EnabledDestination[]
   @@map("alert_rules")
 }
 
@@ -55,35 +54,55 @@ enum AlertRuleKind {
   @@map("alert_rule_kind")
 }
 
-model WebhookDelivery {
-  id                   Int                @id @default(autoincrement())
-  alert                Alert              @relation(fields: [alertId], references: [id])
-  alertId              Int
-  webhookDestination   WebhookDestination @relation(fields: [webhookDestinationId], references: [id])
-  webhookDestinationId Int
-  active               Boolean            @default(true)
-  createdAt            DateTime?          @default(now())
+model EnabledDestination {
+  id            Int         @id @default(autoincrement())
+  alert         Alert       @relation(fields: [alertId], references: [id])
+  alertId       Int         @map("alert_id")
+  destination   Destination @relation(fields: [destinationId], references: [id])
+  destinationId Int         @map("destination_id")
+  createdAt     DateTime?   @default(now()) @map("created_at")
   /// Reference to the user id who created the record.
-  createdBy            Int?
-  updatedAt            DateTime?          @updatedAt
+  createdBy     Int?        @map("created_by")
+  updatedAt     DateTime?   @updatedAt @map("updated_at")
   /// Reference to the user id who last updated the record.
-  updatedBy            Int?
+  updatedBy     Int?        @map("updated_by")
+
+  @@unique([destinationId, alertId])
+}
+
+model Destination {
+  id                 Int                  @id @default(autoincrement())
+  name               String?
+  projectSlug        String               @map("project_slug")
+  type               DestinationType
+  active             Boolean              @default(true)
+  createdAt          DateTime?            @default(now()) @map("created_at")
+  /// Reference to the user id who created the record.
+  createdBy          Int?                 @map("created_by")
+  updatedAt          DateTime?            @updatedAt @map("updated_at")
+  /// Reference to the user id who last updated the record.
+  updatedBy          Int?                 @map("updated_by")
+  EnabledDestination EnabledDestination[]
+  webhookDestination WebhookDestination?
 }
 
 model WebhookDestination {
-  id              Int               @id @default(autoincrement())
-  /// The project that owns this destination.
-  projectSlug     String
-  name            String?
-  url             String
+  id            Int         @id @default(autoincrement())
+  destination   Destination @relation(fields: [destinationId], references: [id])
+  destinationId Int         @unique @map("destination_id")
+  url           String
   /// A webhook API token for verifiying the sender.
-  secret          String
-  webhookDelivery WebhookDelivery[]
-  active          Boolean           @default(true)
-  createdAt       DateTime?         @default(now())
+  secret        String
+  createdAt     DateTime?   @default(now()) @map("created_at")
   /// Reference to the user id who created the record.
-  createdBy       Int?
-  updatedAt       DateTime?         @updatedAt
+  createdBy     Int?        @map("created_by")
+  updatedAt     DateTime?   @updatedAt @map("updated_at")
   /// Reference to the user id who last updated the record.
-  updatedBy       Int?
+  updatedBy     Int?        @map("updated_by")
+}
+
+enum DestinationType {
+  WEBHOOK
+
+  @@map("destination_type")
 }
