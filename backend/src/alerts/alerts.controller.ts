@@ -198,6 +198,7 @@ export class AlertsController {
   }
 
   @Post('enableDestination')
+  @HttpCode(204)
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(EnableDestinationSchema))
   async enableDestination(
@@ -216,6 +217,7 @@ export class AlertsController {
   }
 
   @Post('disableDestination')
+  @HttpCode(204)
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(DisableDestinationSchema))
   async disableDestination(
