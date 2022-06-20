@@ -5,7 +5,6 @@ import {
   WebhookDestination,
   AlertRuleKind,
   Destination,
-  EnabledDestination,
 } from '../../generated/prisma/alerts';
 
 // TODO should we re-export these types from the core module? So there is no dependency on the core prisma/client
@@ -67,16 +66,20 @@ type CreateAcctBalAlertSchema = CreateAlertBaseSchema & AcctBalRuleSchema;
 
 type CreateWebhookDestinationSchema = {
   name?: Destination['name'];
-  project: Destination['projectSlug'];
-  url: WebhookDestination['url'];
+  projectSlug: Destination['projectSlug'];
+  config: {
+    url: WebhookDestination['url'];
+  };
 };
 
 type CreateWebhookDestinationResponse = {
   id: WebhookDestination['id'];
   name?: Destination['name'];
   projectSlug: Destination['projectSlug'];
-  url: WebhookDestination['url'];
-  secret: WebhookDestination['secret'];
+  config: {
+    url: WebhookDestination['url'];
+    secret: WebhookDestination['secret'];
+  };
 };
 
 const nanoid = customAlphabet(
@@ -448,7 +451,7 @@ export class AlertsService {
 
   async createWebhookDestination(
     user: User,
-    { name, url, project: projectSlug }: CreateWebhookDestinationSchema,
+    { name, config: { url }, projectSlug }: CreateWebhookDestinationSchema,
   ): Promise<CreateWebhookDestinationResponse> {
     await this.projectPermissions.checkUserProjectPermission(
       user.id,
@@ -489,8 +492,10 @@ export class AlertsService {
         id: c.id,
         name: c.name,
         projectSlug: c.projectSlug,
-        url: c.webhookDestination.url,
-        secret: c.webhookDestination.secret,
+        config: {
+          url: c.webhookDestination.url,
+          secret: c.webhookDestination.secret,
+        },
       };
     } catch (e) {
       throw new VError(e, 'Failed to create webhook destination');

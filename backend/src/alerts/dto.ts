@@ -139,26 +139,46 @@ export interface AlertDetailsResponseDto {
   environmentSubId: number;
   rule: TxRuleDto | FnCallRuleDto | EventRuleDto | AcctBalRuleDto;
   enabledDestinations: Array<{
+    // TODO remove this extra destination field by mapping
     destination: {
       id: number;
       name: string;
       webhookDestination?: {
+        // TODO change to config
         url: string;
       };
     };
   }>;
 }
 
-// create webhook destination
-export interface CreateWebhookDestinationDto {
+// create destination
+type DestinationType = 'WEBHOOK';
+
+interface CreateBaseDestinationDto {
   name?: string;
-  url: string;
-  project: string;
+  type: DestinationType;
+  projectSlug: string;
 }
-export const CreateWebhookDestinationSchema = Joi.object({
-  name: Joi.string().optional(),
+interface CreateWebhookDestinationDto extends CreateBaseDestinationDto {
+  type: 'WEBHOOK';
+  config: {
+    url: string;
+  };
+}
+export type CreateDestinationDto = CreateWebhookDestinationDto;
+
+const WebhookDestinationSchema = Joi.object({
   url: Joi.string().required(),
-  project: Joi.string().required(),
+});
+export const CreateDestinationSchema = Joi.object({
+  name: Joi.string(),
+  type: Joi.string().valid('WEBHOOK').required(),
+  projectSlug: Joi.string().required(),
+  config: Joi.alternatives()
+    .conditional('type', {
+      switch: [{ is: 'WEBHOOK', then: WebhookDestinationSchema }],
+    })
+    .required(),
 });
 
 // delete destinations
@@ -169,6 +189,7 @@ export const DeleteDestinationSchema = Joi.object({
   id: Joi.number().required(),
 });
 
+// TODO update to projectSlug
 // list destinations
 export interface ListDestinationDto {
   project: string;

@@ -27,8 +27,6 @@ import {
   CreateFnCallAlertDto,
   UpdateAlertSchema,
   UpdateAlertDto,
-  CreateWebhookDestinationSchema,
-  CreateWebhookDestinationDto,
   GetAlertDetailsSchema,
   GetAlertDetailsDto,
   ListDestinationDto,
@@ -36,6 +34,8 @@ import {
   DeleteDestinationDto,
   DeleteDestinationSchema,
   AlertDetailsResponseDto,
+  CreateDestinationDto,
+  CreateDestinationSchema,
 } from './dto';
 
 @Controller('alerts')
@@ -144,15 +144,21 @@ export class AlertsController {
     }
   }
 
-  @Post('createWebhookDestination')
+  @Post('createDestination')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(CreateWebhookDestinationSchema))
-  async createWebhookDestination(
-    @Request() req,
-    @Body() dto: CreateWebhookDestinationDto,
-  ) {
+  @UsePipes(new JoiValidationPipe(CreateDestinationSchema))
+  async createDestination(@Request() req, @Body() dto: CreateDestinationDto) {
     try {
-      return await this.alertsService.createWebhookDestination(req.user, dto);
+      const type = dto.type;
+      switch (type) {
+        case 'WEBHOOK':
+          return await this.alertsService.createWebhookDestination(
+            req.user,
+            dto,
+          );
+        default:
+          assertUnreachable(type);
+      }
     } catch (e) {
       throw mapError(e);
     }
