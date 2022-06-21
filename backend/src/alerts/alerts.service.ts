@@ -623,12 +623,12 @@ export class AlertsService {
   ) {
     await this.checkUserAlertPermission(callingUser.id, alertId);
     try {
-      // This looks like it's going to delete many but in reality there will be at most 1
-      // enabledDestination with this unique alertId and destinationId combo.
-      await this.prisma.enabledDestination.deleteMany({
+      await this.prisma.enabledDestination.delete({
         where: {
-          alertId,
-          destinationId,
+          destinationId_alertId: {
+            alertId,
+            destinationId,
+          },
         },
       });
     } catch (e) {
