@@ -7,7 +7,7 @@ import {
   NumberComparator,
   TxAction,
   Net,
-} from '../../modules/alerts/prisma/generated';
+} from '../../generated/alerts';
 import * as Joi from 'joi';
 
 export interface TxRuleDto {
