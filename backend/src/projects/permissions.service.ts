@@ -1,0 +1,75 @@
+import { Injectable } from '@nestjs/common';
+import { User, Project, Environment } from '@prisma/client';
+import { PrismaService } from 'src/prisma.service';
+import { VError } from 'verror';
+
+@Injectable()
+export class PermissionsService {
+  constructor(private prisma: PrismaService) {}
+
+  async checkUserProjectEnvPermission(
+    userId: User['id'],
+    slug: Project['slug'],
+    subId: Environment['subId'],
+  ) {
+    const res = await this.prisma.teamMember.findFirst({
+      where: {
+        userId,
+        active: true,
+        team: {
+          active: true,
+          teamProjects: {
+            some: {
+              active: true,
+              project: {
+                active: true,
+                slug,
+                environments: {
+                  some: {
+                    active: true,
+                    subId,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!res) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'User does not have rights to manage this project and environment',
+      );
+    }
+  }
+
+  async checkUserProjectPermission(userId: User['id'], slug: Project['slug']) {
+    const res = await this.prisma.teamMember.findFirst({
+      where: {
+        userId,
+        active: true,
+        team: {
+          active: true,
+          teamProjects: {
+            some: {
+              active: true,
+              project: {
+                active: true,
+                slug,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!res) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'User does not have rights to manage this project',
+      );
+    }
+  }
+}
