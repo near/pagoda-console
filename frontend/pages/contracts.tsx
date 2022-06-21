@@ -19,7 +19,6 @@ import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useContracts } from '@/hooks/contracts';
-import { useDebounce } from '@/hooks/debounce';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useRecentTransactions } from '@/hooks/recent-transactions';
 import { useSelectedProject } from '@/hooks/selected-project';
@@ -286,33 +285,29 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
     },
   );
 
-  const removeContract = useDebounce(
-    async () => {
-      setCanDelete(false);
+  async function removeContract() {
+    setCanDelete(false);
 
-      try {
-        await authenticatedPost('/projects/removeContract', {
-          id: props.contract.id,
-        });
-        analytics.track('DC Remove Contract', {
-          status: 'success',
-          contractId: props.contract.address,
-        });
-        props.onDelete && props.onDelete();
-      } catch (e: any) {
-        analytics.track('DC Remove Contract', {
-          status: 'failure',
-          contractId: props.contract.address,
-          error: e.message,
-        });
-        // TODO
-        console.error(e);
-        setCanDelete(true);
-      }
-    },
-    config.buttonDebounce,
-    { leading: true, trailing: false },
-  );
+    try {
+      await authenticatedPost('/projects/removeContract', {
+        id: props.contract.id,
+      });
+      analytics.track('DC Remove Contract', {
+        status: 'success',
+        contractId: props.contract.address,
+      });
+      props.onDelete && props.onDelete();
+    } catch (e: any) {
+      analytics.track('DC Remove Contract', {
+        status: 'failure',
+        contractId: props.contract.address,
+        error: e.message,
+      });
+      // TODO
+      console.error(e);
+      setCanDelete(true);
+    }
+  }
 
   return (
     <>
@@ -347,7 +342,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
       )}
 
       {props.showDelete && (
-        <Button size="s" color="danger" onClick={() => removeContract()} disabled={!canDelete}>
+        <Button size="s" color="danger" onClick={removeContract} disabled={!canDelete}>
           <FeatherIcon icon="trash-2" size="xs" />
         </Button>
       )}
