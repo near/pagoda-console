@@ -253,7 +253,12 @@ const EditAlert: NextPageWithLayout = () => {
                   )}
 
                   <Flex align="center" css={{ width: 'auto', minHeight: 'var(--size-input-height-m)' }}>
-                    <Switch aria-label="Alert Is Active" checked={alertIsActive} onCheckedChange={updateIsActive}>
+                    <Switch
+                      aria-label="Alert Is Active"
+                      checked={alertIsActive}
+                      onCheckedChange={updateIsActive}
+                      debounce={true}
+                    >
                       <FeatherIcon icon="bell" size="xs" data-on />
                       <FeatherIcon icon="pause" size="xs" data-off />
                     </Switch>
@@ -353,11 +358,11 @@ const EditAlert: NextPageWithLayout = () => {
               <H4>Destinations</H4>
 
               <DestinationsSelector
-                selectedIds={selectedDestinationIds}
                 onChange={(event) => {
-                  setSelectedDestinationIds(event.selectedIds);
                   updateSelectedDestination(event.isSelected, event.destination);
                 }}
+                selectedIds={selectedDestinationIds}
+                setSelectedIds={setSelectedDestinationIds}
               />
             </Flex>
 

@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from 'react';
 import { useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
@@ -23,11 +24,13 @@ interface OnChangeEvent {
 }
 
 interface Props {
-  onChange: (event: OnChangeEvent) => void;
+  debounce?: boolean;
+  onChange?: (event: OnChangeEvent) => void;
   selectedIds: number[];
+  setSelectedIds: Dispatch<SetStateAction<number[]>>;
 }
 
-export function DestinationsSelector({ onChange, selectedIds }: Props) {
+export function DestinationsSelector({ debounce = true, onChange, selectedIds, setSelectedIds }: Props) {
   const { project } = useSelectedProject();
   const { destinations } = useDestinations(project?.slug);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
@@ -40,17 +43,23 @@ export function DestinationsSelector({ onChange, selectedIds }: Props) {
   }
 
   function toggleEnabledDestination(isSelected: boolean, destination: Destination) {
-    const ids = selectedIds.filter((id) => id !== destination.id);
+    let ids: number[] = [];
 
-    if (isSelected) {
-      ids.push(destination.id);
-    }
-
-    onChange({
-      destination,
-      isSelected,
-      selectedIds: ids,
+    setSelectedIds((value) => {
+      ids = value.filter((id) => id !== destination.id);
+      if (isSelected) {
+        ids.push(destination.id);
+      }
+      return ids;
     });
+
+    if (onChange) {
+      onChange({
+        destination,
+        isSelected,
+        selectedIds: ids,
+      });
+    }
   }
 
   return (
@@ -72,6 +81,7 @@ export function DestinationsSelector({ onChange, selectedIds }: Props) {
                 <Switch
                   checked={isChecked}
                   onCheckedChange={(value) => toggleEnabledDestination(value, destination)}
+                  debounce={debounce}
                   aria-label={`Destination: ${destination.name}`}
                 />
                 <FeatherIcon icon={destinationType.icon} color={isChecked ? 'primary' : 'text3'} size="m" />

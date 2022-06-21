@@ -1316,6 +1316,21 @@ const Settings: NextPageWithLayout = () => {
           </Switch>
           Small Switch
         </Flex>
+
+        <HR />
+
+        <Flex as="label" align="center">
+          <Switch debounce={true} onCheckedChange={() => alert('The checked event was debounced.')} />
+          Default Debounce
+        </Flex>
+
+        <Flex as="label" align="center">
+          <Switch
+            debounce={4000}
+            onCheckedChange={() => alert('The checked event was debounced with a custom delay.')}
+          />
+          Custom Debounce (4 Seconds)
+        </Flex>
       </DocSection>
 
       <DocSection title="Tabs">

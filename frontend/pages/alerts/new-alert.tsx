@@ -334,8 +334,9 @@ const NewAlert: NextPageWithLayout = () => {
               </H4>
 
               <DestinationsSelector
+                debounce={false}
                 selectedIds={selectedDestinationIds}
-                onChange={({ selectedIds }) => setSelectedDestinationIds(selectedIds)}
+                setSelectedIds={setSelectedDestinationIds}
               />
             </Flex>
 
