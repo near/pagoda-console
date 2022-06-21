@@ -31,8 +31,11 @@ import {
   CreateWebhookDestinationDto,
   GetAlertDetailsSchema,
   GetAlertDetailsDto,
-  ListWebhookDestinationDto,
-  ListWebhookDestinationSchema,
+  ListDestinationDto,
+  ListDestinationSchema,
+  DeleteDestinationDto,
+  DeleteDestinationSchema,
+  AlertDetailsResponseDto,
 } from './dto';
 
 @Controller('alerts')
@@ -42,9 +45,13 @@ export class AlertsController {
   @Post('createAlert')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(CreateAlertSchema))
-  async createAlert(@Request() req, @Body() dto: CreateAlertDto) {
+  async createAlert(
+    @Request() req,
+    @Body() dto: CreateAlertDto,
+  ): Promise<AlertDetailsResponseDto> {
     try {
-      switch (dto.type) {
+      const ruleType = dto.type;
+      switch (ruleType) {
         case 'TX_SUCCESS':
           return await this.alertsService.createTxSuccessAlert(
             req.user,
@@ -72,7 +79,7 @@ export class AlertsController {
             dto as CreateAcctBalAlertDto,
           );
         default:
-          assertUnreachable(dto.type);
+          assertUnreachable(ruleType);
       }
     } catch (e) {
       throw mapError(e);
@@ -80,13 +87,12 @@ export class AlertsController {
   }
 
   @Post('updateAlert')
-  @HttpCode(204)
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(UpdateAlertSchema))
   async updateAlert(
     @Request() req,
     @Body() { id, name, isPaused }: UpdateAlertDto,
-  ) {
+  ): Promise<AlertDetailsResponseDto> {
     try {
       return await this.alertsService.updateAlert(req.user, id, name, isPaused);
     } catch (e) {
@@ -100,7 +106,7 @@ export class AlertsController {
   async listAlerts(
     @Request() req,
     @Body() { projectSlug, environmentSubId }: ListAlertDto,
-  ) {
+  ): Promise<AlertDetailsResponseDto[]> {
     try {
       return await this.alertsService.listAlerts(
         req.user,
@@ -127,7 +133,10 @@ export class AlertsController {
   @Post('getAlertDetails')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(GetAlertDetailsSchema))
-  async getAlertDetails(@Request() req, @Body() { id }: GetAlertDetailsDto) {
+  async getAlertDetails(
+    @Request() req,
+    @Body() { id }: GetAlertDetailsDto,
+  ): Promise<AlertDetailsResponseDto> {
     try {
       return await this.alertsService.getAlertDetails(req.user, id);
     } catch (e) {
@@ -149,18 +158,30 @@ export class AlertsController {
     }
   }
 
-  @Post('listWebhookDestinations')
+  @Post('deleteDestination')
+  @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(ListWebhookDestinationSchema))
-  async listWebhookDestinations(
+  @UsePipes(new JoiValidationPipe(DeleteDestinationSchema))
+  async deleteDestination(
     @Request() req,
-    @Body() { project }: ListWebhookDestinationDto,
+    @Body() { id }: DeleteDestinationDto,
   ) {
     try {
-      return await this.alertsService.listWebhookDestinations(
-        req.user,
-        project,
-      );
+      return await this.alertsService.deleteDestination(req.user, id);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('listDestinations')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(ListDestinationSchema))
+  async listDestinations(
+    @Request() req,
+    @Body() { project }: ListDestinationDto,
+  ) {
+    try {
+      return await this.alertsService.listDestinations(req.user, project);
     } catch (e) {
       throw mapError(e);
     }
@@ -173,6 +194,7 @@ function mapError(e: Error) {
   switch (VError.info(e)?.code) {
     case 'PERMISSION_DENIED':
       return new ForbiddenException();
+    case 'BAD_DESTINATION':
     case 'BAD_ALERT':
       return new BadRequestException();
     default:

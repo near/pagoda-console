@@ -2,48 +2,17 @@
 // because class-validator was experiencing issues at the time of implementation
 // and had many unaddressed github issues
 
-import {
-  RuleType,
-  NumberComparator,
-  TxAction,
-  Net,
-} from '../../generated/prisma/alerts';
 import * as Joi from 'joi';
-
-export interface TxRuleDto {
-  contract: string;
-  action?: TxAction;
-}
-export interface FnCallRuleDto {
-  contract: string;
-  function: string;
-  // params?: object;
-}
-export interface EventRuleDto {
-  contract: string;
-  standard: string;
-  version: string;
-  event: string;
-  // data?: object;
-}
-export interface AcctBalRuleDto {
-  contract: string;
-  comparator: NumberComparator;
-  amount: number;
-}
+import {
+  AcctBalRuleDto,
+  EventRuleDto,
+  FnCallRuleDto,
+  RuleType,
+  TxRuleDto,
+} from './serde/dto.types';
 
 const TxRuleSchema = Joi.object({
   contract: Joi.string().required(),
-  action: Joi.string().valid(
-    'CREATE_ACCOUNT',
-    'DEPLOY_CONTRACT',
-    'FUNCTION_CALL',
-    'TRANSFER',
-    'STAKE',
-    'ADD_KEY',
-    'DELETE_KEY',
-    'DELETE_ACCOUNT',
-  ),
 });
 const FnCallRuleSchema = Joi.object({
   contract: Joi.string().required(),
@@ -71,20 +40,23 @@ interface CreateAlertBaseDto {
   type: RuleType;
   projectSlug: string;
   environmentSubId: number;
-  net: Net;
-  webhookDestinations?: Array<number>;
+  destinations?: Array<number>;
 }
 export interface CreateTxAlertDto extends CreateAlertBaseDto {
-  txRule: TxRuleDto;
+  type: 'TX_SUCCESS' | 'TX_FAILURE';
+  rule: TxRuleDto;
 }
 export interface CreateFnCallAlertDto extends CreateAlertBaseDto {
-  fnCallRule: FnCallRuleDto;
+  type: 'FN_CALL';
+  rule: FnCallRuleDto;
 }
 export interface CreateEventAlertDto extends CreateAlertBaseDto {
-  eventRule: EventRuleDto;
+  type: 'EVENT';
+  rule: EventRuleDto;
 }
 export interface CreateAcctBalAlertDto extends CreateAlertBaseDto {
-  acctBalRule: AcctBalRuleDto;
+  type: 'ACCT_BAL_NUM' | 'ACCT_BAL_PCT';
+  rule: AcctBalRuleDto;
 }
 export type CreateAlertDto =
   | CreateTxAlertDto
@@ -105,28 +77,19 @@ export const CreateAlertSchema = Joi.object({
     .required(),
   projectSlug: Joi.string().required(),
   environmentSubId: Joi.number().required(),
-  net: Joi.string().valid('TESTNET', 'MAINNET').required(),
-  webhookDestinations: Joi.array().items(Joi.number()).optional(),
-  txRule: TxRuleSchema.when('type', {
-    is: ['TX_SUCCESS', 'TX_FAILURE'],
-    then: Joi.required(),
-    otherwise: Joi.forbidden(),
-  }),
-  fnCallRule: FnCallRuleSchema.when('type', {
-    is: 'FN_CALL',
-    then: Joi.required(),
-    otherwise: Joi.forbidden(),
-  }),
-  eventRule: EventRuleSchema.when('type', {
-    is: 'EVENT',
-    then: Joi.required(),
-    otherwise: Joi.forbidden(),
-  }),
-  acctBalRule: AcctBalRuleSchema.when('type', {
-    is: ['ACCT_BAL_PCT', 'ACCT_BAL_NUM'],
-    then: Joi.required(),
-    otherwise: Joi.forbidden(),
-  }),
+  destinations: Joi.array().items(Joi.number()).optional(),
+  rule: Joi.alternatives()
+    .conditional('type', {
+      switch: [
+        { is: 'TX_SUCCESS', then: TxRuleSchema },
+        { is: 'TX_FAILURE', then: TxRuleSchema },
+        { is: 'FN_CALL', then: FnCallRuleSchema },
+        { is: 'EVENT', then: EventRuleSchema },
+        { is: 'ACCT_BAL_PCT', then: AcctBalRuleSchema },
+        { is: 'ACCT_BAL_NUM', then: AcctBalRuleSchema },
+      ],
+    })
+    .required(),
 });
 
 // update alert
@@ -167,6 +130,25 @@ export const GetAlertDetailsSchema = Joi.object({
   id: Joi.number().required(),
 });
 
+export interface AlertDetailsResponseDto {
+  id: number;
+  type: RuleType;
+  name: string;
+  isPaused: boolean;
+  projectSlug: string;
+  environmentSubId: number;
+  rule: TxRuleDto | FnCallRuleDto | EventRuleDto | AcctBalRuleDto;
+  enabledDestinations: Array<{
+    destination: {
+      id: number;
+      name: string;
+      webhookDestination?: {
+        url: string;
+      };
+    };
+  }>;
+}
+
 // create webhook destination
 export interface CreateWebhookDestinationDto {
   name?: string;
@@ -179,10 +161,18 @@ export const CreateWebhookDestinationSchema = Joi.object({
   project: Joi.string().required(),
 });
 
-// list webhook destinations
-export interface ListWebhookDestinationDto {
+// delete destinations
+export interface DeleteDestinationDto {
+  id: number;
+}
+export const DeleteDestinationSchema = Joi.object({
+  id: Joi.number().required(),
+});
+
+// list destinations
+export interface ListDestinationDto {
   project: string;
 }
-export const ListWebhookDestinationSchema = Joi.object({
+export const ListDestinationSchema = Joi.object({
   project: Joi.string().required(),
 });

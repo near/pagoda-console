@@ -23,8 +23,4 @@ GRANT CONNECT ON DATABASE alerts TO read_alerts;
 
 GRANT USAGE ON SCHEMA public TO read_alerts;
 
-GRANT SELECT ON TABLE "Alert" TO read_alerts;
-GRANT SELECT ON TABLE "FnCallRule" TO read_alerts;
-GRANT SELECT ON TABLE "TxRule" TO read_alerts;
-GRANT SELECT ON TABLE "EventRule" TO read_alerts;
-GRANT SELECT ON TABLE "AcctBalRule" TO read_alerts;
+GRANT SELECT ON TABLE "alert_rules" TO read_alerts;
