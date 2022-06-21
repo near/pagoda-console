@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
@@ -24,18 +23,13 @@ import type { Destination } from '@/modules/alerts/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ListAlerts: NextPageWithLayout = () => {
-  const router = useRouter();
-  const selectedTab = useRouteParam('tab');
   const { environment, project } = useSelectedProject();
   const { alerts } = useAlerts(project?.slug, environment?.subId);
   const { destinations } = useDestinations(project?.slug);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
   const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
-
-  function onTabChange(value: string) {
-    router.replace(`?tab=${value}`);
-  }
+  const activeTab = useRouteParam('tab', '?tab=alerts', true);
 
   function openDestination(destination: Destination) {
     setSelectedEditDestination(destination);
@@ -44,14 +38,19 @@ const ListAlerts: NextPageWithLayout = () => {
 
   return (
     <Section>
-      <Tabs.Root value={selectedTab || 'alerts'} onValueChange={onTabChange}>
+      <Tabs.Root value={activeTab || ''}>
         <Tabs.List>
-          <Tabs.Trigger value="alerts">
-            <FeatherIcon icon="bell" /> Alerts
-          </Tabs.Trigger>
-          <Tabs.Trigger value="destinations">
-            <FeatherIcon icon="inbox" /> Destinations
-          </Tabs.Trigger>
+          <Link href="?tab=alerts" passHref>
+            <Tabs.TriggerLink active={activeTab === 'alerts'}>
+              <FeatherIcon icon="bell" /> Alerts
+            </Tabs.TriggerLink>
+          </Link>
+
+          <Link href="?tab=destinations" passHref>
+            <Tabs.TriggerLink active={activeTab === 'destinations'}>
+              <FeatherIcon icon="inbox" /> Destinations
+            </Tabs.TriggerLink>
+          </Link>
         </Tabs.List>
 
         <Tabs.Content value="alerts">
