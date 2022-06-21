@@ -602,6 +602,22 @@ export class AlertsService {
     await this.checkUserAlertPermission(callingUser.id, alertId);
     await this.checkAlertDestinationPermission(alertId, destinationId);
 
+    const destination = await this.prisma.enabledDestination.findUnique({
+      where: {
+        destinationId_alertId: {
+          alertId,
+          destinationId,
+        },
+      },
+    });
+
+    if (destination) {
+      throw new VError(
+        { info: { code: 'BAD_DESTINATION' } },
+        'Destination already enabled',
+      );
+    }
+
     try {
       await this.prisma.enabledDestination.create({
         data: {
