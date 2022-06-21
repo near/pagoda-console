@@ -27,8 +27,6 @@ import {
   CreateFnCallAlertDto,
   UpdateAlertSchema,
   UpdateAlertDto,
-  CreateWebhookDestinationSchema,
-  CreateWebhookDestinationDto,
   GetAlertDetailsSchema,
   GetAlertDetailsDto,
   ListDestinationDto,
@@ -36,6 +34,12 @@ import {
   DeleteDestinationDto,
   DeleteDestinationSchema,
   AlertDetailsResponseDto,
+  CreateDestinationDto,
+  CreateDestinationSchema,
+  DisableDestinationDto,
+  DisableDestinationSchema,
+  EnableDestinationDto,
+  EnableDestinationSchema,
 } from './dto';
 
 @Controller('alerts')
@@ -144,15 +148,21 @@ export class AlertsController {
     }
   }
 
-  @Post('createWebhookDestination')
+  @Post('createDestination')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(CreateWebhookDestinationSchema))
-  async createWebhookDestination(
-    @Request() req,
-    @Body() dto: CreateWebhookDestinationDto,
-  ) {
+  @UsePipes(new JoiValidationPipe(CreateDestinationSchema))
+  async createDestination(@Request() req, @Body() dto: CreateDestinationDto) {
     try {
-      return await this.alertsService.createWebhookDestination(req.user, dto);
+      const type = dto.type;
+      switch (type) {
+        case 'WEBHOOK':
+          return await this.alertsService.createWebhookDestination(
+            req.user,
+            dto,
+          );
+        default:
+          assertUnreachable(type);
+      }
     } catch (e) {
       throw mapError(e);
     }
@@ -178,10 +188,48 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(ListDestinationSchema))
   async listDestinations(
     @Request() req,
-    @Body() { project }: ListDestinationDto,
+    @Body() { projectSlug }: ListDestinationDto,
   ) {
     try {
-      return await this.alertsService.listDestinations(req.user, project);
+      return await this.alertsService.listDestinations(req.user, projectSlug);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('enableDestination')
+  @HttpCode(204)
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(EnableDestinationSchema))
+  async enableDestination(
+    @Request() req,
+    @Body() { alert, destination }: EnableDestinationDto,
+  ) {
+    try {
+      return await this.alertsService.enableDestination(
+        req.user,
+        alert,
+        destination,
+      );
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('disableDestination')
+  @HttpCode(204)
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(DisableDestinationSchema))
+  async disableDestination(
+    @Request() req,
+    @Body() { alert, destination }: DisableDestinationDto,
+  ) {
+    try {
+      return await this.alertsService.disableDestination(
+        req.user,
+        alert,
+        destination,
+      );
     } catch (e) {
       throw mapError(e);
     }

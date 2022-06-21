@@ -130,6 +130,9 @@ export const GetAlertDetailsSchema = Joi.object({
   id: Joi.number().required(),
 });
 
+interface WebhookDestinationResponseDto {
+  url: string;
+}
 export interface AlertDetailsResponseDto {
   id: number;
   type: RuleType;
@@ -139,26 +142,41 @@ export interface AlertDetailsResponseDto {
   environmentSubId: number;
   rule: TxRuleDto | FnCallRuleDto | EventRuleDto | AcctBalRuleDto;
   enabledDestinations: Array<{
-    destination: {
-      id: number;
-      name: string;
-      webhookDestination?: {
-        url: string;
-      };
-    };
+    id: number;
+    name: string;
+    type: DestinationType;
+    config: WebhookDestinationResponseDto;
   }>;
 }
 
-// create webhook destination
-export interface CreateWebhookDestinationDto {
+// create destination
+type DestinationType = 'WEBHOOK';
+
+interface CreateBaseDestinationDto {
   name?: string;
-  url: string;
-  project: string;
+  type: DestinationType;
+  projectSlug: string;
 }
-export const CreateWebhookDestinationSchema = Joi.object({
-  name: Joi.string().optional(),
+interface CreateWebhookDestinationDto extends CreateBaseDestinationDto {
+  type: 'WEBHOOK';
+  config: {
+    url: string;
+  };
+}
+export type CreateDestinationDto = CreateWebhookDestinationDto;
+
+const WebhookDestinationSchema = Joi.object({
   url: Joi.string().required(),
-  project: Joi.string().required(),
+});
+export const CreateDestinationSchema = Joi.object({
+  name: Joi.string(),
+  type: Joi.string().valid('WEBHOOK').required(),
+  projectSlug: Joi.string().required(),
+  config: Joi.alternatives()
+    .conditional('type', {
+      switch: [{ is: 'WEBHOOK', then: WebhookDestinationSchema }],
+    })
+    .required(),
 });
 
 // delete destinations
@@ -171,8 +189,22 @@ export const DeleteDestinationSchema = Joi.object({
 
 // list destinations
 export interface ListDestinationDto {
-  project: string;
+  projectSlug: string;
 }
 export const ListDestinationSchema = Joi.object({
-  project: Joi.string().required(),
+  projectSlug: Joi.string().required(),
 });
+
+// enable destination
+export interface EnableDestinationDto {
+  alert: number;
+  destination: number;
+}
+export const EnableDestinationSchema = Joi.object({
+  alert: Joi.number().required(),
+  destination: Joi.number().required(),
+});
+
+// disable destination
+export type DisableDestinationDto = EnableDestinationDto;
+export const DisableDestinationSchema = EnableDestinationSchema;
