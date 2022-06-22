@@ -5,7 +5,7 @@ import { useIdentity } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 
-import type { Destination, NewDestination } from '../utils/types';
+import type { Destination, NewDestination, UpdateDestination } from '../utils/types';
 
 export async function createDestination(data: NewDestination) {
   const destination: Destination = await authenticatedPost('/alerts/createDestination', {
@@ -39,6 +39,20 @@ export async function deleteDestination(destination: Destination) {
     console.error('Failed to delete alert');
   }
   return false;
+}
+
+export async function updateDestination(data: UpdateDestination) {
+  const destination: Destination = await authenticatedPost('/alerts/updateDestination', {
+    ...data,
+  });
+
+  analytics.track('DC Update Destination', {
+    status: 'success',
+    name: destination.name,
+    id: destination.id,
+  });
+
+  return destination;
 }
 
 export function useDestinations(projectSlug: string | undefined): {
