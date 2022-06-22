@@ -56,14 +56,14 @@ const Indexers: NextPageWithLayout = () => {
             <Text>Here are some tutorials to help you get started:</Text>
             <List>
               <ListItem>
-                <TextLink href="https://github.com/near-examples/near-lake-raw-printer">
+                <TextLink href="https://near-indexers.io/tutorials/lake/js-lake-indexer">
                   near-lake-raw-printer
                   <FeatherIcon css={{ marginLeft: '0.25rem' }} icon="external-link" size="xs" />
                 </TextLink>
                 : simple example of a data printer built on top of NEAR Lake Framework
               </ListItem>
               <ListItem>
-                <TextLink href="https://github.com/near-examples/near-lake-accounts-watcher">
+                <TextLink href="https://near-indexers.io/tutorials/lake/near-lake-state-changes-indexer">
                   accounts-watcher
                   <FeatherIcon css={{ marginLeft: '0.25rem' }} icon="external-link" size="xs" />
                 </TextLink>
@@ -80,7 +80,7 @@ const Indexers: NextPageWithLayout = () => {
             </List>
           </Flex>
         </Flex>
-        <ButtonLink href="https://github.com/near/near-lake-framework" external>
+        <ButtonLink href="https://near-indexers.io/docs/projects/near-lake" external>
           Try Out NEAR Lake
         </ButtonLink>
       </Flex>
