@@ -56,14 +56,22 @@ const Indexers: NextPageWithLayout = () => {
             <Text>Here are some tutorials to help you get started:</Text>
             <List>
               <ListItem>
-                <TextLink href="https://near-indexers.io/tutorials/lake/js-lake-indexer">
+                <TextLink
+                  href="https://near-indexers.io/tutorials/lake/js-lake-indexer"
+                  target="_blank"
+                  rel="noop noreferrer"
+                >
                   near-lake-raw-printer
                   <FeatherIcon css={{ marginLeft: '0.25rem' }} icon="external-link" size="xs" />
                 </TextLink>
                 : simple example of a data printer built on top of NEAR Lake Framework
               </ListItem>
               <ListItem>
-                <TextLink href="https://near-indexers.io/tutorials/lake/near-lake-state-changes-indexer">
+                <TextLink
+                  href="https://near-indexers.io/tutorials/lake/near-lake-state-changes-indexer"
+                  target="_blank"
+                  rel="noop noreferrer"
+                >
                   accounts-watcher
                   <FeatherIcon css={{ marginLeft: '0.25rem' }} icon="external-link" size="xs" />
                 </TextLink>
@@ -71,7 +79,11 @@ const Indexers: NextPageWithLayout = () => {
                 Lake Framework
               </ListItem>
               <ListItem>
-                <TextLink href="https://near-indexers.io/tutorials/lake/nft-indexer">
+                <TextLink
+                  href="https://near-indexers.io/tutorials/lake/nft-indexer"
+                  target="_blank"
+                  rel="noop noreferrer"
+                >
                   nft-indexer
                   <FeatherIcon css={{ marginLeft: '0.25rem' }} icon="external-link" size="xs" />
                 </TextLink>
