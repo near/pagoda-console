@@ -377,6 +377,10 @@ const Settings: NextPageWithLayout = () => {
           <ButtonLink href="https://github.com/near/developer-console-framework" external>
             External Link
           </ButtonLink>
+
+          <ButtonLink href="https://github.com/near/developer-console-framework" external size="s">
+            External Link - Small
+          </ButtonLink>
         </Flex>
       </DocSection>
 
