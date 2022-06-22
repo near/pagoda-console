@@ -124,8 +124,6 @@ function WebhookDestinationForm({
 
   async function submitForm(data: WebhookFormData) {
     try {
-      if (destination.type !== 'WEBHOOK') return;
-
       const updated = await updateDestination({
         id: destination.id,
         name: data.name,
