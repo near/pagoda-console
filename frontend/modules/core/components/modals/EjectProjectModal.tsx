@@ -1,11 +1,10 @@
 import { useState } from 'react';
 
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
+import { Flex } from '@/components/lib/Flex';
+import { Text } from '@/components/lib/Text';
+import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { ejectTutorial } from '@/hooks/projects';
-
-import { FeatherIcon } from '../lib/FeatherIcon';
-import { Flex } from '../lib/Flex';
-import { Text } from '../lib/Text';
-import { ConfirmModal } from './ConfirmModal';
 
 interface Props {
   slug: string;

@@ -1,10 +1,9 @@
 import { useState } from 'react';
 
+import { Text } from '@/components/lib/Text';
+import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { deleteProject } from '@/hooks/projects';
 import { useIdentity } from '@/hooks/user';
-
-import { Text } from '../lib/Text';
-import { ConfirmModal } from './ConfirmModal';
 
 interface Props {
   slug: string;

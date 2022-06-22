@@ -1,9 +1,8 @@
 import { useState } from 'react';
 
+import { Text } from '@/components/lib/Text';
+import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { deleteAccount, useIdentity } from '@/hooks/user';
-
-import { Text } from '../lib/Text';
-import { ConfirmModal } from './ConfirmModal';
 
 export default function DeleteAccountModal({
   show,

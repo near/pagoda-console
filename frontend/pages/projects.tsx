@@ -10,9 +10,9 @@ import { Flex } from '@/components/lib/Flex';
 import { H1, H4 } from '@/components/lib/Heading';
 import { Message } from '@/components/lib/Message';
 import { Spinner } from '@/components/lib/Spinner';
-import DeleteProjectModal from '@/components/modals/DeleteProjectModal';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useProjects } from '@/hooks/projects';
+import DeleteProjectModal from '@/modules/core/components/modals/DeleteProjectModal';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 

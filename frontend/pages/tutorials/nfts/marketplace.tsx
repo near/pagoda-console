@@ -2,9 +2,9 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
-import { EjectProjectModal } from '@/components/modals/EjectProjectModal';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
+import { EjectProjectModal } from '@/modules/core/components/modals/EjectProjectModal';
 import components from '@/modules/core/components/tutorials/components';
 import TableOfContents from '@/modules/core/components/tutorials/TableOfContents';
 import TutorialFooter from '@/modules/core/components/tutorials/TutorialFooter';

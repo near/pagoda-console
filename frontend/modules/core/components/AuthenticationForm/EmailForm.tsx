@@ -9,7 +9,7 @@ import { Button, ButtonLink } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { TextButton } from '@/components/lib/TextLink';
-import { ForgotPasswordModal } from '@/components/modals/ForgotPasswordModal';
+import { ForgotPasswordModal } from '@/modules/core/components/modals/ForgotPasswordModal';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 

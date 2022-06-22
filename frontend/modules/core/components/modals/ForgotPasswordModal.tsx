@@ -3,15 +3,15 @@ import { useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
+import { Button } from '@/components/lib/Button';
 import * as Dialog from '@/components/lib/Dialog';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
+import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
+import { Text } from '@/components/lib/Text';
+import { TextButton } from '@/components/lib/TextLink';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
-
-import { Button } from '../lib/Button';
-import { FeatherIcon } from '../lib/FeatherIcon';
-import { Flex } from '../lib/Flex';
-import { Text } from '../lib/Text';
 
 interface ForgotPasswordFormData {
   email: string;
@@ -92,11 +92,11 @@ const ModalContent = ({ setShow }: Props) => {
             <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
           </Form.Group>
 
-          <Flex justify="end">
-            <Button onClick={() => setShow(false)} color="neutral">
-              Cancel
-            </Button>
+          <Flex justify="spaceBetween" align="center">
             <Button type="submit">Send</Button>
+            <TextButton color="neutral" onClick={() => setShow(false)}>
+              Cancel
+            </TextButton>
           </Flex>
         </Flex>
       )}
