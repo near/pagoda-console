@@ -172,7 +172,7 @@ function WebhookDestinationForm({
                 required: 'Please enter a name for your webhook',
               })}
             />
-            <Form.Feedback>{formState.errors.url?.message}</Form.Feedback>
+            <Form.Feedback>{formState.errors.name?.message}</Form.Feedback>
           </Form.Group>
 
           <Form.Group>

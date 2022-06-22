@@ -37,7 +37,7 @@ export const formValidations = {
     required: 'Please enter a URL',
     pattern: {
       value: formRegex.url,
-      message: 'Please enter a valid URL',
+      message: 'Please enter a valid URL including scheme: https://example.com',
     },
   },
 };
