@@ -36,7 +36,7 @@ const Indexers: NextPageWithLayout = () => {
             />
             <DescriptionBlock
               title="Cost Effective"
-              content="Reduce your indexer cost by over 90% thanks to minimal RAM and disc space requirements."
+              content="Reduce your indexer cost by over 90% thanks to minimal RAM and disk space requirements."
             />
             <DescriptionBlock
               title="Familiar"
@@ -64,7 +64,7 @@ const Indexers: NextPageWithLayout = () => {
                   near-lake-raw-printer
                   <FeatherIcon css={{ marginLeft: '0.25rem' }} icon="external-link" size="xs" />
                 </TextLink>
-                : simple example of a data printer built on top of NEAR Lake Framework
+                : simple example of a data printer
               </ListItem>
               <ListItem>
                 <TextLink
@@ -75,8 +75,7 @@ const Indexers: NextPageWithLayout = () => {
                   accounts-watcher
                   <FeatherIcon css={{ marginLeft: '0.25rem' }} icon="external-link" size="xs" />
                 </TextLink>
-                : indexer example that watches for transaction for specified accounts/contracts build on top of NEAR
-                Lake Framework
+                : indexer example that watches for transactions related to specified accounts/contracts
               </ListItem>
               <ListItem>
                 <TextLink
