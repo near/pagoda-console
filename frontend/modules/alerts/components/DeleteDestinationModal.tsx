@@ -86,9 +86,11 @@ export function DeleteDestinationModal({ destination, show, setShow, onDelete }:
           <Flex stack>
             <Flex align="center">
               <FeatherIcon color="danger" icon="alert-triangle" />
-              <H5>Affected Alerts</H5>
+              <H5>
+                {enabledAlerts.length} Affected Alert{enabledAlerts.length !== 1 && 's'}
+              </H5>
             </Flex>
-            <Text>This destination will be removed from the following alerts:</Text>
+            <Text>This destination will be removed from the following alert{enabledAlerts.length !== 1 && 's'}:</Text>
             <List>
               {enabledAlerts.map((alert) => {
                 return (

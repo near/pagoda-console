@@ -8,6 +8,7 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H5 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
+import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { formValidations } from '@/utils/constants';
 
@@ -174,11 +175,11 @@ function WebhookDestinationForm({
           </Form.Group>
         </Flex>
 
-        <Flex>
+        <Flex justify="spaceBetween" align="center">
           <Button type="submit">Update</Button>
-          <Button onClick={() => setShow(false)} color="neutral">
+          <TextButton color="neutral" onClick={() => setShow(false)}>
             Cancel
-          </Button>
+          </TextButton>
         </Flex>
 
         <HR />
