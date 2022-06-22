@@ -49,7 +49,7 @@ const Indexers: NextPageWithLayout = () => {
         </Flex>
         <Flex stack gap="l">
           <Text>
-            NEAR Lake Framework, allows you to build your own indexer that subscribes to the stream of blocks from the
+            NEAR Lake Framework allows you to build your own indexer that subscribes to the stream of blocks from the
             NEAR Lake data source and create your own logic to process the NEAR Protocol data.
           </Text>
           <Flex stack gap="s">
