@@ -4,8 +4,8 @@ import type { ComponentProps } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { useSelectedProject } from '@/hooks/selected-project';
+import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
 import templateEntries from '@/modules/template/sidebar-entries';
 import type { SidebarEntry } from '@/shared/utils/types';
