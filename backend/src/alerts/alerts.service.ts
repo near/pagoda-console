@@ -615,11 +615,9 @@ export class AlertsService {
       },
     });
 
+    // If the destination already exists, then it's already enabled.
     if (destination) {
-      throw new VError(
-        { info: { code: 'BAD_DESTINATION' } },
-        'Destination already enabled',
-      );
+      return;
     }
 
     try {
@@ -642,6 +640,21 @@ export class AlertsService {
     destinationId: Destination['id'],
   ) {
     await this.checkUserAlertPermission(callingUser.id, alertId);
+
+    const destination = await this.prisma.enabledDestination.findUnique({
+      where: {
+        destinationId_alertId: {
+          alertId,
+          destinationId,
+        },
+      },
+    });
+
+    // If the destination doesn't exist, then it's already disabled.
+    if (!destination) {
+      return;
+    }
+
     try {
       await this.prisma.enabledDestination.delete({
         where: {
