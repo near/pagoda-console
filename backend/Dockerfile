@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:16 as builder
+FROM node:16 as builder
 
 # Create app directory
 WORKDIR /usr/src/app
