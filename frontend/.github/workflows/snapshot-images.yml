@@ -17,7 +17,7 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps
       - name: Run snapshot tests
-        run: npm run test:snapshot -- --update-snapshots
+        run: npx playwright test tests/playwright/snapshot/ --update-snapshots
         env:
           TEST_URL: https://dev.console.pagoda.co
           TEST_EMAIL: jon+e2e@near.org
