@@ -22,7 +22,7 @@ RUN cd src/alerts && prisma generate
 RUN npm run prebuild
 RUN npm run build
 
-FROM node:16-alpine as runner
+FROM --platform=linux/amd64 node:16-alpine as runner
 
 EXPOSE 8080
 USER node
