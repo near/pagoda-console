@@ -33,6 +33,7 @@ export const Viewport = styled(ToastPrimitive.Viewport, {
 export const Root = styled(ToastPrimitive.Root, {
   display: 'flex',
   gap: 'var(--space-m)',
+  alignItems: 'center',
   backgroundColor: 'var(--color-surface-overlay)',
   borderRadius: 'var(--border-radius-m)',
   boxShadow: 'var(--shadow-soft)',

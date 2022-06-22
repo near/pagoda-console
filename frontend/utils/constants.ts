@@ -1,6 +1,7 @@
 export const formRegex = {
   email: /^(.+)@(.+)[^.]$/,
   password: /.{6,}/,
+  url: /^https:\/\/.+\..+/,
 };
 
 export const formValidations = {
@@ -30,6 +31,13 @@ export const formValidations = {
     maxLength: {
       value: 50,
       message: 'Project names cannot be longer than 50 characters',
+    },
+  },
+  url: {
+    required: 'Please enter a URL',
+    pattern: {
+      value: formRegex.url,
+      message: 'Please enter a valid URL including scheme: https://example.com',
     },
   },
 };

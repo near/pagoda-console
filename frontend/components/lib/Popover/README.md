@@ -104,14 +104,22 @@ When giving the user an action, sometimes we might need to verify the action is 
 
 By calling `e.preventDefault()` on the close button click event, we prevent the popover from closing if the action was not valid.
 
-## Max Height + Scroll
+## Popover Width
 
-By default, popovers have a max height set which will allow the user to scroll if content exceeds that height. You can override this value with the `maxHeight` property:
+By default, popovers will have a width that automatically fits their content (up to a max, default size). Sometimes it makes sense to match the width of the element that triggers the popover. You can use the `width` property on `Popover.Content` like so:
 
 ```tsx
 <Popover.Root>
-  <Popover.Anchor>...</Popover.Anchor>
+  <Popover.Trigger asChild>
+    <Button>Click Here to Open</Button>
+  </Popover.Trigger>
 
-  <Popover.Content maxHeight="10rem">...</Popover.Content>
+  <Popover.Content width="trigger">...</Popover.Content>
 </Popover.Root>
+```
+
+In the above example, the popover would match the width of the trigger exactly. You can also choose to use the trigger as a max width:
+
+```tsx
+<Popover.Content width="maxTrigger">...</Popover.Content>
 ```

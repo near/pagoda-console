@@ -615,6 +615,12 @@ const Settings: NextPageWithLayout = () => {
             </DropdownMenu.Trigger>
 
             <DropdownMenu.Content>
+              <DropdownMenu.ContentItem>
+                <Text>This can contain any content.</Text>
+              </DropdownMenu.ContentItem>
+
+              <DropdownMenu.Separator />
+
               <DropdownMenu.Item>New Tab</DropdownMenu.Item>
               <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
               <DropdownMenu.Item>
@@ -1309,6 +1315,21 @@ const Settings: NextPageWithLayout = () => {
             <FeatherIcon icon="moon" size="xs" data-off />
           </Switch>
           Small Switch
+        </Flex>
+
+        <HR />
+
+        <Flex as="label" align="center">
+          <Switch debounce={true} onCheckedChange={() => alert('The checked event was debounced.')} />
+          Default Debounce
+        </Flex>
+
+        <Flex as="label" align="center">
+          <Switch
+            debounce={4000}
+            onCheckedChange={() => alert('The checked event was debounced with a custom delay.')}
+          />
+          Custom Debounce (4 Seconds)
         </Flex>
       </DocSection>
 

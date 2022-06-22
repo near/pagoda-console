@@ -112,6 +112,24 @@ NewPage.getLayout = useDashboardLayout;
 export default NewPage;
 ```
 
+### Page Layout: Dashboard With Options
+
+When using our `DashboardLayout`, sometimes we need to define properties that handle more advanced requirements. A common use case for this is on pages that should be redirected away from when the user changes their selected project and/or environment:
+
+```ts
+import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
+
+NewPage.getLayout = wrapDashboardLayoutWithOptions({
+  redirect: {
+    environmentChange: true,
+    projectChange: true,
+    url: '/alerts',
+  },
+});
+
+export default NewPage;
+```
+
 ## Data Fetching
 
 [SWR](https://swr.vercel.app/) is used heavily for data fetching. This library makes it easy to build a UI that melds quick loading from cached data with frequent revalidation fetches to make sure the UI stays up to date. It is highly recommended to read the SWR docs in their entirety and familiarize yourself with how it works and what options are available. Data fetchers are defined in [utils/fetchers.ts](utils/fetchers.ts)
