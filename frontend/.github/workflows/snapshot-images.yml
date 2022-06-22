@@ -1,4 +1,5 @@
 name: Builds a Zip of Updated Snapshot Images for Snapshot Tests (dev.console.pagoda.co)
+on: workflow_dispatch
 jobs:
   test:
     timeout-minutes: 60
