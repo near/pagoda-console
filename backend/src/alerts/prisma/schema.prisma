@@ -7,8 +7,9 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../../../generated/prisma/alerts"
+  provider      = "prisma-client-js"
+  output        = "../../../generated/prisma/alerts"
+  binaryTargets = ["linux-musl", "native"]
 }
 
 /// Stores info about an alert and has a 1-1 relationship with one of the various Rule tables.

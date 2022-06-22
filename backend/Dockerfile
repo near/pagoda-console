@@ -15,6 +15,10 @@ COPY . ./
 
 RUN prisma generate
 
+# NOT IDEAL, WE SHOULD BE GENERATING ON THE DEPLOY IMAGE BELOW SO WE DONT
+# NEED TO FORCE COMPATIBILITY IN SCHEMA FILE
+RUN cd src/alerts && prisma generate
+
 RUN npm run prebuild
 RUN npm run build
 
@@ -29,6 +33,7 @@ WORKDIR /usr/src/app
 COPY --from=builder /usr/src/app/package*.json ./
 COPY --from=builder /usr/src/app/dist ./dist
 COPY prisma ./prisma
+COPY --from=builder /usr/src/app/generated ./generated
 
 # Install optimized dependencies, running after having all files
 RUN npm ci
