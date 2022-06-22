@@ -5,7 +5,7 @@ import { useContext } from 'react';
 import { TransactionInfo } from './types';
 import { Receipt } from './types';
 
-import BatchTransactionIcon from '../../../../public/static/images/icon-m-batch.svg';
+import BatchTransactionIcon from '@/public/static/images/icon-m-batch.svg';
 
 import ActionRow from './ActionRow';
 import ActionRowBlock, { ViewMode } from './ActionRowBlock';
