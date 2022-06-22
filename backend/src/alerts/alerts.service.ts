@@ -475,7 +475,11 @@ export class AlertsService {
 
   async createWebhookDestination(
     user: User,
-    { name, config: { url }, projectSlug }: CreateWebhookDestinationSchema,
+    {
+      name = 'Webhook Destination',
+      config: { url },
+      projectSlug,
+    }: CreateWebhookDestinationSchema,
   ): Promise<CreateWebhookDestinationResponse> {
     await this.projectPermissions.checkUserProjectPermission(
       user.id,
