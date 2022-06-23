@@ -198,7 +198,7 @@ Other times, it makes more sense to set max widths on each `Form.Group` individu
 
 ## Checkboxes & Radios
 
-To implement checkboxes or radios in a form, please refer to `Checkbox/README.md`.
+To implement checkboxes or radios in a form, please refer to `Checkbox/README.md` and `CheckboxCard/README.md`.
 
 ## Select Dropdowns
 

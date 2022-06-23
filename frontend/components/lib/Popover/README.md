@@ -103,3 +103,15 @@ When giving the user an action, sometimes we might need to verify the action is 
 ```
 
 By calling `e.preventDefault()` on the close button click event, we prevent the popover from closing if the action was not valid.
+
+## Max Height + Scroll
+
+By default, popovers have a max height set which will allow the user to scroll if content exceeds that height. You can override this value with the `maxHeight` property:
+
+```tsx
+<Popover.Root>
+  <Popover.Anchor>...</Popover.Anchor>
+
+  <Popover.Content maxHeight="10rem">...</Popover.Content>
+</Popover.Root>
+```

@@ -61,3 +61,13 @@ Sometimes you might need to suppress the bottom border from showing:
 ```tsx
 <Section noBorder>...</Section>
 ```
+
+## Background Color
+
+Sometimes it makes sense to use one of our other background colors (`surface3` is the default):
+
+```tsx
+<Section background="surface1">...</Section>
+```
+
+Be aware that depending on the background color you select, some components may no longer have proper contrast.

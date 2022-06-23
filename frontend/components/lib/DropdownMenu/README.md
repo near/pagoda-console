@@ -258,3 +258,15 @@ If you need to support displaying an icon (or any other components) alongside th
 ### Multi Select
 
 It should be technically feasible to support the user selecting multiple options by using `DropdownMenu.CheckboxItem`, but this will need further investigation.
+
+## Max Height + Scroll
+
+By default, dropdown menus have a max height set which will allow the user to scroll if content exceeds that height. You can override this value with the `maxHeight` property:
+
+```tsx
+<DropdownMenu.Root>
+  <DropdownMenu.Button>...</DropdownMenu.Button>
+
+  <DropdownMenu.Content maxHeight="10rem">...</DropdownMenu.Content>
+</DropdownMenu.Root>
+```

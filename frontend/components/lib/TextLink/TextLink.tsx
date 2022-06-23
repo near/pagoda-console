@@ -1,58 +1,44 @@
-import { styled } from '@/styles/stitches';
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
+import { forwardRef } from 'react';
 
-export const TextLink = styled('a', {
-  display: 'inline-block',
-  cursor: 'pointer',
-  fontWeight: 500,
-  fontFamily: 'var(--font-action)',
-  transition: 'var(--transitions)',
-  borderBottom: '1px solid',
-  whiteSpace: 'nowrap',
+import type { StitchesCSS, StitchesProps } from '@/styles/stitches';
 
-  '&:focus': {
-    outline: 'var(--focus-outline)',
-    outlineOffset: '4px',
-  },
+import { FeatherIcon } from '../FeatherIcon';
+import * as S from './styles';
 
-  '&:active': {
-    opacity: 0.8,
-  },
+type Props = StitchesProps<typeof S.TextLink> & {
+  css?: StitchesCSS;
+};
 
-  variants: {
-    color: {
-      danger: {
-        color: 'var(--color-cta-danger)',
-        '&:hover': {
-          color: 'var(--color-cta-danger-highlight)',
-        },
-      },
-      primary: {
-        color: 'var(--color-cta-primary)',
-        '&:hover': {
-          color: 'var(--color-cta-primary-highlight)',
-        },
-      },
-      neutral: {
-        color: 'var(--color-text-1)',
-        '&:hover': {
-          color: 'var(--color-text-2)',
-        },
-      },
-    },
+type TextLinkProps = Props &
+  AnchorHTMLAttributes<HTMLAnchorElement> & {
+    external?: true;
+  };
 
-    size: {
-      s: {
-        fontSize: 'var(--font-size-body-small)',
-        fontWeight: 400,
-      },
+type TextButtonProps = Props & ButtonHTMLAttributes<HTMLButtonElement>;
 
-      m: {
-        fontSize: 'var(--font-size-body)',
-      },
-    },
-  },
-
-  defaultVariants: {
-    color: 'primary',
-  },
+export const TextLink = forwardRef<HTMLAnchorElement, TextLinkProps>(({ children, external, ...props }, ref) => {
+  return (
+    <S.TextLink
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noop noreferrer' : undefined}
+      ref={ref}
+      {...props}
+    >
+      {children}
+      {external ? <FeatherIcon icon="external-link" size="xs" /> : <></>}
+    </S.TextLink>
+  );
 });
+TextLink.displayName = 'TextLink';
+
+export const TextButton = forwardRef<HTMLButtonElement, TextButtonProps>(
+  ({ children, type = 'button', ...props }, ref) => {
+    return (
+      <S.TextLink as="button" type={type} ref={ref} {...props}>
+        {children}
+      </S.TextLink>
+    );
+  },
+);
+TextButton.displayName = 'TextButton';
