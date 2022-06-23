@@ -11,6 +11,7 @@ import { Button, ButtonLink } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
 import { Checkbox, CheckboxGroup } from '@/components/lib/Checkbox';
 import * as CheckboxCard from '@/components/lib/CheckboxCard';
+import { CodeBlock } from '@/components/lib/CodeBlock';
 import { Container } from '@/components/lib/Container';
 import * as Dialog from '@/components/lib/Dialog';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
@@ -36,7 +37,7 @@ import { TextButton, TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
-import { ThemeToggle } from '@/components/ThemeToggle/ThemeToggle';
+import { ThemeToggle } from '@/modules/core/components/ThemeToggle/ThemeToggle';
 import ExampleIcon from '@/public/images/icons/ui-example.svg';
 import { styled } from '@/styles/stitches';
 import config from '@/utils/config';
@@ -521,6 +522,21 @@ const Settings: NextPageWithLayout = () => {
             </CheckboxCard.Card>
           ))}
         </CheckboxCard.Group>
+      </DocSection>
+
+      <DocSection title="Code Block">
+        <CodeBlock language="json" showLineNumbers={true}>
+          {JSON.stringify(
+            {
+              age: 45,
+              favoriteColor: 'orange',
+              name: 'Peyton Manning',
+              isQuarterback: true,
+            },
+            null,
+            4,
+          )}
+        </CodeBlock>
       </DocSection>
 
       <DocSection title="Container">
