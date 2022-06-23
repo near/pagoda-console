@@ -6,23 +6,6 @@ export const Label = styled('label', {
   height: '10rem',
   userSelect: 'none',
 
-  variants: {
-    justify: {
-      center: {
-        '--text-align': 'center',
-        '--align-items': 'center',
-      },
-      left: {
-        '--text-align': 'left',
-        '--align-items': 'flex-start',
-      },
-      right: {
-        '--text-align': 'right',
-        '--align-items': 'flex-end',
-      },
-    },
-  },
-
   defaultVariants: {
     justify: 'center',
   },
@@ -34,24 +17,13 @@ export const Group = styled('div', {
   flexDirection: 'row',
   flexWrap: 'wrap',
   gap: 'var(--space-m)',
-
-  variants: {
-    stretch: {
-      true: {
-        [`${Label}`]: {
-          width: 'unset',
-          flex: '1',
-        },
-      },
-    },
-  },
 });
 
 export const Card = styled('span', {
   display: 'flex',
   position: 'relative',
   flexDirection: 'column',
-  alignItems: 'var(--align-items)',
+  alignItems: 'center',
   justifyContent: 'center',
   gap: 'var(--space-xs)',
   padding: 'var(--space-m)',
@@ -61,10 +33,10 @@ export const Card = styled('span', {
   lineHeight: 'var(--line-height-body)',
   color: 'var(--color-text-1)',
   background: 'var(--color-surface-2)',
-  border: '1px solid var(--color-border-2)',
+  border: '1px solid var(--color-surface-2)',
   borderRadius: 'var(--border-radius-s)',
   cursor: 'pointer',
-  textAlign: 'var(--text-align)',
+  textAlign: 'center',
   transition: 'var(--transitions)',
 
   '&:hover': {
@@ -101,7 +73,7 @@ export const Input = styled('input', {
 
   '&:focus +': {
     [`${Card}`]: {
-      boxShadow: 'var(--shadow-soft)',
+      boxShadow: 'var(--shadow-softer)',
       outline: 'var(--focus-outline)',
       outlineOffset: 'var(--focus-outline-offset)',
     },

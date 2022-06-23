@@ -1,3 +1,4 @@
+import type { StitchesCSS } from '@/styles/stitches';
 import { styled } from '@/styles/stitches';
 
 export const Form = styled('form', {
@@ -85,7 +86,7 @@ export const LabelDescription = styled('p', {
   lineHeight: 'var(--line-height-body)',
 });
 
-export const Input = styled('input', {
+const inputStyles: StitchesCSS = {
   flexGrow: 1,
   color: 'var(--color-text-1)',
   background: 'var(--color-surface-2)',
@@ -118,11 +119,19 @@ export const Input = styled('input', {
     background: 'var(--color-surface-1)',
     borderColor: 'var(--focus-outline-color)',
   },
+};
+
+const inputInvalidStyles = {
+  borderColor: 'var(--color-danger) !important',
+};
+
+export const Input = styled('input', {
+  ...inputStyles,
 
   variants: {
     invalid: {
       true: {
-        borderColor: 'var(--color-danger) !important',
+        ...inputInvalidStyles,
       },
     },
   },
@@ -133,39 +142,22 @@ export const InputButtonValue = styled('span', {
   alignItems: 'center',
   gap: 'var(--space-s)',
   flexGrow: 1,
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
 });
 
 export const InputButton = styled('button', {
+  ...inputStyles,
   position: 'relative',
   display: 'flex',
   alignItems: 'center',
   gap: 'var(--space-m)',
-  flexGrow: 1,
-  minHeight: 'var(--size-input-height-m)',
-  padding: '0.25rem var(--space-m)',
-  color: 'var(--color-text-1)',
-  background: 'var(--color-surface-2)',
-  border: '1px solid var(--color-border-2)',
-  fontSize: 'var(--font-size-body)',
-  fontFamily: 'var(--font-body)',
   lineHeight: 1.4,
-  borderRadius: 'var(--border-radius-s)',
-  transition: 'var(--transitions)',
   cursor: 'pointer',
-
-  '&:disabled': {
-    opacity: 0.5,
-    pointerEvents: 'none',
-    borderColor: 'var(--color-surface-2)',
-  },
+  padding: '0.25rem var(--space-m)',
 
   '&:hover': {
     background: 'var(--color-surface-1)',
-  },
-
-  '&:focus': {
-    background: 'var(--color-surface-1)',
-    borderColor: 'var(--focus-outline-color)',
   },
 
   '& > [data-icon-arrow]': {
@@ -181,7 +173,7 @@ export const InputButton = styled('button', {
   variants: {
     invalid: {
       true: {
-        borderColor: 'var(--color-danger) !important',
+        ...inputInvalidStyles,
       },
     },
 
@@ -233,6 +225,7 @@ export const FloatingLabel = styled('span', {
   fontSize: 'var(--font-size-body)',
   lineHeight: 1,
   transition: 'top var(--transition-speed), font-size var(--transition-speed)',
+  pointerEvents: 'none',
 
   variants: {
     shrink: {
@@ -249,7 +242,7 @@ export const FloatingWrapper = styled('label', {
   position: 'relative',
   flexGrow: 1,
 
-  [`${Input}`]: {
+  input: {
     width: '100%',
     paddingTop: '1.05rem',
 
@@ -265,7 +258,7 @@ export const FloatingWrapper = styled('label', {
     },
   },
 
-  [`${Input}:not(:placeholder-shown) + ${FloatingLabel}, ${Input}:focus + ${FloatingLabel}`]: {
+  [`input:not(:placeholder-shown) + ${FloatingLabel}, input:focus + ${FloatingLabel}`]: {
     top: '0.5rem',
     fontSize: '0.625rem',
   },

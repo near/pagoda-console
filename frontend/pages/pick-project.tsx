@@ -5,9 +5,9 @@ import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import { H1 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
-import { ProjectCard } from '@/components/ProjectCard';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
+import { ProjectCard } from '@/modules/core/components/ProjectCard';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface Project {

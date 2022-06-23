@@ -1,5 +1,8 @@
 import type { ComponentProps, ReactNode } from 'react';
+import { useRef } from 'react';
 import { forwardRef } from 'react';
+
+import { useBrowserLayoutEffect } from '@/hooks/browser-layout-effect';
 
 import { FeatherIcon } from '../FeatherIcon';
 import * as S from './styles';
@@ -12,6 +15,7 @@ type InputProps = Omit<ComponentProps<typeof S.Input>, 'invalid'> & {
   isInvalid?: boolean;
 };
 type FloatingLabelInputProps = InputProps & {
+  children?: ReactNode;
   label: string;
 };
 type FloatingLabelSelectProps = Omit<ComponentProps<typeof S.InputButton>, 'invalid'> & {
@@ -43,17 +47,41 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({ isInvalid, type
 Input.displayName = 'Input';
 
 export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInputProps>(
-  ({ isInvalid, label, type = 'text', placeholder = ' ', ...props }, ref) => {
+  ({ children, isInvalid, label, type = 'text', placeholder = ' ', ...props }, ref) => {
+    /*
+      If a placeholder isn't set, we need to use " " as the placeholder (instead of an empty
+      string) - this is critical for our CSS to render the label correctly via `:placeholder-shown`.
+    */
+
+    const wrapperRef = useRef<HTMLLabelElement | null>(null);
+
+    useBrowserLayoutEffect(() => {
+      /*
+        When using this component with a custom input via `children`, make sure
+        the placeholder attribute is set - this is critical for our CSS to render
+        the label correctly via `:placeholder-shown`.
+      */
+      if (children && wrapperRef.current) {
+        const input = wrapperRef.current.querySelector('input');
+        if (!input) return;
+        input.setAttribute('placeholder', input.getAttribute('placeholder') || placeholder);
+      }
+    });
+
     return (
-      <S.FloatingWrapper>
-        <S.Input
-          aria-invalid={isInvalid}
-          invalid={isInvalid}
-          placeholder={placeholder}
-          ref={ref}
-          type={type}
-          {...props}
-        />
+      <S.FloatingWrapper ref={wrapperRef}>
+        {children ? (
+          children
+        ) : (
+          <S.Input
+            aria-invalid={isInvalid}
+            invalid={isInvalid === true}
+            placeholder={placeholder}
+            ref={ref}
+            type={type}
+            {...props}
+          />
+        )}
         <S.FloatingLabel>{label}</S.FloatingLabel>
       </S.FloatingWrapper>
     );

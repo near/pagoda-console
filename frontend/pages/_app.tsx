@@ -14,12 +14,12 @@ import { appWithTranslation } from 'next-i18next';
 import { useEffect } from 'react';
 import { SWRConfig, useSWRConfig } from 'swr';
 
-import { DowntimeMode } from '@/components/DowntimeMode';
 import { SimpleLayout } from '@/components/layouts/SimpleLayout';
 import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
 import { Toaster } from '@/components/lib/Toast';
-import SmallScreenNotice from '@/components/SmallScreenNotice';
 import { usePageTracker } from '@/hooks/page-tracker';
+import { DowntimeMode } from '@/modules/core/components/DowntimeMode';
+import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
 import config from '@/utils/config';

@@ -20,7 +20,6 @@ export const Content = styled(DropdownMenuPrimitive.Content, {
   maxWidth: 'var(--size-max-container-width-s)',
   backgroundColor: 'var(--background-color)',
   borderRadius: 'var(--border-radius-s)',
-  padding: 'var(--space-s)',
   boxShadow: 'var(--shadow-softer)',
   transformOrigin: 'var(--radix-dropdown-menu-content-transform-origin)',
 
@@ -30,6 +29,13 @@ export const Content = styled(DropdownMenuPrimitive.Content, {
   '&[data-state="closed"]': {
     animation: `${closeAnimation} var(--animation-speed)`,
   },
+});
+
+export const ContentInner = styled('div', {
+  padding: 'var(--space-s)',
+  maxHeight: 'var(--size-max-dropdown-height)',
+  overflow: 'auto',
+  scrollBehavior: 'smooth',
 });
 
 export const ItemSelectedIndicator = styled('div', {
@@ -42,7 +48,7 @@ export const ItemUnselectedIndicator = styled('div', {
   alignItems: 'center',
 });
 
-const itemStyles: StitchesCSS = {
+export const dropdownItemStyles: StitchesCSS = {
   fontFamily: 'var(--font-body)',
   fontWeight: 400,
   fontSize: 'var(--font-size-body)',
@@ -63,11 +69,7 @@ const itemStyles: StitchesCSS = {
     pointerEvents: 'none',
   },
 
-  '&:focus': {
-    backgroundColor: 'var(--color-surface-2)',
-  },
-
-  '&[data-state="open"]': {
+  '&:focus, &:hover, &[data-state="open"]': {
     backgroundColor: 'var(--color-surface-2)',
   },
 
@@ -91,24 +93,24 @@ const itemStyles: StitchesCSS = {
 };
 
 export const Item = styled(DropdownMenuPrimitive.Item, {
-  ...itemStyles,
+  ...dropdownItemStyles,
   gap: 'var(--space-s)',
 });
 
 export const TriggerItem = styled(DropdownMenuPrimitive.TriggerItem, {
-  ...itemStyles,
+  ...dropdownItemStyles,
 
   '& > svg': {
     color: 'var(--color-surface-5)',
   },
 });
 
-export const CheckboxItem = styled(DropdownMenuPrimitive.CheckboxItem, { ...itemStyles });
+export const CheckboxItem = styled(DropdownMenuPrimitive.CheckboxItem, { ...dropdownItemStyles });
 
-export const RadioItem = styled(DropdownMenuPrimitive.RadioItem, { ...itemStyles });
+export const RadioItem = styled(DropdownMenuPrimitive.RadioItem, { ...dropdownItemStyles });
 
 export const Label = styled(DropdownMenuPrimitive.Label, {
-  ...itemStyles,
+  ...dropdownItemStyles,
   fontSize: 'var(--font-size-body-small)',
   color: 'var(--color-text-2)',
   cursor: 'default',
