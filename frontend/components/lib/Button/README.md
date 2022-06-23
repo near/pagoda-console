@@ -32,3 +32,15 @@ import { ButtonLink } from '@/components/lib/Button';
   </ButtonLink>
 </Link>
 ```
+
+### External Link
+
+Pass the `external` prop when the link target is outside of DevConsole. This will cause the link to be opened in a new tab and render the `external-link` feather icon in the button
+
+```tsx
+import { ButtonLink } from '@/components/lib/Button';
+
+<ButtonLink href="https://github.com/near/near-lake-framework" external>
+  Try Out NEAR Lake
+</ButtonLink>;
+```
