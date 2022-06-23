@@ -3,4 +3,4 @@
 /*.ts
 
 # ignore external code
-/components/explorer
+/modules/core/components/explorer

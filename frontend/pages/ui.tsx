@@ -8,8 +8,10 @@ import * as Accordion from '@/components/lib/Accordion';
 import { Badge } from '@/components/lib/Badge';
 import { Box } from '@/components/lib/Box';
 import { Button, ButtonLink } from '@/components/lib/Button';
+import { Card } from '@/components/lib/Card';
 import { Checkbox, CheckboxGroup } from '@/components/lib/Checkbox';
 import * as CheckboxCard from '@/components/lib/CheckboxCard';
+import { CodeBlock } from '@/components/lib/CodeBlock';
 import { Container } from '@/components/lib/Container';
 import * as Dialog from '@/components/lib/Dialog';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
@@ -31,11 +33,11 @@ import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Switch } from '@/components/lib/Switch';
 import * as Tabs from '@/components/lib/Tabs';
 import { Text } from '@/components/lib/Text';
-import { TextLink } from '@/components/lib/TextLink';
+import { TextButton, TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
-import { ThemeToggle } from '@/components/ThemeToggle/ThemeToggle';
+import { ThemeToggle } from '@/modules/core/components/ThemeToggle/ThemeToggle';
 import ExampleIcon from '@/public/images/icons/ui-example.svg';
 import { styled } from '@/styles/stitches';
 import config from '@/utils/config';
@@ -192,7 +194,7 @@ const Settings: NextPageWithLayout = () => {
 
   return (
     <>
-      <Section color="surface2">
+      <Section background="surface2">
         <Flex align="center" justify="spaceBetween" wrap>
           <Flex stack css={{ width: 'auto' }}>
             <H1>Stitches & Radix UI</H1>
@@ -376,6 +378,82 @@ const Settings: NextPageWithLayout = () => {
         </Flex>
       </DocSection>
 
+      <DocSection title="Card">
+        <Flex
+          stack={{
+            '@tablet': true,
+          }}
+        >
+          <Card>
+            <Flex stack>
+              <FeatherIcon icon="box" size="m" />
+              <H4>Standard Card</H4>
+              <Text>Cards can contain anything.</Text>
+            </Flex>
+          </Card>
+
+          <Card clickable as="button" type="button" onClick={() => alert('Click!')}>
+            <Flex stack>
+              <FeatherIcon icon="box" size="m" color="primary" />
+              <H4>Clickable Card</H4>
+              <Text>Cards can be clickable.</Text>
+            </Flex>
+          </Card>
+
+          <Card clickable as="button" type="button" disabled>
+            <Flex stack>
+              <FeatherIcon icon="box" size="m" color="primary" />
+              <H4>Disabled Card</H4>
+              <Text>This card is disabled.</Text>
+            </Flex>
+          </Card>
+        </Flex>
+
+        <Flex
+          stack={{
+            '@tablet': true,
+          }}
+        >
+          <Card borderRadius="s">
+            <H5>Radius S</H5>
+          </Card>
+
+          <Card borderRadius="m">
+            <H5>Radius M</H5>
+          </Card>
+
+          <Card borderRadius="l">
+            <H5>Radius L</H5>
+          </Card>
+
+          <Card borderRadius="xl">
+            <H5>Radius XL</H5>
+          </Card>
+        </Flex>
+
+        <Flex
+          stack={{
+            '@tablet': true,
+          }}
+        >
+          <Card padding="s">
+            <H5>Padding S</H5>
+          </Card>
+
+          <Card padding="m">
+            <H5>Padding M</H5>
+          </Card>
+
+          <Card padding="l">
+            <H5>Padding L</H5>
+          </Card>
+
+          <Card padding="xl">
+            <H5>Padding XL</H5>
+          </Card>
+        </Flex>
+      </DocSection>
+
       <DocSection title="Checkbox / Radio">
         <H4>Single Checkbox</H4>
 
@@ -444,44 +522,21 @@ const Settings: NextPageWithLayout = () => {
             </CheckboxCard.Card>
           ))}
         </CheckboxCard.Group>
+      </DocSection>
 
-        <H4>Stretch</H4>
-
-        <CheckboxCard.Group stretch aria-label="Select your favorite icon">
-          {favoriteIconOptions.map((option) => (
-            <CheckboxCard.Card
-              radio
-              key={option.id}
-              disabled={option.disabled}
-              value={option.id}
-              name="exampleRadioCard2"
-            >
-              <FeatherIcon icon={option.icon} />
-              <CheckboxCard.Title>{option.title}</CheckboxCard.Title>
-              <CheckboxCard.Description>{option.description}</CheckboxCard.Description>
-            </CheckboxCard.Card>
-          ))}
-        </CheckboxCard.Group>
-
-        <H4>Justify</H4>
-
-        <CheckboxCard.Group stretch aria-label="Select an option">
-          <CheckboxCard.Card radio justify="left" name="exampleRadioCard3">
-            <FeatherIcon icon="zap" />
-            <CheckboxCard.Title>Justify Left</CheckboxCard.Title>
-            <CheckboxCard.Description>Here is a card description.</CheckboxCard.Description>
-          </CheckboxCard.Card>
-          <CheckboxCard.Card radio justify="center" name="exampleRadioCard3">
-            <FeatherIcon icon="zap" />
-            <CheckboxCard.Title>Justify Center</CheckboxCard.Title>
-            <CheckboxCard.Description>Here is a card description.</CheckboxCard.Description>
-          </CheckboxCard.Card>
-          <CheckboxCard.Card radio justify="right" name="exampleRadioCard3">
-            <FeatherIcon icon="zap" />
-            <CheckboxCard.Title>Justify Right</CheckboxCard.Title>
-            <CheckboxCard.Description>Here is a card description.</CheckboxCard.Description>
-          </CheckboxCard.Card>
-        </CheckboxCard.Group>
+      <DocSection title="Code Block">
+        <CodeBlock language="json" showLineNumbers={true}>
+          {JSON.stringify(
+            {
+              age: 45,
+              favoriteColor: 'orange',
+              name: 'Peyton Manning',
+              isQuarterback: true,
+            },
+            null,
+            4,
+          )}
+        </CodeBlock>
       </DocSection>
 
       <DocSection title="Container">
@@ -899,7 +954,7 @@ const Settings: NextPageWithLayout = () => {
             <Form.Group gap="m">
               <Form.Label>Favorite Icon</Form.Label>
 
-              <CheckboxCard.Group stretch aria-label="Select your favorite icon">
+              <CheckboxCard.Group aria-label="Select your favorite icon">
                 {favoriteIconOptions.map((option) => (
                   <CheckboxCard.Card
                     radio
@@ -907,7 +962,7 @@ const Settings: NextPageWithLayout = () => {
                     disabled={option.disabled}
                     value={option.id}
                     isInvalid={!!formState.errors.favoriteIcon}
-                    css={{ height: '6rem' }}
+                    css={{ width: '7rem', height: '7rem' }}
                     {...register('favoriteIcon', {
                       required: 'You must select a favorite icon',
                     })}
@@ -1149,7 +1204,7 @@ const Settings: NextPageWithLayout = () => {
         </Flex>
       </DocSection>
 
-      <DocSection title="Section" color="surface2">
+      <DocSection title="Section" background="surface2">
         <Text>
           Each UI section is wrapped by a section component. This section is using the &quot;surface2&quot; color
           background.
@@ -1401,6 +1456,11 @@ const Settings: NextPageWithLayout = () => {
               Small Link
             </TextLink>
           </Link>
+        </Flex>
+
+        <Flex wrap>
+          <TextLink external>External Link</TextLink>
+          <TextButton onClick={() => alert('Hi!')}>Button</TextButton>
         </Flex>
       </DocSection>
 

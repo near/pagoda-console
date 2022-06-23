@@ -12,7 +12,8 @@ const glowingAnimation = keyframes({
   },
 });
 
-export const Placeholder = styled('div', {
+export const Placeholder = styled('span', {
+  display: 'block',
   borderRadius: 'var(--border-radius-s)',
   height: '1rem',
   width: '100%',

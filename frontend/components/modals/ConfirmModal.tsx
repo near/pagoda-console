@@ -5,6 +5,7 @@ import * as Dialog from '@/components/lib/Dialog';
 import { Button } from '../lib/Button';
 import { Flex } from '../lib/Flex';
 import { Message } from '../lib/Message';
+import { TextButton } from '../lib/TextLink';
 
 interface Props {
   cancelText?: string;
@@ -33,18 +34,19 @@ export function ConfirmModal(props: Props) {
             dismiss={props.setErrorText ? () => props.setErrorText!('') : undefined}
           />
 
-          <Flex justify="spaceBetween">
-            <Button
+          <Flex justify="spaceBetween" align="center">
+            <Button loading={props.isProcessing} onClick={props.onConfirm} color={props.confirmColor || 'primary'}>
+              {props.confirmText || 'Confirm'}
+            </Button>
+
+            <TextButton
               color="neutral"
               onClick={() => {
                 props.setShow(false);
               }}
             >
               {props.cancelText || 'Cancel'}
-            </Button>
-            <Button loading={props.isProcessing} onClick={props.onConfirm} color={props.confirmColor || 'primary'}>
-              {props.confirmText || 'Confirm'}
-            </Button>
+            </TextButton>
           </Flex>
         </Flex>
       </Dialog.Content>

@@ -24,11 +24,11 @@ export const Group = ({ children, ...props }: GroupProps) => {
 };
 
 export const Card = forwardRef<HTMLInputElement, CardProps>(
-  ({ children, css, isInvalid, justify, radio = false, ...props }, ref) => {
+  ({ children, css, isInvalid, radio = false, ...props }, ref) => {
     const type = radio ? 'radio' : 'checkbox';
 
     return (
-      <S.Label css={css} justify={justify}>
+      <S.Label css={css}>
         <S.Input aria-invalid={isInvalid} type={type} ref={ref} {...props} />
 
         <S.Card invalid={isInvalid}>{children}</S.Card>
