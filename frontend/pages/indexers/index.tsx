@@ -35,8 +35,8 @@ const Indexers: NextPageWithLayout = () => {
               content="Indexer got stuck? No worries! Restart from any block and run it immediately."
             />
             <DescriptionBlock
-              title="Cost Effective"
-              content="Reduce your indexer cost by over 90% thanks to minimal RAM and disk space requirements."
+              title="Immediate Access"
+              content="Connect with the full history of the NEAR blockchain in milliseconds."
             />
             <DescriptionBlock
               title="Familiar"
