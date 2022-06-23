@@ -5,6 +5,8 @@ import {
   WebhookDestination,
   AlertRuleKind,
   Destination,
+  EmailDestination,
+  DestinationType,
 } from '../../generated/prisma/alerts';
 
 // TODO should we re-export these types from the core module? So there is no dependency on the core prisma/client
@@ -22,6 +24,8 @@ import { RuleDeserializerService } from './serde/rule-deserializer/rule-deserial
 import { AcctBalMatchingRule, MatchingRule } from './serde/db.types';
 import { ReadonlyService as ProjectsReadonlyService } from 'src/projects/readonly.service';
 import { assertUnreachable } from 'src/helpers';
+import { AppConfig } from 'src/config/validate';
+import { ConfigService } from '@nestjs/config';
 
 type TxRuleSchema = {
   rule: {
@@ -76,11 +80,30 @@ type CreateWebhookDestinationSchema = {
 type CreateWebhookDestinationResponse = {
   id: WebhookDestination['id'];
   name?: Destination['name'];
-  type: 'WEBHOOK';
+  type: DestinationType;
   projectSlug: Destination['projectSlug'];
   config: {
     url: WebhookDestination['url'];
     secret: WebhookDestination['secret'];
+  };
+};
+
+type CreateEmailDestinationSchema = {
+  name?: Destination['name'];
+  projectSlug: Destination['projectSlug'];
+  config: {
+    email: EmailDestination['email'];
+  };
+};
+
+type CreateEmailDestinationResponse = {
+  id: EmailDestination['id'];
+  name?: Destination['name'];
+  type: DestinationType;
+  projectSlug: Destination['projectSlug'];
+  config: {
+    email: EmailDestination['email'];
+    verified: EmailDestination['verified'];
   };
 };
 
@@ -98,19 +121,28 @@ type AlertWithDestinations = Alert & {
       webhookDestination?: {
         url: WebhookDestination['url'];
       };
+      emailDestination?: {
+        email: EmailDestination['email'];
+      };
     };
   }>;
 };
 
 @Injectable()
 export class AlertsService {
+  private emailTokenExpiryMin: number;
   constructor(
     private prisma: PrismaService,
     private projectPermissions: ProjectPermissionsService,
     private projects: ProjectsReadonlyService,
     private ruleSerializer: RuleSerializerService,
     private ruleDeserializer: RuleDeserializerService,
-  ) {}
+    private config: ConfigService<AppConfig>,
+  ) {
+    this.emailTokenExpiryMin = this.config.get('alerts.emailTokenExpiryMin', {
+      infer: true,
+    });
+  }
 
   async createTxSuccessAlert(user: User, alert: CreateTxAlertSchema) {
     await this.checkUserCreateAlertPermission(user, alert);
@@ -254,6 +286,11 @@ export class AlertsService {
                   webhookDestination: {
                     select: {
                       url: true,
+                    },
+                  },
+                  emailDestination: {
+                    select: {
+                      email: true,
                     },
                   },
                 },
@@ -406,12 +443,15 @@ export class AlertsService {
       environmentSubId,
       rule: this.ruleDeserializer.toRuleDto(rule),
       enabledDestinations: enabledDestinations.map((enabledDestination) => {
-        const { id, name, type, webhookDestination } =
+        const { id, name, type, webhookDestination, emailDestination } =
           enabledDestination.destination;
         let config;
         switch (type) {
           case 'WEBHOOK':
             config = webhookDestination;
+            break;
+          case 'EMAIL':
+            config = emailDestination;
             break;
           default:
             assertUnreachable(type);
@@ -492,6 +532,7 @@ export class AlertsService {
           name,
           projectSlug,
           type: 'WEBHOOK',
+          valid: true,
           createdBy: user.id,
           updatedBy: user.id,
           webhookDestination: {
@@ -529,6 +570,68 @@ export class AlertsService {
       };
     } catch (e) {
       throw new VError(e, 'Failed to create webhook destination');
+    }
+  }
+
+  async createEmailDestination(
+    user: User,
+    {
+      name = 'Webhook Destination',
+      config: { email },
+      projectSlug,
+    }: CreateEmailDestinationSchema,
+  ): Promise<CreateEmailDestinationResponse> {
+    await this.projectPermissions.checkUserProjectPermission(
+      user.id,
+      projectSlug,
+    );
+    try {
+      const expiryDate = new Date();
+      expiryDate.setMinutes(expiryDate.getMinutes() + this.emailTokenExpiryMin);
+      const c = await this.prisma.destination.create({
+        data: {
+          name,
+          projectSlug,
+          type: 'EMAIL',
+          createdBy: user.id,
+          updatedBy: user.id,
+          emailDestination: {
+            create: {
+              email,
+              createdBy: user.id,
+              updatedBy: user.id,
+              verified: false,
+              expiryDate,
+              token: nanoid(),
+            },
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          projectSlug: true,
+          emailDestination: {
+            select: {
+              email: true,
+              verified: true,
+            },
+          },
+        },
+      });
+
+      return {
+        id: c.id,
+        name: c.name,
+        type: 'EMAIL',
+        projectSlug: c.projectSlug,
+        config: {
+          email: c.emailDestination.email,
+          verified: c.emailDestination.verified,
+        },
+      };
+    } catch (e) {
+      throw new VError(e, 'Failed to create email destination');
     }
   }
 
@@ -575,6 +678,12 @@ export class AlertsService {
             secret: true,
           },
         },
+        emailDestination: {
+          select: {
+            email: true,
+            verified: true,
+          },
+        },
       },
     });
 
@@ -584,6 +693,9 @@ export class AlertsService {
       switch (type) {
         case 'WEBHOOK':
           config = destination.webhookDestination;
+          break;
+        case 'EMAIL':
+          config = destination.emailDestination;
           break;
         default:
           assertUnreachable(type);
@@ -768,6 +880,7 @@ export class AlertsService {
       select: {
         projectSlug: true,
         active: true,
+        valid: true,
       },
     });
 
@@ -782,6 +895,13 @@ export class AlertsService {
       throw new VError(
         { info: { code: 'BAD_DESTINATION' } },
         'Destination is inactive',
+      );
+    }
+
+    if (!matchedDestination.valid) {
+      throw new VError(
+        { info: { code: 'BAD_DESTINATION' } },
+        'Destination is not valid',
       );
     }
 

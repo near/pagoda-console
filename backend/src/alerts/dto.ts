@@ -150,7 +150,7 @@ export interface AlertDetailsResponseDto {
 }
 
 // create destination
-type DestinationType = 'WEBHOOK';
+type DestinationType = 'WEBHOOK' | 'EMAIL';
 
 interface CreateBaseDestinationDto {
   name?: string;
@@ -163,18 +163,33 @@ interface CreateWebhookDestinationDto extends CreateBaseDestinationDto {
     url: string;
   };
 }
-export type CreateDestinationDto = CreateWebhookDestinationDto;
+interface CreateEmailDestinationDto extends CreateBaseDestinationDto {
+  type: 'EMAIL';
+  config: {
+    email: string;
+  };
+}
+
+export type CreateDestinationDto =
+  | CreateWebhookDestinationDto
+  | CreateEmailDestinationDto;
 
 const WebhookDestinationSchema = Joi.object({
   url: Joi.string().required(),
 });
+const EmailDestinationSchema = Joi.object({
+  email: Joi.string().required(),
+});
 export const CreateDestinationSchema = Joi.object({
   name: Joi.string(),
-  type: Joi.string().valid('WEBHOOK').required(),
+  type: Joi.string().valid('WEBHOOK', 'EMAIL').required(),
   projectSlug: Joi.string().required(),
   config: Joi.alternatives()
     .conditional('type', {
-      switch: [{ is: 'WEBHOOK', then: WebhookDestinationSchema }],
+      switch: [
+        { is: 'WEBHOOK', then: WebhookDestinationSchema },
+        { is: 'EMAIL', then: EmailDestinationSchema },
+      ],
     })
     .required(),
 });
