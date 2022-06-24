@@ -9,5 +9,6 @@ import { ProjectsService } from './projects.service';
   providers: [ProjectsService, PrismaService, IndexerService],
   controllers: [ProjectsController],
   imports: [PrismaService, KeysModule, IndexerService],
+  exports: [ProjectsService],
 })
 export class ProjectsModule {}

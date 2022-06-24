@@ -1,7 +1,8 @@
 import {
   //Body,
   Controller,
-  //HttpCode,
+  InternalServerErrorException,
+  HttpCode,
   Post,
   Request,
   UseGuards,
@@ -10,18 +11,38 @@ import {
 import { UsersService } from './users.service';
 // import { User } from '@prisma/client';
 import { BearerAuthGuard } from '../auth/bearer-auth.guard';
+import firebaseAdmin from 'firebase-admin';
+import { ProjectsService } from 'src/projects/projects.service';
 // import { UpdateDetailsDto, UpdateDetailsSchema } from './dto';
 // import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly projectsService: ProjectsService,
+  ) {}
 
   @Post('getAccountDetails')
   @UseGuards(BearerAuthGuard)
   async getAccountDetails(@Request() req) {
     const { uid, email, name, photoUrl } = req.user;
     return { uid, email, name, photoUrl };
+  }
+
+  @Post('deleteAccount')
+  @HttpCode(204)
+  @UseGuards(BearerAuthGuard)
+  async deleteAccount(@Request() req) {
+    const { uid } = req.user;
+    try {
+      await firebaseAdmin.auth().deleteUser(uid);
+      // TODO deleting projects is redundant here, should be changed to a more efficient approach in the future
+      await this.projectsService.deleteProjectsAndApiKeysForUser(req.user);
+      await this.usersService.deactivateUser(uid);
+    } catch (e) {
+      throw new InternalServerErrorException();
+    }
   }
 
   // @Post('updateDetails')

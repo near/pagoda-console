@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { User, Prisma } from '@prisma/client';
+import { VError } from 'verror';
 
 @Injectable()
 export class UsersService {
@@ -50,6 +51,127 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async deactivateUser(uid: User['uid']) {
+    const user = await this.findActive({ uid });
+
+    try {
+      // TODO This operation involves deactivating all team members, team's projects etc recursively
+      // and should be changed when teams are introduced
+      await this.prisma.$transaction([
+        this.prisma.user.update({
+          where: {
+            uid,
+          },
+          data: {
+            active: false,
+          },
+        }),
+        this.prisma.team.updateMany({
+          where: {
+            teamMembers: {
+              every: {
+                userId: user.id,
+              },
+            },
+          },
+          data: {
+            active: false,
+            updatedBy: user.id,
+          },
+        }),
+        this.prisma.teamMember.updateMany({
+          where: {
+            userId: user.id,
+          },
+          data: {
+            active: false,
+            updatedBy: user.id,
+          },
+        }),
+        this.prisma.teamProject.updateMany({
+          where: {
+            team: {
+              teamMembers: {
+                every: {
+                  userId: user.id,
+                },
+              },
+            },
+          },
+          data: {
+            active: false,
+            updatedBy: user.id,
+          },
+        }),
+        this.prisma.project.updateMany({
+          where: {
+            teamProjects: {
+              every: {
+                team: {
+                  teamMembers: {
+                    every: {
+                      userId: user.id,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          data: {
+            active: false,
+            updatedBy: user.id,
+          },
+        }),
+        this.prisma.environment.updateMany({
+          where: {
+            project: {
+              teamProjects: {
+                every: {
+                  team: {
+                    teamMembers: {
+                      every: {
+                        userId: user.id,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          data: {
+            active: false,
+            updatedBy: user.id,
+          },
+        }),
+        this.prisma.contract.updateMany({
+          where: {
+            environment: {
+              project: {
+                teamProjects: {
+                  every: {
+                    team: {
+                      teamMembers: {
+                        every: {
+                          userId: user.id,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          data: {
+            active: false,
+            updatedBy: user.id,
+          },
+        }),
+      ]);
+    } catch (e) {
+      throw new VError(e, 'Failed while deactivating user in database');
+    }
   }
 
   // ! this does not update Firebase
