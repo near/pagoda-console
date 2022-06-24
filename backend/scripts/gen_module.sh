@@ -47,3 +47,5 @@ done
 
 # Finally, generate an empty database
 npx prisma migrate dev --skip-generate
+
+echo "Successfully generated module: $MODULE_NAME"
