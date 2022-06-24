@@ -108,6 +108,14 @@ type CreateEmailDestinationResponse = {
   };
 };
 
+type UpdateWebhookDestinationSchema = {
+  id: Destination['id'];
+  name?: Destination['name'];
+  config?: {
+    url?: WebhookDestination['url'];
+  };
+};
+
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
   12,
@@ -781,6 +789,43 @@ export class AlertsService {
       });
     } catch (e) {
       throw new VError(e, 'Failed while deleting enabled destination');
+    }
+  }
+
+  async updateWebhookDestination(
+    callingUser: User,
+    dto: UpdateWebhookDestinationSchema,
+  ) {
+    const { id, name, config } = dto;
+    await this.checkUserDestinationPermission(callingUser.id, id);
+
+    try {
+      return await this.prisma.destination.update({
+        where: {
+          id,
+        },
+        data: {
+          name,
+          updatedBy: callingUser.id,
+          webhookDestination: {
+            update: {
+              url: config?.url,
+              updatedBy: callingUser.id,
+            },
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          webhookDestination: {
+            select: {
+              url: true,
+            },
+          },
+        },
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while updating webhook destination');
     }
   }
 

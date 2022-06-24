@@ -220,3 +220,28 @@ export const EnableDestinationSchema = Joi.object({
 // disable destination
 export type DisableDestinationDto = EnableDestinationDto;
 export const DisableDestinationSchema = EnableDestinationSchema;
+
+// update destination
+export interface UpdateDestinationBaseDto {
+  id: number;
+  type: DestinationType;
+  name?: string;
+}
+export interface UpdateWebhookDestinationDto extends UpdateDestinationBaseDto {
+  type: 'WEBHOOK';
+  config?: {
+    url?: string;
+  };
+}
+export type UpdateDestinationDto = UpdateWebhookDestinationDto;
+const UpdateWebhookDestinationSchema = Joi.object({
+  url: Joi.string(),
+});
+export const UpdateDestinationSchema = Joi.object({
+  id: Joi.number().required(),
+  type: Joi.string().required(),
+  name: Joi.string(),
+  config: Joi.alternatives().conditional('type', {
+    switch: [{ is: 'WEBHOOK', then: UpdateWebhookDestinationSchema }],
+  }),
+});
