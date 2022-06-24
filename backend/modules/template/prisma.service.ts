@@ -1,6 +1,6 @@
 import { INestApplication, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaClient } from '@/generated/prisma/{{MODULE_NAME}}';
+import { PrismaClient } from '@generated/prisma/{{MODULE_NAME}}';
 import { AppConfig } from '@/src/config/validate';
 
 @Injectable()
