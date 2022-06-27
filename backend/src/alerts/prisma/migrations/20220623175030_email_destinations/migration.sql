@@ -3,7 +3,7 @@ ALTER TYPE "destination_type" ADD VALUE 'EMAIL';
 
 -- AlterTable
 ALTER TABLE "destinations" RENAME CONSTRAINT "Destination_pkey" TO "destinations_pkey";
-ALTER TABLE "destinations" ADD COLUMN "valid" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "destinations" ADD COLUMN "is_valid" BOOLEAN NOT NULL DEFAULT false;
 
 -- AlterTable
 ALTER TABLE "enabled_destinations" RENAME CONSTRAINT "EnabledDestination_pkey" TO "enabled_destinations_pkey";
@@ -17,8 +17,8 @@ CREATE TABLE "email_destinations" (
     "destination_id" INTEGER NOT NULL,
     "email" TEXT NOT NULL,
     "token" TEXT NOT NULL,
-    "verified" BOOLEAN NOT NULL DEFAULT false,
-    "expiry_date" TIMESTAMP(3) NOT NULL,
+    "is_verified" BOOLEAN NOT NULL DEFAULT false,
+    "token_expires_at" TIMESTAMP(3) NOT NULL,
     "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "created_by" INTEGER,
     "updated_at" TIMESTAMP(3),

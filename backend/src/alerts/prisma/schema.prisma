@@ -79,7 +79,7 @@ model Destination {
   projectSlug        String               @map("project_slug")
   type               DestinationType
   active             Boolean              @default(true)
-  valid              Boolean              @default(false)
+  isValid            Boolean              @default(false) @map("is_valid")
   createdAt          DateTime?            @default(now()) @map("created_at")
   /// Reference to the user id who created the record.
   createdBy          Int?                 @map("created_by")
@@ -111,21 +111,21 @@ model WebhookDestination {
 }
 
 model EmailDestination {
-  id            Int         @id @default(autoincrement())
-  destination   Destination @relation(fields: [destinationId], references: [id])
-  destinationId Int         @unique @map("destination_id")
-  email         String
+  id             Int         @id @default(autoincrement())
+  destination    Destination @relation(fields: [destinationId], references: [id])
+  destinationId  Int         @unique @map("destination_id")
+  email          String
   // Verification token sent to the user's email address
-  token         String      @unique
-  verified      Boolean     @default(false)
+  token          String      @unique
+  isVerified     Boolean     @default(false) @map("is_verified")
   // Token's expiry date
-  expiryDate    DateTime    @map("expiry_date")
-  createdAt     DateTime?   @default(now()) @map("created_at")
+  tokenExpiresAt DateTime    @map("token_expires_at")
+  createdAt      DateTime?   @default(now()) @map("created_at")
   /// Reference to the user id who created the record.
-  createdBy     Int?        @map("created_by")
-  updatedAt     DateTime?   @updatedAt @map("updated_at")
+  createdBy      Int?        @map("created_by")
+  updatedAt      DateTime?   @updatedAt @map("updated_at")
   /// Reference to the user id who last updated the record.
-  updatedBy     Int?        @map("updated_by")
+  updatedBy      Int?        @map("updated_by")
 
   @@map("email_destinations")
 }

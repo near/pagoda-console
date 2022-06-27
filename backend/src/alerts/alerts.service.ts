@@ -26,6 +26,7 @@ import { ReadonlyService as ProjectsReadonlyService } from 'src/projects/readonl
 import { assertUnreachable } from 'src/helpers';
 import { AppConfig } from 'src/config/validate';
 import { ConfigService } from '@nestjs/config';
+import { DateTime } from 'luxon';
 
 type TxRuleSchema = {
   rule: {
@@ -103,7 +104,7 @@ type CreateEmailDestinationResponse = {
   projectSlug: Destination['projectSlug'];
   config: {
     email: EmailDestination['email'];
-    verified: EmailDestination['verified'];
+    isVerified: EmailDestination['isVerified'];
   };
 };
 
@@ -532,7 +533,7 @@ export class AlertsService {
           name,
           projectSlug,
           type: 'WEBHOOK',
-          valid: true,
+          isValid: true,
           createdBy: user.id,
           updatedBy: user.id,
           webhookDestination: {
@@ -576,7 +577,7 @@ export class AlertsService {
   async createEmailDestination(
     user: User,
     {
-      name = 'Webhook Destination',
+      name = 'Email Destination',
       config: { email },
       projectSlug,
     }: CreateEmailDestinationSchema,
@@ -586,8 +587,10 @@ export class AlertsService {
       projectSlug,
     );
     try {
-      const expiryDate = new Date();
-      expiryDate.setMinutes(expiryDate.getMinutes() + this.emailTokenExpiryMin);
+      const expiryDate = DateTime.now()
+        .plus({ minutes: this.emailTokenExpiryMin })
+        .toUTC()
+        .toJSDate();
       const c = await this.prisma.destination.create({
         data: {
           name,
@@ -600,8 +603,8 @@ export class AlertsService {
               email,
               createdBy: user.id,
               updatedBy: user.id,
-              verified: false,
-              expiryDate,
+              isVerified: false,
+              tokenExpiresAt: expiryDate,
               token: nanoid(),
             },
           },
@@ -614,7 +617,7 @@ export class AlertsService {
           emailDestination: {
             select: {
               email: true,
-              verified: true,
+              isVerified: true,
             },
           },
         },
@@ -627,7 +630,7 @@ export class AlertsService {
         projectSlug: c.projectSlug,
         config: {
           email: c.emailDestination.email,
-          verified: c.emailDestination.verified,
+          isVerified: c.emailDestination.isVerified,
         },
       };
     } catch (e) {
@@ -681,7 +684,7 @@ export class AlertsService {
         emailDestination: {
           select: {
             email: true,
-            verified: true,
+            isVerified: true,
           },
         },
       },
@@ -880,7 +883,7 @@ export class AlertsService {
       select: {
         projectSlug: true,
         active: true,
-        valid: true,
+        isValid: true,
       },
     });
 
@@ -898,7 +901,7 @@ export class AlertsService {
       );
     }
 
-    if (!matchedDestination.valid) {
+    if (!matchedDestination.isValid) {
       throw new VError(
         { info: { code: 'BAD_DESTINATION' } },
         'Destination is not valid',
