@@ -48,6 +48,9 @@ export interface AppConfig {
     queries: boolean;
     indexer: boolean;
   };
+  alerts: {
+    emailTokenExpiryMin: number;
+  };
 }
 
 // Joi docs: https://joi.dev/api
@@ -114,6 +117,9 @@ const appConfigSchema = Joi.object({
     queries: Joi.boolean().optional().default(false),
     indexer: Joi.boolean().optional().default(false),
   },
+  alerts: {
+    emailTokenExpiryMin: Joi.number().optional().default(10),
+  },
 });
 
 export default function validate(config: Record<string, unknown>): AppConfig {
@@ -155,6 +161,9 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     log: {
       queries: config.LOG_QUERIES,
       indexer: config.LOG_INDEXER,
+    },
+    alerts: {
+      emailTokenExpiryMin: config.EMAIL_TOKEN_EXPIRY_MIN,
     },
   };
 

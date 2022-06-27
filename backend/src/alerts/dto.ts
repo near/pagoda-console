@@ -1,7 +1,7 @@
 // Note: we use Joi instead of Nest's default recommendation of class-validator
 // because class-validator was experiencing issues at the time of implementation
 // and had many unaddressed github issues
-
+import { DestinationType } from '../../generated/prisma/alerts';
 import * as Joi from 'joi';
 import {
   AcctBalRuleDto,
@@ -149,9 +149,6 @@ export interface AlertDetailsResponseDto {
   }>;
 }
 
-// create destination
-type DestinationType = 'WEBHOOK';
-
 interface CreateBaseDestinationDto {
   name?: string;
   type: DestinationType;
@@ -163,18 +160,33 @@ interface CreateWebhookDestinationDto extends CreateBaseDestinationDto {
     url: string;
   };
 }
-export type CreateDestinationDto = CreateWebhookDestinationDto;
+interface CreateEmailDestinationDto extends CreateBaseDestinationDto {
+  type: 'EMAIL';
+  config: {
+    email: string;
+  };
+}
+
+export type CreateDestinationDto =
+  | CreateWebhookDestinationDto
+  | CreateEmailDestinationDto;
 
 const WebhookDestinationSchema = Joi.object({
   url: Joi.string().required(),
 });
+const EmailDestinationSchema = Joi.object({
+  email: Joi.string().required(),
+});
 export const CreateDestinationSchema = Joi.object({
   name: Joi.string(),
-  type: Joi.string().valid('WEBHOOK').required(),
+  type: Joi.string().valid('WEBHOOK', 'EMAIL').required(),
   projectSlug: Joi.string().required(),
   config: Joi.alternatives()
     .conditional('type', {
-      switch: [{ is: 'WEBHOOK', then: WebhookDestinationSchema }],
+      switch: [
+        { is: 'WEBHOOK', then: WebhookDestinationSchema },
+        { is: 'EMAIL', then: EmailDestinationSchema },
+      ],
     })
     .required(),
 });
