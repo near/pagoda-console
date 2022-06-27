@@ -14,7 +14,6 @@ import { Checkbox, CheckboxGroup } from '@/components/lib/Checkbox';
 import * as CheckboxCard from '@/components/lib/CheckboxCard';
 import { CodeBlock } from '@/components/lib/CodeBlock';
 import * as Combobox from '@/components/lib/Combobox';
-import { mergeComboboxInputProps } from '@/components/lib/Combobox';
 import { Container } from '@/components/lib/Container';
 import * as Dialog from '@/components/lib/Dialog';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
@@ -45,6 +44,7 @@ import ExampleIcon from '@/public/images/icons/ui-example.svg';
 import { styled } from '@/styles/stitches';
 import config from '@/utils/config';
 import { formValidations } from '@/utils/constants';
+import { mergeInputProps } from '@/utils/merge-input-props';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Block = styled('div', {
@@ -1753,7 +1753,7 @@ function DocSectionForm() {
                   label="Favorite Book"
                   labelProps={{ ...comboxbox.getLabelProps() }}
                   isInvalid={!!form.formState.errors.favoriteBook}
-                  {...mergeComboboxInputProps(
+                  {...mergeInputProps(
                     comboxbox.getInputProps(),
                     form.register('favoriteBook', {
                       required: 'Please enter a favorite book',
