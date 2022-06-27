@@ -17,6 +17,10 @@ type InputProps = Omit<ComponentProps<typeof S.Input>, 'invalid'> & {
 type FloatingLabelInputProps = InputProps & {
   children?: ReactNode;
   label: string;
+  labelProps?: {
+    htmlFor?: string;
+    id?: string;
+  };
 };
 type FloatingLabelSelectProps = Omit<ComponentProps<typeof S.InputButton>, 'invalid'> & {
   isInvalid?: boolean;
@@ -47,7 +51,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({ isInvalid, type
 Input.displayName = 'Input';
 
 export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInputProps>(
-  ({ children, isInvalid, label, type = 'text', placeholder = ' ', ...props }, ref) => {
+  ({ children, isInvalid, label, labelProps, type = 'text', placeholder = ' ', ...props }, ref) => {
     /*
       If a placeholder isn't set, we need to use " " as the placeholder (instead of an empty
       string) - this is critical for our CSS to render the label correctly via `:placeholder-shown`.
@@ -69,7 +73,7 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
     });
 
     return (
-      <S.FloatingWrapper ref={wrapperRef}>
+      <S.FloatingWrapper ref={wrapperRef} {...labelProps}>
         {children ? (
           children
         ) : (
