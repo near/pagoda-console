@@ -25,12 +25,6 @@ import { login } from '../login';
       waitUntil: 'networkidle',
     });
 
-    // Duplicating the route here is necessary to get around a bug in the UI: https://github.com/near/developer-console-framework/issues/223
-    // Once the bug is fixed, we can remove this dup.
-    await page.goto(`/tutorials/nfts/${path}?project=${project}&environment=1`, {
-      waitUntil: 'networkidle',
-    });
-
     expect(
       await page.screenshot({
         fullPage: true,
@@ -59,12 +53,6 @@ const CHUNK = 10000;
       // sign in
       await login(page);
 
-      await page.goto(`/tutorials/nfts/${path}?project=${project}&environment=1`, {
-        waitUntil: 'networkidle',
-      });
-
-      // Duplicating the route here is necessary to get around a bug in the UI: https://github.com/near/developer-console-framework/issues/223
-      // Once the bug is fixed, we can remove this dup.
       await page.goto(`/tutorials/nfts/${path}?project=${project}&environment=1`, {
         waitUntil: 'networkidle',
       });
