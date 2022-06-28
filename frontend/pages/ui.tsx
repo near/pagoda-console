@@ -1527,7 +1527,7 @@ function DocSectionCombobox() {
       <H4>Outside Input Label</H4>
 
       <Form.Group maxWidth="m">
-        <Form.Label {...comboxboxTwo.getLabelProps()}>Favorite Books </Form.Label>
+        <Form.Label {...comboxboxTwo.getLabelProps()}>Favorite Books</Form.Label>
 
         <Combobox.Root open={comboxboxTwo.isOpen}>
           <Combobox.Box {...comboxboxTwo.getComboboxProps()}>
@@ -1597,12 +1597,12 @@ interface FakeForm {
 }
 
 function DocSectionForm() {
-  const [comboboxFormItems, setComboboxFormItems] = useState([...books]);
+  const [comboboxItems, setComboboxItems] = useState([...books]);
   const form = useForm<FakeForm>();
 
   const comboxbox = useCombobox({
     id: 'comboboxForm1',
-    items: comboboxFormItems,
+    items: comboboxItems,
     itemToString(item) {
       return item ? item.title : '';
     },
@@ -1611,7 +1611,7 @@ function DocSectionForm() {
       const filtered = books.filter(
         (item) => !query || item.title.toLowerCase().includes(query) || item.author.toLowerCase().includes(query),
       );
-      setComboboxFormItems(filtered);
+      setComboboxItems(filtered);
     },
     onSelectedItemChange() {
       form.clearErrors('favoriteBook');
@@ -1759,7 +1759,7 @@ function DocSectionForm() {
                   <FeatherIcon icon="book" size="xs" /> Suggestions:
                 </Combobox.MenuLabel>
 
-                {comboboxFormItems.length === 0 && (
+                {comboboxItems.length === 0 && (
                   <Combobox.MenuContent>
                     No matching suggestions found.{' '}
                     <Text color="primary" size="bodySmall" as="span">
@@ -1769,7 +1769,7 @@ function DocSectionForm() {
                   </Combobox.MenuContent>
                 )}
 
-                {comboboxFormItems.map((item, index) => (
+                {comboboxItems.map((item, index) => (
                   <Combobox.MenuItem {...comboxbox.getItemProps({ item, index })} key={item.title}>
                     <Flex stack gap="none">
                       <Text color="text1">{item.author}</Text>
