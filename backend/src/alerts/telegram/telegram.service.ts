@@ -28,17 +28,18 @@ export class TelegramService {
     startToken: TelegramDestination['startToken'],
     chatId: TelegramDestination['chatId'],
   ) {
-    const destination = await this.prisma.telegramDestination.findUnique({
+    const tgDestination = await this.prisma.telegramDestination.findUnique({
       where: {
         startToken,
       },
       select: {
         id: true,
         tokenExpiresAt: true,
+        destinationId: true,
       },
     });
 
-    if (!destination) {
+    if (!tgDestination) {
       throw new VError(
         { info: { code: 'BAD_TELEGRAM_TOKEN' } },
         'Telegram destination not found for start token',
@@ -46,21 +47,26 @@ export class TelegramService {
     }
 
     //check token expiry
-    if (DateTime.now() > DateTime.fromJSDate(destination.tokenExpiresAt)) {
+    if (DateTime.now() > DateTime.fromJSDate(tgDestination.tokenExpiresAt)) {
       throw new VError(
         { info: { code: 'BAD_TELEGRAM_TOKEN_EXPIRED' } },
         'Telegram start token expired',
       );
     }
 
-    await this.prisma.telegramDestination.update({
+    await this.prisma.destination.update({
       where: {
-        id: destination.id,
+        id: tgDestination.destinationId,
       },
       data: {
-        chatId,
-        startToken: null,
-        tokenExpiresAt: null,
+        isValid: true,
+        telegramDestination: {
+          update: {
+            chatId,
+            startToken: null,
+            tokenExpiresAt: null,
+          },
+        },
       },
     });
   }
