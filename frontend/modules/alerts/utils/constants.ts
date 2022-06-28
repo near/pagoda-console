@@ -119,13 +119,6 @@ export const destinationTypes: Record<DestinationType, DestinationTypeOption> = 
     value: 'EMAIL',
     disabled: true,
   },
-  SMS: {
-    description: 'Send alerts to a SMS number.',
-    icon: 'message-square',
-    name: 'SMS',
-    value: 'SMS',
-    disabled: true,
-  },
   TELEGRAM: {
     description: 'Send alerts to a Telegram account.',
     icon: 'send',
@@ -141,9 +134,4 @@ export const destinationTypes: Record<DestinationType, DestinationTypeOption> = 
   },
 };
 
-export const destinationTypeOptions = [
-  destinationTypes.WEBHOOK,
-  destinationTypes.EMAIL,
-  destinationTypes.SMS,
-  destinationTypes.TELEGRAM,
-];
+export const destinationTypeOptions = [destinationTypes.WEBHOOK, destinationTypes.EMAIL, destinationTypes.TELEGRAM];

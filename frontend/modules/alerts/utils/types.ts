@@ -133,7 +133,7 @@ export type AmountComparator = 'EQ' | 'NEQ' | 'LT' | 'LTE' | 'GT' | 'GTE';
 
 export type Destination = EmailDestination | WebhookDestination;
 
-export type DestinationType = 'WEBHOOK' | 'EMAIL' | 'SMS' | 'TELEGRAM';
+export type DestinationType = 'WEBHOOK' | 'EMAIL' | 'TELEGRAM';
 
 interface BaseDestination {
   projectSlug: string;
