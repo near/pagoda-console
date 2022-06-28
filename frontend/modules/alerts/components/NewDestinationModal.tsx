@@ -86,7 +86,6 @@ function ModalContent(props: Props) {
 }
 
 interface WebhookFormData {
-  name: string;
   url: string;
 }
 
@@ -117,7 +116,6 @@ function WebhookDestinationForm({
         config: {
           url: data.url,
         },
-        name: data.name,
         projectSlug,
         type: 'WEBHOOK',
       });
@@ -164,17 +162,6 @@ function WebhookDestinationForm({
     >
       <Flex stack gap="l">
         <Flex stack>
-          <Form.Group>
-            <Form.FloatingLabelInput
-              label="Name"
-              isInvalid={!!formState.errors.name}
-              {...register('name', {
-                required: 'Please enter a name for your webhook',
-              })}
-            />
-            <Form.Feedback>{formState.errors.name?.message}</Form.Feedback>
-          </Form.Group>
-
           <Form.Group>
             <Form.FloatingLabelInput
               label="Webhook URL"

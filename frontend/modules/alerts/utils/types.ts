@@ -129,18 +129,6 @@ interface RuleTxSuccess {
 
 export type AmountComparator = 'EQ' | 'NEQ' | 'LT' | 'LTE' | 'GT' | 'GTE';
 
-/*export type TxRule = {
-  action?:
-    | 'CREATE_ACCOUNT'
-    | 'DEPLOY_CONTRACT'
-    | 'FUNCTION_CALL'
-    | 'TRANSFER'
-    | 'STAKE'
-    | 'ADD_KEY'
-    | 'DELETE_KEY'
-    | 'DELETE_ACCOUNT';
-};*/
-
 // Destinations:
 
 export type Destination = EmailDestination | WebhookDestination;
@@ -148,13 +136,13 @@ export type Destination = EmailDestination | WebhookDestination;
 export type DestinationType = 'WEBHOOK' | 'EMAIL' | 'SMS' | 'TELEGRAM';
 
 interface BaseDestination {
-  name: string;
   projectSlug: string;
   type: DestinationType;
 }
 
 interface ExtendedDestination extends BaseDestination {
   id: number;
+  name: string;
 }
 
 interface EmailDestination extends ExtendedDestination {
@@ -170,6 +158,13 @@ interface WebhookDestination extends ExtendedDestination {
 }
 
 export type NewDestination = NewEmailDestination | NewWebhookDestination;
+
+export type UpdateDestination = {
+  id: number;
+  type: DestinationType;
+  config: ConfigEmail | ConfigWebhook;
+  name: string;
+};
 
 export type NewDestinationExtended = BaseDestination;
 
