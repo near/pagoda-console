@@ -142,9 +142,9 @@ const NewAlert: NextPageWithLayout = () => {
 
               <Text>
                 <Flex as="span" align="center" gap="s" wrap>
-                  Valid address examples: <Badge size="s">cool.near</Badge>
-                  <Badge size="s">app.cool.testnet</Badge>
-                  <Badge size="s">*.cool.near</Badge>
+                  Valid address examples: <Badge size="s">pagoda.near</Badge>
+                  <Badge size="s">app.pagoda.testnet</Badge>
+                  <Badge size="s">*.pagoda.near</Badge>
                 </Flex>
               </Text>
 
