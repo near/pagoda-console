@@ -140,7 +140,7 @@ All endpoints which accept input (JSON bodies) should validate that input with [
 
 ## Authentication
 
-Users tokens are verified with Firebase in [src/auth/auth.service.ts](src/auth/auth.service.ts). The authenticated user details are attached in the request object and accessible in endpoint handlers as seen below
+Users tokens are verified with Firebase in [src/core/auth/auth.service.ts](src/core/auth/auth.service.ts). The authenticated user details are attached in the request object and accessible in endpoint handlers as seen below
 
 ```ts
 @Post('exampleHandler')
@@ -154,7 +154,7 @@ async exampleHandler(@Request() req) {
 
 All configuration relies on environment variables.
 
-See [./src/config/validate.ts](./src/config/validate.ts)
+See [./src/core/config/validate.ts](./src/core/config/validate.ts)
 
 Always set the type of ConfigService in the constructor and use `{infer: true}` in getter for proper typing and nested access
 
