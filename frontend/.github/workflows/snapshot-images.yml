@@ -1,7 +1,7 @@
 name: Builds a Zip of Updated Snapshot Images for Snapshot Tests (dev.console.pagoda.co)
 on:
-  - workflow_dispatch
-  - pull_request:
+  #workflow_dispatch
+  pull_request:
     branches: [development]
 jobs:
   test:
