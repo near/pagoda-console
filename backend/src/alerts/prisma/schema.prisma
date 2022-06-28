@@ -137,6 +137,8 @@ model TelegramDestination {
   destinationId  Int         @unique @map("destination_id")
   // Store chat ID as a double per Telegram's recommendation: https://core.telegram.org/bots/api#chat
   chatId         Float?      @map("chat_id")
+  chatTitle      String?     @map("chat_title")
+  isGroupChat    Boolean?    @map("is_group_chat")
   // Token passed to bot—usually via /start command—to set up destination
   startToken     String?     @unique @map("start_token")
   // Token's expiry date

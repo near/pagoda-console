@@ -6,6 +6,7 @@ import { DateTime } from 'luxon';
 import { AppConfig } from 'src/config/validate';
 import { VError } from 'verror';
 import { PrismaService } from '../prisma.service';
+import { TgChat } from './types';
 
 @Injectable()
 export class TelegramService {
@@ -24,10 +25,7 @@ export class TelegramService {
     });
   }
 
-  async start(
-    startToken: TelegramDestination['startToken'],
-    chatId: TelegramDestination['chatId'],
-  ) {
+  async start(startToken: TelegramDestination['startToken'], chat: TgChat) {
     const tgDestination = await this.prisma.telegramDestination.findUnique({
       where: {
         startToken,
@@ -54,6 +52,8 @@ export class TelegramService {
       );
     }
 
+    const isGroupChat = chat.type !== 'private';
+
     await this.prisma.destination.update({
       where: {
         id: tgDestination.destinationId,
@@ -62,9 +62,13 @@ export class TelegramService {
         isValid: true,
         telegramDestination: {
           update: {
-            chatId,
+            chatId: chat.id,
             startToken: null,
             tokenExpiresAt: null,
+            isGroupChat,
+            chatTitle: isGroupChat
+              ? `Group: ${chat.title}`
+              : `@${chat.username}`,
           },
         },
       },
