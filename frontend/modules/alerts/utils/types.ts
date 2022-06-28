@@ -161,6 +161,7 @@ export type NewDestination = NewEmailDestination | NewWebhookDestination;
 
 export type UpdateDestination = {
   id: number;
+  type: DestinationType;
   config: ConfigEmail | ConfigWebhook;
   name: string;
 };
