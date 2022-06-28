@@ -1,63 +1,80 @@
-import { useEffect } from 'react';
-import { useSimpleLogoutLayout } from "../utils/layouts"
-import { Row, Col } from 'react-bootstrap'
 import { useRouter } from 'next/router';
-import { useRouteParam } from '../utils/hooks';
-import ProjectCard, { ProjectCardColor } from '../components/ProjectCard';
+import { useEffect } from 'react';
+
+import { Container } from '@/components/lib/Container';
+import { Flex } from '@/components/lib/Flex';
+import { H1 } from '@/components/lib/Heading';
+import { Text } from '@/components/lib/Text';
+import { useSimpleLogoutLayout } from '@/hooks/layouts';
+import { useRouteParam } from '@/hooks/route';
+import { ProjectCard } from '@/modules/core/components/ProjectCard';
+import type { NextPageWithLayout } from '@/utils/types';
 
 interface Project {
-    title: string;
-    path: string;
-    description: string;
-    color: ProjectCardColor;
+  id: string;
+  title: string;
+  path: string;
+  description: string;
+  icon: string;
 }
 
 const projects: Project[] = [
-    { title: 'Blank', path: '/new-project', description: 'A blank project with mainnet and testnet API keys.', color: 'green' },
-    { title: 'Tutorial', path: '/pick-tutorial', description: 'Choose from a variety of interactive tutorials.', color: 'orange' }
-]
+  {
+    id: 'blank',
+    title: 'Blank',
+    path: '/new-project',
+    description: 'A blank project with mainnet and testnet API keys.',
+    icon: 'plus-circle',
+  },
+  {
+    id: 'tutorial',
+    title: 'Tutorial',
+    path: '/pick-tutorial',
+    description: 'Choose from a variety of interactive tutorials.',
+    icon: 'book',
+  },
+];
 
-export default function PickProject() {
-    const router = useRouter();
+const PickProject: NextPageWithLayout = () => {
+  const router = useRouter();
 
-    useEffect(() => {
-        projects.forEach(p => router.prefetch(p.path));
-        // It is not expected for the list of projects or the router to change during runtime.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+  useEffect(() => {
+    projects.forEach((p) => router.prefetch(p.path));
+  }, [router]);
 
-    const isOnboarding = useRouteParam('onboarding');
+  const isOnboarding = useRouteParam('onboarding');
 
-    return <div className='newProjectContainer'>
-        <h1 className="pageTitle">New Project</h1>
-        {isOnboarding && <div className='calloutText'>
-            One last thing! Before we let you loose on the Developer Console, you’ll need to create a blank project or get some guidance with a tutorial. Projects contain API keys and any smart contracts you wish to track.
-        </div>}
-        {!isOnboarding && <div className='calloutText'>
-            Start with a blank project or get some guidance with a tutorial.
-        </div>}
-        <div className="cardsContainer">
-            {projects.map((project, idx) => (
-                <div key={idx}>
-                    <ProjectCard path={project.path} title={project.title} description={project.description} color={project.color} onClick={() => router.push(project.path)} />
-                </div>
-            ))}
-        </div>
-        <style jsx>{`
-            .pageTitle {
-                margin-bottom: 1.25rem;
-            }
-            .calloutText {
-                margin-bottom: 2.625rem;
-            }
-            .cardsContainer {
-                display: flex;
-                flex-direction: row;
-                flex-wrap: wrap;
-                column-gap: 1.5rem;
-            }
-        `}</style>
-    </div >
-}
+  return (
+    <Container size="m">
+      <Flex stack gap="l">
+        <H1>New Project</H1>
+
+        {isOnboarding ? (
+          <Text>
+            One last thing! Before we let you loose on the Developer Console, you’ll need to create a blank project or
+            get some guidance with a tutorial. Projects contain API keys and any smart contracts you wish to track.
+          </Text>
+        ) : (
+          <Text>Start with a blank project or get some guidance with a tutorial.</Text>
+        )}
+
+        <Flex>
+          {projects.map((project) => (
+            <ProjectCard
+              key={project.id}
+              id={project.id}
+              title={project.title}
+              description={project.description}
+              icon={project.icon}
+              onClick={() => router.push(project.path)}
+            />
+          ))}
+        </Flex>
+      </Flex>
+    </Container>
+  );
+};
 
 PickProject.getLayout = useSimpleLogoutLayout;
+
+export default PickProject;

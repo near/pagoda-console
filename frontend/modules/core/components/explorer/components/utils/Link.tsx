@@ -1,0 +1,24 @@
+import Link from 'next/link';
+import React from 'react';
+interface Props {
+  href: string;
+  as?: string;
+  children: React.ReactNode;
+}
+
+const LinkWrapper = ({ href, as, children }: Props) => {
+  return (
+    // <span
+    //   onClick={() =>
+    //     analytics.track("Explorer Click Link", { href: href, as: as ? as : "" })
+    //   }
+    // >
+    // <Link href={href} as={as}>
+    <Link href={href} as={as ? as : ''}>
+      {children}
+    </Link>
+    // </span>
+  );
+};
+
+export default LinkWrapper;

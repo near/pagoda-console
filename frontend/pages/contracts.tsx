@@ -1,59 +1,56 @@
-import { debounce } from 'lodash-es';
-import { useDashboardLayout } from "../utils/layouts";
-import { Button, Form } from "react-bootstrap";
-import useSWR from "swr";
-import { FormEvent, useMemo, useState, useEffect } from "react";
-import { Contract, Environment } from "../utils/interfaces";
-import {
-  authenticatedPost,
-  useContracts,
-} from "../utils/fetchers";
-import { useIdentity, useProjectAndEnvironment } from "../utils/hooks";
-import BorderSpinner from "../components/BorderSpinner";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
-import Config from '../utils/config';
-import ProjectSelector from '../components/ProjectSelector';
-import RecentTransactionList from '../components/RecentTransactionList';
+import BN from 'bn.js';
 import Image from 'next/image';
-import ContractsPreview from '../public/contractsPreview.png';
-import analytics from '../utils/analytics';
+import { useEffect, useState } from 'react';
+import type { SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
+import useSWR from 'swr';
 
-export default function Contracts() {
-  const { project, environment } = useProjectAndEnvironment();
+import { Box } from '@/components/lib/Box';
+import { Button } from '@/components/lib/Button';
+import { Container } from '@/components/lib/Container';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
+import { Flex } from '@/components/lib/Flex';
+import * as Form from '@/components/lib/Form';
+import { H1, H2 } from '@/components/lib/Heading';
+import { Message } from '@/components/lib/Message';
+import { Section } from '@/components/lib/Section';
+import { Spinner } from '@/components/lib/Spinner';
+import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
+import { useContracts } from '@/hooks/contracts';
+import { useDebounce } from '@/hooks/debounce';
+import { useDashboardLayout } from '@/hooks/layouts';
+import { useSelectedProject } from '@/hooks/selected-project';
+import { useIdentity } from '@/hooks/user';
+import TransactionAction from '@/modules/core/components/explorer/components/transactions/TransactionAction';
+import { useRecentTransactions } from '@/modules/core/hooks/recent-transactions';
+import ContractsPreview from '@/public/contractsPreview.png';
+import analytics from '@/utils/analytics';
+import config from '@/utils/config';
+import { returnContractAddressRegex } from '@/utils/helpers';
+import { authenticatedPost } from '@/utils/http';
+import type { NetOption } from '@/utils/types';
+import type { FinalityStatus } from '@/utils/types';
+import type { Contract, Environment } from '@/utils/types';
+import type { NextPageWithLayout } from '@/utils/types';
 
-  let user = useIdentity();
+const Contracts: NextPageWithLayout = () => {
+  const { project, environment } = useSelectedProject();
+  const user = useIdentity();
 
-  if (!user) {
-    return <BorderSpinner />;
+  if (!user || !project || !environment) {
+    return <Spinner center />;
   }
 
   // TODO (NTH) lean into automatic static optimization and rework checks so that the
   // maximum amount of elements can be rendered without environmentId
-  return (
-    <div className="pageContainer">
-      <ProjectSelector />
-      {project && environment && (
-        <ContractsTable project={project.slug} environment={environment} />
-      )}
-      <style jsx>{`
-        .pageContainer {
-          display: flex;
-          flex-direction: column;
-        }
-      `}</style>
-    </div>
-  );
-}
+  return <ContractsTable project={project.slug} environment={environment} />;
+};
 
 function ContractsTable(props: { project: string; environment: Environment }) {
-  const {
-    contracts,
-    error,
-    mutate: mutateContracts,
-  } = useContracts(props.project, props.environment.subId);
+  const { contracts, error, mutate: mutateContracts } = useContracts(props.project, props.environment.subId);
   // TODO determine how to not retry on 400s
-  let [isEditing, setIsEditing] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   // these variables might seem redundant, but there are three states we need
   // to represent
@@ -74,256 +71,209 @@ function ContractsTable(props: { project: string; environment: Environment }) {
   }, [hasNoContracts]);
 
   if (hasNoContracts) {
-    return <ContractsEmptyState project={props.project} environment={props.environment} mutateContracts={mutateContracts} />;
+    return (
+      <ContractsEmptyState project={props.project} environment={props.environment} mutateContracts={mutateContracts} />
+    );
   }
 
   if (!contracts && !error) {
-    //loading
-    return <BorderSpinner />;
+    return <Spinner center />;
   }
+
   if (error) {
-    // TODO
-    return <div>Something went wrong: {error.message}</div>;
+    return (
+      <Section>
+        <Message type="error" content={error.message} />
+      </Section>
+    );
   }
 
   return (
-    <div className="contractsTableContainer">
-      <div className="headerRow">
-        <h2>Contracts</h2>
-        {hasContracts && <Button onClick={() => setIsEditing(!isEditing)}>{!isEditing ? 'Edit' : 'Done'}</Button>}
-      </div>
-      {hasContracts && <div className="tableGrid">
-        <span />
-        <span className="label">Account Balance</span>
-        <span className="label">Storage Used</span>
-        {isEditing && <span></span>}
-        {contracts &&
-          contracts.map((contract) => (
-            <ContractRow key={contract.address} contract={contract} showDelete={isEditing} onDelete={mutateContracts} />
-          ))}
-      </div>}
-      <AddContractForm
-        project={props.project}
-        environment={props.environment}
-        onAdd={mutateContracts}
-      />
-      {hasContracts && <div className='transactionsWrapper'><RecentTransactionList contracts={contracts!} net={props.environment.net} /></div>}
+    <>
+      <Section>
+        <Flex stack gap="l">
+          <Flex justify="spaceBetween">
+            <H1>Contracts</H1>
+            {hasContracts && <Button onClick={() => setIsEditing(!isEditing)}>{!isEditing ? 'Edit' : 'Done'}</Button>}
+          </Flex>
 
-      <style jsx>{`
-        .headerRow {
-          display: flex;
-          flex-direction: row;
-          justify-content: space-between;
-          margin-bottom: 1rem;
-        }
-        .tableGrid {
-          display: grid;
-          row-gap: 0.5rem;
-          margin: 0 0 1rem;
-          align-items: center;
-          row-gap: 1rem;
-        }
-        .label {
-          text-align: right;
-          font-weight: 700;
-        }
-        .contractsTableContainer {
-          /* max-width: 46rem; */
-        }
-        .tableGrid :global(.btn) {
-            width: 3rem;
-            margin-left: auto;
-        }
-        .transactionsWrapper {
-          margin-top: 3rem;
-        }
-      `}</style>
-      <style jsx>{`
-        .tableGrid {
-          grid-template-columns: auto 10rem 10rem${isEditing ? ' 6rem' : ''};
-        }
-      `}</style>
-    </div>
+          {hasContracts && (
+            <Box
+              css={{
+                width: '100%',
+                display: 'grid',
+                rowGap: 'var(--space-m)',
+                columnGap: 'var(--space-l)',
+                alignItems: 'center',
+                gridTemplateColumns: `1fr 10rem 10rem ${isEditing ? ' auto' : ''}`,
+                textAlign: 'right',
+              }}
+            >
+              <span />
+              <Text color="text1" weight="semibold" as="span">
+                Account Balance
+              </Text>
+              <Text color="text1" weight="semibold" as="span">
+                Storage Used
+              </Text>
+              {isEditing && <span></span>}
+              {contracts &&
+                contracts.map((contract) => (
+                  <ContractRow
+                    key={contract.address}
+                    contract={contract}
+                    showDelete={isEditing}
+                    onDelete={mutateContracts}
+                  />
+                ))}
+            </Box>
+          )}
+
+          <AddContractForm project={props.project} environment={props.environment} onAdd={mutateContracts} />
+        </Flex>
+      </Section>
+
+      {hasContracts && <RecentTransactionList contracts={contracts!} net={props.environment.net} />}
+    </>
   );
 }
 
-function ContractsEmptyState({ project, environment, mutateContracts }: {
+function ContractsEmptyState({
+  project,
+  environment,
+  mutateContracts,
+}: {
   project: string;
   environment: Environment;
   mutateContracts: () => void;
 }) {
   return (
-    <div className='emptyStateContainer'>
-      <div className='imageContainer'>
-        <Image src={ContractsPreview} alt='Preview of populated contracts page' />
-      </div>
-      <div className='onboarding'>
-        <div className='onboardingText'>
-          <span className='boldText'>To see focused explorer views and aggregate transactions: </span>
-          <span>add contracts to this project. </span>
-        </div>
-        <AddContractForm project={project} environment={environment} onAdd={mutateContracts} />
-      </div>
-      <style jsx>{`
-        .emptyStateContainer {
-          display: flex;
-          flex-direction: row;
-          column-gap: 1.5rem;
-          align-items: center;
-        }
-        .onboardingText {
-          margin-bottom: 1.5rem;
-        }
-        .boldText {
-            font-weight: 700;
-        }
-        .imageContainer, .onboarding {
-          width: 50%;
-        }
-        a {
-          color: var(--color-primary)
-        }
-      `}</style>
-    </div>
+    <Section>
+      <Container size="m">
+        <Flex gap="l" align="center">
+          <Box css={{ width: '50%' }}>
+            <Image src={ContractsPreview} alt="Preview of populated contracts page" />
+          </Box>
+
+          <Flex css={{ width: '50%' }} stack>
+            <Text>
+              <Text color="text1" weight="semibold" as="span">
+                To see focused explorer views and aggregate transactions:
+              </Text>{' '}
+              add contracts to this project.{' '}
+            </Text>
+
+            <AddContractForm project={project} environment={environment} onAdd={mutateContracts} />
+          </Flex>
+        </Flex>
+      </Container>
+    </Section>
   );
 }
 
-function AddContractForm(props: {
-  project: string;
-  environment: Environment;
-  onAdd: () => void;
-}) {
-  let [showAdd, setShowAdd] = useState<boolean>(false);
-  let [addInProgress, setAddInProgress] = useState<boolean>(false);
-  let [address, setAddress] = useState<string>("");
-  let [error, setError] = useState<string>("");
+interface AddContractFormData {
+  contractAddress: string;
+}
 
-  async function submitNewContract(e?: FormEvent) {
-    if (e) {
-      e.preventDefault();
-    }
-    setAddInProgress(true);
-    let contract: Contract;
+function AddContractForm(props: { project: string; environment: Environment; onAdd: () => void }) {
+  const { register, handleSubmit, formState, setValue } = useForm<AddContractFormData>();
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [error, setError] = useState('');
+  const contractAddressRegex = returnContractAddressRegex(props.environment);
+
+  function closeAddForm() {
+    setValue('contractAddress', '');
+    setShowAddForm(false);
+  }
+
+  const submitNewContract: SubmitHandler<AddContractFormData> = async ({ contractAddress }) => {
     try {
-      contract = await authenticatedPost("/projects/addContract", {
+      setError('');
+      const contract = await authenticatedPost('/projects/addContract', {
         project: props.project,
         environment: props.environment.subId,
-        address,
+        address: contractAddress,
       });
       analytics.track('DC Add Contract', {
         status: 'success',
-        contractId: address,
+        contractId: contractAddress,
         net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
       });
       props.onAdd();
-      closeAdd();
+      closeAddForm();
       return contract;
     } catch (e: any) {
       analytics.track('DC Add Contract', {
         status: 'failure',
         error: e.message,
-        contractId: address,
+        contractId: contractAddress,
         net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
       });
       setError(e.message);
-    } finally {
-      setAddInProgress(false);
     }
-  }
-
-  function handleAddressChange(e: React.ChangeEvent<HTMLInputElement>) {
-    error && setError("");
-    setAddress(e.target.value);
-  }
-
-  function closeAdd() {
-    setAddress("");
-    setShowAdd(false);
-  }
+  };
 
   return (
-    <div className="addContainer">
-      {showAdd && (
-        <div className="inputRow">
-          <Form onSubmit={submitNewContract}>
-            <Form.Control
-              isInvalid={Boolean(error)}
-              disabled={addInProgress}
+    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitNewContract)}>
+      <Flex stack>
+        {showAddForm && (
+          <Form.Group maxWidth="m">
+            <Form.Input
+              isInvalid={!!formState.errors.contractAddress}
               placeholder={props.environment.net === 'MAINNET' ? 'contract.near' : 'contract.testnet'}
-              value={address}
-              onChange={handleAddressChange}
+              {...register('contractAddress', {
+                required: 'Address field is required',
+                pattern: {
+                  value: contractAddressRegex,
+                  message: 'Invalid address format',
+                },
+              })}
             />
-            <Form.Control.Feedback type="invalid">
-              {error}
-            </Form.Control.Feedback>
-          </Form>
-          <div className="loadingContainer">
-            {addInProgress && <BorderSpinner />}
-          </div>
-        </div>
-      )}
-      <div className="buttonContainer">
-        <Button
-          disabled={addInProgress}
-          onClick={showAdd ? submitNewContract : () => setShowAdd(true)}
-        >
-          {showAdd ? "Confirm" : "Add a Contract"}
-        </Button>
-        {showAdd && (
-          <Button disabled={addInProgress} onClick={closeAdd}>
-            Cancel
-          </Button>
+            <Form.Feedback>{formState.errors.contractAddress?.message}</Form.Feedback>
+          </Form.Group>
         )}
-      </div>
-      <style jsx>{`
-        .addContainer {
-          display: flex;
-          flex-direction: column;
-          row-gap: 1em;
-        }
-        .inputRow {
-          display: flex;
-          flex-direction: row;
-          column-gap: 1rem;
-          align-items: center;
-        }
-        .loadingContainer {
-          width: 3rem;
-        }
-        .buttonContainer {
-          display: flex;
-          flex-direction: row;
-          column-gap: 0.75rem;
-        }
-      `}</style>
-    </div>
+
+        {error && <Message type="error" content="error" dismiss={() => setError('')} />}
+
+        <Flex>
+          {showAddForm && (
+            <>
+              <Button type="submit" loading={formState.isSubmitting}>
+                Confirm
+              </Button>
+              <Button onClick={closeAddForm} color="neutral">
+                Cancel
+              </Button>
+            </>
+          )}
+          {!showAddForm && <Button onClick={() => setShowAddForm(true)}>Add a Contract</Button>}
+        </Flex>
+      </Flex>
+    </Form.Root>
   );
 }
 
-function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete: Function }) {
-  let [canDelete, setCanDelete] = useState<boolean>(true);
+function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete: () => void }) {
+  const [canDelete, setCanDelete] = useState(true);
   const { data, error } = useSWR(
     [props.contract.address, props.contract.net],
-    async (address: string) => {
-      const res = await fetch(
-        Config.url.rpc.default[props.contract.net],
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+    async (address) => {
+      const res = await fetch(config.url.rpc.default[props.contract.net], {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'dontcare',
+          method: 'query',
+          params: {
+            request_type: 'view_account',
+            finality: 'final',
+            account_id: address,
           },
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            id: "dontcare",
-            method: "query",
-            params: {
-              request_type: "view_account",
-              finality: "final",
-              account_id: address,
-            },
-          }),
-        }
-      ).then((res) => res.json());
+        }),
+      }).then((res) => res.json());
       if (res.error) {
         // TODO decide whether to retry error
         throw new Error(res.error.name);
@@ -333,73 +283,154 @@ function ContractRow(props: { contract: Contract, showDelete: boolean, onDelete:
     {
       // TODO decide whether to retry error
       shouldRetryOnError: false,
-    }
+    },
   );
 
-  async function removeContractRaw() {
-    setCanDelete(false);
-    try {
-      await authenticatedPost('/projects/removeContract', {
-        id: props.contract.id
-      });
-      analytics.track('DC Remove Contract', {
-        status: 'success',
-        contractId: props.contract.address,
-      });
-      props.onDelete && props.onDelete();
-    } catch (e: any) {
-      analytics.track('DC Remove Contract', {
-        status: 'failure',
-        contractId: props.contract.address,
-        error: e.message
-      });
-      // TODO
-      console.error(e);
-      setCanDelete(true);
-    }
-  }
+  const removeContract = useDebounce(
+    async () => {
+      setCanDelete(false);
 
-  const removeContract = useMemo(() => debounce(removeContractRaw, Config.buttonDebounce, { leading: true, trailing: false }), []);
+      try {
+        await authenticatedPost('/projects/removeContract', {
+          id: props.contract.id,
+        });
+        analytics.track('DC Remove Contract', {
+          status: 'success',
+          contractId: props.contract.address,
+        });
+        props.onDelete && props.onDelete();
+      } catch (e: any) {
+        analytics.track('DC Remove Contract', {
+          status: 'failure',
+          contractId: props.contract.address,
+          error: e.message,
+        });
+        // TODO
+        console.error(e);
+        setCanDelete(true);
+      }
+    },
+    config.buttonDebounce,
+    { leading: true, trailing: false },
+  );
 
   return (
     <>
-      <a
-        onClick={() => analytics.track('DC View contract in Explorer')} // TODO CHECK
-        className="explorerLink"
-        href={`https://explorer${props.contract.net === "TESTNET" ? ".testnet" : ""
-          }.near.org/accounts/${props.contract.address}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {props.contract.address}
-      </a>
+      <Box css={{ textAlign: 'left' }}>
+        <TextLink
+          color="neutral"
+          onClick={() => analytics.track('DC View contract in Explorer')} // TODO CHECK
+          href={`https://explorer${props.contract.net === 'TESTNET' ? '.testnet' : ''}.near.org/accounts/${
+            props.contract.address
+          }`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {props.contract.address}
+        </TextLink>
+      </Box>
+
       {data ? (
-        <span className="data">
-          {(data.result.amount / 10 ** 24).toFixed(5)} Ⓝ
-        </span>
+        <Text family="number">{(data.result.amount / 10 ** 24).toFixed(5)} Ⓝ</Text>
       ) : !error ? (
-        <BorderSpinner />
+        <Spinner size="xs" />
       ) : (
-        <span className="data">N/A</span>
+        <Text family="number">N/A</Text>
       )}
+
       {data ? (
-        <span className="data">{data.result.storage_usage} B</span>
+        <Text family="number">{data.result.storage_usage} B</Text>
       ) : !error ? (
-        <BorderSpinner />
+        <Spinner size="xs" />
       ) : (
-        <span className="data">N/A</span>
+        <Text family="number">N/A</Text>
       )}
-      {props.showDelete && <Button variant="outline-danger" onClick={() => removeContract()} disabled={!canDelete}><FontAwesomeIcon icon={faTrashAlt} /></Button>}
-      <style jsx>{`
-        .explorerLink {
-          font-weight: 600;
-        }
-        .data {
-          text-align: right;
-        }
-      `}</style>
+
+      {props.showDelete && (
+        <Button size="s" color="danger" onClick={() => removeContract()} disabled={!canDelete}>
+          <FeatherIcon icon="trash-2" size="xs" />
+        </Button>
+      )}
     </>
   );
 }
 
+function RecentTransactionList({ contracts, net }: { contracts: Contract[]; net: NetOption }) {
+  const [finalityStatus, setFinalityStatus] = useState<FinalityStatus>();
+  const { transactions } = useRecentTransactions(
+    contracts.map((c) => c.address),
+    net,
+  );
+
+  // fetch finality
+  useEffect(() => {
+    // TODO convert finality fetch to SWR, possibly even with polling, to make data more realtime
+    fetchFinality(net);
+  }, [net]);
+
+  async function fetchFinality(net: NetOption) {
+    const res = await fetch(config.url.rpc.default[net], {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 'dontcare',
+        method: 'block',
+        params: {
+          finality: 'final',
+        },
+      }),
+    }).then((res) => res.json());
+    if (res.error) {
+      // TODO decide whether to retry error
+      throw new Error(res.error.name);
+    }
+    const finalBlock = res.result;
+    const newStatus = {
+      finalBlockTimestampNanosecond: new BN(finalBlock.header.timestamp_nanosec),
+      finalBlockHeight: finalBlock.header.height,
+    };
+    // debugger;
+    setFinalityStatus(newStatus);
+  }
+
+  return (
+    <Section>
+      <Flex stack>
+        <H2>Recent Transactions</H2>
+
+        {!transactions && <Spinner center />}
+
+        <Box css={{ width: '100%' }}>
+          {transactions &&
+            transactions.map((t) => {
+              return (
+                <Flex key={t.hash}>
+                  <Box css={{ flexGrow: 1 }}>
+                    <TransactionAction transaction={t} net={net} finalityStatus={finalityStatus} />
+                  </Box>
+
+                  <Text
+                    css={{
+                      marginTop: 'auto',
+                      marginBottom: 'auto',
+                      color: 'var(--color-text-2)',
+                      paddingLeft: 'var(--space-m)',
+                    }}
+                  >
+                    {t.sourceContract}
+                  </Text>
+                </Flex>
+              );
+            })}
+        </Box>
+      </Flex>
+    </Section>
+  );
+}
+
 Contracts.getLayout = useDashboardLayout;
+
+export default Contracts;

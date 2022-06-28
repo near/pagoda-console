@@ -1,0 +1,5 @@
+# Prettier does not format MDX files correctly.
+*.mdx
+
+.next
+playwright-report/

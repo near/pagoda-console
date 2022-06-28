@@ -1,70 +1,68 @@
-// import '../styles/customBootstrap.scss';
-import '../styles/globals.scss';
+import '@/styles/reset.css';
+import '@/styles/fonts.css';
+import '@/styles/variables.css';
+import '@/styles/global.css';
 
-import '@fortawesome/fontawesome-svg-core/styles.css';
-import { config as svgConfig } from '@fortawesome/fontawesome-svg-core';
-svgConfig.autoAddCss = false;
-
-import { ReactElement, ReactNode, useEffect } from 'react';
-import type { NextPage } from 'next';
-import type { AppProps } from 'next/app';
-import { useSWRConfig, SWRConfig } from 'swr';
-import { appWithTranslation } from 'next-i18next';
-import { useRouter } from 'next/router';
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
-import { customErrorRetry } from '../utils/fetchers';
-import config from '../utils/config';
-import Head from 'next/head';
-
-
-export type NextPageWithLayout = NextPage & {
-  getLayout?: (page: ReactElement, footer: ReactElement | null) => ReactNode,
-  getFooter?: () => ReactElement
-}
-
-export type AppPropsWithLayout = AppProps & {
-  Component: NextPageWithLayout
-}
-
-// initialize Firebase
+import * as FullStory from '@fullstory/browser';
 import { initializeApp } from 'firebase/app';
+import type { User } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import type { AppProps } from 'next/app';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { appWithTranslation } from 'next-i18next';
+import { useEffect } from 'react';
+import { SWRConfig, useSWRConfig } from 'swr';
 
-// workaround for react-bootstrap bug
-// https://github.com/react-bootstrap/react-bootstrap/issues/6026
-import { SSRProvider } from '@restart/ui/ssr';
+import { SimpleLayout } from '@/components/layouts/SimpleLayout';
+import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
+import { Toaster } from '@/components/lib/Toast';
+import { usePageTracker } from '@/hooks/page-tracker';
+import { DowntimeMode } from '@/modules/core/components/DowntimeMode';
+import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
+import analytics from '@/utils/analytics';
+import { initializeNaj } from '@/utils/chain-data';
+import config from '@/utils/config';
+import { hydrateAllStores } from '@/utils/hydrate-all-stores';
+import { customErrorRetry } from '@/utils/swr';
+import type { NextPageWithLayout } from '@/utils/types';
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
 
 initializeApp(config.firebaseConfig);
-
-// mixpanel initialization
-import analytics from '../utils/analytics';
-import { initializeNaj } from '../utils/chainData'
-import { usePageTracker } from '../utils/hooks'
-import SmallScreenNotice from '../components/SmallScreenNotice'
-
 analytics.init();
 
-const unauthedPaths = ['/', '/register'];
+const unauthedPaths = ['/', '/register', '/ui'];
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
-
-  // redirect to login if user is not signed in
+  usePageTracker();
   const router = useRouter();
+  const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
+
+  useEffect(() => {
+    FullStory.init({ orgId: 'o-1A5K4V-na1' });
+  }, []);
 
   useEffect(() => {
     router.prefetch('/');
+  }, [router]);
+
+  useEffect(() => {
+    hydrateAllStores();
   }, []);
 
-  usePageTracker();
-  // must cast cache to any to work around bug in interface definition
-  // https://github.com/vercel/swr/discussions/1494
-  const { cache }: { cache: any } = useSWRConfig();
   useEffect(() => {
-    const auth = getAuth()
+    initializeNaj();
+  }, []);
+
+  useEffect(() => {
+    const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
       if (user) {
         analytics.identify(user.uid);
       } else if (!user && !unauthedPaths.includes(router.pathname)) {
-        // user is signed out, clear all data and redirect back to login
         analytics.reset();
         cache.clear();
         router.push('/');
@@ -74,42 +72,37 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     return () => unsubscribe(); // TODO why lambda function?
   }, [router, cache]);
 
-  // always initialize naj on app load
-  useEffect(() => {
-    initializeNaj();
-  }, []);
-
-  // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
-  const getFooter = Component.getFooter ?? (() => null);
-  return <SSRProvider>
+
+  return (
     <SWRConfig
       value={{
-        onErrorRetry: customErrorRetry
+        onErrorRetry: customErrorRetry,
       }}
     >
       <Head>
         <title>Pagoda Developer Console</title>
-        <meta name="description" content="Pagoda Developer Console" />
+        <meta
+          name="description"
+          content="Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics."
+        />
         <link rel="icon" href="/favicon.ico" />
+        <link href="/favicon-256x256.png" rel="apple-touch-icon" />
       </Head>
-      <div className="largeScreen">{getLayout(<Component {...pageProps} />, getFooter())}</div>
-      <div className="smallScreen"><SmallScreenNotice /></div>
-      <style jsx>{`
-        .smallScreen {
-          display: none;
-        }
-        
-        @media only screen and (max-width: 62rem) {
-          .largeScreen {
-            display: none;
-          }
-          .smallScreen {
-            display: block;
-          }
-        }
-      `}</style>
+
+      <FeatherIconSheet />
+      <SmallScreenNotice />
+      <Toaster />
+
+      {config.downtimeMode ? (
+        <SimpleLayout>
+          <DowntimeMode />
+        </SimpleLayout>
+      ) : (
+        getLayout(<Component {...pageProps} />)
+      )}
     </SWRConfig>
-  </SSRProvider>
+  );
 }
+
 export default appWithTranslation(MyApp);

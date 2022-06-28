@@ -1,0 +1,133 @@
+:root,
+.dark-theme,
+.light-theme .reverse-theme {
+  --border-radius-xs: 4px;
+  --border-radius-s: 8px;
+  --border-radius-m: 12px;
+  --border-radius-l: 20px;
+  --border-radius-xl: 40px;
+
+  --color-text-1: #f5f5f5;
+  --color-text-2: #bcc3cd;
+  --color-text-3: #888e98;
+
+  --color-surface-overlay: #101110;
+  --color-surface-1: #242625;
+  --color-surface-2: #2b2c2b;
+  --color-surface-3: #323232;
+  --color-surface-4: #383838;
+  --color-surface-5: #464646;
+
+  --color-border-1: #242625;
+  --color-border-2: #464646;
+
+  --color-primary: #87bb81;
+  --color-primary-highlight: #a8daa4;
+  --color-danger: #e64747;
+  --color-danger-highlight: #ec6f6f;
+  --color-success: #87bb81;
+  --color-success-highlight: #a8daa4;
+
+  --color-mainnet: #00bf89;
+  --color-testnet: #e9b870;
+
+  --color-cta-primary: var(--color-primary);
+  --color-cta-primary-highlight: var(--color-primary-highlight);
+  --color-cta-primary-text: #000000;
+  --color-cta-success: var(--color-success);
+  --color-cta-success-highlight: var(--color-success-highlight);
+  --color-cta-success-text: #000000;
+  --color-cta-danger: var(--color-danger);
+  --color-cta-danger-highlight: var(--color-danger-highlight);
+  --color-cta-danger-text: #000000;
+  --color-cta-neutral: #464646;
+  --color-cta-neutral-highlight: #575757;
+  --color-cta-neutral-text: #f5f5f5;
+
+  --focus-outline: 1px solid var(--focus-outline-color);
+  --focus-outline-color: #8793a6;
+  --focus-outline-offset: 3px;
+
+  --font-heading: 'NB International Pro', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-action: 'IBM Plex Mono', monospace;
+  --font-code: 'IBM Plex Mono', monospace;
+  --font-number: 'IBM Plex Mono', monospace;
+
+  --font-size-body: 1rem;
+  --font-size-body-small: 0.8rem;
+  --font-size-h1: 3rem;
+  --font-size-h2: 2.5rem;
+  --font-size-h3: 2rem;
+  --font-size-h4: 1.5rem;
+  --font-size-h5: 1.25rem;
+  --font-size-h6: 1rem;
+
+  --line-height-body: 1.5;
+  --line-height-body-small: 1.5;
+  --line-height-h1: 1.1;
+  --line-height-h2: 1.2;
+  --line-height-h3: 1.3;
+  --line-height-h4: 1.4;
+  --line-height-h5: 1.5;
+  --line-height-h6: 1.5;
+
+  --shadow-soft: 0 2px 20px rgba(0, 0, 0, 0.3);
+  --shadow-softer: 0 2px 20px rgba(0, 0, 0, 0.15);
+
+  --size-header-height: 5rem;
+  --size-icon-xs: 0.8rem;
+  --size-icon-s: 1.25rem;
+  --size-icon-m: 1.75rem;
+  --size-icon-l: 2.5rem;
+  --size-icon-xl: 3.25rem;
+  --size-input-height-xs: 1.25rem;
+  --size-input-height-s: 1.75rem;
+  --size-input-height-m: 3.125rem;
+  --size-max-container-width-xxs: 10rem;
+  --size-max-container-width-xs: 20rem;
+  --size-max-container-width-s: 30rem;
+  --size-max-container-width-m: 50rem;
+  --size-max-container-width-l: 75rem;
+  --size-max-dropdown-height: 20rem;
+  --size-max-input-width-xxs: 5rem;
+  --size-max-input-width-xs: 10rem;
+  --size-max-input-width-s: 20rem;
+  --size-max-input-width-m: 30rem;
+  --size-max-input-width-l: 50rem;
+  --size-sidebar-width-expanded: 15.625rem;
+
+  --space-xs: 0.25rem;
+  --space-s: 0.6rem;
+  --space-m: 1rem;
+  --space-l: 2rem;
+  --space-xl: 4rem;
+
+  --transition-speed: 150ms;
+  --transitions: color var(--transition-speed), border-color var(--transition-speed),
+    background-color var(--transition-speed), box-shadow var(--transition-speed), opacity var(--transition-speed);
+}
+
+.light-theme,
+.dark-theme .reverse-theme {
+  --color-text-1: #242625;
+  --color-text-2: #474747;
+  --color-text-3: #9f9f9f;
+
+  --color-surface-overlay: #ffffff;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #f6f7f9;
+  --color-surface-3: #eff1f5;
+  --color-surface-4: #d9dee6;
+  --color-surface-5: #bcc3cd;
+
+  --color-border-1: #d9dee6;
+  --color-border-2: #bcc3cd;
+
+  --color-cta-neutral: #bcc3cd;
+  --color-cta-neutral-highlight: #a9b0ba;
+  --color-cta-neutral-text: #242625;
+
+  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --shadow-softer: 0 2px 10px rgba(0, 0, 0, 0.05);
+}

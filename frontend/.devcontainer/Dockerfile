@@ -2,7 +2,8 @@
 
 # [Choice] Node.js version: 16, 14, 12, 16-bullseye, 14-bullseye, 12-bullseye, 16-buster, 14-buster, 12-buster
 ARG VARIANT="16-bullseye"
-FROM --platform=linux/amd64 mcr.microsoft.com/vscode/devcontainers/typescript-node:0-${VARIANT}
+# FROM --platform=linux/amd64 mcr.microsoft.com/vscode/devcontainers/typescript-node:0-${VARIANT}
+FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:0-${VARIANT}
 
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
@@ -16,7 +17,7 @@ FROM --platform=linux/amd64 mcr.microsoft.com/vscode/devcontainers/typescript-no
 # RUN su node -c "npm install -g <your-package-list -here>"
 
 # install bat (https://github.com/sharkdp/bat) for printing inspecting files from terminal w/ syntax highlighting
-RUN wget https://github.com/sharkdp/bat/releases/download/v0.18.3/bat_0.18.3_amd64.deb
-RUN dpkg -i bat_0.18.3_amd64.deb
+# RUN wget https://github.com/sharkdp/bat/releases/download/v0.18.3/bat_0.18.3_amd64.deb
+# RUN dpkg -i bat_0.18.3_amd64.deb
 
 RUN npm completion >> ~/.zshrc

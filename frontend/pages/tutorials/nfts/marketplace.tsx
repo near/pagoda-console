@@ -1,18 +1,43 @@
-import ProjectSelector from "../../../components/ProjectSelector";
-import components from "../../../components/tutorials/components";
-import TableOfContents from "../../../components/tutorials/TableOfContents";
-import { useDashboardLayout } from "../../../utils/layouts";
-import Content from '../../../tutorials/nfts/md/8-marketplace.mdx';
-import TutorialFooter from "../../../components/tutorials/TutorialFooter";
-import NextStepButton from "../../../components/tutorials/NextStepButton";
+import { useRouter } from 'next/router';
+import { useState } from 'react';
 
-export default function Overview() {
-    return <>
-        <ProjectSelector />
-        <TableOfContents />
+import { Button } from '@/components/lib/Button';
+import { useDashboardLayout } from '@/hooks/layouts';
+import { useSelectedProject } from '@/hooks/selected-project';
+import { EjectProjectModal } from '@/modules/core/components/modals/EjectProjectModal';
+import components from '@/modules/core/components/tutorials/components';
+import TableOfContents from '@/modules/core/components/tutorials/TableOfContents';
+import TutorialFooter from '@/modules/core/components/tutorials/TutorialFooter';
+import { TutorialPage } from '@/modules/core/components/tutorials/TutorialPage';
+import Content from '@/tutorials/nfts/md/8-marketplace.mdx';
+import type { NextPageWithLayout } from '@/utils/types';
+
+const Marketplace: NextPageWithLayout = () => {
+  const { project } = useSelectedProject();
+  const [showModal, setShowModal] = useState(false);
+  const router = useRouter();
+
+  return (
+    <>
+      <TutorialPage sidebar={<TableOfContents />}>
         <Content components={components} />
-        <TutorialFooter><NextStepButton path="/project-analytics" label="Complete Tutorial" /></TutorialFooter>
-    </>;
-}
+        {project && (
+          <TutorialFooter>
+            <Button onClick={() => setShowModal(true)}>Complete Tutorial</Button>
+            <EjectProjectModal
+              slug={project.slug}
+              name={project.name}
+              show={showModal}
+              setShow={setShowModal}
+              onEject={() => router.push('/contracts')}
+            />
+          </TutorialFooter>
+        )}
+      </TutorialPage>
+    </>
+  );
+};
 
-Overview.getLayout = useDashboardLayout;
+Marketplace.getLayout = useDashboardLayout;
+
+export default Marketplace;
