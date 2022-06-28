@@ -233,7 +233,12 @@ export interface UpdateWebhookDestinationDto extends UpdateDestinationBaseDto {
     url?: string;
   };
 }
-export type UpdateDestinationDto = UpdateWebhookDestinationDto;
+export interface UpdateEmailDestinationDto extends UpdateDestinationBaseDto {
+  type: 'EMAIL';
+}
+export type UpdateDestinationDto =
+  | UpdateWebhookDestinationDto
+  | UpdateEmailDestinationDto;
 const UpdateWebhookDestinationSchema = Joi.object({
   url: Joi.string(),
 });

@@ -251,6 +251,8 @@ export class AlertsController {
             req.user,
             dto,
           );
+        case 'EMAIL':
+          return await this.alertsService.updateEmailDestination(req.user, dto);
         default:
           assertUnreachable(type);
       }
