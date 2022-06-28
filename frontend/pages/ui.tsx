@@ -1,3 +1,4 @@
+import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ComponentProps } from 'react';
@@ -12,6 +13,7 @@ import { Card } from '@/components/lib/Card';
 import { Checkbox, CheckboxGroup } from '@/components/lib/Checkbox';
 import * as CheckboxCard from '@/components/lib/CheckboxCard';
 import { CodeBlock } from '@/components/lib/CodeBlock';
+import * as Combobox from '@/components/lib/Combobox';
 import { Container } from '@/components/lib/Container';
 import * as Dialog from '@/components/lib/Dialog';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
@@ -42,6 +44,7 @@ import ExampleIcon from '@/public/images/icons/ui-example.svg';
 import { styled } from '@/styles/stitches';
 import config from '@/utils/config';
 import { formValidations } from '@/utils/constants';
+import { mergeInputProps } from '@/utils/merge-input-props';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Block = styled('div', {
@@ -61,18 +64,6 @@ const Block = styled('div', {
     },
   },
 });
-
-interface FakeForm {
-  age: number;
-  displayName: string;
-  email: string;
-  favoriteFood: string;
-  favoriteColorsBlue: boolean;
-  favoriteColorsOrange: boolean;
-  favoriteWeather: string;
-  favoriteIcon: string;
-  termsAccepted: boolean;
-}
 
 const Lipsum = () => {
   return (
@@ -115,6 +106,19 @@ const Lipsum = () => {
     </>
   );
 };
+
+const books = [
+  { author: 'Harper Lee', title: 'To Kill a Mockingbird' },
+  { author: 'Lev Tolstoy', title: 'War and Peace' },
+  { author: 'Fyodor Dostoyevsy', title: 'The Idiot' },
+  { author: 'Oscar Wilde', title: 'A Picture of Dorian Gray' },
+  { author: 'George Orwell', title: '1984' },
+  { author: 'Jane Austen', title: 'Pride and Prejudice' },
+  { author: 'Marcus Aurelius', title: 'Meditations' },
+  { author: 'Fyodor Dostoevsky', title: 'The Brothers Karamazov' },
+  { author: 'Lev Tolstoy', title: 'Anna Karenina' },
+  { author: 'Fyodor Dostoevsky', title: 'Crime and Punishment' },
+];
 
 const favoriteWeatherOptions = [
   {
@@ -182,7 +186,6 @@ const Settings: NextPageWithLayout = () => {
   const [progressValue, setProgressValue] = useState(10);
   const [person, setPerson] = useState('pedro');
   const [errorMessage, setErrorMessage] = useState('This is a dismissable error message');
-  const { register, handleSubmit, formState, control } = useForm<FakeForm>();
   const router = useRouter();
 
   useEffect(() => {
@@ -547,6 +550,8 @@ const Settings: NextPageWithLayout = () => {
         </CodeBlock>
       </DocSection>
 
+      <DocSectionCombobox />
+
       <DocSection title="Container">
         <Container size="xxs">
           <Block stretch>
@@ -804,265 +809,7 @@ const Settings: NextPageWithLayout = () => {
         </Flex>
       </DocSection>
 
-      <DocSection title="Form">
-        <Form.Root
-          onSubmit={handleSubmit((value) => {
-            alert(JSON.stringify(value));
-          })}
-          css={{ maxWidth: 'var(--size-max-container-width-s)' }}
-        >
-          <Flex stack gap="l">
-            <Form.Group>
-              <Form.Label htmlFor="displayName">Display Name</Form.Label>
-              <Form.Input
-                id="displayName"
-                placeholder="eg: John Smith"
-                isInvalid={!!formState.errors.displayName}
-                {...register('displayName', formValidations.displayName)}
-              />
-              <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
-            </Form.Group>
-
-            <Form.Group>
-              <Flex gap="s" align="center">
-                <Form.Label htmlFor="email">Email</Form.Label>
-                <Info content="This would provide even more context." />
-              </Flex>
-
-              <Text>This could provide a description for a confusing field.</Text>
-
-              <Form.Input
-                id="email"
-                type="email"
-                isInvalid={!!formState.errors.email}
-                {...register('email', formValidations.email)}
-              />
-              <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
-            </Form.Group>
-
-            <HR />
-
-            <H4>Floating Labels & Select Dropdowns</H4>
-
-            <Form.Group>
-              <Form.FloatingLabelInput
-                type="number"
-                label="Age - Floating Label"
-                isInvalid={!!formState.errors.age}
-                {...register('age', {
-                  valueAsNumber: true,
-                  required: 'Please enter your age',
-                  min: {
-                    value: 12,
-                    message: 'Must be at least 12 years old',
-                  },
-                })}
-              />
-              <Form.Feedback>{formState.errors.age?.message}</Form.Feedback>
-            </Form.Group>
-
-            <Form.Group>
-              <Form.FloatingLabelInput type="number" label="Age - Floating Label + Placeholder" placeholder="eg: 35" />
-            </Form.Group>
-
-            <Controller
-              name="favoriteWeather"
-              control={control}
-              rules={{
-                required: 'Please select your favorite weather',
-              }}
-              render={({ field }) => {
-                const favoriteWeather = favoriteWeatherOptions.find((option) => option.id === field.value);
-
-                return (
-                  <Form.Group>
-                    <DropdownMenu.Root>
-                      <DropdownMenu.Trigger asChild>
-                        <Form.FloatingLabelSelect
-                          label="Favorite Weather"
-                          isInvalid={!!formState.errors.favoriteWeather}
-                          onBlur={field.onBlur}
-                          ref={field.ref}
-                          selection={
-                            favoriteWeather && (
-                              <>
-                                <FeatherIcon icon={favoriteWeather.icon} color="primary" />
-                                {favoriteWeather.display}
-                              </>
-                            )
-                          }
-                        />
-                      </DropdownMenu.Trigger>
-
-                      <DropdownMenu.Content align="start">
-                        <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
-                          {favoriteWeatherOptions.map((option) => (
-                            <DropdownMenu.RadioItem
-                              disabled={option.disabled}
-                              indicator={<FeatherIcon icon={option.icon} />}
-                              value={option.id}
-                              key={option.id}
-                            >
-                              {option.display}
-                            </DropdownMenu.RadioItem>
-                          ))}
-                        </DropdownMenu.RadioGroup>
-                      </DropdownMenu.Content>
-                    </DropdownMenu.Root>
-
-                    <Form.Feedback>{formState.errors.favoriteWeather?.message}</Form.Feedback>
-                  </Form.Group>
-                );
-              }}
-            />
-
-            <HR />
-
-            <Form.Group>
-              <Form.Label>Disabled</Form.Label>
-              <Form.Input disabled />
-            </Form.Group>
-
-            <HR />
-
-            <Form.Group gap="m">
-              <Form.Label>Favorite Food</Form.Label>
-
-              <CheckboxGroup aria-label="Pick your favorite food">
-                {favoriteFoodOptions.map((option) => (
-                  <Checkbox
-                    radio
-                    key={option.value}
-                    value={option.value}
-                    isInvalid={!!formState.errors.favoriteFood}
-                    {...register('favoriteFood', {
-                      required: 'You must select a favorite food',
-                    })}
-                  >
-                    {option.display}
-                    <Text size="bodySmall">{option.description}</Text>
-                  </Checkbox>
-                ))}
-              </CheckboxGroup>
-
-              <Form.Feedback>{formState.errors.favoriteFood?.message}</Form.Feedback>
-            </Form.Group>
-
-            <Form.Group gap="m">
-              <Form.Label>Favorite Colors</Form.Label>
-
-              <CheckboxGroup aria-label="Pick a favorite color">
-                <Checkbox {...register('favoriteColorsOrange')}>Orange</Checkbox>
-                <Checkbox {...register('favoriteColorsBlue')}>Blue</Checkbox>
-              </CheckboxGroup>
-            </Form.Group>
-
-            <HR />
-
-            <Form.Group gap="m">
-              <Form.Label>Favorite Icon</Form.Label>
-
-              <CheckboxCard.Group aria-label="Select your favorite icon">
-                {favoriteIconOptions.map((option) => (
-                  <CheckboxCard.Card
-                    radio
-                    key={option.id}
-                    disabled={option.disabled}
-                    value={option.id}
-                    isInvalid={!!formState.errors.favoriteIcon}
-                    css={{ width: '7rem', height: '7rem' }}
-                    {...register('favoriteIcon', {
-                      required: 'You must select a favorite icon',
-                    })}
-                  >
-                    <FeatherIcon icon={option.icon} />
-                    <CheckboxCard.Title>{option.title}</CheckboxCard.Title>
-                  </CheckboxCard.Card>
-                ))}
-              </CheckboxCard.Group>
-
-              <Form.Feedback>{formState.errors.favoriteIcon?.message}</Form.Feedback>
-            </Form.Group>
-
-            <HR />
-
-            <Form.Group>
-              <Checkbox
-                isInvalid={!!formState.errors.termsAccepted}
-                {...register('termsAccepted', {
-                  required: 'You must accept the terms.',
-                })}
-              >
-                I agree to the{' '}
-                <TextLink href="/" target="_blank">
-                  Terms & Conditions
-                </TextLink>
-              </Checkbox>
-
-              <Form.Feedback>{formState.errors.termsAccepted?.message}</Form.Feedback>
-            </Form.Group>
-
-            <Button type="submit">Submit</Button>
-          </Flex>
-        </Form.Root>
-
-        <HR />
-
-        <H4>Horizontal</H4>
-
-        <Form.Root>
-          <Form.HorizontalGroup>
-            <Form.Label>Horizontal</Form.Label>
-            <Form.Group>
-              <Form.Input />
-            </Form.Group>
-
-            <Form.Label>Horizontal Field Two</Form.Label>
-            <Form.Group maxWidth="m">
-              <Form.Input />
-              <Form.Feedback type="neutral">Here is some feedback.</Form.Feedback>
-            </Form.Group>
-
-            <Form.Label>Horizontal Field With a Really Long Label</Form.Label>
-            <Form.Group maxWidth="s">
-              <Form.Input />
-            </Form.Group>
-          </Form.HorizontalGroup>
-        </Form.Root>
-
-        <HR />
-
-        <H4>Max Width</H4>
-
-        <Form.Root>
-          <Flex stack>
-            <Form.Group maxWidth="xxs">
-              <Form.Label>XXS</Form.Label>
-              <Form.Input />
-            </Form.Group>
-
-            <Form.Group maxWidth="xs">
-              <Form.Label>XS</Form.Label>
-              <Form.Input />
-            </Form.Group>
-
-            <Form.Group maxWidth="s">
-              <Form.Label>S</Form.Label>
-              <Form.Input />
-            </Form.Group>
-
-            <Form.Group maxWidth="m">
-              <Form.Label>M</Form.Label>
-              <Form.Input />
-            </Form.Group>
-
-            <Form.Group maxWidth="l">
-              <Form.Label>L</Form.Label>
-              <Form.Input />
-            </Form.Group>
-          </Flex>
-        </Form.Root>
-      </DocSection>
+      <DocSectionForm />
 
       <DocSection title="Heading">
         <H1>Heading 1</H1>
@@ -1678,6 +1425,513 @@ function DocSection({ children, title, ...props }: DocSectionProps) {
         {children}
       </Flex>
     </Section>
+  );
+}
+
+function DocSectionCombobox() {
+  const [comboboxOneItems, setComboboxOneItems] = useState([...books]);
+  const [comboboxTwoItems, setComboboxTwoItems] = useState([...books]);
+  const [comboboxThreeItems, setComboboxThreeItems] = useState([...books]);
+
+  const comboxboxOne = useCombobox({
+    id: 'combobox1',
+    onInputValueChange({ inputValue }) {
+      const query = inputValue?.toLowerCase().trim();
+      const filtered = books.filter(
+        (item) => !query || item.title.toLowerCase().includes(query) || item.author.toLowerCase().includes(query),
+      );
+      setComboboxOneItems(filtered);
+    },
+    items: comboboxOneItems,
+    itemToString(item) {
+      return item ? item.title : '';
+    },
+  });
+
+  const comboxboxTwo = useCombobox({
+    id: 'combobox2',
+    onInputValueChange({ inputValue }) {
+      const query = inputValue?.toLowerCase().trim();
+      const filtered = books.filter(
+        (item) => !query || item.title.toLowerCase().includes(query) || item.author.toLowerCase().includes(query),
+      );
+      setComboboxTwoItems(filtered);
+    },
+    items: comboboxTwoItems,
+    itemToString(item) {
+      return item ? item.title : '';
+    },
+  });
+
+  const comboxboxThree = useCombobox({
+    id: 'combobox3',
+    onInputValueChange({ inputValue }) {
+      const query = inputValue?.toLowerCase().trim();
+      const filtered = books.filter(
+        (item) => !query || item.title.toLowerCase().includes(query) || item.author.toLowerCase().includes(query),
+      );
+      setComboboxThreeItems(filtered);
+    },
+    items: comboboxThreeItems,
+    itemToString(item) {
+      return item ? item.title : '';
+    },
+  });
+
+  return (
+    <DocSection title="Combobox">
+      <H4>Toggle Open Button, Floating Input Label, Menu Label</H4>
+
+      <Form.Group maxWidth="m">
+        <Combobox.Root open={comboxboxOne.isOpen}>
+          <Combobox.Box
+            toggleButtonProps={{ ...comboxboxOne.getToggleButtonProps() }}
+            {...comboxboxOne.getComboboxProps()}
+          >
+            <Form.FloatingLabelInput
+              label="Favorite Book"
+              labelProps={{ ...comboxboxOne.getLabelProps() }}
+              {...comboxboxOne.getInputProps()}
+            />
+          </Combobox.Box>
+
+          <Combobox.Menu {...comboxboxOne.getMenuProps()}>
+            <Combobox.MenuLabel>
+              <FeatherIcon icon="book" size="xs" /> Suggestions:
+            </Combobox.MenuLabel>
+
+            {comboboxOneItems.length === 0 && (
+              <Combobox.MenuContent>
+                No matching suggestions found.{' '}
+                <Text color="primary" size="bodySmall" as="span">
+                  &quot;{comboxboxOne.inputValue}&quot;
+                </Text>{' '}
+                will be added as a new book.
+              </Combobox.MenuContent>
+            )}
+
+            {comboboxOneItems.map((item, index) => (
+              <Combobox.MenuItem {...comboxboxOne.getItemProps({ item, index })} key={item.title}>
+                <Flex stack gap="none">
+                  <Text color="text1">{item.author}</Text>
+                  <Text color="text2" size="bodySmall">
+                    {item.title}
+                  </Text>
+                </Flex>
+              </Combobox.MenuItem>
+            ))}
+          </Combobox.Menu>
+        </Combobox.Root>
+      </Form.Group>
+
+      <H4>Outside Input Label</H4>
+
+      <Form.Group maxWidth="m">
+        <Form.Label {...comboxboxTwo.getLabelProps()}>Favorite Books</Form.Label>
+
+        <Combobox.Root open={comboxboxTwo.isOpen}>
+          <Combobox.Box {...comboxboxTwo.getComboboxProps()}>
+            <Form.Input {...comboxboxTwo.getInputProps()} />
+          </Combobox.Box>
+
+          <Combobox.Menu {...comboxboxTwo.getMenuProps()}>
+            {comboboxTwoItems.length === 0 && <Combobox.MenuContent>No existing books match.</Combobox.MenuContent>}
+
+            {comboboxTwoItems.map((item, index) => (
+              <Combobox.MenuItem {...comboxboxTwo.getItemProps({ item, index })} key={item.title}>
+                <Flex stack gap="none">
+                  <Text color="text1">{item.author}</Text>
+                  <Text color="text2" size="bodySmall">
+                    {item.title}
+                  </Text>
+                </Flex>
+              </Combobox.MenuItem>
+            ))}
+          </Combobox.Menu>
+        </Combobox.Root>
+      </Form.Group>
+
+      <H4>Hide Menu (No Results), Auto Open (Focus)</H4>
+
+      <Form.Group maxWidth="m">
+        <Form.Label {...comboxboxThree.getLabelProps()}>Favorite Books</Form.Label>
+
+        <Combobox.Root open={comboxboxThree.isOpen && comboboxThreeItems.length > 0}>
+          <Combobox.Box {...comboxboxThree.getComboboxProps()}>
+            <Form.Input
+              {...comboxboxThree.getInputProps({
+                onFocus: () => !comboxboxThree.isOpen && comboxboxThree.openMenu(),
+              })}
+            />
+          </Combobox.Box>
+
+          <Combobox.Menu {...comboxboxThree.getMenuProps()}>
+            {comboboxThreeItems.map((item, index) => (
+              <Combobox.MenuItem {...comboxboxThree.getItemProps({ item, index })} key={item.title}>
+                <Flex stack gap="none">
+                  <Text color="text1">{item.author}</Text>
+                  <Text color="text2" size="bodySmall">
+                    {item.title}
+                  </Text>
+                </Flex>
+              </Combobox.MenuItem>
+            ))}
+          </Combobox.Menu>
+        </Combobox.Root>
+      </Form.Group>
+    </DocSection>
+  );
+}
+
+interface FakeForm {
+  age: number;
+  displayName: string;
+  email: string;
+  favoriteBook: string;
+  favoriteFood: string;
+  favoriteColorsBlue: boolean;
+  favoriteColorsOrange: boolean;
+  favoriteWeather: string;
+  favoriteIcon: string;
+  termsAccepted: boolean;
+}
+
+function DocSectionForm() {
+  const [comboboxItems, setComboboxItems] = useState([...books]);
+  const form = useForm<FakeForm>();
+
+  const comboxbox = useCombobox({
+    id: 'comboboxForm1',
+    items: comboboxItems,
+    itemToString(item) {
+      return item ? item.title : '';
+    },
+    onInputValueChange({ inputValue }) {
+      const query = inputValue?.toLowerCase().trim();
+      const filtered = books.filter(
+        (item) => !query || item.title.toLowerCase().includes(query) || item.author.toLowerCase().includes(query),
+      );
+      setComboboxItems(filtered);
+    },
+    onSelectedItemChange() {
+      form.clearErrors('favoriteBook');
+    },
+  });
+
+  return (
+    <DocSection title="Form">
+      <Form.Root
+        onSubmit={form.handleSubmit((value) => {
+          alert(JSON.stringify(value));
+        })}
+        css={{ maxWidth: 'var(--size-max-container-width-s)' }}
+      >
+        <Flex stack gap="l">
+          <Form.Group>
+            <Form.Label htmlFor="displayName">Display Name</Form.Label>
+            <Form.Input
+              id="displayName"
+              placeholder="eg: John Smith"
+              isInvalid={!!form.formState.errors.displayName}
+              {...form.register('displayName', formValidations.displayName)}
+            />
+            <Form.Feedback>{form.formState.errors.displayName?.message}</Form.Feedback>
+          </Form.Group>
+
+          <Form.Group>
+            <Flex gap="s" align="center">
+              <Form.Label htmlFor="email">Email</Form.Label>
+              <Info content="This would provide even more context." />
+            </Flex>
+
+            <Text>This could provide a description for a confusing field.</Text>
+
+            <Form.Input
+              id="email"
+              type="email"
+              isInvalid={!!form.formState.errors.email}
+              {...form.register('email', formValidations.email)}
+            />
+            <Form.Feedback>{form.formState.errors.email?.message}</Form.Feedback>
+          </Form.Group>
+
+          <HR />
+
+          <H4>Floating Labels & Select Dropdowns</H4>
+
+          <Form.Group>
+            <Form.FloatingLabelInput
+              type="number"
+              label="Age - Floating Label"
+              isInvalid={!!form.formState.errors.age}
+              {...form.register('age', {
+                valueAsNumber: true,
+                required: 'Please enter your age',
+                min: {
+                  value: 12,
+                  message: 'Must be at least 12 years old',
+                },
+              })}
+            />
+            <Form.Feedback>{form.formState.errors.age?.message}</Form.Feedback>
+          </Form.Group>
+
+          <Form.Group>
+            <Form.FloatingLabelInput type="number" label="Age - Floating Label + Placeholder" placeholder="eg: 35" />
+          </Form.Group>
+
+          <Controller
+            name="favoriteWeather"
+            control={form.control}
+            rules={{
+              required: 'Please select your favorite weather',
+            }}
+            render={({ field }) => {
+              const favoriteWeather = favoriteWeatherOptions.find((option) => option.id === field.value);
+
+              return (
+                <Form.Group>
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger asChild>
+                      <Form.FloatingLabelSelect
+                        label="Favorite Weather"
+                        isInvalid={!!form.formState.errors.favoriteWeather}
+                        onBlur={field.onBlur}
+                        ref={field.ref}
+                        selection={
+                          favoriteWeather && (
+                            <>
+                              <FeatherIcon icon={favoriteWeather.icon} color="primary" />
+                              {favoriteWeather.display}
+                            </>
+                          )
+                        }
+                      />
+                    </DropdownMenu.Trigger>
+
+                    <DropdownMenu.Content align="start">
+                      <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
+                        {favoriteWeatherOptions.map((option) => (
+                          <DropdownMenu.RadioItem
+                            disabled={option.disabled}
+                            indicator={<FeatherIcon icon={option.icon} />}
+                            value={option.id}
+                            key={option.id}
+                          >
+                            {option.display}
+                          </DropdownMenu.RadioItem>
+                        ))}
+                      </DropdownMenu.RadioGroup>
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Root>
+
+                  <Form.Feedback>{form.formState.errors.favoriteWeather?.message}</Form.Feedback>
+                </Form.Group>
+              );
+            }}
+          />
+
+          <HR />
+
+          <H4>Combobox</H4>
+
+          <Form.Group>
+            <Combobox.Root open={comboxbox.isOpen}>
+              <Combobox.Box
+                toggleButtonProps={{ ...comboxbox.getToggleButtonProps() }}
+                {...comboxbox.getComboboxProps()}
+              >
+                <Form.FloatingLabelInput
+                  label="Favorite Book"
+                  labelProps={{ ...comboxbox.getLabelProps() }}
+                  isInvalid={!!form.formState.errors.favoriteBook}
+                  {...mergeInputProps(
+                    comboxbox.getInputProps(),
+                    form.register('favoriteBook', {
+                      required: 'Please enter a favorite book',
+                    }),
+                  )}
+                />
+              </Combobox.Box>
+
+              <Combobox.Menu {...comboxbox.getMenuProps()}>
+                <Combobox.MenuLabel>
+                  <FeatherIcon icon="book" size="xs" /> Suggestions:
+                </Combobox.MenuLabel>
+
+                {comboboxItems.length === 0 && (
+                  <Combobox.MenuContent>
+                    No matching suggestions found.{' '}
+                    <Text color="primary" size="bodySmall" as="span">
+                      &quot;{comboxbox.inputValue}&quot;
+                    </Text>{' '}
+                    will be added as a new book.
+                  </Combobox.MenuContent>
+                )}
+
+                {comboboxItems.map((item, index) => (
+                  <Combobox.MenuItem {...comboxbox.getItemProps({ item, index })} key={item.title}>
+                    <Flex stack gap="none">
+                      <Text color="text1">{item.author}</Text>
+                      <Text color="text2" size="bodySmall">
+                        {item.title}
+                      </Text>
+                    </Flex>
+                  </Combobox.MenuItem>
+                ))}
+              </Combobox.Menu>
+            </Combobox.Root>
+
+            <Form.Feedback>{form.formState.errors.favoriteBook?.message}</Form.Feedback>
+          </Form.Group>
+
+          <HR />
+
+          <Form.Group>
+            <Form.Label>Disabled</Form.Label>
+            <Form.Input disabled />
+          </Form.Group>
+
+          <HR />
+
+          <Form.Group gap="m">
+            <Form.Label>Favorite Food</Form.Label>
+
+            <CheckboxGroup aria-label="Pick your favorite food">
+              {favoriteFoodOptions.map((option) => (
+                <Checkbox
+                  radio
+                  key={option.value}
+                  value={option.value}
+                  isInvalid={!!form.formState.errors.favoriteFood}
+                  {...form.register('favoriteFood', {
+                    required: 'You must select a favorite food',
+                  })}
+                >
+                  {option.display}
+                  <Text size="bodySmall">{option.description}</Text>
+                </Checkbox>
+              ))}
+            </CheckboxGroup>
+
+            <Form.Feedback>{form.formState.errors.favoriteFood?.message}</Form.Feedback>
+          </Form.Group>
+
+          <Form.Group gap="m">
+            <Form.Label>Favorite Colors</Form.Label>
+
+            <CheckboxGroup aria-label="Pick a favorite color">
+              <Checkbox {...form.register('favoriteColorsOrange')}>Orange</Checkbox>
+              <Checkbox {...form.register('favoriteColorsBlue')}>Blue</Checkbox>
+            </CheckboxGroup>
+          </Form.Group>
+
+          <HR />
+
+          <Form.Group gap="m">
+            <Form.Label>Favorite Icon</Form.Label>
+
+            <CheckboxCard.Group aria-label="Select your favorite icon">
+              {favoriteIconOptions.map((option) => (
+                <CheckboxCard.Card
+                  radio
+                  key={option.id}
+                  disabled={option.disabled}
+                  value={option.id}
+                  isInvalid={!!form.formState.errors.favoriteIcon}
+                  css={{ width: '7rem', height: '7rem' }}
+                  {...form.register('favoriteIcon', {
+                    required: 'You must select a favorite icon',
+                  })}
+                >
+                  <FeatherIcon icon={option.icon} />
+                  <CheckboxCard.Title>{option.title}</CheckboxCard.Title>
+                </CheckboxCard.Card>
+              ))}
+            </CheckboxCard.Group>
+
+            <Form.Feedback>{form.formState.errors.favoriteIcon?.message}</Form.Feedback>
+          </Form.Group>
+
+          <HR />
+
+          <Form.Group>
+            <Checkbox
+              isInvalid={!!form.formState.errors.termsAccepted}
+              {...form.register('termsAccepted', {
+                required: 'You must accept the terms.',
+              })}
+            >
+              I agree to the{' '}
+              <TextLink href="/" target="_blank">
+                Terms & Conditions
+              </TextLink>
+            </Checkbox>
+
+            <Form.Feedback>{form.formState.errors.termsAccepted?.message}</Form.Feedback>
+          </Form.Group>
+
+          <Button type="submit">Submit</Button>
+        </Flex>
+      </Form.Root>
+
+      <HR />
+
+      <H4>Horizontal</H4>
+
+      <Form.Root>
+        <Form.HorizontalGroup>
+          <Form.Label>Horizontal</Form.Label>
+          <Form.Group>
+            <Form.Input />
+          </Form.Group>
+
+          <Form.Label>Horizontal Field Two</Form.Label>
+          <Form.Group maxWidth="m">
+            <Form.Input />
+            <Form.Feedback type="neutral">Here is some feedback.</Form.Feedback>
+          </Form.Group>
+
+          <Form.Label>Horizontal Field With a Really Long Label</Form.Label>
+          <Form.Group maxWidth="s">
+            <Form.Input />
+          </Form.Group>
+        </Form.HorizontalGroup>
+      </Form.Root>
+
+      <HR />
+
+      <H4>Max Width</H4>
+
+      <Form.Root>
+        <Flex stack>
+          <Form.Group maxWidth="xxs">
+            <Form.Label>XXS</Form.Label>
+            <Form.Input />
+          </Form.Group>
+
+          <Form.Group maxWidth="xs">
+            <Form.Label>XS</Form.Label>
+            <Form.Input />
+          </Form.Group>
+
+          <Form.Group maxWidth="s">
+            <Form.Label>S</Form.Label>
+            <Form.Input />
+          </Form.Group>
+
+          <Form.Group maxWidth="m">
+            <Form.Label>M</Form.Label>
+            <Form.Input />
+          </Form.Group>
+
+          <Form.Group maxWidth="l">
+            <Form.Label>L</Form.Label>
+            <Form.Input />
+          </Form.Group>
+        </Flex>
+      </Form.Root>
+    </DocSection>
   );
 }
 

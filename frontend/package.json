@@ -36,6 +36,7 @@
     "@radix-ui/react-visually-hidden": "^0.1.4",
     "@stitches/react": "^1.2.8",
     "bn.js": "^5.2.0",
+    "downshift": "^6.1.7",
     "firebase": "^9.6.10",
     "hexy": "^0.3.3",
     "iframe-resizer": "^4.3.2",
