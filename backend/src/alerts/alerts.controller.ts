@@ -40,6 +40,8 @@ import {
   DisableDestinationSchema,
   EnableDestinationDto,
   EnableDestinationSchema,
+  UpdateDestinationSchema,
+  UpdateDestinationDto,
 } from './dto';
 
 @Controller('alerts')
@@ -232,6 +234,28 @@ export class AlertsController {
         alert,
         destination,
       );
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('updateDestination')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(UpdateDestinationSchema))
+  async updateDestination(@Request() req, @Body() dto: UpdateDestinationDto) {
+    try {
+      const type = dto.type;
+      switch (type) {
+        case 'WEBHOOK':
+          return await this.alertsService.updateWebhookDestination(
+            req.user,
+            dto,
+          );
+        case 'EMAIL':
+          return await this.alertsService.updateEmailDestination(req.user, dto);
+        default:
+          assertUnreachable(type);
+      }
     } catch (e) {
       throw mapError(e);
     }
