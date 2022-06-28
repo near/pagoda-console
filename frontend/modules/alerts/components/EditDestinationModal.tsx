@@ -57,7 +57,6 @@ function ModalContent(props: Props) {
       return destinations?.map((d) => {
         if (d.id === updated.id) {
           return {
-            ...d, // TODO: This won't be necessary when update destination API returns full model
             ...updated,
           };
         }
