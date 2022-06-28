@@ -73,7 +73,7 @@ export class TelegramService {
         parse_mode: 'HTML',
       });
     } catch (e) {
-      console.error(e); // TODO DO NOT MERGE
+      console.error(`Failed to send telegram message`, e);
     }
   }
 }
