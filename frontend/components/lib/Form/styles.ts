@@ -106,7 +106,7 @@ const inputStyles: StitchesCSS = {
   height: 'var(--size-input-height-m)',
   padding: '0 var(--space-m)',
   borderRadius: 'var(--border-radius-s)',
-  transition: 'var(--transitions)',
+  transition: 'var(--transitions), border-radius var(--transition-speed)',
 
   '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': {
     '-webkit-appearance': 'none',

@@ -11,10 +11,10 @@ import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
-import { useThemeStore } from '@/components/ThemeToggle';
 import { useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
+import { useThemeStore } from '@/modules/core/components/ThemeToggle';
 import type { Contract, NextPageWithLayout } from '@/utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {

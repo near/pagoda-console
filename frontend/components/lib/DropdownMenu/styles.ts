@@ -88,7 +88,7 @@ export const dropdownItemStyles: StitchesCSS = {
     pointerEvents: 'none',
   },
 
-  '&:focus, &:hover, &[data-state="open"]': {
+  '&:focus, &:hover, &[data-state="open"], &[aria-selected="true"]': {
     backgroundColor: 'var(--color-surface-2)',
   },
 
@@ -136,8 +136,9 @@ export const ContentItem = styled('div', {
 export const Label = styled(DropdownMenuPrimitive.Label, {
   ...dropdownItemStyles,
   fontSize: 'var(--font-size-body-small)',
-  color: 'var(--color-text-2)',
+  color: 'var(--color-text-3)',
   cursor: 'default',
+  pointerEvents: 'none',
 });
 
 export const Separator = styled(DropdownMenuPrimitive.Separator, {

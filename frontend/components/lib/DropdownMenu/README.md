@@ -166,7 +166,7 @@ interface MyForm {
   somethingElse: string;
 }
 
-const { register, handleSubmit, formState, control } = useForm<MyForm>();
+const myForm = useForm<MyForm>();
 
 const favoriteWeatherOptions = [
   {
@@ -187,12 +187,12 @@ const favoriteWeatherOptions = [
   },
 ];
 
-<Form.Root onSubmit={handleSubmit((value) => console.log(value) )}>
+<Form.Root onSubmit={myForm.handleSubmit((value) => console.log(value) )}>
   ...
 
   <Controller
     name="favoriteWeather"
-    control={control}
+    control={myForm.control}
     rules={{
       required: 'Please select your favorite weather',
     }}
@@ -205,7 +205,7 @@ const favoriteWeatherOptions = [
             <DropdownMenu.Trigger asChild>
               <Form.FloatingLabelSelect
                 label="Favorite Weather"
-                isInvalid={!!formState.errors.favoriteWeather}
+                isInvalid={!!myForm.formState.errors.favoriteWeather}
                 onBlur={field.onBlur}
                 ref={field.ref}
                 selection={favoriteWeather?.display}
@@ -228,7 +228,7 @@ const favoriteWeatherOptions = [
             </DropdownMenu.Content>
           </DropdownMenu.Root>
 
-          <Form.Feedback>{formState.errors.favoriteWeather?.message}</Form.Feedback>
+          <Form.Feedback>{myForm.formState.errors.favoriteWeather?.message}</Form.Feedback>
         </Form.Group>
       );
     }}

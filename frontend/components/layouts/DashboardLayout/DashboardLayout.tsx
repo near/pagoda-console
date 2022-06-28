@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
 
-import { NftInfoCard } from '@/components/NftInfoCard';
+import { NftInfoCard } from '@/modules/core/components/NftInfoCard';
 
 import { Footer } from '../Footer';
 import { Header } from './Header';
