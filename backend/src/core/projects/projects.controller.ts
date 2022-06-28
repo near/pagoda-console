@@ -10,7 +10,7 @@ import {
   UsePipes,
   ConflictException,
 } from '@nestjs/common';
-import { BearerAuthGuard } from 'src/auth/bearer-auth.guard';
+import { BearerAuthGuard } from '../auth/bearer-auth.guard';
 import { ProjectsService } from './projects.service';
 import { VError } from 'verror';
 import {
@@ -44,7 +44,7 @@ import {
   RotateKeySchema,
 } from './dto';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
-import { IndexerService } from 'src/indexer.service';
+import { IndexerService } from 'src/core/indexer.service';
 
 @Controller('projects')
 export class ProjectsController {

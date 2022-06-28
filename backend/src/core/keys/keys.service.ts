@@ -4,7 +4,7 @@ import axios, { AxiosInstance } from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { VError } from 'verror';
 import { Net } from '.prisma/client';
-import { AppConfig } from 'src/config/validate';
+import { AppConfig } from '../config/validate';
 import { Key, KeysServiceInterface } from './interfaces';
 
 @Injectable()

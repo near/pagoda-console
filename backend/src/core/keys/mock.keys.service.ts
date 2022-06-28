@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Net } from '@prisma/client';
-import { AppConfig } from 'src/config/validate';
+import { AppConfig } from '../config/validate';
 import { VError } from 'verror';
 import { Key, KeysServiceInterface } from './interfaces';
 

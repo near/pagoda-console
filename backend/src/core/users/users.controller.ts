@@ -12,7 +12,7 @@ import { UsersService } from './users.service';
 // import { User } from '@prisma/client';
 import { BearerAuthGuard } from '../auth/bearer-auth.guard';
 import firebaseAdmin from 'firebase-admin';
-import { ProjectsService } from 'src/projects/projects.service';
+import { ProjectsService } from '../projects/projects.service';
 // import { UpdateDetailsDto, UpdateDetailsSchema } from './dto';
 // import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 
