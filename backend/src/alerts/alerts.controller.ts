@@ -54,12 +54,16 @@ import { TgUpdate } from './telegram/types';
 @Controller('alerts')
 export class AlertsController {
   private tgSecret: string;
+  private tgEnableWebhook: boolean;
   constructor(
     private config: ConfigService<AppConfig>,
     private readonly alertsService: AlertsService,
     private readonly telegramService: TelegramService,
   ) {
     this.tgSecret = this.config.get('alerts.telegram.secret', { infer: true });
+    this.tgEnableWebhook = this.config.get('alerts.telegram.enableWebhook', {
+      infer: true,
+    });
   }
 
   @Post('createAlert')
@@ -287,14 +291,18 @@ export class AlertsController {
 
   // * Handler for Telegram bot, this is not an endpoint for the DevConsole frontend
   @Post('telegramWebhook')
+  @HttpCode(200)
   async start(
     @Headers('X-Telegram-Bot-Api-Secret-Token') secret: string,
     @Body() body: TgUpdate,
   ) {
+    if (!this.tgEnableWebhook) {
+      throw new ForbiddenException();
+    }
+
     if (secret !== this.tgSecret) {
       throw new UnauthorizedException();
     }
-    // console.log(body);
     const { message } = body;
     if (message && message.text) {
       if (message.text.startsWith('/start')) {
@@ -308,7 +316,7 @@ export class AlertsController {
               case 'BAD_TELEGRAM_TOKEN':
                 await this.telegramService.sendMessage(
                   message.chat.id,
-                  `Please provide a valid token`,
+                  `This token doesn't seem to be valid. Please check your destination in Pagoda DevConsole and try again`,
                 );
                 break;
               case 'BAD_TELEGRAM_TOKEN_EXPIRED':
@@ -336,7 +344,10 @@ export class AlertsController {
           );
         }
       } else {
-        await this.telegramService.sendMessage(body.message.chat.id, 'no op');
+        await this.telegramService.sendMessage(
+          body.message.chat.id,
+          'You can receive alerts here by setting up a Telegram destination in Pagoda DevConsole. If you are trying to provide your setup token, please enter it as follows:\n<pre>/start &lt;token&gt;</pre>',
+        );
       }
     }
   }
