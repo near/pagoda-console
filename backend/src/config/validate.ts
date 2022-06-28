@@ -50,6 +50,11 @@ export interface AppConfig {
   };
   alerts: {
     emailTokenExpiryMin: number;
+    telegram: {
+      botToken: string;
+      tokenExpiryMin: number;
+      secret: string;
+    };
   };
 }
 
@@ -118,7 +123,12 @@ const appConfigSchema = Joi.object({
     indexer: Joi.boolean().optional().default(false),
   },
   alerts: {
-    emailTokenExpiryMin: Joi.number().optional().default(10),
+    emailTokenExpiryMin: Joi.number().optional().default(10000), // TODO set to a small value once requesting a new token is possible
+    telegram: Joi.object({
+      botToken: Joi.string(),
+      tokenExpiryMin: Joi.number().optional().default(10000), // TODO set to a small value once requesting a new token is possible
+      secret: Joi.string(),
+    }),
   },
 });
 
@@ -164,6 +174,11 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     },
     alerts: {
       emailTokenExpiryMin: config.EMAIL_TOKEN_EXPIRY_MIN,
+      telegram: {
+        botToken: config.TELEGRAM_BOT_TOKEN,
+        tokenExpiryMin: config.TELEGRAM_TOKEN_EXPIRY_MIN,
+        secret: config.TELEGRAM_SECRET,
+      },
     },
   };
 

@@ -7,6 +7,7 @@ import {
   Destination,
   EmailDestination,
   DestinationType,
+  TelegramDestination,
 } from '../../generated/prisma/alerts';
 
 // TODO should we re-export these types from the core module? So there is no dependency on the core prisma/client
@@ -121,6 +122,26 @@ type UpdateEmailDestinationSchema = {
   name?: Destination['name'];
 };
 
+type UpdateTelegramDestinationSchema = {
+  id: Destination['id'];
+  name?: Destination['name'];
+};
+
+type CreateTelegramDestinationSchema = {
+  name?: Destination['name'];
+  projectSlug: Destination['projectSlug'];
+};
+
+type CreateTelegramDestinationResponse = {
+  id: EmailDestination['id'];
+  name?: Destination['name'];
+  type: DestinationType;
+  projectSlug: Destination['projectSlug'];
+  config: {
+    startToken: TelegramDestination['startToken'];
+  };
+};
+
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
   12,
@@ -145,6 +166,7 @@ type AlertWithDestinations = Alert & {
 @Injectable()
 export class AlertsService {
   private emailTokenExpiryMin: number;
+  private telegramTokenExpiryMin: number;
   constructor(
     private prisma: PrismaService,
     private projectPermissions: ProjectPermissionsService,
@@ -156,6 +178,12 @@ export class AlertsService {
     this.emailTokenExpiryMin = this.config.get('alerts.emailTokenExpiryMin', {
       infer: true,
     });
+    this.telegramTokenExpiryMin = this.config.get(
+      'alerts.telegram.tokenExpiryMin',
+      {
+        infer: true,
+      },
+    );
   }
 
   async createTxSuccessAlert(user: User, alert: CreateTxAlertSchema) {
@@ -467,6 +495,9 @@ export class AlertsService {
           case 'EMAIL':
             config = emailDestination;
             break;
+          case 'TELEGRAM':
+            //TODO
+            break;
           default:
             assertUnreachable(type);
         }
@@ -651,6 +682,65 @@ export class AlertsService {
     }
   }
 
+  async createTelegramDestination(
+    user: User,
+    {
+      name = 'Telegram Destination',
+      projectSlug,
+    }: CreateTelegramDestinationSchema,
+  ): Promise<CreateTelegramDestinationResponse> {
+    await this.projectPermissions.checkUserProjectPermission(
+      user.id,
+      projectSlug,
+    );
+    try {
+      const expiryDate = DateTime.now()
+        .plus({ minutes: this.telegramTokenExpiryMin })
+        .toUTC()
+        .toJSDate();
+      const c = await this.prisma.destination.create({
+        data: {
+          name,
+          projectSlug,
+          type: 'TELEGRAM',
+          createdBy: user.id,
+          updatedBy: user.id,
+          telegramDestination: {
+            create: {
+              startToken: nanoid(),
+              tokenExpiresAt: expiryDate,
+              createdBy: user.id,
+              updatedBy: user.id,
+            },
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          projectSlug: true,
+          telegramDestination: {
+            select: {
+              startToken: true,
+            },
+          },
+        },
+      });
+
+      return {
+        id: c.id,
+        name: c.name,
+        type: 'TELEGRAM',
+        projectSlug: c.projectSlug,
+        config: {
+          startToken: c.telegramDestination.startToken,
+        },
+      };
+    } catch (e) {
+      throw new VError(e, 'Failed to create email destination');
+    }
+  }
+
   async deleteDestination(user: User, id: Destination['id']): Promise<void> {
     await this.checkUserDestinationPermission(user.id, id);
 
@@ -700,6 +790,11 @@ export class AlertsService {
             isVerified: true,
           },
         },
+        telegramDestination: {
+          select: {
+            startToken: true,
+          },
+        },
       },
     });
 
@@ -712,6 +807,9 @@ export class AlertsService {
           break;
         case 'EMAIL':
           config = destination.emailDestination;
+          break;
+        case 'TELEGRAM':
+          config = destination.telegramDestination;
           break;
         default:
           assertUnreachable(type);
@@ -878,6 +976,46 @@ export class AlertsService {
         type: res.type,
         projectSlug: res.projectSlug,
         config: res.emailDestination,
+      };
+    } catch (e) {
+      throw new VError(e, 'Failed while updating email destination');
+    }
+  }
+
+  async updateTelegramDestination(
+    callingUser: User,
+    dto: UpdateTelegramDestinationSchema,
+  ) {
+    const { id, name } = dto;
+    await this.checkUserDestinationPermission(callingUser.id, id);
+
+    try {
+      const res = await this.prisma.destination.update({
+        where: {
+          id,
+        },
+        data: {
+          name,
+          updatedBy: callingUser.id,
+        },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          projectSlug: true,
+          telegramDestination: {
+            select: {
+              startToken: true,
+            },
+          },
+        },
+      });
+      return {
+        id: res.id,
+        name: res.name,
+        type: res.type,
+        projectSlug: res.projectSlug,
+        config: res.telegramDestination,
       };
     } catch (e) {
       throw new VError(e, 'Failed while updating email destination');
