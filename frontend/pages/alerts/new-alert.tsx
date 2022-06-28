@@ -26,6 +26,7 @@ import { createAlert, useAlerts } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
 import type { AlertType, AmountComparator } from '@/modules/alerts/utils/types';
 import { NewAlert } from '@/modules/alerts/utils/types';
+import { formRegex } from '@/utils/constants';
 import { assertUnreachable } from '@/utils/helpers';
 import { mergeInputProps } from '@/utils/merge-input-props';
 import type { Contract, Environment, NextPageWithLayout, Project } from '@/utils/types';
@@ -163,7 +164,7 @@ const NewAlert: NextPageWithLayout = () => {
                         form.register('contract', {
                           required: 'Please enter an address',
                           pattern: {
-                            value: /^(([a-z\d\*]+[\-_])*[a-z\d\*]+\.)*([a-z\d]+[\-_])*[a-z\d]+$/,
+                            value: formRegex.contractAddressWildcard,
                             message: 'Invalid address format. Please refer to valid examples above.',
                           },
                         }),
