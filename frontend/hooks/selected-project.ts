@@ -46,9 +46,15 @@ export function useSelectedProject(
   // Conditionally redirect to force user to select project:
 
   useEffect(() => {
-    if (!options.enforceSelectedProject || !settingsInitialized || settings.selectedProjectSlug) return;
+    if (
+      !options.enforceSelectedProject ||
+      !settingsInitialized ||
+      settings.selectedProjectSlug ||
+      projectSlugRouteParam
+    )
+      return;
     router.push('/projects');
-  }, [options, settingsInitialized, settings]);
+  }, [options, projectSlugRouteParam, settingsInitialized, settings]);
 
   // Sync local state with selected environment:
 
