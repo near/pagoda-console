@@ -1,9 +1,12 @@
+import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import { Badge } from '@/components/lib/Badge';
 import { Button } from '@/components/lib/Button';
+import * as Combobox from '@/components/lib/Combobox';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
@@ -23,8 +26,9 @@ import { createAlert, useAlerts } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
 import type { AlertType, AmountComparator } from '@/modules/alerts/utils/types';
 import { NewAlert } from '@/modules/alerts/utils/types';
-import { assertUnreachable, returnContractAddressRegex } from '@/utils/helpers';
-import type { Environment, NextPageWithLayout, Project } from '@/utils/types';
+import { assertUnreachable } from '@/utils/helpers';
+import { mergeInputProps } from '@/utils/merge-input-props';
+import type { Contract, Environment, NextPageWithLayout, Project } from '@/utils/types';
 
 interface FormData {
   contract: string;
@@ -45,15 +49,37 @@ interface FormData {
 
 const NewAlert: NextPageWithLayout = () => {
   const router = useRouter();
-  const { register, handleSubmit, formState, control, watch } = useForm<FormData>();
+  const form = useForm<FormData>();
   const { project, environment } = useSelectedProject();
   const { mutate } = useAlerts(project?.slug, environment?.subId);
   const [createError, setCreateError] = useState('');
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<number[]>([]);
   const { contracts } = useContracts(project?.slug, environment?.subId);
+  const [contractComboboxItems, setContractComboboxItems] = useState<Contract[]>([]);
 
-  const contractAddressRegex = returnContractAddressRegex(environment);
-  const selectedAlertType = watch('type');
+  useEffect(() => {
+    if (contracts) {
+      setContractComboboxItems(contracts);
+    }
+  }, [contracts]);
+
+  const contractCombobox = useCombobox({
+    id: 'contract-cbx',
+    items: contractComboboxItems,
+    itemToString(item) {
+      return item ? item.address : '';
+    },
+    onInputValueChange({ inputValue }) {
+      const query = inputValue?.toLowerCase().trim();
+      const filtered = contracts?.filter((item) => !query || item.address.toLowerCase().includes(query));
+      setContractComboboxItems(filtered || []);
+    },
+    onSelectedItemChange() {
+      form.clearErrors('contract');
+    },
+  });
+
+  const selectedAlertType = form.watch('type');
 
   async function submitForm(data: FormData) {
     try {
@@ -104,7 +130,7 @@ const NewAlert: NextPageWithLayout = () => {
           </Link>
         </Flex>
 
-        <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
+        <Form.Root disabled={form.formState.isSubmitting} onSubmit={form.handleSubmit(submitForm)}>
           <Flex stack gap="l">
             <Flex stack>
               <H4>
@@ -114,21 +140,51 @@ const NewAlert: NextPageWithLayout = () => {
                 Select Target
               </H4>
 
+              <Text>
+                <Flex as="span" align="center" gap="s" wrap>
+                  Valid address examples: <Badge size="s">cool.near</Badge>
+                  <Badge size="s">app.cool.testnet</Badge>
+                  <Badge size="s">*.cool.near</Badge>
+                </Flex>
+              </Text>
+
               <Form.Group>
-                <Form.FloatingLabelInput
-                  label="Contract Address"
-                  isInvalid={!!formState.errors.contract}
-                  placeholder={environment?.net === 'MAINNET' ? 'contract.near' : 'contract.testnet'}
-                  list="contractsDatalist"
-                  {...register('contract', {
-                    required: 'Contract address field is required',
-                    pattern: {
-                      value: contractAddressRegex,
-                      message: 'Invalid address format',
-                    },
-                  })}
-                />
-                <Form.Feedback>{formState.errors.contract?.message}</Form.Feedback>
+                <Combobox.Root open={contractCombobox.isOpen && contractComboboxItems.length > 0}>
+                  <Combobox.Box {...contractCombobox.getComboboxProps()}>
+                    <Form.FloatingLabelInput
+                      label="Address"
+                      labelProps={{ ...contractCombobox.getLabelProps() }}
+                      isInvalid={!!form.formState.errors.contract}
+                      placeholder="Enter any address..."
+                      {...mergeInputProps(
+                        contractCombobox.getInputProps({
+                          onFocus: () => !contractCombobox.isOpen && contractCombobox.openMenu(),
+                        }),
+                        form.register('contract', {
+                          required: 'Please enter an address',
+                          pattern: {
+                            value: /^(([a-z\d\*]+[\-_])*[a-z\d\*]+\.)*([a-z\d]+[\-_])*[a-z\d]+$/,
+                            message: 'Invalid address format. Please refer to valid examples above.',
+                          },
+                        }),
+                      )}
+                    />
+                  </Combobox.Box>
+
+                  <Combobox.Menu {...contractCombobox.getMenuProps()}>
+                    <Combobox.MenuLabel>
+                      <FeatherIcon icon="zap" size="xs" color="primary" /> Suggestions:
+                    </Combobox.MenuLabel>
+
+                    {contractComboboxItems.map((item, index) => (
+                      <Combobox.MenuItem {...contractCombobox.getItemProps({ item, index })} key={item.address}>
+                        {item.address}
+                      </Combobox.MenuItem>
+                    ))}
+                  </Combobox.Menu>
+                </Combobox.Root>
+
+                <Form.Feedback>{form.formState.errors.contract?.message}</Form.Feedback>
               </Form.Group>
 
               <datalist id="contractsDatalist">
@@ -150,7 +206,7 @@ const NewAlert: NextPageWithLayout = () => {
 
               <Controller
                 name="type"
-                control={control}
+                control={form.control}
                 rules={{
                   required: 'Please select a condition',
                 }}
@@ -163,7 +219,7 @@ const NewAlert: NextPageWithLayout = () => {
                         <DropdownMenu.Trigger asChild>
                           <Form.FloatingLabelSelect
                             label="Condition"
-                            isInvalid={!!formState.errors.type}
+                            isInvalid={!!form.formState.errors.type}
                             onBlur={field.onBlur}
                             ref={field.ref}
                             selection={
@@ -195,7 +251,7 @@ const NewAlert: NextPageWithLayout = () => {
                         </DropdownMenu.Content>
                       </DropdownMenu.Root>
 
-                      <Form.Feedback>{formState.errors.type?.message}</Form.Feedback>
+                      <Form.Feedback>{form.formState.errors.type?.message}</Form.Feedback>
                     </Form.Group>
                   );
                 }}
@@ -206,7 +262,7 @@ const NewAlert: NextPageWithLayout = () => {
                   <Flex>
                     <Controller
                       name="acctBalRule.comparator"
-                      control={control}
+                      control={form.control}
                       rules={{
                         required: 'Please select a comparator',
                       }}
@@ -219,7 +275,7 @@ const NewAlert: NextPageWithLayout = () => {
                               <DropdownMenu.Trigger asChild>
                                 <Form.FloatingLabelSelect
                                   label="Comparator"
-                                  isInvalid={!!formState.errors.acctBalRule?.comparator}
+                                  isInvalid={!!form.formState.errors.acctBalRule?.comparator}
                                   onBlur={field.onBlur}
                                   ref={field.ref}
                                   selection={selection?.name}
@@ -248,7 +304,7 @@ const NewAlert: NextPageWithLayout = () => {
                               </DropdownMenu.Content>
                             </DropdownMenu.Root>
 
-                            <Form.Feedback>{formState.errors.type?.message}</Form.Feedback>
+                            <Form.Feedback>{form.formState.errors.type?.message}</Form.Feedback>
                           </Form.Group>
                         );
                       }}
@@ -258,13 +314,13 @@ const NewAlert: NextPageWithLayout = () => {
                       <Form.FloatingLabelInput
                         label={selectedAlertType === 'ACCT_BAL_PCT' ? 'Amount (%)' : 'Amount'}
                         type="number"
-                        isInvalid={!!formState.errors.acctBalRule?.amount}
-                        {...register('acctBalRule.amount', {
+                        isInvalid={!!form.formState.errors.acctBalRule?.amount}
+                        {...form.register('acctBalRule.amount', {
                           valueAsNumber: true,
                           required: 'Please enter an amount',
                         })}
                       />
-                      <Form.Feedback>{formState.errors.acctBalRule?.amount?.message}</Form.Feedback>
+                      <Form.Feedback>{form.formState.errors.acctBalRule?.amount?.message}</Form.Feedback>
                     </Form.Group>
                   </Flex>
                 </>
@@ -275,34 +331,34 @@ const NewAlert: NextPageWithLayout = () => {
                   <Form.Group>
                     <Form.FloatingLabelInput
                       label="Event Name"
-                      isInvalid={!!formState.errors.eventRule?.event}
-                      {...register('eventRule.event', {
+                      isInvalid={!!form.formState.errors.eventRule?.event}
+                      {...form.register('eventRule.event', {
                         required: 'Please enter an event name',
                       })}
                     />
-                    <Form.Feedback>{formState.errors.eventRule?.event?.message}</Form.Feedback>
+                    <Form.Feedback>{form.formState.errors.eventRule?.event?.message}</Form.Feedback>
                   </Form.Group>
 
                   <Form.Group>
                     <Form.FloatingLabelInput
                       label="Standard"
-                      isInvalid={!!formState.errors.eventRule?.standard}
-                      {...register('eventRule.standard', {
+                      isInvalid={!!form.formState.errors.eventRule?.standard}
+                      {...form.register('eventRule.standard', {
                         required: 'Please enter a standard',
                       })}
                     />
-                    <Form.Feedback>{formState.errors.eventRule?.standard?.message}</Form.Feedback>
+                    <Form.Feedback>{form.formState.errors.eventRule?.standard?.message}</Form.Feedback>
                   </Form.Group>
 
                   <Form.Group>
                     <Form.FloatingLabelInput
                       label="Version"
-                      isInvalid={!!formState.errors.eventRule?.version}
-                      {...register('eventRule.version', {
+                      isInvalid={!!form.formState.errors.eventRule?.version}
+                      {...form.register('eventRule.version', {
                         required: 'Please enter a version',
                       })}
                     />
-                    <Form.Feedback>{formState.errors.eventRule?.version?.message}</Form.Feedback>
+                    <Form.Feedback>{form.formState.errors.eventRule?.version?.message}</Form.Feedback>
                   </Form.Group>
                 </>
               )}
@@ -312,12 +368,12 @@ const NewAlert: NextPageWithLayout = () => {
                   <Form.Group>
                     <Form.FloatingLabelInput
                       label="Function Name"
-                      isInvalid={!!formState.errors.fnCallRule?.function}
-                      {...register('fnCallRule.function', {
+                      isInvalid={!!form.formState.errors.fnCallRule?.function}
+                      {...form.register('fnCallRule.function', {
                         required: 'Please enter a function name',
                       })}
                     />
-                    <Form.Feedback>{formState.errors.fnCallRule?.function?.message}</Form.Feedback>
+                    <Form.Feedback>{form.formState.errors.fnCallRule?.function?.message}</Form.Feedback>
                   </Form.Group>
                 </>
               )}
@@ -343,7 +399,7 @@ const NewAlert: NextPageWithLayout = () => {
             <HR />
 
             <Flex justify="spaceBetween" align="center">
-              <Button type="submit" loading={formState.isSubmitting}>
+              <Button type="submit" loading={form.formState.isSubmitting}>
                 <FeatherIcon icon="bell" /> Create Alert
               </Button>
 
