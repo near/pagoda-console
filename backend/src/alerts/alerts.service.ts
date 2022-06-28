@@ -822,6 +822,8 @@ export class AlertsService {
         select: {
           id: true,
           name: true,
+          type: true,
+          projectSlug: true,
           webhookDestination: {
             select: {
               url: true,
@@ -830,7 +832,13 @@ export class AlertsService {
           },
         },
       });
-      return { id: res.id, name: res.name, config: res.webhookDestination };
+      return {
+        id: res.id,
+        name: res.name,
+        type: res.type,
+        projectSlug: res.projectSlug,
+        config: res.webhookDestination,
+      };
     } catch (e) {
       throw new VError(e, 'Failed while updating webhook destination');
     }
@@ -855,6 +863,8 @@ export class AlertsService {
         select: {
           id: true,
           name: true,
+          type: true,
+          projectSlug: true,
           emailDestination: {
             select: {
               email: true,
@@ -862,7 +872,13 @@ export class AlertsService {
           },
         },
       });
-      return { id: res.id, name: res.name, config: res.emailDestination };
+      return {
+        id: res.id,
+        name: res.name,
+        type: res.type,
+        projectSlug: res.projectSlug,
+        config: res.emailDestination,
+      };
     } catch (e) {
       throw new VError(e, 'Failed while updating email destination');
     }
