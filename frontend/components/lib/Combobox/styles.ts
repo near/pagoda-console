@@ -32,18 +32,18 @@ export const MenuItem = styled('li', {
 });
 
 export const MenuLabel = styled('li', {
-  ...dropdownItemStyles,
-  borderRadius: 0,
-  pointerEvents: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 'var(--space-s)',
+  padding: 'var(--space-s) var(--space-m)',
   fontSize: 'var(--font-size-body-small)',
   color: 'var(--color-text-3)',
 });
 
 export const MenuContent = styled('li', {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 'var(--space-m)',
   padding: 'var(--space-s) var(--space-m)',
+  fontSize: 'var(--font-size-body-small)',
+  color: 'var(--color-text-2)',
 });
 
 export const Root = styled('div', {

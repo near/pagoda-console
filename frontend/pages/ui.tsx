@@ -1502,13 +1502,11 @@ function DocSectionCombobox() {
 
             {comboboxOneItems.length === 0 && (
               <Combobox.MenuContent>
-                <Text size="bodySmall">
-                  No matching suggestions found.{' '}
-                  <Text color="primary" size="bodySmall" as="span">
-                    &quot;{comboxboxOne.inputValue}&quot;
-                  </Text>{' '}
-                  will be added as a new book.
-                </Text>
+                No matching suggestions found.{' '}
+                <Text color="primary" size="bodySmall" as="span">
+                  &quot;{comboxboxOne.inputValue}&quot;
+                </Text>{' '}
+                will be added as a new book.
               </Combobox.MenuContent>
             )}
 
@@ -1537,13 +1535,7 @@ function DocSectionCombobox() {
           </Combobox.Box>
 
           <Combobox.Menu {...comboxboxTwo.getMenuProps()}>
-            {comboboxTwoItems.length === 0 && (
-              <Combobox.MenuContent>
-                <Text color="text2" size="bodySmall">
-                  No existing books match.
-                </Text>
-              </Combobox.MenuContent>
-            )}
+            {comboboxTwoItems.length === 0 && <Combobox.MenuContent>No existing books match.</Combobox.MenuContent>}
 
             {comboboxTwoItems.map((item, index) => (
               <Combobox.MenuItem {...comboxboxTwo.getItemProps({ item, index })} key={item.title}>
@@ -1769,13 +1761,11 @@ function DocSectionForm() {
 
                 {comboboxFormItems.length === 0 && (
                   <Combobox.MenuContent>
-                    <Text size="bodySmall">
-                      No matching suggestions found.{' '}
-                      <Text color="primary" size="bodySmall" as="span">
-                        &quot;{comboxbox.inputValue}&quot;
-                      </Text>{' '}
-                      will be added as a new book.
-                    </Text>
+                    No matching suggestions found.{' '}
+                    <Text color="primary" size="bodySmall" as="span">
+                      &quot;{comboxbox.inputValue}&quot;
+                    </Text>{' '}
+                    will be added as a new book.
                   </Combobox.MenuContent>
                 )}
 
