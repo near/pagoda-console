@@ -163,6 +163,14 @@ const NewAlert: NextPageWithLayout = () => {
                         }),
                         form.register('contract', {
                           required: 'Please enter an address',
+                          minLength: {
+                            value: 2,
+                            message: 'Address must be at least 2 characters',
+                          },
+                          maxLength: {
+                            value: 64,
+                            message: 'Address must be 64 characters or less',
+                          },
                           pattern: {
                             value: formRegex.contractAddressWildcard,
                             message: 'Invalid address format. Please refer to valid examples above.',
