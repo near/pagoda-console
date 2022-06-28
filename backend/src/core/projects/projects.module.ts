@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { IndexerService } from 'src/core/indexer.service';
+import { IndexerService } from '../indexer.service';
 import { KeysModule } from '../keys/keys.module';
 import { PrismaService } from '../prisma.service';
 import { ProjectsController } from './projects.controller';

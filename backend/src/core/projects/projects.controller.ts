@@ -44,7 +44,7 @@ import {
   RotateKeySchema,
 } from './dto';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
-import { IndexerService } from 'src/core/indexer.service';
+import { IndexerService } from '../indexer.service';
 
 @Controller('projects')
 export class ProjectsController {
