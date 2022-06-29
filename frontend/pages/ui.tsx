@@ -319,6 +319,9 @@ const Settings: NextPageWithLayout = () => {
       <DocSection title="Badge">
         <Flex wrap>
           <Badge>Neutral</Badge>
+          <Badge as="button" type="button" clickable onClick={() => alert('Hi!')}>
+            Clickable
+          </Badge>
           <Badge>
             <FeatherIcon icon="zap" size="xs" /> With Icon
           </Badge>

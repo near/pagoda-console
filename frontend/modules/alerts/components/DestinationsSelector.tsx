@@ -98,7 +98,14 @@ export function DestinationsSelector({ debounce = true, onChange, selectedIds, s
                   </Text>
                 </Flex>
                 {!destination.isValid && (
-                  <Badge size="s" color="warning">
+                  <Badge
+                    as="button"
+                    type="button"
+                    size="s"
+                    color="warning"
+                    clickable
+                    onClick={() => openDestination(destination)}
+                  >
                     <FeatherIcon icon="alert-triangle" size="xs" />
                     Needs Action
                   </Badge>

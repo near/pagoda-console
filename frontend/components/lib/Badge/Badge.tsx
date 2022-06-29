@@ -13,8 +13,27 @@ export const Badge = styled('span', {
   lineHeight: 1,
   whiteSpace: 'nowrap',
   background: 'var(--color-cta-neutral)',
+  transition: 'var(--transitions)',
 
   variants: {
+    clickable: {
+      true: {
+        cursor: 'pointer',
+
+        '&:disabled': {
+          opacity: 0.5,
+          pointerEvents: 'none',
+        },
+        '&:focus': {
+          outline: 'var(--focus-outline)',
+          outlineOffset: 'var(--focus-outline-offset)',
+        },
+        '&:hover': {
+          background: 'var(--color-cta-neutral-highlight)',
+        },
+      },
+    },
+
     color: {
       neutral: {
         color: 'var(--color-cta-neutral-text)',
