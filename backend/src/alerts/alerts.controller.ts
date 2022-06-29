@@ -8,8 +8,13 @@ import {
   Request,
   HttpCode,
   BadRequestException,
+  Req,
+  Headers,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { BearerAuthGuard } from 'src/auth/bearer-auth.guard';
+import { AppConfig } from 'src/config/validate';
 import { assertUnreachable } from 'src/helpers';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 import { VError } from 'verror';
@@ -43,10 +48,23 @@ import {
   UpdateDestinationSchema,
   UpdateDestinationDto,
 } from './dto';
+import { TelegramService } from './telegram/telegram.service';
+import { TgUpdate } from './telegram/types';
 
 @Controller('alerts')
 export class AlertsController {
-  constructor(private readonly alertsService: AlertsService) {}
+  private tgSecret: string;
+  private tgEnableWebhook: boolean;
+  constructor(
+    private config: ConfigService<AppConfig>,
+    private readonly alertsService: AlertsService,
+    private readonly telegramService: TelegramService,
+  ) {
+    this.tgSecret = this.config.get('alerts.telegram.secret', { infer: true });
+    this.tgEnableWebhook = this.config.get('alerts.telegram.enableWebhook', {
+      infer: true,
+    });
+  }
 
   @Post('createAlert')
   @UseGuards(BearerAuthGuard)
@@ -164,6 +182,11 @@ export class AlertsController {
           );
         case 'EMAIL':
           return await this.alertsService.createEmailDestination(req.user, dto);
+        case 'TELEGRAM':
+          return await this.alertsService.createTelegramDestination(
+            req.user,
+            dto,
+          );
         default:
           assertUnreachable(type);
       }
@@ -253,11 +276,82 @@ export class AlertsController {
           );
         case 'EMAIL':
           return await this.alertsService.updateEmailDestination(req.user, dto);
+        case 'TELEGRAM':
+          return await this.alertsService.updateTelegramDestination(
+            req.user,
+            dto,
+          );
         default:
           assertUnreachable(type);
       }
     } catch (e) {
       throw mapError(e);
+    }
+  }
+
+  // * Handler for Telegram bot, this is not an endpoint for the DevConsole frontend
+  @Post('telegramWebhook')
+  @HttpCode(200)
+  async start(
+    @Headers('X-Telegram-Bot-Api-Secret-Token') secret: string,
+    @Body() body: TgUpdate,
+  ) {
+    if (!this.tgEnableWebhook) {
+      throw new ForbiddenException();
+    }
+
+    if (secret !== this.tgSecret) {
+      throw new UnauthorizedException();
+    }
+    const { message } = body;
+    if (message && message.text) {
+      if (message.text.startsWith('/start')) {
+        const startToken = message.text.split(' ')[1];
+        if (startToken) {
+          try {
+            await this.telegramService.start(startToken, message.chat.id);
+          } catch (e) {
+            // TODO convert this when logging lib is merged
+            console.error(e); // intentionally leaving this in until better logging is implemented
+            switch (VError.info(e)?.code) {
+              case 'BAD_TELEGRAM_TOKEN':
+                await this.telegramService.sendMessage(
+                  message.chat.id,
+                  `This token doesn't seem to be valid. Please check your destination in Pagoda DevConsole and try again`,
+                );
+                break;
+              case 'BAD_TELEGRAM_TOKEN_EXPIRED':
+                await this.telegramService.sendMessage(
+                  // TODO direct user to rotate token once that functionality is available
+                  message.chat.id,
+                  // `This token is expired. Please obtain a new token on the Destination details page`,
+                  `This token is expired. At the moment we do not support generating a new token. Please create a new destination`,
+                );
+                break;
+              default:
+                await this.telegramService.sendMessage(
+                  message.chat.id,
+                  `Sorry, something went wrong. Please try again later`,
+                );
+            }
+            return;
+          }
+          await this.telegramService.sendMessage(
+            message.chat.id,
+            `This destination is ready to receive alerts!`,
+          );
+        } else {
+          await this.telegramService.sendMessage(
+            body.message.chat.id,
+            `Please provide your setup token as follows:\n<pre>/start &lt;token&gt;</pre>`,
+          );
+        }
+      } else {
+        await this.telegramService.sendMessage(
+          body.message.chat.id,
+          'You can receive alerts here by setting up a Telegram destination in Pagoda DevConsole. If you are trying to provide your setup token, please enter it as follows:\n<pre>/start &lt;token&gt;</pre>',
+        );
+      }
     }
   }
 }

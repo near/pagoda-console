@@ -74,21 +74,22 @@ model EnabledDestination {
 }
 
 model Destination {
-  id                 Int                  @id @default(autoincrement())
-  name               String?
-  projectSlug        String               @map("project_slug")
-  type               DestinationType
-  active             Boolean              @default(true)
-  isValid            Boolean              @default(false) @map("is_valid")
-  createdAt          DateTime?            @default(now()) @map("created_at")
+  id                  Int                  @id @default(autoincrement())
+  name                String?
+  projectSlug         String               @map("project_slug")
+  type                DestinationType
+  active              Boolean              @default(true)
+  isValid             Boolean              @default(false) @map("is_valid")
+  createdAt           DateTime?            @default(now()) @map("created_at")
   /// Reference to the user id who created the record.
-  createdBy          Int?                 @map("created_by")
-  updatedAt          DateTime?            @updatedAt @map("updated_at")
+  createdBy           Int?                 @map("created_by")
+  updatedAt           DateTime?            @updatedAt @map("updated_at")
   /// Reference to the user id who last updated the record.
-  updatedBy          Int?                 @map("updated_by")
-  EnabledDestination EnabledDestination[]
-  webhookDestination WebhookDestination?
-  emailDestination   EmailDestination?
+  updatedBy           Int?                 @map("updated_by")
+  EnabledDestination  EnabledDestination[]
+  webhookDestination  WebhookDestination?
+  emailDestination    EmailDestination?
+  telegramDestination TelegramDestination?
 
   @@map("destinations")
 }
@@ -115,7 +116,7 @@ model EmailDestination {
   destination    Destination @relation(fields: [destinationId], references: [id])
   destinationId  Int         @unique @map("destination_id")
   email          String
-  // Verification token sent to the user's email address
+  /// Verification token sent to the user's email address
   token          String      @unique
   isVerified     Boolean     @default(false) @map("is_verified")
   // Token's expiry date
@@ -130,9 +131,30 @@ model EmailDestination {
   @@map("email_destinations")
 }
 
+model TelegramDestination {
+  id             Int         @id @default(autoincrement())
+  destination    Destination @relation(fields: [destinationId], references: [id])
+  destinationId  Int         @unique @map("destination_id")
+  /// Store chat ID as a double per Telegram's recommendation: https://core.telegram.org/bots/api#chat
+  chatId         Float?      @map("chat_id")
+  /// Token passed to bot—usually via /start command—to set up destination
+  startToken     String?     @unique @map("start_token")
+  /// Token's expiry date
+  tokenExpiresAt DateTime?   @map("token_expires_at")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  /// Reference to the user id who created the record.
+  createdBy      Int?        @map("created_by")
+  updatedAt      DateTime?   @updatedAt @map("updated_at")
+  /// Reference to the user id who last updated the record.
+  updatedBy      Int?        @map("updated_by")
+
+  @@map("telegram_destinations")
+}
+
 enum DestinationType {
   WEBHOOK
   EMAIL
+  TELEGRAM
 
   @@map("destination_type")
 }
