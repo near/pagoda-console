@@ -62,6 +62,8 @@ const triggerActiveStyles: StitchesCSS = {
 };
 
 export const Trigger = styled(TabsPrimitive.Trigger, {
+  ...triggerStyles,
+
   '&[data-state="active"]': {
     ...triggerActiveStyles,
   },

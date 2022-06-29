@@ -316,21 +316,15 @@ const Settings: NextPageWithLayout = () => {
       </DocSection>
 
       <DocSection title="Badge">
-        <Flex align="center">
-          <H3
-            css={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-s)',
-              flexWrap: 'wrap',
-            }}
-          >
-            With a Badge
-            <Badge>Neutral</Badge>
-            <Badge color="primary">Primary</Badge>
-            <Badge color="danger">Danger</Badge>
-            <Badge size="s">Small</Badge>
-          </H3>
+        <Flex wrap>
+          <Badge>Neutral</Badge>
+          <Badge>
+            <FeatherIcon icon="zap" size="xs" /> With Icon
+          </Badge>
+          <Badge color="primary">Primary</Badge>
+          <Badge color="danger">Danger</Badge>
+          <Badge color="warning">Warning</Badge>
+          <Badge size="s">Small</Badge>
         </Flex>
       </DocSection>
 
@@ -733,11 +727,12 @@ const Settings: NextPageWithLayout = () => {
         </Flex>
 
         <Flex>
-          <Text css={{ color: 'orange' }}>
+          <Text css={{ color: 'pink' }}>
             <FeatherIcon icon="cpu" />
           </Text>
           <FeatherIcon icon="cpu" color="primary" />
           <FeatherIcon icon="cpu" color="danger" />
+          <FeatherIcon icon="cpu" color="warning" />
           <FeatherIcon icon="cpu" color="text1" />
           <FeatherIcon icon="cpu" color="text2" />
           <FeatherIcon icon="cpu" color="text3" />
@@ -872,6 +867,7 @@ const Settings: NextPageWithLayout = () => {
       <DocSection title="Message">
         <Message content="Here is an info message." />
         <Message type="error" content="Here is an error message." />
+        <Message type="warning" content="Here is a warning message." />
         <Message type="success" content="Here is a success message." />
         <Message type="success" content="With a custom icon." icon="zap" />
         <Message type="error" content={errorMessage} dismiss={() => setErrorMessage('')} />
@@ -1035,11 +1031,12 @@ const Settings: NextPageWithLayout = () => {
         </Flex>
 
         <Flex>
-          <Box css={{ color: 'orange' }}>
+          <Box css={{ color: 'pink' }}>
             <SvgIcon icon={ExampleIcon} />
           </Box>
           <SvgIcon color="primary" icon={ExampleIcon} />
           <SvgIcon color="danger" icon={ExampleIcon} />
+          <SvgIcon color="warning" icon={ExampleIcon} />
           <SvgIcon color="text1" icon={ExampleIcon} />
           <SvgIcon color="text2" icon={ExampleIcon} />
           <SvgIcon color="text3" icon={ExampleIcon} />
@@ -1186,13 +1183,16 @@ const Settings: NextPageWithLayout = () => {
         <HR />
 
         <Flex gap="l" wrap>
-          <span style={{ color: 'orange' }}>
+          <span style={{ color: 'pink' }}>
             <Text size="h3" color="current">
               Current
             </Text>
           </span>
           <Text size="h3" color="danger">
             Danger
+          </Text>
+          <Text size="h3" color="warning">
+            Warning
           </Text>
           <Text size="h3" color="primary">
             Primary

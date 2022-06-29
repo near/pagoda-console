@@ -19,6 +19,9 @@ export const Container = styled('div', {
       success: {
         color: 'var(--color-success)',
       },
+      warning: {
+        color: 'var(--color-warning)',
+      },
     },
   },
 });
