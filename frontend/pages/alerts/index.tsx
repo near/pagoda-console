@@ -11,6 +11,7 @@ import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import * as Tabs from '@/components/lib/Tabs';
 import { Text } from '@/components/lib/Text';
+import { TextOverflow } from '@/components/lib/TextOverflow';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
@@ -77,7 +78,9 @@ const ListAlerts: NextPageWithLayout = () => {
                     <Card as="a" clickable padding="m" borderRadius="m">
                       <Flex align="center">
                         <FeatherIcon icon={alertType.icon} color="primary" size="m" />
-                        <Text color="text1">{alert.name}</Text>
+                        <Text color="text1" css={{ minWidth: 0 }}>
+                          <TextOverflow>{alert.name}</TextOverflow>
+                        </Text>
                         <Badge size="s" css={{ marginLeft: 'auto' }}>
                           {alertType.name}
                         </Badge>
