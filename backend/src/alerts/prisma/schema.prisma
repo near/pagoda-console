@@ -116,7 +116,7 @@ model EmailDestination {
   destination    Destination @relation(fields: [destinationId], references: [id])
   destinationId  Int         @unique @map("destination_id")
   email          String
-  // Verification token sent to the user's email address
+  /// Verification token sent to the user's email address
   token          String      @unique
   isVerified     Boolean     @default(false) @map("is_verified")
   // Token's expiry date
@@ -135,14 +135,14 @@ model TelegramDestination {
   id             Int         @id @default(autoincrement())
   destination    Destination @relation(fields: [destinationId], references: [id])
   destinationId  Int         @unique @map("destination_id")
-  // Store chat ID as a double per Telegram's recommendation: https://core.telegram.org/bots/api#chat
+  /// Store chat ID as a double per Telegram's recommendation: https://core.telegram.org/bots/api#chat
   chatId         Float?      @map("chat_id")
   /// The title of the Telegram chat for display in the DevConsole UI
   chatTitle      String?     @map("chat_title")
   isGroupChat    Boolean?    @map("is_group_chat")
-  // Token passed to bot—usually via /start command—to set up destination
+  /// Token passed to bot—usually via /start command—to set up destination
   startToken     String?     @unique @map("start_token")
-  // Token's expiry date
+  /// Token's expiry date
   tokenExpiresAt DateTime?   @map("token_expires_at")
   createdAt      DateTime    @default(now()) @map("created_at")
   /// Reference to the user id who created the record.

@@ -311,6 +311,7 @@ export class AlertsController {
           try {
             await this.telegramService.start(startToken, message.chat);
           } catch (e) {
+            // TODO convert this when logging lib is merged
             console.error(e); // intentionally leaving this in until better logging is implemented
             switch (VError.info(e)?.code) {
               case 'BAD_TELEGRAM_TOKEN':
@@ -321,8 +322,10 @@ export class AlertsController {
                 break;
               case 'BAD_TELEGRAM_TOKEN_EXPIRED':
                 await this.telegramService.sendMessage(
+                  // TODO direct user to rotate token once that functionality is available
                   message.chat.id,
-                  `This token is expired. Please obtain a new token on the Destination details page`,
+                  // `This token is expired. Please obtain a new token on the Destination details page`,
+                  `This token is expired. At the moment we do not support generating a new token. Please create a new destination`,
                 );
                 break;
               default:
