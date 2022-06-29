@@ -19,7 +19,7 @@ import { customAlphabet } from 'nanoid';
 
 import { PrismaService } from './prisma.service';
 import { VError } from 'verror';
-import { NumberComparator, RuleType } from './types';
+import { NumberComparator, PremapDestination, RuleType } from './types';
 import { RuleSerializerService } from './serde/rule-serializer/rule-serializer.service';
 import { RuleDeserializerService } from './serde/rule-deserializer/rule-deserializer.service';
 import { AcctBalMatchingRule, MatchingRule } from './serde/db.types';
@@ -159,6 +159,7 @@ type AlertWithDestinations = Alert & {
       emailDestination?: {
         email: EmailDestination['email'];
       };
+      telegramDestination?: Pick<TelegramDestination, 'startToken'>;
     };
   }>;
 };
@@ -485,8 +486,14 @@ export class AlertsService {
       environmentSubId,
       rule: this.ruleDeserializer.toRuleDto(rule),
       enabledDestinations: enabledDestinations.map((enabledDestination) => {
-        const { id, name, type, webhookDestination, emailDestination } =
-          enabledDestination.destination;
+        const {
+          id,
+          name,
+          type,
+          webhookDestination,
+          emailDestination,
+          telegramDestination,
+        } = enabledDestination.destination;
         let config;
         switch (type) {
           case 'WEBHOOK':
@@ -496,7 +503,7 @@ export class AlertsService {
             config = emailDestination;
             break;
           case 'TELEGRAM':
-            //TODO
+            config = telegramDestination;
             break;
           default:
             assertUnreachable(type);
@@ -572,7 +579,7 @@ export class AlertsService {
     );
 
     try {
-      const c = await this.prisma.destination.create({
+      const res = await this.prisma.destination.create({
         data: {
           name,
           projectSlug,
@@ -594,6 +601,7 @@ export class AlertsService {
           name: true,
           type: true,
           projectSlug: true,
+          isValid: true,
           webhookDestination: {
             select: {
               url: true,
@@ -603,16 +611,7 @@ export class AlertsService {
         },
       });
 
-      return {
-        id: c.id,
-        name: c.name,
-        type: c.type,
-        projectSlug: c.projectSlug,
-        config: {
-          url: c.webhookDestination.url,
-          secret: c.webhookDestination.secret,
-        },
-      };
+      return this.transformDestinationRes(res);
     } catch (e) {
       throw new VError(e, 'Failed to create webhook destination');
     }
@@ -635,7 +634,7 @@ export class AlertsService {
         .plus({ minutes: this.emailTokenExpiryMin })
         .toUTC()
         .toJSDate();
-      const c = await this.prisma.destination.create({
+      const res = await this.prisma.destination.create({
         data: {
           name,
           projectSlug,
@@ -658,6 +657,7 @@ export class AlertsService {
           name: true,
           type: true,
           projectSlug: true,
+          isValid: true,
           emailDestination: {
             select: {
               email: true,
@@ -667,16 +667,7 @@ export class AlertsService {
         },
       });
 
-      return {
-        id: c.id,
-        name: c.name,
-        type: 'EMAIL',
-        projectSlug: c.projectSlug,
-        config: {
-          email: c.emailDestination.email,
-          isVerified: c.emailDestination.isVerified,
-        },
-      };
+      return this.transformDestinationRes(res);
     } catch (e) {
       throw new VError(e, 'Failed to create email destination');
     }
@@ -698,7 +689,7 @@ export class AlertsService {
         .plus({ minutes: this.telegramTokenExpiryMin })
         .toUTC()
         .toJSDate();
-      const c = await this.prisma.destination.create({
+      const res = await this.prisma.destination.create({
         data: {
           name,
           projectSlug,
@@ -719,6 +710,7 @@ export class AlertsService {
           name: true,
           type: true,
           projectSlug: true,
+          isValid: true,
           telegramDestination: {
             select: {
               startToken: true,
@@ -727,15 +719,7 @@ export class AlertsService {
         },
       });
 
-      return {
-        id: c.id,
-        name: c.name,
-        type: 'TELEGRAM',
-        projectSlug: c.projectSlug,
-        config: {
-          startToken: c.telegramDestination.startToken,
-        },
-      };
+      return this.transformDestinationRes(res);
     } catch (e) {
       throw new VError(e, 'Failed to create telegram destination');
     }
@@ -778,6 +762,7 @@ export class AlertsService {
         name: true,
         projectSlug: true,
         type: true,
+        isValid: true,
         webhookDestination: {
           select: {
             url: true,
@@ -798,30 +783,7 @@ export class AlertsService {
       },
     });
 
-    return destinations.map((destination) => {
-      const { id, name, projectSlug, type } = destination;
-      let config;
-      switch (type) {
-        case 'WEBHOOK':
-          config = destination.webhookDestination;
-          break;
-        case 'EMAIL':
-          config = destination.emailDestination;
-          break;
-        case 'TELEGRAM':
-          config = destination.telegramDestination;
-          break;
-        default:
-          assertUnreachable(type);
-      }
-      return {
-        id,
-        name,
-        projectSlug,
-        type,
-        config,
-      };
-    });
+    return destinations.map(this.transformDestinationRes);
   }
 
   async enableDestination(
@@ -922,6 +884,7 @@ export class AlertsService {
           name: true,
           type: true,
           projectSlug: true,
+          isValid: true,
           webhookDestination: {
             select: {
               url: true,
@@ -930,13 +893,7 @@ export class AlertsService {
           },
         },
       });
-      return {
-        id: res.id,
-        name: res.name,
-        type: res.type,
-        projectSlug: res.projectSlug,
-        config: res.webhookDestination,
-      };
+      return this.transformDestinationRes(res);
     } catch (e) {
       throw new VError(e, 'Failed while updating webhook destination');
     }
@@ -963,6 +920,7 @@ export class AlertsService {
           name: true,
           type: true,
           projectSlug: true,
+          isValid: true,
           emailDestination: {
             select: {
               email: true,
@@ -970,13 +928,7 @@ export class AlertsService {
           },
         },
       });
-      return {
-        id: res.id,
-        name: res.name,
-        type: res.type,
-        projectSlug: res.projectSlug,
-        config: res.emailDestination,
-      };
+      return this.transformDestinationRes(res);
     } catch (e) {
       throw new VError(e, 'Failed while updating email destination');
     }
@@ -1003,6 +955,7 @@ export class AlertsService {
           name: true,
           type: true,
           projectSlug: true,
+          isValid: true,
           telegramDestination: {
             select: {
               startToken: true,
@@ -1010,13 +963,7 @@ export class AlertsService {
           },
         },
       });
-      return {
-        id: res.id,
-        name: res.name,
-        type: res.type,
-        projectSlug: res.projectSlug,
-        config: res.telegramDestination,
-      };
+      return this.transformDestinationRes(res);
     } catch (e) {
       throw new VError(e, 'Failed while updating telegram destination');
     }
@@ -1214,5 +1161,31 @@ export class AlertsService {
         'Found destination not compatible with alert',
       );
     }
+  }
+
+  private transformDestinationRes(destination: PremapDestination) {
+    const { id, name, projectSlug, type, isValid } = destination;
+    let config;
+    switch (type) {
+      case 'WEBHOOK':
+        config = destination.webhookDestination;
+        break;
+      case 'EMAIL':
+        config = destination.emailDestination;
+        break;
+      case 'TELEGRAM':
+        config = destination.telegramDestination;
+        break;
+      default:
+        assertUnreachable(type);
+    }
+    return {
+      id,
+      name,
+      projectSlug,
+      type,
+      isValid,
+      config,
+    };
   }
 }
