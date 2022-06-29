@@ -737,7 +737,7 @@ export class AlertsService {
         },
       };
     } catch (e) {
-      throw new VError(e, 'Failed to create email destination');
+      throw new VError(e, 'Failed to create telegram destination');
     }
   }
 
@@ -1018,7 +1018,7 @@ export class AlertsService {
         config: res.telegramDestination,
       };
     } catch (e) {
-      throw new VError(e, 'Failed while updating email destination');
+      throw new VError(e, 'Failed while updating telegram destination');
     }
   }
 
