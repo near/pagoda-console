@@ -49,6 +49,12 @@ if (downtimeMode === 'custom' && !downtimeMessage) {
   );
 }
 
+// Telegram config:
+
+if (process.env.NEXT_PUBLIC_DEPLOY_ENV !== 'LOCAL' && !process.env.NEXT_PUBLIC_TELEGRAM_BOT_HANDLE) {
+  throw new Error(`Missing required value for NEXT_PUBLIC_TELEGRAM_BOT_HANDLE.`);
+}
+
 // Define config:
 interface AppConfig {
   url: {
@@ -69,6 +75,7 @@ interface AppConfig {
   downtimeMessage: string;
   downtimeMode: DowntimeMode | undefined;
   deployEnv: DeployEnvironment;
+  telegramBotHandle?: string;
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
@@ -102,6 +109,7 @@ const config: AppConfig = {
   deployEnv: ['LOCAL', 'DEVELOPMENT', 'PRODUCTION'].includes(process.env.NEXT_PUBLIC_DEPLOY_ENV)
     ? (process.env.NEXT_PUBLIC_DEPLOY_ENV as DeployEnvironment)
     : 'PRODUCTION', // default to production to be safe
+  telegramBotHandle: process.env.NEXT_PUBLIC_TELEGRAM_BOT_HANDLE,
 };
 
 export default config;

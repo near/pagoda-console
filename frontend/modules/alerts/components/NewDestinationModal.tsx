@@ -1,4 +1,6 @@
+import type { FormEvent } from 'react';
 import { useState } from 'react';
+import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import { Badge } from '@/components/lib/Badge';
@@ -10,13 +12,14 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H5 } from '@/components/lib/Heading';
-import { Message } from '@/components/lib/Message';
 import { Text } from '@/components/lib/Text';
+import { openToast } from '@/components/lib/Toast';
 import { formValidations } from '@/utils/constants';
 
 import { createDestination, useDestinations } from '../hooks/destinations';
 import { destinationTypeOptions } from '../utils/constants';
-import type { Destination, DestinationType } from '../utils/types';
+import type { Destination, DestinationType, NewDestination } from '../utils/types';
+import { TelegramDestinationVerification } from './TelegramDestinationVerification';
 import { WebhookDestinationSecret } from './WebhookDestinationSecret';
 
 interface Props {
@@ -24,6 +27,54 @@ interface Props {
   projectSlug: string;
   show: boolean;
   setShow: (show: boolean) => void;
+}
+
+interface FormProps extends Props {
+  setIsCreated: (value: boolean) => void;
+}
+
+function useNewDestinationForm<T>(props: FormProps) {
+  const { mutate } = useDestinations(props.projectSlug);
+  const [destination, setDestination] = useState<Destination>();
+  const form = useForm<T>();
+
+  async function create(data: NewDestination) {
+    try {
+      const destination = await createDestination(data);
+
+      mutate((state) => {
+        return [...(state || []), destination];
+      });
+
+      props.setIsCreated(true);
+      setDestination(destination);
+    } catch (e: any) {
+      console.error('Failed to create destination', e);
+      openToast({
+        type: 'error',
+        title: 'Failed to create destination.',
+      });
+    }
+  }
+
+  function finish() {
+    if (!destination) return;
+    if (props.onCreate) props.onCreate(destination);
+    props.setShow(false);
+  }
+
+  function onSubmit(event: FormEvent<HTMLFormElement>, submitForm: SubmitHandler<T>) {
+    event.stopPropagation(); // This prevents any parent forms from being submitted
+    form.handleSubmit(submitForm)(event);
+  }
+
+  return {
+    create,
+    destination,
+    finish,
+    form,
+    onSubmit,
+  };
 }
 
 export function NewDestinationModal(props: Props) {
@@ -42,7 +93,7 @@ export function NewDestinationModal(props: Props) {
 }
 
 function ModalContent(props: Props) {
-  const [destinationType, setDestinationType] = useState<DestinationType>('WEBHOOK');
+  const [destinationType, setDestinationType] = useState<DestinationType>('TELEGRAM');
   const [isCreated, setIsCreated] = useState(false);
 
   return (
@@ -80,8 +131,55 @@ function ModalContent(props: Props) {
         </CheckboxCard.Group>
       )}
 
+      {destinationType === 'TELEGRAM' && <TelegramDestinationForm setIsCreated={setIsCreated} {...props} />}
       {destinationType === 'WEBHOOK' && <WebhookDestinationForm setIsCreated={setIsCreated} {...props} />}
     </Flex>
+  );
+}
+
+function TelegramDestinationForm(props: FormProps) {
+  const { create, destination, finish, form, onSubmit } = useNewDestinationForm(props);
+
+  async function submitForm() {
+    await create({
+      config: {},
+      projectSlug: props.projectSlug,
+      type: 'TELEGRAM',
+    });
+  }
+
+  if (destination)
+    return (
+      <Flex stack gap="l">
+        <Flex align="center">
+          <FeatherIcon icon="check-circle" color="primary" size="m" />
+          <H5>Telegram destination has been created.</H5>
+        </Flex>
+
+        <TelegramDestinationVerification destination={destination} />
+
+        <Button onClick={finish}>Finish</Button>
+      </Flex>
+    );
+
+  return (
+    <Form.Root disabled={form.formState.isSubmitting} onSubmit={(event) => onSubmit(event, submitForm)}>
+      <Flex stack gap="l">
+        <Text color="text1">
+          Once you create a Telegram destination, you&apos;ll have one last step: connecting with our{' '}
+          <span style={{ whiteSpace: 'nowrap' }}>Telegram bot.</span>
+        </Text>
+
+        <Flex>
+          <Button loading={form.formState.isSubmitting} type="submit">
+            Create
+          </Button>
+          <Button onClick={() => props.setShow(false)} color="neutral">
+            Cancel
+          </Button>
+        </Flex>
+      </Flex>
+    </Form.Root>
   );
 }
 
@@ -89,58 +187,28 @@ interface WebhookFormData {
   url: string;
 }
 
-function WebhookDestinationForm({
-  onCreate,
-  projectSlug,
-  setShow,
-  setIsCreated,
-}: Props & {
-  setIsCreated: (value: boolean) => void;
-}) {
-  const { mutate } = useDestinations(projectSlug);
-  const { register, handleSubmit, formState } = useForm<WebhookFormData>();
-  const [createError, setCreateError] = useState('');
-  const [createdDestination, setCreatedDestination] = useState<Destination>();
-
-  function finish() {
-    if (!createdDestination) return;
-
-    if (onCreate) onCreate(createdDestination);
-
-    setShow(false);
-  }
+function WebhookDestinationForm(props: FormProps) {
+  const { create, destination, finish, form, onSubmit } = useNewDestinationForm<WebhookFormData>(props);
 
   async function submitForm(data: WebhookFormData) {
-    try {
-      const destination = await createDestination({
-        config: {
-          url: data.url,
-        },
-        projectSlug,
-        type: 'WEBHOOK',
-      });
-
-      mutate((data) => {
-        return [...(data || []), destination];
-      });
-
-      setIsCreated(true);
-      setCreatedDestination(destination);
-    } catch (e: any) {
-      console.error('Failed to create destination', e);
-      setCreateError('Failed to create destination.');
-    }
+    await create({
+      config: {
+        url: data.url,
+      },
+      projectSlug: props.projectSlug,
+      type: 'WEBHOOK',
+    });
   }
 
-  if (createdDestination)
+  if (destination)
     return (
       <Flex stack gap="l">
         <Flex align="center">
           <FeatherIcon icon="check-circle" color="primary" size="m" />
-          <H5>Your destination has been created.</H5>
+          <H5>Webhook destination has been created.</H5>
         </Flex>
 
-        <WebhookDestinationSecret destination={createdDestination} />
+        <WebhookDestinationSecret destination={destination} />
 
         <Flex gap="l" align="center">
           <Button onClick={finish}>Finish</Button>
@@ -153,33 +221,25 @@ function WebhookDestinationForm({
     );
 
   return (
-    <Form.Root
-      disabled={formState.isSubmitting}
-      onSubmit={(e) => {
-        e.stopPropagation(); // This prevents any parent forms from being submitted
-        handleSubmit(submitForm)(e);
-      }}
-    >
+    <Form.Root disabled={form.formState.isSubmitting} onSubmit={(event) => onSubmit(event, submitForm)}>
       <Flex stack gap="l">
         <Flex stack>
           <Form.Group>
             <Form.FloatingLabelInput
               label="Webhook URL"
               placeholder="https://example.com/webhook"
-              isInvalid={!!formState.errors.url}
-              {...register('url', formValidations.url)}
+              isInvalid={!!form.formState.errors.url}
+              {...form.register('url', formValidations.url)}
             />
-            <Form.Feedback>{formState.errors.url?.message}</Form.Feedback>
+            <Form.Feedback>{form.formState.errors.url?.message}</Form.Feedback>
           </Form.Group>
         </Flex>
 
-        <Message type="error" content={createError} dismiss={() => setCreateError('')} />
-
         <Flex>
-          <Button loading={formState.isSubmitting} type="submit">
-            Save
+          <Button loading={form.formState.isSubmitting} type="submit">
+            Create
           </Button>
-          <Button onClick={() => setShow(false)} color="neutral">
+          <Button onClick={() => props.setShow(false)} color="neutral">
             Cancel
           </Button>
         </Flex>

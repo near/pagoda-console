@@ -124,7 +124,6 @@ export const destinationTypes: Record<DestinationType, DestinationTypeOption> = 
     icon: 'send',
     name: 'Telegram',
     value: 'TELEGRAM',
-    disabled: true,
   },
   WEBHOOK: {
     description: 'Send alerts to a webhook.',
@@ -134,4 +133,4 @@ export const destinationTypes: Record<DestinationType, DestinationTypeOption> = 
   },
 };
 
-export const destinationTypeOptions = [destinationTypes.WEBHOOK, destinationTypes.EMAIL, destinationTypes.TELEGRAM];
+export const destinationTypeOptions = [destinationTypes.TELEGRAM, destinationTypes.WEBHOOK, destinationTypes.EMAIL];

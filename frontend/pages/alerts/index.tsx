@@ -133,13 +133,26 @@ const ListAlerts: NextPageWithLayout = () => {
                   >
                     <Flex align="center">
                       <FeatherIcon icon={destinationType.icon} color="primary" size="m" />
-                      <Text color="text1">{destination.name}</Text>
-                      <Text family="code" size="bodySmall">
-                        {destination.type === 'WEBHOOK' && destination.config.url}
-                      </Text>
+                      <Flex stack gap="none" css={{ minWidth: 0 }}>
+                        <Text color="text1" css={{ width: '100%' }}>
+                          <TextOverflow>{destination.name}</TextOverflow>
+                        </Text>
+                        <Text family="code" size="bodySmall" css={{ width: '100%' }}>
+                          <TextOverflow>
+                            {destination.type === 'TELEGRAM' && destination.config.chatTitle}
+                            {destination.type === 'WEBHOOK' && destination.config.url}
+                          </TextOverflow>
+                        </Text>
+                      </Flex>
                       <Badge size="s" css={{ marginLeft: 'auto' }}>
                         {destinationType.name}
                       </Badge>
+                      {!destination.isValid && (
+                        <Badge size="s" color="warning">
+                          <FeatherIcon icon="alert-triangle" size="xs" />
+                          Needs Action
+                        </Badge>
+                      )}
                     </Flex>
                   </Card>
                 );

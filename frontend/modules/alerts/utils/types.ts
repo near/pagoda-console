@@ -131,7 +131,7 @@ export type AmountComparator = 'EQ' | 'NEQ' | 'LT' | 'LTE' | 'GT' | 'GTE';
 
 // Destinations:
 
-export type Destination = EmailDestination | WebhookDestination;
+export type Destination = EmailDestination | TelegramDestination | WebhookDestination;
 
 export type DestinationType = 'WEBHOOK' | 'EMAIL' | 'TELEGRAM';
 
@@ -142,12 +142,18 @@ interface BaseDestination {
 
 interface ExtendedDestination extends BaseDestination {
   id: number;
+  isValid: boolean;
   name: string;
 }
 
 interface EmailDestination extends ExtendedDestination {
   config: ConfigEmail;
   type: 'EMAIL';
+}
+
+interface TelegramDestination extends ExtendedDestination {
+  config: ConfigTelegram;
+  type: 'TELEGRAM';
 }
 
 interface WebhookDestination extends ExtendedDestination {
@@ -157,20 +163,25 @@ interface WebhookDestination extends ExtendedDestination {
   type: 'WEBHOOK';
 }
 
-export type NewDestination = NewEmailDestination | NewWebhookDestination;
+export type NewDestination = NewEmailDestination | NewTelegramDestination | NewWebhookDestination;
 
 export type UpdateDestination = {
   id: number;
   type: DestinationType;
-  config: ConfigEmail | ConfigWebhook;
+  config: ConfigEmail | ConfigWebhook | Record<string, never>;
   name: string;
 };
 
-export type NewDestinationExtended = BaseDestination;
+type NewDestinationExtended = BaseDestination;
 
 interface NewEmailDestination extends NewDestinationExtended {
   config: ConfigEmail;
   type: 'EMAIL';
+}
+
+interface NewTelegramDestination extends NewDestinationExtended {
+  config: Record<string, never>;
+  type: 'TELEGRAM';
 }
 
 interface NewWebhookDestination extends NewDestinationExtended {
@@ -180,6 +191,11 @@ interface NewWebhookDestination extends NewDestinationExtended {
 
 interface ConfigEmail {
   email: string;
+}
+
+interface ConfigTelegram {
+  chatTitle: string | null;
+  startToken: string;
 }
 
 interface ConfigWebhook {

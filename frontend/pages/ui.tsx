@@ -15,6 +15,7 @@ import * as CheckboxCard from '@/components/lib/CheckboxCard';
 import { CodeBlock } from '@/components/lib/CodeBlock';
 import * as Combobox from '@/components/lib/Combobox';
 import { Container } from '@/components/lib/Container';
+import { CopyButton } from '@/components/lib/CopyButton';
 import * as Dialog from '@/components/lib/Dialog';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -414,6 +415,14 @@ const Settings: NextPageWithLayout = () => {
           </Card>
         </Flex>
 
+        <Card border>
+          <Flex stack>
+            <FeatherIcon icon="box" size="m" />
+            <H4>Border Card</H4>
+            <Text>Cards can contain anything.</Text>
+          </Flex>
+        </Card>
+
         <Flex
           stack={{
             '@tablet': true,
@@ -576,6 +585,15 @@ const Settings: NextPageWithLayout = () => {
             <Text>l</Text>
           </Block>
         </Container>
+      </DocSection>
+
+      <DocSection title="Copy Button">
+        <Flex wrap>
+          <CopyButton value="123" />
+          <CopyButton content="456" />
+          <CopyButton content="With Unique Content" value="789" />
+          <CopyButton content="Different Style" value="789" color="primary" />
+        </Flex>
       </DocSection>
 
       <DocSection title="Dialog">
@@ -1056,6 +1074,11 @@ const Settings: NextPageWithLayout = () => {
         <Flex as="label" align="center">
           With a Label On Left
           <Switch />
+        </Flex>
+
+        <Flex as="label" align="center">
+          <Switch disabled />
+          Disabled
         </Flex>
 
         <HR />
