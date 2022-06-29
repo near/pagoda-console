@@ -14,6 +14,7 @@ import { openToast } from '@/components/lib/Toast';
 import { formValidations } from '@/utils/constants';
 
 import { updateDestination, useDestinations } from '../hooks/destinations';
+import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
 import { destinationTypes } from '../utils/constants';
 import type { Destination } from '../utils/types';
 import { DeleteDestinationModal } from './DeleteDestinationModal';
@@ -46,9 +47,11 @@ export function EditDestinationModal(props: Props) {
 }
 
 function ModalContent(props: Props) {
+  const { mutate } = useDestinations(props.destination.projectSlug);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const destinationType = destinationTypes[props.destination.type];
-  const { mutate } = useDestinations(props.destination.projectSlug);
+
+  useVerifyDestinationInterval(props.destination, mutate, props.setShow);
 
   function onDelete() {
     mutate((data) => {

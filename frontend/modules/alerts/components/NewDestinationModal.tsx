@@ -17,6 +17,7 @@ import { openToast } from '@/components/lib/Toast';
 import { formValidations } from '@/utils/constants';
 
 import { createDestination, useDestinations } from '../hooks/destinations';
+import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
 import { destinationTypeOptions } from '../utils/constants';
 import type { Destination, DestinationType, NewDestination } from '../utils/types';
 import { TelegramDestinationVerification } from './TelegramDestinationVerification';
@@ -38,6 +39,8 @@ function useNewDestinationForm<T>(props: FormProps) {
   const [destination, setDestination] = useState<Destination>();
   const form = useForm<T>();
 
+  useVerifyDestinationInterval(destination, mutate, props.setShow);
+
   async function create(data: NewDestination) {
     try {
       const destination = await createDestination(data);
@@ -48,6 +51,8 @@ function useNewDestinationForm<T>(props: FormProps) {
 
       props.setIsCreated(true);
       setDestination(destination);
+
+      if (props.onCreate) props.onCreate(destination);
     } catch (e: any) {
       console.error('Failed to create destination', e);
       openToast({
@@ -55,12 +60,6 @@ function useNewDestinationForm<T>(props: FormProps) {
         title: 'Failed to create destination.',
       });
     }
-  }
-
-  function finish() {
-    if (!destination) return;
-    if (props.onCreate) props.onCreate(destination);
-    props.setShow(false);
   }
 
   function onSubmit(event: FormEvent<HTMLFormElement>, submitForm: SubmitHandler<T>) {
@@ -71,7 +70,6 @@ function useNewDestinationForm<T>(props: FormProps) {
   return {
     create,
     destination,
-    finish,
     form,
     onSubmit,
   };
@@ -138,7 +136,7 @@ function ModalContent(props: Props) {
 }
 
 function TelegramDestinationForm(props: FormProps) {
-  const { create, destination, finish, form, onSubmit } = useNewDestinationForm(props);
+  const { create, destination, form, onSubmit } = useNewDestinationForm(props);
 
   async function submitForm() {
     await create({
@@ -157,8 +155,6 @@ function TelegramDestinationForm(props: FormProps) {
         </Flex>
 
         <TelegramDestinationVerification destination={destination} />
-
-        <Button onClick={finish}>Finish</Button>
       </Flex>
     );
 
@@ -188,7 +184,7 @@ interface WebhookFormData {
 }
 
 function WebhookDestinationForm(props: FormProps) {
-  const { create, destination, finish, form, onSubmit } = useNewDestinationForm<WebhookFormData>(props);
+  const { create, destination, form, onSubmit } = useNewDestinationForm<WebhookFormData>(props);
 
   async function submitForm(data: WebhookFormData) {
     await create({
@@ -211,7 +207,7 @@ function WebhookDestinationForm(props: FormProps) {
         <WebhookDestinationSecret destination={destination} />
 
         <Flex gap="l" align="center">
-          <Button onClick={finish}>Finish</Button>
+          <Button onClick={() => props.setShow(false)}>Finish</Button>
           <Text size="bodySmall" color="text3">
             You can access this secret again by visiting the Alerts page, clicking the Destinations tab, and then
             clicking on a specific destination.
