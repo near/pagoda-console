@@ -54,7 +54,7 @@ function ModalContent(props: Props) {
               width: '100%',
               display: 'grid',
               gap: 'var(--space-m)',
-              gridTemplateColumns: 'repeat(4, 1fr)',
+              gridTemplateColumns: 'repeat(3, 1fr)',
             }}
           >
             {destinationTypeOptions.map((option) => {
