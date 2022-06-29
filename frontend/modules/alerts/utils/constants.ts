@@ -120,11 +120,10 @@ export const destinationTypes: Record<DestinationType, DestinationTypeOption> = 
     disabled: true,
   },
   TELEGRAM: {
-    description: 'Send alerts to a Telegram account.',
+    description: 'Send alerts to a Telegram chat.',
     icon: 'send',
     name: 'Telegram',
     value: 'TELEGRAM',
-    disabled: true,
   },
   WEBHOOK: {
     description: 'Send alerts to a webhook.',
@@ -134,4 +133,4 @@ export const destinationTypes: Record<DestinationType, DestinationTypeOption> = 
   },
 };
 
-export const destinationTypeOptions = [destinationTypes.WEBHOOK, destinationTypes.EMAIL, destinationTypes.TELEGRAM];
+export const destinationTypeOptions = [destinationTypes.TELEGRAM, destinationTypes.WEBHOOK, destinationTypes.EMAIL];

@@ -1,11 +1,7 @@
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-
-import { Button } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
-import { FeatherIcon } from '@/components/lib/FeatherIcon';
+import { CopyButton } from '@/components/lib/CopyButton';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
-import { openToast } from '@/components/lib/Toast';
 
 import type { Destination } from '../utils/types';
 
@@ -14,16 +10,9 @@ interface Props {
 }
 
 export function WebhookDestinationSecret({ destination }: Props) {
-  function copySecret(secret: string) {
-    navigator.clipboard.writeText(`Bearer ${secret}`);
-
-    openToast({
-      type: 'success',
-      title: 'Secret copied to clipboard.',
-    });
-  }
-
   if (destination.type !== 'WEBHOOK') return null;
+
+  const authorizationHeader = `Bearer ${destination.config.secret}`;
 
   return (
     <Flex stack>
@@ -32,21 +21,13 @@ export function WebhookDestinationSecret({ destination }: Props) {
         it&apos;s us:
       </Text>
 
-      <Card padding="m" borderRadius="m">
+      <Card padding="m" borderRadius="m" border>
         <Flex>
           <Text family="code">Authorization:</Text>
           <Text family="code" color="text1" weight="semibold">
-            Bearer {destination.config.secret}
+            {authorizationHeader}
           </Text>
-          <Button
-            size="s"
-            color="transparent"
-            onClick={() => copySecret(destination.config.secret)}
-            css={{ marginLeft: 'auto' }}
-          >
-            <FeatherIcon icon="copy" size="xs" />
-            <VisuallyHidden>Copy Secret</VisuallyHidden>
-          </Button>
+          <CopyButton value={authorizationHeader} css={{ marginLeft: 'auto' }} color="transparent" />
         </Flex>
       </Card>
     </Flex>

@@ -26,6 +26,9 @@ export const Svg = styled('svg', {
       text3: {
         color: 'var(--color-text-3)',
       },
+      warning: {
+        color: 'var(--color-warning)',
+      },
     },
 
     size: {

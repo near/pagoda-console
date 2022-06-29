@@ -43,6 +43,8 @@ export function DestinationsSelector({ debounce = true, onChange, selectedIds, s
   }
 
   function toggleEnabledDestination(isSelected: boolean, destination: Destination) {
+    if (!destination.isValid) return;
+
     let ids: number[] = [];
 
     setSelectedIds((value) => {
@@ -83,6 +85,7 @@ export function DestinationsSelector({ debounce = true, onChange, selectedIds, s
                   onCheckedChange={(value) => toggleEnabledDestination(value, destination)}
                   debounce={debounce}
                   aria-label={`Destination: ${destination.name}`}
+                  disabled={!destination.isValid}
                 />
                 <FeatherIcon icon={destinationType.icon} color={isChecked ? 'primary' : 'text3'} size="m" />
                 <Flex stack gap="none">
@@ -90,10 +93,23 @@ export function DestinationsSelector({ debounce = true, onChange, selectedIds, s
                     {destination.name}
                   </Text>
                   <Text size="bodySmall" family="code">
+                    {destination.type === 'TELEGRAM' && destination.config.chatTitle}
                     {destination.type === 'WEBHOOK' && destination.config.url}
                   </Text>
                 </Flex>
-                <Badge size="s">{destinationType.name}</Badge>
+                {!destination.isValid && (
+                  <Badge
+                    as="button"
+                    type="button"
+                    size="s"
+                    color="warning"
+                    clickable
+                    onClick={() => openDestination(destination)}
+                  >
+                    <FeatherIcon icon="alert-triangle" size="xs" />
+                    Needs Action
+                  </Badge>
+                )}
                 <Button size="s" color="transparent" onClick={() => openDestination(destination)}>
                   <FeatherIcon icon="edit-2" size="xs" color="primary" />
                 </Button>

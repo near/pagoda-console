@@ -8,20 +8,27 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H5 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
+import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { formValidations } from '@/utils/constants';
 
 import { updateDestination, useDestinations } from '../hooks/destinations';
+import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
 import { destinationTypes } from '../utils/constants';
 import type { Destination } from '../utils/types';
 import { DeleteDestinationModal } from './DeleteDestinationModal';
+import { TelegramDestinationVerification } from './TelegramDestinationVerification';
 import { WebhookDestinationSecret } from './WebhookDestinationSecret';
 
 interface Props {
   destination: Destination;
   show: boolean;
   setShow: (show: boolean) => void;
+}
+
+interface FormProps extends Props {
+  onUpdate: (destination: Destination) => void;
 }
 
 export function EditDestinationModal(props: Props) {
@@ -40,9 +47,11 @@ export function EditDestinationModal(props: Props) {
 }
 
 function ModalContent(props: Props) {
+  const { mutate } = useDestinations(props.destination.projectSlug);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const destinationType = destinationTypes[props.destination.type];
-  const { mutate } = useDestinations(props.destination.projectSlug);
+
+  useVerifyDestinationInterval(props.destination, mutate, props.setShow);
 
   function onDelete() {
     mutate((data) => {
@@ -81,6 +90,11 @@ function ModalContent(props: Props) {
             <FeatherIcon icon={destinationType.icon} color="primary" size="l" />
             <Flex stack gap="none">
               <H5>{destinationType.name}</H5>
+
+              <Text family="code" size="bodySmall">
+                {props.destination.type === 'TELEGRAM' && props.destination.config.chatTitle}
+                {props.destination.type === 'WEBHOOK' && props.destination.config.url}
+              </Text>
             </Flex>
           </Flex>
 
@@ -89,7 +103,8 @@ function ModalContent(props: Props) {
           </Button>
         </Flex>
 
-        <WebhookDestinationForm onUpdate={onUpdate} {...props} />
+        {props.destination.type === 'TELEGRAM' && <TelegramDestinationForm onUpdate={onUpdate} {...props} />}
+        {props.destination.type === 'WEBHOOK' && <WebhookDestinationForm onUpdate={onUpdate} {...props} />}
       </Flex>
 
       <DeleteDestinationModal
@@ -102,18 +117,90 @@ function ModalContent(props: Props) {
   );
 }
 
+interface TelegramFormData {
+  name: string;
+}
+
+function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps) {
+  if (destination.type !== 'TELEGRAM') throw new Error('Invalid destination for TelegramDestinationForm');
+
+  const { formState, setValue, register, handleSubmit } = useForm<TelegramFormData>();
+
+  useEffect(() => {
+    setValue('name', destination.name);
+  }, [setValue, destination]);
+
+  async function submitForm(data: TelegramFormData) {
+    try {
+      const updated = await updateDestination({
+        id: destination.id,
+        type: destination.type,
+        name: data.name,
+        config: {},
+      });
+
+      onUpdate(updated);
+    } catch (e: any) {
+      console.error('Failed to update destination', e);
+
+      openToast({
+        type: 'error',
+        title: 'Update Error',
+        description: 'Failed to update destination.',
+      });
+    }
+  }
+
+  return (
+    <Form.Root
+      disabled={formState.isSubmitting}
+      onSubmit={(event) => {
+        event.stopPropagation();
+        handleSubmit(submitForm)(event); // This prevents any parent forms from being submitted
+      }}
+    >
+      <Flex stack gap="l">
+        {!destination.isValid && (
+          <>
+            <TelegramDestinationVerification destination={destination} />
+            <HR />
+          </>
+        )}
+
+        <Flex stack>
+          <Form.Group>
+            <Form.FloatingLabelInput
+              label="Destination Name"
+              isInvalid={!!formState.errors.name}
+              {...register('name', {
+                required: 'Please enter a destination name',
+                maxLength: {
+                  value: 100,
+                  message: 'Destination name must be 100 characters or less',
+                },
+              })}
+            />
+            <Form.Feedback>{formState.errors.name?.message}</Form.Feedback>
+          </Form.Group>
+        </Flex>
+
+        <Flex justify="spaceBetween" align="center">
+          <Button type="submit">Update</Button>
+          <TextButton color="neutral" onClick={() => setShow(false)}>
+            Cancel
+          </TextButton>
+        </Flex>
+      </Flex>
+    </Form.Root>
+  );
+}
+
 interface WebhookFormData {
   name: string;
   url: string;
 }
 
-function WebhookDestinationForm({
-  destination,
-  onUpdate,
-  setShow,
-}: Props & {
-  onUpdate: (destination: Destination) => void;
-}) {
+function WebhookDestinationForm({ destination, onUpdate, setShow }: FormProps) {
   if (destination.type !== 'WEBHOOK') throw new Error('Invalid destination for WebhookDestinationForm');
 
   const { formState, setValue, register, handleSubmit } = useForm<WebhookFormData>();
@@ -147,8 +234,18 @@ function WebhookDestinationForm({
   }
 
   return (
-    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
+    <Form.Root
+      disabled={formState.isSubmitting}
+      onSubmit={(event) => {
+        event.stopPropagation();
+        handleSubmit(submitForm)(event); // This prevents any parent forms from being submitted
+      }}
+    >
       <Flex stack gap="l">
+        <WebhookDestinationSecret destination={destination} />
+
+        <HR />
+
         <Flex stack>
           <Form.Group>
             <Form.FloatingLabelInput
@@ -182,10 +279,6 @@ function WebhookDestinationForm({
             Cancel
           </TextButton>
         </Flex>
-
-        <HR />
-
-        <WebhookDestinationSecret destination={destination} />
       </Flex>
     </Form.Root>
   );
