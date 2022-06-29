@@ -139,6 +139,7 @@ type CreateTelegramDestinationResponse = {
   projectSlug: Destination['projectSlug'];
   config: {
     startToken: TelegramDestination['startToken'];
+    chatTitle: TelegramDestination['chatTitle'];
   };
 };
 
@@ -159,7 +160,10 @@ type AlertWithDestinations = Alert & {
       emailDestination?: {
         email: EmailDestination['email'];
       };
-      telegramDestination?: Pick<TelegramDestination, 'startToken'>;
+      telegramDestination?: Pick<
+        TelegramDestination,
+        'startToken' | 'chatTitle'
+      >;
     };
   }>;
 };
@@ -336,6 +340,12 @@ export class AlertsService {
                       email: true,
                     },
                   },
+                  telegramDestination: {
+                    select: {
+                      startToken: true,
+                      chatTitle: true,
+                    },
+                  },
                 },
               },
             },
@@ -380,6 +390,17 @@ export class AlertsService {
                       url: true,
                     },
                   },
+                  emailDestination: {
+                    select: {
+                      email: true,
+                    },
+                  },
+                  telegramDestination: {
+                    select: {
+                      startToken: true,
+                      chatTitle: true,
+                    },
+                  },
                 },
               },
             },
@@ -422,6 +443,17 @@ export class AlertsService {
                     url: true,
                   },
                 },
+                emailDestination: {
+                  select: {
+                    email: true,
+                  },
+                },
+                telegramDestination: {
+                  select: {
+                    startToken: true,
+                    chatTitle: true,
+                  },
+                },
               },
             },
           },
@@ -451,6 +483,17 @@ export class AlertsService {
                   webhookDestination: {
                     select: {
                       url: true,
+                    },
+                  },
+                  emailDestination: {
+                    select: {
+                      email: true,
+                    },
+                  },
+                  telegramDestination: {
+                    select: {
+                      startToken: true,
+                      chatTitle: true,
                     },
                   },
                 },
@@ -714,6 +757,7 @@ export class AlertsService {
           telegramDestination: {
             select: {
               startToken: true,
+              chatTitle: true,
             },
           },
         },
@@ -778,6 +822,7 @@ export class AlertsService {
         telegramDestination: {
           select: {
             startToken: true,
+            chatTitle: true,
           },
         },
       },
@@ -959,6 +1004,7 @@ export class AlertsService {
           telegramDestination: {
             select: {
               startToken: true,
+              chatTitle: true,
             },
           },
         },

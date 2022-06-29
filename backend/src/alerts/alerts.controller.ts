@@ -309,7 +309,7 @@ export class AlertsController {
         const startToken = message.text.split(' ')[1];
         if (startToken) {
           try {
-            await this.telegramService.start(startToken, message.chat.id);
+            await this.telegramService.start(startToken, message.chat);
           } catch (e) {
             // TODO convert this when logging lib is merged
             console.error(e); // intentionally leaving this in until better logging is implemented
