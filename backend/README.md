@@ -120,6 +120,32 @@ If VS Code is not your preferred development environment, you are more than welc
 
 > TODO: Define a docker-compose stack for running without VS Code
 
+## Modules
+
+DevConsole consists of multiple modules owned by different teams within Pagoda. Each module has isolated directories within this repository for their work, and should refrain from touching files outside those directories.
+
+A module should be fully contained in `/src/modules/{module}`. These module folders are [NestJS modules](https://docs.nestjs.com/modules).
+
+Module folders are instantiated with some helpful defaults.
+[Prisma](https://www.prisma.io/) is chosen as the ORM and is contained within the `prisma` folder which contains a schema file, `schema.prisma`, and a `migrations` folder.
+An empty NestJS module will be created with a basic HTTP controller and empty service and test files.
+`dto.ts` can be used to store request and response objects used to communicate with the client.
+
+The module folder is entirely owned by the module team to use as they see fit (i.e. code organization may differ between modules).
+
+### Generating a New Module
+
+Start by running `npm run gen:module {name}` replacing `{name}` with a name that best describes your module. This will generate a new folder under `src/modules`.
+
+Next, you can:
+
+- update `schema.prisma` with database models and review our [database section](#database) on how to upgrade your database
+- update `{name}.controllers.ts` with API routes
+- update `{name}.service.ts` with methods that interact with your database / Prisma client
+  - update `{name}.module.ts` by including `PrismaService` from `prisma.service.ts` to the `imports` and `providers` list (`projects.module.ts` for an example). This will instantiate your Prisma client and connect to your database during runtime.
+
+Check out `./src/projects` for inspiration on how to further organize your module.
+
 ## Git inside Dev Container
 
 On Mac, you need to load your SSH key into ssh-agent in order for VS Code to make it available in your Dev Container. From a terminal outside the Dev Container, run
