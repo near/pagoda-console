@@ -25,12 +25,12 @@ export class EmailsService {
       infer: true,
     });
 
-    this.emailVerificationEndpoint = this.config.get(
-      'email.emailVerificationEndpoint',
-      {
-        infer: true,
-      },
-    );
+    const frontendBaseUrl = this.config.get('frontend.baseUrl', {
+      infer: true,
+    });
+
+    this.emailVerificationEndpoint = `${frontendBaseUrl}/alerts/verify-email`;
+    
     this.emailVerificationFrom = this.config.get(
       'email.emailVerificationFrom',
       {

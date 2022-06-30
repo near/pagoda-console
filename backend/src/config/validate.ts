@@ -63,9 +63,11 @@ export interface AppConfig {
     apiKey: string;
   };
   email: {
-    emailVerificationEndpoint: string;
     emailVerificationFrom: string;
     emailVerificationSubject: string;
+  };
+  frontend: {
+    baseUrl: string;
   };
 }
 
@@ -154,9 +156,11 @@ const appConfigSchema = Joi.object({
     apiKey: Joi.string(),
   },
   email: {
-    emailVerificationEndpoint: Joi.string(),
     emailVerificationFrom: Joi.string(),
     emailVerificationSubject: Joi.string(),
+  },
+  frontend: {
+    baseUrl: Joi.string(),
   },
 });
 
@@ -215,9 +219,11 @@ export default function validate(config: Record<string, unknown>): AppConfig {
       apiKey: config.MAILGUN_API_KEY,
     },
     email: {
-      emailVerificationEndpoint: config.EMAIL_VERIFICATION_ENDPOINT,
       emailVerificationFrom: config.EMAIL_VERIFICATION_FROM,
       emailVerificationSubject: config.EMAIL_VERIFICATION_SUBJECT,
+    },
+    frontend: {
+      baseUrl: config.FRONTEND_BASE_URL,
     },
   };
 
