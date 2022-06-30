@@ -31,7 +31,7 @@ jobs:
         run: printf '\ngenerator dbml {\n  provider = "prisma-dbml-generator"\n}' >> ./src/core/prisma/schema.prisma
 
       - name: Generate DB Docs schema file
-        run: npx prisma generate
+        run: npx prisma generate --schema ./src/core/prisma/schema.prisma
 
       - name: Upload DB Docs schema file
         env:
