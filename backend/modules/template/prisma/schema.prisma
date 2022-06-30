@@ -1,0 +1,15 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("{{MODULE_NAME_UPPER_CASE}}_DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../../../generated/prisma/{{MODULE_NAME}}"
+  binaryTargets = ["linux-musl", "native"]
+}
+
+// TODO add your module's models here
