@@ -1,16 +1,12 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Mailgun from 'mailgun.js';
 import Client from 'mailgun.js/client';
 import { AppConfig } from 'src/config/validate';
 import { VError } from 'verror';
-//import formData from 'form-data';
 
-const formData = require('form-data');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-//const mailgun = require('mailgun.js');
-//const Mailgun = require('mailgun.js');
+const formData = require('form-data');
 
 @Injectable()
 export class EmailsService {
