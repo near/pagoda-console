@@ -5,9 +5,10 @@ import { PrismaService } from './prisma.service';
 import { ProjectsModule } from 'src/projects/projects.module';
 import { SerdeModule } from './serde/serde.module';
 import { TelegramService } from './telegram/telegram.service';
+import { EmailsService } from 'src/emails/emails.service';
 
 @Module({
-  providers: [AlertsService, PrismaService, TelegramService],
+  providers: [AlertsService, PrismaService, TelegramService, EmailsService],
   controllers: [AlertsController],
   imports: [ProjectsModule, PrismaService, SerdeModule],
 })

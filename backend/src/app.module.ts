@@ -19,6 +19,7 @@ import { KeysService } from './keys/keys.service';
 import { KeysModule } from './keys/keys.module';
 import { IndexerService } from './indexer.service';
 import { AlertsModule } from './alerts/alerts.module';
+import { EmailsModule } from './emails/emails.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AlertsModule } from './alerts/alerts.module';
     AuthModule,
     KeysModule,
     AlertsModule,
+    EmailsModule,
   ],
   controllers: [AppController],
   providers: [AppService, KeysService, IndexerService],

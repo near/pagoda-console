@@ -57,6 +57,14 @@ export interface AppConfig {
       secret?: string;
     };
   };
+  mailgun: {
+    domain: string;
+    username: string;
+    apiKey: string;
+  };
+  email: {
+    emailVerificationEndpoint: string;
+  };
 }
 
 // Joi docs: https://joi.dev/api
@@ -138,6 +146,14 @@ const appConfigSchema = Joi.object({
       }),
     }),
   },
+  mailgun: {
+    domain: Joi.string(),
+    username: Joi.string(),
+    apiKey: Joi.string(),
+  },
+  email: {
+    emailVerificationEndpoint: Joi.string(),
+  },
 });
 
 export default function validate(config: Record<string, unknown>): AppConfig {
@@ -188,6 +204,14 @@ export default function validate(config: Record<string, unknown>): AppConfig {
         botToken: config.TELEGRAM_BOT_TOKEN,
         secret: config.TELEGRAM_SECRET,
       },
+    },
+    mailgun: {
+      domain: config.MAILGUN_DOMAIN,
+      username: config.MAILGUN_USERNAME,
+      apiKey: config.MAILGUN_API_KEY,
+    },
+    email: {
+      emailVerificationEndpoint: config.EMAIL_VERIFICATION_ENDPOINT,
     },
   };
 

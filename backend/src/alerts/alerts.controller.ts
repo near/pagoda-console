@@ -11,6 +11,8 @@ import {
   Req,
   Headers,
   UnauthorizedException,
+  Get,
+  Query,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BearerAuthGuard } from 'src/auth/bearer-auth.guard';
@@ -284,6 +286,15 @@ export class AlertsController {
         default:
           assertUnreachable(type);
       }
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Get('verifyEmailDestination')
+  async verifyEmailDestination(@Query('token') token: string) {
+    try {
+      return await this.alertsService.verifyEmailDestination(token);
     } catch (e) {
       throw mapError(e);
     }

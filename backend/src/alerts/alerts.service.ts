@@ -28,6 +28,7 @@ import { assertUnreachable } from 'src/helpers';
 import { AppConfig } from 'src/config/validate';
 import { ConfigService } from '@nestjs/config';
 import { DateTime } from 'luxon';
+import { EmailsService } from 'src/emails/emails.service';
 
 type TxRuleSchema = {
   rule: {
@@ -179,6 +180,7 @@ export class AlertsService {
     private ruleSerializer: RuleSerializerService,
     private ruleDeserializer: RuleDeserializerService,
     private config: ConfigService<AppConfig>,
+    private emailsService: EmailsService,
   ) {
     this.emailTokenExpiryMin = this.config.get('alerts.emailTokenExpiryMin', {
       infer: true,
@@ -677,6 +679,7 @@ export class AlertsService {
         .plus({ minutes: this.emailTokenExpiryMin })
         .toUTC()
         .toJSDate();
+      const token = nanoid();
       const res = await this.prisma.destination.create({
         data: {
           name,
@@ -691,7 +694,7 @@ export class AlertsService {
               updatedBy: user.id,
               isVerified: false,
               tokenExpiresAt: expiryDate,
-              token: nanoid(),
+              token,
             },
           },
         },
@@ -709,6 +712,8 @@ export class AlertsService {
           },
         },
       });
+
+      await this.emailsService.sendEmailVerificationMessage(email, token);
 
       return this.transformDestinationRes(res);
     } catch (e) {
@@ -1012,6 +1017,62 @@ export class AlertsService {
       return this.transformDestinationRes(res);
     } catch (e) {
       throw new VError(e, 'Failed while updating telegram destination');
+    }
+  }
+
+  async verifyEmailDestination(token: EmailDestination['token']) {
+    try {
+      const destination = await this.prisma.destination.findFirst({
+        where: {
+          emailDestination: {
+            token,
+          },
+        },
+        select: {
+          id: true,
+          emailDestination: true,
+        },
+      });
+      if (!destination) {
+        throw new VError(
+          { info: { code: 'BAD_DESTINATION' } },
+          'Destination not found',
+        );
+      }
+
+      // Checks if the difference between the date and now is negative i.e. the expiration date has passed
+      if (
+        DateTime.fromJSDate(destination.emailDestination.tokenExpiresAt)
+          .diffNow()
+          .valueOf() < 0
+      ) {
+        throw new VError(
+          { info: { code: 'BAD_DESTINATION' } },
+          'Token expired',
+        );
+      }
+
+      await this.prisma.destination.update({
+        where: {
+          id: destination.id,
+        },
+        data: {
+          isValid: true,
+        },
+      });
+
+      await this.prisma.emailDestination.update({
+        where: {
+          id: destination.emailDestination.id,
+        },
+        data: {
+          isVerified: true,
+        },
+      });
+
+      return 'Your email has been verified';
+    } catch (e) {
+      throw new VError(e, 'Failed while verifying email destination');
     }
   }
 
