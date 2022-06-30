@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 
 import { initializeApp } from 'firebase-admin/app';
 import { credential, ServiceAccount } from 'firebase-admin';
-import { AppConfig } from './config/validate';
+import { AppConfig } from './core/config/validate';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

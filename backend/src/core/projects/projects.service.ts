@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from '../prisma.service';
 import {
   Prisma,
   Project,
@@ -10,10 +10,10 @@ import {
 } from '@prisma/client';
 import { VError } from 'verror';
 import { customAlphabet } from 'nanoid';
-import { KeysService } from 'src/keys/keys.service';
+import { KeysService } from '../keys/keys.service';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { AppConfig } from 'src/config/validate';
+import { AppConfig } from '../config/validate';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
