@@ -36,6 +36,10 @@ export const Text = styled('p', {
         fontWeight: 400,
         fontFamily: 'var(--font-code)',
       },
+      current: {
+        fontWeight: 'inherit',
+        fontFamily: 'inherit',
+      },
       heading: {
         fontWeight: 600,
         fontFamily: 'var(--font-heading)',
@@ -47,6 +51,10 @@ export const Text = styled('p', {
     },
 
     size: {
+      current: {
+        fontSize: 'inherit',
+        lineHeight: 'inherit',
+      },
       h1: {
         fontSize: 'var(--font-size-h1)',
         lineHeight: 'var(--line-height-h1)',

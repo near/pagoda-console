@@ -33,6 +33,7 @@ import * as Slider from '@/components/lib/Slider';
 import { Spinner } from '@/components/lib/Spinner';
 import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Switch } from '@/components/lib/Switch';
+import * as Table from '@/components/lib/Table';
 import * as Tabs from '@/components/lib/Tabs';
 import { Text } from '@/components/lib/Text';
 import { TextButton, TextLink } from '@/components/lib/TextLink';
@@ -176,6 +177,33 @@ const favoriteFoodOptions = [
     display: 'Pasta',
     value: 'pasta',
     description: 'Spaghetti & meatballs with extra parmesan cheese.',
+  },
+];
+
+const tableRows = [
+  {
+    id: 1000,
+    icon: 'zap',
+    name: 'Franky Frank',
+    favoriteColor: 'Orange',
+    token: 'afsa2423asdfj32afd323',
+    address: '1234 Cool Ave, Denver, CO',
+  },
+  {
+    id: 2000,
+    icon: 'sun',
+    name: 'Bobby Bob',
+    favoriteColor: 'Blue',
+    token: 'hrgerg34243hr23j4fkhj',
+    address: '3456 Super Amazing St, Richmond, VA',
+  },
+  {
+    id: 3000,
+    icon: 'moon',
+    name: 'Stevey Steve',
+    favoriteColor: 'Green',
+    token: 'j3kj43543543jl543454jk',
+    address: '65465 Some Really Long Address, Some Really Cool City, CO',
   },
 ];
 
@@ -361,6 +389,8 @@ const Settings: NextPageWithLayout = () => {
           <Button loading>Is Loading</Button>
           <Button disabled>Disabled</Button>
           <Button color="danger">Danger</Button>
+          <Button color="primaryBorder">Primary Border</Button>
+          <Button color="dangerBorder">Danger Border</Button>
           <Button color="neutral">Neutral</Button>
           <Button color="transparent">Transparent</Button>
         </Flex>
@@ -1081,6 +1111,232 @@ const Settings: NextPageWithLayout = () => {
           </Switch>
           Small Switch
         </Flex>
+      </DocSection>
+
+      <DocSection title="Table">
+        <H4>Standard Table</H4>
+
+        <Table.Root>
+          <Table.Head css={{ top: 0 }}>
+            <Table.Row>
+              <Table.HeaderCell>ID</Table.HeaderCell>
+              <Table.HeaderCell>Name</Table.HeaderCell>
+              <Table.HeaderCell>Favorite Color</Table.HeaderCell>
+              <Table.HeaderCell>Token</Table.HeaderCell>
+              <Table.HeaderCell>Address</Table.HeaderCell>
+              <Table.HeaderCell></Table.HeaderCell>
+            </Table.Row>
+          </Table.Head>
+
+          <Table.Body>
+            {tableRows.map((row) => {
+              return (
+                <Table.Row key={row.id}>
+                  <Table.Cell>
+                    <Text family="number" color="text3" size="current">
+                      {row.id}
+                    </Text>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Flex align="center" gap="s">
+                      <FeatherIcon icon={row.icon} color="text3" />
+                      {row.name}
+                    </Flex>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Badge size="s">
+                      <FeatherIcon icon={row.icon} size="xs" />
+                      {row.favoriteColor}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Text family="number" color="text1" size="current" css={{ maxWidth: '6rem' }}>
+                      <TextOverflow>{row.token}</TextOverflow>
+                    </Text>
+                  </Table.Cell>
+                  <Table.Cell wrap css={{ minWidth: '15rem' }}>
+                    {row.address}
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Flex>
+                      <Button size="s">
+                        <FeatherIcon icon="edit-2" size="xs" />
+                      </Button>
+                      <Button size="s" color="neutral">
+                        <FeatherIcon icon="trash-2" size="xs" />
+                      </Button>
+                    </Flex>
+                  </Table.Cell>
+                </Table.Row>
+              );
+            })}
+          </Table.Body>
+        </Table.Root>
+
+        <H4>Clickable Rows</H4>
+
+        <Table.Root>
+          <Table.Head css={{ top: 0 }}>
+            <Table.Row>
+              <Table.HeaderCell>ID</Table.HeaderCell>
+              <Table.HeaderCell>Name</Table.HeaderCell>
+              <Table.HeaderCell>Favorite Color</Table.HeaderCell>
+            </Table.Row>
+          </Table.Head>
+
+          <Table.Body>
+            {tableRows.map((row) => {
+              return (
+                <Table.Row
+                  clickable
+                  onClick={() => {
+                    alert('Table Row Click');
+                  }}
+                  key={row.id}
+                >
+                  <Table.Cell>{row.id}</Table.Cell>
+                  <Table.Cell>{row.name}</Table.Cell>
+                  <Table.Cell>{row.favoriteColor}</Table.Cell>
+                </Table.Row>
+              );
+            })}
+          </Table.Body>
+        </Table.Root>
+
+        <H4>Clickable Cells</H4>
+
+        <Table.Root>
+          <Table.Head css={{ top: 0 }}>
+            <Table.Row>
+              <Table.HeaderCell>ID</Table.HeaderCell>
+              <Table.HeaderCell>Name</Table.HeaderCell>
+              <Table.HeaderCell>Favorite Color</Table.HeaderCell>
+            </Table.Row>
+          </Table.Head>
+
+          <Table.Body>
+            {tableRows.map((row) => {
+              return (
+                <Table.Row key={row.id}>
+                  <Table.Cell
+                    clickable
+                    onClick={() => {
+                      alert('Table Cell Click 1');
+                    }}
+                  >
+                    {row.id}
+                  </Table.Cell>
+                  <Table.Cell
+                    clickable
+                    onClick={() => {
+                      alert('Table Cell Click 2');
+                    }}
+                  >
+                    {row.name}
+                  </Table.Cell>
+                  <Table.Cell
+                    clickable
+                    onClick={() => {
+                      alert('Table Cell Click 3');
+                    }}
+                  >
+                    {row.favoriteColor}
+                  </Table.Cell>
+                </Table.Row>
+              );
+            })}
+          </Table.Body>
+        </Table.Root>
+
+        <H4>Clickable Rows + Some Clickable Cells</H4>
+
+        <Table.Root>
+          <Table.Head css={{ top: 0 }}>
+            <Table.Row>
+              <Table.HeaderCell>ID</Table.HeaderCell>
+              <Table.HeaderCell>Name</Table.HeaderCell>
+              <Table.HeaderCell>Favorite Color</Table.HeaderCell>
+            </Table.Row>
+          </Table.Head>
+
+          <Table.Body>
+            {tableRows.map((row) => {
+              return (
+                <Table.Row
+                  clickable
+                  onClick={() => {
+                    alert('Table Row Click');
+                  }}
+                  key={row.id}
+                >
+                  <Table.Cell
+                    clickable
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      alert('Table Cell Click');
+                    }}
+                  >
+                    {row.id} (Cell Click)
+                  </Table.Cell>
+                  <Table.Cell>{row.name} (Row Click)</Table.Cell>
+                  <Table.Cell>{row.favoriteColor} (Row Click)</Table.Cell>
+                </Table.Row>
+              );
+            })}
+          </Table.Body>
+        </Table.Root>
+
+        <H4>With Custom Header</H4>
+
+        <Table.Root
+          header={
+            <Flex align="center" stack={{ '@tablet': true }}>
+              <FeatherIcon icon="sun" />
+              <H5>My Cool Table</H5>
+              <Text size="bodySmall" css={{ flexGrow: 10 }}>
+                Anything could go in here.
+              </Text>
+              <Button size="s" color="primaryBorder">
+                <FeatherIcon icon="sliders" />
+                Filter
+              </Button>
+            </Flex>
+          }
+        >
+          <Table.Head css={{ top: 0 }}>
+            <Table.Row>
+              <Table.HeaderCell>ID</Table.HeaderCell>
+              <Table.HeaderCell>Name</Table.HeaderCell>
+              <Table.HeaderCell>Favorite Color</Table.HeaderCell>
+            </Table.Row>
+          </Table.Head>
+
+          <Table.Body>
+            {tableRows.map((row) => {
+              return (
+                <Table.Row
+                  clickable
+                  onClick={() => {
+                    alert('Table Row Click');
+                  }}
+                  key={row.id}
+                >
+                  <Table.Cell
+                    clickable
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      alert('Table Cell Click');
+                    }}
+                  >
+                    {row.id} (Cell Click)
+                  </Table.Cell>
+                  <Table.Cell>{row.name} (Row Click)</Table.Cell>
+                  <Table.Cell>{row.favoriteColor} (Row Click)</Table.Cell>
+                </Table.Row>
+              );
+            })}
+          </Table.Body>
+        </Table.Root>
       </DocSection>
 
       <DocSection title="Tabs">
