@@ -28,7 +28,7 @@ WORKDIR /usr/src/app
 
 COPY --from=builder /usr/src/app/package*.json ./
 COPY --from=builder /usr/src/app/dist ./dist
-COPY prisma ./prisma
+COPY prisma ./src/core/prisma
 
 # Install optimized dependencies, running after having all files
 RUN npm ci

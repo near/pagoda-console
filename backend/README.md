@@ -44,6 +44,8 @@ More details [here](https://nearinc.atlassian.net/wiki/spaces/DEVCONSOLE/pages/3
 
 ## Database
 
+When running the below commands, make sure you are in the parent directory that contains the `prisma` folder. E.g. `./src/core`.
+
 Initialize database with Prisma models and generate Prisma Client for current schema
 
 ```
@@ -208,10 +210,10 @@ Default and nonsensitive environment variables. This is tracked in git so that w
 `.env.nest.local`  
 Secrets and overrides. Easily override defaults from `.env.nest` by defining a different value for that variable in `.env.nest.local`. Not tracked by git so secrets aren't leaked and you don't constantly create diffs when changing values for your own dev purposes. To start, copy `.env.nest.local.example` to `.env.nest.local` and ask a fellow developer for existing secrets.
 
-`./prisma/.env`
+`./src/core/prisma/.env`
 Prisma loads this file using dotenv. Both PrismaClient and CLI will use this file.
 
-Note: PrismaClient loads its `.env` file first before NestJS ConfigService. Make sure you don't have conflicting key names between the `./prisma/.env` and `.env.nest` or `.env.nest.local` files!
+Note: PrismaClient loads its `.env` file first before NestJS ConfigService. Make sure you don't have conflicting key names between the `./src/core/prisma/.env` and `.env.nest` or `.env.nest.local` files!
 
 ## Comments
 
