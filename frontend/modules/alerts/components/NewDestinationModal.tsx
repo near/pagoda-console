@@ -1,6 +1,4 @@
-import type { FormEvent } from 'react';
 import { useState } from 'react';
-import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import { Badge } from '@/components/lib/Badge';
@@ -62,16 +60,10 @@ function useNewDestinationForm<T>(props: FormProps) {
     }
   }
 
-  function onSubmit(event: FormEvent<HTMLFormElement>, submitForm: SubmitHandler<T>) {
-    event.stopPropagation(); // This prevents any parent forms from being submitted
-    form.handleSubmit(submitForm)(event);
-  }
-
   return {
     create,
     destination,
     form,
-    onSubmit,
   };
 }
 
@@ -136,7 +128,7 @@ function ModalContent(props: Props) {
 }
 
 function TelegramDestinationForm(props: FormProps) {
-  const { create, destination, form, onSubmit } = useNewDestinationForm(props);
+  const { create, destination, form } = useNewDestinationForm(props);
 
   async function submitForm() {
     await create({
@@ -159,7 +151,7 @@ function TelegramDestinationForm(props: FormProps) {
     );
 
   return (
-    <Form.Root disabled={form.formState.isSubmitting} onSubmit={(event) => onSubmit(event, submitForm)}>
+    <Form.Root disabled={form.formState.isSubmitting} onSubmit={form.handleSubmit(submitForm)}>
       <Flex stack gap="l">
         <Text color="text1">
           Once you create a Telegram destination, you&apos;ll have one last step: connecting with our{' '}
@@ -184,7 +176,7 @@ interface WebhookFormData {
 }
 
 function WebhookDestinationForm(props: FormProps) {
-  const { create, destination, form, onSubmit } = useNewDestinationForm<WebhookFormData>(props);
+  const { create, destination, form } = useNewDestinationForm<WebhookFormData>(props);
 
   async function submitForm(data: WebhookFormData) {
     await create({
@@ -217,7 +209,7 @@ function WebhookDestinationForm(props: FormProps) {
     );
 
   return (
-    <Form.Root disabled={form.formState.isSubmitting} onSubmit={(event) => onSubmit(event, submitForm)}>
+    <Form.Root disabled={form.formState.isSubmitting} onSubmit={form.handleSubmit(submitForm)}>
       <Flex stack gap="l">
         <Flex stack>
           <Form.Group>

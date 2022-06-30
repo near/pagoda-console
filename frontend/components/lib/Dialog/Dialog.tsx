@@ -23,7 +23,18 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, tit
   return (
     <DialogPrimitive.Portal>
       <S.Overlay>
-        <S.Content aria-describedby={undefined} ref={ref} {...props}>
+        <S.Content
+          aria-describedby={undefined}
+          ref={ref}
+          {...props}
+          onSubmit={(event) => {
+            /*
+              This prevents forms on the parent page from being submitted when a form
+              inside the dialog is submitted:
+            */
+            event.stopPropagation();
+          }}
+        >
           {/*
             Descriptions are optional: https://www.radix-ui.com/docs/primitives/components/dialog#description
             The modal is already labeled with the title attribute via "aria-labelledby" - so description is a
