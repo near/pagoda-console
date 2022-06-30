@@ -47,6 +47,12 @@ export const Flex = styled('div', {
       },
     },
 
+    inline: {
+      true: {
+        display: 'inline-flex',
+      },
+    },
+
     justify: {
       center: {
         justifyContent: 'center',
