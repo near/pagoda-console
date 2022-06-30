@@ -152,13 +152,7 @@ function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps) 
   }
 
   return (
-    <Form.Root
-      disabled={formState.isSubmitting}
-      onSubmit={(event) => {
-        event.stopPropagation();
-        handleSubmit(submitForm)(event); // This prevents any parent forms from being submitted
-      }}
-    >
+    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
       <Flex stack gap="l">
         {!destination.isValid && (
           <>
@@ -234,13 +228,7 @@ function WebhookDestinationForm({ destination, onUpdate, setShow }: FormProps) {
   }
 
   return (
-    <Form.Root
-      disabled={formState.isSubmitting}
-      onSubmit={(event) => {
-        event.stopPropagation();
-        handleSubmit(submitForm)(event); // This prevents any parent forms from being submitted
-      }}
-    >
+    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
       <Flex stack gap="l">
         <WebhookDestinationSecret destination={destination} />
 
