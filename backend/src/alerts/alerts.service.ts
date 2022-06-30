@@ -600,6 +600,7 @@ export class AlertsService {
         },
         data: {
           active: false,
+          isPaused: true,
           updatedBy: callingUser.id,
         },
       });
