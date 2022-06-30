@@ -1,6 +1,6 @@
 # Table
 
-A table can be used to list a lot of data in a concise manner that users can scan easily. This component doesn't implement sorting or filtering - that will be up to you to implement based on your needs.
+Tables are great for listing lots of data for users to easily scan. This component doesn't implement sorting or filtering - that will be up to you to implement based on your individual needs. Sometimes it might make sense to filter/sort via an API or filter/sort on the client.
 
 ## Example
 
@@ -82,7 +82,7 @@ const tableRows = [
           <Table.Cell wrap css={{ minWidth: '15rem' }}>
             {row.address}
           </Table.Cell>
-          <Table.Cell>
+          <Table.Cell css={{ width: '1px' }}>
             <Flex>
               <Button size="s">
                 <FeatherIcon icon="edit-2" size="xs" />
@@ -101,7 +101,22 @@ const tableRows = [
 
 ## Cell Sizes
 
-In the example above, note the use of the `css` prop on some of the `Cell` components. You can get creative with setting `width`, `maxWidth`, or `minWidth` on a cell. You can even combine the `TextOverflow` component to implement ellipsis text overflow when text is cut off.
+In the example above, note the use of the `css` prop on some of the `Cell` components. You can get creative with setting `width`, `maxWidth`, or `minWidth` on a cell or its contents (EG: a nested `Text` component). You can even combine the `TextOverflow` component to implement ellipsis text overflow when text is cut off.
+
+If you have a cell that contains something like a `Button` and you'd like the cell width to match the `Button` width exactly, you can set the `Cell` width to something really small (EG: `1px`). Due to how `<td>` elements determine their width, this will give us the desired result:
+
+```tsx
+<Table.Cell css={{ width: '1px' }}>
+  <Flex>
+    <Button size="s">
+      <FeatherIcon icon="edit-2" size="xs" />
+    </Button>
+    <Button size="s" color="neutral">
+      <FeatherIcon icon="trash-2" size="xs" />
+    </Button>
+  </Flex>
+</Table.Cell>
+```
 
 ## Wrapping Text
 
@@ -239,3 +254,7 @@ If it makes sense for your use case, you can include a custom header at the top 
   <Table.Body>...</Table.Body>
 </Table.Root>
 ```
+
+## Infinite Scroll / Pagination
+
+TODO...

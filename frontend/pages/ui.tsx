@@ -1157,7 +1157,7 @@ const Settings: NextPageWithLayout = () => {
                   <Table.Cell wrap css={{ minWidth: '15rem' }}>
                     {row.address}
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell css={{ width: '1px' }}>
                     <Flex>
                       <Button size="s">
                         <FeatherIcon icon="edit-2" size="xs" />
