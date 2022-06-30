@@ -19,7 +19,7 @@ jobs:
         run: npm ci
 
       - name: Build Prisma Client
-        run: npx prisma generate --schema ./src/core
+        run: npx prisma generate --schema ./src/core/prisma/schema.prisma
 
       - name: Test building a project
         run: npm run build
