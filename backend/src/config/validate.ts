@@ -64,6 +64,8 @@ export interface AppConfig {
   };
   email: {
     emailVerificationEndpoint: string;
+    emailVerificationFrom: string;
+    emailVerificationSubject: string;
   };
 }
 
@@ -153,6 +155,8 @@ const appConfigSchema = Joi.object({
   },
   email: {
     emailVerificationEndpoint: Joi.string(),
+    emailVerificationFrom: Joi.string(),
+    emailVerificationSubject: Joi.string(),
   },
 });
 
@@ -212,6 +216,8 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     },
     email: {
       emailVerificationEndpoint: config.EMAIL_VERIFICATION_ENDPOINT,
+      emailVerificationFrom: config.EMAIL_VERIFICATION_FROM,
+      emailVerificationSubject: config.EMAIL_VERIFICATION_SUBJECT,
     },
   };
 

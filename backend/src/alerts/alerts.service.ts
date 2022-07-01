@@ -1022,18 +1022,29 @@ export class AlertsService {
 
   async verifyEmailDestination(token: EmailDestination['token']) {
     try {
-      const destination = await this.prisma.destination.findFirst({
+      const emailDestination = await this.prisma.emailDestination.findUnique({
         where: {
-          emailDestination: {
-            token,
-          },
+          token,
         },
         select: {
           id: true,
-          emailDestination: true,
+          tokenExpiresAt: true,
+          destination: {
+            select: {
+              id: true,
+              active: true,
+            },
+          },
         },
       });
-      if (!destination) {
+      if (!emailDestination) {
+        throw new VError(
+          { info: { code: 'BAD_DESTINATION' } },
+          'Destination not found',
+        );
+      }
+
+      if (!emailDestination.destination.active) {
         throw new VError(
           { info: { code: 'BAD_DESTINATION' } },
           'Destination not found',
@@ -1042,7 +1053,7 @@ export class AlertsService {
 
       // Checks if the difference between the date and now is negative i.e. the expiration date has passed
       if (
-        DateTime.fromJSDate(destination.emailDestination.tokenExpiresAt)
+        DateTime.fromJSDate(emailDestination.tokenExpiresAt)
           .diffNow()
           .valueOf() < 0
       ) {
@@ -1051,26 +1062,24 @@ export class AlertsService {
           'Token expired',
         );
       }
-
-      await this.prisma.destination.update({
-        where: {
-          id: destination.id,
-        },
-        data: {
-          isValid: true,
-        },
-      });
-
-      await this.prisma.emailDestination.update({
-        where: {
-          id: destination.emailDestination.id,
-        },
-        data: {
-          isVerified: true,
-        },
-      });
-
-      return 'Your email has been verified';
+      await this.prisma.$transaction([
+        this.prisma.destination.update({
+          where: {
+            id: emailDestination.destination.id,
+          },
+          data: {
+            isValid: true,
+          },
+        }),
+        this.prisma.emailDestination.update({
+          where: {
+            id: emailDestination.id,
+          },
+          data: {
+            isVerified: true,
+          },
+        }),
+      ]);
     } catch (e) {
       throw new VError(e, 'Failed while verifying email destination');
     }

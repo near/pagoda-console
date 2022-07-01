@@ -8,7 +8,6 @@ import {
   Request,
   HttpCode,
   BadRequestException,
-  Req,
   Headers,
   UnauthorizedException,
   Get,
@@ -294,7 +293,7 @@ export class AlertsController {
   @Get('verifyEmailDestination')
   async verifyEmailDestination(@Query('token') token: string) {
     try {
-      return await this.alertsService.verifyEmailDestination(token);
+      await this.alertsService.verifyEmailDestination(token);
     } catch (e) {
       throw mapError(e);
     }
