@@ -50,6 +50,12 @@ export interface AppConfig {
   };
   alerts: {
     emailTokenExpiryMin: number;
+    telegram: {
+      tokenExpiryMin: number;
+      enableWebhook: boolean;
+      botToken?: string;
+      secret?: string;
+    };
   };
 }
 
@@ -118,7 +124,19 @@ const appConfigSchema = Joi.object({
     indexer: Joi.boolean().optional().default(false),
   },
   alerts: {
-    emailTokenExpiryMin: Joi.number().optional().default(10),
+    emailTokenExpiryMin: Joi.number().optional().default(10000), // TODO set to a small value once requesting a new token is possible
+    telegram: Joi.object({
+      tokenExpiryMin: Joi.number().optional().default(10000), // TODO set to a small value once requesting a new token is possible
+      enableWebhook: Joi.boolean().optional().default(false),
+      botToken: Joi.string().when('/alerts.telegram.enableWebhook', {
+        is: Joi.boolean().valid(false),
+        then: Joi.optional().allow(''),
+      }),
+      secret: Joi.string().when('/alerts.telegram.enableWebhook', {
+        is: Joi.boolean().valid(false),
+        then: Joi.optional().allow(''),
+      }),
+    }),
   },
 });
 
@@ -164,6 +182,12 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     },
     alerts: {
       emailTokenExpiryMin: config.EMAIL_TOKEN_EXPIRY_MIN,
+      telegram: {
+        tokenExpiryMin: config.TELEGRAM_TOKEN_EXPIRY_MIN,
+        enableWebhook: config.TELEGRAM_ENABLE_WEBHOOK,
+        botToken: config.TELEGRAM_BOT_TOKEN,
+        secret: config.TELEGRAM_SECRET,
+      },
     },
   };
 

@@ -7,6 +7,7 @@ import {
   Destination,
   EmailDestination,
   DestinationType,
+  TelegramDestination,
 } from '../../generated/prisma/alerts';
 
 // TODO should we re-export these types from the core module? So there is no dependency on the core prisma/client
@@ -18,7 +19,7 @@ import { customAlphabet } from 'nanoid';
 
 import { PrismaService } from './prisma.service';
 import { VError } from 'verror';
-import { NumberComparator, RuleType } from './types';
+import { NumberComparator, PremapDestination, RuleType } from './types';
 import { RuleSerializerService } from './serde/rule-serializer/rule-serializer.service';
 import { RuleDeserializerService } from './serde/rule-deserializer/rule-deserializer.service';
 import { AcctBalMatchingRule, MatchingRule } from './serde/db.types';
@@ -121,6 +122,27 @@ type UpdateEmailDestinationSchema = {
   name?: Destination['name'];
 };
 
+type UpdateTelegramDestinationSchema = {
+  id: Destination['id'];
+  name?: Destination['name'];
+};
+
+type CreateTelegramDestinationSchema = {
+  name?: Destination['name'];
+  projectSlug: Destination['projectSlug'];
+};
+
+type CreateTelegramDestinationResponse = {
+  id: EmailDestination['id'];
+  name?: Destination['name'];
+  type: DestinationType;
+  projectSlug: Destination['projectSlug'];
+  config: {
+    startToken: TelegramDestination['startToken'];
+    chatTitle: TelegramDestination['chatTitle'];
+  };
+};
+
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
   12,
@@ -138,6 +160,10 @@ type AlertWithDestinations = Alert & {
       emailDestination?: {
         email: EmailDestination['email'];
       };
+      telegramDestination?: Pick<
+        TelegramDestination,
+        'startToken' | 'chatTitle'
+      >;
     };
   }>;
 };
@@ -145,6 +171,7 @@ type AlertWithDestinations = Alert & {
 @Injectable()
 export class AlertsService {
   private emailTokenExpiryMin: number;
+  private telegramTokenExpiryMin: number;
   constructor(
     private prisma: PrismaService,
     private projectPermissions: ProjectPermissionsService,
@@ -156,6 +183,12 @@ export class AlertsService {
     this.emailTokenExpiryMin = this.config.get('alerts.emailTokenExpiryMin', {
       infer: true,
     });
+    this.telegramTokenExpiryMin = this.config.get(
+      'alerts.telegram.tokenExpiryMin',
+      {
+        infer: true,
+      },
+    );
   }
 
   async createTxSuccessAlert(user: User, alert: CreateTxAlertSchema) {
@@ -307,6 +340,12 @@ export class AlertsService {
                       email: true,
                     },
                   },
+                  telegramDestination: {
+                    select: {
+                      startToken: true,
+                      chatTitle: true,
+                    },
+                  },
                 },
               },
             },
@@ -351,6 +390,17 @@ export class AlertsService {
                       url: true,
                     },
                   },
+                  emailDestination: {
+                    select: {
+                      email: true,
+                    },
+                  },
+                  telegramDestination: {
+                    select: {
+                      startToken: true,
+                      chatTitle: true,
+                    },
+                  },
                 },
               },
             },
@@ -393,6 +443,17 @@ export class AlertsService {
                     url: true,
                   },
                 },
+                emailDestination: {
+                  select: {
+                    email: true,
+                  },
+                },
+                telegramDestination: {
+                  select: {
+                    startToken: true,
+                    chatTitle: true,
+                  },
+                },
               },
             },
           },
@@ -422,6 +483,17 @@ export class AlertsService {
                   webhookDestination: {
                     select: {
                       url: true,
+                    },
+                  },
+                  emailDestination: {
+                    select: {
+                      email: true,
+                    },
+                  },
+                  telegramDestination: {
+                    select: {
+                      startToken: true,
+                      chatTitle: true,
                     },
                   },
                 },
@@ -457,8 +529,14 @@ export class AlertsService {
       environmentSubId,
       rule: this.ruleDeserializer.toRuleDto(rule),
       enabledDestinations: enabledDestinations.map((enabledDestination) => {
-        const { id, name, type, webhookDestination, emailDestination } =
-          enabledDestination.destination;
+        const {
+          id,
+          name,
+          type,
+          webhookDestination,
+          emailDestination,
+          telegramDestination,
+        } = enabledDestination.destination;
         let config;
         switch (type) {
           case 'WEBHOOK':
@@ -466,6 +544,9 @@ export class AlertsService {
             break;
           case 'EMAIL':
             config = emailDestination;
+            break;
+          case 'TELEGRAM':
+            config = telegramDestination;
             break;
           default:
             assertUnreachable(type);
@@ -519,6 +600,7 @@ export class AlertsService {
         },
         data: {
           active: false,
+          isPaused: true,
           updatedBy: callingUser.id,
         },
       });
@@ -541,7 +623,7 @@ export class AlertsService {
     );
 
     try {
-      const c = await this.prisma.destination.create({
+      const res = await this.prisma.destination.create({
         data: {
           name,
           projectSlug,
@@ -563,6 +645,7 @@ export class AlertsService {
           name: true,
           type: true,
           projectSlug: true,
+          isValid: true,
           webhookDestination: {
             select: {
               url: true,
@@ -572,16 +655,7 @@ export class AlertsService {
         },
       });
 
-      return {
-        id: c.id,
-        name: c.name,
-        type: c.type,
-        projectSlug: c.projectSlug,
-        config: {
-          url: c.webhookDestination.url,
-          secret: c.webhookDestination.secret,
-        },
-      };
+      return this.transformDestinationRes(res);
     } catch (e) {
       throw new VError(e, 'Failed to create webhook destination');
     }
@@ -604,7 +678,7 @@ export class AlertsService {
         .plus({ minutes: this.emailTokenExpiryMin })
         .toUTC()
         .toJSDate();
-      const c = await this.prisma.destination.create({
+      const res = await this.prisma.destination.create({
         data: {
           name,
           projectSlug,
@@ -627,6 +701,7 @@ export class AlertsService {
           name: true,
           type: true,
           projectSlug: true,
+          isValid: true,
           emailDestination: {
             select: {
               email: true,
@@ -636,18 +711,62 @@ export class AlertsService {
         },
       });
 
-      return {
-        id: c.id,
-        name: c.name,
-        type: 'EMAIL',
-        projectSlug: c.projectSlug,
-        config: {
-          email: c.emailDestination.email,
-          isVerified: c.emailDestination.isVerified,
-        },
-      };
+      return this.transformDestinationRes(res);
     } catch (e) {
       throw new VError(e, 'Failed to create email destination');
+    }
+  }
+
+  async createTelegramDestination(
+    user: User,
+    {
+      name = 'Telegram Destination',
+      projectSlug,
+    }: CreateTelegramDestinationSchema,
+  ): Promise<CreateTelegramDestinationResponse> {
+    await this.projectPermissions.checkUserProjectPermission(
+      user.id,
+      projectSlug,
+    );
+    try {
+      const expiryDate = DateTime.now()
+        .plus({ minutes: this.telegramTokenExpiryMin })
+        .toUTC()
+        .toJSDate();
+      const res = await this.prisma.destination.create({
+        data: {
+          name,
+          projectSlug,
+          type: 'TELEGRAM',
+          createdBy: user.id,
+          updatedBy: user.id,
+          telegramDestination: {
+            create: {
+              startToken: nanoid(),
+              tokenExpiresAt: expiryDate,
+              createdBy: user.id,
+              updatedBy: user.id,
+            },
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          projectSlug: true,
+          isValid: true,
+          telegramDestination: {
+            select: {
+              startToken: true,
+              chatTitle: true,
+            },
+          },
+        },
+      });
+
+      return this.transformDestinationRes(res);
+    } catch (e) {
+      throw new VError(e, 'Failed to create telegram destination');
     }
   }
 
@@ -688,6 +807,7 @@ export class AlertsService {
         name: true,
         projectSlug: true,
         type: true,
+        isValid: true,
         webhookDestination: {
           select: {
             url: true,
@@ -700,30 +820,16 @@ export class AlertsService {
             isVerified: true,
           },
         },
+        telegramDestination: {
+          select: {
+            startToken: true,
+            chatTitle: true,
+          },
+        },
       },
     });
 
-    return destinations.map((destination) => {
-      const { id, name, projectSlug, type } = destination;
-      let config;
-      switch (type) {
-        case 'WEBHOOK':
-          config = destination.webhookDestination;
-          break;
-        case 'EMAIL':
-          config = destination.emailDestination;
-          break;
-        default:
-          assertUnreachable(type);
-      }
-      return {
-        id,
-        name,
-        projectSlug,
-        type,
-        config,
-      };
-    });
+    return destinations.map(this.transformDestinationRes);
   }
 
   async enableDestination(
@@ -824,6 +930,7 @@ export class AlertsService {
           name: true,
           type: true,
           projectSlug: true,
+          isValid: true,
           webhookDestination: {
             select: {
               url: true,
@@ -832,13 +939,7 @@ export class AlertsService {
           },
         },
       });
-      return {
-        id: res.id,
-        name: res.name,
-        type: res.type,
-        projectSlug: res.projectSlug,
-        config: res.webhookDestination,
-      };
+      return this.transformDestinationRes(res);
     } catch (e) {
       throw new VError(e, 'Failed while updating webhook destination');
     }
@@ -865,6 +966,7 @@ export class AlertsService {
           name: true,
           type: true,
           projectSlug: true,
+          isValid: true,
           emailDestination: {
             select: {
               email: true,
@@ -872,15 +974,45 @@ export class AlertsService {
           },
         },
       });
-      return {
-        id: res.id,
-        name: res.name,
-        type: res.type,
-        projectSlug: res.projectSlug,
-        config: res.emailDestination,
-      };
+      return this.transformDestinationRes(res);
     } catch (e) {
       throw new VError(e, 'Failed while updating email destination');
+    }
+  }
+
+  async updateTelegramDestination(
+    callingUser: User,
+    dto: UpdateTelegramDestinationSchema,
+  ) {
+    const { id, name } = dto;
+    await this.checkUserDestinationPermission(callingUser.id, id);
+
+    try {
+      const res = await this.prisma.destination.update({
+        where: {
+          id,
+        },
+        data: {
+          name,
+          updatedBy: callingUser.id,
+        },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+          projectSlug: true,
+          isValid: true,
+          telegramDestination: {
+            select: {
+              startToken: true,
+              chatTitle: true,
+            },
+          },
+        },
+      });
+      return this.transformDestinationRes(res);
+    } catch (e) {
+      throw new VError(e, 'Failed while updating telegram destination');
     }
   }
 
@@ -1076,5 +1208,31 @@ export class AlertsService {
         'Found destination not compatible with alert',
       );
     }
+  }
+
+  private transformDestinationRes(destination: PremapDestination) {
+    const { id, name, projectSlug, type, isValid } = destination;
+    let config;
+    switch (type) {
+      case 'WEBHOOK':
+        config = destination.webhookDestination;
+        break;
+      case 'EMAIL':
+        config = destination.emailDestination;
+        break;
+      case 'TELEGRAM':
+        config = destination.telegramDestination;
+        break;
+      default:
+        assertUnreachable(type);
+    }
+    return {
+      id,
+      name,
+      projectSlug,
+      type,
+      isValid,
+      config,
+    };
   }
 }

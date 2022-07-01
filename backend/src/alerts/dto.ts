@@ -166,10 +166,15 @@ interface CreateEmailDestinationDto extends CreateBaseDestinationDto {
     email: string;
   };
 }
+interface CreateTelegramDestinationDto extends CreateBaseDestinationDto {
+  type: 'TELEGRAM';
+  config?: Record<string, never>; // eslint recommended typing for empty object
+}
 
 export type CreateDestinationDto =
   | CreateWebhookDestinationDto
-  | CreateEmailDestinationDto;
+  | CreateEmailDestinationDto
+  | CreateTelegramDestinationDto;
 
 const WebhookDestinationSchema = Joi.object({
   url: Joi.string().required(),
@@ -177,15 +182,17 @@ const WebhookDestinationSchema = Joi.object({
 const EmailDestinationSchema = Joi.object({
   email: Joi.string().required(),
 });
+const TelegramDestinationSchema = Joi.object({});
 export const CreateDestinationSchema = Joi.object({
   name: Joi.string(),
-  type: Joi.string().valid('WEBHOOK', 'EMAIL').required(),
+  type: Joi.string().valid('WEBHOOK', 'EMAIL', 'TELEGRAM').required(),
   projectSlug: Joi.string().required(),
   config: Joi.alternatives()
     .conditional('type', {
       switch: [
         { is: 'WEBHOOK', then: WebhookDestinationSchema },
         { is: 'EMAIL', then: EmailDestinationSchema },
+        { is: 'TELEGRAM', then: TelegramDestinationSchema },
       ],
     })
     .required(),
@@ -236,9 +243,15 @@ export interface UpdateWebhookDestinationDto extends UpdateDestinationBaseDto {
 export interface UpdateEmailDestinationDto extends UpdateDestinationBaseDto {
   type: 'EMAIL';
 }
+export interface UpdateTelegramDestinationDto extends UpdateDestinationBaseDto {
+  type: 'TELEGRAM';
+}
+
 export type UpdateDestinationDto =
   | UpdateWebhookDestinationDto
-  | UpdateEmailDestinationDto;
+  | UpdateEmailDestinationDto
+  | UpdateTelegramDestinationDto;
+
 const UpdateWebhookDestinationSchema = Joi.object({
   url: Joi.string(),
 });
