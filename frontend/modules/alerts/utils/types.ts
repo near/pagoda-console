@@ -201,3 +201,17 @@ interface ConfigTelegram {
 interface ConfigWebhook {
   url: string;
 }
+
+// Triggered Alerts
+export type RuleType = 'TX_SUCCESS' | 'TX_FAILURE' | 'FN_CALL' | 'EVENT' | 'ACCT_BAL_PCT' | 'ACCT_BAL_NUM';
+
+export type TriggeredAlert = {
+  triggeredAlertReferenceId: string;
+  name: string;
+  type: RuleType;
+  triggeredInBlockHash: string;
+  triggeredInTransactionHash: string;
+  triggeredInReceiptId: number;
+  triggeredAt: Date;
+  extraData?: object;
+};

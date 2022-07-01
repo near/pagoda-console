@@ -9,6 +9,7 @@ import { Flex } from '@/components/lib/Flex';
 import { H1 } from '@/components/lib/Heading';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
+import * as Table from '@/components/lib/Table';
 import * as Tabs from '@/components/lib/Tabs';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
@@ -19,12 +20,14 @@ import { EditDestinationModal } from '@/modules/alerts/components/EditDestinatio
 import { NewDestinationModal } from '@/modules/alerts/components/NewDestinationModal';
 import { useAlerts } from '@/modules/alerts/hooks/alerts';
 import { useDestinations } from '@/modules/alerts/hooks/destinations';
+import { useTriggeredAlerts } from '@/modules/alerts/hooks/triggered-alerts';
 import { alertTypes, destinationTypes } from '@/modules/alerts/utils/constants';
 import type { Destination } from '@/modules/alerts/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ListAlerts: NextPageWithLayout = () => {
   const { environment, project } = useSelectedProject();
+  const { triggeredAlerts } = useTriggeredAlerts(project?.slug, environment?.subId);
   const { alerts } = useAlerts(project?.slug, environment?.subId);
   const { destinations } = useDestinations(project?.slug);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
@@ -41,6 +44,12 @@ const ListAlerts: NextPageWithLayout = () => {
     <Section>
       <Tabs.Root value={activeTab || ''}>
         <Tabs.List>
+          <Link href="?tab=history" passHref>
+            <Tabs.TriggerLink active={activeTab === 'history'}>
+              <FeatherIcon icon="bell" /> History
+            </Tabs.TriggerLink>
+          </Link>
+
           <Link href="?tab=alerts" passHref>
             <Tabs.TriggerLink active={activeTab === 'alerts'}>
               <FeatherIcon icon="bell" /> Alerts
@@ -53,6 +62,62 @@ const ListAlerts: NextPageWithLayout = () => {
             </Tabs.TriggerLink>
           </Link>
         </Tabs.List>
+
+        <Tabs.Content value="history">
+          <Flex stack gap="l">
+            <Flex justify="spaceBetween"></Flex>
+            <Flex stack gap="s">
+              <Table.Root>
+                <Table.Head>
+                  <Table.Row>
+                    <Table.HeaderCell>NAME</Table.HeaderCell>
+                    <Table.HeaderCell>TYPE</Table.HeaderCell>
+                    <Table.HeaderCell>TRANSACTION</Table.HeaderCell>
+                    <Table.HeaderCell>ID</Table.HeaderCell>
+                    <Table.HeaderCell>TIME</Table.HeaderCell>
+                    {/* <Table.HeaderCell>triggeredInReceiptId</Table.HeaderCell>
+                    <Table.HeaderCell>triggeredInBlockHash</Table.HeaderCell>
+                    <Table.HeaderCell>extraData</Table.HeaderCell> */}
+                  </Table.Row>
+                </Table.Head>
+
+                <Table.Body>
+                  {triggeredAlerts?.map((row) => {
+                    return (
+                      <Table.Row key={row.triggeredAlertReferenceId}>
+                        <Table.Cell>
+                          <Flex align="center" gap="s">
+                            {row.name}
+                          </Flex>
+                        </Table.Cell>
+                        <Table.Cell>
+                          <Flex align="center" gap="s">
+                            {row.type}
+                          </Flex>
+                        </Table.Cell>
+                        <Table.Cell>
+                          <Text family="number" color="text3" size="current">
+                            {row.triggeredInTransactionHash}
+                          </Text>
+                        </Table.Cell>
+                        <Table.Cell>
+                          <Text family="number" color="text3" size="current">
+                            {row.triggeredAlertReferenceId}
+                          </Text>
+                        </Table.Cell>
+                        <Table.Cell>
+                          <Text family="number" color="text3" size="current">
+                            {row.triggeredAt}
+                          </Text>
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })}
+                </Table.Body>
+              </Table.Root>
+            </Flex>
+          </Flex>
+        </Tabs.Content>
 
         <Tabs.Content value="alerts">
           <Flex stack gap="l">
