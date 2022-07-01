@@ -203,15 +203,13 @@ interface ConfigWebhook {
 }
 
 // Triggered Alerts
-export type RuleType = 'TX_SUCCESS' | 'TX_FAILURE' | 'FN_CALL' | 'EVENT' | 'ACCT_BAL_PCT' | 'ACCT_BAL_NUM';
-
 export type TriggeredAlert = {
   triggeredAlertReferenceId: string;
   name: string;
-  type: RuleType;
+  type: AlertType;
   triggeredInBlockHash: string;
   triggeredInTransactionHash: string;
   triggeredInReceiptId: number;
-  triggeredAt: Date;
-  extraData?: object;
+  triggeredAt: string;
+  extraData?: Record<string, unknown>;
 };

@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -40,13 +41,21 @@ const ListAlerts: NextPageWithLayout = () => {
     setShowEditDestinationModal(true);
   }
 
+  function formatHashOrUuidAsAbbreviated(hash: string) {
+    if (!hash) return '';
+    if (hash.length > 8) {
+      return hash.substring(0, 4) + '...' + hash.substring(hash.length - 5, hash.length - 1);
+    }
+    return hash;
+  }
+
   return (
     <Section>
       <Tabs.Root value={activeTab || ''}>
         <Tabs.List>
           <Link href="?tab=history" passHref>
             <Tabs.TriggerLink active={activeTab === 'history'}>
-              <FeatherIcon icon="bell" /> History
+              <FeatherIcon icon="list" /> History
             </Tabs.TriggerLink>
           </Link>
 
@@ -75,39 +84,33 @@ const ListAlerts: NextPageWithLayout = () => {
                     <Table.HeaderCell>TRANSACTION</Table.HeaderCell>
                     <Table.HeaderCell>ID</Table.HeaderCell>
                     <Table.HeaderCell>TIME</Table.HeaderCell>
-                    {/* <Table.HeaderCell>triggeredInReceiptId</Table.HeaderCell>
-                    <Table.HeaderCell>triggeredInBlockHash</Table.HeaderCell>
-                    <Table.HeaderCell>extraData</Table.HeaderCell> */}
                   </Table.Row>
                 </Table.Head>
 
                 <Table.Body>
                   {triggeredAlerts?.map((row) => {
+                    const alertTypeOption = alertTypes[row.type];
                     return (
                       <Table.Row key={row.triggeredAlertReferenceId}>
+                        <Table.Cell>{row.name}</Table.Cell>
                         <Table.Cell>
-                          <Flex align="center" gap="s">
-                            {row.name}
-                          </Flex>
-                        </Table.Cell>
-                        <Table.Cell>
-                          <Flex align="center" gap="s">
-                            {row.type}
-                          </Flex>
+                          <Badge size="s">
+                            <FeatherIcon icon={alertTypeOption.icon} size="xs" /> {alertTypeOption.name}
+                          </Badge>
                         </Table.Cell>
                         <Table.Cell>
                           <Text family="number" color="text3" size="current">
-                            {row.triggeredInTransactionHash}
+                            {formatHashOrUuidAsAbbreviated(row.triggeredInTransactionHash)}
                           </Text>
                         </Table.Cell>
                         <Table.Cell>
                           <Text family="number" color="text3" size="current">
-                            {row.triggeredAlertReferenceId}
+                            {formatHashOrUuidAsAbbreviated(row.triggeredAlertReferenceId)}
                           </Text>
                         </Table.Cell>
                         <Table.Cell>
                           <Text family="number" color="text3" size="current">
-                            {row.triggeredAt}
+                            {DateTime.fromISO(row.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT)}
                           </Text>
                         </Table.Cell>
                       </Table.Row>
