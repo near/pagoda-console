@@ -378,6 +378,7 @@ function mapError(e: Error) {
       return new ForbiddenException();
     case 'BAD_DESTINATION':
     case 'BAD_ALERT':
+    case 'BAD_TOKEN_EXPIRED':
       return new BadRequestException();
     default:
       return e;
