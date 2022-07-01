@@ -92,8 +92,8 @@ model Destination {
   webhookDestination WebhookDestination?
   emailDestination   EmailDestination?
 
-  @@map("destinations")
   TriggeredAlertDestinations TriggeredAlertDestinations[]
+  @@map("destinations")
 }
 
 model WebhookDestination {
@@ -149,12 +149,13 @@ enum AlertTriggerDestinationStatus {
 
 model TriggeredAlert {
   id                         Int      @id @default(autoincrement())
+  triggeredAlertReferenceId  String   @default(uuid()) @map("triggered_alert_reference_id")
   alert                      Alert    @relation(fields: [alertId], references: [id])
   alertId                    Int      @map("alert_id")
   triggeredInBlockHash       String   @map("triggered_in_block_hash")
   triggeredInTransactionHash String?  @map("triggered_in_transaction_hash")
   triggeredInReceiptId       Int?     @map("triggered_in_receipt_id")
-  triggered_at               DateTime
+  triggeredAt                DateTime @map("triggered_at")
   extraData                  Json?    @map("extra_data")
 
   triggeredAlertDestinations TriggeredAlertDestinations[]

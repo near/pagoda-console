@@ -263,6 +263,12 @@ export const ListTriggeredAlertSchema = Joi.object({
 });
 
 export interface TriggeredAlertDetailsResponseDto {
-  id: number;
-  // todo add fields
+  triggeredAlertReferenceId: string;
+  name: string;
+  type: RuleType;
+  triggeredInBlockHash: string;
+  triggeredInTransactionHash: string;
+  triggeredInReceiptId: number;
+  triggeredAt: Date;
+  extraData?: object;
 }

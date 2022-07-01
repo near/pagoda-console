@@ -6,12 +6,19 @@ import { ReadonlyService as ProjectsReadonlyService } from 'src/projects/readonl
 import { AppConfig } from 'src/config/validate';
 import { ConfigService } from '@nestjs/config';
 import { PermissionsService as ProjectPermissionsService } from 'src/projects/permissions.service';
+import { AlertsService } from '../alerts.service';
+import { MatchingRule } from '../serde/db.types';
+
+type TriggeredAlertWithAlert = TriggeredAlert & {
+  alert: Alert;
+};
 
 @Injectable()
 export class TriggeredAlertHistoryService {
   constructor(
     private prisma: PrismaService,
     private projectPermissions: ProjectPermissionsService,
+    private alertsService: AlertsService,
     private projects: ProjectsReadonlyService,
     private config: ConfigService<AppConfig>,
   ) {}
@@ -34,6 +41,9 @@ export class TriggeredAlertHistoryService {
       orderBy: {
         id: 'desc',
       },
+      include: {
+        alert: true,
+      },
       //   Seems likely we'll want one find by alertId and one by project id
       //   where: {
       //     active: true,
@@ -45,11 +55,27 @@ export class TriggeredAlertHistoryService {
     return triggeredAlerts.map((a) => this.toTriggeredAlertDto(a));
   }
 
-  private toTriggeredAlertDto(triggeredAlert: any) {
-    const { id } = triggeredAlert;
+  private toTriggeredAlertDto(triggeredAlert: TriggeredAlertWithAlert) {
+    const {
+      triggeredAlertReferenceId,
+      alert,
+      triggeredInBlockHash,
+      triggeredInTransactionHash,
+      triggeredInReceiptId,
+      triggeredAt,
+    } = triggeredAlert;
+    const extraData: object = triggeredAlert.extraData as object;
+    const rule = alert.matchingRule as object as MatchingRule;
+
     return {
-      // todo map fields
-      id,
+      triggeredAlertReferenceId,
+      name: alert.name,
+      type: this.alertsService.toAlertType(rule),
+      triggeredInBlockHash,
+      triggeredInTransactionHash,
+      triggeredInReceiptId,
+      triggeredAt,
+      extraData,
     };
   }
 }
