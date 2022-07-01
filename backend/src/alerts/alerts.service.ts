@@ -1037,10 +1037,10 @@ export class AlertsService {
           },
         },
       });
-      if (!emailDestination) {
+      if (!emailDestination || !emailDestination.tokenExpiresAt) {
         throw new VError(
           { info: { code: 'BAD_DESTINATION' } },
-          'Destination not found',
+          'Destination not found or incomplete',
         );
       }
 
@@ -1058,28 +1058,26 @@ export class AlertsService {
           .valueOf() < 0
       ) {
         throw new VError(
-          { info: { code: 'BAD_DESTINATION' } },
+          { info: { code: 'BAD_TOKEN_EXPIRED' } },
           'Token expired',
         );
       }
-      await this.prisma.$transaction([
-        this.prisma.destination.update({
-          where: {
-            id: emailDestination.destination.id,
+
+      await this.prisma.destination.update({
+        where: {
+          id: emailDestination.destination.id,
+        },
+        data: {
+          isValid: true,
+          emailDestination: {
+            update: {
+              isVerified: true,
+              token: null,
+              tokenExpiresAt: null,
+            },
           },
-          data: {
-            isValid: true,
-          },
-        }),
-        this.prisma.emailDestination.update({
-          where: {
-            id: emailDestination.id,
-          },
-          data: {
-            isVerified: true,
-          },
-        }),
-      ]);
+        },
+      });
     } catch (e) {
       throw new VError(e, 'Failed while verifying email destination');
     }

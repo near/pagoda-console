@@ -48,6 +48,8 @@ import {
   EnableDestinationSchema,
   UpdateDestinationSchema,
   UpdateDestinationDto,
+  VerifyEmailSchema,
+  VerifyEmailDto,
 } from './dto';
 import { TelegramService } from './telegram/telegram.service';
 import { TgUpdate } from './telegram/types';
@@ -290,8 +292,10 @@ export class AlertsController {
     }
   }
 
-  @Get('verifyEmailDestination')
-  async verifyEmailDestination(@Query('token') token: string) {
+  @Post('verifyEmailDestination')
+  @HttpCode(204)
+  @UsePipes(new JoiValidationPipe(VerifyEmailSchema))
+  async verifyEmailDestination(@Body() { token }: VerifyEmailDto) {
     try {
       await this.alertsService.verifyEmailDestination(token);
     } catch (e) {
@@ -374,6 +378,7 @@ function mapError(e: Error) {
       return new ForbiddenException();
     case 'BAD_DESTINATION':
     case 'BAD_ALERT':
+    case 'BAD_TOKEN_EXPIRED':
       return new BadRequestException();
     default:
       return e;

@@ -263,3 +263,11 @@ export const UpdateDestinationSchema = Joi.object({
     switch: [{ is: 'WEBHOOK', then: UpdateWebhookDestinationSchema }],
   }),
 });
+
+// verify email
+export interface VerifyEmailDto {
+  token: string;
+}
+export const VerifyEmailSchema = Joi.object({
+  token: Joi.string().required(),
+});
