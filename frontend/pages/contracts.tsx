@@ -1,5 +1,6 @@
 import BN from 'bn.js';
 import Image from 'next/image';
+import prettyBytes from 'pretty-bytes';
 import { useEffect, useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
@@ -339,7 +340,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
       )}
 
       {data ? (
-        <Text family="number">{data.result.storage_usage} B</Text>
+        <Text family="number">{prettyBytes(data.result.storage_usage || 0).toUpperCase()}</Text>
       ) : !error ? (
         <Spinner size="xs" />
       ) : (
