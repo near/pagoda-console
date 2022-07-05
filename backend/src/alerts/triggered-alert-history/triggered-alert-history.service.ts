@@ -44,12 +44,12 @@ export class TriggeredAlertHistoryService {
       include: {
         alert: true,
       },
-      //   Seems likely we'll want one find by alertId and one by project id
-      //   where: {
-      //     active: true,
-      //     projectSlug,
-      //     environmentSubId,
-      //   },
+      where: {
+        alert: {
+          projectSlug,
+          environmentSubId,
+        },
+      },
     });
 
     return triggeredAlerts.map((a) => this.toTriggeredAlertDto(a));
@@ -64,7 +64,8 @@ export class TriggeredAlertHistoryService {
       triggeredInReceiptId,
       triggeredAt,
     } = triggeredAlert;
-    const extraData: object = triggeredAlert.extraData as object;
+    const extraData: Record<string, unknown> =
+      triggeredAlert.extraData as Record<string, unknown>;
     const rule = alert.matchingRule as object as MatchingRule;
 
     return {

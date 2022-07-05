@@ -9,7 +9,12 @@ import { TriggeredAlertHistoryController } from './triggered-alert-history/trigg
 import { TriggeredAlertHistoryService } from './triggered-alert-history/triggered-alert-history.service';
 
 @Module({
-  providers: [AlertsService, PrismaService, TelegramService, TriggeredAlertHistoryService],
+  providers: [
+    AlertsService,
+    PrismaService,
+    TelegramService,
+    TriggeredAlertHistoryService,
+  ],
   controllers: [AlertsController, TriggeredAlertHistoryController],
   imports: [ProjectsModule, PrismaService, SerdeModule],
 })

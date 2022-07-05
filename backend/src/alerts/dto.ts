@@ -283,5 +283,5 @@ export interface TriggeredAlertDetailsResponseDto {
   triggeredInTransactionHash: string;
   triggeredInReceiptId: number;
   triggeredAt: Date;
-  extraData?: object;
+  extraData?: Record<string, unknown>;
 }
