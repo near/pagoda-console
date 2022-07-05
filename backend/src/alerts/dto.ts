@@ -268,11 +268,15 @@ export const UpdateDestinationSchema = Joi.object({
 export interface ListTriggeredAlertDto {
   projectSlug: string;
   environmentSubId: number;
+  skip?: string;
+  take?: string;
 }
 
 export const ListTriggeredAlertSchema = Joi.object({
   projectSlug: Joi.string().required(),
   environmentSubId: Joi.number().required(),
+  skip: Joi.number().optional(),
+  take: Joi.number().optional(),
 });
 
 export interface TriggeredAlertDetailsResponseDto {

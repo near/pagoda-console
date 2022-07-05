@@ -20,6 +20,8 @@ import {
 
 @Controller('triggeredAlertHistory')
 export class TriggeredAlertHistoryController {
+  static MAX_RECORDS = 100;
+
   constructor(
     private readonly triggeredAlertHistoryService: TriggeredAlertHistoryService,
   ) {}
@@ -29,17 +31,48 @@ export class TriggeredAlertHistoryController {
   @UsePipes(new JoiValidationPipe(ListTriggeredAlertSchema))
   async listTriggeredAlerts(
     @Request() req,
-    @Body() { projectSlug, environmentSubId }: ListTriggeredAlertDto,
+    @Body()
+    { projectSlug, environmentSubId, skip, take }: ListTriggeredAlertDto,
   ): Promise<TriggeredAlertDetailsResponseDto[]> {
     try {
-      return await this.triggeredAlertHistoryService.listTriggeredAlerts(
+      const {
+        skipParsed,
+        takeParsed,
+      }: { skipParsed: number; takeParsed: number } = this.parsePagingParams(
+        skip,
+        take,
+      );
+
+      return await this.triggeredAlertHistoryService.listTriggeredAlertsByProject(
         req.user,
         projectSlug,
         environmentSubId,
+        skipParsed,
+        takeParsed,
       );
     } catch (e) {
       throw mapError(e);
     }
+  }
+
+  private parsePagingParams(skip: string, take: string) {
+    let skipParsed: number = skip ? parseInt(skip) : 0;
+    let takeParsed: number = take ? parseInt(take) : 100;
+    if (
+      Number.isNaN(skipParsed) ||
+      skipParsed < 0 ||
+      skipParsed > Number.MAX_SAFE_INTEGER
+    ) {
+      skipParsed = 0;
+    }
+    if (
+      Number.isNaN(takeParsed) ||
+      takeParsed < 1 ||
+      takeParsed > TriggeredAlertHistoryController.MAX_RECORDS
+    ) {
+      takeParsed = TriggeredAlertHistoryController.MAX_RECORDS;
+    }
+    return { skipParsed, takeParsed };
   }
 }
 
