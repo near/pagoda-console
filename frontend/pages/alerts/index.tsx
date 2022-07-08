@@ -200,7 +200,6 @@ const ListAlerts: NextPageWithLayout = () => {
               <Text size="bodySmall" color="text3">
                 Records {startingRecord} - {endingRecord} of {triggeredAlertsCount}
               </Text>
-              {/* Records {pagingState.resultsPage * pageSize} - {pagingState.resultsPage * pageSize + pageSize} of {triggeredAlertsCount} */}
             </Flex>
           </Flex>
         </Tabs.Content>
