@@ -19,13 +19,37 @@ export class TriggeredAlertHistoryService {
     private alertsService: AlertsService,
   ) {}
 
-  // todo add count query, createdAfterDate for consistent paging
+  async countTriggeredAlertsByProject(
+    user: User,
+    projectSlug: Alert['projectSlug'],
+    environmentSubId: Alert['environmentSubId'],
+    pagingDateTime: Date,
+  ): Promise<number> {
+    await this.projectPermissions.checkUserProjectEnvPermission(
+      user.id,
+      projectSlug,
+      environmentSubId,
+    );
+
+    const listWhere = this.determineWhereClause(
+      pagingDateTime,
+      projectSlug,
+      environmentSubId,
+    );
+    const count = await this.prisma.triggeredAlert.count({
+      where: listWhere,
+    });
+
+    return count;
+  }
+
   async listTriggeredAlertsByProject(
     user: User,
     projectSlug: Alert['projectSlug'],
     environmentSubId: Alert['environmentSubId'],
     skip: number,
     take: number,
+    pagingDateTime: Date,
   ): Promise<Array<TriggeredAlertDetailsResponseDto>> {
     await this.projectPermissions.checkUserProjectEnvPermission(
       user.id,
@@ -33,24 +57,51 @@ export class TriggeredAlertHistoryService {
       environmentSubId,
     );
 
+    const listWhere = this.determineWhereClause(
+      pagingDateTime,
+      projectSlug,
+      environmentSubId,
+    );
     const triggeredAlerts = await this.prisma.triggeredAlert.findMany({
       skip,
       take,
       orderBy: {
-        id: 'desc',
+        triggeredAt: 'desc',
       },
       include: {
         alert: true,
       },
-      where: {
+      where: listWhere,
+    });
+
+    return triggeredAlerts.map((a) => this.toTriggeredAlertDto(a));
+  }
+
+  private determineWhereClause(
+    pagingDateTime: Date,
+    projectSlug: string,
+    environmentSubId: number,
+  ) {
+    let listWhere;
+    if (pagingDateTime) {
+      listWhere = {
         alert: {
           projectSlug,
           environmentSubId,
         },
-      },
-    });
-
-    return triggeredAlerts.map((a) => this.toTriggeredAlertDto(a));
+      };
+    } else {
+      listWhere = {
+        triggeredAt: {
+          lte: pagingDateTime,
+        },
+        alert: {
+          projectSlug,
+          environmentSubId,
+        },
+      };
+    }
+    return listWhere;
   }
 
   private toTriggeredAlertDto(triggeredAlert: TriggeredAlertWithAlert) {

@@ -265,18 +265,30 @@ export const UpdateDestinationSchema = Joi.object({
 });
 
 // list triggered alerts
+export interface CountTriggeredAlertDto {
+  projectSlug: string;
+  environmentSubId: number;
+  pagingDateTime?: Date;
+}
 export interface ListTriggeredAlertDto {
   projectSlug: string;
   environmentSubId: number;
   skip?: string;
   take?: string;
+  pagingDateTime?: Date;
 }
 
+export const CountTriggeredAlertSchema = Joi.object({
+  projectSlug: Joi.string().required(),
+  environmentSubId: Joi.number().required(),
+  pagingDateTime: Joi.date().optional(),
+});
 export const ListTriggeredAlertSchema = Joi.object({
   projectSlug: Joi.string().required(),
   environmentSubId: Joi.number().required(),
   skip: Joi.number().optional(),
   take: Joi.number().optional(),
+  pagingDateTime: Joi.date().optional(),
 });
 
 export interface TriggeredAlertDetailsResponseDto {

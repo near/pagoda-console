@@ -16,6 +16,8 @@ import {
   ListTriggeredAlertSchema,
   ListTriggeredAlertDto,
   TriggeredAlertDetailsResponseDto,
+  CountTriggeredAlertDto,
+  CountTriggeredAlertSchema,
 } from '../dto';
 
 @Controller('triggeredAlertHistory')
@@ -26,13 +28,41 @@ export class TriggeredAlertHistoryController {
     private readonly triggeredAlertHistoryService: TriggeredAlertHistoryService,
   ) {}
 
+  @Post('countTriggeredAlerts')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(CountTriggeredAlertSchema))
+  async countTriggeredAlerts(
+    @Request() req,
+    @Body()
+    { projectSlug, environmentSubId, pagingDateTime }: CountTriggeredAlertDto,
+  ): Promise<number> {
+    try {
+      const count =
+        await this.triggeredAlertHistoryService.countTriggeredAlertsByProject(
+          req.user,
+          projectSlug,
+          environmentSubId,
+          pagingDateTime,
+        );
+      return count;
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
   @Post('listTriggeredAlerts')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(ListTriggeredAlertSchema))
   async listTriggeredAlerts(
     @Request() req,
     @Body()
-    { projectSlug, environmentSubId, skip, take }: ListTriggeredAlertDto,
+    {
+      projectSlug,
+      environmentSubId,
+      skip,
+      take,
+      pagingDateTime,
+    }: ListTriggeredAlertDto,
   ): Promise<TriggeredAlertDetailsResponseDto[]> {
     try {
       const {
@@ -49,13 +79,14 @@ export class TriggeredAlertHistoryController {
         environmentSubId,
         skipParsed,
         takeParsed,
+        pagingDateTime,
       );
     } catch (e) {
       throw mapError(e);
     }
   }
 
-  private parsePagingParams(skip: string, take: string) {
+  public parsePagingParams(skip: string, take: string) {
     let skipParsed: number = skip ? parseInt(skip) : 0;
     let takeParsed: number = take ? parseInt(take) : 100;
     if (
@@ -78,8 +109,8 @@ export class TriggeredAlertHistoryController {
 
 function mapError(e: Error) {
   // TODO log in dev
-  // console.error(e);
-  switch (VError.info(e)?.code) {
+  console.error(e);
+  switch (VError?.info(e)?.code) {
     case 'PERMISSION_DENIED':
       return new ForbiddenException();
     case 'BAD_DESTINATION':
