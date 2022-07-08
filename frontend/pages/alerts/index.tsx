@@ -69,6 +69,37 @@ const ListAlerts: NextPageWithLayout = () => {
     setShowEditDestinationModal(true);
   }
 
+  function emptyHistoryMoment() {
+    if (triggeredAlertsCount === undefined) {
+      return <Spinner center />;
+    }
+    if (triggeredAlertsCount === 0) {
+      if (alerts === undefined) {
+        return <Spinner center />;
+      }
+
+      if (alerts?.length === 0) {
+        return (
+          <Card>
+            <Flex>
+              <FeatherIcon icon="bell" size="m" />
+              <Text>{`Your selected environment doesn't have any alerts configured yet.`}</Text>
+            </Flex>
+          </Card>
+        );
+      } else {
+        return (
+          <Card>
+            <Flex>
+              <FeatherIcon icon="bell" size="m" />
+              <Text>{`Your selected environment doesn't have any triggered alerts yet.`}</Text>
+            </Flex>
+          </Card>
+        );
+      }
+    }
+    return '';
+  }
   function formatHashOrUuidAsAbbreviated(hash: string) {
     if (!hash) return '';
     if (hash.length > 8) {
@@ -116,6 +147,7 @@ const ListAlerts: NextPageWithLayout = () => {
                 </Table.Head>
 
                 <Table.Body>
+                  {emptyHistoryMoment()}
                   {triggeredAlerts?.map((row) => {
                     const alertTypeOption = alertTypes[row.type];
                     return (
