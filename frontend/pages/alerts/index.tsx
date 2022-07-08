@@ -21,19 +21,47 @@ import { EditDestinationModal } from '@/modules/alerts/components/EditDestinatio
 import { NewDestinationModal } from '@/modules/alerts/components/NewDestinationModal';
 import { useAlerts } from '@/modules/alerts/hooks/alerts';
 import { useDestinations } from '@/modules/alerts/hooks/destinations';
-import { useTriggeredAlerts } from '@/modules/alerts/hooks/triggered-alerts';
+import { useTriggeredAlerts, useTriggeredAlertsCount } from '@/modules/alerts/hooks/triggered-alerts';
 import { alertTypes, destinationTypes } from '@/modules/alerts/utils/constants';
 import type { Destination } from '@/modules/alerts/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
+type PagingState = { liveUpdatesEnabled: boolean; resultsPage: number; pagingDateTime: Date | undefined };
+
 const ListAlerts: NextPageWithLayout = () => {
   const { environment, project } = useSelectedProject();
-  const { triggeredAlerts } = useTriggeredAlerts(project?.slug, environment?.subId);
   const { alerts } = useAlerts(project?.slug, environment?.subId);
   const { destinations } = useDestinations(project?.slug);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
   const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
+  const pagingStateInitialValues: PagingState = {
+    liveUpdatesEnabled: true,
+    resultsPage: 1,
+    pagingDateTime: undefined,
+  };
+  const [pagingState, setPagingState] = useState(pagingStateInitialValues);
+  const { triggeredAlertsCount } = useTriggeredAlertsCount(
+    project?.slug,
+    environment?.subId,
+    pagingState.liveUpdatesEnabled,
+    pagingState.pagingDateTime,
+  );
+  const pageSize = 5;
+  const numberOfPages = triggeredAlertsCount !== undefined ? Math.ceil(triggeredAlertsCount / pageSize) : 1;
+  const startingRecord = pagingState.resultsPage * pageSize;
+  const endingRecord =
+    triggeredAlertsCount !== undefined && startingRecord + pageSize < triggeredAlertsCount
+      ? startingRecord + pageSize
+      : triggeredAlertsCount;
+  const { triggeredAlerts } = useTriggeredAlerts(
+    project?.slug,
+    environment?.subId,
+    pagingState.resultsPage,
+    pagingState.liveUpdatesEnabled,
+    pagingState.pagingDateTime,
+    pageSize,
+  );
   const activeTab = useRouteParam('tab', '?tab=alerts', true);
 
   function openDestination(destination: Destination) {
@@ -118,6 +146,61 @@ const ListAlerts: NextPageWithLayout = () => {
                   })}
                 </Table.Body>
               </Table.Root>
+            </Flex>
+            <Flex>
+              <ButtonLink
+                liveUpdates={pagingState.liveUpdatesEnabled}
+                color="neutral"
+                size="s"
+                onClick={() =>
+                  setPagingState((pagingState) => {
+                    return {
+                      liveUpdatesEnabled: !pagingState.liveUpdatesEnabled,
+                      resultsPage: 1,
+                      pagingDateTime: pagingState.liveUpdatesEnabled ? new Date() : undefined,
+                    };
+                  })
+                }
+              >
+                <FeatherIcon icon="refresh-cw" /> Live Updates - {pagingState.liveUpdatesEnabled ? 'Disable' : 'Enable'}
+              </ButtonLink>
+              <Button
+                color="neutral"
+                size="s"
+                disabled={pagingState.resultsPage <= 1}
+                onClick={() =>
+                  setPagingState((pagingState) => {
+                    return {
+                      liveUpdatesEnabled: false,
+                      resultsPage: pagingState.resultsPage - 1,
+                      pagingDateTime: pagingState.pagingDateTime || new Date(),
+                    };
+                  })
+                }
+              >
+                <FeatherIcon icon="chevron-left" /> Previous
+              </Button>
+              Page {pagingState.resultsPage} / {numberOfPages}
+              <Button
+                color="neutral"
+                size="s"
+                disabled={pagingState.resultsPage >= numberOfPages}
+                onClick={() =>
+                  setPagingState((pagingState) => {
+                    return {
+                      liveUpdatesEnabled: false,
+                      resultsPage: pagingState.resultsPage + 1,
+                      pagingDateTime: pagingState.pagingDateTime || new Date(),
+                    };
+                  })
+                }
+              >
+                <FeatherIcon icon="chevron-right" /> Next
+              </Button>
+              <Text size="bodySmall" color="text3">
+                Records {startingRecord} - {endingRecord} of {triggeredAlertsCount}
+              </Text>
+              {/* Records {pagingState.resultsPage * pageSize} - {pagingState.resultsPage * pageSize + pageSize} of {triggeredAlertsCount} */}
             </Flex>
           </Flex>
         </Tabs.Content>
