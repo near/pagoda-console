@@ -64,6 +64,9 @@ const NewAlert: NextPageWithLayout = () => {
     }
   }, [contracts]);
 
+  const environmentTitle = environment?.net === 'TESTNET' ? 'Testnet' : 'Mainnet';
+  const environmentTla = environment?.net === 'TESTNET' ? 'testnet' : 'near';
+
   const contractCombobox = useCombobox({
     id: 'contract-cbx',
     items: contractComboboxItems,
@@ -138,14 +141,14 @@ const NewAlert: NextPageWithLayout = () => {
                 <Text as="span" color="text3" size="h4" family="number">
                   1.
                 </Text>{' '}
-                Select Target
+                Select {environmentTitle} Target
               </H4>
 
               <Text>
                 <Flex as="span" align="center" gap="s" wrap>
-                  Valid address examples: <Badge size="s">pagoda.near</Badge>
-                  <Badge size="s">app.pagoda.testnet</Badge>
-                  <Badge size="s">*.pagoda.near</Badge>
+                  Valid address examples: <Badge size="s">pagoda.{environmentTla}</Badge>
+                  <Badge size="s">app.pagoda.{environmentTla}</Badge>
+                  <Badge size="s">*.pagoda.{environmentTla}</Badge>
                 </Flex>
               </Text>
 
@@ -153,7 +156,7 @@ const NewAlert: NextPageWithLayout = () => {
                 <Combobox.Root open={contractCombobox.isOpen && contractComboboxItems.length > 0}>
                   <Combobox.Box {...contractCombobox.getComboboxProps()}>
                     <Form.FloatingLabelInput
-                      label="Address"
+                      label={`${environmentTitle} Address`}
                       labelProps={{ ...contractCombobox.getLabelProps() }}
                       isInvalid={!!form.formState.errors.contract}
                       placeholder="Enter any address..."
