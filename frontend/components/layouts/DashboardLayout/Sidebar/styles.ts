@@ -20,6 +20,7 @@ export const Sidebar = styled('nav', {
   background: 'var(--color-surface-1)',
   overflow: 'auto',
   scrollBehavior: 'smooth',
+  boxShadow: 'var(--shadow-softer)',
 });
 
 export const LogoContainer = styled('div', {
@@ -27,6 +28,7 @@ export const LogoContainer = styled('div', {
   alignItems: 'center',
   height: 'var(--size-header-height)',
   padding: '0 var(--space-s)',
+  flexShrink: 0,
 });
 
 export const Nav = styled('ul', {

@@ -12,12 +12,3 @@ export const Main = styled('main', {
   flexDirection: 'column',
   flex: '1 0 auto',
 });
-
-export const Header = styled('header', {
-  flexShrink: 0,
-  padding: 'var(--space-m)',
-  position: 'sticky',
-  top: 0,
-  background: 'var(--color-surface-2)',
-  zIndex: 500,
-});
