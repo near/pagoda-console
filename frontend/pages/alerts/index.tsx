@@ -79,11 +79,11 @@ const ListAlerts: NextPageWithLayout = () => {
               <Table.Root>
                 <Table.Head>
                   <Table.Row>
-                    <Table.HeaderCell>NAME</Table.HeaderCell>
-                    <Table.HeaderCell>TYPE</Table.HeaderCell>
-                    <Table.HeaderCell>TRANSACTION</Table.HeaderCell>
-                    <Table.HeaderCell>ID</Table.HeaderCell>
-                    <Table.HeaderCell>TIME</Table.HeaderCell>
+                    <Table.HeaderCell>Name</Table.HeaderCell>
+                    <Table.HeaderCell>Type</Table.HeaderCell>
+                    <Table.HeaderCell>Transaction</Table.HeaderCell>
+                    <Table.HeaderCell>Id</Table.HeaderCell>
+                    <Table.HeaderCell>Time</Table.HeaderCell>
                   </Table.Row>
                 </Table.Head>
 
