@@ -57,17 +57,10 @@ export const Button = styled('button', {
           background: 'var(--color-cta-danger-highlight)',
         },
       },
-      primary: {
-        background: 'var(--color-cta-primary)',
-        color: 'var(--color-cta-primary-text)',
-        '&:hover': {
-          background: 'var(--color-cta-primary-highlight)',
-        },
-      },
-      neutral: {
+      dangerBorder: {
         background: 'transparent',
-        boxShadow: 'inset 0 0 0 1px var(--color-surface-5)',
-        color: 'var(--color-text-1)',
+        boxShadow: 'inset 0 0 0 1px currentColor',
+        color: 'var(--color-danger)',
         '&:hover': {
           background: 'var(--color-surface-1)',
         },
@@ -82,6 +75,29 @@ export const Button = styled('button', {
         '&:focus': {
           outline: 'none',
           borderColor: 'var(--focus-outline-color)',
+        },
+      },
+      primary: {
+        background: 'var(--color-cta-primary)',
+        color: 'var(--color-cta-primary-text)',
+        '&:hover': {
+          background: 'var(--color-cta-primary-highlight)',
+        },
+      },
+      primaryBorder: {
+        background: 'transparent',
+        boxShadow: 'inset 0 0 0 1px currentColor',
+        color: 'var(--color-primary)',
+        '&:hover': {
+          background: 'var(--color-surface-1)',
+        },
+      },
+      neutral: {
+        background: 'transparent',
+        boxShadow: 'inset 0 0 0 1px var(--color-surface-5)',
+        color: 'var(--color-text-1)',
+        '&:hover': {
+          background: 'var(--color-surface-1)',
         },
       },
       transparent: {

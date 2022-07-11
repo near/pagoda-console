@@ -162,6 +162,12 @@ npm run test:snapshot:local
 
 then run `npm run test:e2e` for integration tests or `npm run test:snapshot` for snapshot tests.
 
+### Updating Snapshots
+
+Updating a single image should be as simple as downloading the playwright report from the failed github action, pulling the image from the report, and opening a PR with the new image. However, sometimes you will need to update several images.
+
+To update several images at once, you can run the github action in `./github/workflows/snapshot-images.yml`. This action will take ~15 minutes and produce a zip file with the contents of the `./tests/playwright/snapshot` directory which contains the snapshot images. Open a PR containing these new images.
+
 ### Initial console setup for e2e tests
 
 Go to the url of the environment you want to test:
