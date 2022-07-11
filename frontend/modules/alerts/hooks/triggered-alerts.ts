@@ -8,7 +8,7 @@ import type { TriggeredAlert } from '../utils/types';
 export function useTriggeredAlertsCount(
   projectSlug: string | undefined,
   environmentSubId: number | undefined,
-  liveUpdatesEnabled: boolean | true,
+  liveUpdatesEnabled = true,
   pagingDateTime: Date | undefined,
 ): {
   triggeredAlertsCount?: number;
@@ -35,10 +35,10 @@ export function useTriggeredAlertsCount(
 export function useTriggeredAlerts(
   projectSlug: string | undefined,
   environmentSubId: number | undefined,
-  resultsPage: number | 1,
-  liveUpdatesEnabled: boolean | true,
+  resultsPage = 1,
+  liveUpdatesEnabled = true,
   pagingDateTime: Date | undefined,
-  pageSize: number | 5,
+  pageSize = 5,
 ): {
   triggeredAlerts?: TriggeredAlert[];
   error?: any;
