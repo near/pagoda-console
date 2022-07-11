@@ -203,7 +203,7 @@ interface ConfigWebhook {
 }
 
 // Triggered Alerts
-export type TriggeredAlert = {
+export interface TriggeredAlert {
   triggeredAlertReferenceId: string;
   name: string;
   type: AlertType;
@@ -212,4 +212,4 @@ export type TriggeredAlert = {
   triggeredInReceiptId: number;
   triggeredAt: string;
   extraData?: Record<string, unknown>;
-};
+}

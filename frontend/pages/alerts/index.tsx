@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { Button, ButtonLink } from '@/components/lib/Button';
@@ -8,13 +8,16 @@ import { Card } from '@/components/lib/Card';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H1 } from '@/components/lib/Heading';
+import { Pagination } from '@/components/lib/Pagination';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import * as Table from '@/components/lib/Table';
 import * as Tabs from '@/components/lib/Tabs';
 import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { useDashboardLayout } from '@/hooks/layouts';
+import { usePagination } from '@/hooks/pagination';
 import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { EditDestinationModal } from '@/modules/alerts/components/EditDestinationModal';
@@ -24,9 +27,8 @@ import { useDestinations } from '@/modules/alerts/hooks/destinations';
 import { useTriggeredAlerts, useTriggeredAlertsCount } from '@/modules/alerts/hooks/triggered-alerts';
 import { alertTypes, destinationTypes } from '@/modules/alerts/utils/constants';
 import type { Destination } from '@/modules/alerts/utils/types';
-import type { NextPageWithLayout } from '@/utils/types';
-
-type PagingState = { liveUpdatesEnabled: boolean; resultsPage: number; pagingDateTime: Date | undefined };
+import { truncateMiddle } from '@/utils/truncate-middle';
+import type { Environment, NextPageWithLayout, Project } from '@/utils/types';
 
 const ListAlerts: NextPageWithLayout = () => {
   const { environment, project } = useSelectedProject();
@@ -35,77 +37,11 @@ const ListAlerts: NextPageWithLayout = () => {
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
   const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
-  const pagingStateInitialValues: PagingState = {
-    liveUpdatesEnabled: true,
-    resultsPage: 1,
-    pagingDateTime: undefined,
-  };
-  const [pagingState, setPagingState] = useState(pagingStateInitialValues);
-  const { triggeredAlertsCount } = useTriggeredAlertsCount(
-    project?.slug,
-    environment?.subId,
-    pagingState.liveUpdatesEnabled,
-    pagingState.pagingDateTime,
-  );
-  const pageSize = 5;
-  const numberOfPages = triggeredAlertsCount !== undefined ? Math.ceil(triggeredAlertsCount / pageSize) : 1;
-  const startingRecord = pagingState.resultsPage * pageSize;
-  const endingRecord =
-    triggeredAlertsCount !== undefined && startingRecord + pageSize < triggeredAlertsCount
-      ? startingRecord + pageSize
-      : triggeredAlertsCount;
-  const { triggeredAlerts } = useTriggeredAlerts(
-    project?.slug,
-    environment?.subId,
-    pagingState.resultsPage,
-    pagingState.liveUpdatesEnabled,
-    pagingState.pagingDateTime,
-    pageSize,
-  );
   const activeTab = useRouteParam('tab', '?tab=alerts', true);
 
   function openDestination(destination: Destination) {
     setSelectedEditDestination(destination);
     setShowEditDestinationModal(true);
-  }
-
-  function emptyHistoryMoment() {
-    if (triggeredAlertsCount === undefined) {
-      return <Spinner center />;
-    }
-    if (triggeredAlertsCount === 0) {
-      if (alerts === undefined) {
-        return <Spinner center />;
-      }
-
-      if (alerts?.length === 0) {
-        return (
-          <Card>
-            <Flex>
-              <FeatherIcon icon="bell" size="m" />
-              <Text>{`Your selected environment doesn't have any alerts configured yet.`}</Text>
-            </Flex>
-          </Card>
-        );
-      } else {
-        return (
-          <Card>
-            <Flex>
-              <FeatherIcon icon="bell" size="m" />
-              <Text>{`Your selected environment doesn't have any triggered alerts yet.`}</Text>
-            </Flex>
-          </Card>
-        );
-      }
-    }
-    return '';
-  }
-  function formatHashOrUuidAsAbbreviated(hash: string) {
-    if (!hash) return '';
-    if (hash.length > 8) {
-      return hash.substring(0, 4) + '...' + hash.substring(hash.length - 5, hash.length - 1);
-    }
-    return hash;
   }
 
   return (
@@ -132,108 +68,7 @@ const ListAlerts: NextPageWithLayout = () => {
         </Tabs.List>
 
         <Tabs.Content value="history">
-          <Flex stack gap="l">
-            <Flex justify="spaceBetween"></Flex>
-            <Flex stack gap="s">
-              <Table.Root>
-                <Table.Head>
-                  <Table.Row>
-                    <Table.HeaderCell>Name</Table.HeaderCell>
-                    <Table.HeaderCell>Type</Table.HeaderCell>
-                    <Table.HeaderCell>Transaction</Table.HeaderCell>
-                    <Table.HeaderCell>Id</Table.HeaderCell>
-                    <Table.HeaderCell>Time</Table.HeaderCell>
-                  </Table.Row>
-                </Table.Head>
-
-                <Table.Body>
-                  {emptyHistoryMoment()}
-                  {triggeredAlerts?.map((row) => {
-                    const alertTypeOption = alertTypes[row.type];
-                    return (
-                      <Table.Row key={row.triggeredAlertReferenceId}>
-                        <Table.Cell>{row.name}</Table.Cell>
-                        <Table.Cell>
-                          <Badge size="s">
-                            <FeatherIcon icon={alertTypeOption.icon} size="xs" /> {alertTypeOption.name}
-                          </Badge>
-                        </Table.Cell>
-                        <Table.Cell>
-                          <Text family="number" color="text3" size="current">
-                            {formatHashOrUuidAsAbbreviated(row.triggeredInTransactionHash)}
-                          </Text>
-                        </Table.Cell>
-                        <Table.Cell>
-                          <Text family="number" color="text3" size="current">
-                            {formatHashOrUuidAsAbbreviated(row.triggeredAlertReferenceId)}
-                          </Text>
-                        </Table.Cell>
-                        <Table.Cell>
-                          <Text family="number" color="text3" size="current">
-                            {DateTime.fromISO(row.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT)}
-                          </Text>
-                        </Table.Cell>
-                      </Table.Row>
-                    );
-                  })}
-                </Table.Body>
-              </Table.Root>
-            </Flex>
-            <Flex>
-              <ButtonLink
-                liveUpdates={pagingState.liveUpdatesEnabled}
-                color="neutral"
-                size="s"
-                onClick={() =>
-                  setPagingState((pagingState) => {
-                    return {
-                      liveUpdatesEnabled: !pagingState.liveUpdatesEnabled,
-                      resultsPage: 1,
-                      pagingDateTime: pagingState.liveUpdatesEnabled ? new Date() : undefined,
-                    };
-                  })
-                }
-              >
-                <FeatherIcon icon="refresh-cw" /> Live Updates - {pagingState.liveUpdatesEnabled ? 'Disable' : 'Enable'}
-              </ButtonLink>
-              <Button
-                color="neutral"
-                size="s"
-                disabled={pagingState.resultsPage <= 1}
-                onClick={() =>
-                  setPagingState((pagingState) => {
-                    return {
-                      liveUpdatesEnabled: false,
-                      resultsPage: pagingState.resultsPage - 1,
-                      pagingDateTime: pagingState.pagingDateTime || new Date(),
-                    };
-                  })
-                }
-              >
-                <FeatherIcon icon="chevron-left" /> Previous
-              </Button>
-              Page {pagingState.resultsPage} / {numberOfPages}
-              <Button
-                color="neutral"
-                size="s"
-                disabled={pagingState.resultsPage >= numberOfPages}
-                onClick={() =>
-                  setPagingState((pagingState) => {
-                    return {
-                      liveUpdatesEnabled: false,
-                      resultsPage: pagingState.resultsPage + 1,
-                      pagingDateTime: pagingState.pagingDateTime || new Date(),
-                    };
-                  })
-                }
-              >
-                <FeatherIcon icon="chevron-right" /> Next
-              </Button>
-              <Text size="bodySmall" color="text3">
-                Records {startingRecord} - {endingRecord} of {triggeredAlertsCount}
-              </Text>
-            </Flex>
-          </Flex>
+          <AlertHistory environment={environment} project={project} />
         </Tabs.Content>
 
         <Tabs.Content value="alerts">
@@ -362,6 +197,101 @@ const ListAlerts: NextPageWithLayout = () => {
     </Section>
   );
 };
+
+function AlertHistory({ project, environment }: { environment?: Environment; project?: Project }) {
+  const pagination = usePagination();
+  const { triggeredAlertsCount } = useTriggeredAlertsCount(project?.slug, environment?.subId, pagination);
+  const { isLoadingPage, triggeredAlerts } = useTriggeredAlerts(project?.slug, environment?.subId, pagination);
+  const { alerts } = useAlerts(project?.slug, environment?.subId);
+
+  useEffect(() => {
+    pagination.updateItemCount(triggeredAlertsCount);
+  });
+
+  if (!triggeredAlerts) {
+    return <Spinner center />;
+  }
+
+  if (triggeredAlertsCount === 0) {
+    if (!alerts) {
+      return <Spinner center />;
+    }
+
+    if (alerts?.length === 0) {
+      return (
+        <Card>
+          <Flex stack align="center">
+            <FeatherIcon icon="bell-off" size="l" />
+
+            {alerts?.length === 0 ? (
+              <>
+                <Text>{`Your selected environment doesn't have any alerts configured yet.`}</Text>
+
+                <Link href="/alerts/new-alert" passHref>
+                  <TextLink>Create an Alert</TextLink>
+                </Link>
+              </>
+            ) : (
+              <Text>{`Your selected environment doesn't have any triggered alerts yet.`}</Text>
+            )}
+          </Flex>
+        </Card>
+      );
+    }
+  }
+
+  return (
+    <Flex stack gap="l">
+      <Flex stack gap="s">
+        <Table.Root>
+          <Table.Head>
+            <Table.Row>
+              <Table.HeaderCell>Name</Table.HeaderCell>
+              <Table.HeaderCell>Type</Table.HeaderCell>
+              <Table.HeaderCell>Transaction</Table.HeaderCell>
+              <Table.HeaderCell>Id</Table.HeaderCell>
+              <Table.HeaderCell>Time</Table.HeaderCell>
+            </Table.Row>
+          </Table.Head>
+
+          <Table.Body>
+            {triggeredAlerts?.map((row) => {
+              const alertTypeOption = alertTypes[row.type];
+              return (
+                <Table.Row key={row.triggeredAlertReferenceId}>
+                  <Table.Cell>{row.name}</Table.Cell>
+                  <Table.Cell>
+                    <Badge size="s">
+                      <FeatherIcon icon={alertTypeOption.icon} size="xs" />
+                      {alertTypeOption.name}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Text family="number" color="text3" size="current">
+                      {truncateMiddle(row.triggeredInTransactionHash)}
+                    </Text>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Text family="number" color="text3" size="current">
+                      {truncateMiddle(row.triggeredAlertReferenceId)}
+                    </Text>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Text family="number" color="text3" size="current">
+                      {DateTime.fromISO(row.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT)}
+                    </Text>
+                  </Table.Cell>
+                </Table.Row>
+              );
+            })}
+          </Table.Body>
+        </Table.Root>
+      </Flex>
+
+      <Pagination isLoadingPage={isLoadingPage} pagination={pagination} totalCount={triggeredAlertsCount} />
+    </Flex>
+  );
+}
 
 ListAlerts.getLayout = useDashboardLayout;
 

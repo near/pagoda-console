@@ -5,11 +5,6 @@ const spinAnimation = keyframes({
   to: { transform: 'rotate(360deg)' },
 });
 
-const liveAnimation = keyframes({
-  '0%': { backgroundSize: '5% 100%' },
-  '100%': { backgroundSize: '120% 100%' },
-});
-
 export const Content = styled('span', {
   display: 'flex',
   gap: 'var(--space-s)',
@@ -160,13 +155,6 @@ export const Button = styled('button', {
     stretch: {
       true: {
         width: '100%',
-      },
-    },
-
-    liveUpdates: {
-      true: {
-        background: 'linear-gradient(90deg, var(--color-surface-1), var(--color-surface-3)) no-repeat',
-        animation: `${liveAnimation} 3s ease-in-out infinite`,
       },
     },
   },
