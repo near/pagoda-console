@@ -27,6 +27,7 @@ import { useRecentTransactions } from '@/modules/core/hooks/recent-transactions'
 import ContractsPreview from '@/public/contractsPreview.png';
 import analytics from '@/utils/analytics';
 import config from '@/utils/config';
+import { formatBytes } from '@/utils/format-bytes';
 import { returnContractAddressRegex } from '@/utils/helpers';
 import { authenticatedPost } from '@/utils/http';
 import type { NetOption } from '@/utils/types';
@@ -339,7 +340,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
       )}
 
       {data ? (
-        <Text family="number">{data.result.storage_usage} B</Text>
+        <Text family="number">{formatBytes(data.result.storage_usage)}</Text>
       ) : !error ? (
         <Spinner size="xs" />
       ) : (
