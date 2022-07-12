@@ -263,3 +263,25 @@ export const UpdateDestinationSchema = Joi.object({
     switch: [{ is: 'WEBHOOK', then: UpdateWebhookDestinationSchema }],
   }),
 });
+
+// list triggered alerts
+export interface ListTriggeredAlertDto {
+  projectSlug: string;
+  environmentSubId: number;
+}
+
+export const ListTriggeredAlertSchema = Joi.object({
+  projectSlug: Joi.string().required(),
+  environmentSubId: Joi.number().required(),
+});
+
+export interface TriggeredAlertDetailsResponseDto {
+  triggeredAlertSlug: string;
+  name: string;
+  type: RuleType;
+  triggeredInBlockHash: string;
+  triggeredInTransactionHash: string;
+  triggeredInReceiptId: number;
+  triggeredAt: Date;
+  extraData?: Record<string, unknown>;
+}

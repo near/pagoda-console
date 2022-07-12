@@ -561,7 +561,7 @@ export class AlertsService {
     };
   }
 
-  private toAlertType(rule: MatchingRule): RuleType {
+  public toAlertType(rule: MatchingRule): RuleType {
     if (rule.rule === 'ACTION_ANY' && rule.status === 'SUCCESS') {
       return 'TX_SUCCESS';
     }
