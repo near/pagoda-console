@@ -273,8 +273,8 @@ export interface CountTriggeredAlertDto {
 export interface ListTriggeredAlertDto {
   projectSlug: string;
   environmentSubId: number;
-  skip?: string;
-  take?: string;
+  skip?: number;
+  take?: number;
   pagingDateTime?: Date;
 }
 
@@ -286,8 +286,8 @@ export const CountTriggeredAlertSchema = Joi.object({
 export const ListTriggeredAlertSchema = Joi.object({
   projectSlug: Joi.string().required(),
   environmentSubId: Joi.number().required(),
-  skip: Joi.number().optional(),
-  take: Joi.number().optional(),
+  skip: Joi.number().integer().min(0).optional(),
+  take: Joi.number().integer().min(0).max(100).optional(),
   pagingDateTime: Joi.date().optional(),
 });
 

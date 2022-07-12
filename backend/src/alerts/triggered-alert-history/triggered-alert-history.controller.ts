@@ -65,45 +65,17 @@ export class TriggeredAlertHistoryController {
     }: ListTriggeredAlertDto,
   ): Promise<TriggeredAlertDetailsResponseDto[]> {
     try {
-      const {
-        skipParsed,
-        takeParsed,
-      }: { skipParsed: number; takeParsed: number } = this.parsePagingParams(
-        skip,
-        take,
-      );
-
       return await this.triggeredAlertHistoryService.listTriggeredAlertsByProject(
         req.user,
         projectSlug,
         environmentSubId,
-        skipParsed,
-        takeParsed,
+        skip || 0,
+        take || 100,
         pagingDateTime,
       );
     } catch (e) {
       throw mapError(e);
     }
-  }
-
-  public parsePagingParams(skip: string, take: string) {
-    let skipParsed: number = skip ? parseInt(skip) : 0;
-    let takeParsed: number = take ? parseInt(take) : 100;
-    if (
-      Number.isNaN(skipParsed) ||
-      skipParsed < 0 ||
-      skipParsed > Number.MAX_SAFE_INTEGER
-    ) {
-      skipParsed = 0;
-    }
-    if (
-      Number.isNaN(takeParsed) ||
-      takeParsed < 1 ||
-      takeParsed > TriggeredAlertHistoryController.MAX_RECORDS
-    ) {
-      takeParsed = TriggeredAlertHistoryController.MAX_RECORDS;
-    }
-    return { skipParsed, takeParsed };
   }
 }
 
