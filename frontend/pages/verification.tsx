@@ -57,7 +57,10 @@ const Verification: NextPageWithLayout = () => {
   return (
     <Container size="xs" css={{ textAlign: 'center' }}>
       <Flex stack align="center">
-        <Text>A verification message {existing ? 'was previously' : 'has been'} sent to your email address.</Text>
+        <Text>
+          A verification message {existing ? 'was previously' : 'has been'} sent to your email address.{' '}
+          {existing && 'If it has expired, click below to send a new one:'}.
+        </Text>
 
         {!hasResent ? (
           <Button stretch disabled={hasResent} onClick={resendVerification}>
