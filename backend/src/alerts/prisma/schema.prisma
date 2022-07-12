@@ -35,7 +35,9 @@ model Alert {
   /// Reference to the user id who last updated the record.
   updatedBy        Int?          @map("updated_by")
 
-  enabledDestinations EnabledDestination[]
+  enabledDestinations        EnabledDestination[]
+  triggeredAlerts            TriggeredAlert[]
+  triggeredAlertDestination TriggeredAlertDestination[]
 
   @@map("alert_rules")
 }
@@ -91,6 +93,7 @@ model Destination {
   emailDestination    EmailDestination?
   telegramDestination TelegramDestination?
 
+  TriggeredAlertDestination TriggeredAlertDestination[]
   @@map("destinations")
 }
 
@@ -160,4 +163,34 @@ enum DestinationType {
   TELEGRAM
 
   @@map("destination_type")
+}
+
+model TriggeredAlert {
+  id                         Int      @id @default(autoincrement())
+  triggeredAlertSlug         String   @default(uuid()) @map("triggered_alert_slug")
+  alert                      Alert    @relation(fields: [alertId], references: [id])
+  alertId                    Int      @map("alert_id")
+  triggeredInBlockHash       String   @map("triggered_in_block_hash")
+  triggeredInTransactionHash String?  @map("triggered_in_transaction_hash")
+  triggeredInReceiptId       Int?     @map("triggered_in_receipt_id")
+  triggeredAt                DateTime @map("triggered_at")
+  extraData                  Json?    @map("extra_data")
+
+  triggeredAlertDestinations TriggeredAlertDestination[]
+  @@map("triggered_alerts")
+}
+
+model TriggeredAlertDestination {
+  triggeredAlert   TriggeredAlert                @relation(fields: [triggeredAlertId], references: [id])
+  triggeredAlertId Int
+  alert            Alert                         @relation(fields: [alertId], references: [id])
+  alertId          Int                           @map("alert_id")
+  destination      Destination                   @relation(fields: [destinationId], references: [id])
+  destinationId    Int                           @map("destination_id")
+  status           Int
+  response         String
+  createdAt        DateTime                      @map("created_at")
+
+  @@id([triggeredAlertId, alertId, destinationId])
+  @@map("triggered_alerts_destinations")
 }

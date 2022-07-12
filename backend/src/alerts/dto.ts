@@ -271,3 +271,41 @@ export interface VerifyEmailDto {
 export const VerifyEmailSchema = Joi.object({
   token: Joi.string().required(),
 });
+
+// list triggered alerts
+export interface CountTriggeredAlertDto {
+  projectSlug: string;
+  environmentSubId: number;
+  pagingDateTime?: Date;
+}
+export interface ListTriggeredAlertDto {
+  projectSlug: string;
+  environmentSubId: number;
+  skip?: number;
+  take?: number;
+  pagingDateTime?: Date;
+}
+
+export const CountTriggeredAlertSchema = Joi.object({
+  projectSlug: Joi.string().required(),
+  environmentSubId: Joi.number().required(),
+  pagingDateTime: Joi.date().optional(),
+});
+export const ListTriggeredAlertSchema = Joi.object({
+  projectSlug: Joi.string().required(),
+  environmentSubId: Joi.number().required(),
+  skip: Joi.number().integer().min(0).optional(),
+  take: Joi.number().integer().min(0).max(100).optional(),
+  pagingDateTime: Joi.date().optional(),
+});
+
+export interface TriggeredAlertDetailsResponseDto {
+  triggeredAlertSlug: string;
+  name: string;
+  type: RuleType;
+  triggeredInBlockHash: string;
+  triggeredInTransactionHash: string;
+  triggeredInReceiptId: number;
+  triggeredAt: Date;
+  extraData?: Record<string, unknown>;
+}
