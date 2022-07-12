@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { BearerAuthGuard } from 'src/auth/bearer-auth.guard';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
-import VError from 'verror';
+import { VError } from 'verror';
 import { TriggeredAlertHistoryService } from './triggered-alert-history.service';
 import {
   ListTriggeredAlertSchema,
@@ -44,8 +44,6 @@ export class TriggeredAlertHistoryController {
 }
 
 function mapError(e: Error) {
-  // TODO log in dev
-  // console.error(e);
   switch (VError.info(e)?.code) {
     case 'PERMISSION_DENIED':
       return new ForbiddenException();
