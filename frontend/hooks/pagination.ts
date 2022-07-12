@@ -62,13 +62,11 @@ export function usePagination() {
     });
   }
 
-  function updatePageSize(pageSize?: number) {
-    const size = pageSize || 0;
-
-    if (state.pageSize === size) return;
+  function updatePageSize(pageSize: number) {
+    if (state.pageSize === pageSize) return;
 
     updateState({
-      pageSize: size,
+      pageSize,
     });
   }
 
