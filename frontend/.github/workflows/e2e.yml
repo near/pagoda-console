@@ -21,7 +21,7 @@ jobs:
       - name: Run e2e tests
         run: npm run test:e2e
         env:
-          TEST_URL: https://dev.console.pagoda.co
+          TEST_URL: https://core.dev.console.pagoda.co
           TEST_EMAIL: jon+e2e@near.org
           TEST_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
           TEST_NFT_TUTORIAL_PROJECT: dD188d1fpAfJZ
