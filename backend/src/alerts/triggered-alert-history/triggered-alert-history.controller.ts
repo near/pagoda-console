@@ -16,26 +16,62 @@ import {
   ListTriggeredAlertSchema,
   ListTriggeredAlertDto,
   TriggeredAlertDetailsResponseDto,
+  CountTriggeredAlertDto,
+  CountTriggeredAlertSchema,
 } from '../dto';
 
 @Controller('triggeredAlertHistory')
 export class TriggeredAlertHistoryController {
+  static MAX_RECORDS = 100;
+
   constructor(
     private readonly triggeredAlertHistoryService: TriggeredAlertHistoryService,
   ) {}
+
+  @Post('countTriggeredAlerts')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(CountTriggeredAlertSchema))
+  async countTriggeredAlerts(
+    @Request() req,
+    @Body()
+    { projectSlug, environmentSubId, pagingDateTime }: CountTriggeredAlertDto,
+  ): Promise<number> {
+    try {
+      const count =
+        await this.triggeredAlertHistoryService.countTriggeredAlertsByProject(
+          req.user,
+          projectSlug,
+          environmentSubId,
+          pagingDateTime,
+        );
+      return count;
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
 
   @Post('listTriggeredAlerts')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(ListTriggeredAlertSchema))
   async listTriggeredAlerts(
     @Request() req,
-    @Body() { projectSlug, environmentSubId }: ListTriggeredAlertDto,
+    @Body()
+    {
+      projectSlug,
+      environmentSubId,
+      skip,
+      take,
+      pagingDateTime,
+    }: ListTriggeredAlertDto,
   ): Promise<TriggeredAlertDetailsResponseDto[]> {
     try {
-      return await this.triggeredAlertHistoryService.listTriggeredAlerts(
+      return await this.triggeredAlertHistoryService.listTriggeredAlertsByProject(
         req.user,
         projectSlug,
         environmentSubId,
+        skip || 0,
+        take || 100,
+        pagingDateTime,
       );
     } catch (e) {
       throw mapError(e);

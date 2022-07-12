@@ -2,12 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { Alert, TriggeredAlert } from 'generated/prisma/alerts';
 import { PrismaService } from '../prisma.service';
-import { ReadonlyService as ProjectsReadonlyService } from 'src/projects/readonly.service';
-import { AppConfig } from 'src/config/validate';
-import { ConfigService } from '@nestjs/config';
 import { PermissionsService as ProjectPermissionsService } from 'src/projects/permissions.service';
 import { AlertsService } from '../alerts.service';
 import { MatchingRule } from '../serde/db.types';
+import { TriggeredAlertDetailsResponseDto } from '../dto';
 
 type TriggeredAlertWithAlert = TriggeredAlert & {
   alert: Alert;
@@ -19,40 +17,91 @@ export class TriggeredAlertHistoryService {
     private prisma: PrismaService,
     private projectPermissions: ProjectPermissionsService,
     private alertsService: AlertsService,
-    private projects: ProjectsReadonlyService,
-    private config: ConfigService<AppConfig>,
   ) {}
 
-  async listTriggeredAlerts(
+  async countTriggeredAlertsByProject(
     user: User,
     projectSlug: Alert['projectSlug'],
     environmentSubId: Alert['environmentSubId'],
-  ) {
-    // todo return type ?
+    pagingDateTime: Date,
+  ): Promise<number> {
     await this.projectPermissions.checkUserProjectEnvPermission(
       user.id,
       projectSlug,
       environmentSubId,
     );
 
+    const listWhere = this.determineWhereClause(
+      pagingDateTime,
+      projectSlug,
+      environmentSubId,
+    );
+    const count = await this.prisma.triggeredAlert.count({
+      where: listWhere,
+    });
+
+    return count;
+  }
+
+  async listTriggeredAlertsByProject(
+    user: User,
+    projectSlug: Alert['projectSlug'],
+    environmentSubId: Alert['environmentSubId'],
+    skip: number,
+    take: number,
+    pagingDateTime: Date,
+  ): Promise<Array<TriggeredAlertDetailsResponseDto>> {
+    await this.projectPermissions.checkUserProjectEnvPermission(
+      user.id,
+      projectSlug,
+      environmentSubId,
+    );
+
+    const listWhere = this.determineWhereClause(
+      pagingDateTime,
+      projectSlug,
+      environmentSubId,
+    );
     const triggeredAlerts = await this.prisma.triggeredAlert.findMany({
-      skip: 0,
-      take: 20,
+      skip,
+      take,
       orderBy: {
-        id: 'desc',
+        triggeredAt: 'desc',
       },
       include: {
         alert: true,
       },
-      where: {
+      where: listWhere,
+    });
+
+    return triggeredAlerts.map((a) => this.toTriggeredAlertDto(a));
+  }
+
+  private determineWhereClause(
+    pagingDateTime: Date,
+    projectSlug: string,
+    environmentSubId: number,
+  ) {
+    let listWhere;
+    if (pagingDateTime) {
+      listWhere = {
         alert: {
           projectSlug,
           environmentSubId,
         },
-      },
-    });
-
-    return triggeredAlerts.map((a) => this.toTriggeredAlertDto(a));
+      };
+    } else {
+      listWhere = {
+        triggeredAt: {
+          lte: pagingDateTime,
+        },
+        alert: {
+          projectSlug,
+          environmentSubId,
+        },
+      };
+    }
+    return listWhere;
   }
 
   private toTriggeredAlertDto(triggeredAlert: TriggeredAlertWithAlert) {
