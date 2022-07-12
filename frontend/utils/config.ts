@@ -76,6 +76,7 @@ interface AppConfig {
   downtimeMode: DowntimeMode | undefined;
   deployEnv: DeployEnvironment;
   telegramBotHandle?: string;
+  defaultPageSize: number;
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
@@ -110,6 +111,7 @@ const config: AppConfig = {
     ? (process.env.NEXT_PUBLIC_DEPLOY_ENV as DeployEnvironment)
     : 'PRODUCTION', // default to production to be safe
   telegramBotHandle: process.env.NEXT_PUBLIC_TELEGRAM_BOT_HANDLE,
+  defaultPageSize: parseInt(process.env.NEXT_PUBLIC_DEFAULT_PAGE_SIZE || '10'),
 };
 
 export default config;

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import config from '@/utils/config';
+
 export interface PagingState {
   currentPage: number;
   itemCount: number;
@@ -13,7 +15,7 @@ export function usePagination() {
     currentPage: 1,
     itemCount: 0,
     liveRefreshEnabled: true,
-    pageSize: 10,
+    pageSize: config.defaultPageSize,
     pagingDateTime: undefined,
   });
 
