@@ -8,7 +8,7 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { Pagination } from '@/components/lib/Pagination';
 import { Spinner } from '@/components/lib/Spinner';
-import * as Table from '@/components/lib/Table/styles';
+import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { usePagination } from '@/hooks/pagination';

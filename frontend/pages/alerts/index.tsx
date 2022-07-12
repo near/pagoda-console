@@ -47,7 +47,7 @@ const ListAlerts: NextPageWithLayout = () => {
         </Tabs.Content>
 
         <Tabs.Content value="destinations">
-          <Destinations environment={environment} project={project} />
+          <Destinations project={project} />
         </Tabs.Content>
       </Tabs.Root>
     </Section>
