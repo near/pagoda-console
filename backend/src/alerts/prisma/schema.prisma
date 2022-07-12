@@ -120,10 +120,10 @@ model EmailDestination {
   destinationId  Int         @unique @map("destination_id")
   email          String
   /// Verification token sent to the user's email address
-  token          String      @unique
+  token          String?      @unique
   isVerified     Boolean     @default(false) @map("is_verified")
   // Token's expiry date
-  tokenExpiresAt DateTime    @map("token_expires_at")
+  tokenExpiresAt DateTime?    @map("token_expires_at")
   createdAt      DateTime?   @default(now()) @map("created_at")
   /// Reference to the user id who created the record.
   createdBy      Int?        @map("created_by")

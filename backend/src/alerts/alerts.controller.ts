@@ -8,9 +8,10 @@ import {
   Request,
   HttpCode,
   BadRequestException,
-  Req,
   Headers,
   UnauthorizedException,
+  Get,
+  Query,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BearerAuthGuard } from 'src/auth/bearer-auth.guard';
@@ -47,6 +48,8 @@ import {
   EnableDestinationSchema,
   UpdateDestinationSchema,
   UpdateDestinationDto,
+  VerifyEmailSchema,
+  VerifyEmailDto,
 } from './dto';
 import { TelegramService } from './telegram/telegram.service';
 import { TgUpdate } from './telegram/types';
@@ -289,6 +292,17 @@ export class AlertsController {
     }
   }
 
+  @Post('verifyEmailDestination')
+  @HttpCode(204)
+  @UsePipes(new JoiValidationPipe(VerifyEmailSchema))
+  async verifyEmailDestination(@Body() { token }: VerifyEmailDto) {
+    try {
+      await this.alertsService.verifyEmailDestination(token);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
   // * Handler for Telegram bot, this is not an endpoint for the DevConsole frontend
   @Post('telegramWebhook')
   @HttpCode(200)
@@ -364,6 +378,7 @@ function mapError(e: Error) {
       return new ForbiddenException();
     case 'BAD_DESTINATION':
     case 'BAD_ALERT':
+    case 'BAD_TOKEN_EXPIRED':
       return new BadRequestException();
     default:
       return e;

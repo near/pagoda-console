@@ -264,6 +264,14 @@ export const UpdateDestinationSchema = Joi.object({
   }),
 });
 
+// verify email
+export interface VerifyEmailDto {
+  token: string;
+}
+export const VerifyEmailSchema = Joi.object({
+  token: Joi.string().required(),
+});
+
 // list triggered alerts
 export interface CountTriggeredAlertDto {
   projectSlug: string;
