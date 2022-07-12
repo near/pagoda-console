@@ -37,7 +37,7 @@ model Alert {
 
   enabledDestinations        EnabledDestination[]
   triggeredAlerts            TriggeredAlert[]
-  triggeredAlertDestinations TriggeredAlertDestinations[]
+  triggeredAlertDestination TriggeredAlertDestination[]
 
   @@map("alert_rules")
 }
@@ -93,7 +93,7 @@ model Destination {
   emailDestination    EmailDestination?
   telegramDestination TelegramDestination?
 
-  TriggeredAlertDestinations TriggeredAlertDestinations[]
+  TriggeredAlertDestination TriggeredAlertDestination[]
   @@map("destinations")
 }
 
@@ -165,16 +165,9 @@ enum DestinationType {
   @@map("destination_type")
 }
 
-enum AlertTriggerDestinationStatus {
-  SUCCESS
-  FAILURE
-
-  @@map("destination_type")
-}
-
 model TriggeredAlert {
   id                         Int      @id @default(autoincrement())
-  triggeredAlertReferenceId  String   @default(uuid()) @map("triggered_alert_reference_id")
+  triggeredAlertSlug         String   @default(uuid()) @map("triggered_alert_slug")
   alert                      Alert    @relation(fields: [alertId], references: [id])
   alertId                    Int      @map("alert_id")
   triggeredInBlockHash       String   @map("triggered_in_block_hash")
@@ -183,18 +176,18 @@ model TriggeredAlert {
   triggeredAt                DateTime @map("triggered_at")
   extraData                  Json?    @map("extra_data")
 
-  triggeredAlertDestinations TriggeredAlertDestinations[]
+  triggeredAlertDestinations TriggeredAlertDestination[]
   @@map("triggered_alerts")
 }
 
-model TriggeredAlertDestinations {
+model TriggeredAlertDestination {
   triggeredAlert   TriggeredAlert                @relation(fields: [triggeredAlertId], references: [id])
   triggeredAlertId Int
   alert            Alert                         @relation(fields: [alertId], references: [id])
   alertId          Int                           @map("alert_id")
   destination      Destination                   @relation(fields: [destinationId], references: [id])
   destinationId    Int                           @map("destination_id")
-  status           AlertTriggerDestinationStatus
+  status           Int
   response         String
   createdAt        DateTime                      @map("created_at")
 

@@ -292,7 +292,7 @@ export const ListTriggeredAlertSchema = Joi.object({
 });
 
 export interface TriggeredAlertDetailsResponseDto {
-  triggeredAlertReferenceId: string;
+  triggeredAlertSlug: string;
   name: string;
   type: RuleType;
   triggeredInBlockHash: string;

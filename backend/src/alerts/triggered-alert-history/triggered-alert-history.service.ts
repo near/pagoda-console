@@ -106,7 +106,7 @@ export class TriggeredAlertHistoryService {
 
   private toTriggeredAlertDto(triggeredAlert: TriggeredAlertWithAlert) {
     const {
-      triggeredAlertReferenceId,
+      triggeredAlertSlug,
       alert,
       triggeredInBlockHash,
       triggeredInTransactionHash,
@@ -118,7 +118,7 @@ export class TriggeredAlertHistoryService {
     const rule = alert.matchingRule as object as MatchingRule;
 
     return {
-      triggeredAlertReferenceId,
+      triggeredAlertSlug,
       name: alert.name,
       type: this.alertsService.toAlertType(rule),
       triggeredInBlockHash,
