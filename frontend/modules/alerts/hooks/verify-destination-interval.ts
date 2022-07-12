@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import type { KeyedMutator } from 'swr';
 
 import { openToast } from '@/components/lib/Toast';
@@ -9,7 +9,13 @@ export function useVerifyDestinationInterval(
   destination: Destination | undefined,
   mutate: KeyedMutator<Destination[]>,
   setShow: (isOpen: boolean) => void,
+  onVerify?: (destination: Destination) => void,
 ) {
+  const onVerifyCallback = useCallback((dest: Destination) => {
+    onVerify && onVerify(dest);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!destination || destination.isValid) return;
 
@@ -18,12 +24,16 @@ export function useVerifyDestinationInterval(
       const dest = result?.find((d) => d.id === destination.id);
 
       if (dest?.isValid) {
+        onVerifyCallback(dest);
+
         clearInterval(interval);
+
         openToast({
           type: 'success',
           title: 'Destination Verified',
           description: 'Your destination is ready to go.',
         });
+
         setShow(false);
       }
     }, 1000);
@@ -31,5 +41,5 @@ export function useVerifyDestinationInterval(
     return () => {
       clearInterval(interval);
     };
-  }, [destination, mutate, setShow]);
+  }, [destination, mutate, setShow, onVerifyCallback]);
 }

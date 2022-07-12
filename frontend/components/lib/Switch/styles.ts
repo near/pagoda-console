@@ -26,7 +26,7 @@ export const Switch = styled(SwitchPrimitive.Root, {
 
   '&[disabled]': {
     pointerEvents: 'none',
-    opacity: 0.25,
+    opacity: 0.5,
   },
 
   variants: {
