@@ -232,25 +232,24 @@ Sometimes you might need to adjust the `top` positioning if your page doesn't re
 
 ## Custom Header
 
-If it makes sense for your use case, you can include a custom header at the top of the table with any custom content using the `header` prop:
+You can include custom content in the header at the top of the table using the `header` prop on `Table.Head`:
 
 ```tsx
-<Table.Root
-  header={
-    <Flex align="center">
-      <FeatherIcon icon="sun" />
-      <H5>My Cool Table</H5>
-      <Text size="bodySmall" css={{ marginRight: 'auto' }}>
-        A description of this table could go here.
-      </Text>
-      <Button size="s" color="primaryBorder">
-        <FeatherIcon icon="sliders" />
-        Filter
-      </Button>
-    </Flex>
-  }
->
-  <Table.Head>...</Table.Head>
+<Table.Root>
+  <Table.Head
+    header={
+      <Flex align="center">
+        <FeatherIcon icon="sun" />
+        <H5>My Cool Table</H5>
+        <Button size="s" color="primaryBorder">
+          <FeatherIcon icon="sliders" />
+          Filter
+        </Button>
+      </Flex>
+    }
+  >
+    ...
+  </Table.Head>
   <Table.Body>...</Table.Body>
 </Table.Root>
 ```

@@ -2,7 +2,7 @@
 
 This project uses [Radix](https://www.radix-ui.com/) and [Stitches](https://stitches.dev/). We have built out a library of generic, reusable components inside this `lib` folder.
 
-You can view all of these components by visiting `/ui` in your browser when running the server locally or on the [development server](https://dev.console.pagoda.co/ui). The `/ui` route is hidden in production.
+You can view all of these components by visiting `/ui` in your browser when running the server locally or on the [development server](https://core.dev.console.pagoda.co/ui). The `/ui` route is hidden in production.
 
 ## Component Documentation
 
