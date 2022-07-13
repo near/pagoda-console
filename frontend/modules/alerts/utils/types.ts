@@ -204,7 +204,7 @@ interface ConfigWebhook {
 
 // Triggered Alerts
 export interface TriggeredAlert {
-  triggeredAlertReferenceId: string;
+  triggeredAlertSlug: string;
   name: string;
   type: AlertType;
   triggeredInBlockHash: string;

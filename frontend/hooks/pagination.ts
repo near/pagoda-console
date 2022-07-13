@@ -70,6 +70,16 @@ export function usePagination() {
     });
   }
 
+  function reset() {
+    updateState({
+      currentPage: 1,
+      itemCount: 0,
+      liveRefreshEnabled: true,
+      pageSize: config.defaultPageSize,
+      pagingDateTime: undefined,
+    });
+  }
+
   const numberOfPages = Math.ceil(state.itemCount / state.pageSize);
   const currentPageFirstItem = (state.currentPage - 1) * state.pageSize + 1;
   const currentPageItemRange = currentPageFirstItem + state.pageSize - 1;
@@ -85,6 +95,7 @@ export function usePagination() {
     updateLiveRefresh,
     updateItemCount,
     updatePageSize,
+    reset,
   };
 }
 

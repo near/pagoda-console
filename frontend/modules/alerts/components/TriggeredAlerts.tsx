@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { Card } from '@/components/lib/Card';
@@ -24,6 +24,30 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
   const { triggeredAlertsCount } = useTriggeredAlertsCount(project?.slug, environment?.subId, pagination);
   const { isLoadingPage, triggeredAlerts } = useTriggeredAlerts(project?.slug, environment?.subId, pagination);
   const { alerts } = useAlerts(project?.slug, environment?.subId);
+  const environmentRef = useRef(environment);
+  const projectRef = useRef(project);
+
+  useEffect(() => {
+    if (!environmentRef.current || !projectRef.current) {
+      environmentRef.current = environment;
+      projectRef.current = project;
+      return;
+    }
+
+    const prevEnv = environmentRef.current;
+    const prevProject = projectRef.current;
+    if (
+      prevEnv &&
+      environment &&
+      prevProject &&
+      project &&
+      (prevEnv.subId !== environment.subId || prevProject.slug !== project.slug)
+    ) {
+      environmentRef.current = environment;
+      projectRef.current = project;
+      pagination.reset();
+    }
+  });
 
   useEffect(() => {
     pagination.updateItemCount(triggeredAlertsCount);
@@ -38,7 +62,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
       return <Spinner center />;
     }
 
-    if (alerts?.length === 0) {
+    if (alerts?.length === 0 || triggeredAlertsCount == 0) {
       return (
         <Card>
           <Flex stack align="center">
@@ -53,7 +77,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
                 </Link>
               </>
             ) : (
-              <Text>{`Your selected environment doesn't have any triggered alerts yet.`}</Text>
+              <Text>{`No alerts have triggered in your selected environment yet.`}</Text>
             )}
           </Flex>
         </Card>
@@ -79,7 +103,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
             {triggeredAlerts?.map((row) => {
               const alertTypeOption = alertTypes[row.type];
               return (
-                <Table.Row key={row.triggeredAlertReferenceId}>
+                <Table.Row key={row.triggeredAlertSlug}>
                   <Table.Cell>{row.name}</Table.Cell>
                   <Table.Cell>
                     <Badge size="s">
@@ -94,7 +118,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
                   </Table.Cell>
                   <Table.Cell>
                     <Text family="number" color="text3" size="current">
-                      {truncateMiddle(row.triggeredAlertReferenceId)}
+                      {truncateMiddle(row.triggeredAlertSlug)}
                     </Text>
                   </Table.Cell>
                   <Table.Cell>
