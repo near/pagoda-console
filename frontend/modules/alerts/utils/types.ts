@@ -201,3 +201,15 @@ interface ConfigTelegram {
 interface ConfigWebhook {
   url: string;
 }
+
+// Triggered Alerts
+export interface TriggeredAlert {
+  triggeredAlertSlug: string;
+  name: string;
+  type: AlertType;
+  triggeredInBlockHash: string;
+  triggeredInTransactionHash: string;
+  triggeredInReceiptId: number;
+  triggeredAt: string;
+  extraData?: Record<string, unknown>;
+}
