@@ -1,8 +1,8 @@
 name: Builds a Zip of Updated Snapshot Images for Snapshot Tests (dev.console.pagoda.co)
 on:
-  workflow_dispatch
-  # pull_request:
-  #   branches: [development]
+  # workflow_dispatch
+  pull_request:
+    branches: [development]
 jobs:
   test:
     timeout-minutes: 60
@@ -19,7 +19,7 @@ jobs:
       - name: Run snapshot tests
         run: npx playwright test tests/playwright/snapshot/ --update-snapshots
         env:
-          TEST_URL: https://dev.console.pagoda.co
+          TEST_URL: https://core.dev.console.pagoda.co
           TEST_EMAIL: jon+e2e@near.org
           TEST_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
           TEST_NFT_TUTORIAL_PROJECT: dD188d1fpAfJZ
