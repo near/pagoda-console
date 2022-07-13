@@ -29,6 +29,8 @@ export function usePagination() {
   function goToNextPage() {
     if (state.currentPage >= numberOfPages) return;
 
+    window.scrollTo(0, 0);
+
     updateState({
       currentPage: state.currentPage + 1,
       liveRefreshEnabled: false,
@@ -38,6 +40,8 @@ export function usePagination() {
 
   function goToPreviousPage() {
     if (state.currentPage <= 1) return;
+
+    window.scrollTo(0, 0);
 
     updateState({
       currentPage: state.currentPage - 1,

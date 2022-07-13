@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
 import type { Pagination } from '@/hooks/pagination';
@@ -47,12 +46,7 @@ export function useTriggeredAlerts(
   projectSlug: string | undefined,
   environmentSubId: number | undefined,
   pagination: Pagination,
-): {
-  error?: any;
-  isLoadingPage: boolean;
-  triggeredAlerts?: TriggeredAlert[];
-} {
-  const [triggeredAlerts, setTriggeredAlerts] = useState<TriggeredAlert[]>();
+) {
   const identity = useIdentity();
   const take = pagination.state.pageSize;
   const skip = (pagination.state.currentPage - 1) * pagination.state.pageSize;
@@ -62,7 +56,7 @@ export function useTriggeredAlerts(
       }
     : undefined;
 
-  const { data, error } = useSWR(
+  const { data, error } = useSWR<TriggeredAlert[]>(
     identity && projectSlug && environmentSubId
       ? [
           '/triggeredAlertHistory/listTriggeredAlerts',
@@ -86,14 +80,8 @@ export function useTriggeredAlerts(
     swrOptions,
   );
 
-  useEffect(() => {
-    if (!data) return;
-    setTriggeredAlerts(data);
-  }, [data]);
-
   return {
     error,
-    isLoadingPage: !data,
-    triggeredAlerts,
+    triggeredAlerts: data,
   };
 }

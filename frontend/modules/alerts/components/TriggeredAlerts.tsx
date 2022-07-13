@@ -25,7 +25,7 @@ import { alertTypes } from '../utils/constants';
 export function TriggeredAlerts({ environment, project }: { environment?: Environment; project?: Project }) {
   const pagination = usePagination();
   const { triggeredAlertsCount } = useTriggeredAlertsCount(project?.slug, environment?.subId, pagination);
-  const { isLoadingPage, triggeredAlerts } = useTriggeredAlerts(project?.slug, environment?.subId, pagination);
+  const { triggeredAlerts } = useTriggeredAlerts(project?.slug, environment?.subId, pagination);
   const { alerts } = useAlerts(project?.slug, environment?.subId);
   const environmentRef = useRef(environment);
   const projectRef = useRef(project);
@@ -56,36 +56,26 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
     pagination.updateItemCount(triggeredAlertsCount);
   });
 
-  if (!triggeredAlerts) {
-    return <Spinner center />;
-  }
+  if (alerts?.length === 0 || triggeredAlertsCount == 0) {
+    return (
+      <Card>
+        <Flex stack align="center">
+          <FeatherIcon icon="bell-off" size="l" />
 
-  if (triggeredAlertsCount === 0) {
-    if (!alerts) {
-      return <Spinner center />;
-    }
+          {alerts?.length === 0 ? (
+            <>
+              <Text>{`Your selected environment doesn't have any alerts configured yet.`}</Text>
 
-    if (alerts?.length === 0 || triggeredAlertsCount == 0) {
-      return (
-        <Card>
-          <Flex stack align="center">
-            <FeatherIcon icon="bell-off" size="l" />
-
-            {alerts?.length === 0 ? (
-              <>
-                <Text>{`Your selected environment doesn't have any alerts configured yet.`}</Text>
-
-                <Link href="/alerts/new-alert" passHref>
-                  <TextLink>Create an Alert</TextLink>
-                </Link>
-              </>
-            ) : (
-              <Text>{`No alerts have triggered in your selected environment yet.`}</Text>
-            )}
-          </Flex>
-        </Card>
-      );
-    }
+              <Link href="/alerts/new-alert" passHref>
+                <TextLink>Create an Alert</TextLink>
+              </Link>
+            </>
+          ) : (
+            <Text>{`No alerts have triggered in your selected environment yet.`}</Text>
+          )}
+        </Flex>
+      </Card>
+    );
   }
 
   return (
@@ -93,8 +83,8 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
       <Table.Root>
         <Table.Head
           header={
-            <Flex justify="spaceBetween">
-              <H5>{triggeredAlertsCount || '...'} Triggered Alerts</H5>
+            <Flex align="center" justify="spaceBetween">
+              <H5>{triggeredAlertsCount} Triggered Alerts</H5>
 
               <Tooltip
                 align="end"
@@ -130,6 +120,14 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
         </Table.Head>
 
         <Table.Body>
+          {!triggeredAlerts && (
+            <Table.Row>
+              <Table.Cell>
+                <Spinner />
+              </Table.Cell>
+            </Table.Row>
+          )}
+
           {triggeredAlerts?.map((row) => {
             const alertTypeOption = alertTypes[row.type];
             return (
@@ -162,7 +160,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
         </Table.Body>
       </Table.Root>
 
-      <Pagination isLoadingPage={isLoadingPage} pagination={pagination} totalCount={triggeredAlertsCount} />
+      <Pagination pagination={pagination} totalCount={triggeredAlertsCount} />
     </Flex>
   );
 }
