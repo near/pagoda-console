@@ -1330,24 +1330,22 @@ const Settings: NextPageWithLayout = () => {
           </Table.Body>
         </Table.Root>
 
-        <H4>With Custom Header</H4>
+        <H4>With Custom Header Content</H4>
 
-        <Table.Root
-          header={
-            <Flex align="center" stack={{ '@tablet': true }}>
-              <FeatherIcon icon="sun" />
-              <H5>My Cool Table</H5>
-              <Text size="bodySmall" css={{ flexGrow: 10 }}>
-                Anything could go in here.
-              </Text>
-              <Button size="s" color="primaryBorder">
-                <FeatherIcon icon="sliders" />
-                Filter
-              </Button>
-            </Flex>
-          }
-        >
-          <Table.Head css={{ top: 0 }}>
+        <Table.Root>
+          <Table.Head
+            css={{ top: 0 }}
+            header={
+              <Flex align="center">
+                <FeatherIcon icon="sun" />
+                <H5>My Cool Table</H5>
+                <Button size="s" color="primaryBorder" css={{ marginLeft: 'auto' }}>
+                  <FeatherIcon icon="sliders" />
+                  Filter
+                </Button>
+              </Flex>
+            }
+          >
             <Table.Row>
               <Table.HeaderCell>ID</Table.HeaderCell>
               <Table.HeaderCell>Name</Table.HeaderCell>
