@@ -91,7 +91,7 @@ import { AlertDetailCard } from '@/modules/alerts/components/AlertDetailCard'
 
 ## Styles & Components
 
-This project uses [Radix](https://www.radix-ui.com/) and [Stitches](https://stitches.dev/). We have built out a library of generic, reusable components in [components/lib](./components/lib). You can view all of these components by visiting `/ui` when running the server locally or on the [development server](https://dev.console.pagoda.co/ui). The `/ui` route is hidden in production.
+This project uses [Radix](https://www.radix-ui.com/) and [Stitches](https://stitches.dev/). We have built out a library of generic, reusable components in [components/lib](./components/lib). You can view all of these components by visiting `/ui` when running the server locally or on the [development server](https://core.dev.console.pagoda.co/ui). The `/ui` route is hidden in production.
 
 View the [UI Library README](./components/lib/README.md) to learn more about our UI library, components, styling, and conventions.
 

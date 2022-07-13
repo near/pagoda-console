@@ -2,15 +2,9 @@ import { styled } from '@/styles/stitches';
 
 export const Root = styled('div', {
   minWidth: '100%',
-  padding: 'var(--space-s)',
+  padding: '0 var(--space-s) var(--space-s)',
   borderRadius: 'var(--border-radius-m)',
   background: 'var(--color-surface-2)',
-});
-
-export const CustomHeader = styled('div', {
-  margin: 'var(--space-s) var(--space-s) 0',
-  paddingBottom: 'calc(var(--space-s) * 2)',
-  borderBottom: '1px solid var(--color-border-2)',
 });
 
 export const Table = styled('table', {
@@ -77,6 +71,10 @@ export const HeaderCell = styled('th', {
   background: 'linear-gradient(var(--color-surface-2) 85%, transparent)',
   transition: 'var(--transitions)',
 
+  'thead tr:first-child &': {
+    paddingTop: 'calc(var(--space-s) * 2)',
+  },
+
   'thead &': {
     '&::after': {
       content: '',
@@ -85,6 +83,37 @@ export const HeaderCell = styled('th', {
       left: 0,
       right: 0,
       bottom: 'var(--space-s)',
+      height: '1px',
+      background: 'var(--color-border-2)',
+    },
+
+    '&:first-child': {
+      '&::after': {
+        left: 'var(--space-s)',
+      },
+    },
+
+    '&:last-child': {
+      '&::after': {
+        right: 'var(--space-s)',
+      },
+    },
+  },
+});
+
+export const HeaderCustomCell = styled('th', {
+  position: 'relative',
+  padding: 'calc(var(--space-s) * 2) var(--space-s)',
+  background: 'var(--color-surface-2)',
+
+  'thead &': {
+    '&::after': {
+      content: '',
+      display: 'block',
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
       height: '1px',
       background: 'var(--color-border-2)',
     },
