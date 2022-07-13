@@ -3,21 +3,19 @@ import { forwardRef } from 'react';
 
 import * as S from './styles';
 
-type RootProps = ComponentProps<typeof S.Table> & {
+type RootProps = ComponentProps<typeof S.Table>;
+type HeadProps = ComponentProps<typeof S.Head> & {
   header?: ReactNode;
 };
 type RowProps = ComponentProps<typeof S.Row>;
 type CellProps = ComponentProps<typeof S.Cell>;
 
-export const Head = S.Head;
 export const Body = S.Body;
 export const HeaderCell = S.HeaderCell;
 
-export const Root = forwardRef<HTMLTableElement, RootProps>(({ children, header, ...props }, ref) => {
+export const Root = forwardRef<HTMLTableElement, RootProps>(({ children, ...props }, ref) => {
   return (
     <S.Root>
-      {header && <S.CustomHeader>{header}</S.CustomHeader>}
-
       <S.Table ref={ref} {...props}>
         {children}
       </S.Table>
@@ -25,6 +23,21 @@ export const Root = forwardRef<HTMLTableElement, RootProps>(({ children, header,
   );
 });
 Root.displayName = 'Root';
+
+export const Head = forwardRef<HTMLTableSectionElement, HeadProps>(({ children, header, ...props }, ref) => {
+  return (
+    <S.Head ref={ref} {...props}>
+      {header && (
+        <S.Row>
+          <S.HeaderCustomCell colSpan={10000}>{header}</S.HeaderCustomCell>
+        </S.Row>
+      )}
+
+      {children}
+    </S.Head>
+  );
+});
+Head.displayName = 'Head';
 
 export const Row = forwardRef<HTMLTableRowElement, RowProps>(({ children, clickable, ...props }, ref) => {
   const role = clickable ? 'button' : undefined;
