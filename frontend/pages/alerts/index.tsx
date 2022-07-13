@@ -19,9 +19,9 @@ const ListAlerts: NextPageWithLayout = () => {
     <Section>
       <Tabs.Root value={activeTab || ''}>
         <Tabs.List>
-          <Link href="?tab=history" passHref>
-            <Tabs.TriggerLink active={activeTab === 'history'}>
-              <FeatherIcon icon="list" /> History
+          <Link href="?tab=activity" passHref>
+            <Tabs.TriggerLink active={activeTab === 'activity'}>
+              <FeatherIcon icon="list" /> Activity
             </Tabs.TriggerLink>
           </Link>
 
@@ -38,7 +38,7 @@ const ListAlerts: NextPageWithLayout = () => {
           </Link>
         </Tabs.List>
 
-        <Tabs.Content value="history">
+        <Tabs.Content value="activity">
           <TriggeredAlerts environment={environment} project={project} />
         </Tabs.Content>
 

@@ -4,7 +4,6 @@ import { Button } from '../Button';
 import { FeatherIcon } from '../FeatherIcon';
 import { Flex } from '../Flex';
 import { Spinner } from '../Spinner';
-import { Switch } from '../Switch';
 import { Text } from '../Text';
 
 interface Props {
@@ -16,11 +15,6 @@ interface Props {
 export function Pagination({ isLoadingPage, pagination, totalCount }: Props) {
   return (
     <Flex align="center" justify="spaceBetween">
-      <Flex as="label" align="center" gap="s" css={{ width: 'auto' }}>
-        <Switch checked={pagination.state.liveRefreshEnabled} onCheckedChange={pagination.updateLiveRefresh} size="s" />
-        Live Updates
-      </Flex>
-
       {isLoadingPage ? (
         <Spinner size="s" />
       ) : (
@@ -31,17 +25,19 @@ export function Pagination({ isLoadingPage, pagination, totalCount }: Props) {
 
       <Flex align="center" css={{ width: 'auto' }}>
         <Button
+          aria-label="Previous Page"
           color="neutral"
           size="s"
           disabled={pagination.state.currentPage <= 1}
           onClick={pagination.goToPreviousPage}
         >
-          <FeatherIcon icon="chevron-left" /> Previous
+          <FeatherIcon icon="chevron-left" /> Prev
         </Button>
         <Text css={{ whiteSpace: 'nowrap' }}>
           Page {pagination.state.currentPage} / {pagination.numberOfPages}
         </Text>
         <Button
+          aria-label="Next Page"
           color="neutral"
           size="s"
           disabled={pagination.state.currentPage >= pagination.numberOfPages}

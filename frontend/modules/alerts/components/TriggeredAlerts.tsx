@@ -6,11 +6,14 @@ import { Badge } from '@/components/lib/Badge';
 import { Card } from '@/components/lib/Card';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
+import { H5 } from '@/components/lib/Heading';
 import { Pagination } from '@/components/lib/Pagination';
 import { Spinner } from '@/components/lib/Spinner';
+import { Switch } from '@/components/lib/Switch';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
+import { Tooltip } from '@/components/lib/Tooltip';
 import { usePagination } from '@/hooks/pagination';
 import { truncateMiddle } from '@/utils/truncate-middle';
 import type { Environment, Project } from '@/utils/types';
@@ -87,51 +90,77 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
 
   return (
     <Flex stack gap="l">
-      <Flex stack gap="s">
-        <Table.Root>
-          <Table.Head>
-            <Table.Row>
-              <Table.HeaderCell>Name</Table.HeaderCell>
-              <Table.HeaderCell>Type</Table.HeaderCell>
-              <Table.HeaderCell>Transaction</Table.HeaderCell>
-              <Table.HeaderCell>Id</Table.HeaderCell>
-              <Table.HeaderCell>Time</Table.HeaderCell>
-            </Table.Row>
-          </Table.Head>
+      <Table.Root>
+        <Table.Head
+          header={
+            <Flex justify="spaceBetween">
+              <H5>{triggeredAlertsCount || '...'} Triggered Alerts</H5>
 
-          <Table.Body>
-            {triggeredAlerts?.map((row) => {
-              const alertTypeOption = alertTypes[row.type];
-              return (
-                <Table.Row key={row.triggeredAlertSlug}>
-                  <Table.Cell>{row.name}</Table.Cell>
-                  <Table.Cell>
-                    <Badge size="s">
-                      <FeatherIcon icon={alertTypeOption.icon} size="xs" />
-                      {alertTypeOption.name}
-                    </Badge>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Text family="number" color="text3" size="current">
-                      {truncateMiddle(row.triggeredInTransactionHash)}
-                    </Text>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Text family="number" color="text3" size="current">
-                      {truncateMiddle(row.triggeredAlertSlug)}
-                    </Text>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Text family="number" color="text3" size="current">
-                      {DateTime.fromISO(row.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT)}
-                    </Text>
-                  </Table.Cell>
-                </Table.Row>
-              );
-            })}
-          </Table.Body>
-        </Table.Root>
-      </Flex>
+              <Tooltip
+                align="end"
+                content={
+                  pagination.state.liveRefreshEnabled
+                    ? 'Disable live updates'
+                    : pagination.state.currentPage === 1
+                    ? 'Enable live updates'
+                    : 'Enable live updates. This will take you back to the first page.'
+                }
+              >
+                <span>
+                  <Switch
+                    aria-label="Live Updates"
+                    checked={pagination.state.liveRefreshEnabled}
+                    onCheckedChange={pagination.updateLiveRefresh}
+                  >
+                    <FeatherIcon icon="refresh-cw" size="xs" data-on />
+                    <FeatherIcon icon="pause" size="xs" data-off />
+                  </Switch>
+                </span>
+              </Tooltip>
+            </Flex>
+          }
+        >
+          <Table.Row>
+            <Table.HeaderCell>Name</Table.HeaderCell>
+            <Table.HeaderCell>Type</Table.HeaderCell>
+            <Table.HeaderCell>Transaction</Table.HeaderCell>
+            <Table.HeaderCell>Id</Table.HeaderCell>
+            <Table.HeaderCell>Time</Table.HeaderCell>
+          </Table.Row>
+        </Table.Head>
+
+        <Table.Body>
+          {triggeredAlerts?.map((row) => {
+            const alertTypeOption = alertTypes[row.type];
+            return (
+              <Table.Row key={row.triggeredAlertSlug}>
+                <Table.Cell>{row.name}</Table.Cell>
+                <Table.Cell>
+                  <Badge size="s">
+                    <FeatherIcon icon={alertTypeOption.icon} size="xs" />
+                    {alertTypeOption.name}
+                  </Badge>
+                </Table.Cell>
+                <Table.Cell>
+                  <Text family="number" color="text3" size="current">
+                    {truncateMiddle(row.triggeredInTransactionHash)}
+                  </Text>
+                </Table.Cell>
+                <Table.Cell>
+                  <Text family="number" color="text3" size="current">
+                    {truncateMiddle(row.triggeredAlertSlug)}
+                  </Text>
+                </Table.Cell>
+                <Table.Cell>
+                  <Text family="number" color="text3" size="current">
+                    {DateTime.fromISO(row.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT)}
+                  </Text>
+                </Table.Cell>
+              </Table.Row>
+            );
+          })}
+        </Table.Body>
+      </Table.Root>
 
       <Pagination isLoadingPage={isLoadingPage} pagination={pagination} totalCount={triggeredAlertsCount} />
     </Flex>

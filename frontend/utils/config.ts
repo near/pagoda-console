@@ -111,7 +111,7 @@ const config: AppConfig = {
     ? (process.env.NEXT_PUBLIC_DEPLOY_ENV as DeployEnvironment)
     : 'PRODUCTION', // default to production to be safe
   telegramBotHandle: process.env.NEXT_PUBLIC_TELEGRAM_BOT_HANDLE,
-  defaultPageSize: parseInt(process.env.NEXT_PUBLIC_DEFAULT_PAGE_SIZE || '10'),
+  defaultPageSize: parseInt(process.env.NEXT_PUBLIC_DEFAULT_PAGE_SIZE || '100'),
 };
 
 export default config;
