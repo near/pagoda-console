@@ -1,9 +1,11 @@
+import { DateTime } from 'luxon';
 import { useState } from 'react';
 
 import config from '@/utils/config';
 
 export interface PagingState {
   currentPage: number;
+  initialLoadDateTime: DateTime;
   itemCount: number;
   liveRefreshEnabled: boolean;
   pageSize: number;
@@ -13,6 +15,7 @@ export interface PagingState {
 export function usePagination() {
   const [state, setState] = useState<PagingState>({
     currentPage: 1,
+    initialLoadDateTime: DateTime.now(),
     itemCount: 0,
     liveRefreshEnabled: true,
     pageSize: config.defaultPageSize,

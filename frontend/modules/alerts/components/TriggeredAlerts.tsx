@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { Card } from '@/components/lib/Card';
@@ -15,46 +15,39 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { usePagination } from '@/hooks/pagination';
+import { useOnSelectedProjectChange } from '@/hooks/selected-project';
 import { truncateMiddle } from '@/utils/truncate-middle';
 import type { Environment, Project } from '@/utils/types';
 
 import { useAlerts } from '../hooks/alerts';
 import { useTriggeredAlerts, useTriggeredAlertsCount } from '../hooks/triggered-alerts';
 import { alertTypes } from '../utils/constants';
+import type { TriggeredAlert } from '../utils/types';
 
 export function TriggeredAlerts({ environment, project }: { environment?: Environment; project?: Project }) {
   const pagination = usePagination();
   const { triggeredAlertsCount } = useTriggeredAlertsCount(project?.slug, environment?.subId, pagination);
   const { triggeredAlerts } = useTriggeredAlerts(project?.slug, environment?.subId, pagination);
   const { alerts } = useAlerts(project?.slug, environment?.subId);
-  const environmentRef = useRef(environment);
-  const projectRef = useRef(project);
-
-  useEffect(() => {
-    if (!environmentRef.current || !projectRef.current) {
-      environmentRef.current = environment;
-      projectRef.current = project;
-      return;
-    }
-
-    const prevEnv = environmentRef.current;
-    const prevProject = projectRef.current;
-    if (
-      prevEnv &&
-      environment &&
-      prevProject &&
-      project &&
-      (prevEnv.subId !== environment.subId || prevProject.slug !== project.slug)
-    ) {
-      environmentRef.current = environment;
-      projectRef.current = project;
-      pagination.reset();
-    }
-  });
 
   useEffect(() => {
     pagination.updateItemCount(triggeredAlertsCount);
   });
+
+  useOnSelectedProjectChange(() => {
+    pagination.reset();
+  });
+
+  function shouldFlashRow(alert: TriggeredAlert) {
+    let result = false;
+
+    if (pagination.state.liveRefreshEnabled) {
+      const date = DateTime.fromISO(alert.triggeredAt);
+      result = date > pagination.state.initialLoadDateTime;
+    }
+
+    return result;
+  }
 
   if (alerts?.length === 0 || triggeredAlertsCount == 0) {
     return (
@@ -131,7 +124,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
           {triggeredAlerts?.map((row) => {
             const alertTypeOption = alertTypes[row.type];
             return (
-              <Table.Row key={row.triggeredAlertSlug}>
+              <Table.Row flash={shouldFlashRow(row)} key={row.triggeredAlertSlug}>
                 <Table.Cell>{row.name}</Table.Cell>
                 <Table.Cell>
                   <Badge size="s">
@@ -158,9 +151,15 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
             );
           })}
         </Table.Body>
-      </Table.Root>
 
-      <Pagination pagination={pagination} totalCount={triggeredAlertsCount} />
+        <Table.Foot>
+          <Table.Row>
+            <Table.Cell colSpan={100}>
+              <Pagination pagination={pagination} totalCount={triggeredAlertsCount} />
+            </Table.Cell>
+          </Table.Row>
+        </Table.Foot>
+      </Table.Root>
     </Flex>
   );
 }

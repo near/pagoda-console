@@ -5,6 +5,7 @@ import { useSettingsStoreForUser } from '@/stores/settings';
 import type { Environment } from '@/utils/types';
 
 import { useEnvironments } from './environments';
+import { usePreviousValue } from './previous-value';
 import { useProject } from './projects';
 import { useRouteParam } from './route';
 
@@ -91,4 +92,19 @@ export function useSelectedProject(
     selectEnvironment,
     selectProject,
   };
+}
+
+export function useOnSelectedProjectChange(onChange: () => void) {
+  const { environment, project } = useSelectedProject();
+
+  const previousEnvironment = usePreviousValue(environment);
+  const previousProject = usePreviousValue(project);
+
+  useEffect(() => {
+    if (!previousEnvironment || !previousProject) return;
+
+    if (previousEnvironment.subId !== environment?.subId || previousProject.slug !== project?.slug) {
+      onChange();
+    }
+  });
 }

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
 import type { Pagination } from '@/hooks/pagination';
@@ -6,21 +7,18 @@ import { authenticatedPost } from '@/utils/http';
 
 import type { TriggeredAlert } from '../utils/types';
 
+const refreshInterval = 3000;
+
 export function useTriggeredAlertsCount(
   projectSlug: string | undefined,
   environmentSubId: number | undefined,
   pagination: Pagination,
-): {
-  triggeredAlertsCount?: number;
-  error?: any;
-} {
+) {
+  const [triggeredAlertsCount, setTriggeredAlertsCount] = useState<number>();
+
   const identity = useIdentity();
-  const swrOptions = pagination.state.liveRefreshEnabled
-    ? {
-        refreshInterval: 3000,
-      }
-    : undefined;
-  const { data: triggeredAlertsCount, error } = useSWR(
+
+  const { data, error } = useSWR<number>(
     identity && projectSlug && environmentSubId
       ? [
           '/triggeredAlertHistory/countTriggeredAlerts',
@@ -37,8 +35,16 @@ export function useTriggeredAlertsCount(
         pagingDateTime: pagination.state.pagingDateTime,
       });
     },
-    swrOptions,
+    {
+      refreshInterval: pagination.state.liveRefreshEnabled ? refreshInterval : undefined,
+    },
   );
+
+  useEffect(() => {
+    if (data === undefined) return;
+    setTriggeredAlertsCount(data);
+  }, [data]);
+
   return { triggeredAlertsCount, error };
 }
 
@@ -50,11 +56,6 @@ export function useTriggeredAlerts(
   const identity = useIdentity();
   const take = pagination.state.pageSize;
   const skip = (pagination.state.currentPage - 1) * pagination.state.pageSize;
-  const swrOptions = pagination.state.liveRefreshEnabled
-    ? {
-        refreshInterval: 3000,
-      }
-    : undefined;
 
   const { data, error } = useSWR<TriggeredAlert[]>(
     identity && projectSlug && environmentSubId
@@ -77,7 +78,9 @@ export function useTriggeredAlerts(
         pagingDateTime: pagination.state.pagingDateTime,
       });
     },
-    swrOptions,
+    {
+      refreshInterval: pagination.state.liveRefreshEnabled ? refreshInterval : undefined,
+    },
   );
 
   return {
