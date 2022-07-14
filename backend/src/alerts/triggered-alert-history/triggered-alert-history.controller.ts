@@ -34,7 +34,12 @@ export class TriggeredAlertHistoryController {
   async countTriggeredAlerts(
     @Request() req,
     @Body()
-    { projectSlug, environmentSubId, pagingDateTime }: CountTriggeredAlertDto,
+    {
+      projectSlug,
+      environmentSubId,
+      pagingDateTime,
+      alertId,
+    }: CountTriggeredAlertDto,
   ): Promise<number> {
     try {
       const count =
@@ -43,6 +48,7 @@ export class TriggeredAlertHistoryController {
           projectSlug,
           environmentSubId,
           pagingDateTime,
+          alertId,
         );
       return count;
     } catch (e) {
@@ -62,6 +68,7 @@ export class TriggeredAlertHistoryController {
       skip,
       take,
       pagingDateTime,
+      alertId,
     }: ListTriggeredAlertDto,
   ): Promise<TriggeredAlertDetailsResponseDto[]> {
     try {
@@ -72,6 +79,7 @@ export class TriggeredAlertHistoryController {
         skip || 0,
         take || 100,
         pagingDateTime,
+        alertId,
       );
     } catch (e) {
       throw mapError(e);
