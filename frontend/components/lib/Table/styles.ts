@@ -102,7 +102,7 @@ export const Foot = styled('tfoot', {
         'td, th': {
           borderTopLeftRadius: '0 !important',
           borderTopRightRadius: '0 !important',
-          background: 'linear-gradient(to top, var(--color-surface-2) 55%, transparent) !important',
+          background: 'linear-gradient(to top, var(--color-surface-2) 40%, transparent) !important',
 
           '&:empty': {
             display: 'none',

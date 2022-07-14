@@ -8,7 +8,7 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H5 } from '@/components/lib/Heading';
 import { Pagination } from '@/components/lib/Pagination';
-import { Spinner } from '@/components/lib/Spinner';
+import { Placeholder } from '@/components/lib/Placeholder';
 import { Switch } from '@/components/lib/Switch';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
@@ -77,7 +77,11 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
         <Table.Head
           header={
             <Flex align="center" justify="spaceBetween">
-              <H5>{triggeredAlertsCount} Triggered Alerts</H5>
+              {triggeredAlertsCount === undefined ? (
+                <Placeholder css={{ width: '15rem', height: '1.5rem' }} />
+              ) : (
+                <H5>{triggeredAlertsCount} Triggered Alerts</H5>
+              )}
 
               <Tooltip
                 align="end"
@@ -113,13 +117,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
         </Table.Head>
 
         <Table.Body>
-          {!triggeredAlerts && (
-            <Table.Row>
-              <Table.Cell>
-                <Spinner />
-              </Table.Cell>
-            </Table.Row>
-          )}
+          {!triggeredAlerts && <Table.PlaceholderRows />}
 
           {triggeredAlerts?.map((row) => {
             const alertTypeOption = alertTypes[row.type];

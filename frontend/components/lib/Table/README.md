@@ -297,6 +297,45 @@ You can disable the footer sticky scroll:
 <Table.Foot sticky={false}>...</Table.Foot>
 ```
 
+## Row Flash
+
+When working on a live updating table, sometimes it makes sense to animate new rows as they appear:
+
+```tsx
+import { DateTime } from 'luxon';
+import { usePagination } from '@/hooks/pagination';
+
+...
+
+const pagination = usePagination();
+
+function shouldFlashRow(alert: TriggeredAlert) {
+  let result = false;
+
+  if (pagination.state.liveRefreshEnabled) {
+    const date = DateTime.fromISO(alert.triggeredAt);
+    result = date > pagination.state.initialLoadDateTime;
+  }
+
+  return result;
+}
+
+...
+
+<Table.Row flash={shouldFlashRow(row)}>...</Table.Row>
+```
+
+## Placeholder Rows
+
+When data is loading for your table, you can use the `PlaceholderRows` component to show a loading placeholder:
+
+```tsx
+<Table.Body>
+  {!myTableData && <Table.PlaceholderRows />}
+  ...
+</Table.Body>
+```
+
 ## Infinite Scroll / Pagination
 
 TODO...
