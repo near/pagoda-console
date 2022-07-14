@@ -69,7 +69,12 @@ export class ProjectsService {
     // TODO when our schema can enforce project name uniqueness within a team, replace this unique check with a database constraint.
     if (!(await this.isProjectNameUnique(user, name))) {
       throw new VError(
-        { info: { code: 'NAME_CONFLICT' } },
+        {
+          info: {
+            code: 'CONFLICT',
+            response: 'DUPLICATE_PROJECT_NAME',
+          },
+        },
         'Project name is not unique',
       );
     }
@@ -472,6 +477,19 @@ export class ProjectsService {
       environmentWhereUnique: { id: environmentId },
     });
 
+    const contract = await this.getContract(project, subId, address);
+    if (contract) {
+      throw new VError(
+        {
+          info: {
+            code: 'CONFLICT',
+            response: 'DUPLICATE_CONTRACT_ADDRESS',
+          },
+        },
+        'Address already exists on the project and environment',
+      );
+    }
+
     try {
       return await this.prisma.contract.create({
         data: {
@@ -502,6 +520,25 @@ export class ProjectsService {
     } catch (e) {
       throw new VError(e, 'Failed while creating contract');
     }
+  }
+
+  private async getContract(
+    project: Project['slug'],
+    subId: Environment['subId'],
+    address: Contract['address'],
+  ) {
+    return await this.prisma.contract.findFirst({
+      where: {
+        active: true,
+        address,
+        environment: {
+          subId,
+          project: {
+            slug: project,
+          },
+        },
+      },
+    });
   }
 
   async removeContract(
