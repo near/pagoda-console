@@ -1335,6 +1335,60 @@ const Settings: NextPageWithLayout = () => {
             })}
           </Table.Body>
         </Table.Root>
+
+        <H4>With Footer</H4>
+
+        <Table.Root>
+          <Table.Head css={{ top: 0 }}>
+            <Table.Row>
+              <Table.HeaderCell>ID</Table.HeaderCell>
+              <Table.HeaderCell>Name</Table.HeaderCell>
+              <Table.HeaderCell>Favorite Color</Table.HeaderCell>
+            </Table.Row>
+          </Table.Head>
+
+          <Table.Body>
+            {tableRows.map((row) => {
+              return (
+                <Table.Row
+                  clickable
+                  onClick={() => {
+                    alert('Table Row Click');
+                  }}
+                  key={row.id}
+                >
+                  <Table.Cell
+                    clickable
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      alert('Table Cell Click');
+                    }}
+                  >
+                    {row.id} (Cell Click)
+                  </Table.Cell>
+                  <Table.Cell>{row.name} (Row Click)</Table.Cell>
+                  <Table.Cell>{row.favoriteColor} (Row Click)</Table.Cell>
+                </Table.Row>
+              );
+            })}
+          </Table.Body>
+
+          <Table.Foot>
+            <Table.Row>
+              <Table.Cell colSpan={100}>
+                <Flex>
+                  <Flex align="center">
+                    <Text>My Cool Footer</Text>
+                    <Button size="s" color="primaryBorder" css={{ marginLeft: 'auto' }}>
+                      <FeatherIcon icon="sliders" />
+                      Filter
+                    </Button>
+                  </Flex>
+                </Flex>
+              </Table.Cell>
+            </Table.Row>
+          </Table.Foot>
+        </Table.Root>
       </DocSection>
 
       <DocSection title="Tabs">
