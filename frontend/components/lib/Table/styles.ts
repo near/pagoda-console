@@ -14,14 +14,88 @@ export const Table = styled('table', {
 
 export const Head = styled('thead', {
   width: '100%',
-  zIndex: 100,
+  zIndex: 105,
   position: 'relative',
+
+  'td, th': {
+    '&::after': {
+      content: '',
+      display: 'block',
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      height: '1px',
+      background: 'var(--color-border-2)',
+    },
+
+    '&:first-child': {
+      '&::after': {
+        left: 'var(--space-s)',
+      },
+    },
+
+    '&:last-child': {
+      '&::after': {
+        right: 'var(--space-s)',
+      },
+    },
+  },
+
+  'tr:first-child td, tr:first-child th': {
+    paddingTop: 'calc(var(--space-s) * 2)',
+  },
+
+  'tr:last-child td, tr:last-child th': {
+    paddingBottom: 'calc(var(--space-s) * 2)',
+
+    '&::after': {
+      bottom: 'var(--space-s)',
+    },
+  },
 
   variants: {
     sticky: {
       true: {
         position: 'sticky',
         top: 'var(--size-header-height)',
+      },
+    },
+  },
+
+  defaultVariants: {
+    sticky: true,
+  },
+});
+
+export const Foot = styled('tfoot', {
+  width: '100%',
+  zIndex: 100,
+  position: 'relative',
+
+  'td, th': {
+    background: 'var(--color-surface-2) !important',
+  },
+
+  'tr:first-child td, tr:first-child th': {
+    paddingTop: 'calc(var(--space-s) * 2)',
+  },
+
+  variants: {
+    sticky: {
+      true: {
+        position: 'sticky',
+        bottom: 0,
+
+        'td, th': {
+          borderTopLeftRadius: '0 !important',
+          borderTopRightRadius: '0 !important',
+          background: 'linear-gradient(to top, var(--color-surface-2) 55%, transparent) !important',
+
+          '&:empty': {
+            display: 'none',
+          },
+        },
       },
     },
   },
@@ -60,7 +134,7 @@ export const Row = styled('tr', {
 
 export const HeaderCell = styled('th', {
   position: 'relative',
-  padding: 'var(--space-s) var(--space-s) calc(var(--space-s) * 2)',
+  padding: 'var(--space-s)',
   fontSize: 'var(--font-size-body-small)',
   lineHeight: 'var(--line-height-body-small)',
   color: 'var(--color-text-3)',
@@ -70,66 +144,13 @@ export const HeaderCell = styled('th', {
   textTransform: 'uppercase',
   background: 'linear-gradient(var(--color-surface-2) 85%, transparent)',
   transition: 'var(--transitions)',
-
-  'thead tr:first-child &': {
-    paddingTop: 'calc(var(--space-s) * 2)',
-  },
-
-  'thead &': {
-    '&::after': {
-      content: '',
-      display: 'block',
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      bottom: 'var(--space-s)',
-      height: '1px',
-      background: 'var(--color-border-2)',
-    },
-
-    '&:first-child': {
-      '&::after': {
-        left: 'var(--space-s)',
-      },
-    },
-
-    '&:last-child': {
-      '&::after': {
-        right: 'var(--space-s)',
-      },
-    },
-  },
 });
 
 export const HeaderCustomCell = styled('th', {
   position: 'relative',
-  padding: 'calc(var(--space-s) * 2) var(--space-s)',
+  padding: 'var(--space-s)',
+  paddingBottom: 'calc(var(--space-s) * 2) !important',
   background: 'var(--color-surface-2)',
-
-  'thead &': {
-    '&::after': {
-      content: '',
-      display: 'block',
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      bottom: 0,
-      height: '1px',
-      background: 'var(--color-border-2)',
-    },
-
-    '&:first-child': {
-      '&::after': {
-        left: 'var(--space-s)',
-      },
-    },
-
-    '&:last-child': {
-      '&::after': {
-        right: 'var(--space-s)',
-      },
-    },
-  },
 });
 
 export const Cell = styled('td', {
