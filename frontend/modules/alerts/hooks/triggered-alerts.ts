@@ -3,25 +3,23 @@ import useSWR from 'swr';
 
 import type { Pagination } from '@/hooks/pagination';
 import { useIdentity } from '@/hooks/user';
+import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
 
 import type { TriggeredAlert } from '../utils/types';
+
+const refreshInterval = config.defaultLiveDataRefreshIntervalMs;
 
 export function useTriggeredAlertsCount(
   projectSlug: string | undefined,
   environmentSubId: number | undefined,
   pagination: Pagination,
-): {
-  triggeredAlertsCount?: number;
-  error?: any;
-} {
+) {
+  const [triggeredAlertsCount, setTriggeredAlertsCount] = useState<number>();
+
   const identity = useIdentity();
-  const swrOptions = pagination.state.liveRefreshEnabled
-    ? {
-        refreshInterval: 3000,
-      }
-    : undefined;
-  const { data: triggeredAlertsCount, error } = useSWR(
+
+  const { data, error } = useSWR<number>(
     identity && projectSlug && environmentSubId
       ? [
           '/triggeredAlertHistory/countTriggeredAlerts',
@@ -38,8 +36,16 @@ export function useTriggeredAlertsCount(
         pagingDateTime: pagination.state.pagingDateTime,
       });
     },
-    swrOptions,
+    {
+      refreshInterval: pagination.state.liveRefreshEnabled ? refreshInterval : undefined,
+    },
   );
+
+  useEffect(() => {
+    if (data === undefined) return;
+    setTriggeredAlertsCount(data);
+  }, [data]);
+
   return { triggeredAlertsCount, error };
 }
 
@@ -47,22 +53,12 @@ export function useTriggeredAlerts(
   projectSlug: string | undefined,
   environmentSubId: number | undefined,
   pagination: Pagination,
-): {
-  error?: any;
-  isLoadingPage: boolean;
-  triggeredAlerts?: TriggeredAlert[];
-} {
-  const [triggeredAlerts, setTriggeredAlerts] = useState<TriggeredAlert[]>();
+) {
   const identity = useIdentity();
   const take = pagination.state.pageSize;
   const skip = (pagination.state.currentPage - 1) * pagination.state.pageSize;
-  const swrOptions = pagination.state.liveRefreshEnabled
-    ? {
-        refreshInterval: 3000,
-      }
-    : undefined;
 
-  const { data, error } = useSWR(
+  const { data, error } = useSWR<TriggeredAlert[]>(
     identity && projectSlug && environmentSubId
       ? [
           '/triggeredAlertHistory/listTriggeredAlerts',
@@ -83,17 +79,13 @@ export function useTriggeredAlerts(
         pagingDateTime: pagination.state.pagingDateTime,
       });
     },
-    swrOptions,
+    {
+      refreshInterval: pagination.state.liveRefreshEnabled ? refreshInterval : undefined,
+    },
   );
-
-  useEffect(() => {
-    if (!data) return;
-    setTriggeredAlerts(data);
-  }, [data]);
 
   return {
     error,
-    isLoadingPage: !data,
-    triggeredAlerts,
+    triggeredAlerts: data,
   };
 }

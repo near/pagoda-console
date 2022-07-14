@@ -1,4 +1,16 @@
-import { styled } from '@/styles/stitches';
+import { keyframes, styled } from '@/styles/stitches';
+
+const flashRowAnimation = keyframes({
+  '0%': {
+    background: 'var(--color-surface-5)',
+  },
+  '50%': {
+    background: 'var(--color-surface-5)',
+  },
+  '100%': {
+    background: 'transparent',
+  },
+});
 
 export const Root = styled('div', {
   minWidth: '100%',
@@ -90,7 +102,7 @@ export const Foot = styled('tfoot', {
         'td, th': {
           borderTopLeftRadius: '0 !important',
           borderTopRightRadius: '0 !important',
-          background: 'linear-gradient(to top, var(--color-surface-2) 55%, transparent) !important',
+          background: 'linear-gradient(to top, var(--color-surface-2) 40%, transparent) !important',
 
           '&:empty': {
             display: 'none',
@@ -126,6 +138,14 @@ export const Row = styled('tr', {
         '&:focus': {
           outline: 'var(--focus-outline)',
           outlineOffset: -1,
+        },
+      },
+    },
+
+    flash: {
+      true: {
+        td: {
+          animation: `${flashRowAnimation} 2000ms`,
         },
       },
     },

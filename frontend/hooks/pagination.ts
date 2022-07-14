@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { useState } from 'react';
 
 import config from '@/utils/config';
@@ -5,6 +6,7 @@ import config from '@/utils/config';
 export interface PagingState {
   currentPage: number;
   itemCount: number;
+  lastItemCountUpdateDateTime: DateTime;
   liveRefreshEnabled: boolean;
   pageSize: number;
   pagingDateTime: Date | undefined;
@@ -14,6 +16,7 @@ export function usePagination() {
   const [state, setState] = useState<PagingState>({
     currentPage: 1,
     itemCount: 0,
+    lastItemCountUpdateDateTime: DateTime.now(),
     liveRefreshEnabled: true,
     pageSize: config.defaultPageSize,
     pagingDateTime: undefined,
@@ -29,6 +32,8 @@ export function usePagination() {
   function goToNextPage() {
     if (state.currentPage >= numberOfPages) return;
 
+    window.scrollTo(0, 0);
+
     updateState({
       currentPage: state.currentPage + 1,
       liveRefreshEnabled: false,
@@ -38,6 +43,8 @@ export function usePagination() {
 
   function goToPreviousPage() {
     if (state.currentPage <= 1) return;
+
+    window.scrollTo(0, 0);
 
     updateState({
       currentPage: state.currentPage - 1,
@@ -59,6 +66,7 @@ export function usePagination() {
 
     updateState({
       itemCount,
+      lastItemCountUpdateDateTime: DateTime.now().minus({ millisecond: config.defaultLiveDataRefreshIntervalMs }),
     });
   }
 

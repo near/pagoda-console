@@ -1,6 +1,7 @@
 import type { ComponentProps, ReactNode } from 'react';
 import { forwardRef } from 'react';
 
+import { Placeholder } from '../Placeholder';
 import * as S from './styles';
 
 type RootProps = ComponentProps<typeof S.Table>;
@@ -63,3 +64,21 @@ export const Cell = forwardRef<HTMLTableCellElement, CellProps>(({ children, cli
   );
 });
 Cell.displayName = 'Cell';
+
+export function PlaceholderRows() {
+  const row = (
+    <S.Row>
+      <S.Cell colSpan={10000}>
+        <Placeholder css={{ width: '100%', height: '1rem' }} />
+      </S.Cell>
+    </S.Row>
+  );
+
+  return (
+    <>
+      {row}
+      {row}
+      {row}
+    </>
+  );
+}
