@@ -11,6 +11,7 @@ type RowProps = ComponentProps<typeof S.Row>;
 type CellProps = ComponentProps<typeof S.Cell>;
 
 export const Body = S.Body;
+export const Foot = S.Foot;
 export const HeaderCell = S.HeaderCell;
 
 export const Root = forwardRef<HTMLTableElement, RootProps>(({ children, ...props }, ref) => {

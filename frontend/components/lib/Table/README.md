@@ -254,6 +254,49 @@ You can include custom content in the header at the top of the table using the `
 </Table.Root>
 ```
 
+## Footer
+
+You can use `Table.Foot` to create a sticky footer with more table data:
+
+```tsx
+<Table.Root>
+  ...
+  <Table.Foot>
+    <Table.Row>
+      <Table.Cell>Cell 2 Data</Table.Cell>
+      <Table.Cell>Cell 1 Data</Table.Cell>
+    </Table.Row>
+  </Table.Foot>
+</Table.Root>
+```
+
+Or you can use it to render custom content (EG: filter controls, pagination). You'll probably want to set `colSpan` on the `Table.Cell` to span the full width of the table:
+
+```tsx
+<Table.Root>
+  ...
+  <Table.Foot>
+    <Table.Row>
+      <Table.Cell colSpan={100}>
+        <Flex>
+          <Text>My Cool Footer</Text>
+          <Button size="s" color="primaryBorder" css={{ marginLeft: 'auto' }}>
+            <FeatherIcon icon="sliders" />
+            Filter
+          </Button>
+        </Flex>
+      </Table.Cell>
+    </Table.Row>
+  </Table.Foot>
+</Table.Root>
+```
+
+You can disable the footer sticky scroll:
+
+```tsx
+<Table.Foot sticky={false}>...</Table.Foot>
+```
+
 ## Infinite Scroll / Pagination
 
 TODO...
