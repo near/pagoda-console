@@ -1,9 +1,11 @@
+import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 
 import setupErrorLogger from '../errorLogger';
 import { test } from '../fixtures';
 import { login } from '../login';
 
+// These
 [
   'introduction',
   'predeployed-contract',
@@ -28,7 +30,7 @@ import { login } from '../login';
     expect(
       await page.screenshot({
         fullPage: true,
-        mask: [page.locator('.animateOpen')],
+        mask: getTutorialMasks(page),
       }),
     ).toMatchSnapshot(`nft_tutorial_page_${path}.png`);
   });
@@ -60,10 +62,20 @@ const CHUNK = 10000;
       expect(
         await page.screenshot({
           fullPage: true,
-          mask: [page.locator('.animateOpen')],
+          mask: getTutorialMasks(page),
           clip: { height: CHUNK, width: 1280, x: 0, y: from },
         }),
       ).toMatchSnapshot(`nft_tutorial_page_${path}_${i}.png`);
     });
   }
 });
+
+// Masks are the pink areas that you see in the generated screenshots.
+function getTutorialMasks(page: Page) {
+  return [
+    page.locator(':above(section)'),
+    page.locator(':left-of(section)'),
+    page.locator(':below(section)'),
+    page.locator(':right-of(section)'),
+  ];
+}

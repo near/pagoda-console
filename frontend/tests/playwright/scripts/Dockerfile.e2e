@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright
+FROM mcr.microsoft.com/playwright:v1.23.1-focal
 
 WORKDIR /app
 
@@ -6,6 +6,7 @@ WORKDIR /app
 COPY package.json .
 COPY package-lock.json .
 RUN npm ci
+RUN npx playwright install
 
 COPY . .
 
