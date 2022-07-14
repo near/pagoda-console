@@ -77,6 +77,7 @@ interface AppConfig {
   deployEnv: DeployEnvironment;
   telegramBotHandle?: string;
   defaultPageSize: number;
+  defaultLiveDataRefreshIntervalMs: number;
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
@@ -112,6 +113,7 @@ const config: AppConfig = {
     : 'PRODUCTION', // default to production to be safe
   telegramBotHandle: process.env.NEXT_PUBLIC_TELEGRAM_BOT_HANDLE,
   defaultPageSize: parseInt(process.env.NEXT_PUBLIC_DEFAULT_PAGE_SIZE || '100'),
+  defaultLiveDataRefreshIntervalMs: parseInt(process.env.NEXT_PUBLIC_DEFAULT_LIVE_DATA_REFRESH_INTERVAL_MS || '3000'),
 };
 
 export default config;

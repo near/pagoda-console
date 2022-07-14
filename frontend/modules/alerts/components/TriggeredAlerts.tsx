@@ -43,7 +43,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
 
     if (pagination.state.liveRefreshEnabled) {
       const date = DateTime.fromISO(alert.triggeredAt);
-      result = date > pagination.state.initialLoadDateTime;
+      result = date > pagination.state.lastItemCountUpdateDateTime;
     }
 
     return result;
@@ -142,7 +142,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
                 </Table.Cell>
                 <Table.Cell>
                   <Text family="number" color="text3" size="current">
-                    {DateTime.fromISO(row.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT)}
+                    {DateTime.fromISO(row.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS)}
                   </Text>
                 </Table.Cell>
               </Table.Row>

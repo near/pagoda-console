@@ -3,11 +3,12 @@ import useSWR from 'swr';
 
 import type { Pagination } from '@/hooks/pagination';
 import { useIdentity } from '@/hooks/user';
+import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
 
 import type { TriggeredAlert } from '../utils/types';
 
-const refreshInterval = 3000;
+const refreshInterval = config.defaultLiveDataRefreshIntervalMs;
 
 export function useTriggeredAlertsCount(
   projectSlug: string | undefined,

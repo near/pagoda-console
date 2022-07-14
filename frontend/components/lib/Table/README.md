@@ -314,7 +314,7 @@ function shouldFlashRow(alert: TriggeredAlert) {
 
   if (pagination.state.liveRefreshEnabled) {
     const date = DateTime.fromISO(alert.triggeredAt);
-    result = date > pagination.state.initialLoadDateTime;
+    result = date > pagination.state.lastItemCountUpdateDateTime;
   }
 
   return result;

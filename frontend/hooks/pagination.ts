@@ -5,8 +5,8 @@ import config from '@/utils/config';
 
 export interface PagingState {
   currentPage: number;
-  initialLoadDateTime: DateTime;
   itemCount: number;
+  lastItemCountUpdateDateTime: DateTime;
   liveRefreshEnabled: boolean;
   pageSize: number;
   pagingDateTime: Date | undefined;
@@ -15,8 +15,8 @@ export interface PagingState {
 export function usePagination() {
   const [state, setState] = useState<PagingState>({
     currentPage: 1,
-    initialLoadDateTime: DateTime.now(),
     itemCount: 0,
+    lastItemCountUpdateDateTime: DateTime.now(),
     liveRefreshEnabled: true,
     pageSize: config.defaultPageSize,
     pagingDateTime: undefined,
@@ -66,6 +66,7 @@ export function usePagination() {
 
     updateState({
       itemCount,
+      lastItemCountUpdateDateTime: DateTime.now().minus({ millisecond: config.defaultLiveDataRefreshIntervalMs }),
     });
   }
 
