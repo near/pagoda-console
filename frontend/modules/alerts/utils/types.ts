@@ -202,7 +202,6 @@ interface ConfigWebhook {
   url: string;
 }
 
-// Triggered Alerts
 export interface TriggeredAlert {
   triggeredAlertSlug: string;
   name: string;

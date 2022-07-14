@@ -8,12 +8,17 @@ import { authenticatedPost } from '@/utils/http';
 
 import type { TriggeredAlert } from '../utils/types';
 
+interface TriggeredAlertFilters {
+  alertId?: number;
+}
+
 const refreshInterval = config.defaultLiveDataRefreshIntervalMs;
 
 export function useTriggeredAlertsCount(
   projectSlug: string | undefined,
   environmentSubId: number | undefined,
   pagination: Pagination,
+  filters: TriggeredAlertFilters,
 ) {
   const [triggeredAlertsCount, setTriggeredAlertsCount] = useState<number>();
 
@@ -27,6 +32,7 @@ export function useTriggeredAlertsCount(
           environmentSubId,
           identity.uid,
           pagination.state.pagingDateTime,
+          filters.alertId,
         ]
       : null,
     (key) => {
@@ -34,6 +40,7 @@ export function useTriggeredAlertsCount(
         environmentSubId,
         projectSlug,
         pagingDateTime: pagination.state.pagingDateTime,
+        alertId: filters?.alertId,
       });
     },
     {
@@ -53,6 +60,7 @@ export function useTriggeredAlerts(
   projectSlug: string | undefined,
   environmentSubId: number | undefined,
   pagination: Pagination,
+  filters: Record<string, unknown>,
 ) {
   const identity = useIdentity();
   const take = pagination.state.pageSize;
@@ -68,6 +76,7 @@ export function useTriggeredAlerts(
           skip,
           take,
           pagination.state.pagingDateTime,
+          filters.alertId,
         ]
       : null,
     (key) => {
@@ -77,6 +86,7 @@ export function useTriggeredAlerts(
         take,
         skip,
         pagingDateTime: pagination.state.pagingDateTime,
+        alertId: filters?.alertId,
       });
     },
     {
