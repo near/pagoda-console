@@ -132,6 +132,7 @@ model Contract {
   id            Int         @id @default(autoincrement())
   environment   Environment @relation(fields: [environmentId], references: [id])
   environmentId Int
+  // A conditional unique index exists in the DB migration `unique_contract_addresses`.
   address       String
   net           Net
   active        Boolean     @default(true)
