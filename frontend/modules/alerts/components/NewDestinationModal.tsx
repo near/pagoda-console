@@ -23,6 +23,7 @@ import { WebhookDestinationSecret } from './WebhookDestinationSecret';
 
 interface Props {
   onCreate?: (destination: Destination) => void;
+  onVerify?: (destination: Destination) => void;
   projectSlug: string;
   show: boolean;
   setShow: (show: boolean) => void;
@@ -37,7 +38,7 @@ function useNewDestinationForm<T>(props: FormProps) {
   const [destination, setDestination] = useState<Destination>();
   const form = useForm<T>();
 
-  useVerifyDestinationInterval(destination, mutate, props.setShow);
+  useVerifyDestinationInterval(destination, mutate, props.setShow, props.onVerify);
 
   async function create(data: NewDestination) {
     try {

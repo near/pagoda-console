@@ -126,6 +126,7 @@ export function DestinationsSelector({ debounce = true, onChange, selectedIds, s
       {project && (
         <NewDestinationModal
           onCreate={(destination) => toggleEnabledDestination(true, destination)}
+          onVerify={(destination) => toggleEnabledDestination(true, destination)}
           projectSlug={project.slug}
           show={showNewDestinationModal}
           setShow={setShowNewDestinationModal}
