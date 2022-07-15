@@ -24,6 +24,7 @@ export class TriggeredAlertHistoryService {
     projectSlug: Alert['projectSlug'],
     environmentSubId: Alert['environmentSubId'],
     pagingDateTime: Date,
+    alertId?: number,
   ): Promise<number> {
     await this.projectPermissions.checkUserProjectEnvPermission(
       user.id,
@@ -35,6 +36,7 @@ export class TriggeredAlertHistoryService {
       pagingDateTime,
       projectSlug,
       environmentSubId,
+      alertId,
     );
     const count = await this.prisma.triggeredAlert.count({
       where: listWhere,
@@ -50,6 +52,7 @@ export class TriggeredAlertHistoryService {
     skip: number,
     take: number,
     pagingDateTime: Date,
+    alertId?: number,
   ): Promise<Array<TriggeredAlertDetailsResponseDto>> {
     await this.projectPermissions.checkUserProjectEnvPermission(
       user.id,
@@ -61,6 +64,7 @@ export class TriggeredAlertHistoryService {
       pagingDateTime,
       projectSlug,
       environmentSubId,
+      alertId,
     );
     const triggeredAlerts = await this.prisma.triggeredAlert.findMany({
       skip,
@@ -81,25 +85,21 @@ export class TriggeredAlertHistoryService {
     pagingDateTime: Date,
     projectSlug: string,
     environmentSubId: number,
+    alertId: number,
   ) {
-    let listWhere;
+    const listWhere: Record<string, any> = {
+      alert: {
+        projectSlug,
+        environmentSubId,
+      },
+    };
     if (pagingDateTime) {
-      listWhere = {
-        alert: {
-          projectSlug,
-          environmentSubId,
-        },
+      listWhere.triggeredAt = {
+        lte: pagingDateTime,
       };
-    } else {
-      listWhere = {
-        triggeredAt: {
-          lte: pagingDateTime,
-        },
-        alert: {
-          projectSlug,
-          environmentSubId,
-        },
-      };
+    }
+    if (alertId) {
+      listWhere.alert.id = alertId;
     }
     return listWhere;
   }
