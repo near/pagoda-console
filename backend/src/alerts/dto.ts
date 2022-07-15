@@ -10,7 +10,6 @@ import {
   RuleType,
   TxRuleDto,
 } from './serde/dto.types';
-import { join } from 'path';
 
 const TxRuleSchema = Joi.object({
   contract: Joi.string().required(),

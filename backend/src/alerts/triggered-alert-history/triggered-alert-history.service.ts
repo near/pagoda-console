@@ -24,7 +24,7 @@ export class TriggeredAlertHistoryService {
     projectSlug: Alert['projectSlug'],
     environmentSubId: Alert['environmentSubId'],
     pagingDateTime: Date,
-    alertId: number | undefined,
+    alertId?: number,
   ): Promise<number> {
     await this.projectPermissions.checkUserProjectEnvPermission(
       user.id,
@@ -52,7 +52,7 @@ export class TriggeredAlertHistoryService {
     skip: number,
     take: number,
     pagingDateTime: Date,
-    alertId: number | undefined,
+    alertId?: number,
   ): Promise<Array<TriggeredAlertDetailsResponseDto>> {
     await this.projectPermissions.checkUserProjectEnvPermission(
       user.id,
