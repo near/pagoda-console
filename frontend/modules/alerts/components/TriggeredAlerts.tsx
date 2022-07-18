@@ -22,7 +22,7 @@ import { truncateMiddle } from '@/utils/truncate-middle';
 import type { Environment, Project } from '@/utils/types';
 
 import { useAlerts } from '../hooks/alerts';
-import { useTriggeredAlerts, useTriggeredAlertsCount } from '../hooks/triggered-alerts';
+import { useTriggeredAlerts } from '../hooks/triggered-alerts';
 import { alertTypes } from '../utils/constants';
 import type { TriggeredAlert } from '../utils/types';
 
@@ -33,8 +33,12 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
     queryParamAlertFilter ? parseInt(queryParamAlertFilter) : undefined,
   );
   const filters = { alertId: filteredAlertId };
-  const { triggeredAlertsCount } = useTriggeredAlertsCount(project?.slug, environment?.subId, pagination, filters);
-  const { triggeredAlerts } = useTriggeredAlerts(project?.slug, environment?.subId, pagination, filters);
+  const { triggeredAlertsCount, triggeredAlerts } = useTriggeredAlerts(
+    project?.slug,
+    environment?.subId,
+    pagination,
+    filters,
+  );
   const { alerts } = useAlerts(project?.slug, environment?.subId);
   const filteredAlert = alerts?.find((alert) => alert.id === filteredAlertId);
 
