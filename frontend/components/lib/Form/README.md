@@ -196,6 +196,64 @@ Other times, it makes more sense to set max widths on each `Form.Group` individu
 </Form.Root>
 ```
 
+## Textarea
+
+A textarea allows a user to type a long value and can be manually resized:
+
+```tsx
+<Form.Group>
+  <Form.Label htmlFor="description">Long Description</Form.Label>
+  <Form.Textarea
+    id="description"
+    isInvalid={!!form.formState.errors.description}
+    placeholder="Write a really cool description..."
+    {...form.register('description', {
+      required: 'Please enter a description',
+    })}
+  />
+  <Form.Feedback>{form.formState.errors.description?.message}</Form.Feedback>
+</Form.Group>
+```
+
+Sometimes it makes sense to change the default height:
+
+```tsx
+<Form.Textarea ... css={{ minHeight: '20rem' }} />
+```
+
+## Content Editable
+
+A content editable div behaves just like a textarea, but will automatically resize based on the placeholder or as the user types.
+
+```tsx
+<Form.Group>
+  <Form.Label htmlFor="description">Long Description</Form.Label>
+  <Form.ContentEditable
+    id="description"
+    isInvalid={!!form.formState.errors.description}
+    placeholder="Write a really cool description..."
+    onInput={(e) => {
+      form.setValue('description', e.currentTarget.textContent || '', {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }}
+    {...form.register('description', {
+      required: 'Please enter a description',
+    })}
+  />
+  <Form.Feedback>{form.formState.errors.description?.message}</Form.Feedback>
+</Form.Group>
+```
+
+Note the need to register a custom `onInput` handler in order for the div to behave correctly with React Hook Form: https://github.com/react-hook-form/react-hook-form/discussions/1710
+
+Sometimes it makes sense to change the default height:
+
+```tsx
+<Form.ContentEditable ... css={{ minHeight: '20rem' }} />
+```
+
 ## Checkboxes & Radios
 
 To implement checkboxes or radios in a form, please refer to `Checkbox/README.md` and `CheckboxCard/README.md`.

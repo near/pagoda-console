@@ -86,6 +86,11 @@ export const LabelDescription = styled('p', {
   lineHeight: 'var(--line-height-body)',
 });
 
+const placeholderStyles: StitchesCSS = {
+  fontSize: 'var(--font-size-body)',
+  color: 'var(--color-text-3)',
+};
+
 const inputStyles: StitchesCSS = {
   flexGrow: 1,
   color: 'var(--color-text-1)',
@@ -105,8 +110,7 @@ const inputStyles: StitchesCSS = {
   },
 
   '&::placeholder': {
-    fontSize: 'var(--font-size-body)',
-    color: 'var(--color-text-3)',
+    ...placeholderStyles,
   },
 
   '&:disabled': {
@@ -183,6 +187,46 @@ export const InputButton = styled('button', {
           width: '100%',
           paddingTop: '1.05rem',
         },
+      },
+    },
+  },
+});
+
+export const Textarea = styled('textarea', {
+  ...inputStyles,
+  minHeight: '6.3rem',
+  height: 'auto',
+  resize: 'vertical',
+  padding: 'calc(var(--space-m) * 0.8) var(--space-m)',
+  borderBottomRightRadius: 0,
+
+  variants: {
+    invalid: {
+      true: {
+        ...inputInvalidStyles,
+      },
+    },
+  },
+});
+
+export const ContentEditable = styled('div', {
+  ...inputStyles,
+  minHeight: '6.3rem',
+  height: 'auto',
+  padding: 'calc(var(--space-m) * 0.8) var(--space-m)',
+  whiteSpace: 'pre-wrap',
+
+  '&:empty::before': {
+    ...placeholderStyles,
+    content: 'attr(placeholder)',
+    pointerEvents: 'none',
+    display: 'block',
+  },
+
+  variants: {
+    invalid: {
+      true: {
+        ...inputInvalidStyles,
       },
     },
   },
