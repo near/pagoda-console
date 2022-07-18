@@ -72,17 +72,14 @@ export class EmailsService {
   async sendEmailVerificationMessage(recipient: string, token: string) {
     const link = this.emailVerificationEndpoint + '?token=' + token;
     const html =
-      'Hello, <br><br> you are receiving this message because ' +
-      'you recently created an alert destination in the NEAR Developer Console. <br><br>' +
-      'Follow this link to verify your email address: <br><br>' +
+      'Hello, <br><br> You are receiving this message because ' +
+      'you recently created an alert destination in the Pagoda Developer Console. <br><br>' +
       '<a href="' +
       link +
-      '">' +
-      link +
-      '</a>' +
+      '">Follow this link to verify your email address.</a>' +
       '<br><br>' +
       'If you did not ask to verify this address, you can ignore this email. <br><br>' +
-      'Thanks,<br>Your NEAR Developer Console Team';
+      'Thanks,<br>Your Pagoda Developer Console Team';
 
     await this.sendMessage(
       this.emailVerificationFrom,
