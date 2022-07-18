@@ -313,3 +313,11 @@ export interface TriggeredAlertDetailsResponseDto {
   triggeredAt: Date;
   extraData?: Record<string, unknown>;
 }
+
+// resend verification email
+export interface ResendEmailVerificationDto {
+  destinationId: number;
+}
+export const ResendEmailVerificationSchema = Joi.object({
+  destinationId: Joi.number().required(),
+});
