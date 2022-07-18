@@ -1078,10 +1078,10 @@ export class AlertsService {
     }
   }
 
-  async resendEmailVerification(callingUser: User, id: number) {
-    try {
-      await this.checkUserDestinationPermission(callingUser.id, id);
+  async resendEmailVerification(callingUser: User, id: Destination['id']) {
+    await this.checkUserDestinationPermission(callingUser.id, id);
 
+    try {
       const targetDestination = await this.prisma.destination.findUnique({
         where: {
           id,
