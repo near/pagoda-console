@@ -309,7 +309,7 @@ export interface TriggeredAlertDetailsResponseDto {
   type: RuleType;
   triggeredInBlockHash: string;
   triggeredInTransactionHash: string;
-  triggeredInReceiptId: number;
+  triggeredInReceiptId: string;
   triggeredAt: Date;
   extraData?: Record<string, unknown>;
 }

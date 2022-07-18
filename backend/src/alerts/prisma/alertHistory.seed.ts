@@ -1,5 +1,5 @@
 import { Alert, PrismaClient } from '../../../generated/prisma/alerts';
-import { createHash, randomBytes, randomInt } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 const prisma = new PrismaClient();
 
 function randomHash() {
@@ -28,7 +28,7 @@ async function createTriggeredAlert(firstAlert: Alert) {
       },
       triggeredInBlockHash: randomHash(),
       triggeredInTransactionHash: randomHash(),
-      triggeredInReceiptId: randomInt(0, 1000000),
+      triggeredInReceiptId: randomHash(),
       triggeredAt: new Date(),
       extraData: { foo: 'bar' },
     },
@@ -40,7 +40,14 @@ async function main() {
   await prisma.$connect();
 
   const firstAlert = await prisma.alert.findFirst();
-  const startMillis = new Date().getMilliseconds();
+
+  if (!firstAlert) {
+    console.error(
+      'Please generate at least 1 alert before running this script',
+    );
+    process.exit(1);
+  }
+
   createTriggeredAlertAndScheduleNext(firstAlert, 10);
 }
 
