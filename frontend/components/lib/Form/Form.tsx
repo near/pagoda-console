@@ -67,6 +67,7 @@ export const ContentEditable = forwardRef<HTMLDivElement, ContentEditableProps>(
       contentEditable
       role="textbox"
       invalid={isInvalid}
+      suppressContentEditableWarning
       aria-invalid={isInvalid}
       ref={ref}
       {...props}

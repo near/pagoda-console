@@ -223,30 +223,37 @@ Sometimes it makes sense to change the default height:
 
 ## Content Editable
 
-A content editable div behaves just like a textarea, but will automatically resize based on the placeholder or as the user types.
+A content editable div behaves just like a textarea, but will automatically resize based on the placeholder or as the user types. Due to the complexities of using a `<div>` instead of a native `<textarea>`, we'll need to use the React Hook Form `Controller` component instead of `register()`:
 
 ```tsx
-<Form.Group>
-  <Form.Label htmlFor="description">Long Description</Form.Label>
-  <Form.ContentEditable
-    id="description"
-    isInvalid={!!form.formState.errors.description}
-    placeholder="Write a really cool description..."
-    onInput={(e) => {
-      form.setValue('description', e.currentTarget.textContent || '', {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    }}
-    {...form.register('description', {
-      required: 'Please enter a description',
-    })}
-  />
-  <Form.Feedback>{form.formState.errors.description?.message}</Form.Feedback>
-</Form.Group>
+<Controller
+  name="description"
+  control={form.control}
+  rules={{
+    required: 'Please enter a description',
+  }}
+  render={({ field }) => {
+    return (
+      <Form.Group>
+        <Form.Label htmlFor="description">Description</Form.Label>
+        <Form.ContentEditable
+          id="description"
+          isInvalid={!!form.formState.errors.description}
+          onBlur={field.onBlur}
+          onInput={field.onChange}
+          ref={field.ref}
+          placeholder="Write a really cool description..."
+        >
+          {field.value}
+        </Form.ContentEditable>
+        <Form.Feedback>{form.formState.errors.description?.message}</Form.Feedback>
+      </Form.Group>
+    );
+  }}
+/>
 ```
 
-Note the need to register a custom `onInput` handler in order for the div to behave correctly with React Hook Form: https://github.com/react-hook-form/react-hook-form/discussions/1710
+Also note that we need to map `field.onChange` to the `onInput` handler like so: `onInput={field.onChange}` (a `<div>` does not have a native `onChange` event).
 
 Sometimes it makes sense to change the default height:
 

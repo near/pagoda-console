@@ -1993,12 +1993,23 @@ function DocSectionForm() {
             or as the user types.
           </Text>
 
-          <Form.Group>
-            <Form.Label htmlFor="longDescription2">Description</Form.Label>
-            <Form.ContentEditable
-              id="longDescription2"
-              isInvalid={!!form.formState.errors.longDescription2}
-              placeholder={`{
+          <Controller
+            name="longDescription2"
+            control={form.control}
+            rules={{
+              required: 'Please enter a description',
+            }}
+            render={({ field }) => {
+              return (
+                <Form.Group>
+                  <Form.Label htmlFor="longDescription2">Description</Form.Label>
+                  <Form.ContentEditable
+                    id="longDescription2"
+                    isInvalid={!!form.formState.errors.longDescription2}
+                    onBlur={field.onBlur}
+                    onInput={field.onChange}
+                    ref={field.ref}
+                    placeholder={`{
     "myObject": {
         "value1": "abc",
         "value2": 123,
@@ -2010,18 +2021,14 @@ function DocSectionForm() {
         }
     }
 }`}
-              onInput={(e) => {
-                form.setValue('longDescription2', e.currentTarget.textContent || '', {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                });
-              }}
-              {...form.register('longDescription2', {
-                required: 'Please enter a description',
-              })}
-            />
-            <Form.Feedback>{form.formState.errors.longDescription2?.message}</Form.Feedback>
-          </Form.Group>
+                  >
+                    {field.value}
+                  </Form.ContentEditable>
+                  <Form.Feedback>{form.formState.errors.longDescription2?.message}</Form.Feedback>
+                </Form.Group>
+              );
+            }}
+          />
 
           <HR />
 
