@@ -82,7 +82,6 @@ export function usePagination() {
     updateState({
       currentPage: 1,
       itemCount: 0,
-      liveRefreshEnabled: true,
       pageSize: config.defaultPageSize,
       pagingDateTime: undefined,
     });

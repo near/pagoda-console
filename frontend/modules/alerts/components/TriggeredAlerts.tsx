@@ -1,20 +1,22 @@
 import { DateTime } from 'luxon';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { Card } from '@/components/lib/Card';
+import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
-import { H5 } from '@/components/lib/Heading';
 import { Pagination } from '@/components/lib/Pagination';
 import { Placeholder } from '@/components/lib/Placeholder';
 import { Switch } from '@/components/lib/Switch';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
+import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { usePagination } from '@/hooks/pagination';
+import { useRouteParam } from '@/hooks/route';
 import { useOnSelectedProjectChange } from '@/hooks/selected-project';
 import { truncateMiddle } from '@/utils/truncate-middle';
 import type { Environment, Project } from '@/utils/types';
@@ -25,17 +27,23 @@ import { alertTypes } from '../utils/constants';
 import type { TriggeredAlert } from '../utils/types';
 
 export function TriggeredAlerts({ environment, project }: { environment?: Environment; project?: Project }) {
+  const queryParamAlertFilter = useRouteParam('alertId');
   const pagination = usePagination();
-  const { triggeredAlertsCount } = useTriggeredAlertsCount(project?.slug, environment?.subId, pagination);
-  const { triggeredAlerts } = useTriggeredAlerts(project?.slug, environment?.subId, pagination);
+  const [filteredAlertId, setFilteredAlertId] = useState(
+    queryParamAlertFilter ? parseInt(queryParamAlertFilter) : undefined,
+  );
+  const filters = { alertId: filteredAlertId };
+  const { triggeredAlertsCount } = useTriggeredAlertsCount(project?.slug, environment?.subId, pagination, filters);
+  const { triggeredAlerts } = useTriggeredAlerts(project?.slug, environment?.subId, pagination, filters);
   const { alerts } = useAlerts(project?.slug, environment?.subId);
+  const filteredAlert = alerts?.find((alert) => alert.id === filteredAlertId);
 
   useEffect(() => {
     pagination.updateItemCount(triggeredAlertsCount);
   });
 
   useOnSelectedProjectChange(() => {
-    pagination.reset();
+    clearAlertFilter();
   });
 
   function shouldFlashRow(alert: TriggeredAlert) {
@@ -49,23 +57,25 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
     return result;
   }
 
-  if (alerts?.length === 0 || triggeredAlertsCount == 0) {
+  function onSelectAlertFilter(alertId: string) {
+    pagination.reset();
+    setFilteredAlertId(parseInt(alertId));
+  }
+
+  function clearAlertFilter() {
+    pagination.reset();
+    setFilteredAlertId(undefined);
+  }
+
+  if (alerts?.length === 0) {
     return (
       <Card>
         <Flex stack align="center">
           <FeatherIcon icon="bell-off" size="l" />
-
-          {alerts?.length === 0 ? (
-            <>
-              <Text>{`Your selected environment doesn't have any alerts configured yet.`}</Text>
-
-              <Link href="/alerts/new-alert" passHref>
-                <TextLink>Create an Alert</TextLink>
-              </Link>
-            </>
-          ) : (
-            <Text>{`No alerts have triggered in your selected environment yet.`}</Text>
-          )}
+          <Text>{`Your selected environment doesn't have any alerts configured yet.`}</Text>
+          <Link href="/alerts/new-alert" passHref>
+            <TextLink>Create an Alert</TextLink>
+          </Link>
         </Flex>
       </Card>
     );
@@ -76,12 +86,50 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
       <Table.Root>
         <Table.Head
           header={
-            <Flex align="center" justify="spaceBetween">
-              {triggeredAlertsCount === undefined ? (
-                <Placeholder css={{ width: '15rem', height: '1.5rem' }} />
-              ) : (
-                <H5>{triggeredAlertsCount} Triggered Alerts</H5>
-              )}
+            <Flex align="center">
+              <Flex align="center">
+                {triggeredAlertsCount === undefined ? (
+                  <Placeholder css={{ width: '15rem', height: '1.5rem' }} />
+                ) : (
+                  <>
+                    <DropdownMenu.Root>
+                      <DropdownMenu.Button css={{ minWidth: '15rem', maxWidth: '30rem' }} size="s">
+                        <Text color={filteredAlert ? 'text1' : 'text3'} as="span">
+                          <TextOverflow> {filteredAlert?.name || 'Filter by an Alert...'}</TextOverflow>
+                        </Text>
+                      </DropdownMenu.Button>
+
+                      <DropdownMenu.Content align="start">
+                        {filteredAlert && (
+                          <DropdownMenu.Item key={'clear'} onSelect={() => clearAlertFilter()}>
+                            <FeatherIcon icon="x" size="s" color="text3" />
+                            <Text color="text3">Clear Filter</Text>
+                          </DropdownMenu.Item>
+                        )}
+
+                        <DropdownMenu.RadioGroup
+                          value={filteredAlert?.id?.toString()}
+                          onValueChange={onSelectAlertFilter}
+                        >
+                          {alerts?.map((a) => {
+                            const alertTypeOption = alertTypes[a.type];
+                            return (
+                              <DropdownMenu.RadioItem
+                                key={a.id}
+                                value={a.id?.toString()}
+                                indicator={<FeatherIcon icon={alertTypeOption.icon} />}
+                              >
+                                {a.name}
+                              </DropdownMenu.RadioItem>
+                            );
+                          })}
+                        </DropdownMenu.RadioGroup>
+                      </DropdownMenu.Content>
+                    </DropdownMenu.Root>
+                    <Text>{triggeredAlertsCount} Triggered Alerts</Text>
+                  </>
+                )}
+              </Flex>
 
               <Tooltip
                 align="end"
@@ -123,7 +171,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
             const alertTypeOption = alertTypes[row.type];
             return (
               <Table.Row flash={shouldFlashRow(row)} key={row.triggeredAlertSlug}>
-                <Table.Cell>{row.name}</Table.Cell>
+                <Table.Cell wrap>{row.name}</Table.Cell>
                 <Table.Cell>
                   <Badge size="s">
                     <FeatherIcon icon={alertTypeOption.icon} size="xs" />
