@@ -35,8 +35,8 @@ model Alert {
   /// Reference to the user id who last updated the record.
   updatedBy        Int?          @map("updated_by")
 
-  enabledDestinations        EnabledDestination[]
-  triggeredAlerts            TriggeredAlert[]
+  enabledDestinations       EnabledDestination[]
+  triggeredAlerts           TriggeredAlert[]
   triggeredAlertDestination TriggeredAlertDestination[]
 
   @@map("alert_rules")
@@ -120,10 +120,10 @@ model EmailDestination {
   destinationId  Int         @unique @map("destination_id")
   email          String
   /// Verification token sent to the user's email address
-  token          String?      @unique
+  token          String?     @unique
   isVerified     Boolean     @default(false) @map("is_verified")
   // Token's expiry date
-  tokenExpiresAt DateTime?    @map("token_expires_at")
+  tokenExpiresAt DateTime?   @map("token_expires_at")
   createdAt      DateTime?   @default(now()) @map("created_at")
   /// Reference to the user id who created the record.
   createdBy      Int?        @map("created_by")
@@ -167,13 +167,13 @@ enum DestinationType {
 
 model TriggeredAlert {
   id                         Int      @id @default(autoincrement())
-  triggeredAlertSlug         String   @default(uuid()) @map("triggered_alert_slug")
+  triggeredAlertSlug         String   @default(dbgenerated("gen_random_uuid()")) @map("slug")
   alert                      Alert    @relation(fields: [alertId], references: [id])
   alertId                    Int      @map("alert_id")
   triggeredInBlockHash       String   @map("triggered_in_block_hash")
   triggeredInTransactionHash String?  @map("triggered_in_transaction_hash")
-  triggeredInReceiptId       Int?     @map("triggered_in_receipt_id")
-  triggeredAt                DateTime @map("triggered_at")
+  triggeredInReceiptId       String?  @map("triggered_in_receipt_id")
+  triggeredAt                DateTime @map("triggered_at") @db.Timestamptz
   extraData                  Json?    @map("extra_data")
 
   triggeredAlertDestinations TriggeredAlertDestination[]
@@ -181,15 +181,15 @@ model TriggeredAlert {
 }
 
 model TriggeredAlertDestination {
-  triggeredAlert   TriggeredAlert                @relation(fields: [triggeredAlertId], references: [id])
-  triggeredAlertId Int
-  alert            Alert                         @relation(fields: [alertId], references: [id])
-  alertId          Int                           @map("alert_id")
-  destination      Destination                   @relation(fields: [destinationId], references: [id])
-  destinationId    Int                           @map("destination_id")
+  triggeredAlert   TriggeredAlert @relation(fields: [triggeredAlertId], references: [id])
+  triggeredAlertId Int            @map("triggered_alert_id")
+  alert            Alert          @relation(fields: [alertId], references: [id])
+  alertId          Int            @map("alert_id")
+  destination      Destination    @relation(fields: [destinationId], references: [id])
+  destinationId    Int            @map("destination_id")
   status           Int
   response         String
-  createdAt        DateTime                      @map("created_at")
+  createdAt        DateTime       @map("created_at") @db.Timestamptz
 
   @@id([triggeredAlertId, alertId, destinationId])
   @@map("triggered_alerts_destinations")

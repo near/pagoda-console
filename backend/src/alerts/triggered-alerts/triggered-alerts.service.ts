@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { Alert, TriggeredAlert } from 'generated/prisma/alerts';
+import { Alert, Prisma, TriggeredAlert } from 'generated/prisma/alerts';
 import { PrismaService } from '../prisma.service';
 import { PermissionsService as ProjectPermissionsService } from 'src/projects/permissions.service';
 import { AlertsService } from '../alerts.service';
@@ -78,8 +78,8 @@ export class TriggeredAlertsService {
     projectSlug: string,
     environmentSubId: number,
     alertId: number,
-  ) {
-    const listWhere: Record<string, any> = {
+  ): Prisma.TriggeredAlertWhereInput {
+    const listWhere: Prisma.TriggeredAlertWhereInput = {
       alert: {
         projectSlug,
         environmentSubId,
@@ -105,8 +105,7 @@ export class TriggeredAlertsService {
       triggeredInReceiptId,
       triggeredAt,
     } = triggeredAlert;
-    const extraData: Record<string, unknown> =
-      triggeredAlert.extraData as Record<string, unknown>;
+    const extraData = triggeredAlert.extraData as Record<string, unknown>;
     const rule = alert.matchingRule as object as MatchingRule;
 
     return {
