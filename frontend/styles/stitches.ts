@@ -6,6 +6,7 @@ export const { config, css, getCssText, globalCss, keyframes, styled, theme } = 
   media: {
     mobile: '(max-width: 30rem)',
     tablet: '(max-width: 60rem)',
+    laptop: '(max-width: 75rem)',
   },
 });
 
