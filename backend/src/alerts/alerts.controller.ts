@@ -10,8 +10,6 @@ import {
   BadRequestException,
   Headers,
   UnauthorizedException,
-  Get,
-  Query,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BearerAuthGuard } from 'src/auth/bearer-auth.guard';
@@ -50,6 +48,8 @@ import {
   UpdateDestinationDto,
   VerifyEmailSchema,
   VerifyEmailDto,
+  ResendEmailVerificationDto,
+  ResendEmailVerificationSchema,
 } from './dto';
 import { TelegramService } from './telegram/telegram.service';
 import { TgUpdate } from './telegram/types';
@@ -366,6 +366,21 @@ export class AlertsController {
           'You can receive alerts here by setting up a Telegram destination in Pagoda DevConsole. If you are trying to provide your setup token, please enter it as follows:\n<pre>/start &lt;token&gt;</pre>',
         );
       }
+    }
+  }
+
+  @Post('resendEmailVerification')
+  @HttpCode(200)
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(ResendEmailVerificationSchema))
+  async resendEmailVerification(
+    @Request() req,
+    @Body() { destinationId }: ResendEmailVerificationDto,
+  ) {
+    try {
+      await this.alertsService.resendEmailVerification(req.user, destinationId);
+    } catch (e) {
+      throw mapError(e);
     }
   }
 }

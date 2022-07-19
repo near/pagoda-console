@@ -308,7 +308,15 @@ export interface TriggeredAlertDetailsResponseDto {
   type: RuleType;
   triggeredInBlockHash: string;
   triggeredInTransactionHash: string;
-  triggeredInReceiptId: number;
+  triggeredInReceiptId: string;
   triggeredAt: Date;
   extraData?: Record<string, unknown>;
 }
+
+// resend verification email
+export interface ResendEmailVerificationDto {
+  destinationId: number;
+}
+export const ResendEmailVerificationSchema = Joi.object({
+  destinationId: Joi.number().required(),
+});

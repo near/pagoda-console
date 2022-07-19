@@ -30,7 +30,7 @@ export class EmailsService {
     });
 
     this.emailVerificationEndpoint = `${frontendBaseUrl}/alerts/verify-email`;
-    
+
     this.emailVerificationFrom = this.config.get(
       'email.emailVerificationFrom',
       {
@@ -72,9 +72,14 @@ export class EmailsService {
   async sendEmailVerificationMessage(recipient: string, token: string) {
     const link = this.emailVerificationEndpoint + '?token=' + token;
     const html =
-      'Please click the link to verify your email: <a href="' +
+      'Hello, <br><br> You are receiving this message because ' +
+      'you recently created an alert destination in the Pagoda Developer Console. <br><br>' +
+      '<a href="' +
       link +
-      '">HERE</a>';
+      '">Follow this link to verify your email address.</a>' +
+      '<br><br>' +
+      'If you did not ask to verify this address, you can ignore this email. <br><br>' +
+      'Thanks,<br>Your Pagoda Developer Console Team';
 
     await this.sendMessage(
       this.emailVerificationFrom,

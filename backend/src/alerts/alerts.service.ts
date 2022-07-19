@@ -676,10 +676,7 @@ export class AlertsService {
       projectSlug,
     );
     try {
-      const expiryDate = DateTime.now()
-        .plus({ minutes: this.emailTokenExpiryMin })
-        .toUTC()
-        .toJSDate();
+      const expiryDate = this.calculateExpiryDate(this.emailTokenExpiryMin);
       const token = nanoid();
       const res = await this.prisma.destination.create({
         data: {
@@ -734,10 +731,7 @@ export class AlertsService {
       projectSlug,
     );
     try {
-      const expiryDate = DateTime.now()
-        .plus({ minutes: this.telegramTokenExpiryMin })
-        .toUTC()
-        .toJSDate();
+      const expiryDate = this.calculateExpiryDate(this.telegramTokenExpiryMin);
       const res = await this.prisma.destination.create({
         data: {
           name,
@@ -1084,6 +1078,71 @@ export class AlertsService {
     }
   }
 
+  async resendEmailVerification(callingUser: User, id: Destination['id']) {
+    await this.checkUserDestinationPermission(callingUser.id, id);
+
+    try {
+      const targetDestination = await this.prisma.destination.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      if (targetDestination.type != 'EMAIL') {
+        throw new VError(
+          { info: { code: 'BAD_DESTINATION' } },
+          'Destination not found',
+        );
+      }
+
+      if (!targetDestination.active) {
+        throw new VError(
+          { info: { code: 'BAD_DESTINATION' } },
+          'Destination not found',
+        );
+      }
+
+      if (targetDestination.isValid) {
+        // destination already verified
+        throw new VError(
+          { info: { code: 'BAD_DESTINATION' } },
+          'Destination already verified',
+        );
+      }
+
+      const token = nanoid();
+      const expiryDate = this.calculateExpiryDate(this.emailTokenExpiryMin);
+      const res = await this.prisma.destination.update({
+        where: {
+          id,
+        },
+        data: {
+          updatedBy: callingUser.id,
+          emailDestination: {
+            update: {
+              token,
+              tokenExpiresAt: expiryDate,
+            },
+          },
+        },
+        select: {
+          emailDestination: {
+            select: {
+              token: true,
+              email: true,
+            },
+          },
+        },
+      });
+      await this.emailsService.sendEmailVerificationMessage(
+        res.emailDestination.email,
+        res.emailDestination.token,
+      );
+    } catch (e) {
+      throw new VError(e, 'Failed while resending email verification');
+    }
+  }
+
   // Confirms the user is a member of the alert's project.
   private async checkUserAlertPermission(
     userId: User['id'],
@@ -1302,5 +1361,9 @@ export class AlertsService {
       isValid,
       config,
     };
+  }
+
+  private calculateExpiryDate(expiryMin: number): Date {
+    return DateTime.now().plus({ minutes: expiryMin }).toUTC().toJSDate();
   }
 }
