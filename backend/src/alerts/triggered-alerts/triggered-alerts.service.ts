@@ -5,45 +5,19 @@ import { PrismaService } from '../prisma.service';
 import { PermissionsService as ProjectPermissionsService } from 'src/projects/permissions.service';
 import { AlertsService } from '../alerts.service';
 import { MatchingRule } from '../serde/db.types';
-import { TriggeredAlertDetailsResponseDto } from '../dto';
+import { TriggeredAlertsResponseDto } from '../dto';
 
 type TriggeredAlertWithAlert = TriggeredAlert & {
   alert: Alert;
 };
 
 @Injectable()
-export class TriggeredAlertHistoryService {
+export class TriggeredAlertsService {
   constructor(
     private prisma: PrismaService,
     private projectPermissions: ProjectPermissionsService,
     private alertsService: AlertsService,
   ) {}
-
-  async countTriggeredAlertsByProject(
-    user: User,
-    projectSlug: Alert['projectSlug'],
-    environmentSubId: Alert['environmentSubId'],
-    pagingDateTime: Date,
-    alertId?: number,
-  ): Promise<number> {
-    await this.projectPermissions.checkUserProjectEnvPermission(
-      user.id,
-      projectSlug,
-      environmentSubId,
-    );
-
-    const listWhere = this.determineWhereClause(
-      pagingDateTime,
-      projectSlug,
-      environmentSubId,
-      alertId,
-    );
-    const count = await this.prisma.triggeredAlert.count({
-      where: listWhere,
-    });
-
-    return count;
-  }
 
   async listTriggeredAlertsByProject(
     user: User,
@@ -53,12 +27,22 @@ export class TriggeredAlertHistoryService {
     take: number,
     pagingDateTime: Date,
     alertId?: number,
-  ): Promise<Array<TriggeredAlertDetailsResponseDto>> {
+  ): Promise<TriggeredAlertsResponseDto> {
     await this.projectPermissions.checkUserProjectEnvPermission(
       user.id,
       projectSlug,
       environmentSubId,
     );
+
+    const countWhere = this.determineWhereClause(
+      pagingDateTime,
+      projectSlug,
+      environmentSubId,
+      alertId,
+    );
+    const countPromise = this.prisma.triggeredAlert.count({
+      where: countWhere,
+    });
 
     const listWhere = this.determineWhereClause(
       pagingDateTime,
@@ -66,7 +50,7 @@ export class TriggeredAlertHistoryService {
       environmentSubId,
       alertId,
     );
-    const triggeredAlerts = await this.prisma.triggeredAlert.findMany({
+    const triggeredAlertsPromise = this.prisma.triggeredAlert.findMany({
       skip,
       take,
       orderBy: {
@@ -78,7 +62,15 @@ export class TriggeredAlertHistoryService {
       where: listWhere,
     });
 
-    return triggeredAlerts.map((a) => this.toTriggeredAlertDto(a));
+    const [count, triggeredAlerts] = await Promise.all([
+      countPromise,
+      triggeredAlertsPromise,
+    ]);
+    const page = triggeredAlerts.map((a) => this.toTriggeredAlertDto(a));
+    return {
+      count,
+      page,
+    };
   }
 
   private determineWhereClause(

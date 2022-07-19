@@ -273,12 +273,6 @@ export const VerifyEmailSchema = Joi.object({
 });
 
 // list triggered alerts
-export interface CountTriggeredAlertDto {
-  projectSlug: string;
-  environmentSubId: number;
-  pagingDateTime?: Date;
-  alertId?: number;
-}
 export interface ListTriggeredAlertDto {
   projectSlug: string;
   environmentSubId: number;
@@ -288,12 +282,6 @@ export interface ListTriggeredAlertDto {
   alertId?: number;
 }
 
-export const CountTriggeredAlertSchema = Joi.object({
-  projectSlug: Joi.string().required(),
-  environmentSubId: Joi.number().required(),
-  pagingDateTime: Joi.date().optional(),
-  alertId: Joi.number().integer().positive().optional(),
-});
 export const ListTriggeredAlertSchema = Joi.object({
   projectSlug: Joi.string().required(),
   environmentSubId: Joi.number().required(),
@@ -303,6 +291,10 @@ export const ListTriggeredAlertSchema = Joi.object({
   alertId: Joi.number().integer().positive().optional(),
 });
 
+export interface TriggeredAlertsResponseDto {
+  count: number;
+  page: Array<TriggeredAlertDetailsResponseDto>;
+}
 export interface TriggeredAlertDetailsResponseDto {
   triggeredAlertSlug: string;
   name: string;

@@ -6,8 +6,8 @@ import { ProjectsModule } from 'src/projects/projects.module';
 import { SerdeModule } from './serde/serde.module';
 import { TelegramService } from './telegram/telegram.service';
 import { EmailsService } from 'src/emails/emails.service';
-import { TriggeredAlertHistoryController } from './triggered-alert-history/triggered-alert-history.controller';
-import { TriggeredAlertHistoryService } from './triggered-alert-history/triggered-alert-history.service';
+import { TriggeredAlertsController } from './triggered-alerts/triggered-alerts.controller';
+import { TriggeredAlertsService } from './triggered-alerts/triggered-alerts.service';
 
 @Module({
   providers: [
@@ -15,9 +15,9 @@ import { TriggeredAlertHistoryService } from './triggered-alert-history/triggere
     PrismaService,
     TelegramService,
     EmailsService,
-    TriggeredAlertHistoryService,
+    TriggeredAlertsService,
   ],
-  controllers: [AlertsController, TriggeredAlertHistoryController],
+  controllers: [AlertsController, TriggeredAlertsController],
   imports: [ProjectsModule, PrismaService, SerdeModule],
 })
 export class AlertsModule {}

@@ -11,50 +11,20 @@ import {
 import { BearerAuthGuard } from 'src/auth/bearer-auth.guard';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 import { VError } from 'verror';
-import { TriggeredAlertHistoryService } from './triggered-alert-history.service';
+import { TriggeredAlertsService } from './triggered-alerts.service';
 import {
   ListTriggeredAlertSchema,
   ListTriggeredAlertDto,
-  TriggeredAlertDetailsResponseDto,
-  CountTriggeredAlertDto,
-  CountTriggeredAlertSchema,
+  TriggeredAlertsResponseDto,
 } from '../dto';
 
-@Controller('triggeredAlertHistory')
-export class TriggeredAlertHistoryController {
+@Controller('triggeredAlerts')
+export class TriggeredAlertsController {
   static MAX_RECORDS = 100;
 
   constructor(
-    private readonly triggeredAlertHistoryService: TriggeredAlertHistoryService,
+    private readonly triggeredAlertsService: TriggeredAlertsService,
   ) {}
-
-  @Post('countTriggeredAlerts')
-  @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(CountTriggeredAlertSchema))
-  async countTriggeredAlerts(
-    @Request() req,
-    @Body()
-    {
-      projectSlug,
-      environmentSubId,
-      pagingDateTime,
-      alertId,
-    }: CountTriggeredAlertDto,
-  ): Promise<number> {
-    try {
-      const count =
-        await this.triggeredAlertHistoryService.countTriggeredAlertsByProject(
-          req.user,
-          projectSlug,
-          environmentSubId,
-          pagingDateTime,
-          alertId,
-        );
-      return count;
-    } catch (e) {
-      throw mapError(e);
-    }
-  }
 
   @Post('listTriggeredAlerts')
   @UseGuards(BearerAuthGuard)
@@ -70,9 +40,9 @@ export class TriggeredAlertHistoryController {
       pagingDateTime,
       alertId,
     }: ListTriggeredAlertDto,
-  ): Promise<TriggeredAlertDetailsResponseDto[]> {
+  ): Promise<TriggeredAlertsResponseDto> {
     try {
-      return await this.triggeredAlertHistoryService.listTriggeredAlertsByProject(
+      return await this.triggeredAlertsService.listTriggeredAlertsByProject(
         req.user,
         projectSlug,
         environmentSubId,
