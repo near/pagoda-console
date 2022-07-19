@@ -1,4 +1,3 @@
-import type { KeyedMutator } from 'swr';
 import useSWR from 'swr';
 
 import { useIdentity } from '@/hooks/user';
@@ -55,21 +54,20 @@ export async function updateDestination(data: UpdateDestination) {
   return destination;
 }
 
-export function useDestinations(projectSlug: string | undefined): {
-  destinations?: Destination[];
-  error?: any;
-  mutate: KeyedMutator<Destination[]>;
-  isValidating: boolean;
-} {
+export function useDestinations(projectSlug: string | undefined) {
   const identity = useIdentity();
+
   const {
     data: destinations,
     error,
     mutate,
     isValidating,
-  } = useSWR(identity && projectSlug ? ['/alerts/listDestinations', projectSlug, identity.uid] : null, (key) => {
-    return authenticatedPost(key, { projectSlug });
-  });
+  } = useSWR<Destination[]>(
+    identity && projectSlug ? ['/alerts/listDestinations', projectSlug, identity.uid] : null,
+    (key) => {
+      return authenticatedPost(key, { projectSlug });
+    },
+  );
 
   return { destinations, error, mutate, isValidating };
 }

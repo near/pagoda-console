@@ -1,4 +1,3 @@
-import type { KeyedMutator } from 'swr';
 import useSWR from 'swr';
 
 import { useIdentity } from '@/hooks/user';
@@ -81,36 +80,31 @@ export async function updateAlert(data: UpdateAlert) {
   return alert;
 }
 
-export function useAlert(alertId: number | undefined): { alert?: Alert; error?: any; mutate: KeyedMutator<Alert> } {
+export function useAlert(alertId: number | undefined) {
   const identity = useIdentity();
 
   const {
     data: alert,
     error,
     mutate,
-  } = useSWR(identity && alertId ? ['/alerts/getAlertDetails', alertId, identity.uid] : null, async (key, alertId) => {
-    return authenticatedPost(key, { id: alertId });
-  });
+  } = useSWR<Alert>(
+    identity && alertId ? ['/alerts/getAlertDetails', alertId, identity.uid] : null,
+    async (key, alertId) => {
+      return authenticatedPost(key, { id: alertId });
+    },
+  );
 
   return { alert, error, mutate };
 }
 
-export function useAlerts(
-  projectSlug: string | undefined,
-  environmentSubId: number | undefined,
-): {
-  alerts?: Alert[];
-  error?: any;
-  mutate: KeyedMutator<Alert[]>;
-  isValidating: boolean;
-} {
+export function useAlerts(projectSlug: string | undefined, environmentSubId: number | undefined) {
   const identity = useIdentity();
   const {
     data: alerts,
     error,
     mutate,
     isValidating,
-  } = useSWR(
+  } = useSWR<Alert[]>(
     identity && projectSlug && environmentSubId
       ? ['/alerts/listAlerts', projectSlug, environmentSubId, identity.uid]
       : null,
