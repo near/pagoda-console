@@ -5,7 +5,11 @@ import { PrismaService } from '../prisma.service';
 import { PermissionsService as ProjectPermissionsService } from 'src/projects/permissions.service';
 import { AlertsService } from '../alerts.service';
 import { MatchingRule } from '../serde/db.types';
-import { TriggeredAlertsResponseDto } from '../dto';
+import {
+  TriggeredAlertDetailsResponseDto,
+  TriggeredAlertsResponseDto,
+} from '../dto';
+import { VError } from 'verror';
 
 type TriggeredAlertWithAlert = TriggeredAlert & {
   alert: Alert;
@@ -73,6 +77,17 @@ export class TriggeredAlertsService {
     };
   }
 
+  public async triggeredAlertDetails(
+    user: User,
+    triggeredAlertSlug: TriggeredAlert['triggeredAlertSlug'],
+  ): Promise<TriggeredAlertDetailsResponseDto> {
+    const triggeredAlert = await this.checkUserTriggeredAlertPermission(
+      user.id,
+      triggeredAlertSlug,
+    );
+    return this.toTriggeredAlertDto(triggeredAlert);
+  }
+
   private determineWhereClause(
     pagingDateTime: Date,
     projectSlug: string,
@@ -119,5 +134,36 @@ export class TriggeredAlertsService {
       triggeredAt,
       extraData,
     };
+  }
+
+  // Confirm the user is a member of the triggered alert's project.
+  private async checkUserTriggeredAlertPermission(
+    userId: User['id'],
+    triggeredAlertSlug: TriggeredAlert['triggeredAlertSlug'],
+  ): Promise<TriggeredAlertWithAlert> {
+    const triggeredAlert: TriggeredAlertWithAlert =
+      await this.prisma.triggeredAlert.findFirst({
+        where: {
+          triggeredAlertSlug,
+        },
+        include: {
+          alert: true,
+        },
+      });
+
+    if (!triggeredAlert) {
+      throw new VError(
+        { info: { code: 'BAD_ALERT' } },
+        'Triggered Alert not found',
+      );
+    }
+
+    const { projectSlug, environmentSubId } = triggeredAlert.alert;
+    await this.projectPermissions.checkUserProjectEnvPermission(
+      userId,
+      projectSlug,
+      environmentSubId,
+    );
+    return triggeredAlert;
   }
 }

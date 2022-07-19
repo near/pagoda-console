@@ -281,6 +281,9 @@ export interface ListTriggeredAlertDto {
   pagingDateTime?: Date;
   alertId?: number;
 }
+export interface GetAlertDetailsDto {
+  triggeredAlertSlug: string;
+}
 
 export const ListTriggeredAlertSchema = Joi.object({
   projectSlug: Joi.string().required(),
@@ -289,6 +292,10 @@ export const ListTriggeredAlertSchema = Joi.object({
   take: Joi.number().integer().min(0).max(100).optional(),
   pagingDateTime: Joi.date().optional(),
   alertId: Joi.number().integer().positive().optional(),
+});
+
+export const GetTriggeredAlertDetailsSchema = Joi.object({
+  triggeredAlertSlug: Joi.string().required(),
 });
 
 export interface TriggeredAlertsResponseDto {
