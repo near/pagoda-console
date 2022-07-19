@@ -17,6 +17,8 @@ import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
+import { TextOverflow } from '@/components/lib/TextOverflow';
+import { openToast } from '@/components/lib/Toast';
 import { useContracts } from '@/hooks/contracts';
 import { useDebounce } from '@/hooks/debounce';
 import { useDashboardLayout } from '@/hooks/layouts';
@@ -179,7 +181,6 @@ interface AddContractFormData {
 function AddContractForm(props: { project: string; environment: Environment; onAdd: () => void }) {
   const { register, handleSubmit, formState, setValue } = useForm<AddContractFormData>();
   const [showAddForm, setShowAddForm] = useState(false);
-  const [error, setError] = useState('');
   const contractAddressRegex = returnContractAddressRegex(props.environment);
 
   function closeAddForm() {
@@ -189,7 +190,6 @@ function AddContractForm(props: { project: string; environment: Environment; onA
 
   const submitNewContract: SubmitHandler<AddContractFormData> = async ({ contractAddress }) => {
     try {
-      setError('');
       const contract = await authenticatedPost('/projects/addContract', {
         project: props.project,
         environment: props.environment.subId,
@@ -204,13 +204,25 @@ function AddContractForm(props: { project: string; environment: Environment; onA
       closeAddForm();
       return contract;
     } catch (e: any) {
-      analytics.track('DC Add Contract', {
-        status: 'failure',
-        error: e.message,
-        contractId: contractAddress,
-        net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
-      });
-      setError(e.message);
+      if (e.message === 'DUPLICATE_CONTRACT_ADDRESS') {
+        openToast({
+          type: 'error',
+          title: 'Duplicate Contract',
+          description: 'This contract has already been saved to your project.',
+        });
+      } else {
+        analytics.track('DC Add Contract', {
+          status: 'failure',
+          error: e.message,
+          contractId: contractAddress,
+          net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
+        });
+
+        openToast({
+          type: 'error',
+          title: 'Failed to add contract.',
+        });
+      }
     }
   };
 
@@ -233,8 +245,6 @@ function AddContractForm(props: { project: string; environment: Environment; onA
             <Form.Feedback>{formState.errors.contractAddress?.message}</Form.Feedback>
           </Form.Group>
         )}
-
-        {error && <Message type="error" content="error" dismiss={() => setError('')} />}
 
         <Flex>
           {showAddForm && (
@@ -317,8 +327,9 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
 
   return (
     <>
-      <Box css={{ textAlign: 'left' }}>
+      <Box css={{ textAlign: 'left', minWidth: 0 }}>
         <TextLink
+          css={{ maxWidth: '100%' }}
           color="neutral"
           onClick={() => analytics.track('DC View contract in Explorer')} // TODO CHECK
           href={`https://explorer${props.contract.net === 'TESTNET' ? '.testnet' : ''}.near.org/accounts/${
@@ -327,7 +338,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
           target="_blank"
           rel="noopener noreferrer"
         >
-          {props.contract.address}
+          <TextOverflow>{props.contract.address}</TextOverflow>
         </TextLink>
       </Box>
 
