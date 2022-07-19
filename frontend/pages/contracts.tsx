@@ -17,8 +17,8 @@ import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
-import { TextOverflow } from '@/components/lib/TextOverflow';
 import { openToast } from '@/components/lib/Toast';
+import { TruncateMiddle } from '@/components/lib/TruncateMiddle';
 import { useContracts } from '@/hooks/contracts';
 import { useDebounce } from '@/hooks/debounce';
 import { useDashboardLayout } from '@/hooks/layouts';
@@ -338,7 +338,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
           target="_blank"
           rel="noopener noreferrer"
         >
-          <TextOverflow>{props.contract.address}</TextOverflow>
+          <TruncateMiddle value={props.contract.address} prefix={30} prefixLaptop={10} prefixTablet={5} suffix={10} />
         </TextLink>
       </Box>
 

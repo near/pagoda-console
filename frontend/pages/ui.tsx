@@ -40,6 +40,7 @@ import { TextButton, TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { TruncateMiddle } from '@/components/lib/TruncateMiddle';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle/ThemeToggle';
 import ExampleIcon from '@/public/images/icons/ui-example.svg';
 import { styled } from '@/styles/stitches';
@@ -1687,6 +1688,51 @@ const Settings: NextPageWithLayout = () => {
           <Tooltip content="Right side!" side="right">
             <Text>Side</Text>
           </Tooltip>
+        </Flex>
+      </DocSection>
+
+      <DocSection title="Truncate Middle">
+        <Text>
+          This component allows you to truncate the middle of a string based on screen breakpoints. Shrink your screen
+          to see the different truncation lengths:
+        </Text>
+
+        <Flex>
+          <Text>With Tooltip:</Text>
+
+          <Text weight="semibold" color="text1">
+            <Tooltip content="app.mysupercoolblockchainapp.near">
+              <TruncateMiddle
+                value="app.mysupercoolblockchainapp.near"
+                prefix={20}
+                prefixLaptop={15}
+                prefixTablet={10}
+                prefixMobile={5}
+                suffix={10}
+                suffixLaptop={8}
+                suffixTablet={4}
+                suffixMobile={2}
+              />
+            </Tooltip>
+          </Text>
+        </Flex>
+
+        <Flex>
+          <Text>Without Tooltip:</Text>
+
+          <Text weight="semibold" color="text1">
+            <TruncateMiddle
+              value="app.mysupercoolblockchainapp.near"
+              prefix={20}
+              prefixLaptop={15}
+              prefixTablet={10}
+              prefixMobile={5}
+              suffix={10}
+              suffixLaptop={8}
+              suffixTablet={4}
+              suffixMobile={2}
+            />
+          </Text>
         </Flex>
       </DocSection>
     </>
