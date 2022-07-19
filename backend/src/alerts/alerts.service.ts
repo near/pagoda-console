@@ -28,7 +28,7 @@ import { assertUnreachable } from 'src/helpers';
 import { AppConfig } from 'src/config/validate';
 import { ConfigService } from '@nestjs/config';
 import { DateTime } from 'luxon';
-import { EmailsService } from 'src/emails/emails.service';
+import { EmailService } from 'src/email/email.service';
 
 type TxRuleSchema = {
   rule: {
@@ -180,7 +180,7 @@ export class AlertsService {
     private ruleSerializer: RuleSerializerService,
     private ruleDeserializer: RuleDeserializerService,
     private config: ConfigService<AppConfig>,
-    private emailsService: EmailsService,
+    private emailsService: EmailService,
   ) {
     this.emailTokenExpiryMin = this.config.get('alerts.emailTokenExpiryMin', {
       infer: true,

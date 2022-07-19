@@ -8,7 +8,7 @@ import { VError } from 'verror';
 const formData = require('form-data');
 
 @Injectable()
-export class EmailsService {
+export class EmailService {
   private mailgunClient: Client;
   private domain: string;
   private emailVerificationEndpoint: string;
