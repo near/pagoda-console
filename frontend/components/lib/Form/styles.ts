@@ -215,6 +215,8 @@ export const ContentEditable = styled('div', {
   height: 'auto',
   padding: 'calc(var(--space-m) * 0.8) var(--space-m)',
   whiteSpace: 'pre-wrap',
+  overflow: 'auto',
+  scrollBehavior: 'smooth',
 
   '&:empty::before': {
     ...placeholderStyles,

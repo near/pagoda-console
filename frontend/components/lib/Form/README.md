@@ -261,6 +261,12 @@ Sometimes it makes sense to change the default height:
 <Form.ContentEditable ... css={{ minHeight: '20rem' }} />
 ```
 
+You can also set a max height:
+
+```tsx
+<Form.ContentEditable ... css={{ maxHeight: '40rem' }} />
+```
+
 ## Checkboxes & Radios
 
 To implement checkboxes or radios in a form, please refer to `Checkbox/README.md` and `CheckboxCard/README.md`.
