@@ -65,13 +65,13 @@ export function useTriggeredAlerts(
   };
 }
 
-export function useTriggeredAlertDetails(triggeredAlertSlug: string) {
+export function useTriggeredAlertDetails(slug: string) {
   const identity = useIdentity();
   const { data, error } = useSWR<TriggeredAlert>(
-    identity ? ['/triggeredAlerts/getTriggeredAlertDetails', triggeredAlertSlug] : null,
+    identity ? ['/triggeredAlerts/getTriggeredAlertDetails', slug] : null,
     (key) => {
       return authenticatedPost(key, {
-        triggeredAlertSlug,
+        slug,
       });
     },
   );

@@ -207,7 +207,7 @@ export interface TriggeredAlertsPagingResponse {
   page: TriggeredAlert[];
 }
 export interface TriggeredAlert {
-  triggeredAlertSlug: string;
+  slug: string;
   name: string;
   alertId: number;
   type: AlertType;

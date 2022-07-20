@@ -172,11 +172,11 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
           {!triggeredAlerts && <Table.PlaceholderRows />}
 
           {triggeredAlerts?.map((row) => {
-            const url = `/alerts/triggered-alert/${row.triggeredAlertSlug}`;
+            const url = `/alerts/triggered-alert/${row.slug}`;
             const alertTypeOption = alertTypes[row.type];
 
             return (
-              <Table.Row flash={shouldFlashRow(row)} key={row.triggeredAlertSlug}>
+              <Table.Row flash={shouldFlashRow(row)} key={row.slug}>
                 <Table.Cell href={url} wrap>
                   {row.name}
                 </Table.Cell>
@@ -193,7 +193,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
                 </Table.Cell>
                 <Table.Cell href={url}>
                   <Text family="number" color="text3" size="current">
-                    {truncateMiddle(row.triggeredAlertSlug)}
+                    {truncateMiddle(row.slug)}
                   </Text>
                 </Table.Cell>
                 <Table.Cell href={url}>

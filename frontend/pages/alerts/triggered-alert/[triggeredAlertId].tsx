@@ -134,6 +134,7 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
                     linkToExplorer={true}
                     explorerPrefix={'blocks'}
                   />
+                  <LabelAndValue label="Triggered Alert ID" value={triggeredAlert.slug} />
                   {triggeredAlert.extraData && (
                     <>
                       <HR />
