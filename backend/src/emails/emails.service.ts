@@ -4,8 +4,7 @@ import Mailgun from 'mailgun.js';
 import Client from 'mailgun.js/client';
 import { AppConfig } from 'src/config/validate';
 import { VError } from 'verror';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const formData = require('form-data');
+import * as formData from 'form-data';
 
 @Injectable()
 export class EmailsService {
