@@ -7,7 +7,7 @@ import { VError } from 'verror';
 import * as formData from 'form-data';
 
 @Injectable()
-export class EmailsService {
+export class EmailService {
   private mailgunClient: Client;
   private domain: string;
   private emailVerificationEndpoint: string;

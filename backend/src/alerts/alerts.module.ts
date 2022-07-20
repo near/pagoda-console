@@ -5,7 +5,7 @@ import { PrismaService } from './prisma.service';
 import { ProjectsModule } from 'src/projects/projects.module';
 import { SerdeModule } from './serde/serde.module';
 import { TelegramService } from './telegram/telegram.service';
-import { EmailsService } from 'src/emails/emails.service';
+import { EmailService } from 'src/email/email.service';
 import { TriggeredAlertsController } from './triggered-alerts/triggered-alerts.controller';
 import { TriggeredAlertsService } from './triggered-alerts/triggered-alerts.service';
 
@@ -14,7 +14,7 @@ import { TriggeredAlertsService } from './triggered-alerts/triggered-alerts.serv
     AlertsService,
     PrismaService,
     TelegramService,
-    EmailsService,
+    EmailService,
     TriggeredAlertsService,
   ],
   controllers: [AlertsController, TriggeredAlertsController],
