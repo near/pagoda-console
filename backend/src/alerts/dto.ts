@@ -282,7 +282,7 @@ export interface ListTriggeredAlertDto {
   alertId?: number;
 }
 export interface GetTriggeredAlertDetailsDto {
-  triggeredAlertSlug: string;
+  slug: string;
 }
 
 export const ListTriggeredAlertSchema = Joi.object({
@@ -295,7 +295,7 @@ export const ListTriggeredAlertSchema = Joi.object({
 });
 
 export const GetTriggeredAlertDetailsSchema = Joi.object({
-  triggeredAlertSlug: Joi.string().required(),
+  slug: Joi.string().required(),
 });
 
 export interface TriggeredAlertsResponseDto {
@@ -303,7 +303,7 @@ export interface TriggeredAlertsResponseDto {
   page: Array<TriggeredAlertDetailsResponseDto>;
 }
 export interface TriggeredAlertDetailsResponseDto {
-  triggeredAlertSlug: string;
+  slug: string;
   alertId: number;
   name: string;
   type: RuleType;

@@ -167,7 +167,7 @@ enum DestinationType {
 
 model TriggeredAlert {
   id                         Int      @id @default(autoincrement())
-  triggeredAlertSlug         String   @default(dbgenerated("gen_random_uuid()")) @map("slug")
+  slug                       String   @default(dbgenerated("gen_random_uuid()")) @map("slug")
   alert                      Alert    @relation(fields: [alertId], references: [id])
   alertId                    Int      @map("alert_id")
   triggeredInBlockHash       String   @map("triggered_in_block_hash")

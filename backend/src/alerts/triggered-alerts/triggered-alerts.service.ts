@@ -79,12 +79,11 @@ export class TriggeredAlertsService {
 
   public async triggeredAlertDetails(
     user: User,
-    triggeredAlertSlug: TriggeredAlert['triggeredAlertSlug'],
+    slug: TriggeredAlert['slug'],
   ): Promise<TriggeredAlertDetailsResponseDto> {
-    console.log('triggeredAlertSlug', triggeredAlertSlug);
     const triggeredAlert = await this.checkUserTriggeredAlertPermission(
       user.id,
-      triggeredAlertSlug,
+      slug,
     );
     return this.toTriggeredAlertDto(triggeredAlert);
   }
@@ -116,7 +115,7 @@ export class TriggeredAlertsService {
     triggeredAlert: TriggeredAlertWithAlert,
   ): TriggeredAlertDetailsResponseDto {
     const {
-      triggeredAlertSlug,
+      slug,
       alert,
       triggeredInBlockHash,
       triggeredInTransactionHash,
@@ -127,7 +126,7 @@ export class TriggeredAlertsService {
     const rule = alert.matchingRule as object as MatchingRule;
 
     return {
-      triggeredAlertSlug,
+      slug,
       name: alert.name,
       alertId: alert.id,
       type: this.alertsService.toAlertType(rule),
@@ -142,18 +141,17 @@ export class TriggeredAlertsService {
   // Confirm the user is a member of the triggered alert's project.
   private async checkUserTriggeredAlertPermission(
     userId: User['id'],
-    triggeredAlertSlug: TriggeredAlert['triggeredAlertSlug'],
+    slug: TriggeredAlert['slug'],
   ): Promise<TriggeredAlertWithAlert> {
     const triggeredAlert: TriggeredAlertWithAlert =
       await this.prisma.triggeredAlert.findFirst({
         where: {
-          triggeredAlertSlug,
+          slug,
         },
         include: {
           alert: true,
         },
       });
-    console.log('triggeredAlert', triggeredAlert);
 
     if (!triggeredAlert) {
       throw new VError(

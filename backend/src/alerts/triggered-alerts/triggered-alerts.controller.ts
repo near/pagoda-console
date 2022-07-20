@@ -64,12 +64,12 @@ export class TriggeredAlertsController {
   @UsePipes(new JoiValidationPipe(GetTriggeredAlertDetailsSchema))
   async getTriggeredAlertDetails(
     @Request() req,
-    @Body() { triggeredAlertSlug }: GetTriggeredAlertDetailsDto,
+    @Body() { slug }: GetTriggeredAlertDetailsDto,
   ): Promise<TriggeredAlertDetailsResponseDto> {
     try {
       return await this.triggeredAlertsService.triggeredAlertDetails(
         req.user,
-        triggeredAlertSlug,
+        slug,
       );
     } catch (e) {
       throw mapError(e);
