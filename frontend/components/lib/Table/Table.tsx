@@ -10,7 +10,7 @@ type HeadProps = ComponentProps<typeof S.Head> & {
   header?: ReactNode;
 };
 type RowProps = ComponentProps<typeof S.Row>;
-type CellProps = ComponentProps<typeof S.Cell> & {
+type CellProps = Omit<ComponentProps<typeof S.Cell>, 'link'> & {
   href?: string;
   target?: HTMLAttributeAnchorTarget;
 };
@@ -64,7 +64,7 @@ export const Cell = forwardRef<HTMLTableCellElement, CellProps>(
     const tabIndex = isButton ? 0 : undefined;
 
     return (
-      <S.Cell link={!!href} clickable={clickable || !!href} role={role} tabIndex={tabIndex} ref={ref} {...props}>
+      <S.Cell clickable={clickable || !!href} link={!!href} role={role} tabIndex={tabIndex} ref={ref} {...props}>
         {href ? (
           <Link href={href} passHref>
             <S.CellAnchor target={target}>{children}</S.CellAnchor>
