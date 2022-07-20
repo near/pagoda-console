@@ -6,7 +6,7 @@ import { useIdentity } from '@/hooks/user';
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
 
-import type { TriggeredAlertPagingResponse } from '../utils/types';
+import type { TriggeredAlert, TriggeredAlertPagingResponse } from '../utils/types';
 
 interface TriggeredAlertFilters {
   alertId?: number;
@@ -62,5 +62,22 @@ export function useTriggeredAlerts(
     error,
     triggeredAlertsCount: triggeredAlertsCount,
     triggeredAlerts: data?.page,
+  };
+}
+
+export function useTriggeredAlertDetails(triggeredAlertSlug: string) {
+  const identity = useIdentity();
+  const { data, error } = useSWR<TriggeredAlert>(
+    identity ? ['/triggeredAlerts/getTriggeredAlertDetails', triggeredAlertSlug] : null,
+    (key) => {
+      return authenticatedPost(key, {
+        triggeredAlertSlug,
+      });
+    },
+  );
+
+  return {
+    error,
+    triggeredAlert: data,
   };
 }

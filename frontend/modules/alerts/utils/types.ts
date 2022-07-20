@@ -209,10 +209,11 @@ export interface TriggeredAlertPagingResponse {
 export interface TriggeredAlert {
   triggeredAlertSlug: string;
   name: string;
+  alertId: number;
   type: AlertType;
   triggeredInBlockHash: string;
   triggeredInTransactionHash: string;
-  triggeredInReceiptId: number;
+  triggeredInReceiptId: string;
   triggeredAt: string;
   extraData?: Record<string, unknown>;
 }
