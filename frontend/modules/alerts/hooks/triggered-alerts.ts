@@ -6,7 +6,7 @@ import { useIdentity } from '@/hooks/user';
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
 
-import type { TriggeredAlert, TriggeredAlertPagingResponse } from '../utils/types';
+import type { TriggeredAlert, TriggeredAlertsPagingResponse } from '../utils/types';
 
 interface TriggeredAlertFilters {
   alertId?: number;
@@ -26,7 +26,7 @@ export function useTriggeredAlerts(
   const take = pagination.state.pageSize;
   const skip = (pagination.state.currentPage - 1) * pagination.state.pageSize;
 
-  const { data, error } = useSWR<TriggeredAlertPagingResponse>(
+  const { data, error } = useSWR<TriggeredAlertsPagingResponse>(
     identity && projectSlug && environmentSubId
       ? [
           '/triggeredAlerts/listTriggeredAlerts',

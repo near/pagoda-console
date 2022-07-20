@@ -202,7 +202,7 @@ interface ConfigWebhook {
   url: string;
 }
 
-export interface TriggeredAlertPagingResponse {
+export interface TriggeredAlertsPagingResponse {
   count: number;
   page: TriggeredAlert[];
 }

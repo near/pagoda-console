@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { Card } from '@/components/lib/Card';
@@ -16,7 +15,7 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useSelectedProjectSync } from '@/hooks/selected-project';
 import { useAlert } from '@/modules/alerts/hooks/alerts';
 import { useTriggeredAlertDetails } from '@/modules/alerts/hooks/triggered-alerts';
 import { alertTypes } from '@/modules/alerts/utils/constants';
@@ -49,15 +48,9 @@ function LabelAndValue(props: { label: string; value: string; linkToExplorer?: b
 const ViewTriggeredAlert: NextPageWithLayout = () => {
   const router = useRouter();
   const triggeredAlertId = router.query.triggeredAlertId as string;
-  const { environment, project } = useSelectedProject();
   const { triggeredAlert, error } = useTriggeredAlertDetails(triggeredAlertId);
   const { alert } = useAlert(triggeredAlert?.alertId);
-
-  useEffect(() => {
-    if (alert === undefined || environment === undefined || project === undefined) return;
-    if (alert.projectSlug === project.slug && alert.environmentSubId === environment.subId) return;
-    // TODO set environment and project to match triggered alert, allows direct link to triggered alert
-  }, [alert, environment, project]);
+  useSelectedProjectSync(alert?.environmentSubId, alert?.projectSlug);
 
   function alertType(triggeredAlert: TriggeredAlert) {
     if (!triggeredAlert) return alertTypes.EVENT;
