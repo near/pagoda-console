@@ -1,7 +1,6 @@
 import mixpanel from 'mixpanel-browser';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import type { KeyedMutator } from 'swr';
 import useSWR from 'swr';
 import { mutate } from 'swr';
 
@@ -53,7 +52,7 @@ export async function deleteProject(userId: string | undefined, slug: string, na
   return false;
 }
 
-export function useProject(projectSlug: string | undefined): { project?: Project; error?: any } {
+export function useProject(projectSlug: string | undefined) {
   const router = useRouter();
   const identity = useIdentity();
 
@@ -61,7 +60,7 @@ export function useProject(projectSlug: string | undefined): { project?: Project
     router.prefetch('/projects');
   }, [router]);
 
-  const { data: project, error } = useSWR(
+  const { data: project, error } = useSWR<Project>(
     identity && projectSlug ? ['/projects/getDetails', projectSlug, identity.uid] : null,
     (key, projectSlug) => {
       return authenticatedPost(key, { slug: projectSlug });
@@ -76,14 +75,14 @@ export function useProject(projectSlug: string | undefined): { project?: Project
   return { project, error };
 }
 
-export function useProjects(): { projects?: Project[]; error?: any; mutate: KeyedMutator<any>; isValidating: boolean } {
+export function useProjects() {
   const identity = useIdentity();
   const {
     data: projects,
     error,
     mutate,
     isValidating,
-  } = useSWR(identity ? ['/projects/list', identity.uid] : null, (key) => {
+  } = useSWR<Project[]>(identity ? ['/projects/list', identity.uid] : null, (key) => {
     return authenticatedPost(key);
   });
 

@@ -2,19 +2,18 @@ import type { User as FirebaseUser } from 'firebase/auth';
 import { getAuth, onAuthStateChanged, onIdTokenChanged } from 'firebase/auth';
 import mixpanel from 'mixpanel-browser';
 import { useEffect, useState } from 'react';
-import type { KeyedMutator } from 'swr';
 import useSWR from 'swr';
 
 import { authenticatedPost } from '@/utils/http';
 import type { User } from '@/utils/types';
 
-export function useAccount(): { user?: User; error?: any; mutate: KeyedMutator<any> } {
+export function useAccount() {
   const identity = useIdentity();
   const {
     data: user,
     error,
     mutate,
-  } = useSWR(identity ? ['/users/getAccountDetails', identity.uid] : null, (key) => {
+  } = useSWR<User>(identity ? ['/users/getAccountDetails', identity.uid] : null, (key) => {
     return authenticatedPost(key);
   });
 
