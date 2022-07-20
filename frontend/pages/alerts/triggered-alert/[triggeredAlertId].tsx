@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import { Badge } from '@/components/lib/Badge';
+import { ButtonLink } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
 import { CodeBlock } from '@/components/lib/CodeBlock';
 import { Container } from '@/components/lib/Container';
@@ -105,17 +106,23 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
                     <Flex>
                       <FeatherIcon icon="bell" size="m" />
 
-                      <Flex stack gap="none">
+                      <Flex stack gap="xs">
                         <Text color="text1">{triggeredAlert.name}</Text>
+                        <Badge size="s">
+                          <FeatherIcon icon={alertType(triggeredAlert).icon} size="xs" />
+                          {alertType(triggeredAlert).name}
+                        </Badge>
                         <Text size="bodySmall" color="text3">
-                          {alertContract(alert)}
+                          {alertContract(alert)}{' '}
                         </Text>
                       </Flex>
 
-                      <Badge size="s">
-                        <FeatherIcon icon={alertType(triggeredAlert).icon} size="xs" />
-                        {alertType(triggeredAlert).name}
-                      </Badge>
+                      <Link href={`/alerts/edit-alert/${alert.id}`} passHref>
+                        <ButtonLink size="s" aria-label="View alert configuration">
+                          <FeatherIcon icon="settings" size="xs" />
+                          Edit Alert
+                        </ButtonLink>
+                      </Link>
                     </Flex>
                   </Flex>
 
