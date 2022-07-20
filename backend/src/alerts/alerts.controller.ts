@@ -50,6 +50,8 @@ import {
   VerifyEmailDto,
   ResendEmailVerificationDto,
   ResendEmailVerificationSchema,
+  UnsubscribeFromEmailAlertDto,
+  UnsubscribeFromEmailAlertSchema,
 } from './dto';
 import { TelegramService } from './telegram/telegram.service';
 import { TgUpdate } from './telegram/types';
@@ -379,6 +381,19 @@ export class AlertsController {
   ) {
     try {
       await this.alertsService.resendEmailVerification(req.user, destinationId);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('unsubscribeFromEmailAlert')
+  @HttpCode(200)
+  @UsePipes(new JoiValidationPipe(UnsubscribeFromEmailAlertSchema))
+  async unsubscribeFromEmailAlert(
+    @Body() { token }: UnsubscribeFromEmailAlertDto,
+  ) {
+    try {
+      await this.alertsService.unsubscribeFromEmailAlert(token);
     } catch (e) {
       throw mapError(e);
     }

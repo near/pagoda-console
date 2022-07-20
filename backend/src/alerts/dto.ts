@@ -313,3 +313,11 @@ export interface ResendEmailVerificationDto {
 export const ResendEmailVerificationSchema = Joi.object({
   destinationId: Joi.number().required(),
 });
+
+// unsubscribe from alerts email
+export interface UnsubscribeFromEmailAlertDto {
+  token: string;
+}
+export const UnsubscribeFromEmailAlertSchema = Joi.object({
+  token: Joi.string().required(),
+});
