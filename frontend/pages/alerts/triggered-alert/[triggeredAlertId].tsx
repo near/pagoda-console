@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 
 import { Badge } from '@/components/lib/Badge';
 import { Card } from '@/components/lib/Card';
+import { CodeBlock } from '@/components/lib/CodeBlock';
 import { Container } from '@/components/lib/Container';
 import { CopyButton } from '@/components/lib/CopyButton';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -26,19 +27,26 @@ function LabelAndValue(props: { label: string; value: string; linkToExplorer?: b
   const initializedExplorerPrefix = props.explorerPrefix || 'transactions';
   return (
     <Flex align="center" justify="start">
-      <Text size="body" css={{ minWidth: '10rem' }}>
+      <Text size="bodySmall" color="text1" css={{ minWidth: '10rem' }}>
         {props.label}
       </Text>
-      <Flex justify="end">
+      <Flex align="center" justify="end" css={{ minWidth: 0 }}>
         {props.linkToExplorer ? (
           <>
-            <TextLink size="s" external href={`https://explorer.near.org/${initializedExplorerPrefix}/${props.value}`}>
-              {props.value}
+            <TextLink
+              size="s"
+              external
+              href={`https://explorer.near.org/${initializedExplorerPrefix}/${props.value}`}
+              css={{ minWidth: 0 }}
+            >
+              <TextOverflow>{props.value}</TextOverflow>
             </TextLink>
             <CopyButton value={props.value} />
           </>
         ) : (
-          <Text size="bodySmall">{props.value}</Text>
+          <Text color="text1" weight="semibold">
+            {props.value}
+          </Text>
         )}
       </Flex>
     </Flex>
@@ -93,24 +101,26 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
             <Container size="m">
               <Card>
                 <Flex stack>
-                  <Flex stack gap="none">
-                    <Flex align="center" justify="spaceBetween">
-                      <Flex>
-                        <FeatherIcon icon="bell" size="m" />
-                        <TextOverflow>{triggeredAlert.name}</TextOverflow>
+                  <Flex stack>
+                    <Flex>
+                      <FeatherIcon icon="bell" size="m" />
+
+                      <Flex stack gap="none">
+                        <Text color="text1">{triggeredAlert.name}</Text>
+                        <Text size="bodySmall" color="text3">
+                          {alertContract(alert)}
+                        </Text>
                       </Flex>
-                      <Flex justify="end">
-                        <Badge size="s" css={{ borderRadius: '0px' }}>
-                          <FeatherIcon icon={alertType(triggeredAlert).icon} size="xs" />
-                          {alertType(triggeredAlert).name}
-                        </Badge>
-                      </Flex>
+
+                      <Badge size="s">
+                        <FeatherIcon icon={alertType(triggeredAlert).icon} size="xs" />
+                        {alertType(triggeredAlert).name}
+                      </Badge>
                     </Flex>
-                    <Text size="bodySmall" css={{ paddingLeft: '3rem' }} color="text3">
-                      {alertContract(alert)}
-                    </Text>
                   </Flex>
+
                   <HR />
+
                   <LabelAndValue label="Alert Triggered at" value={triggeredAtDateFormatted} />
                   <LabelAndValue
                     label="Transaction Hash"
@@ -126,10 +136,11 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
                   />
                   {triggeredAlert.extraData && (
                     <>
-                      <Text>Event Data</Text>
-                      <Card css={{ background: 'var(--color-surface-1)' }}>
-                        {JSON.stringify(triggeredAlert.extraData)}
-                      </Card>
+                      <HR />
+                      <Text size="bodySmall" color="text1">
+                        Event Data
+                      </Text>
+                      <CodeBlock language="json">{JSON.stringify(triggeredAlert.extraData, null, 2)}</CodeBlock>
                     </>
                   )}
                 </Flex>
