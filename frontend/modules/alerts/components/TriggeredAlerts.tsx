@@ -172,38 +172,36 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
           {!triggeredAlerts && <Table.PlaceholderRows />}
 
           {triggeredAlerts?.map((row) => {
+            const url = `/alerts/triggered-alert/${row.triggeredAlertSlug}`;
             const alertTypeOption = alertTypes[row.type];
+
             return (
-              <Link
-                href={`/alerts/triggered-alert/${row.triggeredAlertSlug}`}
-                passHref
-                key={`link-${row.triggeredAlertSlug}`}
-              >
-                <Table.Row flash={shouldFlashRow(row)} key={row.triggeredAlertSlug}>
-                  <Table.Cell wrap>{row.name}</Table.Cell>
-                  <Table.Cell>
-                    <Badge size="s">
-                      <FeatherIcon icon={alertTypeOption.icon} size="xs" />
-                      {alertTypeOption.name}
-                    </Badge>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Text family="number" color="text3" size="current">
-                      {truncateMiddle(row.triggeredInTransactionHash)}
-                    </Text>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Text family="number" color="text3" size="current">
-                      {truncateMiddle(row.triggeredAlertSlug)}
-                    </Text>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Text family="number" color="text3" size="current">
-                      {DateTime.fromISO(row.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS)}
-                    </Text>
-                  </Table.Cell>
-                </Table.Row>
-              </Link>
+              <Table.Row flash={shouldFlashRow(row)} key={row.triggeredAlertSlug}>
+                <Table.Cell href={url} wrap>
+                  {row.name}
+                </Table.Cell>
+                <Table.Cell href={url}>
+                  <Badge size="s">
+                    <FeatherIcon icon={alertTypeOption.icon} size="xs" />
+                    {alertTypeOption.name}
+                  </Badge>
+                </Table.Cell>
+                <Table.Cell href={url}>
+                  <Text family="number" color="text3" size="current">
+                    {truncateMiddle(row.triggeredInTransactionHash)}
+                  </Text>
+                </Table.Cell>
+                <Table.Cell href={url}>
+                  <Text family="number" color="text3" size="current">
+                    {truncateMiddle(row.triggeredAlertSlug)}
+                  </Text>
+                </Table.Cell>
+                <Table.Cell href={url}>
+                  <Text family="number" color="text3" size="current">
+                    {DateTime.fromISO(row.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS)}
+                  </Text>
+                </Table.Cell>
+              </Table.Row>
             );
           })}
         </Table.Body>

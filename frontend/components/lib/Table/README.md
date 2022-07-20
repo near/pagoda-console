@@ -208,6 +208,20 @@ In rare cases, it might make sense to have an entire row be clickable, but maybe
 
 Note the use of `event.stopPropagation()` on the `Cell` click handler. This prevents the parent `Row` click handler from also firing.
 
+## Cell Link (Anchor)
+
+The `clickable` examples above work great for `<button>` interactions. However, if you're needing to link the user to a different route, that should be accomplished with an `<a>` tag. You can achieve this using the `href` and `target` props on `Table.Cell`:
+
+```tsx
+<Table.Row key={row.id}>
+  <Table.Cell href="/my-url">Internal Anchor cell</Table.Cell>
+  <Table.Cell href="/my-url" target="_blank">
+    External Anchor cell
+  </Table.Cell>
+  <Table.Cell>Read only cell</Table.Cell>
+</Table.Row>
+```
+
 ## Sticky Header
 
 By default, the `Header` uses sticky positioning that accounts for our main floating header. Sometimes you might want to disable the sticky positioning:
