@@ -81,6 +81,7 @@ export class TriggeredAlertsService {
     user: User,
     triggeredAlertSlug: TriggeredAlert['triggeredAlertSlug'],
   ): Promise<TriggeredAlertDetailsResponseDto> {
+    console.log('triggeredAlertSlug', triggeredAlertSlug);
     const triggeredAlert = await this.checkUserTriggeredAlertPermission(
       user.id,
       triggeredAlertSlug,
@@ -111,7 +112,9 @@ export class TriggeredAlertsService {
     return listWhere;
   }
 
-  private toTriggeredAlertDto(triggeredAlert: TriggeredAlertWithAlert) {
+  private toTriggeredAlertDto(
+    triggeredAlert: TriggeredAlertWithAlert,
+  ): TriggeredAlertDetailsResponseDto {
     const {
       triggeredAlertSlug,
       alert,
@@ -126,6 +129,7 @@ export class TriggeredAlertsService {
     return {
       triggeredAlertSlug,
       name: alert.name,
+      alertId: alert.id,
       type: this.alertsService.toAlertType(rule),
       triggeredInBlockHash,
       triggeredInTransactionHash,
@@ -149,6 +153,7 @@ export class TriggeredAlertsService {
           alert: true,
         },
       });
+    console.log('triggeredAlert', triggeredAlert);
 
     if (!triggeredAlert) {
       throw new VError(

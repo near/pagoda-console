@@ -281,7 +281,7 @@ export interface ListTriggeredAlertDto {
   pagingDateTime?: Date;
   alertId?: number;
 }
-export interface GetAlertDetailsDto {
+export interface GetTriggeredAlertDetailsDto {
   triggeredAlertSlug: string;
 }
 
@@ -304,6 +304,7 @@ export interface TriggeredAlertsResponseDto {
 }
 export interface TriggeredAlertDetailsResponseDto {
   triggeredAlertSlug: string;
+  alertId: number;
   name: string;
   type: RuleType;
   triggeredInBlockHash: string;

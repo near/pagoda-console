@@ -17,8 +17,8 @@ import {
   ListTriggeredAlertDto,
   TriggeredAlertsResponseDto,
   GetTriggeredAlertDetailsSchema,
-  GetAlertDetailsDto,
   TriggeredAlertDetailsResponseDto,
+  GetTriggeredAlertDetailsDto,
 } from '../dto';
 
 @Controller('triggeredAlerts')
@@ -64,7 +64,7 @@ export class TriggeredAlertsController {
   @UsePipes(new JoiValidationPipe(GetTriggeredAlertDetailsSchema))
   async getTriggeredAlertDetails(
     @Request() req,
-    @Body() { triggeredAlertSlug }: GetAlertDetailsDto,
+    @Body() { triggeredAlertSlug }: GetTriggeredAlertDetailsDto,
   ): Promise<TriggeredAlertDetailsResponseDto> {
     try {
       return await this.triggeredAlertsService.triggeredAlertDetails(
