@@ -200,10 +200,16 @@ export const Cell = styled('td', {
           background: 'var(--color-surface-4) !important',
         },
 
-        '&:focus': {
+        '&:focus, &:focus-within': {
           outline: 'var(--focus-outline)',
           outlineOffset: -1,
         },
+      },
+    },
+
+    link: {
+      true: {
+        padding: 0,
       },
     },
 
@@ -213,4 +219,9 @@ export const Cell = styled('td', {
       },
     },
   },
+});
+
+export const CellAnchor = styled('a', {
+  display: 'block',
+  padding: 'var(--space-s)',
 });

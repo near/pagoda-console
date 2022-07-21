@@ -202,13 +202,18 @@ interface ConfigWebhook {
   url: string;
 }
 
+export interface TriggeredAlertsPagingResponse {
+  count: number;
+  page: TriggeredAlert[];
+}
 export interface TriggeredAlert {
-  triggeredAlertSlug: string;
+  slug: string;
   name: string;
+  alertId: number;
   type: AlertType;
   triggeredInBlockHash: string;
   triggeredInTransactionHash: string;
-  triggeredInReceiptId: number;
+  triggeredInReceiptId: string;
   triggeredAt: string;
   extraData?: Record<string, unknown>;
 }

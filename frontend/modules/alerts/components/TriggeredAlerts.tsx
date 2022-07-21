@@ -22,7 +22,7 @@ import { truncateMiddle } from '@/utils/truncate-middle';
 import type { Environment, Project } from '@/utils/types';
 
 import { useAlerts } from '../hooks/alerts';
-import { useTriggeredAlerts, useTriggeredAlertsCount } from '../hooks/triggered-alerts';
+import { useTriggeredAlerts } from '../hooks/triggered-alerts';
 import { alertTypes } from '../utils/constants';
 import type { TriggeredAlert } from '../utils/types';
 
@@ -33,8 +33,12 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
     queryParamAlertFilter ? parseInt(queryParamAlertFilter) : undefined,
   );
   const filters = { alertId: filteredAlertId };
-  const { triggeredAlertsCount } = useTriggeredAlertsCount(project?.slug, environment?.subId, pagination, filters);
-  const { triggeredAlerts } = useTriggeredAlerts(project?.slug, environment?.subId, pagination, filters);
+  const { triggeredAlertsCount, triggeredAlerts } = useTriggeredAlerts(
+    project?.slug,
+    environment?.subId,
+    pagination,
+    filters,
+  );
   const { alerts } = useAlerts(project?.slug, environment?.subId);
   const filteredAlert = alerts?.find((alert) => alert.id === filteredAlertId);
 
@@ -168,27 +172,31 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
           {!triggeredAlerts && <Table.PlaceholderRows />}
 
           {triggeredAlerts?.map((row) => {
+            const url = `/alerts/triggered-alert/${row.slug}`;
             const alertTypeOption = alertTypes[row.type];
+
             return (
-              <Table.Row flash={shouldFlashRow(row)} key={row.triggeredAlertSlug}>
-                <Table.Cell wrap>{row.name}</Table.Cell>
-                <Table.Cell>
+              <Table.Row flash={shouldFlashRow(row)} key={row.slug}>
+                <Table.Cell href={url} wrap>
+                  {row.name}
+                </Table.Cell>
+                <Table.Cell href={url}>
                   <Badge size="s">
                     <FeatherIcon icon={alertTypeOption.icon} size="xs" />
                     {alertTypeOption.name}
                   </Badge>
                 </Table.Cell>
-                <Table.Cell>
+                <Table.Cell href={url}>
                   <Text family="number" color="text3" size="current">
                     {truncateMiddle(row.triggeredInTransactionHash)}
                   </Text>
                 </Table.Cell>
-                <Table.Cell>
+                <Table.Cell href={url}>
                   <Text family="number" color="text3" size="current">
-                    {truncateMiddle(row.triggeredAlertSlug)}
+                    {truncateMiddle(row.slug)}
                   </Text>
                 </Table.Cell>
-                <Table.Cell>
+                <Table.Cell href={url}>
                   <Text family="number" color="text3" size="current">
                     {DateTime.fromISO(row.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS)}
                   </Text>
