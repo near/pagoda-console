@@ -26,6 +26,7 @@ import type { NextPageWithLayout } from '@/utils/types';
 
 function LabelAndValue(props: { label: string; value: string; linkToExplorer?: boolean; explorerPrefix?: string }) {
   const initializedExplorerPrefix = props.explorerPrefix || 'transactions';
+
   return (
     <Flex align="center" justify="start">
       <Text size="bodySmall" color="text1" css={{ minWidth: '10rem' }}>
@@ -59,6 +60,7 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
   const triggeredAlertId = router.query.triggeredAlertId as string;
   const { triggeredAlert, error } = useTriggeredAlertDetails(triggeredAlertId);
   const { alert } = useAlert(triggeredAlert?.alertId);
+
   useSelectedProjectSync(alert?.environmentSubId, alert?.projectSlug);
 
   function alertType(triggeredAlert: TriggeredAlert) {
@@ -129,18 +131,22 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
                   <HR />
 
                   <LabelAndValue label="Alert Triggered at" value={triggeredAtDateFormatted} />
+
                   <LabelAndValue
                     label="Transaction Hash"
                     value={triggeredAlert.triggeredInTransactionHash}
                     linkToExplorer={true}
                   />
+
                   <LabelAndValue label="Receipt ID" value={triggeredAlert.triggeredInReceiptId} linkToExplorer={true} />
+
                   <LabelAndValue
                     label="Block Hash"
                     value={triggeredAlert.triggeredInBlockHash}
                     linkToExplorer={true}
                     explorerPrefix={'blocks'}
                   />
+
                   <LabelAndValue label="Triggered Alert ID" value={triggeredAlert.slug} />
                   {triggeredAlert.extraData && (
                     <>

@@ -121,6 +121,7 @@ export function useSelectedProjectSync(
       return;
 
     setHasSelectedProjectSyncRun(true);
+
     if (selectedProjectSlug === project.slug && selectedEnvironmentSubId === environment.subId) return;
 
     if (selectedProjectSlug !== project.slug) {
