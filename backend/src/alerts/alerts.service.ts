@@ -69,24 +69,15 @@ type CreateAlertBaseSchema = {
   environmentSubId: Alert['environmentSubId'];
   destinations?: Array<Destination['id']>;
 };
-// * At some point, we may have rules that do not have an associated contract.
 type RuleWithContractSchema = {
   rule: {
     contract: string;
   };
 };
-type CreateTxAlertSchema = CreateAlertBaseSchema &
-  RuleWithContractSchema &
-  TxRuleSchema;
-type CreateFnCallAlertSchema = CreateAlertBaseSchema &
-  RuleWithContractSchema &
-  FnCallRuleSchema;
-type CreateEventAlertSchema = CreateAlertBaseSchema &
-  RuleWithContractSchema &
-  EventRuleSchema;
-type CreateAcctBalAlertSchema = CreateAlertBaseSchema &
-  RuleWithContractSchema &
-  AcctBalRuleSchema;
+type CreateTxAlertSchema = CreateAlertBaseSchema & TxRuleSchema;
+type CreateFnCallAlertSchema = CreateAlertBaseSchema & FnCallRuleSchema;
+type CreateEventAlertSchema = CreateAlertBaseSchema & EventRuleSchema;
+type CreateAcctBalAlertSchema = CreateAlertBaseSchema & AcctBalRuleSchema;
 
 type CreateWebhookDestinationSchema = {
   name?: Destination['name'];
