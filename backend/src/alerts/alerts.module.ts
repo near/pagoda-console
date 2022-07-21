@@ -8,6 +8,7 @@ import { TelegramService } from './telegram/telegram.service';
 import { EmailService } from 'src/email/email.service';
 import { TriggeredAlertsController } from './triggered-alerts/triggered-alerts.controller';
 import { TriggeredAlertsService } from './triggered-alerts/triggered-alerts.service';
+import { NearRpcService } from 'src/near-rpc.service';
 
 @Module({
   providers: [
@@ -16,8 +17,9 @@ import { TriggeredAlertsService } from './triggered-alerts/triggered-alerts.serv
     TelegramService,
     EmailService,
     TriggeredAlertsService,
+    NearRpcService,
   ],
   controllers: [AlertsController, TriggeredAlertsController],
-  imports: [ProjectsModule, PrismaService, SerdeModule],
+  imports: [ProjectsModule, PrismaService, SerdeModule, NearRpcService],
 })
 export class AlertsModule {}

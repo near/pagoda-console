@@ -29,6 +29,7 @@ export interface AppConfig {
     connectionString: string;
   };
   rpcAuth: Record<Net, { url: string; credential: string; quota: number }>;
+  nearRpc: Record<Net, { url: string }>;
   recentTransactionsCount: number;
   projectRefPrefix: string;
   analytics: {
@@ -116,6 +117,20 @@ const appConfigSchema = Joi.object({
       quota: Joi.number().integer(),
     }),
   },
+  nearRpc: {
+    TESTNET: {
+      url: Joi.string()
+        .uri({ scheme: 'https' })
+        .optional()
+        .default('https://rpc.testnet.near.org'),
+    },
+    MAINNET: Joi.object({
+      url: Joi.string()
+        .uri({ scheme: 'https' })
+        .optional()
+        .default('https://rpc.mainnet.near.org'),
+    }),
+  },
   recentTransactionsCount: Joi.number().integer(),
   projectRefPrefix: Joi.string().optional().default(''),
   analytics: {
@@ -183,6 +198,14 @@ export default function validate(config: Record<string, unknown>): AppConfig {
         url: config.KEY_MANAGEMENT_URL_MAIN,
         credential: config.KEY_MANAGEMENT_CREDENTIALS_MAIN,
         quota: config.KEY_MANAGEMENT_QUOTA_MAIN,
+      },
+    },
+    nearRpc: {
+      TESTNET: {
+        url: config.NEAR_RPC_URL_TEST,
+      },
+      MAINNET: {
+        url: config.NEAR_RPC_URL_MAIN,
       },
     },
     recentTransactionsCount: config.RECENT_TRANSACTIONS_COUNT,
