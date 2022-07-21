@@ -5,7 +5,11 @@ import { PrismaService } from '../prisma.service';
 import { PermissionsService as ProjectPermissionsService } from 'src/projects/permissions.service';
 import { AlertsService } from '../alerts.service';
 import { MatchingRule } from '../serde/db.types';
-import { TriggeredAlertsResponseDto } from '../dto';
+import {
+  TriggeredAlertDetailsResponseDto,
+  TriggeredAlertsResponseDto,
+} from '../dto';
+import { VError } from 'verror';
 
 type TriggeredAlertWithAlert = TriggeredAlert & {
   alert: Alert;
@@ -73,6 +77,30 @@ export class TriggeredAlertsService {
     };
   }
 
+  public async getTriggeredAlertDetails(
+    user: User,
+    slug: TriggeredAlert['slug'],
+  ): Promise<TriggeredAlertDetailsResponseDto> {
+    const triggeredAlert = await this.getTriggeredAlertWithAlert(slug);
+
+    if (!triggeredAlert) {
+      throw new VError(
+        { info: { code: 'BAD_ALERT' } },
+        'Triggered Alert not found',
+      );
+    }
+
+    // Confirm the user is a member of the triggered alert's project.
+    const { projectSlug, environmentSubId } = triggeredAlert.alert;
+    await this.projectPermissions.checkUserProjectEnvPermission(
+      user.id,
+      projectSlug,
+      environmentSubId,
+    );
+
+    return this.toTriggeredAlertDto(triggeredAlert);
+  }
+
   private determineWhereClause(
     pagingDateTime: Date,
     projectSlug: string,
@@ -96,9 +124,11 @@ export class TriggeredAlertsService {
     return listWhere;
   }
 
-  private toTriggeredAlertDto(triggeredAlert: TriggeredAlertWithAlert) {
+  private toTriggeredAlertDto(
+    triggeredAlert: TriggeredAlertWithAlert,
+  ): TriggeredAlertDetailsResponseDto {
     const {
-      triggeredAlertSlug,
+      slug,
       alert,
       triggeredInBlockHash,
       triggeredInTransactionHash,
@@ -109,8 +139,9 @@ export class TriggeredAlertsService {
     const rule = alert.matchingRule as object as MatchingRule;
 
     return {
-      triggeredAlertSlug,
+      slug,
       name: alert.name,
+      alertId: alert.id,
       type: this.alertsService.toAlertType(rule),
       triggeredInBlockHash,
       triggeredInTransactionHash,
@@ -118,5 +149,21 @@ export class TriggeredAlertsService {
       triggeredAt,
       extraData,
     };
+  }
+
+  private async getTriggeredAlertWithAlert(
+    slug: TriggeredAlert['slug'],
+  ): Promise<TriggeredAlertWithAlert> {
+    const triggeredAlert: TriggeredAlertWithAlert =
+      await this.prisma.triggeredAlert.findFirst({
+        where: {
+          slug,
+        },
+        include: {
+          alert: true,
+        },
+      });
+
+    return triggeredAlert;
   }
 }

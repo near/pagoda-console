@@ -272,7 +272,7 @@ export const VerifyEmailSchema = Joi.object({
   token: Joi.string().required(),
 });
 
-// list triggered alerts
+// Triggered Alerts
 export interface ListTriggeredAlertDto {
   projectSlug: string;
   environmentSubId: number;
@@ -281,7 +281,6 @@ export interface ListTriggeredAlertDto {
   pagingDateTime?: Date;
   alertId?: number;
 }
-
 export const ListTriggeredAlertSchema = Joi.object({
   projectSlug: Joi.string().required(),
   environmentSubId: Joi.number().required(),
@@ -291,12 +290,20 @@ export const ListTriggeredAlertSchema = Joi.object({
   alertId: Joi.number().integer().positive().optional(),
 });
 
+export interface GetTriggeredAlertDetailsDto {
+  slug: string;
+}
+export const GetTriggeredAlertDetailsSchema = Joi.object({
+  slug: Joi.string().required(),
+});
+
 export interface TriggeredAlertsResponseDto {
   count: number;
   page: Array<TriggeredAlertDetailsResponseDto>;
 }
 export interface TriggeredAlertDetailsResponseDto {
-  triggeredAlertSlug: string;
+  slug: string;
+  alertId: number;
   name: string;
   type: RuleType;
   triggeredInBlockHash: string;
