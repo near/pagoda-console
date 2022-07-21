@@ -77,14 +77,27 @@ export class TriggeredAlertsService {
     };
   }
 
-  public async triggeredAlertDetails(
+  public async getTriggeredAlertDetails(
     user: User,
     slug: TriggeredAlert['slug'],
   ): Promise<TriggeredAlertDetailsResponseDto> {
-    const triggeredAlert = await this.checkUserTriggeredAlertPermission(
+    const triggeredAlert = await this.getTriggeredAlertWithAlert(slug);
+
+    if (!triggeredAlert) {
+      throw new VError(
+        { info: { code: 'BAD_ALERT' } },
+        'Triggered Alert not found',
+      );
+    }
+
+    // Confirm the user is a member of the triggered alert's project.
+    const { projectSlug, environmentSubId } = triggeredAlert.alert;
+    await this.projectPermissions.checkUserProjectEnvPermission(
       user.id,
-      slug,
+      projectSlug,
+      environmentSubId,
     );
+
     return this.toTriggeredAlertDto(triggeredAlert);
   }
 
@@ -138,9 +151,7 @@ export class TriggeredAlertsService {
     };
   }
 
-  // Confirm the user is a member of the triggered alert's project.
-  private async checkUserTriggeredAlertPermission(
-    userId: User['id'],
+  private async getTriggeredAlertWithAlert(
     slug: TriggeredAlert['slug'],
   ): Promise<TriggeredAlertWithAlert> {
     const triggeredAlert: TriggeredAlertWithAlert =
@@ -153,19 +164,6 @@ export class TriggeredAlertsService {
         },
       });
 
-    if (!triggeredAlert) {
-      throw new VError(
-        { info: { code: 'BAD_ALERT' } },
-        'Triggered Alert not found',
-      );
-    }
-
-    const { projectSlug, environmentSubId } = triggeredAlert.alert;
-    await this.projectPermissions.checkUserProjectEnvPermission(
-      userId,
-      projectSlug,
-      environmentSubId,
-    );
     return triggeredAlert;
   }
 }

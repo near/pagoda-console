@@ -67,7 +67,7 @@ export class TriggeredAlertsController {
     @Body() { slug }: GetTriggeredAlertDetailsDto,
   ): Promise<TriggeredAlertDetailsResponseDto> {
     try {
-      return await this.triggeredAlertsService.triggeredAlertDetails(
+      return await this.triggeredAlertsService.getTriggeredAlertDetails(
         req.user,
         slug,
       );
