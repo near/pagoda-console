@@ -1,3 +1,4 @@
+import { BN } from 'bn.js';
 import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -17,6 +18,7 @@ import { Section } from '@/components/lib/Section';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
+import { Tooltip } from '@/components/lib/Tooltip';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useContracts } from '@/hooks/contracts';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
@@ -26,17 +28,27 @@ import { createAlert, useAlerts } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
 import type { AlertType, AmountComparator } from '@/modules/alerts/utils/types';
 import { NewAlert } from '@/modules/alerts/utils/types';
-import { formRegex } from '@/utils/constants';
+import { formRegex, U128 } from '@/utils/constants';
+import { formatYoctoNear } from '@/utils/format-yocto-near';
 import { assertUnreachable } from '@/utils/helpers';
+import { numberInputHandler } from '@/utils/input-handlers';
 import { mergeInputProps } from '@/utils/merge-input-props';
+import { sanitizeNumber } from '@/utils/sanitize-number';
 import type { Contract, Environment, NextPageWithLayout, Project } from '@/utils/types';
 
 interface FormData {
   contract: string;
   type: AlertType;
   acctBalRule?: {
-    amount: number;
     comparator: AmountComparator;
+  };
+  acctBalNumRule?: {
+    from: string;
+    to: string;
+  };
+  acctBalPctRule?: {
+    from: string;
+    to: string;
   };
   eventRule?: {
     standard: string;
@@ -57,6 +69,11 @@ const NewAlert: NextPageWithLayout = () => {
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<number[]>([]);
   const { contracts } = useContracts(project?.slug, environment?.subId);
   const [contractComboboxItems, setContractComboboxItems] = useState<Contract[]>([]);
+  const [focusedInputName, setFocusedInputName] = useState('');
+
+  const acctBalRuleComparator = form.watch('acctBalRule.comparator');
+  const acctBalNumRuleFrom = form.watch('acctBalNumRule.from');
+  const acctBalNumRuleTo = form.watch('acctBalNumRule.to');
 
   useEffect(() => {
     if (contracts) {
@@ -271,70 +288,177 @@ const NewAlert: NextPageWithLayout = () => {
 
               {(selectedAlertType === 'ACCT_BAL_NUM' || selectedAlertType === 'ACCT_BAL_PCT') && (
                 <>
-                  <Flex>
-                    <Controller
-                      name="acctBalRule.comparator"
-                      control={form.control}
-                      rules={{
-                        required: 'Please select a comparator',
-                      }}
-                      render={({ field }) => {
-                        const selection = amountComparatorOptions.find((a) => a.value === field.value);
+                  <Controller
+                    name="acctBalRule.comparator"
+                    control={form.control}
+                    rules={{
+                      required: 'Please select a comparator',
+                    }}
+                    render={({ field }) => {
+                      const selection = amountComparatorOptions.find((a) => a.value === field.value);
 
-                        return (
-                          <Form.Group>
-                            <DropdownMenu.Root>
-                              <DropdownMenu.Trigger asChild>
-                                <Form.FloatingLabelSelect
-                                  label="Comparator"
-                                  isInvalid={!!form.formState.errors.acctBalRule?.comparator}
-                                  onBlur={field.onBlur}
-                                  ref={field.ref}
-                                  selection={selection?.name}
-                                />
-                              </DropdownMenu.Trigger>
+                      return (
+                        <Form.Group>
+                          <DropdownMenu.Root>
+                            <DropdownMenu.Trigger asChild>
+                              <Form.FloatingLabelSelect
+                                label="Comparator"
+                                isInvalid={!!form.formState.errors.acctBalRule?.comparator}
+                                onBlur={field.onBlur}
+                                ref={field.ref}
+                                selection={selection?.name}
+                              />
+                            </DropdownMenu.Trigger>
 
-                              <DropdownMenu.Content align="start">
-                                <DropdownMenu.RadioGroup
-                                  value={field.value}
-                                  onValueChange={(value) => field.onChange(value)}
-                                >
-                                  {amountComparatorOptions.map((option) => (
-                                    <DropdownMenu.RadioItem
-                                      indicator={
-                                        <Text color="current" css={{ width: '1.5rem', textAlign: 'center' }}>
-                                          {option.icon}
-                                        </Text>
-                                      }
-                                      value={option.value}
-                                      key={option.value}
-                                    >
-                                      {option.name}
-                                    </DropdownMenu.RadioItem>
-                                  ))}
-                                </DropdownMenu.RadioGroup>
-                              </DropdownMenu.Content>
-                            </DropdownMenu.Root>
+                            <DropdownMenu.Content align="start">
+                              <DropdownMenu.RadioGroup
+                                value={field.value}
+                                onValueChange={(value) => field.onChange(value)}
+                              >
+                                {amountComparatorOptions.map((option) => (
+                                  <DropdownMenu.RadioItem
+                                    indicator={
+                                      <Text color="current" css={{ width: '1.5rem', textAlign: 'center' }}>
+                                        {option.icon}
+                                      </Text>
+                                    }
+                                    value={option.value}
+                                    key={option.value}
+                                  >
+                                    {option.name}
+                                  </DropdownMenu.RadioItem>
+                                ))}
+                              </DropdownMenu.RadioGroup>
+                            </DropdownMenu.Content>
+                          </DropdownMenu.Root>
 
-                            <Form.Feedback>{form.formState.errors.type?.message}</Form.Feedback>
-                          </Form.Group>
-                        );
-                      }}
-                    />
+                          <Form.Feedback>{form.formState.errors.acctBalRule?.comparator?.message}</Form.Feedback>
+                        </Form.Group>
+                      );
+                    }}
+                  />
 
-                    <Form.Group>
-                      <Form.FloatingLabelInput
-                        label={selectedAlertType === 'ACCT_BAL_PCT' ? 'Amount (%)' : 'Amount'}
-                        type="number"
-                        isInvalid={!!form.formState.errors.acctBalRule?.amount}
-                        {...form.register('acctBalRule.amount', {
-                          valueAsNumber: true,
-                          required: 'Please enter an amount',
-                        })}
-                      />
-                      <Form.Feedback>{form.formState.errors.acctBalRule?.amount?.message}</Form.Feedback>
-                    </Form.Group>
-                  </Flex>
+                  {selectedAlertType === 'ACCT_BAL_NUM' && acctBalRuleComparator && (
+                    <>
+                      <Form.Group>
+                        <Tooltip
+                          content={
+                            <Text size="bodySmall" family="number" color="text1">
+                              {formatYoctoNear(acctBalNumRuleFrom)}
+                            </Text>
+                          }
+                          root={{
+                            open: focusedInputName === 'acctBalNumRule.from' && !!acctBalNumRuleFrom,
+                          }}
+                        >
+                          <Form.FloatingLabelInput
+                            label={(acctBalRuleComparator === 'RANGE' ? 'From Amount' : 'Amount') + ' (yoctoⓃ)'}
+                            placeholder="eg: 1,000"
+                            isInvalid={!!form.formState.errors.acctBalNumRule?.from}
+                            isNumber
+                            onInput={numberInputHandler}
+                            onFocus={() => setFocusedInputName('acctBalNumRule.from')}
+                            {...mergeInputProps(
+                              form.register('acctBalNumRule.from', {
+                                setValueAs: (value) => sanitizeNumber(value),
+                                required: 'Please enter an amount',
+                                validate: {
+                                  maxValue: (value) => new BN(value || '', 10).lte(U128) || 'Must be less than 2^128',
+                                },
+                              }),
+                              {
+                                onBlur: () => setFocusedInputName(''),
+                              },
+                            )}
+                          />
+                        </Tooltip>
+
+                        <Form.Feedback>{form.formState.errors.acctBalNumRule?.from?.message}</Form.Feedback>
+                      </Form.Group>
+
+                      {acctBalRuleComparator === 'RANGE' && (
+                        <Form.Group>
+                          <Tooltip
+                            content={
+                              <Text size="bodySmall" family="number" color="text1">
+                                {formatYoctoNear(acctBalNumRuleTo)}
+                              </Text>
+                            }
+                            root={{
+                              open: focusedInputName === 'acctBalNumRule.to' && !!acctBalNumRuleTo,
+                            }}
+                          >
+                            <Form.FloatingLabelInput
+                              label="To Amount (yoctoⓃ)"
+                              placeholder="eg: 2,000"
+                              isInvalid={!!form.formState.errors.acctBalNumRule?.to}
+                              isNumber
+                              onInput={numberInputHandler}
+                              onFocus={() => setFocusedInputName('acctBalNumRule.to')}
+                              {...mergeInputProps(
+                                form.register('acctBalNumRule.to', {
+                                  setValueAs: (value) => sanitizeNumber(value),
+                                  required: 'Please enter an amount',
+                                  validate: {
+                                    maxValue: (value) => new BN(value || '', 10).lte(U128) || 'Must be less than 2^128',
+                                  },
+                                }),
+                                {
+                                  onBlur: () => setFocusedInputName(''),
+                                },
+                              )}
+                            />
+                          </Tooltip>
+
+                          <Form.Feedback>{form.formState.errors.acctBalNumRule?.to?.message}</Form.Feedback>
+                        </Form.Group>
+                      )}
+                    </>
+                  )}
+
+                  {selectedAlertType === 'ACCT_BAL_PCT' && acctBalRuleComparator && (
+                    <Flex>
+                      <Form.Group>
+                        <Form.FloatingLabelInput
+                          label={(acctBalRuleComparator === 'RANGE' ? 'From Percentage' : 'Percentage') + ' %'}
+                          placeholder="eg: 30"
+                          isInvalid={!!form.formState.errors.acctBalPctRule?.from}
+                          isNumber
+                          onInput={numberInputHandler}
+                          {...form.register('acctBalPctRule.from', {
+                            setValueAs: (value) => sanitizeNumber(value),
+                            required: 'Please enter a percentage',
+                            validate: {
+                              maxValue: (value) => Number(value) <= 100 || 'Must be 100 or less',
+                            },
+                          })}
+                        />
+
+                        <Form.Feedback>{form.formState.errors.acctBalPctRule?.from?.message}</Form.Feedback>
+                      </Form.Group>
+
+                      {acctBalRuleComparator === 'RANGE' && (
+                        <Form.Group>
+                          <Form.FloatingLabelInput
+                            label="To Percentage %"
+                            placeholder="eg: 60"
+                            isInvalid={!!form.formState.errors.acctBalPctRule?.to}
+                            isNumber
+                            onInput={numberInputHandler}
+                            {...form.register('acctBalPctRule.to', {
+                              setValueAs: (value) => sanitizeNumber(value),
+                              required: 'Please enter a percentage',
+                              validate: {
+                                maxValue: (value) => Number(value) <= 100 || 'Must be 100 or less',
+                              },
+                            })}
+                          />
+
+                          <Form.Feedback>{form.formState.errors.acctBalPctRule?.to?.message}</Form.Feedback>
+                        </Form.Group>
+                      )}
+                    </Flex>
+                  )}
                 </>
               )}
 
@@ -343,6 +467,7 @@ const NewAlert: NextPageWithLayout = () => {
                   <Form.Group>
                     <Form.FloatingLabelInput
                       label="Event Name"
+                      placeholder="eg: nft_buy, nft_*"
                       isInvalid={!!form.formState.errors.eventRule?.event}
                       {...form.register('eventRule.event', {
                         required: 'Please enter an event name',
@@ -354,6 +479,7 @@ const NewAlert: NextPageWithLayout = () => {
                   <Form.Group>
                     <Form.FloatingLabelInput
                       label="Standard"
+                      placeholder="eg: nep171, nep*"
                       isInvalid={!!form.formState.errors.eventRule?.standard}
                       {...form.register('eventRule.standard', {
                         required: 'Please enter a standard',
@@ -365,6 +491,7 @@ const NewAlert: NextPageWithLayout = () => {
                   <Form.Group>
                     <Form.FloatingLabelInput
                       label="Version"
+                      placeholder="eg: 1.0.2, 1.0.*"
                       isInvalid={!!form.formState.errors.eventRule?.version}
                       {...form.register('eventRule.version', {
                         required: 'Please enter a version',
@@ -452,21 +579,25 @@ function returnNewAlertBody(
 
   switch (data.type) {
     case 'ACCT_BAL_NUM':
+      if (!data.acctBalRule || !data.acctBalNumRule) throw new Error('Invalid form data for ACCT_BAL_NUM');
+
       return {
         ...base,
         type: 'ACCT_BAL_NUM',
         rule: {
           contract: data.contract,
-          ...data.acctBalRule!,
+          ...returnAcctBalBody(data.acctBalRule.comparator, data.acctBalNumRule),
         },
       };
     case 'ACCT_BAL_PCT':
+      if (!data.acctBalRule || !data.acctBalPctRule) throw new Error('Invalid form data for ACCT_BAL_PCT');
+
       return {
         ...base,
         type: 'ACCT_BAL_PCT',
         rule: {
           contract: data.contract,
-          ...data.acctBalRule!,
+          ...returnAcctBalBody(data.acctBalRule.comparator, data.acctBalPctRule),
         },
       };
     case 'EVENT':
@@ -505,6 +636,40 @@ function returnNewAlertBody(
       };
     default:
       assertUnreachable(data.type);
+  }
+}
+
+function returnAcctBalBody(comparator: AmountComparator, { from, to }: { from: string; to: string }) {
+  switch (comparator) {
+    case 'EQ':
+      return {
+        from,
+        to: from,
+      };
+    case 'GTE':
+      return {
+        from,
+        to: null,
+      };
+    case 'LTE':
+      return {
+        from: null,
+        to,
+      };
+    case 'RANGE':
+      const fromIsGreater = new BN(from, 10).lt(new BN(to, 10));
+      if (fromIsGreater) {
+        return {
+          from: to,
+          to: from,
+        };
+      }
+      return {
+        from,
+        to,
+      };
+    default:
+      assertUnreachable(comparator);
   }
 }
 

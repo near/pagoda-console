@@ -97,14 +97,14 @@ export interface UpdateAlert {
 
 interface RuleAcctBalNum {
   contract: string;
-  amount: number;
-  comparator: AmountComparator;
+  from: string | null;
+  to: string | null;
 }
 
 interface RuleAcctBalPct {
   contract: string;
-  amount: number;
-  comparator: AmountComparator;
+  from: string | null;
+  to: string | null;
 }
 
 interface RuleEvent {
@@ -127,7 +127,7 @@ interface RuleTxSuccess {
   contract: string;
 }
 
-export type AmountComparator = 'EQ' | 'NEQ' | 'LT' | 'LTE' | 'GT' | 'GTE';
+export type AmountComparator = 'EQ' | 'LTE' | 'GTE' | 'RANGE';
 
 // Destinations:
 

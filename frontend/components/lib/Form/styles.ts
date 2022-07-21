@@ -142,6 +142,11 @@ export const Input = styled('input', {
   ...inputStyles,
 
   variants: {
+    number: {
+      true: {
+        fontFamily: 'var(--font-number)',
+      },
+    },
     invalid: {
       true: {
         ...inputInvalidStyles,

@@ -11,7 +11,8 @@ type FeedbackProps = ComponentProps<typeof S.Feedback>;
 type FormProps = ComponentProps<typeof S.Form> & {
   disabled?: boolean;
 };
-type InputProps = Omit<ComponentProps<typeof S.Input>, 'invalid'> & {
+type InputProps = Omit<ComponentProps<typeof S.Input>, 'invalid' | 'number'> & {
+  isNumber?: boolean;
   isInvalid?: boolean;
 };
 type FloatingLabelInputProps = InputProps & {
@@ -49,7 +50,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({ isInvalid, type
 Input.displayName = 'Input';
 
 export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInputProps>(
-  ({ children, isInvalid, label, labelProps, type = 'text', placeholder = ' ', ...props }, ref) => {
+  ({ children, isInvalid, isNumber, label, labelProps, type = 'text', placeholder = ' ', ...props }, ref) => {
     /*
       If a placeholder isn't set, we need to use " " as the placeholder (instead of an empty
       string) - this is critical for our CSS to render the label correctly via `:placeholder-shown`.
@@ -78,6 +79,7 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
           <S.Input
             aria-invalid={isInvalid}
             invalid={isInvalid === true}
+            number={isNumber === true}
             placeholder={placeholder}
             ref={ref}
             type={type}

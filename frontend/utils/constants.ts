@@ -1,3 +1,7 @@
+import { BN } from 'bn.js';
+
+export const U128 = new BN('2', 10).pow(new BN('128', 10)).sub(new BN('1', 10)); // Max yoctoNEAR allowed in a state change
+
 export const formRegex = {
   contractAddressWildcard: /^(([a-z\d\*]+[\-_])*[a-z\d\*]+\.)*([a-z\d]+[\-_])*[a-z\d]+$/,
   email: /^(.+)@(.+)[^.]$/,

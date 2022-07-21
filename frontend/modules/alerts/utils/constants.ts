@@ -34,7 +34,7 @@ export const alertTypes: Record<AlertType, AlertTypeOption> = {
   },
   ACCT_BAL_NUM: {
     description: `Triggers whenever an account's balance changed by specified amount.`,
-    icon: 'dollar-sign',
+    icon: 'shuffle',
     name: 'Account Balance Changed',
     value: 'ACCT_BAL_NUM',
   },
@@ -67,40 +67,28 @@ export const amountComparators: Record<AmountComparator, AmountComparatorOption>
     name: 'Equal To',
     value: 'EQ',
   },
-  NEQ: {
-    icon: '!=',
-    name: 'Not Equal To',
-    value: 'NEQ',
-  },
-  LT: {
-    icon: '<',
-    name: 'Less Than',
-    value: 'LT',
-  },
   LTE: {
     icon: '<=',
     name: 'Less Than or Equal To',
     value: 'LTE',
-  },
-  GT: {
-    icon: '>',
-    name: 'Greater Than',
-    value: 'GT',
   },
   GTE: {
     icon: '>=',
     name: 'Greater Than or Equal To',
     value: 'GTE',
   },
+  RANGE: {
+    icon: '..',
+    name: 'Within Range',
+    value: 'RANGE',
+  },
 };
 
 export const amountComparatorOptions = [
   amountComparators.EQ,
-  amountComparators.NEQ,
-  amountComparators.LT,
   amountComparators.LTE,
-  amountComparators.GT,
   amountComparators.GTE,
+  amountComparators.RANGE,
 ];
 
 interface DestinationTypeOption {
