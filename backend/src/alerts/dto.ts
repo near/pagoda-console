@@ -28,10 +28,8 @@ const EventRuleSchema = Joi.object({
 });
 const AcctBalRuleSchema = Joi.object({
   contract: Joi.string().required(),
-  comparator: Joi.string()
-    .valid('EQ', 'NEQ', 'LT', 'LTE', 'GT', 'GTE')
-    .required(),
-  amount: Joi.number().required(),
+  from: Joi.string(),
+  to: Joi.string(),
 });
 
 // create alert
