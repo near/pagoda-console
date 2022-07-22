@@ -26,10 +26,45 @@ const EventRuleSchema = Joi.object({
   event: Joi.string().required(),
   // data: Joi.object(),
 });
-const AcctBalRuleSchema = Joi.object({
+const AcctBalPctRuleSchema = Joi.object({
   contract: Joi.string().required(),
-  from: Joi.string(),
-  to: Joi.string(),
+  from: Joi.string()
+    .empty(null)
+    .optional()
+    .regex(/^0$|^[1-9][0-9]?$|^100$/), // Percentage between 0 and 100
+  to: Joi.string()
+    .empty(null)
+    .optional()
+    .regex(/^0$|^[1-9][0-9]?$|^100$/), // Percentage between 0 and 100
+});
+
+const validateYoctonearAmount = (value, _) => {
+  const upperBound = '340282366920938463463374607431768211456'; // 2^128
+  if ((value as string).localeCompare(upperBound) !== -1) {
+    throw Error(
+      'Values "to" and "from" should be integers within the range of [0, 2^128]',
+    );
+  }
+};
+
+const AcctBalNumRuleSchema = Joi.object({
+  contract: Joi.string().required(),
+  from: Joi.string()
+    .empty(null)
+    .optional()
+    .regex(/^0$|^[1-9][0-9]*$/)
+    .custom(
+      validateYoctonearAmount,
+      'Validating proper value of Yoctonear amount',
+    ),
+  to: Joi.string()
+    .empty(null)
+    .optional()
+    .regex(/^0$|^[1-9][0-9]*$/)
+    .custom(
+      validateYoctonearAmount,
+      'Validating proper value of Yoctonear amount',
+    ),
 });
 
 // create alert
@@ -83,8 +118,14 @@ export const CreateAlertSchema = Joi.object({
         { is: 'TX_FAILURE', then: TxRuleSchema },
         { is: 'FN_CALL', then: FnCallRuleSchema },
         { is: 'EVENT', then: EventRuleSchema },
-        { is: 'ACCT_BAL_PCT', then: AcctBalRuleSchema },
-        { is: 'ACCT_BAL_NUM', then: AcctBalRuleSchema },
+        {
+          is: 'ACCT_BAL_PCT',
+          then: AcctBalPctRuleSchema,
+        },
+        {
+          is: 'ACCT_BAL_NUM',
+          then: AcctBalNumRuleSchema,
+        },
       ],
     })
     .required(),
