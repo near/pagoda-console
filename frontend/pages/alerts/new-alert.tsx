@@ -101,6 +101,12 @@ const NewAlert: NextPageWithLayout = () => {
 
       await router.push('/alerts');
     } catch (e: any) {
+      if (e.message === 'ADDRESS_NOT_FOUND') {
+        const net = environmentTitle.toLowerCase();
+        setCreateError(`Address ${data.contract} was not found on ${net}.`);
+        return;
+      }
+
       console.error('Failed to create alert', e);
       setCreateError('Failed to create alert.');
     }
