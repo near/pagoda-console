@@ -305,7 +305,17 @@ const EditAlert: NextPageWithLayout = () => {
                 </Flex>
               </Flex>
 
-              <AlertSettings alert={alert} />
+              <AlertSettings
+                alert={{
+                  ...alert,
+                  type: 'ACCT_BAL_NUM',
+                  rule: {
+                    contract: alert.rule.contract,
+                    from: null,
+                    to: '3454000000000000000000000',
+                  },
+                }}
+              />
             </Flex>
 
             <HR />
@@ -353,7 +363,7 @@ function AlertSettings({ alert }: { alert: Alert }) {
           {comparator.value === 'RANGE' && (
             <>
               <Tooltip number content={formatYoctoNear(alert.rule.from!)}>
-                <Text as="span" family="number">
+                <Text as="span" family="number" hasTooltip>
                   {formatNumber(alert.rule.from!)}{' '}
                 </Text>
               </Tooltip>
@@ -361,7 +371,7 @@ function AlertSettings({ alert }: { alert: Alert }) {
                 ..
               </Text>{' '}
               <Tooltip content={formatYoctoNear(alert.rule.to!)}>
-                <Text as="span" family="number">
+                <Text as="span" family="number" hasTooltip>
                   {formatNumber(alert.rule.to!)}
                 </Text>
               </Tooltip>
@@ -369,7 +379,7 @@ function AlertSettings({ alert }: { alert: Alert }) {
           )}
           {comparator.value !== 'RANGE' && (
             <Tooltip number content={formatYoctoNear(alert.rule.from || alert.rule.to || '')}>
-              <Text as="span" family="number">
+              <Text as="span" family="number" hasTooltip>
                 {formatNumber(alert.rule.from || alert.rule.to || '')}
               </Text>
             </Tooltip>
