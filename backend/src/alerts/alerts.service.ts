@@ -180,6 +180,7 @@ type AlertWithDestinations = Alert & {
 export class AlertsService {
   private emailTokenExpiryMin: number;
   private telegramTokenExpiryMin: number;
+  private contractAddressValidationEnabled: string;
   constructor(
     private prisma: PrismaService,
     private projectPermissions: ProjectPermissionsService,
@@ -198,6 +199,10 @@ export class AlertsService {
       {
         infer: true,
       },
+    );
+    this.contractAddressValidationEnabled = this.config.get(
+      'featureEnabled.alerts.contractAddressValidation',
+      { infer: true },
     );
   }
 
@@ -294,6 +299,10 @@ export class AlertsService {
 
   // Checks if the alert's address exists on the Near blockchain.
   private async checkAddressExists(net: ChainId, address: string) {
+    if (!this.contractAddressValidationEnabled) {
+      return;
+    }
+
     // Ignore trying to process any address containing a wildcard. We could refine this.
     if (address.includes('*')) {
       return;

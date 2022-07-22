@@ -25,6 +25,7 @@ const nanoid = customAlphabet(
 export class ProjectsService {
   private projectRefPrefix: string;
   private mixpanelCredentials: string;
+  private contractAddressValidationEnabled: string;
   constructor(
     private prisma: PrismaService,
     private keys: KeysService,
@@ -40,6 +41,10 @@ export class ProjectsService {
     this.mixpanelCredentials = `Basic ${Buffer.from(token + ':').toString(
       'base64',
     )}`;
+    this.contractAddressValidationEnabled = this.config.get(
+      'featureEnabled.core.contractAddressValidation',
+      { infer: true },
+    );
   }
 
   async create(
@@ -515,6 +520,10 @@ export class ProjectsService {
     net: Net,
     address: Contract['address'],
   ) {
+    if (!this.contractAddressValidationEnabled) {
+      return;
+    }
+
     const status = await this.nearRpc.checkAccountExists(net, address);
     if (status === 'NOT_FOUND') {
       throw new VError(

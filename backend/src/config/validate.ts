@@ -70,6 +70,14 @@ export interface AppConfig {
   frontend: {
     baseUrl: string;
   };
+  featureEnabled: {
+    core: {
+      contractAddressValidation: boolean;
+    };
+    alerts: {
+      contractAddressValidation: boolean;
+    };
+  };
 }
 
 // Joi docs: https://joi.dev/api
@@ -177,6 +185,14 @@ const appConfigSchema = Joi.object({
   frontend: {
     baseUrl: Joi.string(),
   },
+  featureEnabled: {
+    core: {
+      contractAddressValidation: Joi.boolean().optional().default(true),
+    },
+    alerts: {
+      contractAddressValidation: Joi.boolean().optional().default(true),
+    },
+  },
 });
 
 export default function validate(config: Record<string, unknown>): AppConfig {
@@ -247,6 +263,16 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     },
     frontend: {
       baseUrl: config.FRONTEND_BASE_URL,
+    },
+    featureEnabled: {
+      core: {
+        contractAddressValidation:
+          config.CORE_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
+      },
+      alerts: {
+        contractAddressValidation:
+          config.ALERT_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
+      },
     },
   };
 
