@@ -8,6 +8,7 @@ import {
   EmailDestination,
   DestinationType,
   TelegramDestination,
+  ChainId,
 } from '../../generated/prisma/alerts';
 
 // TODO should we re-export these types from the core module? So there is no dependency on the core prisma/client
@@ -33,6 +34,7 @@ import { AppConfig } from 'src/config/validate';
 import { ConfigService } from '@nestjs/config';
 import { DateTime } from 'luxon';
 import { EmailService } from 'src/email/email.service';
+import { NearRpcService } from 'src/near-rpc.service';
 
 type TxRuleSchema = {
   rule: {
@@ -70,6 +72,11 @@ type CreateAlertBaseSchema = {
   projectSlug: Alert['projectSlug'];
   environmentSubId: Alert['environmentSubId'];
   destinations?: Array<Destination['id']>;
+};
+type RuleWithContractSchema = {
+  rule: {
+    contract: string;
+  };
 };
 type CreateTxAlertSchema = CreateAlertBaseSchema & TxRuleSchema;
 type CreateFnCallAlertSchema = CreateAlertBaseSchema & FnCallRuleSchema;
@@ -153,6 +160,11 @@ const nanoid = customAlphabet(
   12,
 );
 
+const nanoidLong = customAlphabet(
+  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+  30,
+);
+
 type AlertWithDestinations = Alert & {
   enabledDestinations: Array<{
     destination: {
@@ -177,6 +189,7 @@ type AlertWithDestinations = Alert & {
 export class AlertsService {
   private emailTokenExpiryMin: number;
   private telegramTokenExpiryMin: number;
+  private contractAddressValidationEnabled: string;
   constructor(
     private prisma: PrismaService,
     private projectPermissions: ProjectPermissionsService,
@@ -185,6 +198,7 @@ export class AlertsService {
     private ruleDeserializer: RuleDeserializerService,
     private config: ConfigService<AppConfig>,
     private emailsService: EmailService,
+    private nearRpc: NearRpcService,
   ) {
     this.emailTokenExpiryMin = this.config.get('alerts.emailTokenExpiryMin', {
       infer: true,
@@ -195,106 +209,136 @@ export class AlertsService {
         infer: true,
       },
     );
+    this.contractAddressValidationEnabled = this.config.get(
+      'featureEnabled.alerts.contractAddressValidation',
+      { infer: true },
+    );
   }
 
   async createTxSuccessAlert(user: User, alert: CreateTxAlertSchema) {
-    await this.checkUserCreateAlertPermission(user, alert);
+    const { contract } = alert.rule;
+    const defaultName = `Successful transaction in ${contract}`;
+    alert = {
+      ...alert,
+      name: alert.name || defaultName,
+    };
+    const matchingRule = this.ruleSerializer.toTxSuccessJson(alert.rule);
 
-    const address = alert.rule.contract;
-    const alertInput = await this.buildCreateAlertInput(
-      user,
-      {
-        ...alert,
-        name: alert.name || `Successful transaction in ${address}`,
-      },
-      AlertRuleKind.ACTIONS,
-      this.ruleSerializer.toTxSuccessJson(alert.rule),
-    );
-
-    return this.createAlert(alertInput);
+    return this.createAlertRuleWithContract(user, alert, matchingRule);
   }
 
   async createTxFailureAlert(user: User, alert: CreateTxAlertSchema) {
-    await this.checkUserCreateAlertPermission(user, alert);
+    const { contract } = alert.rule;
+    const defaultName = `Failed transaction in ${contract}`;
+    alert = {
+      ...alert,
+      name: alert.name || defaultName,
+    };
+    const matchingRule = this.ruleSerializer.toTxFailureJson(alert.rule);
 
-    const address = alert.rule.contract;
-    const alertInput = await this.buildCreateAlertInput(
-      user,
-      {
-        ...alert,
-        name: alert.name || `Failed transaction in ${address}`,
-      },
-      AlertRuleKind.ACTIONS,
-      this.ruleSerializer.toTxFailureJson(alert.rule),
-    );
-
-    return this.createAlert(alertInput);
+    return this.createAlertRuleWithContract(user, alert, matchingRule);
   }
 
   async createFnCallAlert(user: User, alert: CreateFnCallAlertSchema) {
-    await this.checkUserCreateAlertPermission(user, alert);
+    const { contract } = alert.rule;
+    const defaultName = `Function ${alert.rule.function} called in ${contract}`;
+    alert = {
+      ...alert,
+      name: alert.name || defaultName,
+    };
+    const matchingRule = this.ruleSerializer.toFnCallJson(alert.rule);
 
-    const address = alert.rule.contract;
-    const alertInput = await this.buildCreateAlertInput(
-      user,
-      {
-        ...alert,
-        name:
-          alert.name || `Function ${alert.rule.function} called in ${address}`,
-      },
-      AlertRuleKind.ACTIONS,
-      this.ruleSerializer.toFnCallJson(alert.rule),
-    );
-
-    return this.createAlert(alertInput);
+    return this.createAlertRuleWithContract(user, alert, matchingRule);
   }
 
   async createEventAlert(user: User, alert: CreateEventAlertSchema) {
-    await this.checkUserCreateAlertPermission(user, alert);
+    const { event, contract } = alert.rule;
+    const defaultName = `Event ${event} logged in ${contract}`;
+    alert = {
+      ...alert,
+      name: alert.name || defaultName,
+    };
+    const matchingRule = this.ruleSerializer.toEventJson(alert.rule);
 
+    return this.createAlertRuleWithContract(user, alert, matchingRule);
+  }
+
+  async createAcctBalAlert(user: User, alert: CreateAcctBalAlertSchema) {
+    const { contract } = alert.rule;
+    const defaultName = `Account balance changed in ${contract}`;
+
+    alert = {
+      ...alert,
+      name: alert.name || defaultName,
+    };
+    const matchingRule = this.ruleSerializer.toAcctBalJson(
+      alert.rule,
+      alert.type,
+    );
+
+    return this.createAlertRuleWithContract(user, alert, matchingRule);
+  }
+
+  private async createAlertRuleWithContract(
+    user: User,
+    alert: CreateAlertBaseSchema & RuleWithContractSchema,
+    matchingRule: MatchingRule,
+  ) {
+    const chainId = await this.projects.getEnvironmentNet(
+      alert.projectSlug,
+      alert.environmentSubId,
+    );
     const address = alert.rule.contract;
+
+    await Promise.all([
+      this.checkUserCreateAlertPermission(user, alert),
+      this.checkAddressExists(chainId, address),
+    ]);
+
     const alertInput = await this.buildCreateAlertInput(
       user,
-      {
-        ...alert,
-        name: alert.name || `Event ${alert.rule.event} logged in ${address}`,
-      },
-      AlertRuleKind.EVENTS,
-      this.ruleSerializer.toEventJson(alert.rule),
+      chainId,
+      alert,
+      AlertRuleKind.ACTIONS,
+      matchingRule,
     );
 
     return this.createAlert(alertInput);
   }
 
-  async createAcctBalAlert(user: User, alert: CreateAcctBalAlertSchema) {
-    await this.checkUserCreateAlertPermission(user, alert);
+  // Checks if the alert's address exists on the Near blockchain.
+  private async checkAddressExists(net: ChainId, address: string) {
+    if (!this.contractAddressValidationEnabled) {
+      return;
+    }
 
-    const address = alert.rule.contract;
-    const alertInput = await this.buildCreateAlertInput(
-      user,
-      {
-        ...alert,
-        name: alert.name || `Account balance changed in ${address}`,
-      },
-      AlertRuleKind.STATE_CHANGES,
-      this.ruleSerializer.toAcctBalJson(alert.rule, alert.type),
-    );
+    // Ignore trying to process any address containing a wildcard. We could refine this.
+    if (address.includes('*')) {
+      return;
+    }
 
-    return this.createAlert(alertInput);
+    const status = await this.nearRpc.checkAccountExists(net, address);
+    if (status === 'NOT_FOUND') {
+      throw new VError(
+        {
+          info: {
+            code: 'NOT_FOUND',
+            response: 'ADDRESS_NOT_FOUND',
+          },
+        },
+        'Alert address not found',
+      );
+    }
   }
 
   private async buildCreateAlertInput(
     user: User,
+    chainId: ChainId,
     alert: CreateAlertBaseSchema,
     alertRuleKind: AlertRuleKind,
     matchingRule,
   ): Promise<Prisma.AlertCreateInput> {
     const { name, projectSlug, environmentSubId, destinations } = alert;
-
-    const chainId = await this.projects.getEnvironmentNet(
-      projectSlug,
-      environmentSubId,
-    );
 
     const alertInput: Prisma.AlertCreateInput = {
       name,
@@ -1076,6 +1120,7 @@ export class AlertsService {
               isVerified: true,
               token: null,
               tokenExpiresAt: null,
+              unsubscribeToken: nanoidLong(),
             },
           },
         },
@@ -1147,6 +1192,26 @@ export class AlertsService {
       );
     } catch (e) {
       throw new VError(e, 'Failed while resending email verification');
+    }
+  }
+
+  async unsubscribeFromEmailAlert(token: EmailDestination['unsubscribeToken']) {
+    try {
+      await this.prisma.emailDestination.update({
+        where: {
+          unsubscribeToken: token,
+        },
+        data: {
+          unsubscribeToken: null,
+          destination: {
+            update: {
+              active: false,
+            },
+          },
+        },
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while unsubscribing from email alerts');
     }
   }
 

@@ -14,6 +14,7 @@ import { KeysService } from 'src/keys/keys.service';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { AppConfig } from 'src/config/validate';
+import { NearRpcService } from '../near-rpc.service';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -24,9 +25,11 @@ const nanoid = customAlphabet(
 export class ProjectsService {
   private projectRefPrefix: string;
   private mixpanelCredentials: string;
+  private contractAddressValidationEnabled: string;
   constructor(
     private prisma: PrismaService,
     private keys: KeysService,
+    private nearRpc: NearRpcService,
     private config: ConfigService<AppConfig>,
   ) {
     this.projectRefPrefix = this.config.get('projectRefPrefix', {
@@ -38,6 +41,10 @@ export class ProjectsService {
     this.mixpanelCredentials = `Basic ${Buffer.from(token + ':').toString(
       'base64',
     )}`;
+    this.contractAddressValidationEnabled = this.config.get(
+      'featureEnabled.core.contractAddressValidation',
+      { infer: true },
+    );
   }
 
   async create(
@@ -467,10 +474,14 @@ export class ProjectsService {
     }
 
     // throw an error if the user doesn't have permission to perform this action
-    await this.checkUserPermission({
-      userId: callingUser.id,
-      environmentWhereUnique: { id: environmentId },
-    });
+    // or the contract address does not exist on the blockchain.
+    await Promise.all([
+      this.checkUserPermission({
+        userId: callingUser.id,
+        environmentWhereUnique: { id: environmentId },
+      }),
+      this.checkContractAddressExists(net, address),
+    ]);
 
     try {
       return await this.prisma.contract.create({
@@ -501,6 +512,29 @@ export class ProjectsService {
       });
     } catch (e) {
       throw new VError(e, 'Failed while creating contract');
+    }
+  }
+
+  // Checks if the contract address exists on the Near blockchain.
+  private async checkContractAddressExists(
+    net: Net,
+    address: Contract['address'],
+  ) {
+    if (!this.contractAddressValidationEnabled) {
+      return;
+    }
+
+    const status = await this.nearRpc.checkAccountExists(net, address);
+    if (status === 'NOT_FOUND') {
+      throw new VError(
+        {
+          info: {
+            code: 'NOT_FOUND',
+            response: 'ADDRESS_NOT_FOUND',
+          },
+        },
+        'Contract address not found',
+      );
     }
   }
 

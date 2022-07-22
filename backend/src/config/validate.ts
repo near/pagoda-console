@@ -29,6 +29,7 @@ export interface AppConfig {
     connectionString: string;
   };
   rpcAuth: Record<Net, { url: string; credential: string; quota: number }>;
+  nearRpc: Record<Net, { url: string }>;
   recentTransactionsCount: number;
   projectRefPrefix: string;
   analytics: {
@@ -68,6 +69,14 @@ export interface AppConfig {
   };
   frontend: {
     baseUrl: string;
+  };
+  featureEnabled: {
+    core: {
+      contractAddressValidation: boolean;
+    };
+    alerts: {
+      contractAddressValidation: boolean;
+    };
   };
 }
 
@@ -116,6 +125,20 @@ const appConfigSchema = Joi.object({
       quota: Joi.number().integer(),
     }),
   },
+  nearRpc: {
+    TESTNET: {
+      url: Joi.string()
+        .uri({ scheme: 'https' })
+        .optional()
+        .default('https://rpc.testnet.near.org'),
+    },
+    MAINNET: Joi.object({
+      url: Joi.string()
+        .uri({ scheme: 'https' })
+        .optional()
+        .default('https://rpc.mainnet.near.org'),
+    }),
+  },
   recentTransactionsCount: Joi.number().integer(),
   projectRefPrefix: Joi.string().optional().default(''),
   analytics: {
@@ -162,6 +185,14 @@ const appConfigSchema = Joi.object({
   frontend: {
     baseUrl: Joi.string(),
   },
+  featureEnabled: {
+    core: {
+      contractAddressValidation: Joi.boolean().optional().default(true),
+    },
+    alerts: {
+      contractAddressValidation: Joi.boolean().optional().default(true),
+    },
+  },
 });
 
 export default function validate(config: Record<string, unknown>): AppConfig {
@@ -183,6 +214,14 @@ export default function validate(config: Record<string, unknown>): AppConfig {
         url: config.KEY_MANAGEMENT_URL_MAIN,
         credential: config.KEY_MANAGEMENT_CREDENTIALS_MAIN,
         quota: config.KEY_MANAGEMENT_QUOTA_MAIN,
+      },
+    },
+    nearRpc: {
+      TESTNET: {
+        url: config.NEAR_RPC_URL_TEST,
+      },
+      MAINNET: {
+        url: config.NEAR_RPC_URL_MAIN,
       },
     },
     recentTransactionsCount: config.RECENT_TRANSACTIONS_COUNT,
@@ -224,6 +263,16 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     },
     frontend: {
       baseUrl: config.FRONTEND_BASE_URL,
+    },
+    featureEnabled: {
+      core: {
+        contractAddressValidation:
+          config.CORE_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
+      },
+      alerts: {
+        contractAddressValidation:
+          config.ALERT_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
+      },
     },
   };
 

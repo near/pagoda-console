@@ -50,6 +50,8 @@ import {
   VerifyEmailDto,
   ResendEmailVerificationDto,
   ResendEmailVerificationSchema,
+  UnsubscribeFromEmailAlertDto,
+  UnsubscribeFromEmailAlertSchema,
 } from './dto';
 import { TelegramService } from './telegram/telegram.service';
 import { TgUpdate } from './telegram/types';
@@ -383,18 +385,34 @@ export class AlertsController {
       throw mapError(e);
     }
   }
+
+  @Post('unsubscribeFromEmailAlert')
+  @HttpCode(200)
+  @UsePipes(new JoiValidationPipe(UnsubscribeFromEmailAlertSchema))
+  async unsubscribeFromEmailAlert(
+    @Body() { token }: UnsubscribeFromEmailAlertDto,
+  ) {
+    try {
+      await this.alertsService.unsubscribeFromEmailAlert(token);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
 }
 
 function mapError(e: Error) {
   // TODO log in dev
   // console.error(e);
-  switch (VError.info(e)?.code) {
+  const errorInfo = VError.info(e);
+  switch (errorInfo?.code) {
     case 'PERMISSION_DENIED':
       return new ForbiddenException();
     case 'BAD_DESTINATION':
     case 'BAD_ALERT':
     case 'BAD_TOKEN_EXPIRED':
       return new BadRequestException();
+    case 'NOT_FOUND':
+      return new BadRequestException(errorInfo.response);
     default:
       return e;
   }

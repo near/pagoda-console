@@ -1,10 +1,18 @@
+/*
+  Generates mock Triggered Alert data.
+  Run by (globally) installing ts-node then run
+    ts-node alertHistory.seed.ts
+
+  Creates 10 records with a 1s delay between records. To create more, change line 59.
+*/
+
 import { Alert, PrismaClient } from '../../../generated/prisma/alerts';
 import { createHash, randomBytes } from 'crypto';
 const prisma = new PrismaClient();
 
 function randomHash() {
   const randomString = randomBytes(20).toString('hex');
-  return createHash('sha256').update(randomString).digest('hex');
+  return createHash('sha256').update(randomString).digest('base64');
 }
 
 async function createTriggeredAlertAndScheduleNext(
