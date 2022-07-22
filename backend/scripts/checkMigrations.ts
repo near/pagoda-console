@@ -20,7 +20,7 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 */
 
-import { readFileSync } from 'fs';
+import { promises as fsPromises } from 'fs';
 
 const BLACKLISTED_SQL_CODE = [
   // Audit table is created and maintained outside of Prisma. Prisma will attempt to delete it.
@@ -30,15 +30,23 @@ const BLACKLISTED_SQL_CODE = [
   'CREATE UNIQUE INDEX "User_email_key" ON "User"("email");',
 ];
 
-function checkMigrations() {
-  const path = process.argv[2];
-  const contents = readFileSync(path, 'utf-8');
+async function checkMigrationsAsync() {
+  const [_n, _s, ...paths] = process.argv;
 
-  for (const bl of BLACKLISTED_SQL_CODE) {
-    if (contents.includes(bl)) {
-      throw `Please remove the following code from the file at ${path}: ${bl}`;
-    }
-  }
+  await Promise.all(
+    paths.map(async (path) => {
+      const contents = await fsPromises.readFile(path, 'utf-8');
+
+      for (const bl of BLACKLISTED_SQL_CODE) {
+        if (contents.includes(bl)) {
+          throw `Please remove the following code from the file at ${path}: ${bl}`;
+        }
+      }
+    }),
+  );
 }
 
-checkMigrations();
+checkMigrationsAsync().catch((e) => {
+  console.error(e);
+  process.exit(-1);
+});
