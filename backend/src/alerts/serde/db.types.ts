@@ -1,22 +1,20 @@
-export type NumberComparator =
-  | 'GREATER_THAN'
-  | 'GREATER_THAN_OR_EQUAL'
-  | 'LESS_THAN'
-  | 'LESS_THAN_OR_EQUAL'
-  | 'EQUAL';
-//| 'NOT_EQUAL';
+export type ComparatorKind =
+  | 'RELATIVE_YOCTONEAR_AMOUNT'
+  | 'RELATIVE_PERCENTAGE_AMOUNT';
 
 export interface MatchingRule {
   rule:
     | 'ACTION_ANY'
     | 'ACTION_FUNCTION_CALL'
-    | 'EVENT_ANY'
+    | 'EVENT'
     | 'STATE_CHANGE_ACCOUNT_BALANCE';
+}
+
+export interface TxMatchingRule extends MatchingRule {
+  rule: 'ACTION_ANY';
   status: 'SUCCESS' | 'FAIL' | 'ANY';
   affected_account_id: string;
 }
-
-export type TxMatchingRule = MatchingRule;
 
 export interface FnCallMatchingRule extends MatchingRule {
   rule: 'ACTION_FUNCTION_CALL';
@@ -26,19 +24,19 @@ export interface FnCallMatchingRule extends MatchingRule {
 }
 
 export interface EventMatchingRule extends MatchingRule {
-  rule: 'EVENT_ANY';
-  affected_account_id: string;
-  status: 'ANY';
-  event: string;
+  rule: 'EVENT';
+  contract_account_id: string;
   standard: string;
   version: string;
+  event: string;
 }
 
 export interface AcctBalMatchingRule extends MatchingRule {
   rule: 'STATE_CHANGE_ACCOUNT_BALANCE';
-  affected_account_id: string;
-  status: 'ANY';
-  amount: number;
-  comparator: NumberComparator;
-  percentage: boolean;
+  contract_account_id: string;
+  comparator_kind: ComparatorKind;
+  comparator_range: {
+    from: string; // yoctoNEAR,
+    to: string; // yoctoNEAR
+  };
 }

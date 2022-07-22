@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { assertUnreachable } from 'src/helpers';
+import { VError } from 'verror';
 import {
   AcctBalMatchingRule,
+  ComparatorKind,
   EventMatchingRule,
   FnCallMatchingRule,
-  NumberComparator,
   TxMatchingRule,
 } from '../db.types';
 import {
   AcctBalRuleDto,
   EventRuleDto,
   FnCallRuleDto,
-  NumberComparator as DtoNumberComparator,
+  RuleType,
   TxRuleDto,
 } from '../dto.types';
 
@@ -44,43 +44,37 @@ export class RuleSerializerService {
 
   toEventJson(rule: EventRuleDto): EventMatchingRule {
     return {
-      rule: 'EVENT_ANY',
-      affected_account_id: rule.contract,
-      status: 'ANY',
-      event: rule.event,
+      rule: 'EVENT',
+      contract_account_id: rule.contract,
       standard: rule.standard,
       version: rule.version,
+      event: rule.event,
     };
   }
 
-  toAcctBalJson(
-    rule: AcctBalRuleDto,
-    percentage: boolean,
-  ): AcctBalMatchingRule {
+  toAcctBalJson(rule: AcctBalRuleDto, ruleType: RuleType): AcctBalMatchingRule {
     return {
       rule: 'STATE_CHANGE_ACCOUNT_BALANCE',
-      affected_account_id: rule.contract,
-      status: 'ANY',
-      amount: rule.amount,
-      comparator: this.convertComparator(rule.comparator),
-      percentage,
+      contract_account_id: rule.contract,
+      comparator_kind: this.ruleTypeToComparatorKind(ruleType),
+      comparator_range: {
+        from: rule.from,
+        to: rule.to,
+      },
     };
   }
 
-  private convertComparator(c: DtoNumberComparator): NumberComparator {
-    switch (c) {
-      case 'GT':
-        return 'GREATER_THAN';
-      case 'GTE':
-        return 'GREATER_THAN_OR_EQUAL';
-      case 'LT':
-        return 'LESS_THAN';
-      case 'LTE':
-        return 'LESS_THAN_OR_EQUAL';
-      case 'EQ':
-        return 'EQUAL';
+  private ruleTypeToComparatorKind(ruleType: RuleType): ComparatorKind {
+    switch (ruleType) {
+      case 'ACCT_BAL_PCT':
+        return 'RELATIVE_PERCENTAGE_AMOUNT';
+      case 'ACCT_BAL_NUM':
+        return 'RELATIVE_YOCTONEAR_AMOUNT';
       default:
-        assertUnreachable(c);
+        throw new VError(
+          { info: { code: 'BAD_ALERT' } },
+          'Error while converting rule type to comparator kind',
+        );
     }
   }
 }

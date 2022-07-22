@@ -17,8 +17,8 @@ export interface EventRuleDto {
 }
 export interface AcctBalRuleDto {
   contract: string;
-  comparator: NumberComparator;
-  amount: number;
+  from: string;
+  to: string;
 }
 
 export type RuleType =
@@ -28,7 +28,5 @@ export type RuleType =
   | 'EVENT'
   | 'ACCT_BAL_PCT'
   | 'ACCT_BAL_NUM';
-
-export type NumberComparator = 'GT' | 'GTE' | 'LT' | 'LTE' | 'EQ';
 
 export type Net = 'MAINNET' | 'TESTNET';

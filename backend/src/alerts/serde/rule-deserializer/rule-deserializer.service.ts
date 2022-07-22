@@ -5,14 +5,12 @@ import {
   EventMatchingRule,
   FnCallMatchingRule,
   MatchingRule,
-  NumberComparator,
   TxMatchingRule,
 } from '../db.types';
 import {
   AcctBalRuleDto,
   EventRuleDto,
   FnCallRuleDto,
-  NumberComparator as DtoNumberComparator,
   TxRuleDto,
 } from '../dto.types';
 
@@ -27,7 +25,7 @@ export class RuleDeserializerService {
         return this.toTxDto(rule as TxMatchingRule);
       case 'ACTION_FUNCTION_CALL':
         return this.toFnCallDto(rule as FnCallMatchingRule);
-      case 'EVENT_ANY':
+      case 'EVENT':
         return this.toEventDto(rule as EventMatchingRule);
       case 'STATE_CHANGE_ACCOUNT_BALANCE':
         return this.toAcctBalDto(rule as AcctBalMatchingRule);
@@ -51,7 +49,7 @@ export class RuleDeserializerService {
 
   private toEventDto(rule: EventMatchingRule): EventRuleDto {
     return {
-      contract: rule.affected_account_id,
+      contract: rule.contract_account_id,
       event: rule.event,
       standard: rule.standard,
       version: rule.version,
@@ -60,26 +58,9 @@ export class RuleDeserializerService {
 
   private toAcctBalDto(rule: AcctBalMatchingRule): AcctBalRuleDto {
     return {
-      contract: rule.affected_account_id,
-      amount: rule.amount,
-      comparator: this.convertComparator(rule.comparator),
+      contract: rule.contract_account_id,
+      from: rule.comparator_range.from,
+      to: rule.comparator_range.to,
     };
-  }
-
-  private convertComparator(c: NumberComparator): DtoNumberComparator {
-    switch (c) {
-      case 'GREATER_THAN':
-        return 'GT';
-      case 'GREATER_THAN_OR_EQUAL':
-        return 'GTE';
-      case 'LESS_THAN':
-        return 'LT';
-      case 'LESS_THAN_OR_EQUAL':
-        return 'LTE';
-      case 'EQUAL':
-        return 'EQ';
-      default:
-        assertUnreachable(c);
-    }
   }
 }

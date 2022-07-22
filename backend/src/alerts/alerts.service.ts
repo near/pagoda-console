@@ -20,10 +20,14 @@ import { customAlphabet } from 'nanoid';
 
 import { PrismaService } from './prisma.service';
 import { VError } from 'verror';
-import { NumberComparator, PremapDestination, RuleType } from './types';
+import { PremapDestination, RuleType } from './types';
 import { RuleSerializerService } from './serde/rule-serializer/rule-serializer.service';
 import { RuleDeserializerService } from './serde/rule-deserializer/rule-deserializer.service';
-import { AcctBalMatchingRule, MatchingRule } from './serde/db.types';
+import {
+  AcctBalMatchingRule,
+  MatchingRule,
+  TxMatchingRule,
+} from './serde/db.types';
 import { ReadonlyService as ProjectsReadonlyService } from 'src/projects/readonly.service';
 import { assertUnreachable } from 'src/helpers';
 import { AppConfig } from 'src/config/validate';
@@ -57,8 +61,8 @@ type EventRuleSchema = {
 type AcctBalRuleSchema = {
   rule: {
     contract: string;
-    comparator: NumberComparator;
-    amount: number;
+    from: string;
+    to: string;
   };
 };
 
@@ -269,7 +273,7 @@ export class AlertsService {
     };
     const matchingRule = this.ruleSerializer.toAcctBalJson(
       alert.rule,
-      alert.type === 'ACCT_BAL_PCT',
+      alert.type,
     );
 
     return this.createAlertRuleWithContract(user, alert, matchingRule);
@@ -605,11 +609,17 @@ export class AlertsService {
   }
 
   public toAlertType(rule: MatchingRule): RuleType {
-    if (rule.rule === 'ACTION_ANY' && rule.status === 'SUCCESS') {
+    if (
+      rule.rule === 'ACTION_ANY' &&
+      (rule as TxMatchingRule).status === 'SUCCESS'
+    ) {
       return 'TX_SUCCESS';
     }
 
-    if (rule.rule === 'ACTION_ANY' && rule.status === 'FAIL') {
+    if (
+      rule.rule === 'ACTION_ANY' &&
+      (rule as TxMatchingRule).status === 'FAIL'
+    ) {
       return 'TX_FAILURE';
     }
 
@@ -617,19 +627,19 @@ export class AlertsService {
       return 'FN_CALL';
     }
 
-    if (rule.rule === 'EVENT_ANY') {
+    if (rule.rule === 'EVENT') {
       return 'EVENT';
     }
 
     if (rule.rule === 'STATE_CHANGE_ACCOUNT_BALANCE') {
-      return (rule as AcctBalMatchingRule).percentage
+      return (rule as AcctBalMatchingRule).comparator_kind ===
+        'RELATIVE_PERCENTAGE_AMOUNT'
         ? 'ACCT_BAL_PCT'
         : 'ACCT_BAL_NUM';
     }
 
     throw new VError('Failed while deserializing alert type', {
       rule: rule.rule,
-      status: rule.status,
     });
   }
 
