@@ -403,13 +403,16 @@ export class AlertsController {
 function mapError(e: Error) {
   // TODO log in dev
   // console.error(e);
-  switch (VError.info(e)?.code) {
+  const errorInfo = VError.info(e);
+  switch (errorInfo?.code) {
     case 'PERMISSION_DENIED':
       return new ForbiddenException();
     case 'BAD_DESTINATION':
     case 'BAD_ALERT':
     case 'BAD_TOKEN_EXPIRED':
       return new BadRequestException();
+    case 'NOT_FOUND':
+      return new BadRequestException(errorInfo.response);
     default:
       return e;
   }
