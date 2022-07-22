@@ -16,6 +16,9 @@ import {
   ListTriggeredAlertSchema,
   ListTriggeredAlertDto,
   TriggeredAlertsResponseDto,
+  GetTriggeredAlertDetailsSchema,
+  TriggeredAlertDetailsResponseDto,
+  GetTriggeredAlertDetailsDto,
 } from '../dto';
 
 @Controller('triggeredAlerts')
@@ -50,6 +53,23 @@ export class TriggeredAlertsController {
         take || 100,
         pagingDateTime,
         alertId,
+      );
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('getTriggeredAlertDetails')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(GetTriggeredAlertDetailsSchema))
+  async getTriggeredAlertDetails(
+    @Request() req,
+    @Body() { slug }: GetTriggeredAlertDetailsDto,
+  ): Promise<TriggeredAlertDetailsResponseDto> {
+    try {
+      return await this.triggeredAlertsService.getTriggeredAlertDetails(
+        req.user,
+        slug,
       );
     } catch (e) {
       throw mapError(e);

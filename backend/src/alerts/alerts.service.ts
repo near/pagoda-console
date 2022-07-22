@@ -156,6 +156,11 @@ const nanoid = customAlphabet(
   12,
 );
 
+const nanoidLong = customAlphabet(
+  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+  30,
+);
+
 type AlertWithDestinations = Alert & {
   enabledDestinations: Array<{
     destination: {
@@ -1105,6 +1110,7 @@ export class AlertsService {
               isVerified: true,
               token: null,
               tokenExpiresAt: null,
+              unsubscribeToken: nanoidLong(),
             },
           },
         },
@@ -1176,6 +1182,26 @@ export class AlertsService {
       );
     } catch (e) {
       throw new VError(e, 'Failed while resending email verification');
+    }
+  }
+
+  async unsubscribeFromEmailAlert(token: EmailDestination['unsubscribeToken']) {
+    try {
+      await this.prisma.emailDestination.update({
+        where: {
+          unsubscribeToken: token,
+        },
+        data: {
+          unsubscribeToken: null,
+          destination: {
+            update: {
+              active: false,
+            },
+          },
+        },
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while unsubscribing from email alerts');
     }
   }
 
