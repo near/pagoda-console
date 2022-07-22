@@ -347,7 +347,7 @@ function AlertSettings({ alert }: { alert: Alert }) {
 
     return (
       <Wrapper>
-        <H6>{comparator.name} (yoctoⓃ):</H6>
+        <H6>{comparator.name} (yoctoⓃ)</H6>
 
         <Text>
           {comparator.value === 'RANGE' && (
