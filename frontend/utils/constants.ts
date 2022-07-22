@@ -1,5 +1,6 @@
 export const formRegex = {
   contractAddressWildcard: /^(([a-z\d\*]+[\-_])*[a-z\d\*]+\.)*([a-z\d]+[\-_])*[a-z\d]+$/,
+  contractAddress: /^(([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+$/,
   email: /^(.+)@(.+)[^.]$/,
   password: /.{6,}/,
   url: /^https:\/\/.+\..+/,
