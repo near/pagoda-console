@@ -74,6 +74,7 @@ const NewAlert: NextPageWithLayout = () => {
   const acctBalRuleComparator = form.watch('acctBalRule.comparator');
   const acctBalNumRuleFrom = form.watch('acctBalNumRule.from');
   const acctBalNumRuleTo = form.watch('acctBalNumRule.to');
+  const acctBalPctRuleFrom = form.watch('acctBalPctRule.from');
 
   useEffect(() => {
     if (contracts) {
@@ -353,7 +354,10 @@ const NewAlert: NextPageWithLayout = () => {
                             placeholder="eg: 1,000"
                             isInvalid={!!form.formState.errors.acctBalNumRule?.from}
                             isNumber
-                            onInput={numberInputHandler}
+                            onInput={(event) => {
+                              numberInputHandler(event);
+                              form.clearErrors('acctBalNumRule.to');
+                            }}
                             onFocus={() => setFocusedInputName('acctBalNumRule.from')}
                             {...mergeInputProps(
                               form.register('acctBalNumRule.from', {
@@ -394,6 +398,9 @@ const NewAlert: NextPageWithLayout = () => {
                                   setValueAs: (value) => sanitizeNumber(value),
                                   required: 'Please enter an amount',
                                   validate: {
+                                    minValue: (value) =>
+                                      new BN(value || '', 10).gt(new BN(acctBalNumRuleFrom || '', 10)) ||
+                                      'Must be greater than "From Amount"',
                                     maxValue: (value) => new BN(value || '', 10).lte(U128) || 'Must be less than 2^128',
                                   },
                                 }),
@@ -418,7 +425,10 @@ const NewAlert: NextPageWithLayout = () => {
                           placeholder="eg: 30"
                           isInvalid={!!form.formState.errors.acctBalPctRule?.from}
                           isNumber
-                          onInput={numberInputHandler}
+                          onInput={(event) => {
+                            numberInputHandler(event);
+                            form.clearErrors('acctBalPctRule.to');
+                          }}
                           {...form.register('acctBalPctRule.from', {
                             setValueAs: (value) => sanitizeNumber(value),
                             required: 'Please enter a percentage',
@@ -443,6 +453,9 @@ const NewAlert: NextPageWithLayout = () => {
                               setValueAs: (value) => sanitizeNumber(value),
                               required: 'Please enter a percentage',
                               validate: {
+                                minValue: (value) =>
+                                  Number(value) > Number(acctBalPctRuleFrom) ||
+                                  'Must be greater than "From Percentage"',
                                 maxValue: (value) => Number(value) <= 100 || 'Must be 100 or less',
                               },
                             })}
@@ -648,16 +661,9 @@ function returnAcctBalBody(comparator: AmountComparator, { from, to }: { from: s
     case 'LTE':
       return {
         from: null,
-        to,
+        to: from,
       };
     case 'RANGE':
-      const fromIsGreater = new BN(from, 10).lt(new BN(to, 10));
-      if (fromIsGreater) {
-        return {
-          from: to,
-          to: from,
-        };
-      }
       return {
         from,
         to,
