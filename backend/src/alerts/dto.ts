@@ -10,6 +10,7 @@ import {
   RuleType,
   TxRuleDto,
 } from './serde/dto.types';
+import { BN } from 'bn.js';
 
 const TxRuleSchema = Joi.object({
   contract: Joi.string().required(),
@@ -39,10 +40,11 @@ const AcctBalPctRuleSchema = Joi.object({
 });
 
 const validateYoctonearAmount = (value, _) => {
-  const upperBound = '340282366920938463463374607431768211456'; // 2^128
-  if ((value as string).localeCompare(upperBound) !== -1) {
+  const bnValue = new BN(value);
+  const upperBound = new BN('340282366920938463463374607431768211456'); // 2^128
+  if (bnValue.ltn(0) || bnValue.gte(upperBound)) {
     throw Error(
-      'Values "to" and "from" should be integers within the range of [0, 2^128]',
+      'Values "to" and "from" should be integers within the range of [0, 2^128)',
     );
   }
 };
