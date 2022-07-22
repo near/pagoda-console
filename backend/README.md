@@ -58,7 +58,7 @@ Wipe the contents of the database (as needed) and apply all migrations
 npx prisma migrate reset
 ```
 
-To create a new migration. This will attempt to delete the Audit table since it cannot be defined in the Prisma schema. Please remove this code from your migration!
+To create a new migration. This will attempt to delete custom SQL entities (e.g. Audit table) since it cannot be defined in the Prisma schema. Please remove this code from your migration!
 
 ```
 npx prisma migrate dev --create-only
