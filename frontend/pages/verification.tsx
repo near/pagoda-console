@@ -59,7 +59,7 @@ const Verification: NextPageWithLayout = () => {
       <Flex stack align="center">
         <Text>
           A verification message {existing ? 'was previously' : 'has been'} sent to your email address.{' '}
-          {existing && 'If it has expired, click below to send a new one:'}.
+          {existing && 'If it has expired, click below to send a new one:'}
         </Text>
 
         {!hasResent ? (
