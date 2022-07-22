@@ -385,7 +385,7 @@ function AlertSettings({ alert }: { alert: Alert }) {
     return (
       <Wrapper>
         <Flex gap="s">
-          <H6>{comparator.name}:</H6>
+          <H6>{comparator.name}</H6>
 
           <Text>
             {comparator.value === 'RANGE' && (
