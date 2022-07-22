@@ -305,17 +305,7 @@ const EditAlert: NextPageWithLayout = () => {
                 </Flex>
               </Flex>
 
-              <AlertSettings
-                alert={{
-                  ...alert,
-                  type: 'ACCT_BAL_NUM',
-                  rule: {
-                    contract: alert.rule.contract,
-                    from: null,
-                    to: '3454000000000000000000000',
-                  },
-                }}
-              />
+              <AlertSettings alert={alert} />
             </Flex>
 
             <HR />
