@@ -53,6 +53,16 @@ export const Text = styled('p', {
       },
     },
 
+    hasTooltip: {
+      true: {
+        cursor: 'help',
+        transition: 'var(--transitions)',
+        '&:hover': {
+          color: 'var(--color-primary)',
+        },
+      },
+    },
+
     size: {
       current: {
         fontSize: 'inherit',

@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import type { ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { Button } from '@/components/lib/Button';
+import { Button, ButtonLink } from '@/components/lib/Button';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
-import { H3, H4 } from '@/components/lib/Heading';
+import { H3, H4, H6 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
@@ -15,6 +16,7 @@ import { Switch } from '@/components/lib/Switch';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
+import { Tooltip } from '@/components/lib/Tooltip';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { DeleteAlertModal } from '@/modules/alerts/components/DeleteAlertModal';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
@@ -25,7 +27,9 @@ import {
   useAlert,
 } from '@/modules/alerts/hooks/alerts';
 import { alertTypes, amountComparators } from '@/modules/alerts/utils/constants';
-import type { Destination } from '@/modules/alerts/utils/types';
+import type { Alert, Destination } from '@/modules/alerts/utils/types';
+import { formatNumber } from '@/utils/format-number';
+import { formatYoctoNear } from '@/utils/format-yocto-near';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface NameFormData {
@@ -263,6 +267,12 @@ const EditAlert: NextPageWithLayout = () => {
                       <FeatherIcon icon="pause" size="xs" data-off />
                     </Switch>
 
+                    <Link href={`/alerts?tab=activity&alertId=${alert.id}`} passHref>
+                      <ButtonLink size="s" aria-label="View Alert Activity" color="primaryBorder">
+                        <FeatherIcon icon="list" size="xs" />
+                      </ButtonLink>
+                    </Link>
+
                     <Button size="s" aria-label="Delete Alert" color="danger" onClick={() => setShowDeleteModal(true)}>
                       <FeatherIcon icon="trash-2" size="xs" />
                     </Button>
@@ -278,9 +288,7 @@ const EditAlert: NextPageWithLayout = () => {
 
               <Flex align="center">
                 <FeatherIcon icon="zap" color="text3" />
-                <Text color="text1" weight="semibold">
-                  {alert.rule.contract}
-                </Text>
+                <H6>{alert.rule.contract}</H6>
               </Flex>
             </Flex>
 
@@ -292,64 +300,12 @@ const EditAlert: NextPageWithLayout = () => {
               <Flex align="center">
                 <FeatherIcon icon={alertTypes[alert.type].icon} color="text3" />
                 <Flex stack gap="none">
-                  <Text color="text1" weight="semibold">
-                    {alertTypes[alert.type].name}
-                  </Text>
+                  <H6>{alertTypes[alert.type].name}</H6>
                   <Text>{alertTypes[alert.type].description}</Text>
                 </Flex>
               </Flex>
 
-              {(alert.type === 'ACCT_BAL_NUM' || alert.type === 'ACCT_BAL_PCT') && (
-                <Flex align="center">
-                  <FeatherIcon icon="settings" color="text3" />
-
-                  <Text>
-                    {amountComparators[alert.rule.comparator].name}{' '}
-                    <Text as="span" color="text1" family="number">
-                      {alert.rule.amount}
-                      {alert.type === 'ACCT_BAL_PCT' ? '%' : ''}
-                    </Text>
-                  </Text>
-                </Flex>
-              )}
-
-              {alert.type === 'EVENT' && (
-                <Flex align="center">
-                  <FeatherIcon icon="settings" color="text3" />
-                  <Flex stack gap="none">
-                    <Text>
-                      Event Name:{' '}
-                      <Text as="span" color="text1" family="number">
-                        {alert.rule.event}
-                      </Text>
-                    </Text>
-                    <Text>
-                      Standard:{' '}
-                      <Text as="span" color="text1" family="number">
-                        {alert.rule.standard}
-                      </Text>
-                    </Text>
-                    <Text>
-                      Version:{' '}
-                      <Text as="span" color="text1" family="number">
-                        {alert.rule.version}
-                      </Text>
-                    </Text>
-                  </Flex>
-                </Flex>
-              )}
-
-              {alert.type === 'FN_CALL' && (
-                <Flex align="center">
-                  <FeatherIcon icon="settings" color="text3" />
-                  <Text>
-                    Function Name:{' '}
-                    <Text as="span" color="text1" family="number">
-                      {alert.rule.function}
-                    </Text>
-                  </Text>
-                </Flex>
-              )}
+              <AlertSettings alert={alert} />
             </Flex>
 
             <HR />
@@ -373,6 +329,138 @@ const EditAlert: NextPageWithLayout = () => {
     </Section>
   );
 };
+
+function AlertSettings({ alert }: { alert: Alert }) {
+  function Wrapper({ children }: { children: ReactNode }) {
+    return (
+      <Flex align="center">
+        <FeatherIcon icon="settings" color="text3" />
+        <Flex stack gap="none">
+          {children}
+        </Flex>
+      </Flex>
+    );
+  }
+
+  if (alert.type === 'ACCT_BAL_NUM') {
+    const comparator = returnAmountComparator(alert.rule.from, alert.rule.to);
+
+    return (
+      <Wrapper>
+        <H6>{comparator.name} (yoctoⓃ)</H6>
+
+        <Text>
+          {comparator.value === 'RANGE' && (
+            <>
+              <Tooltip number content={formatYoctoNear(alert.rule.from!)}>
+                <Text as="span" family="number" hasTooltip>
+                  {formatNumber(alert.rule.from!)}{' '}
+                </Text>
+              </Tooltip>
+              <Text as="span" color="text3">
+                ..
+              </Text>{' '}
+              <Tooltip content={formatYoctoNear(alert.rule.to!)}>
+                <Text as="span" family="number" hasTooltip>
+                  {formatNumber(alert.rule.to!)}
+                </Text>
+              </Tooltip>
+            </>
+          )}
+          {comparator.value !== 'RANGE' && (
+            <Tooltip number content={formatYoctoNear(alert.rule.from || alert.rule.to || '')}>
+              <Text as="span" family="number" hasTooltip>
+                {formatNumber(alert.rule.from || alert.rule.to || '')}
+              </Text>
+            </Tooltip>
+          )}
+        </Text>
+      </Wrapper>
+    );
+  }
+
+  if (alert.type === 'ACCT_BAL_PCT') {
+    const comparator = returnAmountComparator(alert.rule.from, alert.rule.to);
+
+    return (
+      <Wrapper>
+        <Flex gap="s">
+          <H6>{comparator.name}</H6>
+
+          <Text>
+            {comparator.value === 'RANGE' && (
+              <>
+                <Text as="span" family="number">
+                  {alert.rule.from}%
+                </Text>{' '}
+                <Text as="span" color="text3">
+                  ..
+                </Text>{' '}
+                <Text as="span" family="number">
+                  {alert.rule.to}%
+                </Text>
+              </>
+            )}
+            {comparator.value !== 'RANGE' && (
+              <>
+                <Text as="span" family="number">
+                  {alert.rule.from || alert.rule.to}%
+                </Text>
+              </>
+            )}
+          </Text>
+        </Flex>
+      </Wrapper>
+    );
+  }
+
+  if (alert.type === 'EVENT') {
+    return (
+      <Wrapper>
+        <Text>
+          Event Name:{' '}
+          <Text as="span" color="text1" family="number">
+            {alert.rule.event}
+          </Text>
+        </Text>
+        <Text>
+          Standard:{' '}
+          <Text as="span" color="text1" family="number">
+            {alert.rule.standard}
+          </Text>
+        </Text>
+        <Text>
+          Version:{' '}
+          <Text as="span" color="text1" family="number">
+            {alert.rule.version}
+          </Text>
+        </Text>
+      </Wrapper>
+    );
+  }
+
+  if (alert.type === 'FN_CALL') {
+    return (
+      <Wrapper>
+        <Text>
+          Function Name:{' '}
+          <Text as="span" color="text1" family="number">
+            {alert.rule.function}
+          </Text>
+        </Text>
+      </Wrapper>
+    );
+  }
+
+  return null;
+}
+
+function returnAmountComparator(from: string | null, to: string | null) {
+  if (from === to) return amountComparators.EQ;
+  if (from === null) return amountComparators.LTE;
+  if (to === null) return amountComparators.GTE;
+  return amountComparators.RANGE;
+}
 
 EditAlert.getLayout = wrapDashboardLayoutWithOptions({
   redirect: {
