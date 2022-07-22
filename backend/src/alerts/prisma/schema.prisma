@@ -28,10 +28,10 @@ model Alert {
   chainId          ChainId       @map("chain_id")
   /// If 'false', the record was soft-deleted by a user.
   active           Boolean       @default(true)
-  createdAt        DateTime      @default(now()) @map("created_at")
+  createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz
   /// Reference to the user id who created the record.
   createdBy        Int           @map("created_by")
-  updatedAt        DateTime?     @updatedAt @map("updated_at")
+  updatedAt        DateTime?     @updatedAt @map("updated_at") @db.Timestamptz
   /// Reference to the user id who last updated the record.
   updatedBy        Int?          @map("updated_by")
 
@@ -64,10 +64,10 @@ model EnabledDestination {
   alertId       Int         @map("alert_id")
   destination   Destination @relation(fields: [destinationId], references: [id])
   destinationId Int         @map("destination_id")
-  createdAt     DateTime?   @default(now()) @map("created_at")
+  createdAt     DateTime?   @default(now()) @map("created_at") @db.Timestamptz
   /// Reference to the user id who created the record.
   createdBy     Int?        @map("created_by")
-  updatedAt     DateTime?   @updatedAt @map("updated_at")
+  updatedAt     DateTime?   @updatedAt @map("updated_at") @db.Timestamptz
   /// Reference to the user id who last updated the record.
   updatedBy     Int?        @map("updated_by")
 
@@ -82,10 +82,10 @@ model Destination {
   type                DestinationType
   active              Boolean              @default(true)
   isValid             Boolean              @default(false) @map("is_valid")
-  createdAt           DateTime?            @default(now()) @map("created_at")
+  createdAt           DateTime?            @default(now()) @map("created_at") @db.Timestamptz
   /// Reference to the user id who created the record.
   createdBy           Int?                 @map("created_by")
-  updatedAt           DateTime?            @updatedAt @map("updated_at")
+  updatedAt           DateTime?            @updatedAt @map("updated_at") @db.Timestamptz
   /// Reference to the user id who last updated the record.
   updatedBy           Int?                 @map("updated_by")
   EnabledDestination  EnabledDestination[]
@@ -94,6 +94,7 @@ model Destination {
   telegramDestination TelegramDestination?
 
   TriggeredAlertDestination TriggeredAlertDestination[]
+
   @@map("destinations")
 }
 
@@ -104,10 +105,10 @@ model WebhookDestination {
   url           String
   /// A webhook API token for verifiying the sender.
   secret        String
-  createdAt     DateTime?   @default(now()) @map("created_at")
+  createdAt     DateTime?   @default(now()) @map("created_at") @db.Timestamptz
   /// Reference to the user id who created the record.
   createdBy     Int?        @map("created_by")
-  updatedAt     DateTime?   @updatedAt @map("updated_at")
+  updatedAt     DateTime?   @updatedAt @map("updated_at") @db.Timestamptz
   /// Reference to the user id who last updated the record.
   updatedBy     Int?        @map("updated_by")
 
@@ -115,23 +116,23 @@ model WebhookDestination {
 }
 
 model EmailDestination {
-  id             Int         @id @default(autoincrement())
-  destination    Destination @relation(fields: [destinationId], references: [id])
-  destinationId  Int         @unique @map("destination_id")
-  email          String
+  id               Int         @id @default(autoincrement())
+  destination      Destination @relation(fields: [destinationId], references: [id])
+  destinationId    Int         @unique @map("destination_id")
+  email            String
   /// Verification token sent to the user's email address
-  token          String?     @unique
-  isVerified     Boolean     @default(false) @map("is_verified")
+  token            String?     @unique
+  isVerified       Boolean     @default(false) @map("is_verified")
   // Token's expiry date
-  tokenExpiresAt DateTime?   @map("token_expires_at")
+  tokenExpiresAt   DateTime?   @map("token_expires_at") @db.Timestamptz
   // Token used to unsubscribe from alert emails
-  unsubscribeToken String?    @unique @map("unsubscribe_token")
-  createdAt      DateTime?   @default(now()) @map("created_at")
+  unsubscribeToken String?     @unique @map("unsubscribe_token")
+  createdAt        DateTime?   @default(now()) @map("created_at") @db.Timestamptz
   /// Reference to the user id who created the record.
-  createdBy      Int?        @map("created_by")
-  updatedAt      DateTime?   @updatedAt @map("updated_at")
+  createdBy        Int?        @map("created_by")
+  updatedAt        DateTime?   @updatedAt @map("updated_at") @db.Timestamptz
   /// Reference to the user id who last updated the record.
-  updatedBy      Int?        @map("updated_by")
+  updatedBy        Int?        @map("updated_by")
 
   @@map("email_destinations")
 }
@@ -148,11 +149,11 @@ model TelegramDestination {
   /// Token passed to bot—usually via /start command—to set up destination
   startToken     String?     @unique @map("start_token")
   /// Token's expiry date
-  tokenExpiresAt DateTime?   @map("token_expires_at")
-  createdAt      DateTime    @default(now()) @map("created_at")
+  tokenExpiresAt DateTime?   @map("token_expires_at") @db.Timestamptz
+  createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz
   /// Reference to the user id who created the record.
   createdBy      Int?        @map("created_by")
-  updatedAt      DateTime?   @updatedAt @map("updated_at")
+  updatedAt      DateTime?   @updatedAt @map("updated_at") @db.Timestamptz
   /// Reference to the user id who last updated the record.
   updatedBy      Int?        @map("updated_by")
 
@@ -179,6 +180,7 @@ model TriggeredAlert {
   extraData                  Json?    @map("extra_data")
 
   triggeredAlertDestinations TriggeredAlertDestination[]
+
   @@map("triggered_alerts")
 }
 
