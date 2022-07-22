@@ -342,11 +342,8 @@ const NewAlert: NextPageWithLayout = () => {
                     <>
                       <Form.Group>
                         <Tooltip
-                          content={
-                            <Text size="bodySmall" family="number" color="text1">
-                              {formatYoctoNear(acctBalNumRuleFrom)}
-                            </Text>
-                          }
+                          number
+                          content={formatYoctoNear(acctBalNumRuleFrom)}
                           root={{
                             open: focusedInputName === 'acctBalNumRule.from' && !!acctBalNumRuleFrom,
                           }}
@@ -379,11 +376,8 @@ const NewAlert: NextPageWithLayout = () => {
                       {acctBalRuleComparator === 'RANGE' && (
                         <Form.Group>
                           <Tooltip
-                            content={
-                              <Text size="bodySmall" family="number" color="text1">
-                                {formatYoctoNear(acctBalNumRuleTo)}
-                              </Text>
-                            }
+                            number
+                            content={formatYoctoNear(acctBalNumRuleTo)}
                             root={{
                               open: focusedInputName === 'acctBalNumRule.to' && !!acctBalNumRuleTo,
                             }}
