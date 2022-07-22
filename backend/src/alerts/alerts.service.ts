@@ -294,6 +294,11 @@ export class AlertsService {
 
   // Checks if the alert's address exists on the Near blockchain.
   private async checkAddressExists(net: ChainId, address: string) {
+    // Ignore trying to process any address containing a wildcard. We could refine this.
+    if (address.includes('*')) {
+      return;
+    }
+
     const status = await this.nearRpc.checkAccountExists(net, address);
     if (status === 'NOT_FOUND') {
       throw new VError(
