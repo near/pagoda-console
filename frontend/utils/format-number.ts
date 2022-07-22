@@ -3,5 +3,6 @@
 // 1234.5555 => 1,234.5555
 
 export function formatNumber(number: string | number) {
-  return number.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',');
+  const formatter = Intl.NumberFormat('en-US');
+  return formatter.format(number as number); // This method actually does support number or string
 }
