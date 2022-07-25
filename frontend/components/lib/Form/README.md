@@ -228,7 +228,7 @@ import { sanitizeNumber } from '@/utils/sanitize-number';
   onInput={numberInputHandler}
   {...form.register('myFieldName', {
     setValueAs: (value) => sanitizeNumber(value),
-    required: 'Please a number',
+    required: 'Please enter a number',
     validate: {
       maxValue: (value) => Number(value) <= 100 || 'Must be 100 or less',
     },
