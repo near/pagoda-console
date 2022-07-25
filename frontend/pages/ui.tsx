@@ -1941,6 +1941,8 @@ interface FakeForm {
   age: number;
   displayName: string;
   email: string;
+  longDescription1: string;
+  longDescription2: string;
   favoriteBook: string;
   favoriteFood: string;
   favoriteColorsBlue: boolean;
@@ -2008,6 +2010,71 @@ function DocSectionForm() {
             />
             <Form.Feedback>{form.formState.errors.email?.message}</Form.Feedback>
           </Form.Group>
+
+          <HR />
+
+          <H4>Textarea</H4>
+
+          <Text>A textarea can be manually resized by the user.</Text>
+
+          <Form.Group>
+            <Form.Label htmlFor="longDescription1">Description</Form.Label>
+            <Form.Textarea
+              id="longDescription1"
+              isInvalid={!!form.formState.errors.longDescription1}
+              placeholder="Write a really cool description..."
+              {...form.register('longDescription1', {
+                required: 'Please enter a description',
+              })}
+            />
+            <Form.Feedback>{form.formState.errors.longDescription1?.message}</Form.Feedback>
+          </Form.Group>
+
+          <HR />
+
+          <H4>Content Editable</H4>
+
+          <Text>
+            A content editable div behaves just like a textarea, but will automatically resize based on the placeholder
+            or as the user types.
+          </Text>
+
+          <Controller
+            name="longDescription2"
+            control={form.control}
+            rules={{
+              required: 'Please enter a description',
+            }}
+            render={({ field }) => {
+              return (
+                <Form.Group>
+                  <Form.Label htmlFor="longDescription2">Description</Form.Label>
+                  <Form.ContentEditable
+                    id="longDescription2"
+                    isInvalid={!!form.formState.errors.longDescription2}
+                    onBlur={field.onBlur}
+                    onInput={field.onChange}
+                    ref={field.ref}
+                    placeholder={`{
+    "myObject": {
+        "value1": "abc",
+        "value2": 123,
+        "value3": false,
+        "nestedObject": {
+            "nestedValue1": "abc",
+            "nestedValue2": 123,
+            "nestedValue3": false
+        }
+    }
+}`}
+                  >
+                    {field.value}
+                  </Form.ContentEditable>
+                  <Form.Feedback>{form.formState.errors.longDescription2?.message}</Form.Feedback>
+                </Form.Group>
+              );
+            }}
+          />
 
           <HR />
 

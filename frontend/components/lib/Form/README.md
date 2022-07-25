@@ -196,6 +196,77 @@ Other times, it makes more sense to set max widths on each `Form.Group` individu
 </Form.Root>
 ```
 
+## Textarea
+
+A textarea allows a user to type a long value and can be manually resized:
+
+```tsx
+<Form.Group>
+  <Form.Label htmlFor="description">Long Description</Form.Label>
+  <Form.Textarea
+    id="description"
+    isInvalid={!!form.formState.errors.description}
+    placeholder="Write a really cool description..."
+    {...form.register('description', {
+      required: 'Please enter a description',
+    })}
+  />
+  <Form.Feedback>{form.formState.errors.description?.message}</Form.Feedback>
+</Form.Group>
+```
+
+Sometimes it makes sense to change the default height:
+
+```tsx
+<Form.Textarea ... css={{ minHeight: '20rem' }} />
+```
+
+## Content Editable
+
+A content editable div behaves just like a textarea, but will automatically resize based on the placeholder or as the user types. Due to the complexities of using a `<div>` instead of a native `<textarea>`, we'll need to use the React Hook Form `Controller` component instead of `register()`:
+
+```tsx
+<Controller
+  name="description"
+  control={form.control}
+  rules={{
+    required: 'Please enter a description',
+  }}
+  render={({ field }) => {
+    return (
+      <Form.Group>
+        <Form.Label htmlFor="description">Description</Form.Label>
+        <Form.ContentEditable
+          id="description"
+          isInvalid={!!form.formState.errors.description}
+          onBlur={field.onBlur}
+          onInput={field.onChange}
+          ref={field.ref}
+          placeholder="Write a really cool description..."
+        >
+          {field.value}
+        </Form.ContentEditable>
+        <Form.Feedback>{form.formState.errors.description?.message}</Form.Feedback>
+      </Form.Group>
+    );
+  }}
+/>
+```
+
+Also note that we need to map `field.onChange` to the `onInput` handler like so: `onInput={field.onChange}` (a `<div>` does not have a native `onChange` event).
+
+Sometimes it makes sense to change the default height:
+
+```tsx
+<Form.ContentEditable ... css={{ minHeight: '20rem' }} />
+```
+
+You can also set a max height:
+
+```tsx
+<Form.ContentEditable ... css={{ maxHeight: '40rem' }} />
+```
+
 ## Checkboxes & Radios
 
 To implement checkboxes or radios in a form, please refer to `Checkbox/README.md` and `CheckboxCard/README.md`.
