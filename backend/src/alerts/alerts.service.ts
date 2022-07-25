@@ -61,8 +61,8 @@ type EventRuleSchema = {
 type AcctBalRuleSchema = {
   rule: {
     contract: string;
-    from: string;
-    to: string;
+    from: string | null;
+    to: string | null;
   };
 };
 
