@@ -105,7 +105,7 @@ const config: AppConfig = {
     : 'PRODUCTION', // default to production to be safe
   analyticsIframeUrl:
     process.env.NEXT_PUBLIC_ANALYTICS_IFRAME_URL ||
-    'https://metabase.app.wombi.xyz/share/dashboard/near-analytics-1qdbv6',
+    'https://metabase.app.wombi.xyz/share/dashboard/pagoda-wombi-dev-console-dashboard',
 };
 
 export default config;
