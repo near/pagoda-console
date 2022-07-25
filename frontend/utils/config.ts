@@ -69,6 +69,7 @@ interface AppConfig {
   downtimeMessage: string;
   downtimeMode: DowntimeMode | undefined;
   deployEnv: DeployEnvironment;
+  analyticsIframeUrl: string;
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
@@ -102,6 +103,9 @@ const config: AppConfig = {
   deployEnv: ['LOCAL', 'DEVELOPMENT', 'PRODUCTION'].includes(process.env.NEXT_PUBLIC_DEPLOY_ENV)
     ? (process.env.NEXT_PUBLIC_DEPLOY_ENV as DeployEnvironment)
     : 'PRODUCTION', // default to production to be safe
+  analyticsIframeUrl:
+    process.env.NEXT_PUBLIC_ANALYTICS_IFRAME_URL ||
+    'https://metabase.app.wombi.xyz/share/dashboard/pagoda-wombi-dev-console-dashboard',
 };
 
 export default config;
