@@ -18,9 +18,9 @@ CREATE TABLE "alert_rules" (
     "environment_sub_id" INTEGER NOT NULL,
     "chain_id" "chain_id" NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_by" INTEGER NOT NULL,
-    "updated_at" TIMESTAMP(3),
+    "updated_at" TIMESTAMPTZ,
     "updated_by" INTEGER,
 
     CONSTRAINT "alert_rules_pkey" PRIMARY KEY ("id")
@@ -31,9 +31,9 @@ CREATE TABLE "enabled_destinations" (
     "id" SERIAL NOT NULL,
     "alert_id" INTEGER NOT NULL,
     "destination_id" INTEGER NOT NULL,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     "created_by" INTEGER,
-    "updated_at" TIMESTAMP(3),
+    "updated_at" TIMESTAMPTZ,
     "updated_by" INTEGER,
 
     CONSTRAINT "enabled_destinations_pkey" PRIMARY KEY ("id")
@@ -47,9 +47,9 @@ CREATE TABLE "destinations" (
     "type" "destination_type" NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
     "is_valid" BOOLEAN NOT NULL DEFAULT false,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     "created_by" INTEGER,
-    "updated_at" TIMESTAMP(3),
+    "updated_at" TIMESTAMPTZ,
     "updated_by" INTEGER,
 
     CONSTRAINT "destinations_pkey" PRIMARY KEY ("id")
@@ -61,9 +61,9 @@ CREATE TABLE "webhook_destinations" (
     "destination_id" INTEGER NOT NULL,
     "url" TEXT NOT NULL,
     "secret" TEXT NOT NULL,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     "created_by" INTEGER,
-    "updated_at" TIMESTAMP(3),
+    "updated_at" TIMESTAMPTZ,
     "updated_by" INTEGER,
 
     CONSTRAINT "webhook_destinations_pkey" PRIMARY KEY ("id")
@@ -76,11 +76,11 @@ CREATE TABLE "email_destinations" (
     "email" TEXT NOT NULL,
     "token" TEXT,
     "is_verified" BOOLEAN NOT NULL DEFAULT false,
-    "token_expires_at" TIMESTAMP(3),
+    "token_expires_at" TIMESTAMPTZ,
     "unsubscribe_token" TEXT,
-    "created_at" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     "created_by" INTEGER,
-    "updated_at" TIMESTAMP(3),
+    "updated_at" TIMESTAMPTZ,
     "updated_by" INTEGER,
 
     CONSTRAINT "email_destinations_pkey" PRIMARY KEY ("id")
@@ -94,10 +94,10 @@ CREATE TABLE "telegram_destinations" (
     "chat_title" TEXT,
     "is_group_chat" BOOLEAN,
     "start_token" TEXT,
-    "token_expires_at" TIMESTAMP(3),
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "token_expires_at" TIMESTAMPTZ,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_by" INTEGER,
-    "updated_at" TIMESTAMP(3),
+    "updated_at" TIMESTAMPTZ,
     "updated_by" INTEGER,
 
     CONSTRAINT "telegram_destinations_pkey" PRIMARY KEY ("id")
