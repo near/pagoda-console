@@ -14,11 +14,11 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H3, H4 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
+import { NearInput } from '@/components/lib/NearInput';
 import { Section } from '@/components/lib/Section';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
-import { Tooltip } from '@/components/lib/Tooltip';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useContracts } from '@/hooks/contracts';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
@@ -28,13 +28,13 @@ import { createAlert, useAlerts } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
 import type { AlertType, AmountComparator } from '@/modules/alerts/utils/types';
 import { NewAlert } from '@/modules/alerts/utils/types';
-import { formRegex, U128 } from '@/utils/constants';
-import { formatYoctoNear } from '@/utils/format-yocto-near';
+import { formRegex } from '@/utils/constants';
 import { assertUnreachable } from '@/utils/helpers';
 import { numberInputHandler } from '@/utils/input-handlers';
 import { mergeInputProps } from '@/utils/merge-input-props';
 import { sanitizeNumber } from '@/utils/sanitize-number';
 import type { Contract, Environment, NextPageWithLayout, Project } from '@/utils/types';
+import { validateMaxValueU128 } from '@/utils/validations';
 
 interface FormData {
   contract: string;
@@ -69,11 +69,9 @@ const NewAlert: NextPageWithLayout = () => {
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<number[]>([]);
   const { contracts } = useContracts(project?.slug, environment?.subId);
   const [contractComboboxItems, setContractComboboxItems] = useState<Contract[]>([]);
-  const [focusedInputName, setFocusedInputName] = useState('');
 
   const acctBalRuleComparator = form.watch('acctBalRule.comparator');
   const acctBalNumRuleFrom = form.watch('acctBalNumRule.from');
-  const acctBalNumRuleTo = form.watch('acctBalNumRule.to');
   const acctBalPctRuleFrom = form.watch('acctBalPctRule.from');
 
   useEffect(() => {
@@ -348,74 +346,52 @@ const NewAlert: NextPageWithLayout = () => {
                   {selectedAlertType === 'ACCT_BAL_NUM' && acctBalRuleComparator && (
                     <>
                       <Form.Group>
-                        <Tooltip
-                          number
-                          content={formatYoctoNear(acctBalNumRuleFrom)}
-                          root={{
-                            open: focusedInputName === 'acctBalNumRule.from' && !!acctBalNumRuleFrom,
+                        <Controller
+                          name="acctBalNumRule.from"
+                          control={form.control}
+                          rules={{
+                            required: 'Please enter an amount',
+                            validate: {
+                              maxValue: validateMaxValueU128,
+                            },
                           }}
-                        >
-                          <Form.FloatingLabelInput
-                            label={(acctBalRuleComparator === 'RANGE' ? 'From Amount' : 'Amount') + ' (yoctoⓃ)'}
-                            placeholder="eg: 1,000"
-                            isInvalid={!!form.formState.errors.acctBalNumRule?.from}
-                            isNumber
-                            onInput={(event) => {
-                              numberInputHandler(event);
-                              form.clearErrors('acctBalNumRule.to');
-                            }}
-                            onFocus={() => setFocusedInputName('acctBalNumRule.from')}
-                            {...mergeInputProps(
-                              form.register('acctBalNumRule.from', {
-                                setValueAs: (value) => sanitizeNumber(value),
-                                required: 'Please enter an amount',
-                                validate: {
-                                  maxValue: (value) => new BN(value || '', 10).lte(U128) || 'Must be less than 2^128',
-                                },
-                              }),
-                              {
-                                onBlur: () => setFocusedInputName(''),
-                              },
-                            )}
-                          />
-                        </Tooltip>
+                          render={({ field }) => (
+                            <NearInput
+                              label={acctBalRuleComparator === 'RANGE' ? 'From Amount' : 'Amount'}
+                              placeholder="eg: 1,000"
+                              field={field}
+                              isInvalid={!!form.formState.errors.acctBalNumRule?.from}
+                              onInput={() => form.clearErrors('acctBalNumRule.to')}
+                            />
+                          )}
+                        />
 
                         <Form.Feedback>{form.formState.errors.acctBalNumRule?.from?.message}</Form.Feedback>
                       </Form.Group>
 
                       {acctBalRuleComparator === 'RANGE' && (
                         <Form.Group>
-                          <Tooltip
-                            number
-                            content={formatYoctoNear(acctBalNumRuleTo)}
-                            root={{
-                              open: focusedInputName === 'acctBalNumRule.to' && !!acctBalNumRuleTo,
+                          <Controller
+                            name="acctBalNumRule.to"
+                            control={form.control}
+                            rules={{
+                              required: 'Please enter an amount',
+                              validate: {
+                                minValue: (value) =>
+                                  new BN(value || '', 10).gt(new BN(acctBalNumRuleFrom || '', 10)) ||
+                                  'Must be greater than "From Amount"',
+                                maxValue: validateMaxValueU128,
+                              },
                             }}
-                          >
-                            <Form.FloatingLabelInput
-                              label="To Amount (yoctoⓃ)"
-                              placeholder="eg: 2,000"
-                              isInvalid={!!form.formState.errors.acctBalNumRule?.to}
-                              isNumber
-                              onInput={numberInputHandler}
-                              onFocus={() => setFocusedInputName('acctBalNumRule.to')}
-                              {...mergeInputProps(
-                                form.register('acctBalNumRule.to', {
-                                  setValueAs: (value) => sanitizeNumber(value),
-                                  required: 'Please enter an amount',
-                                  validate: {
-                                    minValue: (value) =>
-                                      new BN(value || '', 10).gt(new BN(acctBalNumRuleFrom || '', 10)) ||
-                                      'Must be greater than "From Amount"',
-                                    maxValue: (value) => new BN(value || '', 10).lte(U128) || 'Must be less than 2^128',
-                                  },
-                                }),
-                                {
-                                  onBlur: () => setFocusedInputName(''),
-                                },
-                              )}
-                            />
-                          </Tooltip>
+                            render={({ field }) => (
+                              <NearInput
+                                label={acctBalRuleComparator === 'RANGE' ? 'To Amount' : 'Amount'}
+                                placeholder="eg: 2,000"
+                                field={field}
+                                isInvalid={!!form.formState.errors.acctBalNumRule?.to}
+                              />
+                            )}
+                          />
 
                           <Form.Feedback>{form.formState.errors.acctBalNumRule?.to?.message}</Form.Feedback>
                         </Form.Group>

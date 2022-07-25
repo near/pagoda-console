@@ -26,6 +26,7 @@ import { HR } from '@/components/lib/HorizontalRule';
 import { Info } from '@/components/lib/Info';
 import { List, ListItem } from '@/components/lib/List';
 import { Message } from '@/components/lib/Message';
+import { NearInput } from '@/components/lib/NearInput';
 import { Placeholder } from '@/components/lib/Placeholder';
 import * as Popover from '@/components/lib/Popover';
 import { Progress } from '@/components/lib/Progress';
@@ -48,6 +49,7 @@ import config from '@/utils/config';
 import { formValidations } from '@/utils/constants';
 import { mergeInputProps } from '@/utils/merge-input-props';
 import type { NextPageWithLayout } from '@/utils/types';
+import { validateMaxValueU128 } from '@/utils/validations';
 
 const Block = styled('div', {
   display: 'flex',
@@ -1949,6 +1951,7 @@ interface FakeForm {
   favoriteWeather: string;
   favoriteIcon: string;
   termsAccepted: boolean;
+  yoctoNearAmount: string;
 }
 
 function DocSectionForm() {
@@ -2085,6 +2088,33 @@ function DocSectionForm() {
               );
             }}
           />
+
+          <HR />
+
+          <H4>Near Input</H4>
+
+          <Form.Group>
+            <Controller
+              name="yoctoNearAmount"
+              control={form.control}
+              rules={{
+                required: 'Please enter an amount',
+                validate: {
+                  maxValue: validateMaxValueU128,
+                },
+              }}
+              render={({ field }) => (
+                <NearInput
+                  label="Amount"
+                  placeholder="eg: 1,000"
+                  field={field}
+                  isInvalid={!!form.formState.errors.yoctoNearAmount}
+                />
+              )}
+            />
+
+            <Form.Feedback>{form.formState.errors.yoctoNearAmount?.message}</Form.Feedback>
+          </Form.Group>
 
           <HR />
 
