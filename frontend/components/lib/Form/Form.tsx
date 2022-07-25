@@ -44,13 +44,28 @@ export const Root = forwardRef<HTMLFormElement, FormProps>(({ children, noValida
 });
 Root.displayName = 'Form';
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(({ isInvalid, type = 'text', ...props }, ref) => {
-  return <S.Input invalid={isInvalid} aria-invalid={isInvalid} type={type} ref={ref} {...props} />;
-});
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ inputMode, isInvalid, isNumber, type = 'text', ...props }, ref) => {
+    return (
+      <S.Input
+        aria-invalid={isInvalid}
+        inputMode={inputMode || isNumber ? 'decimal' : undefined}
+        invalid={isInvalid}
+        number={isNumber}
+        ref={ref}
+        type={type}
+        {...props}
+      />
+    );
+  },
+);
 Input.displayName = 'Input';
 
 export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInputProps>(
-  ({ children, isInvalid, isNumber, label, labelProps, type = 'text', placeholder = ' ', ...props }, ref) => {
+  (
+    { children, inputMode, isInvalid, isNumber, label, labelProps, type = 'text', placeholder = ' ', ...props },
+    ref,
+  ) => {
     /*
       If a placeholder isn't set, we need to use " " as the placeholder (instead of an empty
       string) - this is critical for our CSS to render the label correctly via `:placeholder-shown`.
@@ -79,6 +94,7 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
           <S.Input
             aria-invalid={isInvalid}
             invalid={isInvalid === true}
+            inputMode={inputMode || isNumber ? 'decimal' : undefined}
             number={isNumber === true}
             placeholder={placeholder}
             ref={ref}
