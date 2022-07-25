@@ -1,6 +1,6 @@
 # Near Input
 
-Use this component when you need to allow users to enter an amount of NEAR or yoctoNEAR. This component must be used in conjunction with React Hook Form's `Controller` component. Due to yoctoNEAR being a potentially massive number (U128 max value), the input value will be interpreted as a `string` - not a `number`.
+Use this component when you need to allow users to enter an amount of yoctoNEAR (NEAR support coming soon). This component must be used in conjunction with React Hook Form's `Controller` component. Due to yoctoNEAR being a potentially massive number (U128 max value), the input value will be interpreted as a `string` - not a `number`.
 
 ## Example
 

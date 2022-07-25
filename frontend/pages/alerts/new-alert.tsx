@@ -385,7 +385,7 @@ const NewAlert: NextPageWithLayout = () => {
                             }}
                             render={({ field }) => (
                               <NearInput
-                                label={acctBalRuleComparator === 'RANGE' ? 'To Amount' : 'Amount'}
+                                label="To Amount"
                                 placeholder="eg: 2,000"
                                 field={field}
                                 isInvalid={!!form.formState.errors.acctBalNumRule?.to}
