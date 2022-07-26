@@ -33,7 +33,7 @@ export interface EventMatchingRule extends MatchingRule {
 
 export interface AcctBalMatchingRule extends MatchingRule {
   rule: 'STATE_CHANGE_ACCOUNT_BALANCE';
-  contract_account_id: string;
+  affected_account_id: string;
   comparator_kind: ComparatorKind;
   comparator_range: {
     from: string; // yoctoNEAR,

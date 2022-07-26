@@ -58,7 +58,7 @@ export class RuleDeserializerService {
 
   private toAcctBalDto(rule: AcctBalMatchingRule): AcctBalRuleDto {
     return {
-      contract: rule.contract_account_id,
+      contract: rule.affected_account_id,
       from: rule.comparator_range.from,
       to: rule.comparator_range.to,
     };
