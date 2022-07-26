@@ -253,15 +253,16 @@ export class ProjectsController {
 function mapError(e: Error) {
   // TODO log in dev
   // console.error(e);
-  switch (VError.info(e)?.code) {
+  const errorInfo = VError.info(e);
+  switch (errorInfo?.code) {
     case 'PERMISSION_DENIED':
       return new ForbiddenException();
     case 'BAD_PROJECT':
     case 'BAD_ENVIRONMENT':
     case 'BAD_CONTRACT':
       return new BadRequestException();
-    case 'NAME_CONFLICT':
-      return new ConflictException('Name already exists');
+    case 'CONFLICT':
+      return new ConflictException(errorInfo.response);
     default:
       return e;
   }
