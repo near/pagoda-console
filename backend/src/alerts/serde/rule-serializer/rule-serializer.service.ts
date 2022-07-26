@@ -55,7 +55,7 @@ export class RuleSerializerService {
   toAcctBalJson(rule: AcctBalRuleDto, ruleType: RuleType): AcctBalMatchingRule {
     return {
       rule: 'STATE_CHANGE_ACCOUNT_BALANCE',
-      contract_account_id: rule.contract,
+      affected_account_id: rule.contract,
       comparator_kind: this.ruleTypeToComparatorKind(ruleType),
       comparator_range: {
         from: rule.from,
