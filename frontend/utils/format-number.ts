@@ -4,7 +4,7 @@
 // .34 => 0.34
 
 export function formatNumber(number: string | number) {
-  if (!number) return '';
+  if (number === '') return '';
 
   const pattern = /(-?\d+)(\d{3})/;
   const segments = number.toString().split('.');
