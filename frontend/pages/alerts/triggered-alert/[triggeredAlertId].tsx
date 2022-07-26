@@ -17,14 +17,15 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
-import { useSelectedProjectSync } from '@/hooks/selected-project';
+import { useSelectedProject, useSelectedProjectSync } from '@/hooks/selected-project';
 import { useAlert } from '@/modules/alerts/hooks/alerts';
 import { useTriggeredAlertDetails } from '@/modules/alerts/hooks/triggered-alerts';
 import { alertTypes } from '@/modules/alerts/utils/constants';
 import type { Alert, TriggeredAlert } from '@/modules/alerts/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
+import type { Environment } from '@/utils/types';
 
-function LabelAndValue(props: { label: string; value: string; linkToExplorer?: boolean; explorerPrefix?: string }) {
+function LabelAndValue(props: { label: string; value: string; linkToExplorer?: string; explorerPrefix?: string }) {
   const initializedExplorerPrefix = props.explorerPrefix || 'transactions';
 
   return (
@@ -38,7 +39,7 @@ function LabelAndValue(props: { label: string; value: string; linkToExplorer?: b
             <TextLink
               size="s"
               external
-              href={`https://explorer.near.org/${initializedExplorerPrefix}/${props.value}`}
+              href={`${props.linkToExplorer}${initializedExplorerPrefix}/${props.value}`}
               css={{ minWidth: 0 }}
             >
               <TextOverflow>{props.value}</TextOverflow>
@@ -60,6 +61,9 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
   const triggeredAlertId = router.query.triggeredAlertId as string;
   const { triggeredAlert, error } = useTriggeredAlertDetails(triggeredAlertId);
   const { alert } = useAlert(triggeredAlert?.alertId);
+  const { environment } = useSelectedProject();
+
+  const linkToExplorer = getLinkToExplorer(environment);
 
   useSelectedProjectSync(alert?.environmentSubId, alert?.projectSlug);
 
@@ -70,6 +74,14 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
 
   function alertContract(alert: Alert) {
     return alert?.rule?.contract;
+  }
+
+  function getLinkToExplorer(environment: Environment | undefined): string | undefined {
+    if (!environment) {
+      return undefined;
+    } else {
+      return environment.net === 'MAINNET' ? 'https://explorer.near.org/' : 'https://explorer.testnet.near.org/';
+    }
   }
 
   const triggeredAtDateFormatted = triggeredAlert
@@ -135,15 +147,19 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
                   <LabelAndValue
                     label="Transaction Hash"
                     value={triggeredAlert.triggeredInTransactionHash}
-                    linkToExplorer={true}
+                    linkToExplorer={linkToExplorer}
                   />
 
-                  <LabelAndValue label="Receipt ID" value={triggeredAlert.triggeredInReceiptId} linkToExplorer={true} />
+                  <LabelAndValue
+                    label="Receipt ID"
+                    value={triggeredAlert.triggeredInReceiptId}
+                    linkToExplorer={linkToExplorer}
+                  />
 
                   <LabelAndValue
                     label="Block Hash"
                     value={triggeredAlert.triggeredInBlockHash}
-                    linkToExplorer={true}
+                    linkToExplorer={linkToExplorer}
                     explorerPrefix={'blocks'}
                   />
 
