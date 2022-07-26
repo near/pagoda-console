@@ -22,8 +22,8 @@ import { useAlert } from '@/modules/alerts/hooks/alerts';
 import { useTriggeredAlertDetails } from '@/modules/alerts/hooks/triggered-alerts';
 import { alertTypes } from '@/modules/alerts/utils/constants';
 import type { Alert, TriggeredAlert } from '@/modules/alerts/utils/types';
+import { getLinkToExplorer } from '@/utils/helpers';
 import type { NextPageWithLayout } from '@/utils/types';
-import type { Environment } from '@/utils/types';
 
 function LabelAndValue(props: { label: string; value: string; linkToExplorer?: string; explorerPrefix?: string }) {
   const initializedExplorerPrefix = props.explorerPrefix || 'transactions';
@@ -74,14 +74,6 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
 
   function alertContract(alert: Alert) {
     return alert?.rule?.contract;
-  }
-
-  function getLinkToExplorer(environment: Environment | undefined): string | undefined {
-    if (!environment) {
-      return undefined;
-    } else {
-      return environment.net === 'MAINNET' ? 'https://explorer.near.org/' : 'https://explorer.testnet.near.org/';
-    }
   }
 
   const triggeredAtDateFormatted = triggeredAlert
