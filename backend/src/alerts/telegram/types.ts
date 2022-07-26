@@ -11,11 +11,11 @@ export type TgChat = TgPrivateChat | TgGroupChat;
 interface TgPrivateChat {
   id: number;
   type: 'private';
-  username: string;
+  username?: string;
 }
 
 interface TgGroupChat {
   id: number;
   type: 'group' | 'supergroup' | 'channel';
-  title: string;
+  title?: string;
 }

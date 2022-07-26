@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
-import { Destination, TelegramDestination } from 'generated/prisma/alerts';
+import { TelegramDestination } from 'generated/prisma/alerts';
 import { DateTime } from 'luxon';
 import { AppConfig } from 'src/config/validate';
 import { VError } from 'verror';
@@ -67,8 +67,8 @@ export class TelegramService {
             tokenExpiresAt: null,
             isGroupChat,
             chatTitle: isGroupChat
-              ? `Group: ${chat.title}`
-              : `@${chat.username}`,
+              ? `Group: ${chat.title || chat.id}`
+              : `@${chat.username || chat.id}`,
           },
         },
       },
