@@ -92,6 +92,7 @@
   },
   "lint-staged": {
     "**/.{js,ts}": "eslint --cache --max-warnings 0",
-    "*.{js,ts,json}": "prettier --check"
+    "*.{js,ts,json}": "prettier --check",
+    "**/prisma/migrations/**/*.sql": "npx ts-node ./scripts/checkMigrations.ts"
   }
 }
