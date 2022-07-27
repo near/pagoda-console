@@ -2,6 +2,7 @@ import type { FirebaseOptions } from 'firebase/app';
 
 import type { NetOption } from './types';
 
+type ExplorerNets = Record<NetOption, string>;
 type RpcNets = Record<NetOption, string>;
 type DeployEnvironment = 'LOCAL' | 'DEVELOPMENT' | 'PRODUCTION';
 
@@ -20,6 +21,8 @@ if (
   !process.env.NEXT_PUBLIC_TEST_NET_ARCHIVAL_RPC ||
   !process.env.NEXT_PUBLIC_RECOMMENDED_MAIN_NET_RPC ||
   !process.env.NEXT_PUBLIC_RECOMMENDED_TEST_NET_RPC ||
+  !process.env.NEXT_PUBLIC_MAIN_NET_EXPLORER ||
+  !process.env.NEXT_PUBLIC_TEST_NET_EXPLORER ||
   !process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE ||
   !process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES ||
   !process.env.NEXT_PUBLIC_MIXPANEL_TOKEN ||
@@ -59,6 +62,7 @@ if (process.env.NEXT_PUBLIC_DEPLOY_ENV !== 'LOCAL' && !process.env.NEXT_PUBLIC_T
 interface AppConfig {
   url: {
     api: string;
+    explorer: ExplorerNets;
     rpc: {
       default: RpcNets;
       archival: RpcNets;
@@ -85,6 +89,10 @@ interface AppConfig {
 const config: AppConfig = {
   url: {
     api: process.env.NEXT_PUBLIC_API_BASE_URL,
+    explorer: {
+      MAINNET: process.env.NEXT_PUBLIC_MAIN_NET_EXPLORER,
+      TESTNET: process.env.NEXT_PUBLIC_TEST_NET_EXPLORER,
+    },
     rpc: {
       default: {
         MAINNET: process.env.NEXT_PUBLIC_MAIN_NET_RPC,

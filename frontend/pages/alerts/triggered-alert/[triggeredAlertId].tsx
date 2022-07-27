@@ -17,16 +17,15 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
-import { useSelectedProjectSync } from '@/hooks/selected-project';
+import { useSelectedProject, useSelectedProjectSync } from '@/hooks/selected-project';
 import { useAlert } from '@/modules/alerts/hooks/alerts';
 import { useTriggeredAlertDetails } from '@/modules/alerts/hooks/triggered-alerts';
 import { alertTypes } from '@/modules/alerts/utils/constants';
 import type { Alert, TriggeredAlert } from '@/modules/alerts/utils/types';
+import config from '@/utils/config';
 import type { NextPageWithLayout } from '@/utils/types';
 
-function LabelAndValue(props: { label: string; value: string; linkToExplorer?: boolean; explorerPrefix?: string }) {
-  const initializedExplorerPrefix = props.explorerPrefix || 'transactions';
-
+function LabelAndValue(props: { label: string; value: string; linkToExplorer?: string }) {
   return (
     <Flex align="center" justify="start">
       <Text size="bodySmall" color="text1" css={{ minWidth: '10rem' }}>
@@ -35,12 +34,7 @@ function LabelAndValue(props: { label: string; value: string; linkToExplorer?: b
       <Flex align="center" justify="end" css={{ minWidth: 0 }}>
         {props.linkToExplorer ? (
           <>
-            <TextLink
-              size="s"
-              external
-              href={`https://explorer.near.org/${initializedExplorerPrefix}/${props.value}`}
-              css={{ minWidth: 0 }}
-            >
+            <TextLink size="s" external href={props.linkToExplorer} css={{ minWidth: 0 }}>
               <TextOverflow>{props.value}</TextOverflow>
             </TextLink>
             <CopyButton value={props.value} />
@@ -60,6 +54,8 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
   const triggeredAlertId = router.query.triggeredAlertId as string;
   const { triggeredAlert, error } = useTriggeredAlertDetails(triggeredAlertId);
   const { alert } = useAlert(triggeredAlert?.alertId);
+  const { environment } = useSelectedProject();
+  const baseExplorerUrl = environment && config.url.explorer[environment?.net];
 
   useSelectedProjectSync(alert?.environmentSubId, alert?.projectSlug);
 
@@ -135,16 +131,19 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
                   <LabelAndValue
                     label="Transaction Hash"
                     value={triggeredAlert.triggeredInTransactionHash}
-                    linkToExplorer={true}
+                    linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlert.triggeredInTransactionHash}`}
                   />
 
-                  <LabelAndValue label="Receipt ID" value={triggeredAlert.triggeredInReceiptId} linkToExplorer={true} />
+                  <LabelAndValue
+                    label="Receipt ID"
+                    value={triggeredAlert.triggeredInReceiptId}
+                    linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlert.triggeredInTransactionHash}#${triggeredAlert.triggeredInReceiptId}`}
+                  />
 
                   <LabelAndValue
                     label="Block Hash"
                     value={triggeredAlert.triggeredInBlockHash}
-                    linkToExplorer={true}
-                    explorerPrefix={'blocks'}
+                    linkToExplorer={`${baseExplorerUrl}/blocks/${triggeredAlert.triggeredInBlockHash}`}
                   />
 
                   <LabelAndValue label="Triggered Alert ID" value={triggeredAlert.slug} />
