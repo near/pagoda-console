@@ -144,7 +144,7 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
 
                   <LabelAndValue
                     label="Receipt ID"
-                    value={triggeredAlert.triggeredInReceiptId}
+                    value={triggeredAlert.triggeredInTransactionHash + '#' + triggeredAlert.triggeredInReceiptId}
                     linkToExplorer={linkToExplorer}
                   />
 
