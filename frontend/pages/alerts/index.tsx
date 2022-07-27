@@ -19,7 +19,7 @@ const ListAlerts: NextPageWithLayout = () => {
   return (
     <Section>
       <Tabs.Root value={activeTab || ''}>
-        <Tabs.List>
+        <Tabs.List tabIndex={-1}>
           {config.alertActivityFeatureEnabled && (
             <Link href="?tab=activity" passHref>
               <Tabs.TriggerLink active={activeTab === 'activity'}>
