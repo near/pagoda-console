@@ -27,11 +27,3 @@ export function returnContractAddressRegex(environment?: Environment) {
 
   return new RegExp(prefix + postfix);
 }
-
-export function getLinkToExplorer(environment: Environment | undefined): string | undefined {
-  if (!environment) {
-    return undefined;
-  } else {
-    return environment.net === 'MAINNET' ? 'https://explorer.near.org/' : 'https://explorer.testnet.near.org/';
-  }
-}

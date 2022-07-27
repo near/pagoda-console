@@ -22,12 +22,10 @@ import { useAlert } from '@/modules/alerts/hooks/alerts';
 import { useTriggeredAlertDetails } from '@/modules/alerts/hooks/triggered-alerts';
 import { alertTypes } from '@/modules/alerts/utils/constants';
 import type { Alert, TriggeredAlert } from '@/modules/alerts/utils/types';
-import { getLinkToExplorer } from '@/utils/helpers';
+import config from '@/utils/config';
 import type { NextPageWithLayout } from '@/utils/types';
 
-function LabelAndValue(props: { label: string; value: string; linkToExplorer?: string; explorerPrefix?: string }) {
-  const initializedExplorerPrefix = props.explorerPrefix || 'transactions';
-
+function LabelAndValue(props: { label: string; value: string; linkToExplorer?: string }) {
   return (
     <Flex align="center" justify="start">
       <Text size="bodySmall" color="text1" css={{ minWidth: '10rem' }}>
@@ -36,12 +34,7 @@ function LabelAndValue(props: { label: string; value: string; linkToExplorer?: s
       <Flex align="center" justify="end" css={{ minWidth: 0 }}>
         {props.linkToExplorer ? (
           <>
-            <TextLink
-              size="s"
-              external
-              href={`${props.linkToExplorer}${initializedExplorerPrefix}/${props.value}`}
-              css={{ minWidth: 0 }}
-            >
+            <TextLink size="s" external href={props.linkToExplorer} css={{ minWidth: 0 }}>
               <TextOverflow>{props.value}</TextOverflow>
             </TextLink>
             <CopyButton value={props.value} />
@@ -62,8 +55,7 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
   const { triggeredAlert, error } = useTriggeredAlertDetails(triggeredAlertId);
   const { alert } = useAlert(triggeredAlert?.alertId);
   const { environment } = useSelectedProject();
-
-  const linkToExplorer = getLinkToExplorer(environment);
+  const baseExplorerUrl = environment && config.url.explorer[environment?.net];
 
   useSelectedProjectSync(alert?.environmentSubId, alert?.projectSlug);
 
@@ -139,20 +131,19 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
                   <LabelAndValue
                     label="Transaction Hash"
                     value={triggeredAlert.triggeredInTransactionHash}
-                    linkToExplorer={linkToExplorer}
+                    linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlert.triggeredInTransactionHash}`}
                   />
 
                   <LabelAndValue
                     label="Receipt ID"
-                    value={triggeredAlert.triggeredInTransactionHash + '#' + triggeredAlert.triggeredInReceiptId}
-                    linkToExplorer={linkToExplorer}
+                    value={triggeredAlert.triggeredInReceiptId}
+                    linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlert.triggeredInTransactionHash}#${triggeredAlert.triggeredInReceiptId}`}
                   />
 
                   <LabelAndValue
                     label="Block Hash"
                     value={triggeredAlert.triggeredInBlockHash}
-                    linkToExplorer={linkToExplorer}
-                    explorerPrefix={'blocks'}
+                    linkToExplorer={`${baseExplorerUrl}/blocks/${triggeredAlert.triggeredInBlockHash}`}
                   />
 
                   <LabelAndValue label="Triggered Alert ID" value={triggeredAlert.slug} />
