@@ -172,7 +172,7 @@ const NewAlert: NextPageWithLayout = () => {
                   Valid address examples: <Badge size="s">pagoda.{environmentTla}</Badge>
                   <Badge size="s">app.pagoda.{environmentTla}</Badge>
                   <Badge size="s">*.pagoda.{environmentTla}</Badge>
-                  <Info content={`The wildcard character(*) can be used to match against multiple subaccounts`} />
+                  <Info content={`The wildcard character(*) can be used to match against multiple subaccounts.`} />
                 </Flex>
               </Text>
 
@@ -201,7 +201,7 @@ const NewAlert: NextPageWithLayout = () => {
                           pattern: {
                             value: formRegex.contractAddressWildcard,
                             message:
-                              'Invalid address format. Please refer to valid examples above. Note that wildcards are only allowed on subaccounts',
+                              'Invalid address format. Please refer to valid examples above. Note that wildcards are only allowed on subaccounts.',
                           },
                         }),
                       )}
