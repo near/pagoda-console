@@ -24,7 +24,8 @@ if (
   !process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES ||
   !process.env.NEXT_PUBLIC_MIXPANEL_TOKEN ||
   !process.env.NEXT_PUBLIC_FIREBASE_CONFIG ||
-  !process.env.NEXT_PUBLIC_DEPLOY_ENV
+  !process.env.NEXT_PUBLIC_DEPLOY_ENV ||
+  !process.env.NEXT_PUBLIC_ANALYTICS_IFRAME_URL
 ) {
   throw new Error('Missing configuration value');
 }
@@ -103,9 +104,7 @@ const config: AppConfig = {
   deployEnv: ['LOCAL', 'DEVELOPMENT', 'PRODUCTION'].includes(process.env.NEXT_PUBLIC_DEPLOY_ENV)
     ? (process.env.NEXT_PUBLIC_DEPLOY_ENV as DeployEnvironment)
     : 'PRODUCTION', // default to production to be safe
-  analyticsIframeUrl:
-    process.env.NEXT_PUBLIC_ANALYTICS_IFRAME_URL ||
-    'https://metabase.app.wombi.xyz/share/dashboard/pagoda-wombi-dev-console-dashboard',
+  analyticsIframeUrl: process.env.NEXT_PUBLIC_ANALYTICS_IFRAME_URL,
 };
 
 export default config;
