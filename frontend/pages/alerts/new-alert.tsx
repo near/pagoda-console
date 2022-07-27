@@ -14,6 +14,7 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H3, H4 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
+import { Info } from '@/components/lib/Info';
 import { NearInput } from '@/components/lib/NearInput';
 import { Section } from '@/components/lib/Section';
 import { Text } from '@/components/lib/Text';
@@ -171,6 +172,7 @@ const NewAlert: NextPageWithLayout = () => {
                   Valid address examples: <Badge size="s">pagoda.{environmentTla}</Badge>
                   <Badge size="s">app.pagoda.{environmentTla}</Badge>
                   <Badge size="s">*.pagoda.{environmentTla}</Badge>
+                  <Info content={`The wildcard character(*) can be used to match against multiple subaccounts.`} />
                 </Flex>
               </Text>
 
@@ -198,7 +200,8 @@ const NewAlert: NextPageWithLayout = () => {
                           },
                           pattern: {
                             value: formRegex.contractAddressWildcard,
-                            message: 'Invalid address format. Please refer to valid examples above.',
+                            message:
+                              'Invalid address format. Please refer to valid examples above. Note that wildcards are only allowed on subaccounts.',
                           },
                         }),
                       )}
