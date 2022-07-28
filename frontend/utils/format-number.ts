@@ -1,10 +1,5 @@
-// 1 => 1
-// 1234 => 1,234
-// 1234.5555 => 1,234.5555
-// .34 => 0.34
-
-export function formatNumber(number: string | number) {
-  if (number === '') return '';
+export function formatNumber(number?: string | number | null) {
+  if (number === '' || number === null || number === undefined) return '';
 
   const pattern = /(-?\d+)(\d{3})/;
   const segments = number.toString().split('.');
