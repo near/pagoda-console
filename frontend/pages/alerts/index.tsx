@@ -20,7 +20,7 @@ const ListAlerts: NextPageWithLayout = () => {
     <Section>
       <Tabs.Root value={activeTab || ''}>
         <Tabs.List tabIndex={-1}>
-          {config.alertActivityFeatureEnabled && (
+          {config.featureFlags.alertsActivity && (
             <Link href="?tab=activity" passHref>
               <Tabs.TriggerLink active={activeTab === 'activity'}>
                 <FeatherIcon icon="list" /> Activity
@@ -41,7 +41,7 @@ const ListAlerts: NextPageWithLayout = () => {
           </Link>
         </Tabs.List>
 
-        {config.alertActivityFeatureEnabled && (
+        {config.featureFlags.alertsActivity && (
           <Tabs.Content value="activity">
             <TriggeredAlerts environment={environment} project={project} />
           </Tabs.Content>

@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "buildStart": "next build && next start",
     "export": "next build && next export",
     "start": "next start",
     "lint": "eslint .",
