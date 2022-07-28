@@ -384,8 +384,7 @@ const NewAlert: NextPageWithLayout = () => {
                                 maxDecimals: validateMaxNearDecimalLength,
                                 maxValue: validateMaxNearU128,
                                 minValue: (value) =>
-                                  Number(value || '0') > Number(acctBalNumRuleFrom) ||
-                                  'Must be greater than "From Amount"',
+                                  Number(value) > Number(acctBalNumRuleFrom) || 'Must be greater than "From Amount"',
                               },
                             }}
                             render={({ field }) => (
