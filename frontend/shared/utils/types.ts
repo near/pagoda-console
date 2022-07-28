@@ -3,4 +3,5 @@ export interface SidebarEntry {
   icon: string;
   route: string;
   routeMatchPattern?: string;
+  badgeText?: string;
 }

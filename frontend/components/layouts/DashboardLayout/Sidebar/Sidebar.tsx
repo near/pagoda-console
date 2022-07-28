@@ -68,6 +68,7 @@ export function Sidebar({ children, ...props }: Props) {
                   <S.NavLink selected={isLinkSelected(page)}>
                     <FeatherIcon icon={page.icon} />
                     {page.display}
+                    {page.badgeText ? <Badge size="s">{page.badgeText}</Badge> : <></>}
                   </S.NavLink>
                 </Link>
               ) : (
