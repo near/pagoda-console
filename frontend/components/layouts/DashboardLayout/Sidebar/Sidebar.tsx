@@ -10,6 +10,7 @@ import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
 import type { SidebarEntry } from '@/shared/utils/types';
 import { logOut } from '@/utils/auth';
+import config from '@/utils/config';
 
 import { Logo } from './Logo';
 import * as S from './styles';
@@ -34,7 +35,9 @@ function useProjectPages(): SidebarEntry[] {
 
   // pushed individually so that module pages can be placed at any point
   pages.push({ display: 'Contracts', route: `/contracts`, icon: 'zap' });
-  pages.push(...alertsEntries);
+  if (config.featureFlags.alerts) {
+    pages.push(...alertsEntries);
+  }
   pages.push({ display: 'Analytics', route: '/project-analytics', icon: 'bar-chart-2' });
   pages.push(...indexersEntries);
   pages.push({ display: 'Deploys', route: '', icon: 'git-merge' });
