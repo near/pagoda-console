@@ -49,7 +49,7 @@ import config from '@/utils/config';
 import { formValidations } from '@/utils/constants';
 import { mergeInputProps } from '@/utils/merge-input-props';
 import type { NextPageWithLayout } from '@/utils/types';
-import { validateMaxValueU128 } from '@/utils/validations';
+import { validateMaxNearDecimalLength, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
 const Block = styled('div', {
   display: 'flex',
@@ -1951,6 +1951,7 @@ interface FakeForm {
   favoriteWeather: string;
   favoriteIcon: string;
   termsAccepted: boolean;
+  nearAmount: string;
   yoctoNearAmount: string;
 }
 
@@ -2091,7 +2092,26 @@ function DocSectionForm() {
 
           <HR />
 
-          <H4>Near Input</H4>
+          <H4>NEAR Input</H4>
+
+          <Form.Group>
+            <Controller
+              name="nearAmount"
+              control={form.control}
+              rules={{
+                required: 'Please enter an amount',
+                validate: {
+                  maxDecimals: validateMaxNearDecimalLength,
+                  maxValue: validateMaxNearU128,
+                },
+              }}
+              render={({ field }) => (
+                <NearInput label="Amount" field={field} isInvalid={!!form.formState.errors.nearAmount} />
+              )}
+            />
+
+            <Form.Feedback>{form.formState.errors.nearAmount?.message}</Form.Feedback>
+          </Form.Group>
 
           <Form.Group>
             <Controller
@@ -2100,16 +2120,11 @@ function DocSectionForm() {
               rules={{
                 required: 'Please enter an amount',
                 validate: {
-                  maxValue: validateMaxValueU128,
+                  maxValue: validateMaxYoctoU128,
                 },
               }}
               render={({ field }) => (
-                <NearInput
-                  label="Amount"
-                  placeholder="eg: 1,000"
-                  field={field}
-                  isInvalid={!!form.formState.errors.yoctoNearAmount}
-                />
+                <NearInput yocto label="Amount" field={field} isInvalid={!!form.formState.errors.yoctoNearAmount} />
               )}
             />
 

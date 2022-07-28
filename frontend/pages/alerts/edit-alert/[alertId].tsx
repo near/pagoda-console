@@ -28,8 +28,8 @@ import {
 } from '@/modules/alerts/hooks/alerts';
 import { alertTypes, amountComparators } from '@/modules/alerts/utils/constants';
 import type { Alert, Destination } from '@/modules/alerts/utils/types';
+import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatNumber } from '@/utils/format-number';
-import { formatYoctoNear } from '@/utils/format-yocto-near';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface NameFormData {
@@ -257,25 +257,40 @@ const EditAlert: NextPageWithLayout = () => {
                   )}
 
                   <Flex align="center" css={{ width: 'auto', minHeight: 'var(--size-input-height-m)' }}>
-                    <Switch
-                      aria-label="Alert Is Active"
-                      checked={alertIsActive}
-                      onCheckedChange={updateIsActive}
-                      debounce={true}
-                    >
-                      <FeatherIcon icon="bell" size="xs" data-on />
-                      <FeatherIcon icon="pause" size="xs" data-off />
-                    </Switch>
+                    <Tooltip content={alertIsActive ? 'Pause this alert' : 'Activate this alert'}>
+                      <span>
+                        <Switch
+                          aria-label="Alert Is Active"
+                          checked={alertIsActive}
+                          onCheckedChange={updateIsActive}
+                          debounce={true}
+                        >
+                          <FeatherIcon icon="bell" size="xs" data-on />
+                          <FeatherIcon icon="pause" size="xs" data-off />
+                        </Switch>
+                      </span>
+                    </Tooltip>
 
-                    <Link href={`/alerts?tab=activity&alertId=${alert.id}`} passHref>
-                      <ButtonLink size="s" aria-label="View Alert Activity" color="primaryBorder">
-                        <FeatherIcon icon="list" size="xs" />
-                      </ButtonLink>
-                    </Link>
+                    <Tooltip content="View alert activity">
+                      <span>
+                        <Link href={`/alerts?tab=activity&alertId=${alert.id}`} passHref>
+                          <ButtonLink size="s" aria-label="View Alert Activity" color="primaryBorder">
+                            <FeatherIcon icon="list" size="xs" />
+                          </ButtonLink>
+                        </Link>
+                      </span>
+                    </Tooltip>
 
-                    <Button size="s" aria-label="Delete Alert" color="danger" onClick={() => setShowDeleteModal(true)}>
-                      <FeatherIcon icon="trash-2" size="xs" />
-                    </Button>
+                    <Tooltip content="Delete this alert">
+                      <Button
+                        size="s"
+                        aria-label="Delete Alert"
+                        color="danger"
+                        onClick={() => setShowDeleteModal(true)}
+                      >
+                        <FeatherIcon icon="trash-2" size="xs" />
+                      </Button>
+                    </Tooltip>
                   </Flex>
                 </Flex>
               </Flex>
@@ -347,30 +362,30 @@ function AlertSettings({ alert }: { alert: Alert }) {
 
     return (
       <Wrapper>
-        <H6>{comparator.name} (yoctoⓃ)</H6>
+        <H6>{comparator.name}</H6>
 
         <Text>
           {comparator.value === 'RANGE' && (
-            <>
-              <Tooltip number content={formatYoctoNear(alert.rule.from!)}>
+            <Flex as="span" wrap>
+              <Tooltip number content={`${formatNumber(alert.rule.from)} yoctoⓃ`}>
                 <Text as="span" family="number" hasTooltip>
-                  {formatNumber(alert.rule.from!)}{' '}
+                  {convertYoctoToNear(alert.rule.from, true)}
                 </Text>
               </Tooltip>
               <Text as="span" color="text3">
                 ..
-              </Text>{' '}
-              <Tooltip content={formatYoctoNear(alert.rule.to!)}>
+              </Text>
+              <Tooltip content={`${formatNumber(alert.rule.to)} yoctoⓃ`}>
                 <Text as="span" family="number" hasTooltip>
-                  {formatNumber(alert.rule.to!)}
+                  {convertYoctoToNear(alert.rule.to, true)}
                 </Text>
               </Tooltip>
-            </>
+            </Flex>
           )}
           {comparator.value !== 'RANGE' && (
-            <Tooltip number content={formatYoctoNear(alert.rule.from || alert.rule.to || '')}>
+            <Tooltip number content={convertYoctoToNear(alert.rule.from || alert.rule.to, true)}>
               <Text as="span" family="number" hasTooltip>
-                {formatNumber(alert.rule.from || alert.rule.to || '')}
+                {formatNumber(alert.rule.from || alert.rule.to)}
               </Text>
             </Tooltip>
           )}

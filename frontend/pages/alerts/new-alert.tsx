@@ -1,4 +1,3 @@
-import { BN } from 'bn.js';
 import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -30,12 +29,13 @@ import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/util
 import type { AlertType, AmountComparator } from '@/modules/alerts/utils/types';
 import { NewAlert } from '@/modules/alerts/utils/types';
 import { formRegex } from '@/utils/constants';
+import { convertNearToYocto } from '@/utils/convert-near';
 import { assertUnreachable } from '@/utils/helpers';
 import { numberInputHandler } from '@/utils/input-handlers';
 import { mergeInputProps } from '@/utils/merge-input-props';
 import { sanitizeNumber } from '@/utils/sanitize-number';
 import type { Contract, Environment, NextPageWithLayout, Project } from '@/utils/types';
-import { validateMaxValueU128 } from '@/utils/validations';
+import { validateMaxNearDecimalLength, validateMaxNearU128 } from '@/utils/validations';
 
 interface FormData {
   contract: string;
@@ -355,13 +355,14 @@ const NewAlert: NextPageWithLayout = () => {
                           rules={{
                             required: 'Please enter an amount',
                             validate: {
-                              maxValue: validateMaxValueU128,
+                              maxDecimals: validateMaxNearDecimalLength,
+                              maxValue: validateMaxNearU128,
                             },
                           }}
                           render={({ field }) => (
                             <NearInput
                               label={acctBalRuleComparator === 'RANGE' ? 'From Amount' : 'Amount'}
-                              placeholder="eg: 1,000"
+                              placeholder="eg: 1.5"
                               field={field}
                               isInvalid={!!form.formState.errors.acctBalNumRule?.from}
                               onInput={() => form.clearErrors('acctBalNumRule.to')}
@@ -380,16 +381,17 @@ const NewAlert: NextPageWithLayout = () => {
                             rules={{
                               required: 'Please enter an amount',
                               validate: {
+                                maxDecimals: validateMaxNearDecimalLength,
+                                maxValue: validateMaxNearU128,
                                 minValue: (value) =>
-                                  new BN(value || '', 10).gt(new BN(acctBalNumRuleFrom || '', 10)) ||
+                                  Number(value || '0') > Number(acctBalNumRuleFrom) ||
                                   'Must be greater than "From Amount"',
-                                maxValue: validateMaxValueU128,
                               },
                             }}
                             render={({ field }) => (
                               <NearInput
                                 label="To Amount"
-                                placeholder="eg: 2,000"
+                                placeholder="eg: 3"
                                 field={field}
                                 isInvalid={!!form.formState.errors.acctBalNumRule?.to}
                               />
@@ -632,6 +634,9 @@ function returnNewAlertBody(
 }
 
 function returnAcctBalBody(comparator: AmountComparator, { from, to }: { from: string; to: string }) {
+  from = convertNearToYocto(from);
+  to = convertNearToYocto(to);
+
   switch (comparator) {
     case 'EQ':
       return {
