@@ -579,7 +579,7 @@ function returnNewAlertBody(
         type: 'ACCT_BAL_NUM',
         rule: {
           contract: data.contract,
-          ...returnAcctBalBody(data.acctBalRule.comparator, data.acctBalNumRule),
+          ...returnAcctBalNumBody(data.acctBalRule.comparator, data.acctBalNumRule),
         },
       };
     case 'ACCT_BAL_PCT':
@@ -632,10 +632,13 @@ function returnNewAlertBody(
   }
 }
 
-function returnAcctBalBody(comparator: AmountComparator, { from, to }: { from: string; to: string }) {
+function returnAcctBalNumBody(comparator: AmountComparator, { from, to }: { from: string; to: string }) {
   from = convertNearToYocto(from);
   to = convertNearToYocto(to);
+  return returnAcctBalBody(comparator, { from, to });
+}
 
+function returnAcctBalBody(comparator: AmountComparator, { from, to }: { from: string; to: string }) {
   switch (comparator) {
     case 'EQ':
       return {
