@@ -383,9 +383,9 @@ function AlertSettings({ alert }: { alert: Alert }) {
             </Flex>
           )}
           {comparator.value !== 'RANGE' && (
-            <Tooltip number content={convertYoctoToNear(alert.rule.from || alert.rule.to, true)}>
+            <Tooltip number content={`${formatNumber(alert.rule.from || alert.rule.to)} yoctoⓃ`}>
               <Text as="span" family="number" hasTooltip>
-                {formatNumber(alert.rule.from || alert.rule.to)}
+                {convertYoctoToNear(alert.rule.from || alert.rule.to, true)}
               </Text>
             </Tooltip>
           )}
