@@ -21,6 +21,9 @@ export const Text = styled('p', {
       text3: {
         color: 'var(--color-text-3)',
       },
+      warning: {
+        color: 'var(--color-warning)',
+      },
     },
 
     family: {
@@ -47,6 +50,16 @@ export const Text = styled('p', {
       number: {
         fontWeight: 400,
         fontFamily: 'var(--font-number)',
+      },
+    },
+
+    hasTooltip: {
+      true: {
+        cursor: 'help',
+        transition: 'var(--transitions)',
+        '&:hover': {
+          color: 'var(--color-primary)',
+        },
       },
     },
 

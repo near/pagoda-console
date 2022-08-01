@@ -9,6 +9,7 @@ _If the current props and Stitches style overrides aren't enough to cover your u
 Here's an example using all of the dropdown menu features:
 
 ```tsx
+import { Text } from '@/components/lib/Text';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 
 ...
@@ -25,6 +26,10 @@ const [person, setPerson] = useState('pedro');
   </DropdownMenu.Button>
 
   <DropdownMenu.Content>
+    <DropdownMenu.ContentItem>
+      <Text>This can contain any read only content.</Text>
+    </DropdownMenu.ContentItem>
+
     <DropdownMenu.Item>New Tab</DropdownMenu.Item>
     <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
     <DropdownMenu.Item>
@@ -259,14 +264,22 @@ If you need to support displaying an icon (or any other components) alongside th
 
 It should be technically feasible to support the user selecting multiple options by using `DropdownMenu.CheckboxItem`, but this will need further investigation.
 
-## Max Height + Scroll
+## Menu Width
 
-By default, dropdown menus have a max height set which will allow the user to scroll if content exceeds that height. You can override this value with the `maxHeight` property:
+By default, dropdown menus will have a width that automatically fits their content (up to a max, default size). Sometimes it makes sense to match the width of the element that triggers the dropdown. You can use the `width` property on `DropdownMenu.Content` like so:
 
 ```tsx
 <DropdownMenu.Root>
-  <DropdownMenu.Button>...</DropdownMenu.Button>
+  <DropdownMenu.Trigger asChild>
+    <Button>Click Here to Open</Button>
+  </DropdownMenu.Trigger>
 
-  <DropdownMenu.Content maxHeight="10rem">...</DropdownMenu.Content>
+  <DropdownMenu.Content width="trigger">...</DropdownMenu.Content>
 </DropdownMenu.Root>
+```
+
+In the above example, the dropdown menu would match the width of the trigger exactly. You can also choose to use the trigger as a max width:
+
+```tsx
+<DropdownMenu.Content width="maxTrigger">...</DropdownMenu.Content>
 ```

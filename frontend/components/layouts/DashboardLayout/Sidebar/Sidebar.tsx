@@ -5,11 +5,12 @@ import type { ComponentProps } from 'react';
 import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { useSelectedProject } from '@/hooks/selected-project';
+import alertsEntries from '@/modules/alerts/sidebar-entries';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
-import templateEntries from '@/modules/template/sidebar-entries';
 import type { SidebarEntry } from '@/shared/utils/types';
 import { logOut } from '@/utils/auth';
+import config from '@/utils/config';
 
 import { Logo } from './Logo';
 import * as S from './styles';
@@ -17,7 +18,7 @@ import * as S from './styles';
 type Props = ComponentProps<typeof S.Root>;
 
 function useProjectPages(): SidebarEntry[] {
-  let pages: SidebarEntry[] = [];
+  const pages: SidebarEntry[] = [];
 
   const { project } = useSelectedProject({
     enforceSelectedProject: false,
@@ -34,14 +35,13 @@ function useProjectPages(): SidebarEntry[] {
 
   // pushed individually so that module pages can be placed at any point
   pages.push({ display: 'Contracts', route: `/contracts`, icon: 'zap' });
+  if (config.featureFlags.alerts) {
+    pages.push(...alertsEntries);
+  }
   pages.push({ display: 'Analytics', route: '/project-analytics', icon: 'bar-chart-2' });
-  pages = pages.concat(indexersEntries);
+  pages.push(...indexersEntries);
   pages.push({ display: 'Deploys', route: '', icon: 'git-merge' });
-  pages.push({ display: 'Alerts', route: '', icon: 'bell' });
   pages.push({ display: 'Settings', route: `/project-settings`, icon: 'settings' });
-
-  // example of pulling in module pages
-  pages = pages.concat(templateEntries);
 
   return pages;
 }
@@ -68,6 +68,7 @@ export function Sidebar({ children, ...props }: Props) {
                   <S.NavLink selected={isLinkSelected(page)}>
                     <FeatherIcon icon={page.icon} />
                     {page.display}
+                    {page.badgeText ? <Badge size="s">{page.badgeText}</Badge> : <></>}
                   </S.NavLink>
                 </Link>
               ) : (
