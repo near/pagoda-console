@@ -136,7 +136,6 @@ function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps) 
         id: destination.id,
         type: destination.type,
         name: data.name,
-        config: {},
       });
 
       onUpdate(updated);

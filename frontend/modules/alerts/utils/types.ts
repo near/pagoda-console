@@ -168,7 +168,7 @@ export type NewDestination = NewEmailDestination | NewTelegramDestination | NewW
 export type UpdateDestination = {
   id: number;
   type: DestinationType;
-  config: ConfigEmail | ConfigWebhook | Record<string, never>;
+  config?: ConfigEmail | ConfigWebhook;
   name: string;
 };
 
