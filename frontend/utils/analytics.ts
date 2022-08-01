@@ -19,9 +19,10 @@ function init() {
   segment = new Analytics(config.segment.key, options);
 }
 
-function alias() {
+function alias(id: string) {
+  userId = id;
   segment.alias({
-    previousId: anonymousId,
+    previousId: userId || anonymousId,
     userId,
   });
 }
