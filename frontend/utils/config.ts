@@ -23,6 +23,8 @@ if (
   !process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE ||
   !process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES ||
   !process.env.NEXT_PUBLIC_MIXPANEL_TOKEN ||
+  !process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY ||
+  !process.env.NEXT_PUBLIC_SEGMENT_DEBUG ||
   !process.env.NEXT_PUBLIC_FIREBASE_CONFIG ||
   !process.env.NEXT_PUBLIC_DEPLOY_ENV ||
   !process.env.NEXT_PUBLIC_ANALYTICS_IFRAME_URL
@@ -66,6 +68,10 @@ interface AppConfig {
     token: string;
     debug: boolean;
   };
+  segment: {
+    key: string;
+    debug: boolean;
+  };
   firebaseConfig: FirebaseOptions;
   downtimeMessage: string;
   downtimeMode: DowntimeMode | undefined;
@@ -97,6 +103,10 @@ const config: AppConfig = {
   mixpanel: {
     token: process.env.NEXT_PUBLIC_MIXPANEL_TOKEN,
     debug: process.env.NEXT_PUBLIC_MIXPANEL_DEBUG === 'true',
+  },
+  segment: {
+    key: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY,
+    debug: process.env.NEXT_PUBLIC_SEGMENT_DEBUG === 'true',
   },
   firebaseConfig: JSON.parse(process.env.NEXT_PUBLIC_FIREBASE_CONFIG),
   downtimeMessage,
