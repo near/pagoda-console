@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# TODO: ignore triggers in SQL dump, they cause core dbml generation to fail
+
+npm i -g @dbml/cli
+
+if [ $# -gt 0 ]; then
+  cd "./src/$1"
+  MODULE="$1"
+  MODULE=${MODULE^^}
+else
+  MODULE="CORE"
+  echo "This does not work for the core DB at the moment. Please provide a module name e.g. ./dbmlGen alerts"
+fi
+
+source prisma/.env
+# echo $ALERTS_DATABASE_URL
+
+if [ $MODULE == "ALERTS" ]; then
+  CONNECTION="$ALERTS_DATABASE_URL"
+elif [ $MODULE == "CORE" ]; then
+  CONNECTION="$DATABASE_URL"
+fi
+
+pg_dump -sx -T '*prisma*' $CONNECTION | grep -v -E '^(CREATE\ EXTENSION|COMMENT\ ON)' >dump_$MODULE.sql && sql2dbml dump_$MODULE.sql --postgres >dump_$MODULE.dbml
