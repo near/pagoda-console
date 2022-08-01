@@ -12,10 +12,10 @@ let userId: string;
 const anonymousId = uniqueId();
 
 function init() {
+  if (segment) return console.log('Segment Analytics has already been initialized');
   //flushAt=1 is useful for testing events,
   //TODO switch this to enable: false to prevent recording events from local development
   const options = config.segment.debug ? { flushAt: 1 } : {};
-  console.log('intitializing segment w/ %s', options);
   segment = new Analytics(config.segment.key, options);
 }
 
