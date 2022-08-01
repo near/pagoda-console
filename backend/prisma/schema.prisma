@@ -7,13 +7,15 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["linux-musl", "native"]
 }
 
 model User {
   id                  Int           @id @default(autoincrement())
   uid                 String        @unique
   email               String        @unique
+  /// If 'false', the record was soft-deleted by a user.
   active              Boolean       @default(true)
   teamMembers         TeamMember[]
   createdAt           DateTime?     @default(now())
@@ -36,14 +38,17 @@ model User {
 model Team {
   id            Int           @id @default(autoincrement())
   name          String
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean       @default(true)
   teamMembers   TeamMember[]
   teamProjects  TeamProject[]
   createdAt     DateTime?     @default(now())
   createdByUser User?         @relation(name: "UserCreatedTeam", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?         @relation(name: "UserUpdatedTeam", fields: [updatedBy], references: [id])
   updatedAt     DateTime?     @updatedAt
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }
 
@@ -52,12 +57,15 @@ model TeamMember {
   userId        Int
   team          Team      @relation(fields: [teamId], references: [id])
   teamId        Int
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean   @default(true)
   createdAt     DateTime? @default(now())
   createdByUser User?     @relation(name: "UserCreatedTeamMember", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?     @relation(name: "UserUpdatedTeamMember", fields: [updatedBy], references: [id])
   updatedAt     DateTime? @updatedAt
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 
   @@id([userId, teamId])
@@ -67,15 +75,18 @@ model Project {
   id            Int              @id @default(autoincrement())
   name          String
   slug          String           @unique
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean          @default(true)
   teamProjects  TeamProject[]
   environments  Environment[]
   tutorial      ProjectTutorial?
   createdAt     DateTime?        @default(now())
   createdByUser User?            @relation(name: "UserCreatedProject", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?            @relation(name: "UserUpdatedProject", fields: [updatedBy], references: [id])
   updatedAt     DateTime?        @updatedAt
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }
 
@@ -84,12 +95,15 @@ model TeamProject {
   teamId        Int
   project       Project   @relation(fields: [projectId], references: [id])
   projectId     Int
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean   @default(true)
   createdAt     DateTime? @default(now())
   createdByUser User?     @relation(name: "UserCreatedTeamProject", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?     @relation(name: "UserUpdatedTeamProject", fields: [updatedBy], references: [id])
   updatedAt     DateTime? @updatedAt
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 
   @@id([teamId, projectId])
@@ -105,6 +119,7 @@ model ApiKey {
   net           Net
   environment   Environment @relation(fields: [environmentId], references: [id])
   environmentId Int
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean     @default(true)
 }
 
@@ -115,14 +130,17 @@ model Environment {
   projectId     Int
   net           Net
   subId         Int
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean    @default(true)
   apiKeys       ApiKey[]
   contracts     Contract[]
   createdAt     DateTime?  @default(now())
   createdByUser User?      @relation(name: "UserCreatedEnvironment", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?      @relation(name: "UserUpdatedEnvironment", fields: [updatedBy], references: [id])
   updatedAt     DateTime?  @updatedAt
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 
   @@unique([projectId, subId])
@@ -134,12 +152,15 @@ model Contract {
   environmentId Int
   address       String
   net           Net
+  /// If 'false', the record was soft-deleted by a user.
   active        Boolean     @default(true)
   createdAt     DateTime?   @default(now())
   createdByUser User?       @relation(name: "UserCreatedContract", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?       @relation(name: "UserUpdatedContract", fields: [updatedBy], references: [id])
   updatedAt     DateTime?   @updatedAt
+  /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }
 
@@ -148,7 +169,7 @@ enum ProjectTutorial {
   CROSSWORD
 }
 
-// UserAction is used to audit user actions that can't be captured in the Audit table.
+/// UserAction is used to audit user actions that can't be captured in the Audit table.
 model UserAction {
   id              Int            @id @default(autoincrement())
   action          UserActionType

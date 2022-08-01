@@ -29,6 +29,7 @@ export interface AppConfig {
     connectionString: string;
   };
   rpcAuth: Record<Net, { url: string; credential: string; quota: number }>;
+  nearRpc: Record<Net, { url: string }>;
   recentTransactionsCount: number;
   projectRefPrefix: string;
   analytics: {
@@ -47,6 +48,35 @@ export interface AppConfig {
   log: {
     queries: boolean;
     indexer: boolean;
+  };
+  alerts: {
+    emailTokenExpiryMin: number;
+    telegram: {
+      tokenExpiryMin: number;
+      enableWebhook: boolean;
+      botToken?: string;
+      secret?: string;
+    };
+  };
+  mailgun: {
+    domain: string;
+    username: string;
+    apiKey: string;
+  };
+  email: {
+    emailVerificationFrom: string;
+    emailVerificationSubject: string;
+  };
+  frontend: {
+    baseUrl: string;
+  };
+  featureEnabled: {
+    core: {
+      contractAddressValidation: boolean;
+    };
+    alerts: {
+      contractAddressValidation: boolean;
+    };
   };
 }
 
@@ -95,6 +125,20 @@ const appConfigSchema = Joi.object({
       quota: Joi.number().integer(),
     }),
   },
+  nearRpc: {
+    TESTNET: {
+      url: Joi.string()
+        .uri({ scheme: 'https' })
+        .optional()
+        .default('https://rpc.testnet.near.org'),
+    },
+    MAINNET: Joi.object({
+      url: Joi.string()
+        .uri({ scheme: 'https' })
+        .optional()
+        .default('https://rpc.mainnet.near.org'),
+    }),
+  },
   recentTransactionsCount: Joi.number().integer(),
   projectRefPrefix: Joi.string().optional().default(''),
   analytics: {
@@ -113,6 +157,41 @@ const appConfigSchema = Joi.object({
   log: {
     queries: Joi.boolean().optional().default(false),
     indexer: Joi.boolean().optional().default(false),
+  },
+  alerts: {
+    emailTokenExpiryMin: Joi.number().optional().default(10000), // TODO set to a small value once requesting a new token is possible
+    telegram: Joi.object({
+      tokenExpiryMin: Joi.number().optional().default(10000), // TODO set to a small value once requesting a new token is possible
+      enableWebhook: Joi.boolean().optional().default(false),
+      botToken: Joi.string().when('/alerts.telegram.enableWebhook', {
+        is: Joi.boolean().valid(false),
+        then: Joi.optional().allow(''),
+      }),
+      secret: Joi.string().when('/alerts.telegram.enableWebhook', {
+        is: Joi.boolean().valid(false),
+        then: Joi.optional().allow(''),
+      }),
+    }),
+  },
+  mailgun: {
+    domain: Joi.string(),
+    username: Joi.string(),
+    apiKey: Joi.string(),
+  },
+  email: {
+    emailVerificationFrom: Joi.string(),
+    emailVerificationSubject: Joi.string(),
+  },
+  frontend: {
+    baseUrl: Joi.string(),
+  },
+  featureEnabled: {
+    core: {
+      contractAddressValidation: Joi.boolean().optional().default(true),
+    },
+    alerts: {
+      contractAddressValidation: Joi.boolean().optional().default(true),
+    },
   },
 });
 
@@ -137,6 +216,14 @@ export default function validate(config: Record<string, unknown>): AppConfig {
         quota: config.KEY_MANAGEMENT_QUOTA_MAIN,
       },
     },
+    nearRpc: {
+      TESTNET: {
+        url: config.NEAR_RPC_URL_TEST,
+      },
+      MAINNET: {
+        url: config.NEAR_RPC_URL_MAIN,
+      },
+    },
     recentTransactionsCount: config.RECENT_TRANSACTIONS_COUNT,
     projectRefPrefix: config.PROJECT_REF_PREFIX,
     analytics: {
@@ -155,6 +242,37 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     log: {
       queries: config.LOG_QUERIES,
       indexer: config.LOG_INDEXER,
+    },
+    alerts: {
+      emailTokenExpiryMin: config.EMAIL_TOKEN_EXPIRY_MIN,
+      telegram: {
+        tokenExpiryMin: config.TELEGRAM_TOKEN_EXPIRY_MIN,
+        enableWebhook: config.TELEGRAM_ENABLE_WEBHOOK,
+        botToken: config.TELEGRAM_BOT_TOKEN,
+        secret: config.TELEGRAM_SECRET,
+      },
+    },
+    mailgun: {
+      domain: config.MAILGUN_DOMAIN,
+      username: config.MAILGUN_USERNAME,
+      apiKey: config.MAILGUN_API_KEY,
+    },
+    email: {
+      emailVerificationFrom: config.EMAIL_VERIFICATION_FROM,
+      emailVerificationSubject: config.EMAIL_VERIFICATION_SUBJECT,
+    },
+    frontend: {
+      baseUrl: config.FRONTEND_BASE_URL,
+    },
+    featureEnabled: {
+      core: {
+        contractAddressValidation:
+          config.CORE_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
+      },
+      alerts: {
+        contractAddressValidation:
+          config.ALERT_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
+      },
     },
   };
 
