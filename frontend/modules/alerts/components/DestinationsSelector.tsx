@@ -83,6 +83,7 @@ export function DestinationsSelector({ debounce = true, onChange, selectedIds, s
                 <Switch
                   checked={isChecked}
                   onCheckedChange={(value) => toggleEnabledDestination(value, destination)}
+                  dependencies={[destinations]}
                   debounce={debounce}
                   aria-label={`Destination: ${destination.name}`}
                   disabled={!destination.isValid}
