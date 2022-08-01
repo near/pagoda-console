@@ -1,8 +1,8 @@
 import type { User as FirebaseUser } from 'firebase/auth';
 import { getAuth, onAuthStateChanged, onIdTokenChanged } from 'firebase/auth';
-import mixpanel from 'mixpanel-browser';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
+import analytics from 'utils/analytics';
 
 import { authenticatedPost } from '@/utils/http';
 import type { User } from '@/utils/types';
@@ -55,13 +55,13 @@ export function useIdentity(): FirebaseUser | null {
 export async function deleteAccount(uid: string | undefined) {
   try {
     await authenticatedPost('/users/deleteAccount');
-    mixpanel.track('Delete account', {
+    analytics.track('Delete account', {
       status: 'success',
       uid,
     });
     return true;
   } catch (e: any) {
-    mixpanel.track('Delete account', {
+    analytics.track('Delete account', {
       status: 'failure',
       uid,
       error: e.message,

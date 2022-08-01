@@ -1,4 +1,4 @@
-import mixpanel from 'mixpanel-browser';
+import analytics from '@utils/analytics';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import useSWR from 'swr';
@@ -11,13 +11,13 @@ import type { Project } from '@/utils/types';
 export async function ejectTutorial(slug: string, name: string) {
   try {
     await authenticatedPost('/projects/ejectTutorial', { slug });
-    mixpanel.track('DC Eject Tutorial Project', {
+    analytics.track('DC Eject Tutorial Project', {
       status: 'success',
       name,
     });
     return true;
   } catch (e: any) {
-    mixpanel.track('DC Eject Tutorial Project', {
+    analytics.track('DC Eject Tutorial Project', {
       status: 'failure',
       name,
       error: e.message,
@@ -31,7 +31,7 @@ export async function ejectTutorial(slug: string, name: string) {
 export async function deleteProject(userId: string | undefined, slug: string, name: string) {
   try {
     await authenticatedPost('/projects/delete', { slug });
-    mixpanel.track('DC Remove Project', {
+    analytics.track('DC Remove Project', {
       status: 'success',
       name,
     });
@@ -41,7 +41,7 @@ export async function deleteProject(userId: string | undefined, slug: string, na
     });
     return true;
   } catch (e: any) {
-    mixpanel.track('DC Remove Project', {
+    analytics.track('DC Remove Project', {
       status: 'failure',
       name,
       error: e.message,
