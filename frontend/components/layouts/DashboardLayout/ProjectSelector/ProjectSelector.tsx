@@ -9,7 +9,11 @@ import { useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
 import type { Project } from '@/utils/types';
 
-export function ProjectSelector() {
+interface Props {
+  onBeforeChange?: (change: () => void) => void;
+}
+
+export function ProjectSelector(props: Props) {
   const { project, selectProject } = useSelectedProject();
   const { projects } = useProjects();
   const router = useRouter();
@@ -18,6 +22,14 @@ export function ProjectSelector() {
   const otherProjects = otherProjectsList?.length ? otherProjectsList : null;
 
   function onSelectProject(project: Project) {
+    if (props.onBeforeChange) {
+      props.onBeforeChange(() => {
+        selectProject(project.slug);
+        analytics.track('DC Switch Project');
+      });
+      return;
+    }
+
     selectProject(project.slug);
 
     if (router.pathname.startsWith('/tutorials/') && !project.tutorial) {
@@ -37,7 +49,7 @@ export function ProjectSelector() {
         <TextOverflow>{project?.name || '...'}</TextOverflow>
       </DropdownMenu.Button>
 
-      <DropdownMenu.Content align="start">
+      <DropdownMenu.Content width="trigger">
         {otherProjects?.map((p) => {
           return (
             <DropdownMenu.Item key={p.id} onSelect={() => onSelectProject(p)}>

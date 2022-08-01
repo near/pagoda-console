@@ -21,7 +21,10 @@ export const Content = styled(TooltipPrimitive.Content, {
   backgroundColor: 'var(--background-color)',
   boxShadow: 'var(--shadow-softer)',
   zIndex: 1000,
-  maxWidth: 'var(--size-max-container-width-xs)',
+  maxWidth: 'var(--size-max-container-width-s)',
+  fontSize: 'var(--font-size-body-small)',
+  lineHeight: 'var(--line-height-body-small)',
+  wordBreak: 'break-word',
 
   '&[data-state="delayed-open"]': {
     animation: `${openAnimation} 200ms`,
@@ -47,6 +50,11 @@ export const Content = styled(TooltipPrimitive.Content, {
       reverse: {
         '--background-color': 'var(--color-text-1)',
         color: 'var(--color-surface-1)',
+      },
+    },
+    number: {
+      true: {
+        fontFamily: 'var(--font-number)',
       },
     },
   },

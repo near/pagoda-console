@@ -4,6 +4,14 @@ import { styled } from '@/styles/stitches';
 export const Form = styled('form', {
   display: 'block',
   width: '100%',
+
+  variants: {
+    disabled: {
+      true: {
+        pointerEvents: 'none',
+      },
+    },
+  },
 });
 
 export const Fieldset = styled('fieldset', {
@@ -16,6 +24,7 @@ export const Group = styled('div', {
   width: '100%',
   flexDirection: 'column',
   justifyContent: 'center',
+  position: 'relative',
 
   variants: {
     gap: {
@@ -104,6 +113,10 @@ const inputStyles: StitchesCSS = {
     margin: 0,
   },
 
+  '&[list]::-webkit-calendar-picker-indicator': {
+    display: 'none !important',
+  },
+
   '&::placeholder': {
     fontSize: 'var(--font-size-body)',
     color: 'var(--color-text-3)',
@@ -129,6 +142,11 @@ export const Input = styled('input', {
   ...inputStyles,
 
   variants: {
+    number: {
+      true: {
+        fontFamily: 'var(--font-number)',
+      },
+    },
     invalid: {
       true: {
         ...inputInvalidStyles,

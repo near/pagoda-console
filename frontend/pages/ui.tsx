@@ -15,6 +15,7 @@ import * as CheckboxCard from '@/components/lib/CheckboxCard';
 import { CodeBlock } from '@/components/lib/CodeBlock';
 import * as Combobox from '@/components/lib/Combobox';
 import { Container } from '@/components/lib/Container';
+import { CopyButton } from '@/components/lib/CopyButton';
 import * as Dialog from '@/components/lib/Dialog';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -25,6 +26,7 @@ import { HR } from '@/components/lib/HorizontalRule';
 import { Info } from '@/components/lib/Info';
 import { List, ListItem } from '@/components/lib/List';
 import { Message } from '@/components/lib/Message';
+import { NearInput } from '@/components/lib/NearInput';
 import { Placeholder } from '@/components/lib/Placeholder';
 import * as Popover from '@/components/lib/Popover';
 import { Progress } from '@/components/lib/Progress';
@@ -47,6 +49,7 @@ import config from '@/utils/config';
 import { formValidations } from '@/utils/constants';
 import { mergeInputProps } from '@/utils/merge-input-props';
 import type { NextPageWithLayout } from '@/utils/types';
+import { validateMaxNearDecimalLength, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
 const Block = styled('div', {
   display: 'flex',
@@ -344,21 +347,18 @@ const Settings: NextPageWithLayout = () => {
       </DocSection>
 
       <DocSection title="Badge">
-        <Flex align="center">
-          <H3
-            css={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-s)',
-              flexWrap: 'wrap',
-            }}
-          >
-            With a Badge
-            <Badge>Neutral</Badge>
-            <Badge color="primary">Primary</Badge>
-            <Badge color="danger">Danger</Badge>
-            <Badge size="s">Small</Badge>
-          </H3>
+        <Flex wrap>
+          <Badge>Neutral</Badge>
+          <Badge as="button" type="button" clickable onClick={() => alert('Hi!')}>
+            Clickable
+          </Badge>
+          <Badge>
+            <FeatherIcon icon="zap" size="xs" /> With Icon
+          </Badge>
+          <Badge color="primary">Primary</Badge>
+          <Badge color="danger">Danger</Badge>
+          <Badge color="warning">Warning</Badge>
+          <Badge size="s">Small</Badge>
         </Flex>
       </DocSection>
 
@@ -449,6 +449,14 @@ const Settings: NextPageWithLayout = () => {
             </Flex>
           </Card>
         </Flex>
+
+        <Card border>
+          <Flex stack>
+            <FeatherIcon icon="box" size="m" />
+            <H4>Border Card</H4>
+            <Text>Cards can contain anything.</Text>
+          </Flex>
+        </Card>
 
         <Flex
           stack={{
@@ -614,6 +622,15 @@ const Settings: NextPageWithLayout = () => {
         </Container>
       </DocSection>
 
+      <DocSection title="Copy Button">
+        <Flex wrap>
+          <CopyButton value="123" />
+          <CopyButton content="456" />
+          <CopyButton content="With Unique Content" value="789" />
+          <CopyButton content="Different Style" value="789" color="primary" />
+        </Flex>
+      </DocSection>
+
       <DocSection title="Dialog">
         <Text>Open/close via trigger:</Text>
 
@@ -674,6 +691,12 @@ const Settings: NextPageWithLayout = () => {
             </DropdownMenu.Trigger>
 
             <DropdownMenu.Content>
+              <DropdownMenu.ContentItem>
+                <Text>This can contain any content.</Text>
+              </DropdownMenu.ContentItem>
+
+              <DropdownMenu.Separator />
+
               <DropdownMenu.Item>New Tab</DropdownMenu.Item>
               <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
               <DropdownMenu.Item>
@@ -757,11 +780,12 @@ const Settings: NextPageWithLayout = () => {
         </Flex>
 
         <Flex>
-          <Text css={{ color: 'orange' }}>
+          <Text css={{ color: 'pink' }}>
             <FeatherIcon icon="cpu" />
           </Text>
           <FeatherIcon icon="cpu" color="primary" />
           <FeatherIcon icon="cpu" color="danger" />
+          <FeatherIcon icon="cpu" color="warning" />
           <FeatherIcon icon="cpu" color="text1" />
           <FeatherIcon icon="cpu" color="text2" />
           <FeatherIcon icon="cpu" color="text3" />
@@ -896,6 +920,7 @@ const Settings: NextPageWithLayout = () => {
       <DocSection title="Message">
         <Message content="Here is an info message." />
         <Message type="error" content="Here is an error message." />
+        <Message type="warning" content="Here is a warning message." />
         <Message type="success" content="Here is a success message." />
         <Message type="success" content="With a custom icon." icon="zap" />
         <Message type="error" content={errorMessage} dismiss={() => setErrorMessage('')} />
@@ -1059,11 +1084,12 @@ const Settings: NextPageWithLayout = () => {
         </Flex>
 
         <Flex>
-          <Box css={{ color: 'orange' }}>
+          <Box css={{ color: 'pink' }}>
             <SvgIcon icon={ExampleIcon} />
           </Box>
           <SvgIcon color="primary" icon={ExampleIcon} />
           <SvgIcon color="danger" icon={ExampleIcon} />
+          <SvgIcon color="warning" icon={ExampleIcon} />
           <SvgIcon color="text1" icon={ExampleIcon} />
           <SvgIcon color="text2" icon={ExampleIcon} />
           <SvgIcon color="text3" icon={ExampleIcon} />
@@ -1083,6 +1109,11 @@ const Settings: NextPageWithLayout = () => {
         <Flex as="label" align="center">
           With a Label On Left
           <Switch />
+        </Flex>
+
+        <Flex as="label" align="center">
+          <Switch disabled />
+          Disabled
         </Flex>
 
         <HR />
@@ -1110,6 +1141,21 @@ const Settings: NextPageWithLayout = () => {
             <FeatherIcon icon="moon" size="xs" data-off />
           </Switch>
           Small Switch
+        </Flex>
+
+        <HR />
+
+        <Flex as="label" align="center">
+          <Switch debounce={true} onCheckedChange={() => alert('The checked event was debounced.')} />
+          Default Debounce
+        </Flex>
+
+        <Flex as="label" align="center">
+          <Switch
+            debounce={4000}
+            onCheckedChange={() => alert('The checked event was debounced with a custom delay.')}
+          />
+          Custom Debounce (4 Seconds)
         </Flex>
       </DocSection>
 
@@ -1473,13 +1519,16 @@ const Settings: NextPageWithLayout = () => {
         <HR />
 
         <Flex gap="l" wrap>
-          <span style={{ color: 'orange' }}>
+          <span style={{ color: 'pink' }}>
             <Text size="h3" color="current">
               Current
             </Text>
           </span>
           <Text size="h3" color="danger">
             Danger
+          </Text>
+          <Text size="h3" color="warning">
+            Warning
           </Text>
           <Text size="h3" color="primary">
             Primary
@@ -1902,6 +1951,8 @@ interface FakeForm {
   favoriteWeather: string;
   favoriteIcon: string;
   termsAccepted: boolean;
+  nearAmount: string;
+  yoctoNearAmount: string;
 }
 
 function DocSectionForm() {
@@ -2038,6 +2089,47 @@ function DocSectionForm() {
               );
             }}
           />
+
+          <HR />
+
+          <H4>NEAR Input</H4>
+
+          <Form.Group>
+            <Controller
+              name="nearAmount"
+              control={form.control}
+              rules={{
+                required: 'Please enter an amount',
+                validate: {
+                  maxDecimals: validateMaxNearDecimalLength,
+                  maxValue: validateMaxNearU128,
+                },
+              }}
+              render={({ field }) => (
+                <NearInput label="Amount" field={field} isInvalid={!!form.formState.errors.nearAmount} />
+              )}
+            />
+
+            <Form.Feedback>{form.formState.errors.nearAmount?.message}</Form.Feedback>
+          </Form.Group>
+
+          <Form.Group>
+            <Controller
+              name="yoctoNearAmount"
+              control={form.control}
+              rules={{
+                required: 'Please enter an amount',
+                validate: {
+                  maxValue: validateMaxYoctoU128,
+                },
+              }}
+              render={({ field }) => (
+                <NearInput yocto label="Amount" field={field} isInvalid={!!form.formState.errors.yoctoNearAmount} />
+              )}
+            />
+
+            <Form.Feedback>{form.formState.errors.yoctoNearAmount?.message}</Form.Feedback>
+          </Form.Group>
 
           <HR />
 
