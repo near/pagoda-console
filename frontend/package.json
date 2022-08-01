@@ -43,7 +43,6 @@
     "iframe-resizer": "^4.3.2",
     "lodash-es": "^4.17.21",
     "luxon": "^2.4.0",
-    "mixpanel-browser": "^2.42.0",
     "near-api-js": "^0.44.2",
     "next": "^12.1.0",
     "next-i18next": "^8.10.0",

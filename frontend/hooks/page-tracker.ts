@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-
-import analytics from '@/utils/analytics';
+import analytics from 'utils/analytics';
 
 export function usePageTracker() {
   const router = useRouter();

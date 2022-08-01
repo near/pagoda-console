@@ -1,8 +1,8 @@
-import analytics from '@utils/analytics';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import useSWR from 'swr';
 import { mutate } from 'swr';
+import analytics from 'utils/analytics';
 
 import { useIdentity } from '@/hooks/user';
 import { authenticatedPost } from '@/utils/http';
