@@ -19,6 +19,6 @@ import { ReadonlyService } from './readonly.service';
   ],
   controllers: [ProjectsController],
   imports: [PrismaService, KeysModule, IndexerService, NearRpcService],
-  exports: [PermissionsService, ReadonlyService],
+  exports: [ProjectsService, PermissionsService, ReadonlyService],
 })
 export class ProjectsModule {}
