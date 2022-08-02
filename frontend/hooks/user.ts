@@ -2,8 +2,8 @@ import type { User as FirebaseUser } from 'firebase/auth';
 import { getAuth, onAuthStateChanged, onIdTokenChanged } from 'firebase/auth';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
-import analytics from 'utils/analytics';
 
+import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 import type { User } from '@/utils/types';
 
