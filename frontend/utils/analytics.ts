@@ -13,10 +13,9 @@ const anonymousId = uniqueId();
 
 function init() {
   if (segment) return console.log('Segment Analytics has already been initialized');
-  //flushAt=1 is useful for testing events,
-  //TODO switch this to enable: false to prevent recording events from local development
-  const options = config.segment.debug ? { flushAt: 1 } : {};
-  segment = new Analytics(config.segment.key, options);
+  //flushAt=1 is useful for testing new events
+  const options = config.deployEnv === 'LOCAL' ? { flushAt: 1 } : {};
+  segment = new Analytics(config.segment, options);
 }
 
 function alias(id: string) {

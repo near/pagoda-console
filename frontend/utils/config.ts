@@ -62,10 +62,7 @@ interface AppConfig {
   };
   buttonDebounce: number;
   usagePersistenceMinutes: number;
-  segment: {
-    key: string;
-    debug: boolean;
-  };
+  segment: string;
   firebaseConfig: FirebaseOptions;
   downtimeMessage: string;
   downtimeMode: DowntimeMode | undefined;
@@ -94,10 +91,7 @@ const config: AppConfig = {
   },
   buttonDebounce: parseInt(process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE),
   usagePersistenceMinutes: parseInt(process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES),
-  segment: {
-    key: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY,
-    debug: process.env.NEXT_PUBLIC_SEGMENT_DEBUG === 'true',
-  },
+  segment: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY,
   firebaseConfig: JSON.parse(process.env.NEXT_PUBLIC_FIREBASE_CONFIG),
   downtimeMessage,
   downtimeMode,
