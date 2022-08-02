@@ -14,7 +14,7 @@ import {
 // TODO should we re-export these types from the core module? So there is no dependency on the core prisma/client
 // yes
 import { User, Project } from '../../generated/prisma/core';
-import { PermissionsService as ProjectPermissionsService } from 'src/projects/permissions.service';
+import { PermissionsService as ProjectPermissionsService } from '../core/projects/permissions.service';
 
 import { customAlphabet } from 'nanoid';
 
@@ -28,7 +28,7 @@ import {
   MatchingRule,
   TxMatchingRule,
 } from './serde/db.types';
-import { ReadonlyService as ProjectsReadonlyService } from 'src/projects/readonly.service';
+import { ReadonlyService as ProjectsReadonlyService } from '../core/projects/readonly.service';
 import { assertUnreachable } from 'src/helpers';
 import { AppConfig } from 'src/config/validate';
 import { ConfigService } from '@nestjs/config';

@@ -5,8 +5,8 @@ import { NearRpcService } from '@/src/core/near-rpc.service';
 import { PrismaService } from '../prisma.service';
 import { ProjectsController } from './projects.controller';
 import { ProjectsService } from './projects.service';
-import { PermissionsService } from '../../projects/permissions.service';
-import { ReadonlyService } from '../../projects/readonly.service';
+import { PermissionsService } from './permissions.service';
+import { ReadonlyService } from './readonly.service';
 
 @Module({
   providers: [
