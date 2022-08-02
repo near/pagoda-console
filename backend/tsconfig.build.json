@@ -6,6 +6,7 @@
     "dist",
     "**/*spec.ts",
     "ignore",
-    "./modules/template"
+    "./modules/template",
+    "scripts"
   ]
 }
