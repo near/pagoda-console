@@ -19,7 +19,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "gen:module": "./scripts/gen_module.sh"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
@@ -36,7 +37,7 @@
     "luxon": "^2.4.0",
     "mailgun.js": "^7.0.2",
     "nanoid": "^3.1.30",
-    "passport": "^0.4.1",
+    "passport": "^0.6.0",
     "passport-http-bearer": "^1.0.1",
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.4",
@@ -95,6 +96,7 @@
   },
   "lint-staged": {
     "**/.{js,ts}": "eslint --cache --max-warnings 0",
-    "*.{js,ts,json}": "prettier --check"
+    "*.{js,ts,json}": "prettier --check",
+    "**/prisma/migrations/**/*.sql": "npx ts-node ./scripts/checkMigrations.ts"
   }
 }
