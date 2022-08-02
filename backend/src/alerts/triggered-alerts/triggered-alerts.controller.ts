@@ -8,7 +8,7 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { BearerAuthGuard } from 'src/auth/bearer-auth.guard';
+import { BearerAuthGuard } from 'src/core/auth/bearer-auth.guard';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 import { VError } from 'verror';
 import { TriggeredAlertsService } from './triggered-alerts.service';
