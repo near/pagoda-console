@@ -7,7 +7,7 @@ import {
   User,
   Contract,
   Environment,
-} from '@prisma/client';
+} from '../../../generated/prisma/core';
 import { VError } from 'verror';
 import { customAlphabet } from 'nanoid';
 import { KeysService } from '../keys/keys.service';

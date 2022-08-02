@@ -9,7 +9,7 @@ import {
   //UsePipes,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-// import { User } from '@prisma/client';
+// import { User } from '../../../generated/prisma/core';
 import { BearerAuthGuard } from '../auth/bearer-auth.guard';
 import firebaseAdmin from 'firebase-admin';
 import { ProjectsService } from '../projects/projects.service';

@@ -1,4 +1,4 @@
-import { Net } from '@prisma/client';
+import { Net } from '../../../generated/prisma/core';
 
 export interface Key {
   project_ref: string;

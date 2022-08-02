@@ -13,7 +13,7 @@ import {
 
 // TODO should we re-export these types from the core module? So there is no dependency on the core prisma/client
 // yes
-import { User, Project } from '@prisma/client';
+import { User, Project } from '../../generated/prisma/core';
 import { PermissionsService as ProjectPermissionsService } from 'src/projects/permissions.service';
 
 import { customAlphabet } from 'nanoid';

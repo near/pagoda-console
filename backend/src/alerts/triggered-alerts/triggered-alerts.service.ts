@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { User } from '../../../generated/prisma/core';
 import { Alert, Prisma, TriggeredAlert } from 'generated/prisma/alerts';
 import { PrismaService } from '../prisma.service';
 import { PermissionsService as ProjectPermissionsService } from 'src/projects/permissions.service';

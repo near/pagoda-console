@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import firebaseAdmin from 'firebase-admin';
-import { User } from '@prisma/client';
+import { User } from '../../../generated/prisma/core';
 
 type UserDetails = User & { name?: string; picture?: string };
 

@@ -9,6 +9,7 @@ datasource db {
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["linux-musl", "native"]
+  output        = "../../../generated/prisma/core"
 }
 
 model User {
