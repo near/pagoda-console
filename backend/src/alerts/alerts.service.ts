@@ -33,7 +33,7 @@ import { assertUnreachable } from 'src/helpers';
 import { AppConfig } from 'src/config/validate';
 import { ConfigService } from '@nestjs/config';
 import { DateTime } from 'luxon';
-import { EmailService } from 'src/email/email.service';
+import { EmailService } from '@/src/core/email/email.service';
 import { NearRpcService } from '@/src/core/near-rpc.service';
 
 type TxRuleSchema = {
