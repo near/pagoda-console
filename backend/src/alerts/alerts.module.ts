@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AlertsService } from './alerts.service';
 import { AlertsController } from './alerts.controller';
 import { PrismaService } from './prisma.service';
-import { ProjectsModule } from 'src/projects/projects.module';
+import { ProjectsModule } from 'src/core/projects/projects.module';
 import { SerdeModule } from './serde/serde.module';
 import { TelegramService } from './telegram/telegram.service';
 import { EmailService } from 'src/email/email.service';

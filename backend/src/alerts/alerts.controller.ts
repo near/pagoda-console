@@ -12,7 +12,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { BearerAuthGuard } from 'src/auth/bearer-auth.guard';
+import { BearerAuthGuard } from 'src/core/auth/bearer-auth.guard';
 import { AppConfig } from 'src/config/validate';
 import { assertUnreachable } from 'src/helpers';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
