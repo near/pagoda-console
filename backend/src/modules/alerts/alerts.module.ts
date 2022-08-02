@@ -8,7 +8,7 @@ import { TelegramService } from './telegram/telegram.service';
 import { TriggeredAlertsController } from './triggered-alerts/triggered-alerts.controller';
 import { TriggeredAlertsService } from './triggered-alerts/triggered-alerts.service';
 import { NearRpcService } from '@/src/core/near-rpc.service';
-import { EmailModule } from '../core/email/email.module';
+import { EmailModule } from '../../core/email/email.module';
 
 @Module({
   providers: [

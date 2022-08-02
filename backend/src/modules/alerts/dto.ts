@@ -1,7 +1,7 @@
 // Note: we use Joi instead of Nest's default recommendation of class-validator
 // because class-validator was experiencing issues at the time of implementation
 // and had many unaddressed github issues
-import { DestinationType } from '../../generated/prisma/alerts';
+import { DestinationType } from '../../../generated/prisma/alerts';
 import * as Joi from 'joi';
 import {
   AcctBalRuleDto,

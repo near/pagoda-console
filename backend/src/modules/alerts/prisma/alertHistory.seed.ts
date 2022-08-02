@@ -6,7 +6,7 @@
   Creates 10 records with a 1s delay between records. To create more, change line 59.
 */
 
-import { Alert, PrismaClient } from '../../../generated/prisma/alerts';
+import { Alert, PrismaClient } from '../../../../generated/prisma/alerts';
 import { createHash, randomBytes } from 'crypto';
 const prisma = new PrismaClient();
 

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AlertsModule } from '../alerts/alerts.module';
+import { AlertsModule } from './alerts/alerts.module';
 
 @Module({
   imports: [AlertsModule],

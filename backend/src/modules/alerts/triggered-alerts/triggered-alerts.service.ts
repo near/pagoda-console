@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '../../../generated/prisma/core';
+import { User } from '../../../../generated/prisma/core';
 import { Alert, Prisma, TriggeredAlert } from 'generated/prisma/alerts';
 import { PrismaService } from '../prisma.service';
-import { PermissionsService as ProjectPermissionsService } from '../../core/projects/permissions.service';
+import { PermissionsService as ProjectPermissionsService } from '../../../core/projects/permissions.service';
 import { AlertsService } from '../alerts.service';
 import { MatchingRule } from '../serde/db.types';
 import {
