@@ -24,5 +24,17 @@ module.exports = {
       'warn',
       { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
+    'no-restricted-imports': [
+      'error',
+      {
+        paths: [
+          {
+            name: 'verror',
+            importNames: ['default'],
+            message: "Please use `import { VError } from 'verror'` instead.",
+          },
+        ],
+      },
+    ],
   },
 };

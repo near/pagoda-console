@@ -1,4 +1,4 @@
-import { Net } from '@prisma/client';
+import { Net } from '../../generated/prisma/core';
 import * as Joi from 'joi';
 
 // * Adding an environment variable? There are three places in this
