@@ -25,8 +25,9 @@ This will create a set of Docker containers with all required dependencies preco
    Otherwise, open the VS Code command palette and run `Remote-Containers: Reopen in Container`.
 4. Wait for the build process to complete. You will now have two connected Docker containers running. One is your Node+Typescript development environment and one is a Postgres instance. Your files are mounted into the Node+Typescript container, so edits made through VS Code apply to the files on your local filesystem
 5. Open an in-editor terminal by selecting `Terminal > New Terminal` from the Menu Bar
-6. Run `npm install` to install dependecies
+6. Run `npm install` to install dependencies
 7. Run `npx prisma migrate dev` to initialize the database
+   Note: this must be ran from a directory containing a prisma folder (e.g. `src/core` or `src/modules/alerts`).
 8. Choose `Run > Start Debugging` or hit F5 to run the server in live-reload mode with breakpoint debugging enabled!
 9. Your server is available at `localhost:3001`. VS Code will automatically expose the port from the Dev Container to the rest of your machine. Test that it is available by running `curl -X GET localhost:3001` from a terminal outside of the Dev Container
 
