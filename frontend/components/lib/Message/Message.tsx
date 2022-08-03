@@ -5,7 +5,7 @@ import { FeatherIcon } from '../FeatherIcon';
 import { Flex } from '../Flex';
 import * as S from './styles';
 
-type MessageType = 'info' | 'error' | 'success';
+type MessageType = 'info' | 'error' | 'success' | 'warning';
 
 type Props = Omit<ComponentProps<typeof S.Container>, 'type'> & {
   content?: string;
@@ -27,6 +27,7 @@ export const Message = ({
   const iconsByType: Record<MessageType, string> = {
     info: 'info',
     error: 'alert-circle',
+    warning: 'alert-triangle',
     success: 'check-circle',
   };
 

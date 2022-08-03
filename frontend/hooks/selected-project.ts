@@ -2,9 +2,10 @@ import router from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useSettingsStoreForUser } from '@/stores/settings';
-import type { Environment } from '@/utils/types';
+import type { Environment, Project } from '@/utils/types';
 
 import { useEnvironments } from './environments';
+import { usePreviousValue } from './previous-value';
 import { useProject } from './projects';
 import { useRouteParam } from './route';
 
@@ -91,4 +92,51 @@ export function useSelectedProject(
     selectEnvironment,
     selectProject,
   };
+}
+
+export function useOnSelectedProjectChange(onChange: () => void) {
+  const { environment, project } = useSelectedProject();
+
+  const previousEnvironment = usePreviousValue(environment);
+  const previousProject = usePreviousValue(project);
+
+  useEffect(() => {
+    if (!previousEnvironment || !previousProject) return;
+
+    if (previousEnvironment.subId !== environment?.subId || previousProject.slug !== project?.slug) {
+      onChange();
+    }
+  });
+}
+
+export function useSelectedProjectSync(
+  selectedEnvironmentSubId: Environment['subId'] | undefined,
+  selectedProjectSlug: Project['slug'] | undefined,
+) {
+  const { environment, project, selectEnvironment, selectProject } = useSelectedProject();
+  const [hasSelectedProjectSyncRun, setHasSelectedProjectSyncRun] = useState(false);
+
+  useEffect(() => {
+    if (!environment || !project || !selectedProjectSlug || !selectedEnvironmentSubId || hasSelectedProjectSyncRun)
+      return;
+
+    setHasSelectedProjectSyncRun(true);
+
+    if (selectedProjectSlug === project.slug && selectedEnvironmentSubId === environment.subId) return;
+
+    if (selectedProjectSlug !== project.slug) {
+      selectProject(selectedProjectSlug);
+    }
+    if (selectedEnvironmentSubId !== environment.subId) {
+      selectEnvironment(selectedEnvironmentSubId);
+    }
+  }, [
+    environment,
+    project,
+    hasSelectedProjectSyncRun,
+    selectEnvironment,
+    selectProject,
+    selectedEnvironmentSubId,
+    selectedProjectSlug,
+  ]);
 }

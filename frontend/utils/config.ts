@@ -2,6 +2,7 @@ import type { FirebaseOptions } from 'firebase/app';
 
 import type { NetOption } from './types';
 
+type ExplorerNets = Record<NetOption, string>;
 type RpcNets = Record<NetOption, string>;
 type DeployEnvironment = 'LOCAL' | 'DEVELOPMENT' | 'PRODUCTION';
 
@@ -20,11 +21,15 @@ if (
   !process.env.NEXT_PUBLIC_TEST_NET_ARCHIVAL_RPC ||
   !process.env.NEXT_PUBLIC_RECOMMENDED_MAIN_NET_RPC ||
   !process.env.NEXT_PUBLIC_RECOMMENDED_TEST_NET_RPC ||
+  !process.env.NEXT_PUBLIC_MAIN_NET_EXPLORER ||
+  !process.env.NEXT_PUBLIC_TEST_NET_EXPLORER ||
   !process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE ||
   !process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES ||
   !process.env.NEXT_PUBLIC_MIXPANEL_TOKEN ||
   !process.env.NEXT_PUBLIC_FIREBASE_CONFIG ||
   !process.env.NEXT_PUBLIC_DEPLOY_ENV ||
+  !process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS_ACTIVITY ||
+  !process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS ||
   !process.env.NEXT_PUBLIC_ANALYTICS_IFRAME_URL
 ) {
   throw new Error('Missing configuration value');
@@ -50,10 +55,17 @@ if (downtimeMode === 'custom' && !downtimeMessage) {
   );
 }
 
+// Telegram config:
+
+if (process.env.NEXT_PUBLIC_DEPLOY_ENV !== 'LOCAL' && !process.env.NEXT_PUBLIC_TELEGRAM_BOT_HANDLE) {
+  throw new Error(`Missing required value for NEXT_PUBLIC_TELEGRAM_BOT_HANDLE.`);
+}
+
 // Define config:
 interface AppConfig {
   url: {
     api: string;
+    explorer: ExplorerNets;
     rpc: {
       default: RpcNets;
       archival: RpcNets;
@@ -70,6 +82,13 @@ interface AppConfig {
   downtimeMessage: string;
   downtimeMode: DowntimeMode | undefined;
   deployEnv: DeployEnvironment;
+  telegramBotHandle?: string;
+  defaultPageSize: number;
+  defaultLiveDataRefreshIntervalMs: number;
+  featureFlags: {
+    alerts: boolean;
+    alertsActivity: boolean;
+  };
   analyticsIframeUrl: string;
 }
 
@@ -77,6 +96,10 @@ interface AppConfig {
 const config: AppConfig = {
   url: {
     api: process.env.NEXT_PUBLIC_API_BASE_URL,
+    explorer: {
+      MAINNET: process.env.NEXT_PUBLIC_MAIN_NET_EXPLORER,
+      TESTNET: process.env.NEXT_PUBLIC_TEST_NET_EXPLORER,
+    },
     rpc: {
       default: {
         MAINNET: process.env.NEXT_PUBLIC_MAIN_NET_RPC,
@@ -104,6 +127,13 @@ const config: AppConfig = {
   deployEnv: ['LOCAL', 'DEVELOPMENT', 'PRODUCTION'].includes(process.env.NEXT_PUBLIC_DEPLOY_ENV)
     ? (process.env.NEXT_PUBLIC_DEPLOY_ENV as DeployEnvironment)
     : 'PRODUCTION', // default to production to be safe
+  telegramBotHandle: process.env.NEXT_PUBLIC_TELEGRAM_BOT_HANDLE,
+  defaultPageSize: parseInt(process.env.NEXT_PUBLIC_DEFAULT_PAGE_SIZE || '100'),
+  defaultLiveDataRefreshIntervalMs: parseInt(process.env.NEXT_PUBLIC_DEFAULT_LIVE_DATA_REFRESH_INTERVAL_MS || '3000'),
+  featureFlags: {
+    alerts: process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS === 'true',
+    alertsActivity: process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS_ACTIVITY === 'true',
+  },
   analyticsIframeUrl: process.env.NEXT_PUBLIC_ANALYTICS_IFRAME_URL,
 };
 

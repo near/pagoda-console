@@ -16,6 +16,14 @@ import { Card } from '@/components/lib/Card';
 </Card>
 ```
 
+## Border
+
+A `Card` component can be rendered with a border instead of a background:
+
+```tsx
+<Card border>...</Card>
+```
+
 ## Clickable
 
 Sometimes, an entire `Card` should act as a clickable button. You can use the `clickable` and `as` properties to accomplish this:
