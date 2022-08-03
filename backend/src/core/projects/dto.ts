@@ -2,7 +2,7 @@
 // because class-validator was experiencing issues at the time of implementation
 // and had many unaddressed github issues
 
-import { Net, ProjectTutorial } from '.prisma/client';
+import { Net, ProjectTutorial } from '../../../generated/prisma/core';
 import * as Joi from 'joi';
 
 const projectNameSchema = Joi.string().required().max(50);

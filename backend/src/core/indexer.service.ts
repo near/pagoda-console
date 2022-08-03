@@ -40,7 +40,7 @@ const DS_INDEXER_TESTNET = 'DS_INDEXER_TESTNET';
 // }
 
 import { Sequelize, Dialect, QueryTypes } from 'sequelize';
-import { Net } from '.prisma/client';
+import { Net } from '../../generated/prisma/core';
 import { AppConfig } from '../config/validate';
 
 const dbConfig = {
