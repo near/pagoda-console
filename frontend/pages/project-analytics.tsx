@@ -14,7 +14,7 @@ import { TextLink } from '@/components/lib/TextLink';
 import { useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
-import { useThemeStore } from '@/modules/core/components/ThemeToggle';
+import { useTheme } from '@/hooks/theme';
 import config from '@/utils/config';
 import type { Contract, NextPageWithLayout } from '@/utils/types';
 
@@ -42,7 +42,7 @@ const ProjectAnalytics: NextPageWithLayout = () => {
 };
 
 function AnalyticsIframe({ contracts }: { contracts: Contract[] }) {
-  const { activeTheme } = useThemeStore();
+  const { activeTheme } = useTheme();
 
   useEffect(() => {
     iframeResizer({}, 'iframe');
