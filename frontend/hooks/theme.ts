@@ -1,6 +1,6 @@
 import { useThemeStore } from '@/modules/core/components/ThemeToggle';
 
 export function useTheme() {
-  const theme = useThemeStore();
-  return theme;
+  const { activeTheme, colors, setActiveTheme } = useThemeStore();
+  return { activeTheme, colors, setActiveTheme };
 }
