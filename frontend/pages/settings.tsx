@@ -48,9 +48,13 @@ const Settings: NextPageWithLayout = () => {
       // force token refresh since that is where the backend gets user details
       await getIdToken(identity, true);
 
-      mutate({
-        ...user,
-        name: displayName,
+      mutate((data) => {
+        if (data) {
+          return {
+            ...data,
+            name: displayName,
+          };
+        }
       });
     } catch (e) {
       setUpdateError('Something went wrong while attempting to update your settings');

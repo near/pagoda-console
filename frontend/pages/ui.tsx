@@ -42,6 +42,7 @@ import { TextButton, TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { TruncateMiddle } from '@/components/lib/TruncateMiddle';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle/ThemeToggle';
 import ExampleIcon from '@/public/images/icons/ui-example.svg';
 import { styled } from '@/styles/stitches';
@@ -1738,6 +1739,51 @@ const Settings: NextPageWithLayout = () => {
           </Tooltip>
         </Flex>
       </DocSection>
+
+      <DocSection title="Truncate Middle">
+        <Text>
+          This component allows you to truncate the middle of a string based on screen breakpoints. Shrink your screen
+          to see the different truncation lengths:
+        </Text>
+
+        <Flex>
+          <Text>With Tooltip:</Text>
+
+          <Text weight="semibold" color="text1">
+            <Tooltip content="app.mysupercoolblockchainapp.near">
+              <TruncateMiddle
+                value="app.mysupercoolblockchainapp.near"
+                prefix={20}
+                prefixLaptop={15}
+                prefixTablet={10}
+                prefixMobile={5}
+                suffix={10}
+                suffixLaptop={8}
+                suffixTablet={4}
+                suffixMobile={2}
+              />
+            </Tooltip>
+          </Text>
+        </Flex>
+
+        <Flex>
+          <Text>Without Tooltip:</Text>
+
+          <Text weight="semibold" color="text1">
+            <TruncateMiddle
+              value="app.mysupercoolblockchainapp.near"
+              prefix={20}
+              prefixLaptop={15}
+              prefixTablet={10}
+              prefixMobile={5}
+              suffix={10}
+              suffixLaptop={8}
+              suffixTablet={4}
+              suffixMobile={2}
+            />
+          </Text>
+        </Flex>
+      </DocSection>
     </>
   );
 };
@@ -1944,6 +1990,8 @@ interface FakeForm {
   age: number;
   displayName: string;
   email: string;
+  longDescription1: string;
+  longDescription2: string;
   favoriteBook: string;
   favoriteFood: string;
   favoriteColorsBlue: boolean;
@@ -2013,6 +2061,71 @@ function DocSectionForm() {
             />
             <Form.Feedback>{form.formState.errors.email?.message}</Form.Feedback>
           </Form.Group>
+
+          <HR />
+
+          <H4>Textarea</H4>
+
+          <Text>A textarea can be manually resized by the user.</Text>
+
+          <Form.Group>
+            <Form.Label htmlFor="longDescription1">Description</Form.Label>
+            <Form.Textarea
+              id="longDescription1"
+              isInvalid={!!form.formState.errors.longDescription1}
+              placeholder="Write a really cool description..."
+              {...form.register('longDescription1', {
+                required: 'Please enter a description',
+              })}
+            />
+            <Form.Feedback>{form.formState.errors.longDescription1?.message}</Form.Feedback>
+          </Form.Group>
+
+          <HR />
+
+          <H4>Content Editable</H4>
+
+          <Text>
+            A content editable div behaves just like a textarea, but will automatically resize based on the placeholder
+            or as the user types.
+          </Text>
+
+          <Controller
+            name="longDescription2"
+            control={form.control}
+            rules={{
+              required: 'Please enter a description',
+            }}
+            render={({ field }) => {
+              return (
+                <Form.Group>
+                  <Form.Label htmlFor="longDescription2">Description</Form.Label>
+                  <Form.ContentEditable
+                    id="longDescription2"
+                    isInvalid={!!form.formState.errors.longDescription2}
+                    onBlur={field.onBlur}
+                    onInput={field.onChange}
+                    ref={field.ref}
+                    placeholder={`{
+    "myObject": {
+        "value1": "abc",
+        "value2": 123,
+        "value3": false,
+        "nestedObject": {
+            "nestedValue1": "abc",
+            "nestedValue2": 123,
+            "nestedValue3": false
+        }
+    }
+}`}
+                  >
+                    {field.value}
+                  </Form.ContentEditable>
+                  <Form.Feedback>{form.formState.errors.longDescription2?.message}</Form.Feedback>
+                </Form.Group>
+              );
+            }}
+          />
 
           <HR />
 

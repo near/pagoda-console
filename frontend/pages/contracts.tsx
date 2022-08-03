@@ -18,6 +18,7 @@ import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
+import { TruncateMiddle } from '@/components/lib/TruncateMiddle';
 import { useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
@@ -211,6 +212,14 @@ function AddContractForm(props: { project: string; environment: Environment; onA
         return;
       }
 
+      if (e.message === 'DUPLICATE_CONTRACT_ADDRESS') {
+        openToast({
+          type: 'error',
+          title: 'Duplicate Contract',
+          description: 'This contract has already been saved to your project.',
+        });
+      }
+
       analytics.track('DC Add Contract', {
         status: 'failure',
         error: e.message,
@@ -329,8 +338,9 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
 
   return (
     <>
-      <Box css={{ textAlign: 'left' }}>
+      <Box css={{ textAlign: 'left', minWidth: 0 }}>
         <TextLink
+          css={{ maxWidth: '100%' }}
           color="neutral"
           onClick={() => analytics.track('DC View contract in Explorer')} // TODO CHECK
           href={`https://explorer${props.contract.net === 'TESTNET' ? '.testnet' : ''}.near.org/accounts/${
@@ -339,7 +349,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
           target="_blank"
           rel="noopener noreferrer"
         >
-          {props.contract.address}
+          <TruncateMiddle value={props.contract.address} prefix={30} prefixLaptop={10} prefixTablet={5} suffix={10} />
         </TextLink>
       </Box>
 

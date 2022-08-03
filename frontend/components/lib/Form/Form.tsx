@@ -15,6 +15,12 @@ type InputProps = Omit<ComponentProps<typeof S.Input>, 'invalid' | 'number'> & {
   isNumber?: boolean;
   isInvalid?: boolean;
 };
+type TextareaProps = Omit<ComponentProps<typeof S.Textarea>, 'invalid'> & {
+  isInvalid?: boolean;
+};
+type ContentEditableProps = Omit<ComponentProps<typeof S.ContentEditable>, 'invalid'> & {
+  isInvalid?: boolean;
+};
 type FloatingLabelInputProps = InputProps & {
   children?: ReactNode;
   label: string;
@@ -60,6 +66,26 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   },
 );
 Input.displayName = 'Input';
+
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({ isInvalid, ...props }, ref) => {
+  return <S.Textarea invalid={isInvalid} aria-invalid={isInvalid} ref={ref} {...props} />;
+});
+Textarea.displayName = 'Textarea';
+
+export const ContentEditable = forwardRef<HTMLDivElement, ContentEditableProps>(({ isInvalid, ...props }, ref) => {
+  return (
+    <S.ContentEditable
+      contentEditable
+      role="textbox"
+      invalid={isInvalid}
+      suppressContentEditableWarning
+      aria-invalid={isInvalid}
+      ref={ref}
+      {...props}
+    />
+  );
+});
+ContentEditable.displayName = 'ContentEditable';
 
 export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInputProps>(
   (

@@ -29,7 +29,8 @@ if (
   !process.env.NEXT_PUBLIC_FIREBASE_CONFIG ||
   !process.env.NEXT_PUBLIC_DEPLOY_ENV ||
   !process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS_ACTIVITY ||
-  !process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS
+  !process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS ||
+  !process.env.NEXT_PUBLIC_ANALYTICS_IFRAME_URL
 ) {
   throw new Error('Missing configuration value');
 }
@@ -88,6 +89,7 @@ interface AppConfig {
     alerts: boolean;
     alertsActivity: boolean;
   };
+  analyticsIframeUrl: string;
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
@@ -132,6 +134,7 @@ const config: AppConfig = {
     alerts: process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS === 'true',
     alertsActivity: process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS_ACTIVITY === 'true',
   },
+  analyticsIframeUrl: process.env.NEXT_PUBLIC_ANALYTICS_IFRAME_URL,
 };
 
 export default config;
