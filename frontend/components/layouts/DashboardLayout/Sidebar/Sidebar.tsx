@@ -1,5 +1,3 @@
-import type { LDFlagSet } from 'launchdarkly-js-sdk-common';
-import { useFlags } from 'launchdarkly-react-client-sdk';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ComponentProps } from 'react';
@@ -12,13 +10,14 @@ import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
 import type { SidebarEntry } from '@/shared/utils/types';
 import { logOut } from '@/utils/auth';
+import useFeatureFlag from '@/utils/features';
 
 import { Logo } from './Logo';
 import * as S from './styles';
 
 type Props = ComponentProps<typeof S.Root>;
 
-function useProjectPages(flags: LDFlagSet): SidebarEntry[] {
+function useProjectPages(): SidebarEntry[] {
   const pages: SidebarEntry[] = [];
 
   const { project } = useSelectedProject({
@@ -36,7 +35,7 @@ function useProjectPages(flags: LDFlagSet): SidebarEntry[] {
 
   // pushed individually so that module pages can be placed at any point
   pages.push({ display: 'Contracts', route: `/contracts`, icon: 'zap' });
-  if (flags['momentary-alerts-enabled']) {
+  if (useFeatureFlag('momentary-alerts-enabled')) {
     pages.push(...alertsEntries);
   }
   pages.push({ display: 'Analytics', route: '/project-analytics', icon: 'bar-chart-2' });
@@ -49,7 +48,7 @@ function useProjectPages(flags: LDFlagSet): SidebarEntry[] {
 
 export function Sidebar({ children, ...props }: Props) {
   const router = useRouter();
-  const pages = useProjectPages(useFlags());
+  const pages = useProjectPages();
 
   function isLinkSelected(page: SidebarEntry): boolean {
     const matchesPattern = page.routeMatchPattern ? router.pathname.startsWith(page.routeMatchPattern) : false;
