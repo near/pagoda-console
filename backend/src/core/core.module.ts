@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { ProjectsModule } from './projects/projects.module';
+import { ExplorerModule } from './explorer/explorer.module';
 import { AuthModule } from './auth/auth.module';
 import validate from '../config/validate';
 
@@ -24,6 +25,7 @@ import { EmailModule } from './email/email.module';
     AuthModule,
     KeysModule,
     EmailModule,
+    ExplorerModule,
   ],
   providers: [KeysService, IndexerService],
   exports: [EmailModule],
