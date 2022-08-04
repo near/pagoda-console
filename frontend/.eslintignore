@@ -1,6 +1,3 @@
 # ignore root config files
 /*.js
 /*.ts
-
-# ignore external code
-/modules/core/components/explorer

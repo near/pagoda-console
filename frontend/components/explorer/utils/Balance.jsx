@@ -1,8 +1,9 @@
 /// Copied from near-wallet project:
 import BN from 'bn.js';
 import { PureComponent } from 'react';
-// import { utils } from "near-api-js";
+
 import { Tooltip } from '@/components/lib/Tooltip';
+// import { utils } from "near-api-js";
 
 class Balance extends PureComponent {
   render() {

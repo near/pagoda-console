@@ -3,11 +3,7 @@ import { hexy } from 'hexy';
 import AccountLink from '../utils/AccountLink';
 import Balance from '../utils/Balance';
 import CodePreview from '../utils/CodePreview';
-
-import * as T from './types';
-
-// import { Translate } from "react-localize-redux";
-import Translate from './Translate';
+import type * as T from './types';
 
 export interface Props<A> {
   actionKind: keyof TransactionMessageRenderers;

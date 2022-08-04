@@ -5,6 +5,7 @@ import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import useSWR from 'swr';
 
+import TransactionAction from '@/components/explorer/transactions/TransactionAction';
 import { Box } from '@/components/lib/Box';
 import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
@@ -23,7 +24,6 @@ import { useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useIdentity } from '@/hooks/user';
-import TransactionAction from '@/modules/core/components/explorer/components/transactions/TransactionAction';
 import { useRecentTransactions } from '@/modules/core/hooks/recent-transactions';
 import ContractsPreview from '@/public/contractsPreview.png';
 import analytics from '@/utils/analytics';

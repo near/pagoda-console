@@ -3,9 +3,6 @@ import { Component } from 'react';
 import AccountLink from '../utils/AccountLink';
 import Timer from '../utils/Timer';
 
-// import { Translate } from "react-localize-redux";
-// import Translate from './Translate';
-
 export type ViewMode = 'sparse' | 'compact';
 export type DetalizationMode = 'detailed' | 'minimal';
 export interface Props {

@@ -1,5 +1,4 @@
-import { ExecutionStatus } from './types';
-// import { Translate } from "react-localize-redux";
+import type { ExecutionStatus } from './types';
 
 export interface Props {
   status: ExecutionStatus;
