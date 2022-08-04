@@ -90,6 +90,7 @@ interface AppConfig {
     alertsActivity: boolean;
   };
   analyticsIframeUrl: string;
+  launchDarklyEnv: string;
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
@@ -135,6 +136,7 @@ const config: AppConfig = {
     alertsActivity: process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS_ACTIVITY === 'true',
   },
   analyticsIframeUrl: process.env.NEXT_PUBLIC_ANALYTICS_IFRAME_URL,
+  launchDarklyEnv: process.env.NEXT_PUBLIC_LAUNCHDARKLY_SDK_ENV,
 };
 
 export default config;

@@ -7,10 +7,12 @@ import * as FullStory from '@fullstory/browser';
 import { initializeApp } from 'firebase/app';
 import type { User } from 'firebase/auth';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { withLDProvider } from 'launchdarkly-react-client-sdk';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { appWithTranslation } from 'next-i18next';
+import type { ComponentType } from 'react';
 import { useEffect } from 'react';
 import { SWRConfig, useSWRConfig } from 'swr';
 
@@ -105,4 +107,9 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   );
 }
 
-export default appWithTranslation(MyApp);
+export default withLDProvider({
+  clientSideID: config.launchDarklyEnv,
+  reactOptions: {
+    useCamelCaseFlagKeys: false,
+  },
+})(appWithTranslation(MyApp) as ComponentType);
