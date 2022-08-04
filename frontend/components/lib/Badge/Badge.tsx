@@ -58,7 +58,6 @@ export const Badge = styled('span', {
       },
       s: {
         fontSize: 'var(--font-size-body-small)',
-        gap: 'var(--space-xs)',
       },
     },
   },

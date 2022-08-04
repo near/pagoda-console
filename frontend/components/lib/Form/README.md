@@ -274,3 +274,50 @@ To implement checkboxes or radios in a form, please refer to `Checkbox/README.md
 ## Select Dropdowns
 
 To implement a select dropdown in a form, please refer to the `Form Select Dropdown` section in `DropdownMenu/README.md`.
+
+## Number Inputs
+
+Whenever possible, it's easiest to use a native `type="number"` input like so:
+
+```tsx
+<Form.Input type="number" />
+```
+
+However, a native number input does have limitations and won't support large numbers like U128. Also, it doesn't support formatting (commas). With a combination of helper methods, we can allow users to type in a number value with a regular `type="text"` input:
+
+```tsx
+import { numberInputHandler } from '@/utils/input-handlers';
+import { sanitizeNumber } from '@/utils/sanitize-number';
+
+...
+
+<Form.Input
+  label="Some Number"
+  placeholder="eg: 30"
+  isInvalid={!!form.formState.errors.myFieldName}
+  isNumber
+  onInput={numberInputHandler}
+  {...form.register('myFieldName', {
+    setValueAs: (value) => sanitizeNumber(value),
+    required: 'Please enter a number',
+    validate: {
+      maxValue: (value) => Number(value) <= 100 || 'Must be 100 or less',
+    },
+  })}
+/>
+```
+
+By default `numberInputHandler()` allows commas, but does not allow decimals or negative numbers. You can pass different options depending on your needs:
+
+```tsx
+<Form.Input
+  ...
+  onInput={(event) => numberInputHandler(event, {
+    allowComma: true,
+    allowDecimal: true,
+    allowNegative: true,
+  })}
+/>
+```
+
+Note that `sanitizeNumber()` in the example above will strip out any commas entered by the user. If a user enters `"1,000"`, the form value will be `"1000"`. This allows users to format with commas as they type, while our data ignores them.

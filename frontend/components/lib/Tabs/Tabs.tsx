@@ -1,5 +1,6 @@
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 
+import type { StitchesCSS } from '@/styles/stitches';
 import { styled } from '@/styles/stitches';
 
 export const Root = styled(TabsPrimitive.Root, {
@@ -23,7 +24,7 @@ export const List = styled(TabsPrimitive.List, {
   },
 });
 
-export const Trigger = styled(TabsPrimitive.Trigger, {
+const triggerStyles: StitchesCSS = {
   display: 'flex',
   alignItems: 'center',
   gap: 'var(--space-s)',
@@ -51,12 +52,32 @@ export const Trigger = styled(TabsPrimitive.Trigger, {
   '&:focus': {
     borderColor: 'var(--focus-outline-color)',
   },
+};
+
+const triggerActiveStyles: StitchesCSS = {
+  color: 'var(--color-cta-primary)',
+  boxShadow: 'inset 0 -2px 0 var(--color-cta-primary)',
+  position: 'relative',
+  zIndex: 5,
+};
+
+export const Trigger = styled(TabsPrimitive.Trigger, {
+  ...triggerStyles,
 
   '&[data-state="active"]': {
-    color: 'var(--color-cta-primary)',
-    boxShadow: 'inset 0 -2px 0 var(--color-cta-primary)',
-    position: 'relative',
-    zIndex: 5,
+    ...triggerActiveStyles,
+  },
+});
+
+export const TriggerLink = styled('a', {
+  ...triggerStyles,
+
+  variants: {
+    active: {
+      true: {
+        ...triggerActiveStyles,
+      },
+    },
   },
 });
 

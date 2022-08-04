@@ -11,7 +11,8 @@ type FeedbackProps = ComponentProps<typeof S.Feedback>;
 type FormProps = ComponentProps<typeof S.Form> & {
   disabled?: boolean;
 };
-type InputProps = Omit<ComponentProps<typeof S.Input>, 'invalid'> & {
+type InputProps = Omit<ComponentProps<typeof S.Input>, 'invalid' | 'number'> & {
+  isNumber?: boolean;
   isInvalid?: boolean;
 };
 type TextareaProps = Omit<ComponentProps<typeof S.Textarea>, 'invalid'> & {
@@ -40,20 +41,30 @@ export const Group = S.Group;
 export const Label = S.Label;
 export const LabelDescription = S.LabelDescription;
 
-export const Root = forwardRef<HTMLFormElement, FormProps>(
-  ({ children, disabled, noValidate = true, ...props }, ref) => {
+export const Root = forwardRef<HTMLFormElement, FormProps>(({ children, noValidate = true, ...props }, ref) => {
+  return (
+    <S.Form noValidate={noValidate} ref={ref} {...props}>
+      {children}
+    </S.Form>
+  );
+});
+Root.displayName = 'Form';
+
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ inputMode, isInvalid, isNumber, type = 'text', ...props }, ref) => {
     return (
-      <S.Form noValidate={noValidate} ref={ref} {...props}>
-        <S.Fieldset disabled={disabled}>{children}</S.Fieldset>
-      </S.Form>
+      <S.Input
+        aria-invalid={isInvalid}
+        inputMode={inputMode || isNumber ? 'decimal' : undefined}
+        invalid={isInvalid}
+        number={isNumber}
+        ref={ref}
+        type={type}
+        {...props}
+      />
     );
   },
 );
-Root.displayName = 'Form';
-
-export const Input = forwardRef<HTMLInputElement, InputProps>(({ isInvalid, type = 'text', ...props }, ref) => {
-  return <S.Input invalid={isInvalid} aria-invalid={isInvalid} type={type} ref={ref} {...props} />;
-});
 Input.displayName = 'Input';
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({ isInvalid, ...props }, ref) => {
@@ -77,7 +88,10 @@ export const ContentEditable = forwardRef<HTMLDivElement, ContentEditableProps>(
 ContentEditable.displayName = 'ContentEditable';
 
 export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInputProps>(
-  ({ children, isInvalid, label, labelProps, type = 'text', placeholder = ' ', ...props }, ref) => {
+  (
+    { children, inputMode, isInvalid, isNumber, label, labelProps, type = 'text', placeholder = ' ', ...props },
+    ref,
+  ) => {
     /*
       If a placeholder isn't set, we need to use " " as the placeholder (instead of an empty
       string) - this is critical for our CSS to render the label correctly via `:placeholder-shown`.
@@ -106,6 +120,8 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
           <S.Input
             aria-invalid={isInvalid}
             invalid={isInvalid === true}
+            inputMode={inputMode || isNumber ? 'decimal' : undefined}
+            number={isNumber === true}
             placeholder={placeholder}
             ref={ref}
             type={type}

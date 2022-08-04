@@ -208,6 +208,20 @@ In rare cases, it might make sense to have an entire row be clickable, but maybe
 
 Note the use of `event.stopPropagation()` on the `Cell` click handler. This prevents the parent `Row` click handler from also firing.
 
+## Cell Link (Anchor)
+
+The `clickable` examples above work great for `<button>` interactions. However, if you're needing to link the user to a different route, that should be accomplished with an `<a>` tag. You can achieve this using the `href` and `target` props on `Table.Cell`:
+
+```tsx
+<Table.Row key={row.id}>
+  <Table.Cell href="/my-url">Internal Anchor cell</Table.Cell>
+  <Table.Cell href="/my-url" target="_blank">
+    External Anchor cell
+  </Table.Cell>
+  <Table.Cell>Read only cell</Table.Cell>
+</Table.Row>
+```
+
 ## Sticky Header
 
 By default, the `Header` uses sticky positioning that accounts for our main floating header. Sometimes you might want to disable the sticky positioning:
@@ -295,6 +309,45 @@ You can disable the footer sticky scroll:
 
 ```tsx
 <Table.Foot sticky={false}>...</Table.Foot>
+```
+
+## Row Flash
+
+When working on a live updating table, sometimes it makes sense to animate new rows as they appear:
+
+```tsx
+import { DateTime } from 'luxon';
+import { usePagination } from '@/hooks/pagination';
+
+...
+
+const pagination = usePagination();
+
+function shouldFlashRow(alert: TriggeredAlert) {
+  let result = false;
+
+  if (pagination.state.liveRefreshEnabled) {
+    const date = DateTime.fromISO(alert.triggeredAt);
+    result = date > pagination.state.lastItemCountUpdateDateTime;
+  }
+
+  return result;
+}
+
+...
+
+<Table.Row flash={shouldFlashRow(row)}>...</Table.Row>
+```
+
+## Placeholder Rows
+
+When data is loading for your table, you can use the `PlaceholderRows` component to show a loading placeholder:
+
+```tsx
+<Table.Body>
+  {!myTableData && <Table.PlaceholderRows />}
+  ...
+</Table.Body>
 ```
 
 ## Infinite Scroll / Pagination

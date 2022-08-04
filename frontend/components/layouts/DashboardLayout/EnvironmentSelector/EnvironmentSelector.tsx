@@ -5,10 +5,22 @@ import analytics from '@/utils/analytics';
 import { assertUnreachable } from '@/utils/helpers';
 import type { Environment } from '@/utils/types';
 
-export function EnvironmentSelector() {
+interface Props {
+  onBeforeChange?: (change: () => void) => void;
+}
+
+export function EnvironmentSelector(props: Props) {
   const { environment, environments, selectEnvironment } = useSelectedProject();
 
   function onSelectEnvironment(environment: Environment) {
+    if (props.onBeforeChange) {
+      props.onBeforeChange(() => {
+        selectEnvironment(environment.subId);
+        analytics.track('DC Switch Network');
+      });
+      return;
+    }
+
     selectEnvironment(environment.subId);
     analytics.track('DC Switch Network', {
       status: 'success',
@@ -23,7 +35,7 @@ export function EnvironmentSelector() {
         {environment?.name || '...'}
       </DropdownMenu.Button>
 
-      <DropdownMenu.Content align="start">
+      <DropdownMenu.Content width="trigger">
         {environments?.map((e) => {
           return (
             <DropdownMenu.Item key={e.subId} onSelect={() => onSelectEnvironment(e)}>

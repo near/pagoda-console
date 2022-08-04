@@ -20,7 +20,6 @@ import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { TruncateMiddle } from '@/components/lib/TruncateMiddle';
 import { useContracts } from '@/hooks/contracts';
-import { useDebounce } from '@/hooks/debounce';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useIdentity } from '@/hooks/user';
@@ -29,8 +28,8 @@ import { useRecentTransactions } from '@/modules/core/hooks/recent-transactions'
 import ContractsPreview from '@/public/contractsPreview.png';
 import analytics from '@/utils/analytics';
 import config from '@/utils/config';
+import { formRegex } from '@/utils/constants';
 import { formatBytes } from '@/utils/format-bytes';
-import { returnContractAddressRegex } from '@/utils/helpers';
 import { authenticatedPost } from '@/utils/http';
 import type { NetOption } from '@/utils/types';
 import type { FinalityStatus } from '@/utils/types';
@@ -181,7 +180,6 @@ interface AddContractFormData {
 function AddContractForm(props: { project: string; environment: Environment; onAdd: () => void }) {
   const { register, handleSubmit, formState, setValue } = useForm<AddContractFormData>();
   const [showAddForm, setShowAddForm] = useState(false);
-  const contractAddressRegex = returnContractAddressRegex(props.environment);
 
   function closeAddForm() {
     setValue('contractAddress', '');
@@ -204,25 +202,34 @@ function AddContractForm(props: { project: string; environment: Environment; onA
       closeAddForm();
       return contract;
     } catch (e: any) {
+      if (e.message === 'ADDRESS_NOT_FOUND') {
+        const net = props.environment.net.toLowerCase();
+        openToast({
+          type: 'error',
+          title: 'Contract not found',
+          description: `Contract ${contractAddress} was not found on ${net}.`,
+        });
+        return;
+      }
+
       if (e.message === 'DUPLICATE_CONTRACT_ADDRESS') {
         openToast({
           type: 'error',
           title: 'Duplicate Contract',
           description: 'This contract has already been saved to your project.',
         });
-      } else {
-        analytics.track('DC Add Contract', {
-          status: 'failure',
-          error: e.message,
-          contractId: contractAddress,
-          net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
-        });
-
-        openToast({
-          type: 'error',
-          title: 'Failed to add contract.',
-        });
       }
+
+      analytics.track('DC Add Contract', {
+        status: 'failure',
+        error: e.message,
+        contractId: contractAddress,
+        net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
+      });
+      openToast({
+        type: 'error',
+        title: 'Failed to add contract.',
+      });
     }
   };
 
@@ -236,9 +243,17 @@ function AddContractForm(props: { project: string; environment: Environment; onA
               placeholder={props.environment.net === 'MAINNET' ? 'contract.near' : 'contract.testnet'}
               {...register('contractAddress', {
                 required: 'Address field is required',
+                minLength: {
+                  value: 2,
+                  message: 'Address must be at least 2 characters',
+                },
+                maxLength: {
+                  value: 64,
+                  message: 'Address must be 64 characters or less',
+                },
                 pattern: {
-                  value: contractAddressRegex,
-                  message: 'Invalid address format',
+                  value: formRegex.contractAddress,
+                  message: 'Invalid address format.',
                 },
               })}
             />
@@ -297,33 +312,29 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
     },
   );
 
-  const removeContract = useDebounce(
-    async () => {
-      setCanDelete(false);
+  async function removeContract() {
+    setCanDelete(false);
 
-      try {
-        await authenticatedPost('/projects/removeContract', {
-          id: props.contract.id,
-        });
-        analytics.track('DC Remove Contract', {
-          status: 'success',
-          contractId: props.contract.address,
-        });
-        props.onDelete && props.onDelete();
-      } catch (e: any) {
-        analytics.track('DC Remove Contract', {
-          status: 'failure',
-          contractId: props.contract.address,
-          error: e.message,
-        });
-        // TODO
-        console.error(e);
-        setCanDelete(true);
-      }
-    },
-    config.buttonDebounce,
-    { leading: true, trailing: false },
-  );
+    try {
+      await authenticatedPost('/projects/removeContract', {
+        id: props.contract.id,
+      });
+      analytics.track('DC Remove Contract', {
+        status: 'success',
+        contractId: props.contract.address,
+      });
+      props.onDelete && props.onDelete();
+    } catch (e: any) {
+      analytics.track('DC Remove Contract', {
+        status: 'failure',
+        contractId: props.contract.address,
+        error: e.message,
+      });
+      // TODO
+      console.error(e);
+      setCanDelete(true);
+    }
+  }
 
   return (
     <>
@@ -359,7 +370,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
       )}
 
       {props.showDelete && (
-        <Button size="s" color="danger" onClick={() => removeContract()} disabled={!canDelete}>
+        <Button size="s" color="danger" onClick={removeContract} disabled={!canDelete}>
           <FeatherIcon icon="trash-2" size="xs" />
         </Button>
       )}

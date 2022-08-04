@@ -1,10 +1,11 @@
 import type { ComponentProps, ReactNode } from 'react';
 import { useRef, useState } from 'react';
 import { LightAsync as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
+import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
 
 import { Button } from '@/components/lib/Button';
 import * as Popover from '@/components/lib/Popover';
+import { useThemeStore } from '@/modules/core/components/ThemeToggle';
 
 import { Box } from '../Box';
 import { FeatherIcon } from '../FeatherIcon';
@@ -15,9 +16,11 @@ type Props = ComponentProps<typeof SyntaxHighlighter> & {
 };
 
 export function CodeBlock({ children, customStyle, ...passedProps }: Props) {
+  const { activeTheme } = useThemeStore();
   const isChildString = typeof children === 'string';
   const [showCopiedAlert, setShowCopiedAlert] = useState(false);
   const copiedTimer = useRef<NodeJS.Timeout>();
+  const codeTheme = activeTheme === 'dark' ? atomOneDark : atomOneLight;
 
   function copyCode() {
     if (copiedTimer.current) {
@@ -40,11 +43,13 @@ export function CodeBlock({ children, customStyle, ...passedProps }: Props) {
       }}
     >
       <SyntaxHighlighter
-        style={atomOneDark}
+        style={codeTheme}
         customStyle={{
           fontFamily: 'var(--font-code)',
           borderRadius: 'var(--border-radius-m)',
           padding: '1rem 3rem 1rem 1.2rem',
+          background: 'var(--color-surface-1)',
+          border: '1px solid var(--color-border-1)',
           ...customStyle,
         }}
         {...passedProps}
@@ -55,6 +60,7 @@ export function CodeBlock({ children, customStyle, ...passedProps }: Props) {
       <Popover.Root open={showCopiedAlert} onOpenChange={setShowCopiedAlert}>
         <Popover.Anchor asChild>
           <Button
+            aria-label="Copy code to clipboard"
             color="neutral"
             size="s"
             onClick={copyCode}
@@ -67,6 +73,10 @@ export function CodeBlock({ children, customStyle, ...passedProps }: Props) {
               boxShadow: 'none',
               borderRadius: '0 var(--border-radius-m) 0 var(--border-radius-m)',
               padding: '0 6px',
+
+              '&:hover': {
+                background: 'var(--color-surface-overlay)',
+              },
             }}
           >
             <FeatherIcon icon="copy" size="xs" />

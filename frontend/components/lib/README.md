@@ -138,12 +138,14 @@ Due to our app primarily targeting desktop/laptop users, our default styles shou
 ```
 mobile: '(max-width: 30rem)',
 tablet: '(max-width: 60rem)',
+laptop: '(max-width: 75rem)',
 ```
 
-Even though we don't use Stitches theme API for things like colors and fonts, it's extremely useful for sharing predefined breakpoints. Right now we have support for two Stitches breakpoints (defined in [styles/stiches.ts](../../styles/stitches.ts)):
+Even though we don't use Stitches theme API for things like colors and fonts, it's extremely useful for sharing predefined breakpoints. Right now we have support for three Stitches breakpoints (defined in [styles/stiches.ts](../../styles/stitches.ts)):
 
 `@mobile`: For devices smaller than a tablet
-`@tablet`: For devices smaller than a desktop/laptop
+`@tablet`: For devices smaller than a laptop
+`@laptop`: For devices smaller than a desktop
 
 These breakpoint theme tokens can be used in really cool ways with Stitches.
 

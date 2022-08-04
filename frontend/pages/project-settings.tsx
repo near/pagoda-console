@@ -180,7 +180,7 @@ function KeyRow(props: { name: string; token?: string; onRotateKey: () => void }
   return (
     <Flex align="center" justify="spaceBetween">
       <Flex align="center" gap="l">
-        <H5 css={{ width: '4.5rem' }}>{props.name}</H5>
+        <H5 css={{ width: '5rem' }}>{props.name}</H5>
 
         <Text family="number" color="text1">
           {props.token ? (
