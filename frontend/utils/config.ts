@@ -25,7 +25,7 @@ if (
   !process.env.NEXT_PUBLIC_TEST_NET_EXPLORER ||
   !process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE ||
   !process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES ||
-  !process.env.NEXT_PUBLIC_MIXPANEL_TOKEN ||
+  !process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY ||
   !process.env.NEXT_PUBLIC_FIREBASE_CONFIG ||
   !process.env.NEXT_PUBLIC_DEPLOY_ENV ||
   !process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS_ACTIVITY ||
@@ -74,10 +74,7 @@ interface AppConfig {
   };
   buttonDebounce: number;
   usagePersistenceMinutes: number;
-  mixpanel: {
-    token: string;
-    debug: boolean;
-  };
+  segment: string;
   firebaseConfig: FirebaseOptions;
   downtimeMessage: string;
   downtimeMode: DowntimeMode | undefined;
@@ -117,10 +114,7 @@ const config: AppConfig = {
   },
   buttonDebounce: parseInt(process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE),
   usagePersistenceMinutes: parseInt(process.env.NEXT_PUBLIC_USAGE_PERSISTENCE_MINUTES),
-  mixpanel: {
-    token: process.env.NEXT_PUBLIC_MIXPANEL_TOKEN,
-    debug: process.env.NEXT_PUBLIC_MIXPANEL_DEBUG === 'true',
-  },
+  segment: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY,
   firebaseConfig: JSON.parse(process.env.NEXT_PUBLIC_FIREBASE_CONFIG),
   downtimeMessage,
   downtimeMode,
