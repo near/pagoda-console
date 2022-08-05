@@ -16,6 +16,8 @@ export function usePageTracker() {
       page = router.pathname.substring(1);
     }
     page = page.toUpperCase();
-    analytics.track(`DC View ${page} Page`);
+    analytics.pageView(`DC View ${page} Page`, {
+      path: router.pathname,
+    });
   }, [router.pathname]);
 }
