@@ -4,13 +4,13 @@ import type { ComponentProps } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
+import useFeatureFlag from '@/hooks/features';
 import { useSelectedProject } from '@/hooks/selected-project';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
 import type { SidebarEntry } from '@/shared/utils/types';
 import { logOut } from '@/utils/auth';
-import useFeatureFlag from '@/utils/features';
 
 import { Logo } from './Logo';
 import * as S from './styles';
