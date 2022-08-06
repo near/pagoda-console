@@ -91,7 +91,7 @@ const Indexers: NextPageWithLayout = () => {
             </List>
           </Flex>
         </Flex>
-        <ButtonLink href="https://near-indexers.io/docs/projects/near-lake" external>
+        <ButtonLink href="https://near-indexers.io/docs/projects/near-lake-framework" external>
           Try Out NEAR Lake
         </ButtonLink>
       </Flex>
