@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import type { ComponentProps } from 'react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import * as Charts from 'recharts';
 
 import * as Accordion from '@/components/lib/Accordion';
 import { Badge } from '@/components/lib/Badge';
@@ -503,6 +504,8 @@ const Settings: NextPageWithLayout = () => {
           </Card>
         </Flex>
       </DocSection>
+
+      <DocSectionCharts />
 
       <DocSection title="Checkbox / Radio">
         <H4>Single Checkbox</H4>
@@ -2444,6 +2447,123 @@ function DocSectionForm() {
           </Form.Group>
         </Flex>
       </Form.Root>
+    </DocSection>
+  );
+}
+
+function DocSectionCharts() {
+  const data = [
+    {
+      name: 'Day 1',
+      x: 4000,
+      y: 2400,
+      z: 2000,
+    },
+    {
+      name: 'Day 2',
+      x: 3000,
+      y: 1398,
+      z: 2000,
+    },
+    {
+      name: 'Day 3',
+      x: 2000,
+      y: 9800,
+      z: 2000,
+    },
+    {
+      name: 'Day 4',
+      x: 2780,
+      y: 3908,
+      z: 2000,
+    },
+    {
+      name: 'Day 5',
+      x: 1890,
+      y: 4800,
+      z: 1500,
+    },
+    {
+      name: 'Day 6',
+      x: 2390,
+      y: 3800,
+      z: 2000,
+    },
+    {
+      name: 'Day 7',
+      x: 3490,
+      y: 4300,
+      z: 2000,
+    },
+  ];
+
+  return (
+    <DocSection title="Charts">
+      <Text>
+        Many different types of charts can be rendered with the{' '}
+        <TextLink href="https://recharts.org/en-US/examples" external>
+          Recharts Library
+        </TextLink>
+      </Text>
+
+      <Charts.ResponsiveContainer width="100%" height={400}>
+        <Charts.LineChart
+          data={data}
+          margin={{
+            top: 5,
+            right: 30,
+            left: 20,
+            bottom: 5,
+          }}
+        >
+          <Charts.CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-2)" />
+
+          <Charts.XAxis
+            dataKey="name"
+            stroke="var(--color-text-2)"
+            fontFamily="var(--font-heading)"
+            fontSize="var(--font-size-body-small)"
+          />
+
+          <Charts.YAxis
+            stroke="var(--color-text-2)"
+            fontFamily="var(--font-number)"
+            fontSize="var(--font-size-body-small)"
+          />
+
+          <Charts.Tooltip
+            labelStyle={{ color: 'var(--color-text-3)' }}
+            contentStyle={{
+              background: 'var(--color-surface-overlay',
+              border: 'none',
+              borderRadius: 'var(--border-radius-xs)',
+              boxShadow: 'var(--shadow-soft)',
+            }}
+            cursor={{ stroke: 'var(--color-text-2)' }}
+          />
+
+          <Charts.Legend />
+
+          <Charts.Line
+            type="monotone"
+            dataKey="x"
+            stroke="var(--color-primary)"
+            dot={{ fill: 'var(--color-surface-1)' }}
+          />
+          <Charts.Line
+            type="monotone"
+            dataKey="y"
+            stroke="var(--color-warning)"
+            dot={{ fill: 'var(--color-surface-1)' }}
+          />
+          <Charts.Line
+            type="monotone"
+            dataKey="z"
+            stroke="var(--color-danger)"
+            dot={{ fill: 'var(--color-surface-1)' }}
+          />
+        </Charts.LineChart>
+      </Charts.ResponsiveContainer>
     </DocSection>
   );
 }

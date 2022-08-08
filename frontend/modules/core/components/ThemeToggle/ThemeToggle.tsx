@@ -10,7 +10,7 @@ import * as S from './styles';
 type Props = ComponentProps<typeof S.Button>;
 
 export const ThemeToggle = (props: Props) => {
-  const { activeTheme, setActiveTheme } = useThemeStore();
+  const { activeTheme, setActiveTheme, setColors } = useThemeStore();
   const [shouldRender, setShouldRender] = useState(false);
   const darkThemeClass = 'dark-theme';
   const lightThemeClass = 'light-theme';
@@ -20,6 +20,32 @@ export const ThemeToggle = (props: Props) => {
     setActiveTheme(theme);
     setShouldRender(true);
   }, [setActiveTheme]);
+
+  useEffect(() => {
+    setColors({
+      border1: getPropertyValue('--color-border-1'),
+      border2: getPropertyValue('--color-border-2'),
+      danger: getPropertyValue('--color-danger'),
+      mainnet: getPropertyValue('--color-mainnet'),
+      primary: getPropertyValue('--color-primary'),
+      success: getPropertyValue('--color-success'),
+      surface1: getPropertyValue('--color-surface-1'),
+      surface2: getPropertyValue('--color-surface-2'),
+      surface3: getPropertyValue('--color-surface-3'),
+      surface4: getPropertyValue('--color-surface-4'),
+      surface5: getPropertyValue('--color-surface-5'),
+      surfaceOverlay: getPropertyValue('--color-surface-overlay'),
+      testnet: getPropertyValue('--color-testnet'),
+      text1: getPropertyValue('--color-text-1'),
+      text2: getPropertyValue('--color-text-2'),
+      text3: getPropertyValue('--color-text-3'),
+      warning: getPropertyValue('--color-warning'),
+    });
+  }, [setColors, activeTheme]);
+
+  function getPropertyValue(property: string) {
+    return getComputedStyle(document.body).getPropertyValue(property);
+  }
 
   function toggleTheme() {
     if (activeTheme === 'dark') {

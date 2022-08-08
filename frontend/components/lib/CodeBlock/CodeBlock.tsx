@@ -5,7 +5,7 @@ import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/cjs/sty
 
 import { Button } from '@/components/lib/Button';
 import * as Popover from '@/components/lib/Popover';
-import { useThemeStore } from '@/modules/core/components/ThemeToggle';
+import { useTheme } from '@/hooks/theme';
 
 import { Box } from '../Box';
 import { FeatherIcon } from '../FeatherIcon';
@@ -16,7 +16,7 @@ type Props = ComponentProps<typeof SyntaxHighlighter> & {
 };
 
 export function CodeBlock({ children, customStyle, ...passedProps }: Props) {
-  const { activeTheme } = useThemeStore();
+  const { activeTheme } = useTheme();
   const isChildString = typeof children === 'string';
   const [showCopiedAlert, setShowCopiedAlert] = useState(false);
   const copiedTimer = useRef<NodeJS.Timeout>();
