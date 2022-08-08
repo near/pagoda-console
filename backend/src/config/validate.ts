@@ -21,6 +21,13 @@ import * as Joi from 'joi';
 // it and ensure they stay in sync. Joi will perform runtime validation
 // and casting but cannot provide compile-time types
 
+export type Database = {
+  host: string;
+  database: string;
+  user: string;
+  password: string;
+};
+
 type DeployEnv = 'LOCAL' | 'DEVELOPMENT' | 'STAGING' | 'PRODUCTION';
 export interface AppConfig {
   deployEnv: DeployEnv;
@@ -32,6 +39,8 @@ export interface AppConfig {
   nearRpc: Record<Net, { url: string }>;
   recentTransactionsCount: number;
   projectRefPrefix: string;
+  indexerDatabase: Record<Net, Database>;
+  indexerActivityDatabase: Partial<Record<Net, Database>>;
   analytics: {
     url: string;
     token: string;
@@ -79,6 +88,13 @@ export interface AppConfig {
     };
   };
 }
+
+const databaseSchema = Joi.object({
+  host: Joi.string(),
+  database: Joi.string(),
+  user: Joi.string(),
+  password: Joi.string(),
+});
 
 // Joi docs: https://joi.dev/api
 // * When validation is performed, a default option is changed to
@@ -139,6 +155,14 @@ const appConfigSchema = Joi.object({
         .default('https://rpc.mainnet.near.org'),
     }),
   },
+  indexerDatabase: Joi.object({
+    MAINNET: databaseSchema,
+    TESTNET: databaseSchema,
+  }),
+  indexerActivityDatabase: Joi.object({
+    MAINNET: databaseSchema,
+    TESTNET: databaseSchema.optional(),
+  }),
   recentTransactionsCount: Joi.number().integer(),
   projectRefPrefix: Joi.string().optional().default(''),
   analytics: {
@@ -223,6 +247,47 @@ export default function validate(config: Record<string, unknown>): AppConfig {
       MAINNET: {
         url: config.NEAR_RPC_URL_MAIN,
       },
+    },
+    indexerDatabase: {
+      MAINNET: {
+        host:
+          config.INDEXER_MAINNET_HOST || 'mainnet.db.explorer.indexer.near.dev',
+        database: config.INDEXER_MAINNET_DATABASE || 'mainnet_explorer',
+        user: config.INDEXER_MAINNET_USER || 'public_readonly',
+        password: config.INDEXER_MAINNET_PASSWORD || 'nearprotocol',
+      },
+      TESTNET: {
+        host:
+          config.INDEXER_TESTNET_HOST || 'testnet.db.explorer.indexer.near.dev',
+        database: config.INDEXER_TESTNET_DATABASE || 'testnet_explorer',
+        user: config.INDEXER_TESTNET_USER || 'public_readonly',
+        password: config.INDEXER_TESTNET_PASSWORD || 'nearprotocol',
+      },
+    },
+    indexerActivityDatabase: {
+      MAINNET: {
+        host:
+          config.INDEXER_ACTIVITY_MAINNET_HOST ||
+          'mainnet.db.explorer.indexer.near.dev',
+        database:
+          config.INDEXER_ACTIVITY_MAINNET_DATABASE ||
+          'mainnet_accounts_activity',
+        user: config.INDEXER_ACTIVITY_MAINNET_USER || 'public_readonly',
+        password: config.INDEXER_ACTIVITY_MAINNET_PASSWORD || 'nearprotocol',
+      },
+      TESTNET: config.INDEXER_ACTIVITY_TESTNET_USER
+        ? {
+            host:
+              config.INDEXER_ACTIVITY_TESTNET_HOST ||
+              'testnet.db.explorer.indexer.near.dev',
+            database:
+              config.INDEXER_ACTIVITY_TESTNET_DATABASE ||
+              'testnet_accounts_activity',
+            user: config.INDEXER_ACTIVITY_TESTNET_USER || 'public_readonly',
+            password:
+              config.INDEXER_ACTIVITY_TESTNET_PASSWORD || 'nearprotocol',
+          }
+        : undefined,
     },
     recentTransactionsCount: config.RECENT_TRANSACTIONS_COUNT,
     projectRefPrefix: config.PROJECT_REF_PREFIX,

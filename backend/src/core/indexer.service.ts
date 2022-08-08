@@ -39,26 +39,9 @@ const DS_INDEXER_TESTNET = 'DS_INDEXER_TESTNET';
 //     console.log(result);
 // }
 
-import { Sequelize, Dialect, QueryTypes } from 'sequelize';
+import { Sequelize, QueryTypes } from 'sequelize';
 import { Net } from '../../generated/prisma/core';
 import { AppConfig } from '../config/validate';
-
-const dbConfig = {
-  indexerDatabaseTestnet: {
-    dialect: 'postgres' as Dialect,
-    host: 'testnet.db.explorer.indexer.near.dev',
-    database: 'testnet_explorer',
-    username: 'public_readonly',
-    password: 'nearprotocol',
-  },
-  indexerDatabaseMainnet: {
-    dialect: 'postgres' as Dialect,
-    host: 'mainnet.db.explorer.indexer.near.dev',
-    database: 'mainnet_explorer',
-    username: 'public_readonly',
-    password: 'nearprotocol',
-  },
-};
 
 @Injectable()
 export class IndexerService {
@@ -73,26 +56,27 @@ export class IndexerService {
     this.recentTransactionsCount = this.config.get('recentTransactionsCount', {
       infer: true,
     });
+    const indexerDatabaseConfig = this.config.get('indexerDatabase');
     this.db = {
       sequelizeIndexerBackendMainnetReadOnly: new Sequelize(
-        dbConfig.indexerDatabaseMainnet.database,
-        dbConfig.indexerDatabaseMainnet.username,
-        dbConfig.indexerDatabaseMainnet.password,
+        indexerDatabaseConfig.MAINNET.database,
+        indexerDatabaseConfig.MAINNET.user,
+        indexerDatabaseConfig.MAINNET.password,
         {
-          host: dbConfig.indexerDatabaseMainnet.host,
-          dialect: dbConfig.indexerDatabaseMainnet.dialect,
+          host: indexerDatabaseConfig.MAINNET.host,
+          dialect: 'postgres',
           logging: this.config.get('log.indexer', { infer: true })
             ? console.log
             : false,
         },
       ),
       sequelizeIndexerBackendTestnetReadOnly: new Sequelize(
-        dbConfig.indexerDatabaseTestnet.database,
-        dbConfig.indexerDatabaseTestnet.username,
-        dbConfig.indexerDatabaseTestnet.password,
+        indexerDatabaseConfig.TESTNET.database,
+        indexerDatabaseConfig.TESTNET.user,
+        indexerDatabaseConfig.TESTNET.password,
         {
-          host: dbConfig.indexerDatabaseTestnet.host,
-          dialect: dbConfig.indexerDatabaseTestnet.dialect,
+          host: indexerDatabaseConfig.TESTNET.host,
+          dialect: 'postgres',
           logging: this.config.get('log.indexer', { infer: true })
             ? console.log
             : false,
