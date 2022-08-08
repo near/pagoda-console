@@ -4,13 +4,13 @@ import type { ComponentProps } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
+import useFeatureFlag from '@/hooks/features';
 import { useSelectedProject } from '@/hooks/selected-project';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
 import type { SidebarEntry } from '@/shared/utils/types';
 import { logOut } from '@/utils/auth';
-import config from '@/utils/config';
 
 import { Logo } from './Logo';
 import * as S from './styles';
@@ -35,7 +35,7 @@ function useProjectPages(): SidebarEntry[] {
 
   // pushed individually so that module pages can be placed at any point
   pages.push({ display: 'Contracts', route: `/contracts`, icon: 'zap' });
-  if (config.featureFlags.alerts) {
+  if (useFeatureFlag('momentary-alerts-enabled')) {
     pages.push(...alertsEntries);
   }
   pages.push({ display: 'Analytics', route: '/project-analytics', icon: 'bar-chart-2' });

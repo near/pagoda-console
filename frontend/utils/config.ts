@@ -28,8 +28,7 @@ if (
   !process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY ||
   !process.env.NEXT_PUBLIC_FIREBASE_CONFIG ||
   !process.env.NEXT_PUBLIC_DEPLOY_ENV ||
-  !process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS_ACTIVITY ||
-  !process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS ||
+  !process.env.NEXT_PUBLIC_LAUNCHDARKLY_SDK_ENV ||
   !process.env.NEXT_PUBLIC_ANALYTICS_IFRAME_URL
 ) {
   throw new Error('Missing configuration value');
@@ -82,11 +81,8 @@ interface AppConfig {
   telegramBotHandle?: string;
   defaultPageSize: number;
   defaultLiveDataRefreshIntervalMs: number;
-  featureFlags: {
-    alerts: boolean;
-    alertsActivity: boolean;
-  };
   analyticsIframeUrl: string;
+  launchDarklyEnv: string;
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
@@ -124,11 +120,8 @@ const config: AppConfig = {
   telegramBotHandle: process.env.NEXT_PUBLIC_TELEGRAM_BOT_HANDLE,
   defaultPageSize: parseInt(process.env.NEXT_PUBLIC_DEFAULT_PAGE_SIZE || '100'),
   defaultLiveDataRefreshIntervalMs: parseInt(process.env.NEXT_PUBLIC_DEFAULT_LIVE_DATA_REFRESH_INTERVAL_MS || '3000'),
-  featureFlags: {
-    alerts: process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS === 'true',
-    alertsActivity: process.env.NEXT_PUBLIC_FEATURE_FLAG_ALERTS_ACTIVITY === 'true',
-  },
   analyticsIframeUrl: process.env.NEXT_PUBLIC_ANALYTICS_IFRAME_URL,
+  launchDarklyEnv: process.env.NEXT_PUBLIC_LAUNCHDARKLY_SDK_ENV,
 };
 
 export default config;
