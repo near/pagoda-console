@@ -43,6 +43,7 @@
     "firebase": "^9.6.10",
     "hexy": "^0.3.3",
     "iframe-resizer": "^4.3.2",
+    "jsbi": "^4.3.0",
     "launchdarkly-react-client-sdk": "^2.26.0",
     "lodash-es": "^4.17.21",
     "luxon": "^2.4.0",

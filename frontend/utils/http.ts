@@ -45,3 +45,28 @@ export async function authenticatedPost(
   }
   return resJson;
 }
+
+export async function fetchGet(endpoint: string) {
+  const res = await fetch(`${config.url.api}${endpoint}`);
+
+  let resJson;
+  try {
+    if (res.status === 204) {
+      resJson = {};
+    } else {
+      resJson = await res.json();
+    }
+  } catch (e) {
+    if (res.ok) {
+      throw new Error('Failed to convert to JSON');
+    }
+    // ignore failure to convert to JSON on error
+  }
+  if (!res.ok) {
+    // TODO (P2+) it is generally frowned upon to throw a non-Error object, but we
+    // need to pass the status code through to the onErrorRetry function. Find a better
+    // way to do that
+    throw resJson;
+  }
+  return resJson;
+}

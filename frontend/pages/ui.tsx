@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as Charts from 'recharts';
 
+import AccountActivityView from '@/components/explorer/activity/AccountActivityView';
 import * as Accordion from '@/components/lib/Accordion';
 import { Badge } from '@/components/lib/Badge';
 import { Box } from '@/components/lib/Box';
@@ -50,7 +51,7 @@ import { styled } from '@/styles/stitches';
 import config from '@/utils/config';
 import { formValidations } from '@/utils/constants';
 import { mergeInputProps } from '@/utils/merge-input-props';
-import type { NextPageWithLayout } from '@/utils/types';
+import type { NetOption, NextPageWithLayout } from '@/utils/types';
 import { validateMaxNearDecimalLength, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
 const Block = styled('div', {
@@ -211,6 +212,37 @@ const tableRows = [
     address: '65465 Some Really Long Address, Some Really Cool City, CO',
   },
 ];
+
+const AccountActivitySection = () => {
+  const form = useForm<{ contractId: string }>();
+  const [address, setAddress] = useState('');
+  const [net, setNet] = useState<NetOption>('MAINNET');
+
+  return (
+    <Flex stack>
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger>Network</DropdownMenu.Trigger>
+        <DropdownMenu.Content>
+          {(['MAINNET', 'TESTNET'] as const).map((net) => (
+            <DropdownMenu.Item key={net} onSelect={() => setNet(net)}>
+              {net.toLowerCase()}
+            </DropdownMenu.Item>
+          ))}
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
+      <Flex>
+        <Form.Input
+          id="contractId"
+          placeholder="eg: app.near"
+          isInvalid={!!form.formState.errors.contractId}
+          {...form.register('contractId', { required: true })}
+        />
+        <Button onClick={() => setAddress(form.getValues('contractId'))}>Fetch data</Button>
+      </Flex>
+      <AccountActivityView accountId={address} net={net} />
+    </Flex>
+  );
+};
 
 const Settings: NextPageWithLayout = () => {
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
@@ -1786,6 +1818,10 @@ const Settings: NextPageWithLayout = () => {
             />
           </Text>
         </Flex>
+      </DocSection>
+
+      <DocSection title="Account activity">
+        <AccountActivitySection />
       </DocSection>
     </>
   );
