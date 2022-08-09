@@ -5,14 +5,15 @@ import useSWR from 'swr';
 
 import { Spinner } from '@/components/lib/Spinner';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { useNet } from '@/hooks/net';
 import { styled } from '@/styles/stitches';
 import * as BI from '@/utils/bigint';
-import { shortenString } from '@/utils/formatting';
 import { publicGet } from '@/utils/http';
-import type { NetOption } from '@/utils/types';
 
-import Link from '../utils/Link';
+import AccountLink from '../utils/AccountLink';
+import BlockLink from '../utils/BlockLink';
 import { NearAmount } from '../utils/NearAmount';
+import TransactionLink from '../utils/TransactionLink';
 import AccountActivityBadge from './AccountActivityBadge';
 import {
   ActivityAccountName,
@@ -30,19 +31,6 @@ import type { AccountActivityAction, AccountActivityElement, ActivityConnectionA
 
 type RowProps = {
   item: AccountActivityElement;
-  net: NetOption;
-};
-
-const getActionLink = (net: NetOption, action: AccountActivityElement['action']) => {
-  return 'blockHash' in action
-    ? `https://explorer${net === 'TESTNET' ? '.testnet' : ''}.near.org/blocks/${action.blockHash}`
-    : `https://explorer${net === 'TESTNET' ? '.testnet' : ''}.near.org/transactions/${action.transactionHash}${
-        action.receiptId ? `#${action.receiptId}` : ''
-      }`;
-};
-
-const getAccountLink = (net: NetOption, account: string) => {
-  return `https://explorer${net === 'TESTNET' ? '.testnet' : ''}.near.org/accounts/${account}`;
 };
 
 const ActivityItemActionWrapper = styled('div', {
@@ -61,32 +49,22 @@ const ActivityItemTitle = styled('span', {
 
 const ActivityItemAction: React.FC<{
   action: NonNullable<ActivityConnectionActions['parentAction']> | AccountActivityAction;
-  net: NetOption;
-}> = ({ action, net }) => {
+}> = ({ action }) => {
   const badge = (
     <>
       {'sender' in action ? (
         <>
           <Tooltip content={action.sender}>
-            <Link href={getAccountLink(net, action.sender)}>
-              <a>{shortenString(action.sender)}</a>
-            </Link>
+            <AccountLink accountId={action.sender} />
           </Tooltip>
           {' → '}
         </>
       ) : null}
-      <AccountActivityBadge
-        action={action}
-        href={'transactionHash' in action ? getActionLink(net, action) : undefined}
-      />
+      <AccountActivityBadge action={action} />
       {'receiver' in action ? (
         <>
           {' → '}
-          <Tooltip content={action.receiver}>
-            <Link href={getAccountLink(net, action.receiver)}>
-              <a>{shortenString(action.receiver)}</a>
-            </Link>
-          </Tooltip>
+          <AccountLink accountId={action.receiver} />
         </>
       ) : null}
     </>
@@ -139,7 +117,7 @@ const ActivityItemAction: React.FC<{
   }
 };
 
-const ActivityItemRow: React.FC<RowProps> = ({ item, net }) => {
+const ActivityItemRow: React.FC<RowProps> = ({ item }) => {
   const deltaAmount = JSBI.BigInt(item.deltaAmount);
   const isDeltaAmountZero = JSBI.equal(deltaAmount, BI.zero);
   const isDeltaAmountPositive = JSBI.greaterThan(deltaAmount, BI.zero);
@@ -159,9 +137,7 @@ const ActivityItemRow: React.FC<RowProps> = ({ item, net }) => {
                   <Badge>{item.direction === 'inbound' ? 'in' : 'out'}</Badge>
                   {item.involvedAccountId ? (
                     <Tooltip content={item.involvedAccountId}>
-                      <Link href={getAccountLink(net, item.involvedAccountId)}>
-                        <a>{shortenString(item.involvedAccountId)}</a>
-                      </Link>
+                      <AccountLink accountId={item.involvedAccountId} />
                     </Tooltip>
                   ) : (
                     'system'
@@ -170,12 +146,12 @@ const ActivityItemRow: React.FC<RowProps> = ({ item, net }) => {
               ) : null}
             </TableElement>
             <TableElement>
-              <ActivityItemAction net={net} action={subAction} />
+              <ActivityItemAction action={subAction} />
               {item.action.parentAction ? (
                 <>
                   <hr />
                   <ActivityItemTitle>Caused by receipt:</ActivityItemTitle>
-                  <ActivityItemAction net={net} action={item.action.parentAction} />
+                  <ActivityItemAction action={item.action.parentAction} />
                 </>
               ) : null}
               {childrenActions.length !== 0 ? (
@@ -183,7 +159,7 @@ const ActivityItemRow: React.FC<RowProps> = ({ item, net }) => {
                   <hr />
                   <ActivityItemTitle>Children receipts:</ActivityItemTitle>
                   {childrenActions.map((childAction, index) => (
-                    <ActivityItemAction key={index} net={net} action={childAction} />
+                    <ActivityItemAction key={index} action={childAction} />
                   ))}
                 </>
               ) : null}
@@ -205,7 +181,14 @@ const ActivityItemRow: React.FC<RowProps> = ({ item, net }) => {
                     {'transactionHash' in item.action ? (item.action.receiptId ? 'RX' : 'TX') : 'BL'}
                   </LinkPrefix>
                   <Tooltip content={blockOrTransactionHash}>
-                    <Link href={getActionLink(net, item.action)}>{shortenString(blockOrTransactionHash)}</Link>
+                    {'blockHash' in item.action ? (
+                      <BlockLink blockHash={item.action.blockHash} />
+                    ) : (
+                      <TransactionLink
+                        transactionHash={item.action.transactionHash}
+                        receiptId={item.action.receiptId}
+                      />
+                    )}
                   </Tooltip>
                 </>
               ) : null}
@@ -222,10 +205,10 @@ const ActivityItemRow: React.FC<RowProps> = ({ item, net }) => {
 
 type Props = {
   accountId: string;
-  net: NetOption;
 };
 
-const AccountActivityView: React.FC<Props> = ({ accountId, net }) => {
+const AccountActivityView: React.FC<Props> = ({ accountId }) => {
+  const net = useNet();
   const query = useSWR<{ items: AccountActivityElement[] }>(
     accountId ? ['explorer/activity', accountId, net] : null,
     () => publicGet(`/explorer/activity/?contractId=${accountId}&net=${net}`),
@@ -253,7 +236,7 @@ const AccountActivityView: React.FC<Props> = ({ accountId, net }) => {
         <tbody>
           {query.data.items.length === 0 ? 'No activity' : null}
           {query.data.items.map((item, index) => (
-            <ActivityItemRow key={index} net={net} item={item} />
+            <ActivityItemRow key={index} item={item} />
           ))}
         </tbody>
       </table>

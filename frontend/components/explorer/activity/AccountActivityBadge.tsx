@@ -2,13 +2,13 @@ import * as React from 'react';
 
 import { Tooltip } from '@/components/lib/Tooltip';
 import { styled } from '@/styles/stitches';
-import { shortenString } from '@/utils/formatting';
+import { truncateMiddle } from '@/utils/truncate-middle';
 
-import type { AccountActivityAction } from './types';
+import TransactionLink from '../utils/TransactionLink';
+import type { AccountActivityAction, ActivityConnectionActions } from './types';
 
 type Props = {
-  action: AccountActivityAction;
-  href?: string;
+  action: AccountActivityAction | NonNullable<ActivityConnectionActions['parentAction']>;
 };
 
 const Wrapper = styled('div', {
@@ -20,14 +20,6 @@ const Wrapper = styled('div', {
   alignItems: 'center',
   justifyContent: 'center',
   fontSize: 12,
-
-  variants: {
-    as: {
-      a: {
-        cursor: 'pointer',
-      },
-    },
-  },
 });
 
 const ACTION_NAMES: Record<AccountActivityAction['kind'], string> = {
@@ -43,18 +35,23 @@ const ACTION_NAMES: Record<AccountActivityAction['kind'], string> = {
   validatorReward: 'Validator reward',
 };
 
-const AccountActivityBadge: React.FC<Props> = React.memo(({ action, href }) => {
-  return (
-    <Wrapper as={href ? 'a' : undefined} href={href}>
-      {action.kind === 'functionCall' ? (
-        <Tooltip content={action.args.methodName}>
-          <span>{shortenString(action.args.methodName)}</span>
-        </Tooltip>
-      ) : (
-        ACTION_NAMES[action.kind]
-      )}
-    </Wrapper>
-  );
+const AccountActivityBadge: React.FC<Props> = React.memo(({ action }) => {
+  let children =
+    action.kind === 'functionCall' ? (
+      <Tooltip content={action.args.methodName}>
+        <span>{truncateMiddle(action.args.methodName, 6, 6)}</span>
+      </Tooltip>
+    ) : (
+      ACTION_NAMES[action.kind]
+    );
+  if ('transactionHash' in action) {
+    children = (
+      <TransactionLink transactionHash={action.transactionHash} receiptId={action.receiptId}>
+        {children}
+      </TransactionLink>
+    );
+  }
+  return <Wrapper>{children}</Wrapper>;
 });
 
 AccountActivityBadge.displayName = 'AccountActivityBadge';
