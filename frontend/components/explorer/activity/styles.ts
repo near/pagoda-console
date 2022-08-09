@@ -2,18 +2,18 @@ import { styled } from '@/styles/stitches';
 
 export const TableWrapper = styled('div', {
   display: 'flex',
+  width: '100%',
   flexDirection: 'column',
   justifyContent: 'center',
   paddingHorizontal: 24,
   borderRadius: 8,
-  overflowX: 'scroll',
+  overflowX: 'auto',
 });
 
 export const TableHeader = styled('thead', {
   textTransform: 'uppercase',
-  color: '#c4c4c4',
-  borderBottom: '1px solid #e8e8e8',
-
+  color: 'var(--color-text-3)',
+  borderBottom: '1px solid var(--color-border-2)',
   fontSize: 12,
   fontWeight: 600,
 });
@@ -28,7 +28,7 @@ export const TableRow = styled('tr', {
   height: 50,
 
   '& + &': {
-    borderTop: '1px solid #e8e8e8',
+    borderTop: '1px solid var(--color-border-2)',
   },
 });
 
@@ -54,7 +54,7 @@ export const Amount = styled('div', {
 });
 
 export const DateTableElement = styled(TableElement, {
-  color: '#9B9B9B',
+  color: 'var(--color-text-3)',
 });
 
 export const LinkPrefix = styled('span', { marginRight: 8 });
