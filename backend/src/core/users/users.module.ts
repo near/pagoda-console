@@ -6,7 +6,7 @@ import { ProjectsModule } from '../projects/projects.module';
 
 @Module({
   providers: [UsersService, PrismaService],
-  imports: [PrismaService, ProjectsModule],
+  imports: [ProjectsModule],
   exports: [UsersService],
   controllers: [UsersController],
 })

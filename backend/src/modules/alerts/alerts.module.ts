@@ -19,12 +19,6 @@ import { EmailModule } from '../../core/email/email.module';
     NearRpcService,
   ],
   controllers: [AlertsController, TriggeredAlertsController],
-  imports: [
-    ProjectsModule,
-    PrismaService,
-    SerdeModule,
-    NearRpcService,
-    EmailModule,
-  ],
+  imports: [ProjectsModule, SerdeModule, EmailModule],
 })
 export class AlertsModule {}
