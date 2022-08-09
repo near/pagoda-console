@@ -13,13 +13,13 @@ export type TransactionInfo = TransactionBaseInfo & {
   status?: ExecutionStatus;
 };
 
-export interface CreateAccount {}
+export type CreateAccount = Record<string, never>;
 
 export interface DeleteAccount {
   beneficiary_id: string;
 }
 
-export interface DeployContract {}
+export type DeployContract = Record<string, never>;
 
 export interface FunctionCall {
   args: string;
@@ -59,7 +59,7 @@ export interface RpcAction {
 
 export interface Action {
   kind: keyof RpcAction;
-  args: RpcAction[keyof RpcAction] | {};
+  args: RpcAction[keyof RpcAction] | Record<string, never>;
 }
 
 export interface ReceiptSuccessValue {
@@ -93,13 +93,7 @@ export interface ReceiptOutcome {
 export interface ReceiptsOutcomeWrapper {
   receiptsOutcome?: ReceiptOutcome[];
 }
-interface RpcReceipt {
-  predecessor_id: string;
-  receiver_id: string;
-  receipt_id: string;
-  receipt?: any;
-  actions?: Action[];
-}
+
 export interface NestedReceiptWithOutcome {
   actions?: Action[];
   block_hash: string;

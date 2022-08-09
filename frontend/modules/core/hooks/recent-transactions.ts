@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 
+import type { Transaction } from '@/components/explorer/transactions/types';
 import { useIdentity } from '@/hooks/user';
-import type { Transaction } from '@/modules/core/components/explorer/components/transactions/types';
 import { authenticatedPost } from '@/utils/http';
 import type { NetOption } from '@/utils/types';
 

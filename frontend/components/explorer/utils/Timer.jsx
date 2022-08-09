@@ -1,5 +1,5 @@
-import { PureComponent } from 'react';
 import { DateTime } from 'luxon';
+import { PureComponent } from 'react';
 
 class Timer extends PureComponent {
   constructor(props) {

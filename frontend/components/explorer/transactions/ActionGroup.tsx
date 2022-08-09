@@ -1,16 +1,14 @@
 import BN from 'bn.js';
-import { useContext } from 'react';
-
-// import { DatabaseContext } from "../../context/DatabaseProvider";
-import { TransactionInfo } from './types';
-import { Receipt } from './types';
 
 import BatchTransactionIcon from '@/public/static/images/icon-m-batch.svg';
+import type { FinalityStatus } from '@/utils/types';
 
 import ActionRow from './ActionRow';
-import ActionRowBlock, { ViewMode } from './ActionRowBlock';
+import type { ViewMode } from './ActionRowBlock';
+import ActionRowBlock from './ActionRowBlock';
 import ActionsList from './ActionsList';
-import { FinalityStatus } from '@/utils/types';
+import type { TransactionInfo } from './types';
+import type { Receipt } from './types';
 
 interface Props {
   actionGroup: Receipt | TransactionInfo;

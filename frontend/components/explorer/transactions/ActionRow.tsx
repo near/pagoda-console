@@ -2,9 +2,10 @@ import { PureComponent } from 'react';
 
 import actionIcons from './ActionIcons';
 import ActionMessage from './ActionMessage';
-import ActionRowBlock, { ViewMode, DetalizationMode } from './ActionRowBlock';
+import type { DetalizationMode, ViewMode } from './ActionRowBlock';
+import ActionRowBlock from './ActionRowBlock';
 // import * as T from "../../libraries/explorer-wamp/transactions";
-import * as T from './types';
+import type * as T from './types';
 
 export interface Props {
   action: T.Action;
