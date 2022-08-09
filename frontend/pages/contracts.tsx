@@ -218,18 +218,19 @@ function AddContractForm(props: { project: string; environment: Environment; onA
           title: 'Duplicate Contract',
           description: 'This contract has already been saved to your project.',
         });
-      }
+      } else {
+        analytics.track('DC Add Contract', {
+          status: 'failure',
+          error: e.message,
+          contractId: contractAddress,
+          net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
+        });
 
-      analytics.track('DC Add Contract', {
-        status: 'failure',
-        error: e.message,
-        contractId: contractAddress,
-        net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
-      });
-      openToast({
-        type: 'error',
-        title: 'Failed to add contract.',
-      });
+        openToast({
+          type: 'error',
+          title: 'Failed to add contract.',
+        });
+      }
     }
   };
 

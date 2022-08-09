@@ -1,11 +1,6 @@
 import analytics from '@/utils/analytics';
+import { truncateMiddle } from '@/utils/truncate-middle';
 import type { NetOption } from '@/utils/types';
-
-function truncateAccountId(accountId: string, lengthThreshold = 25) {
-  return accountId.length > lengthThreshold
-    ? accountId.slice(0, 5) + '…' + accountId.slice(accountId.length - 10)
-    : accountId;
-}
 
 export interface Props {
   accountId: string;
@@ -15,7 +10,7 @@ export interface Props {
 //   return (
 //     <>
 //       <Link href="/accounts/[id]" as={`/accounts/${accountId}`}>
-//         <a className="account-link">{truncateAccountId(accountId)}</a>
+//         <a className="account-link">{truncateMiddle(accountId, 12, 12)}</a>
 //       </Link>
 //       <style jsx>{`
 //         .account-link {
@@ -47,7 +42,7 @@ const AccountLink = ({ accountId }: Props) => {
         target="_blank"
         rel="noopener noreferrer"
       >
-        {truncateAccountId(accountId)}
+        {truncateMiddle(accountId, 12, 12)}
       </a>
       <style jsx>{`
         .account-link {
