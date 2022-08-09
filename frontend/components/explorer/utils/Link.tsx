@@ -1,24 +1,26 @@
-import Link from 'next/link';
 import React from 'react';
-interface Props {
-  href: string;
-  as?: string;
-  children: React.ReactNode;
-}
 
-const LinkWrapper = ({ href, as, children }: Props) => {
+import { useNet } from '@/hooks/net';
+import analytics from '@/utils/analytics';
+
+const LinkWrapper = React.forwardRef<HTMLAnchorElement, React.ComponentProps<'a'>>((props, ref) => {
+  const net = useNet();
+  const baseUrl = `https://explorer${net === 'MAINNET' ? '' : '.testnet'}.near.org/`;
+  const href = baseUrl + props.href;
   return (
-    // <span
-    //   onClick={() =>
-    //     analytics.track("Explorer Click Link", { href: href, as: as ? as : "" })
-    //   }
-    // >
-    // <Link href={href} as={as}>
-    <Link href={href} as={as ? as : ''}>
-      {children}
-    </Link>
-    // </span>
+    <a
+      onClick={() => analytics.track('DC Explorer link', { net, href: props.href })}
+      target="_blank"
+      rel="noopener noreferrer"
+      {...props}
+      href={href}
+      ref={ref}
+    >
+      {props.children}
+    </a>
   );
-};
+});
+
+LinkWrapper.displayName = 'Link';
 
 export default LinkWrapper;

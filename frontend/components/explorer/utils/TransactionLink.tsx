@@ -1,37 +1,28 @@
-import analytics from '@/utils/analytics';
-import type { NetOption } from '@/utils/types';
+import * as React from 'react';
+
+import { Tooltip } from '@/components/lib/Tooltip';
+
+import Link from './Link';
 
 export interface Props {
-  transactionHash: string;
   children?: React.ReactNode;
-  net: NetOption;
+  transactionHash: string;
+  receiptId?: string;
 }
 
-// const TransactionLink = ({ transactionHash, children }: Props) => (
-//   <Link href="/transactions/[hash]" as={`/transactions/${transactionHash}`}>
-//     <a className="transaction-link">
-//       {children || `${transactionHash.substring(0, 7)}...`}
-//     </a>
-//   </Link>
-// );
+const TransactionLink: React.FC<Props> = React.memo(({ transactionHash, receiptId, children }) => {
+  const transactionWithReceiptId = `${transactionHash}${receiptId ? `#${receiptId}` : ''}`;
+  const link = (
+    <Link href={`/transactions/${transactionWithReceiptId}`}>
+      {children ? children : `${transactionHash.substring(0, 7)}…`}
+    </Link>
+  );
+  if (!children) {
+    return <Tooltip content={transactionWithReceiptId}>{link}</Tooltip>;
+  }
+  return link;
+});
 
-const TransactionLink = ({ transactionHash, children, net }: Props) => (
-  <>
-    <a
-      onClick={() => analytics.track('DC Recent transactions tx link')}
-      className="transaction-link"
-      href={`https://explorer${net === 'TESTNET' ? '.testnet' : ''}.near.org/transactions/${transactionHash}`}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      {children || `${transactionHash.substring(0, 7)}...`}
-    </a>
-    <style jsx>{`
-      a {
-        color: var(--color-primary);
-      }
-    `}</style>
-  </>
-);
+TransactionLink.displayName = 'TransactionLink';
 
 export default TransactionLink;

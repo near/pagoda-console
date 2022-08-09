@@ -1,12 +1,13 @@
 import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import type { ComponentProps } from 'react';
+import type { ComponentProps, FC, ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as Charts from 'recharts';
 
 import AccountActivityView from '@/components/explorer/activity/AccountActivityView';
+import { NetContext } from '@/components/explorer/utils/NetContext';
 import * as Accordion from '@/components/lib/Accordion';
 import { Badge } from '@/components/lib/Badge';
 import { Box } from '@/components/lib/Box';
@@ -213,15 +214,12 @@ const tableRows = [
   },
 ];
 
-const AccountActivitySection = () => {
-  const form = useForm<{ contractId: string }>();
-  const [address, setAddress] = useState('');
+const WithNetDropdown: FC<{ children: ReactNode }> = ({ children }) => {
   const [net, setNet] = useState<NetOption>('MAINNET');
-
   return (
-    <Flex stack>
+    <>
       <DropdownMenu.Root>
-        <DropdownMenu.Trigger>Network</DropdownMenu.Trigger>
+        <DropdownMenu.Button>Network: {net}</DropdownMenu.Button>
         <DropdownMenu.Content>
           {(['MAINNET', 'TESTNET'] as const).map((net) => (
             <DropdownMenu.Item key={net} onSelect={() => setNet(net)}>
@@ -230,6 +228,17 @@ const AccountActivitySection = () => {
           ))}
         </DropdownMenu.Content>
       </DropdownMenu.Root>
+      <NetContext.Provider value={net}>{children}</NetContext.Provider>
+    </>
+  );
+};
+
+const AccountActivitySection = () => {
+  const form = useForm<{ contractId: string }>();
+  const [address, setAddress] = useState('');
+
+  return (
+    <>
       <Flex>
         <Form.Input
           id="contractId"
@@ -239,8 +248,8 @@ const AccountActivitySection = () => {
         />
         <Button onClick={() => setAddress(form.getValues('contractId'))}>Fetch data</Button>
       </Flex>
-      <AccountActivityView accountId={address} net={net} />
-    </Flex>
+      <AccountActivityView accountId={address} />
+    </>
   );
 };
 
@@ -1821,7 +1830,11 @@ const Settings: NextPageWithLayout = () => {
       </DocSection>
 
       <DocSection title="Account activity">
-        <AccountActivitySection />
+        <WithNetDropdown>
+          <Flex stack>
+            <AccountActivitySection />
+          </Flex>
+        </WithNetDropdown>
       </DocSection>
     </>
   );

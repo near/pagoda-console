@@ -49,7 +49,11 @@ class TransactionAction extends PureComponent<Props, State> {
       <>
         <ActionGroup
           actionGroup={transaction as T.Transaction}
-          detailsLink={<TransactionLink transactionHash={transaction.hash} net={net} />}
+          detailsLink={
+            <NetContext.Provider value={net}>
+              <TransactionLink transactionHash={transaction.hash} />
+            </NetContext.Provider>
+          }
           status={status ? <TransactionExecutionStatus status={status} /> : <>Fetching Status...</>}
           viewMode={viewMode}
           title="Batch Transaction"
@@ -120,6 +124,7 @@ class TransactionAction extends PureComponent<Props, State> {
 // its backend from dedicated archival nodes
 import type { FinalityStatus } from '@/utils/types';
 
+import { NetContext } from '../utils/NetContext';
 import type { ExecutionStatus, TransactionInfo } from './types';
 async function getTransactionStatus(
   transaction: TransactionInfo,
