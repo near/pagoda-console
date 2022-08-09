@@ -2,11 +2,6 @@ import JSBI from 'jsbi';
 
 import * as BI from './bigint';
 
-export function truncateAccountId(accountId: string, lengthThreshold = 25) {
-  return accountId.length > lengthThreshold
-    ? accountId.slice(0, 5) + '…' + accountId.slice(accountId.length - 10)
-    : accountId;
-}
 const POWER = 3;
 const POWER_OF_10 = JSBI.BigInt(10 ** POWER);
 export const formatToPowerOfTen = <P extends number>(

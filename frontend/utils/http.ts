@@ -46,7 +46,7 @@ export async function authenticatedPost(
   return resJson;
 }
 
-export async function fetchGet(endpoint: string) {
+export async function publicGet(endpoint: string) {
   const res = await fetch(`${config.url.api}${endpoint}`);
 
   let resJson;

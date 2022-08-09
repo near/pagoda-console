@@ -8,7 +8,7 @@ import { Tooltip } from '@/components/lib/Tooltip';
 import { styled } from '@/styles/stitches';
 import * as BI from '@/utils/bigint';
 import { shortenString } from '@/utils/formatting';
-import { fetchGet } from '@/utils/http';
+import { publicGet } from '@/utils/http';
 import type { NetOption } from '@/utils/types';
 
 import Link from '../utils/Link';
@@ -228,7 +228,7 @@ type Props = {
 const AccountActivityView: React.FC<Props> = ({ accountId, net }) => {
   const query = useSWR<{ items: AccountActivityElement[] }>(
     accountId ? ['explorer/activity', accountId, net] : null,
-    () => fetchGet(`/explorer/activity/?contractId=${accountId}&net=${net}`),
+    () => publicGet(`/explorer/activity/?contractId=${accountId}&net=${net}`),
   );
 
   if (!accountId) {
