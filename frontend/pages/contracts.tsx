@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import useSWR from 'swr';
 
 import TransactionAction from '@/components/explorer/transactions/TransactionAction';
+import { NetContext } from '@/components/explorer/utils/NetContext';
 import { Box } from '@/components/lib/Box';
 import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
@@ -427,29 +428,31 @@ function RecentTransactionList({ contracts, net }: { contracts: Contract[]; net:
 
         {!transactions && <Spinner center />}
 
-        <Box css={{ width: '100%' }}>
-          {transactions &&
-            transactions.map((t) => {
-              return (
-                <Flex key={t.hash}>
-                  <Box css={{ flexGrow: 1 }}>
-                    <TransactionAction transaction={t} net={net} finalityStatus={finalityStatus} />
-                  </Box>
+        <NetContext.Provider value={net}>
+          <Box css={{ width: '100%' }}>
+            {transactions &&
+              transactions.map((t) => {
+                return (
+                  <Flex key={t.hash}>
+                    <Box css={{ flexGrow: 1 }}>
+                      <TransactionAction transaction={t} net={net} finalityStatus={finalityStatus} />
+                    </Box>
 
-                  <Text
-                    css={{
-                      marginTop: 'auto',
-                      marginBottom: 'auto',
-                      color: 'var(--color-text-2)',
-                      paddingLeft: 'var(--space-m)',
-                    }}
-                  >
-                    {t.sourceContract}
-                  </Text>
-                </Flex>
-              );
-            })}
-        </Box>
+                    <Text
+                      css={{
+                        marginTop: 'auto',
+                        marginBottom: 'auto',
+                        color: 'var(--color-text-2)',
+                        paddingLeft: 'var(--space-m)',
+                      }}
+                    >
+                      {t.sourceContract}
+                    </Text>
+                  </Flex>
+                );
+              })}
+          </Box>
+        </NetContext.Provider>
       </Flex>
     </Section>
   );
