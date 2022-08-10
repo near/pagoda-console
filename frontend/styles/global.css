@@ -13,7 +13,7 @@ body {
   word-break: break-word;
 }
 
-body > div {
+#__next {
   height: 100%;
 }
 
