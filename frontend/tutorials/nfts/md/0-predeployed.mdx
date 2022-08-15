@@ -66,7 +66,7 @@ NEAR has deployed an NFT contract to the account `nfts.examples.testnet` which a
 Run this command in your terminal, however you **must replace the `token_id` value with an UNIQUE string**.
 
 ```bash
-near call example-nft.testnet nft_mint '{"token_id": "TYPE_A_UNIQUE_VALUE_HERE", "receiver_id": "'$NEARID'", "token_metadata": { "title": "GO TEAM", "description": "The Team Goes", "media": "https://bafybeidl4hjbpdr6u6xvlrizwxbrfcyqurzvcnn5xoilmcqbxfbdwrmp5m.ipfs.dweb.link/", "copies": 1}}' --accountId $NEARID --deposit 0.1
+near call nft.examples.testnet nft_mint '{"token_id": "TYPE_A_UNIQUE_VALUE_HERE", "receiver_id": "'$NEARID'", "metadata": { "title": "GO TEAM", "description": "The Team Goes", "media": "https://bafybeidl4hjbpdr6u6xvlrizwxbrfcyqurzvcnn5xoilmcqbxfbdwrmp5m.ipfs.dweb.link/", "copies": 1}}' --accountId $NEARID --deposit 0.1
 ```
 
 <Tip>
@@ -105,7 +105,7 @@ You can also replace the `media` URL with a link to any image file hosted on you
 To view tokens owned by an account you can call the NFT contract with the following `near-cli` command:
 
 ```bash
-near view example-nft.testnet nft_tokens_for_owner '{"account_id": "'$NEARID'"}'
+near view nft.examples.testnet nft_tokens_for_owner '{"account_id": "'$NEARID'"}'
 ```
 
 <details>
