@@ -1,5 +1,5 @@
 import { ExecutionOutcomeStatus } from './models/readOnlyIndexer';
-import * as RPC from './rpc';
+import * as RPC from '../near-rpc/types';
 
 export type TransactionStatus = 'unknown' | 'failure' | 'success';
 

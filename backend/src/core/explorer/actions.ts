@@ -1,4 +1,4 @@
-import * as RPC from './rpc';
+import * as RPC from '../near-rpc/types';
 
 export type Action =
   | {

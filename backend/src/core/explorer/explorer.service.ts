@@ -3,9 +3,15 @@ import { ConfigService } from '@nestjs/config';
 import { VError } from 'verror';
 import { ExpressionBuilder, Kysely, PostgresDialect, sql } from 'kysely';
 import { Pool, PoolConfig } from 'pg';
-import { Action, DatabaseAction, mapDatabaseActionToAction } from './actions';
+import {
+  Action,
+  DatabaseAction,
+  mapDatabaseActionToAction,
+  mapRpcActionToAction,
+} from './actions';
 import {
   mapDatabaseTransactionStatus,
+  mapRpcTransactionStatus,
   TransactionStatus,
 } from './transaction-status';
 import * as Indexer from './models/readOnlyIndexer';
@@ -14,6 +20,9 @@ import { Net } from '../../../generated/prisma/core';
 import { StringReference } from 'kysely/dist/cjs/parser/reference-parser';
 import { ExtractColumnType } from 'kysely/dist/cjs/util/type-utils';
 import { AppConfig } from '../../config/validate';
+import { NearRpcService } from '../near-rpc/near-rpc.service';
+import * as RPC from '../near-rpc/types';
+import { mapRpcReceiptStatus, ReceiptExecutionStatus } from './receipt-status';
 
 type ActivityConnectionActions = {
   parentAction?: AccountActivityAction & ActivityConnection;
@@ -278,13 +287,131 @@ export type AccountActivity = {
   };
 };
 
+const getDeposit = (actions: Action[]) =>
+  actions
+    .map((action) =>
+      'deposit' in action.args ? BigInt(action.args.deposit) : 0n,
+    )
+    .reduce((accumulator, deposit) => accumulator + deposit, 0n);
+
+const getTransactionFee = (
+  transactionOutcome: RPC.ExecutionOutcomeWithIdView,
+  receiptsOutcome: RPC.ExecutionOutcomeWithIdView[],
+) =>
+  receiptsOutcome
+    .map((receipt) => BigInt(receipt.outcome.tokens_burnt))
+    .reduce(
+      (tokenBurnt, currentFee) => tokenBurnt + currentFee,
+      BigInt(transactionOutcome.outcome.tokens_burnt),
+    );
+
+type NestedReceiptWithOutcome = {
+  id: string;
+  predecessorId: string;
+  receiverId: string;
+  actions: Action[];
+  outcome: {
+    block: {
+      hash: string;
+      height: number;
+      timestamp: number;
+    };
+    tokensBurnt: string;
+    gasBurnt: number;
+    status: ReceiptExecutionStatus;
+    logs: string[];
+    nestedReceipts: NestedReceiptWithOutcome[];
+  };
+};
+
+type ParsedReceipt = Omit<NestedReceiptWithOutcome, 'outcome'> & {
+  outcome: Omit<NestedReceiptWithOutcome['outcome'], 'nestedReceipts'> & {
+    receiptIds: string[];
+  };
+};
+
+const parseReceipt = (
+  receipt: RPC.ReceiptView | undefined,
+  outcome: RPC.ExecutionOutcomeWithIdView,
+  transaction: RPC.SignedTransactionView,
+): Omit<ParsedReceipt, 'outcome'> => {
+  if (!receipt) {
+    return {
+      id: outcome.id,
+      predecessorId: transaction.signer_id,
+      receiverId: transaction.receiver_id,
+      actions: transaction.actions.map(mapRpcActionToAction),
+    };
+  }
+  return {
+    id: receipt.receipt_id,
+    predecessorId: receipt.predecessor_id,
+    receiverId: receipt.receiver_id,
+    actions:
+      'Action' in receipt.receipt
+        ? receipt.receipt.Action.actions.map(mapRpcActionToAction)
+        : [],
+  };
+};
+
+type ParsedBlock = {
+  hash: string;
+  height: number;
+  timestamp: number;
+};
+
+const parseOutcome = (
+  outcome: RPC.ExecutionOutcomeWithIdView,
+  blocksMap: Map<string, ParsedBlock>,
+): ParsedReceipt['outcome'] => {
+  return {
+    tokensBurnt: outcome.outcome.tokens_burnt,
+    gasBurnt: outcome.outcome.gas_burnt,
+    status: mapRpcReceiptStatus(outcome.outcome.status),
+    logs: outcome.outcome.logs,
+    receiptIds: outcome.outcome.receipt_ids,
+    block: blocksMap.get(outcome.block_hash)!,
+  };
+};
+
+const collectNestedReceiptWithOutcome = (
+  idOrHash: string,
+  parsedMap: Map<string, ParsedReceipt>,
+): NestedReceiptWithOutcome => {
+  const parsedElement = parsedMap.get(idOrHash)!;
+  const { receiptIds, ...restOutcome } = parsedElement.outcome;
+  return {
+    ...parsedElement,
+    outcome: {
+      ...restOutcome,
+      nestedReceipts: receiptIds.map((id) =>
+        collectNestedReceiptWithOutcome(id, parsedMap),
+      ),
+    },
+  };
+};
+
+export type Transaction = {
+  hash: string;
+  timestamp: number;
+  signerId: string;
+  receiverId: string;
+  fee: string;
+  amount: string;
+  status: TransactionStatus;
+  receipt: NestedReceiptWithOutcome;
+};
+
 @Injectable()
 export class ExplorerService {
   private indexerDatabase: Record<Net, Kysely<Indexer.ModelTypeMap>>;
   private indexerActivityDatabase: Partial<
     Record<Net, Kysely<IndexerActivity.ModelTypeMap>>
   >;
-  constructor(private config: ConfigService<AppConfig>) {
+  constructor(
+    private nearRpc: NearRpcService,
+    private config: ConfigService<AppConfig>,
+  ) {
     const indexerDatabaseConfig = this.config.get('indexerDatabase');
     const indexerActivityDatabaseConfig = this.config.get(
       'indexerActivityDatabase',
@@ -640,6 +767,125 @@ export class ExplorerService {
       };
     } catch (e) {
       throw new VError(e, 'Failed to fetch activity');
+    }
+  }
+
+  async fetchTransaction(net: Net, hash: string): Promise<Transaction> {
+    try {
+      const indexerDatabase = this.indexerDatabase[net];
+      const databaseTransaction = await indexerDatabase
+        .selectFrom('transactions')
+        .select([
+          'signer_account_id as signerId',
+          (eb) => div(eb, 'block_timestamp', 1000 * 1000, 'timestamp'),
+        ])
+        .where('transaction_hash', '=', hash)
+        .executeTakeFirst();
+      if (!databaseTransaction) {
+        return null;
+      }
+      const rpcTransaction = await this.nearRpc.transactionStatus(
+        net,
+        hash,
+        databaseTransaction.signerId,
+      );
+      const blocks = await indexerDatabase
+        .selectFrom('blocks')
+        .select([
+          'block_height as height',
+          'block_hash as hash',
+          (eb) => div(eb, 'block_timestamp', 1000 * 1000, 'timestamp'),
+        ])
+        .where(
+          'block_hash',
+          'in',
+          rpcTransaction.receipts_outcome.map((outcome) => outcome.block_hash),
+        )
+        .execute();
+      const blocksMap = blocks.reduce(
+        (map, row) =>
+          map.set(row.hash, {
+            hash: row.hash,
+            height: parseInt(row.height),
+            timestamp: parseInt(row.timestamp),
+          }),
+        new Map<string, ParsedBlock>(),
+      );
+
+      const transactionFee = getTransactionFee(
+        rpcTransaction.transaction_outcome,
+        rpcTransaction.receipts_outcome,
+      );
+
+      const txActions =
+        rpcTransaction.transaction.actions.map(mapRpcActionToAction);
+      const transactionAmount = getDeposit(txActions);
+
+      const receiptsMap = rpcTransaction.receipts_outcome.reduce(
+        (mapping, receiptOutcome) => {
+          const receipt = parseReceipt(
+            rpcTransaction.receipts.find(
+              (receipt) => receipt.receipt_id === receiptOutcome.id,
+            ),
+            receiptOutcome,
+            rpcTransaction.transaction,
+          );
+          return mapping.set(receiptOutcome.id, {
+            ...receipt,
+            outcome: parseOutcome(receiptOutcome, blocksMap),
+          });
+        },
+        new Map<string, ParsedReceipt>(),
+      );
+
+      return {
+        hash,
+        timestamp: parseInt(databaseTransaction.timestamp),
+        signerId: rpcTransaction.transaction.signer_id,
+        receiverId: rpcTransaction.transaction.receiver_id,
+        fee: transactionFee.toString(),
+        amount: transactionAmount.toString(),
+        status: mapRpcTransactionStatus(rpcTransaction.status),
+        receipt: collectNestedReceiptWithOutcome(
+          rpcTransaction.transaction_outcome.outcome.receipt_ids[0],
+          receiptsMap,
+        ),
+      };
+    } catch (e) {
+      throw new VError(e, 'Failed to fetch transaction');
+    }
+  }
+
+  async fetchBalanceChanges(
+    net: Net,
+    receiptId: string,
+    accountIds: string[],
+  ): Promise<(string | undefined)[]> {
+    try {
+      const activityDatabase = this.indexerActivityDatabase[net];
+      if (!activityDatabase) {
+        return accountIds.map(() => undefined);
+      }
+      const balanceChanges = await activityDatabase
+        .selectFrom('balance_changes')
+        .select([
+          'absolute_nonstaked_amount as absoluteNonStakedAmount',
+          'affected_account_id as accountId',
+        ])
+        .where('affected_account_id', 'in', accountIds)
+        .where('receipt_id', '=', receiptId)
+        .orderBy('index_in_chunk', 'desc')
+        .execute();
+      if (!balanceChanges) {
+        return accountIds.map(() => undefined);
+      }
+      return accountIds.map(
+        (accountId) =>
+          balanceChanges.find((change) => change.accountId === accountId)
+            ?.absoluteNonStakedAmount,
+      );
+    } catch (e) {
+      throw new VError(e, 'Failed to fetch transaction');
     }
   }
 }

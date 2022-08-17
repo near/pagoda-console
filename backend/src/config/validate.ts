@@ -37,6 +37,7 @@ export interface AppConfig {
   };
   rpcAuth: Record<Net, { url: string; credential: string; quota: number }>;
   nearRpc: Record<Net, { url: string }>;
+  nearArchivalRpc: Record<Net, { url: string }>;
   recentTransactionsCount: number;
   projectRefPrefix: string;
   indexerDatabase: Record<Net, Database>;
@@ -155,6 +156,20 @@ const appConfigSchema = Joi.object({
         .default('https://rpc.mainnet.near.org'),
     }),
   },
+  nearArchivalRpc: {
+    TESTNET: {
+      url: Joi.string()
+        .uri({ scheme: 'https' })
+        .optional()
+        .default('https://archival-rpc.testnet.near.org'),
+    },
+    MAINNET: Joi.object({
+      url: Joi.string()
+        .uri({ scheme: 'https' })
+        .optional()
+        .default('https://archival-rpc.mainnet.near.org'),
+    }),
+  },
   indexerDatabase: Joi.object({
     MAINNET: databaseSchema,
     TESTNET: databaseSchema,
@@ -246,6 +261,14 @@ export default function validate(config: Record<string, unknown>): AppConfig {
       },
       MAINNET: {
         url: config.NEAR_RPC_URL_MAIN,
+      },
+    },
+    nearArchivalRpc: {
+      TESTNET: {
+        url: config.NEAR_ARCHIVAL_RPC_URL_TEST,
+      },
+      MAINNET: {
+        url: config.NEAR_ARCHIVAL_RPC_URL_MAIN,
       },
     },
     indexerDatabase: {
