@@ -412,9 +412,12 @@ export class ExplorerService {
     private nearRpc: NearRpcService,
     private config: ConfigService<AppConfig>,
   ) {
-    const indexerDatabaseConfig = this.config.get('indexerDatabase');
+    const indexerDatabaseConfig = this.config.get('indexerDatabase', {
+      infer: true,
+    });
     const indexerActivityDatabaseConfig = this.config.get(
       'indexerActivityDatabase',
+      { infer: true },
     );
     this.indexerDatabase = {
       MAINNET: getKysely<Indexer.ModelTypeMap>(indexerDatabaseConfig.MAINNET),
