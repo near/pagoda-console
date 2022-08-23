@@ -23,7 +23,7 @@ test(`create blank project test`, async ({ page }) => {
 
   await Promise.all([
     page.waitForNavigation({
-      url: `${process.env.TEST_URL}/project-settings`,
+      url: `${process.env.TEST_URL}/apis?tab=keys`,
     }),
     page.locator('text=Create Project').click(),
   ]);
@@ -71,13 +71,7 @@ test(`create tutorial project test`, async ({ page }) => {
     page.locator('text=Create Project').click(),
   ]);
 
-  await Promise.all([
-    page.waitForNavigation({
-      url: `${process.env.TEST_URL}/project-settings`,
-    }),
-    page.locator('text=Settings').click(),
-  ]);
-
+  await page.goto('/apis?tab=keys', { waitUntil: 'networkidle' });
   await page.click('text=Remove Project');
 
   await Promise.all([

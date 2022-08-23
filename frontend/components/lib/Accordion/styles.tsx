@@ -19,7 +19,7 @@ export const Header = styled(AccordionPrimitive.Header, {
 export const Item = styled(AccordionPrimitive.Item, {
   border: '1px solid var(--color-surface-3)',
   borderRadius: 'var(--border-radius)',
-  backgroundColor: 'var(--color-surface-1)',
+  backgroundColor: 'var(--color-surface-2)',
 
   '&:focus-within': {
     position: 'relative',

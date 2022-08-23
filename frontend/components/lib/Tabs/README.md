@@ -27,6 +27,17 @@ import * as Tabs from '@/components/lib/Tabs';
 </Tabs.Root>
 ```
 
+## Inline
+
+You can use this alternative tab styling via the `inline` prop on the `Tabs.List` component:
+
+```tsx
+<Tabs.Root>
+  <Tabs.List inline>...</Tabs.List>
+  ...
+</Tabs.Root>
+```
+
 ## Routing
 
 Sometimes it will make sense to sync the selected tab with the URL - each trigger acting as a link instead of a button. Here's an example of driving the selected tab via a URL query param:

@@ -449,7 +449,7 @@ const Settings: NextPageWithLayout = () => {
 
         <H4>ButtonLink</H4>
         <Flex wrap>
-          <Link href="/project-settings" passHref>
+          <Link href="/foobar" passHref>
             <ButtonLink>Link</ButtonLink>
           </Link>
           <ButtonLink href="https://github.com/near/developer-console-framework" external>
@@ -1483,6 +1483,8 @@ const Settings: NextPageWithLayout = () => {
       </DocSection>
 
       <DocSection title="Tabs">
+        <H4>Standard Tabs</H4>
+
         <Tabs.Root defaultValue="tab-1">
           <Tabs.List>
             <Tabs.Trigger value="tab-1">Tab 1</Tabs.Trigger>
@@ -1495,31 +1497,46 @@ const Settings: NextPageWithLayout = () => {
           </Tabs.List>
 
           <Tabs.Content value="tab-1">
-            <Flex stack>
-              <H4>Tab 1</H4>
-              <Text>Some tab 1 content.</Text>
-            </Flex>
+            <Text>Some tab 1 content.</Text>
           </Tabs.Content>
 
           <Tabs.Content value="tab-2">
-            <Flex stack>
-              <H4>Tab 2</H4>
-              <Text>Some tab 2 content.</Text>
-            </Flex>
+            <Text>Some tab 2 content.</Text>
           </Tabs.Content>
 
           <Tabs.Content value="tab-3">
-            <Flex stack>
-              <H4>Tab 3</H4>
-              <Text>Some tab 3 content.</Text>
-            </Flex>
+            <Text>Some tab 3 content.</Text>
           </Tabs.Content>
 
           <Tabs.Content value="tab-4">
-            <Flex stack>
-              <H4>Tab 4</H4>
-              <Text>Some tab 4 content.</Text>
-            </Flex>
+            <Text>Some tab 4 content.</Text>
+          </Tabs.Content>
+        </Tabs.Root>
+
+        <HR />
+
+        <H4>Inline Tabs</H4>
+
+        <Tabs.Root defaultValue="tab-1">
+          <Tabs.List inline>
+            <Tabs.Trigger value="tab-1">Tab 1</Tabs.Trigger>
+            <Tabs.Trigger value="tab-2">Tab 2</Tabs.Trigger>
+            <Tabs.Trigger value="tab-4">
+              <FeatherIcon icon="home" size="xs" />
+              Tab 3 With Icon
+            </Tabs.Trigger>
+          </Tabs.List>
+
+          <Tabs.Content value="tab-1">
+            <Text>Some tab 1 content.</Text>
+          </Tabs.Content>
+
+          <Tabs.Content value="tab-2">
+            <Text>Some tab 2 content.</Text>
+          </Tabs.Content>
+
+          <Tabs.Content value="tab-3">
+            <Text>Some tab 3 content.</Text>
           </Tabs.Content>
         </Tabs.Root>
       </DocSection>
@@ -1599,16 +1616,16 @@ const Settings: NextPageWithLayout = () => {
 
       <DocSection title="Text Link">
         <Flex wrap>
-          <Link href="/project-settings" passHref>
+          <Link href="/foobar" passHref>
             <TextLink>Primary Link</TextLink>
           </Link>
-          <Link href="/project-settings" passHref>
+          <Link href="/foobar" passHref>
             <TextLink color="danger">Danger Link</TextLink>
           </Link>
-          <Link href="/project-settings" passHref>
+          <Link href="/foobar" passHref>
             <TextLink color="neutral">Neutral Link</TextLink>
           </Link>
-          <Link href="/project-settings" passHref>
+          <Link href="/foobar" passHref>
             <TextLink size="s" color="neutral">
               Small Link
             </TextLink>

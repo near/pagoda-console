@@ -7,6 +7,7 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import useFeatureFlag from '@/hooks/features';
 import { useSelectedProject } from '@/hooks/selected-project';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
+import apisEntries from '@/modules/apis/sidebar-entries';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
 import type { SidebarEntry } from '@/shared/utils/types';
@@ -35,13 +36,14 @@ function useProjectPages(): SidebarEntry[] {
 
   // pushed individually so that module pages can be placed at any point
   pages.push({ display: 'Contracts', route: `/contracts`, icon: 'zap' });
+  pages.push(...apisEntries);
   if (useFeatureFlag('momentary-alerts-enabled')) {
     pages.push(...alertsEntries);
   }
   pages.push({ display: 'Analytics', route: '/project-analytics', icon: 'bar-chart-2' });
   pages.push(...indexersEntries);
   pages.push({ display: 'Deploys', route: '', icon: 'git-merge' });
-  pages.push({ display: 'Settings', route: `/project-settings`, icon: 'settings' });
+  pages.push({ display: 'Settings', route: '/project-settings', icon: 'settings' });
 
   return pages;
 }

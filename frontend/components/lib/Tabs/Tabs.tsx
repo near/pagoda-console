@@ -10,10 +10,11 @@ export const Root = styled(TabsPrimitive.Root, {
 });
 
 export const List = styled(TabsPrimitive.List, {
-  flexShrink: 0,
+  '--border-size': '-2px',
+  '--trigger-padding': 'var(--space-m)',
   display: 'flex',
   width: '100%',
-  boxShadow: 'inset 0 -2px 0 var(--color-surface-5)',
+  boxShadow: 'inset 0 var(--border-size) 0 var(--color-surface-5)',
   overflow: 'auto',
   '-ms-overflow-style': 'none',
   scrollbarWidth: 'none',
@@ -21,6 +22,17 @@ export const List = styled(TabsPrimitive.List, {
 
   '&::-webkit-scrollbar': {
     display: 'none',
+  },
+
+  variants: {
+    inline: {
+      true: {
+        '--trigger-padding': 'var(--space-xs) 0',
+        boxShadow: 'none',
+        width: 'auto',
+        gap: 'var(--space-l)',
+      },
+    },
   },
 });
 
@@ -35,7 +47,7 @@ const triggerStyles: StitchesCSS = {
   lineHeight: 'var(--line-height-h6)',
   fontWeight: 500,
   justifyContent: 'center',
-  padding: 'var(--space-m)',
+  padding: 'var(--trigger-padding)',
   transition: 'var(--transitions)',
   userSelect: 'none',
   whiteSpace: 'nowrap',
@@ -43,10 +55,11 @@ const triggerStyles: StitchesCSS = {
   borderTopRightRadius: 'var(--border-radius-m)',
   borderTopLeftRadius: 'var(--border-radius-m)',
   borderBottom: 'none',
+  flexShrink: 0,
 
   '&:hover': {
     color: 'var(--color-text-1)',
-    boxShadow: 'inset 0 -2px 0 var(--color-text-1)',
+    boxShadow: 'inset 0 var(--border-size) 0 var(--color-text-1)',
   },
 
   '&:focus': {
@@ -55,8 +68,8 @@ const triggerStyles: StitchesCSS = {
 };
 
 const triggerActiveStyles: StitchesCSS = {
-  color: 'var(--color-cta-primary)',
-  boxShadow: 'inset 0 -2px 0 var(--color-cta-primary)',
+  color: 'var(--color-cta-primary) !important',
+  boxShadow: 'inset 0 var(--border-size) 0 var(--color-cta-primary) !important',
   position: 'relative',
   zIndex: 5,
 };

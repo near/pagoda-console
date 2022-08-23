@@ -8,7 +8,7 @@ The `TextLink` component renders a `<a href="...">` HTML element. Make sure to w
 import Link from 'next/link';
 import { TextLink } from '@/components/lib/TextLink';
 ...
-<Link href="/project-settings" passHref>
+<Link href="/foobar" passHref>
   <TextLink color="neutral">
     Link
   </TextLink>

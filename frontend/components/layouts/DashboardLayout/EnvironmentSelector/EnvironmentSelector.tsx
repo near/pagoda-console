@@ -1,8 +1,7 @@
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
-import { FeatherIcon } from '@/components/lib/FeatherIcon';
+import { SubnetIcon } from '@/components/lib/SubnetIcon';
 import { useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
-import { assertUnreachable } from '@/utils/helpers';
 import type { Environment } from '@/utils/types';
 
 interface Props {
@@ -31,7 +30,7 @@ export function EnvironmentSelector(props: Props) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Button css={{ width: '11rem' }}>
-        <Icon environment={environment} />
+        <SubnetIcon net={environment?.net} />
         {environment?.name || '...'}
       </DropdownMenu.Button>
 
@@ -39,7 +38,7 @@ export function EnvironmentSelector(props: Props) {
         {environments?.map((e) => {
           return (
             <DropdownMenu.Item key={e.subId} onSelect={() => onSelectEnvironment(e)}>
-              <Icon environment={e} />
+              <SubnetIcon net={e.net} />
               {e.name}
             </DropdownMenu.Item>
           );
@@ -47,17 +46,4 @@ export function EnvironmentSelector(props: Props) {
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   );
-}
-
-function Icon({ environment }: { environment?: Environment }) {
-  if (!environment) return null;
-
-  switch (environment.net) {
-    case 'MAINNET':
-      return <FeatherIcon icon="layers" css={{ color: 'var(--color-mainnet)' }} />;
-    case 'TESTNET':
-      return <FeatherIcon icon="code" css={{ color: 'var(--color-testnet)' }} />;
-    default:
-      assertUnreachable(environment.net);
-  }
 }

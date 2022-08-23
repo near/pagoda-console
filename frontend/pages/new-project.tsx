@@ -27,7 +27,7 @@ const NewProject: NextPageWithLayout = () => {
 
   const createProject: SubmitHandler<NewProjectFormData> = async ({ projectName }) => {
     try {
-      router.prefetch('/project-settings');
+      router.prefetch('/apis?tab=keys');
       const project: Project = await authenticatedPost(
         '/projects/create',
         { name: projectName },
@@ -37,7 +37,7 @@ const NewProject: NextPageWithLayout = () => {
         status: 'success',
         name: projectName,
       });
-      await router.push(`/project-settings?project=${project.slug}`);
+      await router.push(`/apis?tab=keys&project=${project.slug}`);
     } catch (e: any) {
       analytics.track('DC Create New Project', {
         status: 'failure',

@@ -104,15 +104,17 @@ export default function StarterGuide() {
   }, [keys, environment]);
 
   return (
-    <Flex stack>
-      <H4>Using Your API Keys</H4>
+    <Flex stack gap="l">
+      <Flex stack>
+        <H4>Using Your API Keys</H4>
 
-      <Text>
-        Follow the instructions below to get started with making requests to the NEAR RPC service.
-        {keys && " We've already filled in your API keys in these instructions."}
-      </Text>
+        <Text>
+          Follow the instructions below to get started with making requests to the NEAR RPC service.
+          {keys && " We've already filled in your API keys in these instructions."}
+        </Text>
+      </Flex>
 
-      <Accordion.Root type="multiple">
+      <Accordion.Root type="multiple" inline>
         <Accordion.Item value="cli">
           <Accordion.Trigger>Command Line (near-cli)</Accordion.Trigger>
           <Accordion.Content>
