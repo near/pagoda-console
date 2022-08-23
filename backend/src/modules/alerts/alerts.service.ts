@@ -735,7 +735,7 @@ export class AlertsService {
       projectSlug,
     );
 
-    let res, token;
+    let res;
 
     try {
       const expiryDate = this.calculateExpiryDate(this.emailTokenExpiryMin);
@@ -780,7 +780,10 @@ export class AlertsService {
     }
 
     try {
-      await this.emailsService.sendEmailVerificationMessage(email, token);
+      await this.emailsService.sendEmailVerificationMessage(
+        email,
+        res.emailDestination.token,
+      );
     } catch (e) {
       try {
         await this.prisma.$transaction([
