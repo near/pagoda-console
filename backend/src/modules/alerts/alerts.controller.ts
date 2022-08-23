@@ -52,7 +52,10 @@ import {
   ResendEmailVerificationSchema,
   UnsubscribeFromEmailAlertDto,
   UnsubscribeFromEmailAlertSchema,
+  RotateWebhookDestinationSecretSchema,
+  RotateWebhookDestinationSecretDto,
 } from './dto';
+import { TooManyRequestsException } from './exception/tooManyRequestsException';
 import { TelegramService } from './telegram/telegram.service';
 import { TgUpdate } from './telegram/types';
 
@@ -372,7 +375,7 @@ export class AlertsController {
   }
 
   @Post('resendEmailVerification')
-  @HttpCode(200)
+  @HttpCode(204)
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(ResendEmailVerificationSchema))
   async resendEmailVerification(
@@ -387,13 +390,31 @@ export class AlertsController {
   }
 
   @Post('unsubscribeFromEmailAlert')
-  @HttpCode(200)
+  @HttpCode(204)
   @UsePipes(new JoiValidationPipe(UnsubscribeFromEmailAlertSchema))
   async unsubscribeFromEmailAlert(
     @Body() { token }: UnsubscribeFromEmailAlertDto,
   ) {
     try {
       await this.alertsService.unsubscribeFromEmailAlert(token);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('rotateWebhookDestinationSecret')
+  @HttpCode(200)
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(RotateWebhookDestinationSecretSchema))
+  async rotateWebhookDestinationSecret(
+    @Request() req,
+    @Body() { destinationId }: RotateWebhookDestinationSecretDto,
+  ) {
+    try {
+      return await this.alertsService.rotateWebhookDestinationSecret(
+        req.user,
+        destinationId,
+      );
     } catch (e) {
       throw mapError(e);
     }
@@ -413,6 +434,8 @@ function mapError(e: Error) {
       return new BadRequestException();
     case 'NOT_FOUND':
       return new BadRequestException(errorInfo.response);
+    case 'TOO_MANY_REQUESTS':
+      return new TooManyRequestsException();
     default:
       return e;
   }

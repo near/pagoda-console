@@ -1,7 +1,7 @@
 name: Build Project
 on:
   pull_request:
-    branches: [development]
+    branches: [development, module, release, main]
 jobs:
   build:
     timeout-minutes: 5
@@ -26,3 +26,6 @@ jobs:
 
       - name: Test building a project
         run: npm run build
+
+      - name: Run unit tests
+        run: npm run test

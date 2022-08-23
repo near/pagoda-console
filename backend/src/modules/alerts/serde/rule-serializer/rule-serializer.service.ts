@@ -11,7 +11,6 @@ import {
   AcctBalRuleDto,
   EventRuleDto,
   FnCallRuleDto,
-  RuleType,
   TxRuleDto,
 } from '../dto.types';
 
@@ -52,7 +51,18 @@ export class RuleSerializerService {
     };
   }
 
-  toAcctBalJson(rule: AcctBalRuleDto, ruleType: RuleType): AcctBalMatchingRule {
+  toAcctBalJson(
+    rule: AcctBalRuleDto,
+    ruleType: 'ACCT_BAL_NUM' | 'ACCT_BAL_PCT',
+  ): AcctBalMatchingRule {
+    if (!rule.from && !rule.to) {
+      throw new VError('Invalid range');
+    }
+
+    if (rule.from && rule.to && BigInt(rule.from) > BigInt(rule.to)) {
+      throw new VError('Invalid range');
+    }
+
     return {
       rule: 'STATE_CHANGE_ACCOUNT_BALANCE',
       affected_account_id: rule.contract,
@@ -64,17 +74,14 @@ export class RuleSerializerService {
     };
   }
 
-  private ruleTypeToComparatorKind(ruleType: RuleType): ComparatorKind {
+  private ruleTypeToComparatorKind(
+    ruleType: 'ACCT_BAL_NUM' | 'ACCT_BAL_PCT',
+  ): ComparatorKind {
     switch (ruleType) {
-      case 'ACCT_BAL_PCT':
-        return 'RELATIVE_PERCENTAGE_AMOUNT';
       case 'ACCT_BAL_NUM':
         return 'RELATIVE_YOCTONEAR_AMOUNT';
-      default:
-        throw new VError(
-          { info: { code: 'BAD_ALERT' } },
-          'Error while converting rule type to comparator kind',
-        );
+      case 'ACCT_BAL_PCT':
+        return 'RELATIVE_PERCENTAGE_AMOUNT';
     }
   }
 }

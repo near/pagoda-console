@@ -17,8 +17,8 @@ export interface EventRuleDto {
 }
 export interface AcctBalRuleDto {
   contract: string;
-  from: string;
-  to: string;
+  from: string | null;
+  to: string | null;
 }
 
 export type RuleType =

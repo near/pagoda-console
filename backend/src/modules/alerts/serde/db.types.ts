@@ -36,7 +36,7 @@ export interface AcctBalMatchingRule extends MatchingRule {
   affected_account_id: string;
   comparator_kind: ComparatorKind;
   comparator_range: {
-    from: string; // yoctoNEAR,
-    to: string; // yoctoNEAR
+    from: string | null; // yoctoNEAR,
+    to: string | null; // yoctoNEAR
   };
 }

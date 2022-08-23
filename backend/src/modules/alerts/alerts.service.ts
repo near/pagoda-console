@@ -59,6 +59,7 @@ type EventRuleSchema = {
 };
 
 type AcctBalRuleSchema = {
+  type: 'ACCT_BAL_NUM' | 'ACCT_BAL_PCT';
   rule: {
     contract: string;
     from: string | null;
@@ -190,6 +191,7 @@ export class AlertsService {
   private emailTokenExpiryMin: number;
   private telegramTokenExpiryMin: number;
   private contractAddressValidationEnabled: string;
+  private resendVerficationRateLimitMillis: number;
   constructor(
     private prisma: PrismaService,
     private projectPermissions: ProjectPermissionsService,
@@ -200,7 +202,7 @@ export class AlertsService {
     private emailsService: EmailService,
     private nearRpc: NearRpcService,
   ) {
-    this.emailTokenExpiryMin = this.config.get('alerts.emailTokenExpiryMin', {
+    this.emailTokenExpiryMin = this.config.get('alerts.email.tokenExpiryMin', {
       infer: true,
     });
     this.telegramTokenExpiryMin = this.config.get(
@@ -212,6 +214,12 @@ export class AlertsService {
     this.contractAddressValidationEnabled = this.config.get(
       'featureEnabled.alerts.contractAddressValidation',
       { infer: true },
+    );
+    this.resendVerficationRateLimitMillis = this.config.get(
+      'alerts.email.resendVerificationRatelimitMillis',
+      {
+        infer: true,
+      },
     );
   }
 
@@ -726,10 +734,14 @@ export class AlertsService {
       user.id,
       projectSlug,
     );
+
+    let res, token;
+
     try {
       const expiryDate = this.calculateExpiryDate(this.emailTokenExpiryMin);
       const token = nanoid();
-      const res = await this.prisma.destination.create({
+      const tokenCreatedAt = DateTime.now().toUTC().toJSDate();
+      res = await this.prisma.destination.create({
         data: {
           name,
           projectSlug,
@@ -742,6 +754,7 @@ export class AlertsService {
               createdBy: user.id,
               updatedBy: user.id,
               isVerified: false,
+              tokenCreatedAt,
               tokenExpiresAt: expiryDate,
               token,
             },
@@ -755,19 +768,44 @@ export class AlertsService {
           isValid: true,
           emailDestination: {
             select: {
+              id: true,
               email: true,
               isVerified: true,
             },
           },
         },
       });
-
-      await this.emailsService.sendEmailVerificationMessage(email, token);
-
-      return this.transformDestinationRes(res);
     } catch (e) {
       throw new VError(e, 'Failed to create email destination');
     }
+
+    try {
+      await this.emailsService.sendEmailVerificationMessage(email, token);
+    } catch (e) {
+      try {
+        await this.prisma.$transaction([
+          this.prisma.emailDestination.delete({
+            where: {
+              id: res.emailDestination.id,
+            },
+          }),
+          this.prisma.destination.delete({
+            where: {
+              id: res.id,
+            },
+          }),
+        ]);
+      } catch (e) {
+        console.error(
+          'Failed while rolling back email destination creation',
+          e,
+        );
+      }
+
+      throw new VError(e, 'Failed to send an email verification message');
+    }
+
+    return this.transformDestinationRes(res);
   }
 
   async createTelegramDestination(
@@ -1120,6 +1158,7 @@ export class AlertsService {
               isVerified: true,
               token: null,
               tokenExpiresAt: null,
+              tokenCreatedAt: null,
               unsubscribeToken: nanoidLong(),
             },
           },
@@ -1137,6 +1176,12 @@ export class AlertsService {
       const targetDestination = await this.prisma.destination.findUnique({
         where: {
           id,
+        },
+        select: {
+          type: true,
+          active: true,
+          isValid: true,
+          emailDestination: true,
         },
       });
 
@@ -1162,8 +1207,21 @@ export class AlertsService {
         );
       }
 
+      if (
+        this.shouldBeRateLimited(
+          targetDestination.emailDestination.tokenCreatedAt,
+          this.resendVerficationRateLimitMillis,
+        )
+      ) {
+        throw new VError(
+          { info: { code: 'TOO_MANY_REQUESTS' } },
+          'Not enough time has passed for sending another email verification message.',
+        );
+      }
+
       const token = nanoid();
       const expiryDate = this.calculateExpiryDate(this.emailTokenExpiryMin);
+      const tokenCreatedAt = DateTime.now().toUTC().toJSDate();
       const res = await this.prisma.destination.update({
         where: {
           id,
@@ -1174,6 +1232,7 @@ export class AlertsService {
             update: {
               token,
               tokenExpiresAt: expiryDate,
+              tokenCreatedAt,
             },
           },
         },
@@ -1212,6 +1271,71 @@ export class AlertsService {
       });
     } catch (e) {
       throw new VError(e, 'Failed while unsubscribing from email alerts');
+    }
+  }
+
+  async rotateWebhookDestinationSecret(
+    callingUser: User,
+    id: Destination['id'],
+  ) {
+    await this.checkUserDestinationPermission(callingUser.id, id);
+
+    try {
+      const targetDestination = await this.prisma.destination.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          type: true,
+          active: true,
+          webhookDestination: true,
+        },
+      });
+
+      if (targetDestination.type !== 'WEBHOOK') {
+        throw new VError(
+          { info: { code: 'BAD_DESTINATION' } },
+          'Destination not found',
+        );
+      }
+
+      if (!targetDestination.active) {
+        throw new VError(
+          { info: { code: 'BAD_DESTINATION' } },
+          'Destination not found',
+        );
+      }
+
+      const result = await this.prisma.destination.update({
+        where: {
+          id,
+        },
+        data: {
+          webhookDestination: {
+            update: {
+              secret: nanoid(),
+              updatedBy: callingUser.id,
+            },
+          },
+        },
+        select: {
+          id: true,
+          type: true,
+          name: true,
+          projectSlug: true,
+          isValid: true,
+          webhookDestination: {
+            select: {
+              secret: true,
+              url: true,
+            },
+          },
+        },
+      });
+
+      return this.transformDestinationRes(result);
+    } catch (e) {
+      throw new VError(e, 'Failed while rotating webhook destination secret');
     }
   }
 
@@ -1437,5 +1561,11 @@ export class AlertsService {
 
   private calculateExpiryDate(expiryMin: number): Date {
     return DateTime.now().plus({ minutes: expiryMin }).toUTC().toJSDate();
+  }
+
+  private shouldBeRateLimited(date: Date, rateLimitMillis: number) {
+    return (
+      Math.abs(DateTime.fromJSDate(date).diffNow().valueOf()) < rateLimitMillis
+    );
   }
 }

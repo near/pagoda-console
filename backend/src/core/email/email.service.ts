@@ -17,9 +17,6 @@ export class EmailService {
     this.domain = this.config.get('mailgun.domain', {
       infer: true,
     });
-    const username = this.config.get('mailgun.username', {
-      infer: true,
-    });
     const apiKey = this.config.get('mailgun.apiKey', {
       infer: true,
     });
@@ -36,16 +33,10 @@ export class EmailService {
         infer: true,
       },
     );
-    this.emailVerificationSubject = this.config.get(
-      'email.emailVerificationSubject',
-      {
-        infer: true,
-      },
-    );
 
     const mailgun = new Mailgun(formData);
     this.mailgunClient = mailgun.client({
-      username: username,
+      username: 'unused-value',
       key: apiKey,
     });
   }
@@ -70,6 +61,7 @@ export class EmailService {
 
   async sendEmailVerificationMessage(recipient: string, token: string) {
     const link = this.emailVerificationEndpoint + '?token=' + token;
+    const subject = 'Pagoda Platform Email Verification';
     const html =
       'Hello, <br><br> You are receiving this message because ' +
       'you recently created an alert destination in the Pagoda Developer Console. <br><br>' +
@@ -83,7 +75,7 @@ export class EmailService {
     await this.sendMessage(
       this.emailVerificationFrom,
       [recipient],
-      this.emailVerificationSubject,
+      subject,
       html,
     );
   }

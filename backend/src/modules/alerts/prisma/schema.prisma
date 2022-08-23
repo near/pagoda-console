@@ -125,6 +125,8 @@ model EmailDestination {
   isVerified       Boolean     @default(false) @map("is_verified")
   // Token's expiry date
   tokenExpiresAt   DateTime?   @map("token_expires_at") @db.Timestamptz
+  // Token's generation date
+  tokenCreatedAt   DateTime?   @map("token_created_at") @db.Timestamptz
   // Token used to unsubscribe from alert emails
   unsubscribeToken String?     @unique @map("unsubscribe_token")
   createdAt        DateTime?   @default(now()) @map("created_at") @db.Timestamptz

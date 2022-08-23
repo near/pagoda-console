@@ -60,7 +60,10 @@ export interface AppConfig {
     indexer: boolean;
   };
   alerts: {
-    emailTokenExpiryMin: number;
+    email: {
+      tokenExpiryMin: number;
+      resendVerificationRatelimitMillis: number;
+    };
     telegram: {
       tokenExpiryMin: number;
       enableWebhook: boolean;
@@ -70,12 +73,10 @@ export interface AppConfig {
   };
   mailgun: {
     domain: string;
-    username: string;
     apiKey: string;
   };
   email: {
     emailVerificationFrom: string;
-    emailVerificationSubject: string;
   };
   frontend: {
     baseUrl: string;
@@ -198,7 +199,10 @@ const appConfigSchema = Joi.object({
     indexer: Joi.boolean().optional().default(false),
   },
   alerts: {
-    emailTokenExpiryMin: Joi.number().optional().default(10000), // TODO set to a small value once requesting a new token is possible
+    email: Joi.object({
+      tokenExpiryMin: Joi.number().optional().default(10000), // TODO set to a small value once requesting a new token is possible
+      resendVerificationRatelimitMillis: Joi.number().optional().default(2000),
+    }),
     telegram: Joi.object({
       tokenExpiryMin: Joi.number().optional().default(10000), // TODO set to a small value once requesting a new token is possible
       enableWebhook: Joi.boolean().optional().default(false),
@@ -214,12 +218,10 @@ const appConfigSchema = Joi.object({
   },
   mailgun: {
     domain: Joi.string(),
-    username: Joi.string(),
     apiKey: Joi.string(),
   },
   email: {
     emailVerificationFrom: Joi.string(),
-    emailVerificationSubject: Joi.string(),
   },
   frontend: {
     baseUrl: Joi.string(),
@@ -332,7 +334,11 @@ export default function validate(config: Record<string, unknown>): AppConfig {
       indexer: config.LOG_INDEXER,
     },
     alerts: {
-      emailTokenExpiryMin: config.EMAIL_TOKEN_EXPIRY_MIN,
+      email: {
+        tokenExpiryMin: config.EMAIL_TOKEN_EXPIRY_MIN,
+        resendVerificationRatelimitMillis:
+          config.RESEND_VERIFICATION_RATE_LIMIT_MILLIS,
+      },
       telegram: {
         tokenExpiryMin: config.TELEGRAM_TOKEN_EXPIRY_MIN,
         enableWebhook: config.TELEGRAM_ENABLE_WEBHOOK,
@@ -342,12 +348,10 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     },
     mailgun: {
       domain: config.MAILGUN_DOMAIN,
-      username: config.MAILGUN_USERNAME,
       apiKey: config.MAILGUN_API_KEY,
     },
     email: {
       emailVerificationFrom: config.EMAIL_VERIFICATION_FROM,
-      emailVerificationSubject: config.EMAIL_VERIFICATION_SUBJECT,
     },
     frontend: {
       baseUrl: config.FRONTEND_BASE_URL,

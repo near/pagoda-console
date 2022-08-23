@@ -10,7 +10,6 @@ import {
   RuleType,
   TxRuleDto,
 } from './serde/dto.types';
-import { BN } from 'bn.js';
 
 const TxRuleSchema = Joi.object({
   contract: Joi.string().required(),
@@ -27,6 +26,17 @@ const EventRuleSchema = Joi.object({
   event: Joi.string().required(),
   // data: Joi.object(),
 });
+
+const validateRange = (value, { original: rule }) => {
+  if (!rule.from && !rule.to) {
+    throw Error('"rule.from" or "rule.to" is required');
+  }
+  if (rule.from && rule.to && BigInt(rule.from) > BigInt(rule.to)) {
+    throw Error('"rule.from" must be less than or equal to "rule.to"');
+  }
+  return value;
+};
+
 const AcctBalPctRuleSchema = Joi.object({
   contract: Joi.string().required(),
   from: Joi.string()
@@ -37,16 +47,17 @@ const AcctBalPctRuleSchema = Joi.object({
     .empty(null)
     .optional()
     .regex(/^0$|^[1-9][0-9]?$|^100$/), // Percentage between 0 and 100
-});
+}).custom(validateRange, 'Validating range');
 
 const validateYoctonearAmount = (value, _) => {
-  const bnValue = new BN(value);
-  const upperBound = new BN('340282366920938463463374607431768211456'); // 2^128
-  if (bnValue.ltn(0) || bnValue.gte(upperBound)) {
+  const bnValue = BigInt(value);
+  const upperBound = BigInt('340282366920938463463374607431768211456'); // 2^128
+  if (bnValue < 0 || bnValue >= upperBound) {
     throw Error(
       'Values "to" and "from" should be integers within the range of [0, 2^128)',
     );
   }
+  return value;
 };
 
 const AcctBalNumRuleSchema = Joi.object({
@@ -67,7 +78,7 @@ const AcctBalNumRuleSchema = Joi.object({
       validateYoctonearAmount,
       'Validating proper value of Yoctonear amount',
     ),
-});
+}).custom(validateRange, 'Validating range');
 
 // create alert
 interface CreateAlertBaseDto {
@@ -368,4 +379,12 @@ export interface UnsubscribeFromEmailAlertDto {
 }
 export const UnsubscribeFromEmailAlertSchema = Joi.object({
   token: Joi.string().required(),
+});
+
+// rotate webhook destination secret
+export interface RotateWebhookDestinationSecretDto {
+  destinationId: number;
+}
+export const RotateWebhookDestinationSecretSchema = Joi.object({
+  destinationId: Joi.number().required(),
 });
