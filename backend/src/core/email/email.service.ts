@@ -55,7 +55,7 @@ export class EmailService {
         html,
       });
     } catch (e) {
-      throw new VError('Error while sending an email', e);
+      throw new VError(e, 'Error while sending an email');
     }
   }
 
