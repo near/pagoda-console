@@ -1,16 +1,11 @@
 import type { DebounceSettings } from 'lodash-es';
 import { debounce } from 'lodash-es';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
-export function useDebounce(
-  handler: (...args: any) => any,
-  dependencies: any[],
-  wait?: number,
-  options?: DebounceSettings,
-) {
-  return useMemo(
-    () => debounce(handler, wait, options),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dependencies],
-  );
+export function useDebounce(handler: (...args: any) => any, wait?: number, options?: DebounceSettings) {
+  const optionsRef = useRef(options);
+
+  return useMemo(() => {
+    return debounce(handler, wait, optionsRef.current);
+  }, [handler, wait]);
 }

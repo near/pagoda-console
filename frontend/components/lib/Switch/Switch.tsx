@@ -1,4 +1,5 @@
 import type { ComponentProps } from 'react';
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import { forwardRef } from 'react';
 
@@ -8,18 +9,12 @@ import * as S from './styles';
 
 type Props = ComponentProps<typeof S.Switch> & {
   debounce?: boolean | number;
-  dependencies?: any[];
 };
 
 export const Switch = forwardRef<HTMLButtonElement, Props>(
-  ({ checked, children, debounce, defaultChecked, dependencies, onCheckedChange, ...props }, ref) => {
+  ({ checked, children, debounce, defaultChecked, onCheckedChange, ...props }, ref) => {
     const [isChecked, setIsChecked] = useState(checked || defaultChecked || false);
     const debounceDelay: number = (debounce === true && 700) || (typeof debounce === 'number' && debounce) || 0;
-    const [deps, setDeps] = useState<any[]>([]);
-
-    useEffect(() => {
-      if (dependencies) setDeps(dependencies);
-    }, [dependencies]);
 
     useEffect(() => {
       if (typeof checked === 'boolean') {
@@ -27,15 +22,16 @@ export const Switch = forwardRef<HTMLButtonElement, Props>(
       }
     }, [checked]);
 
-    const onCheckedChangeDebounced = useDebounce(
+    const onCheckedChangeDebouncedHandler = useCallback(
       (value: boolean) => {
         if (onCheckedChange) {
           onCheckedChange(value);
         }
       },
-      deps,
-      debounceDelay,
+      [onCheckedChange],
     );
+
+    const onCheckedChangeDebounced = useDebounce(onCheckedChangeDebouncedHandler, debounceDelay);
 
     useEffect(() => {
       return () => {

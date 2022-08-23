@@ -105,7 +105,6 @@ export const destinationTypes: Record<DestinationType, DestinationTypeOption> = 
     icon: 'mail',
     name: 'Email',
     value: 'EMAIL',
-    disabled: true,
   },
   TELEGRAM: {
     description: 'Send alerts to a Telegram chat.',

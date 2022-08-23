@@ -1,21 +1,19 @@
 import Link from 'next/link';
 
-import { Badge } from '@/components/lib/Badge';
 import { ButtonLink } from '@/components/lib/Button';
-import { Card } from '@/components/lib/Card';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H1 } from '@/components/lib/Heading';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
-import { TextOverflow } from '@/components/lib/TextOverflow';
+import { openToast } from '@/components/lib/Toast';
 import type { Environment, Project } from '@/utils/types';
 
 import { useAlerts } from '../hooks/alerts';
-import { alertTypes } from '../utils/constants';
+import { AlertCard } from './AlertCard';
 
 export function Alerts({ environment, project }: { environment?: Environment; project?: Project }) {
-  const { alerts } = useAlerts(project?.slug, environment?.subId);
+  const { alerts, mutate } = useAlerts(project?.slug, environment?.subId);
 
   return (
     <Flex stack gap="l">
@@ -34,31 +32,24 @@ export function Alerts({ environment, project }: { environment?: Environment; pr
 
       <Flex stack gap="s">
         {alerts?.map((alert) => {
-          const alertType = alertTypes[alert.type];
-
           return (
-            <Link href={`/alerts/edit-alert/${alert.id}`} passHref key={alert.id}>
-              <Card as="a" clickable padding="m" borderRadius="m">
-                <Flex align="center">
-                  <FeatherIcon icon={alertType.icon} color="primary" size="m" />
-                  <Text color="text1" css={{ minWidth: 0 }}>
-                    <TextOverflow>{alert.name}</TextOverflow>
-                  </Text>
-                  <Badge size="s" css={{ marginLeft: 'auto' }}>
-                    {alertType.name}
-                  </Badge>
-                  {alert.isPaused ? (
-                    <Badge size="s">
-                      <FeatherIcon icon="pause" size="xs" /> Paused
-                    </Badge>
-                  ) : (
-                    <Badge size="s">
-                      <FeatherIcon icon="bell" size="xs" /> Active
-                    </Badge>
-                  )}
-                </Flex>
-              </Card>
-            </Link>
+            <AlertCard
+              key={alert.id}
+              alert={alert}
+              onDelete={() => {
+                const name = alert?.name;
+
+                openToast({
+                  type: 'success',
+                  title: 'Alert Deleted',
+                  description: name,
+                });
+
+                mutate(() => {
+                  return alerts?.filter((a) => a.id !== alert.id);
+                });
+              }}
+            />
           );
         })}
       </Flex>

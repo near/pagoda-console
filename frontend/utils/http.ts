@@ -24,6 +24,23 @@ export async function authenticatedPost(
     body: JSON.stringify(body),
   });
 
+  return parseFetchResponse(res);
+}
+
+export async function unauthenticatedPost(endpoint: string, body?: Record<string, any>) {
+  const headers = new Headers({
+    'Content-Type': 'application/json',
+  });
+  const res = await fetch(`${config.url.api}${endpoint}`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
+  });
+
+  return parseFetchResponse(res);
+}
+
+async function parseFetchResponse(res: Response) {
   let resJson;
   try {
     if (res.status === 204) {

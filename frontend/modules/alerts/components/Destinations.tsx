@@ -67,6 +67,7 @@ export function Destinations({ project }: { project?: Project }) {
                       <TextOverflow>
                         {destination.type === 'TELEGRAM' && destination.config.chatTitle}
                         {destination.type === 'WEBHOOK' && destination.config.url}
+                        {destination.type === 'EMAIL' && destination.config.email}
                       </TextOverflow>
                     </Text>
                   </Flex>

@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
+import { useCallback } from 'react';
 import { useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
@@ -17,7 +18,7 @@ import type { Destination } from '../utils/types';
 import { EditDestinationModal } from './EditDestinationModal';
 import { NewDestinationModal } from './NewDestinationModal';
 
-interface OnChangeEvent {
+export interface OnDestinationSelectionChangeEvent {
   destination: Destination;
   isSelected: boolean;
   selectedIds: number[];
@@ -25,12 +26,39 @@ interface OnChangeEvent {
 
 interface Props {
   debounce?: boolean;
-  onChange?: (event: OnChangeEvent) => void;
+  onChange?: (event: OnDestinationSelectionChangeEvent) => void;
   selectedIds: number[];
   setSelectedIds: Dispatch<SetStateAction<number[]>>;
 }
 
-export function DestinationsSelector({ debounce = true, onChange, selectedIds, setSelectedIds }: Props) {
+function toggleDestination(
+  isSelected: boolean,
+  destination: Destination,
+  setSelectedIds: Dispatch<SetStateAction<number[]>>,
+  onChange?: (event: OnDestinationSelectionChangeEvent) => void,
+) {
+  if (!destination.isValid) return;
+
+  let ids: number[] = [];
+
+  setSelectedIds((value) => {
+    ids = value.filter((id) => id !== destination.id);
+    if (isSelected) {
+      ids.push(destination.id);
+    }
+    return ids;
+  });
+
+  if (onChange) {
+    onChange({
+      destination,
+      isSelected,
+      selectedIds: ids,
+    });
+  }
+}
+
+export function DestinationsSelector(props: Props) {
   const { project } = useSelectedProject();
   const { destinations } = useDestinations(project?.slug);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
@@ -40,28 +68,6 @@ export function DestinationsSelector({ debounce = true, onChange, selectedIds, s
   function openDestination(destination: Destination) {
     setSelectedEditDestination(destination);
     setShowEditDestinationModal(true);
-  }
-
-  function toggleEnabledDestination(isSelected: boolean, destination: Destination) {
-    if (!destination.isValid) return;
-
-    let ids: number[] = [];
-
-    setSelectedIds((value) => {
-      ids = value.filter((id) => id !== destination.id);
-      if (isSelected) {
-        ids.push(destination.id);
-      }
-      return ids;
-    });
-
-    if (onChange) {
-      onChange({
-        destination,
-        isSelected,
-        selectedIds: ids,
-      });
-    }
   }
 
   return (
@@ -74,48 +80,13 @@ export function DestinationsSelector({ debounce = true, onChange, selectedIds, s
 
       <Flex stack gap="s">
         {destinations?.map((destination) => {
-          const destinationType = destinationTypes[destination.type];
-          const isChecked = !!selectedIds.find((id) => id === destination.id);
-
           return (
-            <Card padding="m" borderRadius="m" key={destination.id}>
-              <Flex align="center">
-                <Switch
-                  checked={isChecked}
-                  onCheckedChange={(value) => toggleEnabledDestination(value, destination)}
-                  dependencies={[destinations]}
-                  debounce={debounce}
-                  aria-label={`Destination: ${destination.name}`}
-                  disabled={!destination.isValid}
-                />
-                <FeatherIcon icon={destinationType.icon} color={isChecked ? 'primary' : 'text3'} size="m" />
-                <Flex stack gap="none">
-                  <Text color="text1" weight="semibold">
-                    {destination.name}
-                  </Text>
-                  <Text size="bodySmall" family="code">
-                    {destination.type === 'TELEGRAM' && destination.config.chatTitle}
-                    {destination.type === 'WEBHOOK' && destination.config.url}
-                  </Text>
-                </Flex>
-                {!destination.isValid && (
-                  <Badge
-                    as="button"
-                    type="button"
-                    size="s"
-                    color="warning"
-                    clickable
-                    onClick={() => openDestination(destination)}
-                  >
-                    <FeatherIcon icon="alert-triangle" size="xs" />
-                    Needs Action
-                  </Badge>
-                )}
-                <Button size="s" color="transparent" onClick={() => openDestination(destination)}>
-                  <FeatherIcon icon="edit-2" size="xs" color="primary" />
-                </Button>
-              </Flex>
-            </Card>
+            <DestinationCard
+              destination={destination}
+              openDestination={openDestination}
+              {...props}
+              key={destination.id}
+            />
           );
         })}
 
@@ -126,8 +97,8 @@ export function DestinationsSelector({ debounce = true, onChange, selectedIds, s
 
       {project && (
         <NewDestinationModal
-          onCreate={(destination) => toggleEnabledDestination(true, destination)}
-          onVerify={(destination) => toggleEnabledDestination(true, destination)}
+          onCreate={(destination) => toggleDestination(true, destination, props.setSelectedIds, props.onChange)}
+          onVerify={(destination) => toggleDestination(true, destination, props.setSelectedIds, props.onChange)}
           projectSlug={project.slug}
           show={showNewDestinationModal}
           setShow={setShowNewDestinationModal}
@@ -142,5 +113,70 @@ export function DestinationsSelector({ debounce = true, onChange, selectedIds, s
         />
       )}
     </Flex>
+  );
+}
+
+type DestinationCardProps = Props & {
+  destination: Destination;
+  openDestination: (destination: Destination) => void;
+};
+
+function DestinationCard({
+  destination,
+  debounce = true,
+  openDestination,
+  onChange,
+  selectedIds,
+  setSelectedIds,
+}: DestinationCardProps) {
+  const destinationType = destinationTypes[destination.type];
+  const isChecked = !!selectedIds.find((id) => id === destination.id);
+
+  const onCheckedChange = useCallback(
+    (isSelected: boolean) => {
+      toggleDestination(isSelected, destination, setSelectedIds, onChange);
+    },
+    [destination, onChange, setSelectedIds],
+  );
+
+  return (
+    <Card padding="m" borderRadius="m">
+      <Flex align="center">
+        <Switch
+          checked={isChecked}
+          onCheckedChange={onCheckedChange}
+          debounce={debounce}
+          aria-label={`Destination: ${destination.name}`}
+          disabled={!destination.isValid}
+        />
+        <FeatherIcon icon={destinationType.icon} color={isChecked ? 'primary' : 'text3'} size="m" />
+        <Flex stack gap="none">
+          <Text color="text1" weight="semibold">
+            {destination.name}
+          </Text>
+          <Text size="bodySmall" family="code">
+            {destination.type === 'TELEGRAM' && destination.config.chatTitle}
+            {destination.type === 'WEBHOOK' && destination.config.url}
+            {destination.type === 'EMAIL' && destination.config.email}
+          </Text>
+        </Flex>
+        {!destination.isValid && (
+          <Badge
+            as="button"
+            type="button"
+            size="s"
+            color="warning"
+            clickable
+            onClick={() => openDestination(destination)}
+          >
+            <FeatherIcon icon="alert-triangle" size="xs" />
+            Needs Action
+          </Badge>
+        )}
+        <Button size="s" color="transparent" onClick={() => openDestination(destination)}>
+          <FeatherIcon icon="edit-2" size="xs" color="primary" />
+        </Button>
+      </Flex>
+    </Card>
   );
 }

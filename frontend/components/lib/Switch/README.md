@@ -74,10 +74,15 @@ const [something, setSomething] = useState({
   isActive: false
 });
 
-async function updateFeatureIsActive(value: boolean) {
-  // Make an HTTP request...
-  // Update state via setSomething()
-}
+const updateFeatureIsActive = useCallback(
+  async (isChecked: boolean) => {
+    // if (something) ...
+    // Make an HTTP request...
+    // Update state via setSomething()
+  },
+  [something],
+);
+
 
 ...
 
@@ -89,53 +94,27 @@ async function updateFeatureIsActive(value: boolean) {
 />
 ```
 
-You can also pass a number for a custom delay value:
+You can also pass a number for a custom delay value (milliseconds):
 
 ```tsx
 <Switch ... debounce={300} />
 ```
 
-### Debounce Pitfalls
-
-Be careful reading state values inside your `onCheckedChange` event handler when using debounce. The debounced callback is memoized, which can lead to attempting to access stale state. If you need to read and write state at the same time, do it functionally with your setter `setMyState((value) => value.filter())`:
-
-```tsx
-const [someValues, setSomeValues] = useState<number[]>([1, 2]);
-const newValue = 3;
-
-function updateValues(isChecked: boolean, value: number) {
-  // If you accessed `someValues` directly here, it would be stale.
-
-  if (isChecked) {
-    setSomeValues((values) => {
-      return [...values, value];
-    });
-  } else {
-    setSomeValues((values) => {
-      return values.filer((v) => v !== value);
-    });
-  }
-}
-
-...
-
-<Switch
-  aria-label="Cool Feature"
-  checked={someValues.find((value) => value === newValue)}
-  onCheckedChange={(isChecked) => updateValues(isChecked, newValue)}
-  debounce={true}
-/>;
-```
+Note the use of `useCallback()` above. When using `debounce`, it's **critical** that the `onCheckedChange` prop is passed a `useCallback()` reference. Otherwise, the `useDebounce()` hook that is used inside the `Switch` component will continually reevaluate and not function correctly.
 
 For more information, read this article: https://dmitripavlutin.com/react-hooks-stale-closures/
 
 ### Custom Debounce
 
-It's possible you'll come across a more advanced use case for debouncing a `Switch` toggle event that isn't supported. In that case, feel free to omit the `debounce` prop and create your own debounced `onCheckedChange` event via `lodash` and `useCallback/useMemo`:
+It's possible you'll come across a more advanced use case for debouncing a `Switch` toggle event that isn't supported. In that case, feel free to omit the `debounce` prop and create your own debounced `onCheckedChange` event via `hooks/debounce.ts`:
 
 ```tsx
-import { debounce } from 'lodash-es';
+import { useDebounce } from '@/hooks/debounce';
+
 ...
+
+const myDebouncedHandler = useDebounce(...);
+
 <Switch
   aria-label="Cool Feature"
   onCheckedChange={myDebouncedHandler}

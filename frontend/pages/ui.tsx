@@ -2,6 +2,7 @@ import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ComponentProps, FC, ReactNode } from 'react';
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as Charts from 'recharts';
@@ -1141,68 +1142,7 @@ const Settings: NextPageWithLayout = () => {
         </Flex>
       </DocSection>
 
-      <DocSection title="Switch">
-        <Switch aria-label="Turbo Mode" />
-
-        <HR />
-
-        <Flex as="label" align="center">
-          <Switch />
-          With a Label On Right
-        </Flex>
-
-        <Flex as="label" align="center">
-          With a Label On Left
-          <Switch />
-        </Flex>
-
-        <Flex as="label" align="center">
-          <Switch disabled />
-          Disabled
-        </Flex>
-
-        <HR />
-
-        <Flex as="label" align="center">
-          <Switch>
-            <FeatherIcon icon="sun" size="xs" />
-          </Switch>
-          With an Icon
-        </Flex>
-
-        <Flex as="label" align="center">
-          <Switch>
-            <FeatherIcon icon="sun" size="xs" data-on />
-            <FeatherIcon icon="moon" size="xs" data-off />
-          </Switch>
-          With a Dynamic Icon
-        </Flex>
-
-        <HR />
-
-        <Flex as="label" align="center">
-          <Switch size="s">
-            <FeatherIcon icon="sun" size="xs" data-on />
-            <FeatherIcon icon="moon" size="xs" data-off />
-          </Switch>
-          Small Switch
-        </Flex>
-
-        <HR />
-
-        <Flex as="label" align="center">
-          <Switch debounce={true} onCheckedChange={() => alert('The checked event was debounced.')} />
-          Default Debounce
-        </Flex>
-
-        <Flex as="label" align="center">
-          <Switch
-            debounce={4000}
-            onCheckedChange={() => alert('The checked event was debounced with a custom delay.')}
-          />
-          Custom Debounce (4 Seconds)
-        </Flex>
-      </DocSection>
+      <DocSectionSwitch />
 
       <DocSection title="Table">
         <H4>Standard Table</H4>
@@ -2513,6 +2453,74 @@ function DocSectionForm() {
           </Form.Group>
         </Flex>
       </Form.Root>
+    </DocSection>
+  );
+}
+
+function DocSectionSwitch() {
+  const onCheckedChange = useCallback((isChecked: boolean) => {
+    alert(`The switch value has changed to: ${isChecked}`);
+  }, []);
+
+  return (
+    <DocSection title="Switch">
+      <Switch aria-label="Turbo Mode" />
+
+      <HR />
+
+      <Flex as="label" align="center">
+        <Switch />
+        With a Label On Right
+      </Flex>
+
+      <Flex as="label" align="center">
+        With a Label On Left
+        <Switch />
+      </Flex>
+
+      <Flex as="label" align="center">
+        <Switch disabled />
+        Disabled
+      </Flex>
+
+      <HR />
+
+      <Flex as="label" align="center">
+        <Switch>
+          <FeatherIcon icon="sun" size="xs" />
+        </Switch>
+        With an Icon
+      </Flex>
+
+      <Flex as="label" align="center">
+        <Switch>
+          <FeatherIcon icon="sun" size="xs" data-on />
+          <FeatherIcon icon="moon" size="xs" data-off />
+        </Switch>
+        With a Dynamic Icon
+      </Flex>
+
+      <HR />
+
+      <Flex as="label" align="center">
+        <Switch size="s">
+          <FeatherIcon icon="sun" size="xs" data-on />
+          <FeatherIcon icon="moon" size="xs" data-off />
+        </Switch>
+        Small Switch
+      </Flex>
+
+      <HR />
+
+      <Flex as="label" align="center">
+        <Switch debounce={true} onCheckedChange={onCheckedChange} />
+        Default Debounce
+      </Flex>
+
+      <Flex as="label" align="center">
+        <Switch debounce={4000} onCheckedChange={onCheckedChange} />
+        Custom Debounce (4 Seconds)
+      </Flex>
     </DocSection>
   );
 }

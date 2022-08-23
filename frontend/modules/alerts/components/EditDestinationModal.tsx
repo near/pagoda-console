@@ -18,6 +18,7 @@ import { useVerifyDestinationInterval } from '../hooks/verify-destination-interv
 import { destinationTypes } from '../utils/constants';
 import type { Destination } from '../utils/types';
 import { DeleteDestinationModal } from './DeleteDestinationModal';
+import { EmailDestinationVerification } from './EmailDestinationVerification';
 import { TelegramDestinationVerification } from './TelegramDestinationVerification';
 import { WebhookDestinationSecret } from './WebhookDestinationSecret';
 
@@ -29,6 +30,10 @@ interface Props {
 
 interface FormProps extends Props {
   onUpdate: (destination: Destination) => void;
+}
+
+interface WebhookFormProps extends FormProps {
+  onSecretRotate: (destination: Destination) => void;
 }
 
 export function EditDestinationModal(props: Props) {
@@ -82,6 +87,25 @@ function ModalContent(props: Props) {
     props.setShow(false);
   }
 
+  function onWebhookSecretRotate(updated: Destination) {
+    mutate((destinations) => {
+      return destinations?.map((d) => {
+        if (d.id === updated.id) {
+          return {
+            ...updated,
+          };
+        }
+
+        return d;
+      });
+    });
+
+    openToast({
+      type: 'success',
+      title: 'Webhook secret was rotated.',
+    });
+  }
+
   return (
     <>
       <Flex stack gap="l">
@@ -94,6 +118,7 @@ function ModalContent(props: Props) {
               <Text family="code" size="bodySmall">
                 {props.destination.type === 'TELEGRAM' && props.destination.config.chatTitle}
                 {props.destination.type === 'WEBHOOK' && props.destination.config.url}
+                {props.destination.type === 'EMAIL' && props.destination.config.email}
               </Text>
             </Flex>
           </Flex>
@@ -104,7 +129,10 @@ function ModalContent(props: Props) {
         </Flex>
 
         {props.destination.type === 'TELEGRAM' && <TelegramDestinationForm onUpdate={onUpdate} {...props} />}
-        {props.destination.type === 'WEBHOOK' && <WebhookDestinationForm onUpdate={onUpdate} {...props} />}
+        {props.destination.type === 'WEBHOOK' && (
+          <WebhookDestinationForm onUpdate={onUpdate} onSecretRotate={onWebhookSecretRotate} {...props} />
+        )}
+        {props.destination.type === 'EMAIL' && <EmailDestinationForm onUpdate={onUpdate} {...props} />}
       </Flex>
 
       <DeleteDestinationModal
@@ -178,7 +206,9 @@ function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps) 
         </Flex>
 
         <Flex justify="spaceBetween" align="center">
-          <Button type="submit">Update</Button>
+          <Button type="submit" loading={formState.isSubmitting}>
+            Update
+          </Button>
           <TextButton color="neutral" onClick={() => setShow(false)}>
             Cancel
           </TextButton>
@@ -193,7 +223,7 @@ interface WebhookFormData {
   url: string;
 }
 
-function WebhookDestinationForm({ destination, onUpdate, setShow }: FormProps) {
+function WebhookDestinationForm({ destination, onUpdate, setShow, onSecretRotate }: WebhookFormProps) {
   if (destination.type !== 'WEBHOOK') throw new Error('Invalid destination for WebhookDestinationForm');
 
   const { formState, setValue, register, handleSubmit } = useForm<WebhookFormData>();
@@ -229,7 +259,7 @@ function WebhookDestinationForm({ destination, onUpdate, setShow }: FormProps) {
   return (
     <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
       <Flex stack gap="l">
-        <WebhookDestinationSecret destination={destination} />
+        <WebhookDestinationSecret destination={destination} onRotate={onSecretRotate} />
 
         <HR />
 
@@ -261,7 +291,82 @@ function WebhookDestinationForm({ destination, onUpdate, setShow }: FormProps) {
         </Flex>
 
         <Flex justify="spaceBetween" align="center">
-          <Button type="submit">Update</Button>
+          <Button type="submit" loading={formState.isSubmitting}>
+            Update
+          </Button>
+          <TextButton color="neutral" onClick={() => setShow(false)}>
+            Cancel
+          </TextButton>
+        </Flex>
+      </Flex>
+    </Form.Root>
+  );
+}
+
+interface EmailFormData {
+  name: string;
+}
+
+function EmailDestinationForm({ destination, onUpdate, setShow }: FormProps) {
+  if (destination.type !== 'EMAIL') throw new Error('Invalid destination for EmailDestinationForm');
+
+  const { formState, setValue, register, handleSubmit } = useForm<EmailFormData>();
+
+  useEffect(() => {
+    setValue('name', destination.name);
+  }, [setValue, destination]);
+
+  async function submitForm(data: EmailFormData) {
+    try {
+      const updated = await updateDestination({
+        id: destination.id,
+        type: destination.type,
+        name: data.name,
+      });
+
+      onUpdate(updated);
+    } catch (e: any) {
+      console.error('Failed to update destination', e);
+
+      openToast({
+        type: 'error',
+        title: 'Update Error',
+        description: 'Failed to update destination.',
+      });
+    }
+  }
+
+  return (
+    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
+      <Flex stack gap="l">
+        {!destination.isValid && (
+          <>
+            <EmailDestinationVerification destination={destination} />
+            <HR />
+          </>
+        )}
+
+        <Flex stack>
+          <Form.Group>
+            <Form.FloatingLabelInput
+              label="Destination Name"
+              isInvalid={!!formState.errors.name}
+              {...register('name', {
+                required: 'Please enter a destination name',
+                maxLength: {
+                  value: 100,
+                  message: 'Destination name must be 100 characters or less',
+                },
+              })}
+            />
+            <Form.Feedback>{formState.errors.name?.message}</Form.Feedback>
+          </Form.Group>
+        </Flex>
+
+        <Flex justify="spaceBetween" align="center">
+          <Button type="submit" loading={formState.isSubmitting}>
+            Update
+          </Button>
           <TextButton color="neutral" onClick={() => setShow(false)}>
             Cancel
           </TextButton>

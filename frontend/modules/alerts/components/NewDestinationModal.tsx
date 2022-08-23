@@ -18,6 +18,7 @@ import { createDestination, useDestinations } from '../hooks/destinations';
 import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
 import { destinationTypeOptions } from '../utils/constants';
 import type { Destination, DestinationType, NewDestination } from '../utils/types';
+import { EmailDestinationVerification } from './EmailDestinationVerification';
 import { TelegramDestinationVerification } from './TelegramDestinationVerification';
 import { WebhookDestinationSecret } from './WebhookDestinationSecret';
 
@@ -124,6 +125,7 @@ function ModalContent(props: Props) {
 
       {destinationType === 'TELEGRAM' && <TelegramDestinationForm setIsCreated={setIsCreated} {...props} />}
       {destinationType === 'WEBHOOK' && <WebhookDestinationForm setIsCreated={setIsCreated} {...props} />}
+      {destinationType === 'EMAIL' && <EmailDestinationForm setIsCreated={setIsCreated} {...props} />}
     </Flex>
   );
 }
@@ -221,6 +223,63 @@ function WebhookDestinationForm(props: FormProps) {
               {...form.register('url', formValidations.url)}
             />
             <Form.Feedback>{form.formState.errors.url?.message}</Form.Feedback>
+          </Form.Group>
+        </Flex>
+
+        <Flex>
+          <Button loading={form.formState.isSubmitting} type="submit">
+            Create
+          </Button>
+          <Button onClick={() => props.setShow(false)} color="neutral">
+            Cancel
+          </Button>
+        </Flex>
+      </Flex>
+    </Form.Root>
+  );
+}
+
+interface EmailFormData {
+  email: string;
+}
+
+function EmailDestinationForm(props: FormProps) {
+  const { create, destination, form } = useNewDestinationForm<EmailFormData>(props);
+
+  async function submitForm(data: EmailFormData) {
+    await create({
+      config: {
+        email: data.email,
+      },
+      projectSlug: props.projectSlug,
+      type: 'EMAIL',
+    });
+  }
+
+  if (destination)
+    return (
+      <Flex stack gap="l">
+        <Flex align="center">
+          <FeatherIcon icon="check-circle" color="primary" size="m" />
+          <H5>Email destination has been created.</H5>
+        </Flex>
+
+        <EmailDestinationVerification destination={destination} />
+      </Flex>
+    );
+
+  return (
+    <Form.Root disabled={form.formState.isSubmitting} onSubmit={form.handleSubmit(submitForm)}>
+      <Flex stack gap="l">
+        <Flex stack>
+          <Form.Group>
+            <Form.FloatingLabelInput
+              label="Email address"
+              placeholder="myawesomeemail@pagoda.com"
+              isInvalid={!!form.formState.errors.email}
+              {...form.register('email', formValidations.email)}
+            />
+            <Form.Feedback>{form.formState.errors.email?.message}</Form.Feedback>
           </Form.Group>
         </Flex>
 

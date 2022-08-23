@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -19,6 +20,7 @@ import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { DeleteAlertModal } from '@/modules/alerts/components/DeleteAlertModal';
+import type { OnDestinationSelectionChangeEvent } from '@/modules/alerts/components/DestinationsSelector';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
 import {
   disableDestinationForAlert,
@@ -27,13 +29,34 @@ import {
   useAlert,
 } from '@/modules/alerts/hooks/alerts';
 import { alertTypes, amountComparators } from '@/modules/alerts/utils/constants';
-import type { Alert, Destination } from '@/modules/alerts/utils/types';
+import type { Alert } from '@/modules/alerts/utils/types';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatNumber } from '@/utils/format-number';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface NameFormData {
   name: string;
+}
+
+async function update(alert: Alert, data: { isPaused?: boolean; name?: string }) {
+  try {
+    await updateAlert({
+      id: alert.id,
+      ...data,
+    });
+
+    return true;
+  } catch (e: any) {
+    console.error('Failed to update alert', e);
+
+    openToast({
+      type: 'error',
+      title: 'Update Error',
+      description: 'Failed to update alert.',
+    });
+
+    return false;
+  }
 }
 
 const EditAlert: NextPageWithLayout = () => {
@@ -84,7 +107,9 @@ const EditAlert: NextPageWithLayout = () => {
   }
 
   async function submitNameForm(data: NameFormData) {
-    const wasUpdated = await update({
+    if (!alert) return;
+
+    const wasUpdated = await update(alert, {
       name: data.name,
     });
 
@@ -104,72 +129,57 @@ const EditAlert: NextPageWithLayout = () => {
     }
   }
 
-  async function update(data: { isPaused?: boolean; name?: string }) {
-    if (!alert) return;
+  const updateIsActive = useCallback(
+    async (isActive: boolean) => {
+      if (!alert) return;
 
-    try {
-      await updateAlert({
-        id: alert.id,
-        ...data,
+      setAlertIsActive(isActive);
+
+      const wasUpdated = await update(alert, {
+        isPaused: !isActive,
       });
 
-      return true;
-    } catch (e: any) {
-      console.error('Failed to update alert', e);
-
-      openToast({
-        type: 'error',
-        title: 'Update Error',
-        description: 'Failed to update alert.',
-      });
-
-      return false;
-    }
-  }
-
-  async function updateIsActive(isActive: boolean) {
-    setAlertIsActive(isActive);
-
-    const wasUpdated = await update({
-      isPaused: !isActive,
-    });
-
-    if (wasUpdated) {
-      openToast({
-        type: 'success',
-        title: 'Alert Updated',
-        description: isActive
-          ? `Alert has been activated. New events will be recorded.`
-          : `Alert has been paused. New events won't be recorded.`,
-      });
-    }
-  }
-
-  async function updateSelectedDestination(isSelected: boolean, destination: Destination) {
-    try {
-      if (isSelected) {
-        await enableDestinationForAlert(alert!.id, destination.id);
-      } else {
-        await disableDestinationForAlert(alert!.id, destination.id);
+      if (wasUpdated) {
+        openToast({
+          type: 'success',
+          title: 'Alert Updated',
+          description: isActive
+            ? `Alert has been activated. New events will be recorded.`
+            : `Alert has been paused. New events won't be recorded.`,
+        });
       }
+    },
+    [alert],
+  );
 
-      openToast({
-        type: 'success',
-        title: 'Alert Updated',
-        description: isSelected
-          ? `Destination was enabled: ${destination.name}`
-          : `Destination was disabled: ${destination.name}`,
-      });
-    } catch (e: any) {
-      console.error('Failed to enable/disable destination', e);
+  const updateSelectedDestination = useCallback(
+    async ({ isSelected, destination }: OnDestinationSelectionChangeEvent) => {
+      try {
+        if (isSelected) {
+          await enableDestinationForAlert(alert!.id, destination.id);
+        } else {
+          await disableDestinationForAlert(alert!.id, destination.id);
+        }
 
-      openToast({
-        type: 'error',
-        title: 'Update Error',
-        description: 'Failed to update alert destination.',
-      });
-    }
-  }
+        openToast({
+          type: 'success',
+          title: 'Alert Updated',
+          description: isSelected
+            ? `Destination was enabled: ${destination.name}`
+            : `Destination was disabled: ${destination.name}`,
+        });
+      } catch (e: any) {
+        console.error('Failed to enable/disable destination', e);
+
+        openToast({
+          type: 'error',
+          title: 'Update Error',
+          description: 'Failed to update alert destination.',
+        });
+      }
+    },
+    [alert],
+  );
 
   return (
     <Section>
@@ -329,9 +339,7 @@ const EditAlert: NextPageWithLayout = () => {
               <H4>Destinations</H4>
 
               <DestinationsSelector
-                onChange={(event) => {
-                  updateSelectedDestination(event.isSelected, event.destination);
-                }}
+                onChange={updateSelectedDestination}
                 selectedIds={selectedDestinationIds}
                 setSelectedIds={setSelectedDestinationIds}
               />

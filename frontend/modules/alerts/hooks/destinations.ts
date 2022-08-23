@@ -1,5 +1,6 @@
 import useSWR from 'swr';
 
+import { openToast } from '@/components/lib/Toast';
 import { useIdentity } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
@@ -70,4 +71,49 @@ export function useDestinations(projectSlug: string | undefined) {
   );
 
   return { destinations, error, mutate, isValidating };
+}
+
+export async function resendEmailVerification(destinationId: number) {
+  try {
+    await authenticatedPost('/alerts/resendEmailVerification', { destinationId });
+
+    analytics.track('DC Resend Email Verification for Email Destination', {
+      status: 'success',
+      name: destinationId,
+    });
+
+    openToast({
+      type: 'success',
+      title: 'Verification Sent',
+      description: 'Check your inbox and spam folder.',
+    });
+
+    return true;
+  } catch (e: any) {
+    analytics.track('DC Resend Email Verification for Email Destination', {
+      status: 'failure',
+      error: e.message,
+    });
+
+    openToast({
+      type: 'error',
+      title: 'Send Failure',
+      description: `Failed to send verification email. Please try again later.`,
+    });
+
+    return false;
+  }
+}
+
+export async function rotateWebhookDestinationSecret(destinationId: number) {
+  const destination: Destination = await authenticatedPost('/alerts/rotateWebhookDestinationSecret', {
+    destinationId,
+  });
+
+  analytics.track('DC Rotate Webhook Destination Secret', {
+    status: 'success',
+    id: destination.id,
+  });
+
+  return destination;
 }
