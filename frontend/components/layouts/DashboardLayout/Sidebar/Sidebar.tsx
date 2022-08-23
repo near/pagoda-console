@@ -42,7 +42,6 @@ function useProjectPages(): SidebarEntry[] {
   }
   pages.push({ display: 'Analytics', route: '/project-analytics', icon: 'bar-chart-2' });
   pages.push(...indexersEntries);
-  pages.push({ display: 'Deploys', route: '', icon: 'git-merge' });
   pages.push({ display: 'Settings', route: '/project-settings', icon: 'settings' });
 
   return pages;
