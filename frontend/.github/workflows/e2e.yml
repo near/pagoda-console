@@ -1,10 +1,10 @@
 name: E2E Tests
 on:
   push:
-    branches: [development]
+    branches: [develop]
   # You could test this CI job in a PR by uncommenting the below pull_request line.
   # pull_request:
-  #   branches: [development]
+  #   branches: [develop]
 jobs:
   test:
     timeout-minutes: 60
