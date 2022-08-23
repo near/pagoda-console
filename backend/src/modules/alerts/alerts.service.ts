@@ -771,6 +771,7 @@ export class AlertsService {
               id: true,
               email: true,
               isVerified: true,
+              token: true,
             },
           },
         },
