@@ -119,7 +119,7 @@ export function DestinationsSelector({ debounce = true, onChange, selectedIds, s
           );
         })}
 
-        <Button color="neutral" onClick={() => setShowNewDestinationModal(true)} stretch>
+        <Button color="neutral" onClick={() => setShowNewDestinationModal(true)} stretch stableId="new-destination">
           <FeatherIcon icon="plus" color="primary" /> New Destination
         </Button>
       </Flex>

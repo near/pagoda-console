@@ -8,24 +8,40 @@ import * as S from './styles';
 
 type Props = StitchesProps<typeof S.Button> & {
   css?: StitchesCSS;
+  stableId?: string;
 };
 type ButtonProps = Props & ButtonHTMLAttributes<HTMLButtonElement>;
 type ButtonDropdownProps = Props & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'>;
 type ButtonLinkProps = Props & AnchorHTMLAttributes<HTMLAnchorElement> & { external?: boolean };
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, type = 'button', ...props }, ref) => {
-  return (
-    <S.Button disabled={props.disabled || props.loading === true} type={type} ref={ref} {...props}>
-      <S.Content>{children}</S.Content>
-    </S.Button>
-  );
-});
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ children, type = 'button', stableId, ...props }, ref) => {
+    return (
+      <S.Button
+        disabled={props.disabled || props.loading === true}
+        type={type}
+        ref={ref}
+        data-stable-id={stableId}
+        {...props}
+      >
+        <S.Content>{children}</S.Content>
+      </S.Button>
+    );
+  },
+);
 Button.displayName = 'Button';
 
 export const ButtonDropdown = forwardRef<HTMLButtonElement, ButtonDropdownProps>(
-  ({ children, color = 'input', ...props }, ref) => {
+  ({ children, color = 'input', stableId, ...props }, ref) => {
     return (
-      <S.Button color={color} disabled={props.disabled || props.loading === true} type="button" ref={ref} {...props}>
+      <S.Button
+        color={color}
+        disabled={props.disabled || props.loading === true}
+        type="button"
+        ref={ref}
+        data-stable-id={stableId}
+        {...props}
+      >
         <S.Content css={{ width: '100%' }}>{children}</S.Content>
         <FeatherIcon fill="currentColor" stroke="none" icon="chevron-down" data-icon-arrow />
       </S.Button>
@@ -35,7 +51,7 @@ export const ButtonDropdown = forwardRef<HTMLButtonElement, ButtonDropdownProps>
 ButtonDropdown.displayName = 'ButtonDropdown';
 
 export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
-  ({ children, external, size, ...props }, ref) => {
+  ({ children, external, size, stableId, ...props }, ref) => {
     return (
       <S.Button
         as="a"
@@ -43,6 +59,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
         size={size}
         target={external ? '_blank' : undefined}
         rel={external ? 'noop noreferrer' : undefined}
+        data-stable-id={stableId}
         {...props}
       >
         <S.Content>

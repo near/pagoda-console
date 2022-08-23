@@ -67,7 +67,7 @@ export function Sidebar({ children, ...props }: Props) {
             <S.NavItem key={page.display}>
               {page.route ? (
                 <Link href={page.route} passHref>
-                  <S.NavLink selected={isLinkSelected(page)}>
+                  <S.NavLink selected={isLinkSelected(page)} data-stable-id={`sidebar-link-${page.display}`}>
                     <FeatherIcon icon={page.icon} />
                     {page.display}
                     {page.badgeText ? <Badge size="s">{page.badgeText}</Badge> : <></>}

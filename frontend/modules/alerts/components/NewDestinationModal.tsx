@@ -160,10 +160,10 @@ function TelegramDestinationForm(props: FormProps) {
         </Text>
 
         <Flex>
-          <Button loading={form.formState.isSubmitting} type="submit">
+          <Button loading={form.formState.isSubmitting} type="submit" stableId="create-destination">
             Create
           </Button>
-          <Button onClick={() => props.setShow(false)} color="neutral">
+          <Button onClick={() => props.setShow(false)} color="neutral" stableId="cancel-create-destination">
             Cancel
           </Button>
         </Flex>

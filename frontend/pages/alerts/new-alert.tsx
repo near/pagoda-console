@@ -531,7 +531,7 @@ const NewAlert: NextPageWithLayout = () => {
             <HR />
 
             <Flex justify="spaceBetween" align="center">
-              <Button type="submit" loading={form.formState.isSubmitting}>
+              <Button type="submit" loading={form.formState.isSubmitting} stableId="create-alert">
                 <FeatherIcon icon="bell" /> Create Alert
               </Button>
 
