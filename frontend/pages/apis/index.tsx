@@ -7,7 +7,6 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { Section } from '@/components/lib/Section';
 import * as Tabs from '@/components/lib/Tabs';
-import { Text } from '@/components/lib/Text';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
@@ -28,12 +27,6 @@ const ListApis: NextPageWithLayout = () => {
               <FeatherIcon icon="key" /> Keys
             </Tabs.TriggerLink>
           </Link>
-
-          <Link href="?tab=metrics" passHref>
-            <Tabs.TriggerLink active={activeTab === 'metrics'}>
-              <FeatherIcon icon="activity" /> Metrics
-            </Tabs.TriggerLink>
-          </Link>
         </Tabs.List>
 
         <Tabs.Content value="keys">
@@ -45,10 +38,6 @@ const ListApis: NextPageWithLayout = () => {
               the new orgs/teams/projects management flow has been implemented.
             */}
           </Flex>
-        </Tabs.Content>
-
-        <Tabs.Content value="metrics">
-          <Text>Metrics</Text>
         </Tabs.Content>
       </Tabs.Root>
     </Section>
