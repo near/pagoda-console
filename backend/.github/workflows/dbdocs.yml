@@ -4,7 +4,7 @@ on:
     branches: [main]
   # You could test this CI job in a PR by uncommenting the below pull_request line.
   # pull_request:
-  #   branches: [development]
+  #   branches: [develop]
 jobs:
   generate-docs:
     timeout-minutes: 5
