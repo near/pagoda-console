@@ -22,6 +22,8 @@ import {
   DeleteProjectSchema,
   EjectTutorialProjectDto,
   EjectTutorialProjectSchema,
+  GetContractDto,
+  GetContractSchema,
   GetContractsDto,
   GetContractsSchema,
   GetEnvironmentsDetailsDto,
@@ -159,6 +161,17 @@ export class ProjectsController {
         project,
         environment,
       );
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('getContract')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(GetContractSchema))
+  async getContract(@Request() req, @Body() { slug }: GetContractDto) {
+    try {
+      return await this.projectsService.getContract(req.user, slug);
     } catch (e) {
       throw mapError(e);
     }

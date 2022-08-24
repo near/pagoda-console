@@ -14,7 +14,9 @@ import { KeysService } from '../keys/keys.service';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { AppConfig } from 'src/config/validate';
-import { NearRpcService } from '../near-rpc/near-rpc.service';
+import { NearRpcService } from '../near-rpc.service';
+import { PermissionsService } from './permissions.service';
+import { ReadonlyService } from './readonly.service';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -31,6 +33,8 @@ export class ProjectsService {
     private keys: KeysService,
     private nearRpc: NearRpcService,
     private config: ConfigService<AppConfig>,
+    private permissions: PermissionsService,
+    private readonly: ReadonlyService,
   ) {
     this.projectRefPrefix = this.config.get('projectRefPrefix', {
       infer: true,
@@ -488,7 +492,7 @@ export class ProjectsService {
       this.checkContractAddressExists(net, address),
     ]);
 
-    const contract = await this.getContract(project, subId, address);
+    const contract = await this.findContract(project, subId, address);
     if (contract) {
       throw new VError(
         {
@@ -504,6 +508,7 @@ export class ProjectsService {
     try {
       return await this.prisma.contract.create({
         data: {
+          slug: nanoid(),
           address,
           environment: {
             connect: {
@@ -556,7 +561,7 @@ export class ProjectsService {
     }
   }
 
-  private async getContract(
+  private async findContract(
     project: Project['slug'],
     subId: Environment['subId'],
     address: Contract['address'],
@@ -655,6 +660,11 @@ export class ProjectsService {
     } catch (e) {
       throw new VError(e, 'Failed while getting list of contracts');
     }
+  }
+
+  async getContract(callingUser: User, slug: Contract['slug']) {
+    await this.permissions.checkUserContractPermission(callingUser.id, slug);
+    return this.readonly.getContract(slug);
   }
 
   /**

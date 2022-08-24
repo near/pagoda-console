@@ -79,6 +79,14 @@ export const GetContractsSchema = Joi.object({
   environment: Joi.number().integer().required(),
 });
 
+// get contract
+export interface GetContractDto {
+  slug: string;
+}
+export const GetContractSchema = Joi.object({
+  slug: Joi.string().required(),
+});
+
 // get environments
 export interface GetEnvironmentsDto {
   project: string;

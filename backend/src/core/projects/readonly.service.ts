@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Environment, Net, Project } from '../../../generated/prisma/core';
+import {
+  Contract,
+  Environment,
+  Net,
+  Project,
+} from '../../../generated/prisma/core';
 import { PrismaService } from '../prisma.service';
 import { VError } from 'verror';
 
@@ -26,5 +31,19 @@ export class ReadonlyService {
     }
 
     return environment.net;
+  }
+
+  async getContract(slug: Contract['slug']): Promise<Contract> {
+    const contract = await this.prisma.contract.findUnique({
+      where: {
+        slug,
+      },
+    });
+
+    if (!contract) {
+      throw new VError('Contract not found');
+    }
+
+    return contract;
   }
 }
