@@ -14,7 +14,7 @@ import { KeysService } from '../keys/keys.service';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { AppConfig } from 'src/config/validate';
-import { NearRpcService } from '../near-rpc.service';
+import { NearRpcService } from '../near-rpc/near-rpc.service';
 import { PermissionsService } from './permissions.service';
 import { ReadonlyService } from './readonly.service';
 

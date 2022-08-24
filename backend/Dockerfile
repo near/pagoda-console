@@ -17,6 +17,7 @@ COPY . ./
 # NEED TO FORCE COMPATIBILITY IN SCHEMA FILE
 RUN cd src/core && prisma generate
 RUN cd src/modules/alerts && prisma generate
+RUN cd src/modules/abi && prisma generate
 
 RUN npm run prebuild
 RUN npm run build
