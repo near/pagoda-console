@@ -8,7 +8,7 @@ import { Tooltip } from '@/components/lib/Tooltip';
 import { useNet } from '@/hooks/net';
 import { styled } from '@/styles/stitches';
 import * as BI from '@/utils/bigint';
-import { publicGet } from '@/utils/http';
+import { unauthenticatedPost } from '@/utils/http';
 
 import AccountLink from '../utils/AccountLink';
 import BlockLink from '../utils/BlockLink';
@@ -211,7 +211,7 @@ const AccountActivityView: React.FC<Props> = ({ accountId }) => {
   const net = useNet();
   const query = useSWR<{ items: AccountActivityElement[] }>(
     accountId ? ['explorer/activity', accountId, net] : null,
-    () => publicGet(`/explorer/activity/?contractId=${accountId}&net=${net}`),
+    () => unauthenticatedPost(`/explorer/activity/`, { contractId: accountId, net }),
   );
 
   if (!accountId) {

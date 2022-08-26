@@ -67,7 +67,7 @@ export type ActivityConnectionActions = {
   childrenActions?: (AccountActivityAction & ActivityConnection)[];
 };
 
-type ActivityConnection = {
+export type ActivityConnection = {
   transactionHash: string;
   receiptId?: string;
   sender: string;

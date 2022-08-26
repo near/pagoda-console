@@ -5,7 +5,7 @@ export const TableWrapper = styled('div', {
   width: '100%',
   flexDirection: 'column',
   justifyContent: 'center',
-  paddingHorizontal: 24,
+  padding: '0 24px',
   borderRadius: 8,
   overflowX: 'auto',
 });

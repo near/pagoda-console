@@ -1,8 +1,6 @@
-import { hexy } from 'hexy';
-
 import AccountLink from '../utils/AccountLink';
 import Balance from '../utils/Balance';
-import CodePreview from '../utils/CodePreview';
+import CodeArgs from '../utils/CodeArgs';
 import type * as T from './types';
 
 export interface Props<A> {
@@ -33,28 +31,6 @@ interface TransactionMessageRenderers {
   DeleteKey: React.FC<Props<T.DeleteKey>>;
 }
 
-export const displayArgs = (args: string) => {
-  const decodedArgs = Buffer.from(args, 'base64');
-  let prettyArgs: string;
-  try {
-    const parsedJSONArgs = JSON.parse(decodedArgs.toString());
-    prettyArgs = JSON.stringify(parsedJSONArgs, null, 2);
-  } catch {
-    prettyArgs = hexy(decodedArgs, { format: 'twos' });
-  }
-  return (
-    <CodePreview
-      collapseOptions={{
-        collapseText: 'button.show_more', // TODO
-        expandText: 'button.show_less', // TODO
-        minHeight: 200,
-        maxHeight: 600,
-      }}
-      value={prettyArgs}
-    />
-  );
-};
-
 const transactionMessageRenderers: TransactionMessageRenderers = {
   CreateAccount: ({ receiverId }: Props<T.CreateAccount>) => (
     <>
@@ -84,7 +60,7 @@ const transactionMessageRenderers: TransactionMessageRenderers = {
       } else if ((typeof actionArgs.args === 'string' && actionArgs.args.length === 0) || !actionArgs.args) {
         args = <p>The arguments are empty</p>;
       } else {
-        args = displayArgs(actionArgs.args);
+        args = <CodeArgs args={actionArgs.args} />;
       }
     }
     return (

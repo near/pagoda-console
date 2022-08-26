@@ -8,6 +8,7 @@ import { Controller, useForm } from 'react-hook-form';
 import * as Charts from 'recharts';
 
 import AccountActivityView from '@/components/explorer/activity/AccountActivityView';
+import TransactionActions from '@/components/explorer/transaction/TransactionActions';
 import { NetContext } from '@/components/explorer/utils/NetContext';
 import * as Accordion from '@/components/lib/Accordion';
 import { Badge } from '@/components/lib/Badge';
@@ -47,6 +48,7 @@ import { TextOverflow } from '@/components/lib/TextOverflow';
 import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { TruncateMiddle } from '@/components/lib/TruncateMiddle';
+import { useNet } from '@/hooks/net';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle/ThemeToggle';
 import ExampleIcon from '@/public/images/icons/ui-example.svg';
 import { styled } from '@/styles/stitches';
@@ -250,6 +252,31 @@ const AccountActivitySection = () => {
         <Button onClick={() => setAddress(form.getValues('contractId'))}>Fetch data</Button>
       </Flex>
       <AccountActivityView accountId={address} />
+    </>
+  );
+};
+
+const TransactionSection = () => {
+  const form = useForm<{ transactionHash: string }>();
+  const [hash, setHash] = useState('');
+  const net = useNet();
+
+  return (
+    <>
+      <Flex>
+        <Form.Input
+          id="transactionHash"
+          placeholder={`eg: ${
+            net === 'MAINNET'
+              ? 'DvsXNKcD6VAk6kz83i5cgiQ5GYmGrFWPyY3pKHH2Ct9y'
+              : 'EYEY9BbRxxSD6mr9U3usCZLKLLgoMB76WJFUmkoVvf2p'
+          }`}
+          isInvalid={!!form.formState.errors.transactionHash}
+          {...form.register('transactionHash', { required: true })}
+        />
+        <Button onClick={() => setHash(form.getValues('transactionHash'))}>Fetch data</Button>
+      </Flex>
+      <TransactionActions transactionHash={hash} />
     </>
   );
 };
@@ -1790,6 +1817,14 @@ const Settings: NextPageWithLayout = () => {
         <WithNetDropdown>
           <Flex stack>
             <AccountActivitySection />
+          </Flex>
+        </WithNetDropdown>
+      </DocSection>
+
+      <DocSection title="Transaction actions list">
+        <WithNetDropdown>
+          <Flex stack>
+            <TransactionSection />
           </Flex>
         </WithNetDropdown>
       </DocSection>
