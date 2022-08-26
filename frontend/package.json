@@ -42,6 +42,7 @@
     "bn.js": "^5.2.1",
     "downshift": "^6.1.7",
     "firebase": "^9.6.10",
+    "gleap": "^8.0.4",
     "hexy": "^0.3.3",
     "iframe-resizer": "^4.3.2",
     "jsbi": "^4.3.0",

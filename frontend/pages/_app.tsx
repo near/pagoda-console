@@ -7,6 +7,7 @@ import * as FullStory from '@fullstory/browser';
 import { initializeApp } from 'firebase/app';
 import type { User } from 'firebase/auth';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import Gleap from 'gleap';
 import { withLDProvider } from 'launchdarkly-react-client-sdk';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
@@ -58,6 +59,10 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   useEffect(() => {
     initializeNaj();
   }, []);
+
+  useEffect(() => {
+    if (config.gleapAuth) Gleap.initialize(config.gleapAuth);
+  });
 
   useEffect(() => {
     const auth = getAuth();

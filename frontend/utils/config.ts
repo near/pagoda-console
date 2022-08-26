@@ -83,6 +83,7 @@ interface AppConfig {
   defaultLiveDataRefreshIntervalMs: number;
   analyticsIframeUrl: string;
   launchDarklyEnv: string;
+  gleapAuth?: string;
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
@@ -122,6 +123,7 @@ const config: AppConfig = {
   defaultLiveDataRefreshIntervalMs: parseInt(process.env.NEXT_PUBLIC_DEFAULT_LIVE_DATA_REFRESH_INTERVAL_MS || '3000'),
   analyticsIframeUrl: process.env.NEXT_PUBLIC_ANALYTICS_IFRAME_URL,
   launchDarklyEnv: process.env.NEXT_PUBLIC_LAUNCHDARKLY_SDK_ENV,
+  gleapAuth: process.env.NEXT_PUBLIC_GLEAP_AUTH_KEY,
 };
 
 export default config;
