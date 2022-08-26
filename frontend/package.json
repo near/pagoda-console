@@ -21,6 +21,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
+    "typecheck": "tsc --noEmit",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -97,6 +98,7 @@
     "fsevents": "^1.0.0"
   },
   "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "tsc --noEmit",
     "*.{js,jsx,ts,tsx}": "eslint --cache --max-warnings 0",
     "*.{js,jsx,ts,tsx,css,scss,md,json}": "prettier --check"
   }
