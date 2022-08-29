@@ -29,7 +29,7 @@ export function EnvironmentSelector(props: Props) {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button css={{ width: '11rem' }}>
+      <DropdownMenu.Button css={{ width: '11rem', height: 'auto' }}>
         <SubnetIcon net={environment?.net} />
         {environment?.name || '...'}
       </DropdownMenu.Button>

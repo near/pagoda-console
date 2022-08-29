@@ -45,7 +45,7 @@ export function ProjectSelector(props: Props) {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button css={{ width: '22rem' }}>
+      <DropdownMenu.Button css={{ width: '22rem', height: 'auto' }}>
         <TextOverflow>{project?.name || '...'}</TextOverflow>
       </DropdownMenu.Button>
 

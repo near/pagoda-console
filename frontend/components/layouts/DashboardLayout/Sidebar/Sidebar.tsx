@@ -1,9 +1,12 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ComponentProps } from 'react';
+import { useEffect } from 'react';
+import { useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
+import { Tooltip } from '@/components/lib/Tooltip';
 import useFeatureFlag from '@/hooks/features';
 import { useSelectedProject } from '@/hooks/selected-project';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
@@ -50,16 +53,60 @@ function useProjectPages(): SidebarEntry[] {
 export function Sidebar({ children, ...props }: Props) {
   const router = useRouter();
   const pages = useProjectPages();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean | undefined>(undefined);
+  const [sidebarHoverExpand, setSidebarHoverExpand] = useState(false);
+  const [sidebarCollapseButtonHover, setSidebarCollapseButtonHover] = useState(false);
+  const sidebarCollapseToggleLabel = sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
+
+  useEffect(() => {
+    setSidebarCollapsed(localStorage.getItem('sidebarCollapsed') === 'true');
+  }, [setSidebarCollapsed]);
 
   function isLinkSelected(page: SidebarEntry): boolean {
     const matchesPattern = page.routeMatchPattern ? router.pathname.startsWith(page.routeMatchPattern) : false;
     return router.pathname === page.route || matchesPattern;
   }
 
+  function toggleCollapsed() {
+    localStorage.setItem('sidebarCollapsed', `${!sidebarCollapsed}`);
+    setSidebarCollapsed(!sidebarCollapsed);
+    setSidebarHoverExpand(false);
+  }
+
+  function sidebarMouseMoveHandler() {
+    if (sidebarCollapsed && !sidebarCollapseButtonHover) {
+      setSidebarHoverExpand(true);
+    }
+  }
+
+  function sidebarMouseLeaveHandler() {
+    setSidebarHoverExpand(false);
+  }
+
+  if (sidebarCollapsed === undefined) {
+    return null;
+  }
+
   return (
-    <S.Root {...props}>
-      <S.Sidebar>
-        <Logo />
+    <S.Root
+      {...props}
+      sidebarCollapsed={sidebarCollapsed && !sidebarHoverExpand}
+      sidebarHoverExpand={sidebarHoverExpand}
+    >
+      <S.Sidebar onMouseMove={sidebarMouseMoveHandler} onMouseLeave={sidebarMouseLeaveHandler}>
+        <Logo collapsed={sidebarCollapsed && !sidebarHoverExpand} />
+
+        <Tooltip content={sidebarCollapseToggleLabel}>
+          <S.CollapseButton
+            type="button"
+            aria-label={sidebarCollapseToggleLabel}
+            onClick={toggleCollapsed}
+            onMouseEnter={() => setSidebarCollapseButtonHover(true)}
+            onMouseLeave={() => setSidebarCollapseButtonHover(false)}
+          >
+            <FeatherIcon icon={'chevron-left'} color="ctaPrimaryText" data-collapse-icon />
+          </S.CollapseButton>
+        </Tooltip>
 
         <S.Nav>
           {pages.map((page) => (
@@ -68,15 +115,19 @@ export function Sidebar({ children, ...props }: Props) {
                 <Link href={page.route} passHref>
                   <S.NavLink selected={isLinkSelected(page)} data-stable-id={`sidebar-link-${page.display}`}>
                     <FeatherIcon icon={page.icon} />
-                    {page.display}
-                    {page.badgeText ? <Badge size="s">{page.badgeText}</Badge> : <></>}
+                    <S.NavLinkLabel>
+                      {page.display}
+                      {page.badgeText ? <Badge size="s">{page.badgeText}</Badge> : <></>}
+                    </S.NavLinkLabel>
                   </S.NavLink>
                 </Link>
               ) : (
                 <S.NavLink as="span" disabled>
                   <FeatherIcon icon={page.icon} />
-                  {page.display}
-                  <Badge size="s">Soon</Badge>
+                  <S.NavLinkLabel>
+                    {page.display}
+                    {<Badge size="s">Soon</Badge>}
+                  </S.NavLinkLabel>
                 </S.NavLink>
               )}
             </S.NavItem>
@@ -86,11 +137,12 @@ export function Sidebar({ children, ...props }: Props) {
         <S.Nav>
           <S.NavItem>
             <S.NavLink as="button" type="button" onClick={logOut}>
-              <FeatherIcon icon="log-out" /> Logout
+              <FeatherIcon icon="log-out" />
+              <S.NavLinkLabel>Logout</S.NavLinkLabel>
             </S.NavLink>
           </S.NavItem>
           <S.NavItem>
-            <ThemeToggle />
+            <ThemeToggle collapsed={sidebarCollapsed && !sidebarHoverExpand} />
           </S.NavItem>
         </S.Nav>
       </S.Sidebar>

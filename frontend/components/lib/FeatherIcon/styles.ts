@@ -29,6 +29,9 @@ export const Svg = styled('svg', {
       warning: {
         color: 'var(--color-warning)',
       },
+      ctaPrimaryText: {
+        color: 'var(--color-cta-primary-text)',
+      },
     },
 
     size: {

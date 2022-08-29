@@ -49,56 +49,54 @@ export function Header({ redirect, ...props }: Props) {
   return (
     <>
       <S.Header {...props}>
-        <Flex align="center" justify="spaceBetween">
-          <Flex align="center">
-            <ProjectSelector
-              onBeforeChange={
-                redirect?.projectChange
-                  ? (change) => {
-                      openConfirmRedirectModal(
-                        'Changing projects will redirect you away from your current page. Would you like to change?',
-                        change,
-                      );
-                    }
-                  : undefined
-              }
-            />
+        <Flex align="stretch">
+          <ProjectSelector
+            onBeforeChange={
+              redirect?.projectChange
+                ? (change) => {
+                    openConfirmRedirectModal(
+                      'Changing projects will redirect you away from your current page. Would you like to change?',
+                      change,
+                    );
+                  }
+                : undefined
+            }
+          />
 
-            <EnvironmentSelector
-              onBeforeChange={
-                redirect?.environmentChange
-                  ? (change) => {
-                      openConfirmRedirectModal(
-                        'Changing environments will redirect you away from your current page. Would you like to change?',
-                        change,
-                      );
-                    }
-                  : undefined
-              }
-            />
-          </Flex>
-
-          <DropdownMenu.Root>
-            <DropdownMenu.Button color="transparent">
-              <FeatherIcon icon="user" />
-              <Text as="span" color="text1" family="body" weight="semibold">
-                {user?.name}
-              </Text>
-            </DropdownMenu.Button>
-
-            <DropdownMenu.Content align="end">
-              <DropdownMenu.Item onSelect={() => onSelectUserSettings()}>
-                <FeatherIcon icon="settings" />
-                User Settings
-              </DropdownMenu.Item>
-
-              <DropdownMenu.Item onSelect={() => onSelectLogout()}>
-                <FeatherIcon icon="log-out" />
-                Logout
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
+          <EnvironmentSelector
+            onBeforeChange={
+              redirect?.environmentChange
+                ? (change) => {
+                    openConfirmRedirectModal(
+                      'Changing environments will redirect you away from your current page. Would you like to change?',
+                      change,
+                    );
+                  }
+                : undefined
+            }
+          />
         </Flex>
+
+        <DropdownMenu.Root>
+          <DropdownMenu.Button color="transparent" css={{ height: 'auto' }}>
+            <FeatherIcon icon="user" />
+            <Text as="span" color="text1" family="body" weight="semibold">
+              {user?.name}
+            </Text>
+          </DropdownMenu.Button>
+
+          <DropdownMenu.Content align="end">
+            <DropdownMenu.Item onSelect={() => onSelectUserSettings()}>
+              <FeatherIcon icon="settings" />
+              User Settings
+            </DropdownMenu.Item>
+
+            <DropdownMenu.Item onSelect={() => onSelectLogout()}>
+              <FeatherIcon icon="log-out" />
+              Logout
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
       </S.Header>
 
       <ConfirmModal

@@ -17,7 +17,13 @@ export function useSettingsStoreForUser() {
   });
   const [projectSettings, setProjectSettings] = useState<ProjectSettings>({});
   const [settingsInitialized, setSettingsInitialized] = useState(false);
-  const userId = currentUser?.uid;
+  const [userId, setUserId] = useState<string>();
+
+  useEffect(() => {
+    if (currentUser?.uid !== userId) {
+      setUserId(currentUser?.uid);
+    }
+  }, [currentUser, userId]);
 
   useEffect(() => {
     /*

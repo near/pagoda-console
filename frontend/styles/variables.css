@@ -76,7 +76,7 @@
   --shadow-soft: 0 2px 20px rgba(0, 0, 0, 0.3);
   --shadow-softer: 0 2px 20px rgba(0, 0, 0, 0.15);
 
-  --size-header-height: 5rem;
+  --size-header-height: 3.75rem;
   --size-icon-xs: 0.8rem;
   --size-icon-s: 1.25rem;
   --size-icon-m: 1.75rem;
@@ -96,7 +96,8 @@
   --size-max-input-width-s: 20rem;
   --size-max-input-width-m: 30rem;
   --size-max-input-width-l: 50rem;
-  --size-sidebar-width-expanded: 15.625rem;
+  --size-sidebar-width-expanded: 12.5rem;
+  --size-sidebar-width-collapsed: 4.5rem;
 
   --space-xs: 0.25rem;
   --space-s: 0.6rem;

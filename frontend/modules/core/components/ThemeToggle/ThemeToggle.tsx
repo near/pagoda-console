@@ -9,7 +9,7 @@ import * as S from './styles';
 
 type Props = ComponentProps<typeof S.Button>;
 
-export const ThemeToggle = (props: Props) => {
+export const ThemeToggle = ({ collapsed, ...props }: Props & { collapsed?: boolean }) => {
   const { activeTheme, setActiveTheme, setColors } = useThemeStore();
   const [shouldRender, setShouldRender] = useState(false);
   const darkThemeClass = 'dark-theme';
@@ -66,9 +66,17 @@ export const ThemeToggle = (props: Props) => {
   if (!shouldRender) return null;
 
   return (
-    <S.Button type="button" data-theme={activeTheme} onClick={() => toggleTheme()} aria-label={buttonTitle} {...props}>
+    <S.Button
+      type="button"
+      collapsed={collapsed}
+      data-theme={activeTheme}
+      onClick={() => toggleTheme()}
+      aria-label={buttonTitle}
+      css={{ width: collapsed ? 'auto' : '100%' }}
+      {...props}
+    >
       <FeatherIcon icon={activeTheme === 'light' ? 'sun' : 'moon'} />
-      {activeTheme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+      {!collapsed && (activeTheme === 'dark' ? 'Dark Mode' : 'Light Mode')}
     </S.Button>
   );
 };

@@ -28,20 +28,22 @@ export function useSelectedProject(
 
   const selectEnvironment = useCallback(
     (environmentSubId: number) => {
+      if (environmentSubId === projectSettings.selectedEnvironmentSubId) return;
       updateProjectSettings({
         selectedEnvironmentSubId: environmentSubId,
       });
     },
-    [updateProjectSettings],
+    [projectSettings, updateProjectSettings],
   );
 
   const selectProject = useCallback(
     (projectSlug: string) => {
+      if (projectSlug === settings.selectedProjectSlug) return;
       updateSettings({
         selectedProjectSlug: projectSlug,
       });
     },
-    [updateSettings],
+    [updateSettings, settings],
   );
 
   // Conditionally redirect to force user to select project:
@@ -52,8 +54,10 @@ export function useSelectedProject(
       !settingsInitialized ||
       settings.selectedProjectSlug ||
       projectSlugRouteParam
-    )
+    ) {
       return;
+    }
+
     router.push('/projects');
   }, [options, projectSlugRouteParam, settingsInitialized, settings]);
 

@@ -3,4 +3,4 @@
 
 npx lint-staged
 
-tsc --noEmit
+npx tsc --noEmit

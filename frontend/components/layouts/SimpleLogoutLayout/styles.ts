@@ -18,8 +18,13 @@ export const Main = styled('main', {
 });
 
 export const Header = styled('header', {
+  display: 'flex',
+  alignItems: 'stretch',
+  justifyContent: 'space-between',
+  gap: 'var(--space-m)',
+  height: 'var(--size-header-height)',
   flexShrink: 0,
-  padding: 'var(--space-m)',
+  padding: 'var(--space-s) var(--space-m)',
   position: 'sticky',
   top: 0,
   background: 'var(--color-surface-2)',
