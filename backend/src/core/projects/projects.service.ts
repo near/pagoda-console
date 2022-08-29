@@ -7,6 +7,7 @@ import {
   User,
   Contract,
   Environment,
+  Org,
 } from '../../../generated/prisma/core';
 import { VError } from 'verror';
 import { customAlphabet } from 'nanoid';
@@ -17,6 +18,8 @@ import { AppConfig } from 'src/config/validate';
 import { NearRpcService } from '../near-rpc/near-rpc.service';
 import { PermissionsService } from './permissions.service';
 import { ReadonlyService } from './readonly.service';
+import { ReadonlyService as UsersReadonlyService } from '../users/readonly.service';
+import { PermissionsService as UsersPermissionsService } from '../users/permissions.service';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -35,6 +38,8 @@ export class ProjectsService {
     private config: ConfigService<AppConfig>,
     private permissions: PermissionsService,
     private readonly: ReadonlyService,
+    private users: UsersReadonlyService,
+    private userPermissions: UsersPermissionsService,
   ) {
     this.projectRefPrefix = this.config.get('projectRefPrefix', {
       infer: true,
@@ -54,31 +59,31 @@ export class ProjectsService {
   async create(
     user: User,
     name: Project['name'],
-    tutorial: Project['tutorial'],
+    orgSlug?: Org['slug'],
+    tutorial?: Project['tutorial'],
   ): Promise<{ name: Project['name']; slug: Project['slug'] }> {
+    // TODO this org loader is temporary and should be removed once UI supports orgs.
+    if (!orgSlug) {
+      try {
+        const { slug } = await this.users.getPersonalOrg(user);
+        orgSlug = slug;
+      } catch (e) {
+        throw new VError(e, 'Failed to find personal org for user');
+      }
+    }
+
+    await this.userPermissions.checkOrgMembership(user.id, orgSlug);
+
     let teamId;
     try {
-      const teamFind = await this.prisma.teamMember.findFirst({
-        where: {
-          userId: user.id,
-          active: true,
-        },
-        select: {
-          teamId: true,
-        },
-      });
-
-      // will throw if no team found
-      if (!teamFind) {
-        throw new VError('Query to find team for user came back empty');
-      }
-      teamId = teamFind.teamId;
+      const team = await this.users.getDefaultTeam(orgSlug);
+      teamId = team.id;
     } catch (e) {
       throw new VError(e, 'Failed to find team');
     }
 
-    // TODO when our schema can enforce project name uniqueness within a team, replace this unique check with a database constraint.
-    if (!(await this.isProjectNameUnique(user, name))) {
+    const isUnique = await this.isProjectNameUnique(name, orgSlug);
+    if (!isUnique) {
       throw new VError(
         {
           info: {
@@ -98,10 +103,11 @@ export class ProjectsService {
     };
 
     try {
-      let projectInput: Prisma.ProjectCreateInput;
+      let projectInput: Prisma.ProjectUncheckedCreateInput;
 
       if (tutorial) {
         projectInput = {
+          orgSlug,
           slug: nanoid(),
           name,
           tutorial,
@@ -128,6 +134,7 @@ export class ProjectsService {
         };
       } else {
         projectInput = {
+          orgSlug,
           slug: nanoid(),
           name,
           teamProjects: {
@@ -374,6 +381,28 @@ export class ProjectsService {
       projectWhereUnique,
     });
 
+    await this.deleteApiKeys(project);
+
+    // Soft delete the project and associated items.
+    try {
+      // TODO delete TeamProject, Environment, Contract associated with this Project.
+      await this.prisma.project.update({
+        where: projectWhereUnique,
+        data: {
+          active: false,
+          updatedByUser: {
+            connect: {
+              id: callingUser.id,
+            },
+          },
+        },
+      });
+    } catch (e) {
+      throw new VError(e, 'Failed while soft deleting project');
+    }
+  }
+
+  async deleteApiKeys(project: Project) {
     try {
       // Array of key names/ids to fetch from key service.
       const deleteKeys: [Net, number][] = [['TESTNET', 1]];
@@ -392,27 +421,7 @@ export class ProjectsService {
         ),
       );
     } catch (e) {
-      throw new VError(
-        e,
-        'Failed to invalidate one or more keys while deleting project',
-      );
-    }
-
-    // soft delete the project
-    try {
-      await this.prisma.project.update({
-        where: projectWhereUnique,
-        data: {
-          active: false,
-          updatedByUser: {
-            connect: {
-              id: callingUser.id,
-            },
-          },
-        },
-      });
-    } catch (e) {
-      throw new VError(e, 'Failed while soft deleting project');
+      throw new VError(e, 'Failed to invalidate one or more project API keys');
     }
   }
 
@@ -442,7 +451,6 @@ export class ProjectsService {
     const res = await this.prisma.teamMember.findFirst({
       where: {
         userId,
-        active: true,
         team: {
           active: true,
           teamProjects: {
@@ -754,7 +762,7 @@ export class ProjectsService {
   }
 
   async list(user: User) {
-    return await this.prisma.project.findMany({
+    const projects = await this.prisma.project.findMany({
       where: {
         active: true,
         teamProjects: {
@@ -764,7 +772,6 @@ export class ProjectsService {
               active: true,
               teamMembers: {
                 some: {
-                  active: true,
                   userId: user.id,
                 },
               },
@@ -772,9 +779,32 @@ export class ProjectsService {
           },
         },
       },
-      include: {
-        environments: true,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        tutorial: true,
+        active: true,
+        org: {
+          select: {
+            name: true,
+            slug: true,
+            personalForUserId: true,
+          },
+        },
       },
+    });
+
+    return projects.map((p) => {
+      const isPersonal = !!p.org.personalForUserId;
+      return {
+        ...p,
+        org: {
+          name: isPersonal ? undefined : p.org.name,
+          slug: p.org.slug,
+          isPersonal,
+        },
+      };
     });
   }
 
@@ -868,24 +898,11 @@ export class ProjectsService {
     }
   }
 
-  async isProjectNameUnique(callingUser: User, name: string) {
+  async isProjectNameUnique(name: Project['name'], orgSlug: Org['slug']) {
     try {
-      // TODO once team/org management is solidified, review the below query.
-      // This query was created when a team was the highest level that could determine project uniqueness
-      // and `project` was the only table in the list of relations where `active` could be `false`.
       const p = await this.prisma.project.findFirst({
         where: {
-          teamProjects: {
-            some: {
-              team: {
-                teamMembers: {
-                  some: {
-                    userId: callingUser.id,
-                  },
-                },
-              },
-            },
-          },
+          orgSlug,
           name,
           active: true,
         },
@@ -1062,16 +1079,40 @@ export class ProjectsService {
     };
   }
 
-  async deleteProjectsAndApiKeysForUser(user: User) {
+  // Deletes the projects and api keys associated with a user's personal org.
+  async deleteApiKeysByUser(user: User) {
     try {
-      const projects = await this.list(user);
-      await Promise.all(
-        projects.map(async (p) => {
-          await this.delete(user, { id: p.id });
-        }),
-      );
+      const projects = await this.prisma.project.findMany({
+        where: {
+          active: true,
+          org: {
+            personalForUserId: user.id,
+          },
+        },
+      });
+      await Promise.all(projects.map((p) => this.deleteApiKeys(p)));
     } catch (e) {
-      throw new VError(e, 'Failed to delete projects and API keys for user');
+      throw new VError(
+        e,
+        `Failed to delete projects and API keys for user's personal org`,
+      );
+    }
+  }
+
+  // Deletes the projects and api keys associated with an org.
+  async deleteApiKeysByOrg(orgSlug: Org['slug']) {
+    try {
+      const projects = await this.prisma.project.findMany({
+        where: {
+          active: true,
+          org: {
+            slug: orgSlug,
+          },
+        },
+      });
+      await Promise.all(projects.map((p) => this.deleteApiKeys(p)));
+    } catch (e) {
+      throw new VError(e, `Failed to delete projects and API keys for org`);
     }
   }
 }

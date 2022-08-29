@@ -9,10 +9,12 @@ const projectNameSchema = Joi.string().required().max(50);
 
 // create project
 export interface CreateProjectDto {
+  org?: string;
   name: string;
   tutorial?: ProjectTutorial;
 }
 export const CreateProjectSchema = Joi.object({
+  org: Joi.string(), // TODO require org slug once the UI supports orgs
   name: projectNameSchema,
   tutorial: Joi.string(),
 });
@@ -31,14 +33,6 @@ export interface DeleteProjectDto {
 }
 export const DeleteProjectSchema = Joi.object({
   slug: Joi.string().required(),
-});
-
-// is project name unique
-export interface IsProjectNameUniqueDto {
-  name: string;
-}
-export const IsProjectNameUniqueSchema = Joi.object({
-  name: projectNameSchema,
 });
 
 // get project details

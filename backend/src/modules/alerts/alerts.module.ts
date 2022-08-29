@@ -9,9 +9,11 @@ import { TriggeredAlertsController } from './triggered-alerts/triggered-alerts.c
 import { TriggeredAlertsService } from './triggered-alerts/triggered-alerts.service';
 import { NearRpcService } from '@/src/core/near-rpc/near-rpc.service';
 import { EmailModule } from '../../core/email/email.module';
+import { EmailVerificationService } from './email-verification.service';
 
 @Module({
   providers: [
+    EmailVerificationService,
     AlertsService,
     PrismaService,
     TelegramService,

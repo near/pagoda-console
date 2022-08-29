@@ -38,8 +38,6 @@ import {
   GetRpcUsageSchema,
   GetTransactionsDto,
   GetTransactionsSchema,
-  IsProjectNameUniqueDto,
-  IsProjectNameUniqueSchema,
   RemoveContractDto,
   RemoveContractSchema,
   RotateKeyDto,
@@ -58,9 +56,17 @@ export class ProjectsController {
   @Post('create')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(CreateProjectSchema))
-  async create(@Request() req, @Body() { name, tutorial }: CreateProjectDto) {
+  async create(
+    @Request() req,
+    @Body() { org, name, tutorial }: CreateProjectDto,
+  ) {
     try {
-      return await this.projectsService.create(req.user, name.trim(), tutorial);
+      return await this.projectsService.create(
+        req.user,
+        name.trim(),
+        org,
+        tutorial,
+      );
     } catch (e) {
       throw mapError(e);
     }
@@ -88,17 +94,6 @@ export class ProjectsController {
   async delete(@Request() req, @Body() { slug }: DeleteProjectDto) {
     try {
       return await this.projectsService.delete(req.user, { slug });
-    } catch (e) {
-      throw mapError(e);
-    }
-  }
-
-  @Post('isNameUnique')
-  @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(IsProjectNameUniqueSchema))
-  async isNameUnique(@Request() req, @Body() { name }: IsProjectNameUniqueDto) {
-    try {
-      return await this.projectsService.isProjectNameUnique(req.user, name);
     } catch (e) {
       throw mapError(e);
     }

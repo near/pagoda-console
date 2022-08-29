@@ -1,10 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  User,
-  Project,
-  Environment,
-  Contract,
-} from '../../../generated/prisma/core';
+import { User, Project, Environment } from '../../../generated/prisma/core';
 import { PrismaService } from '../prisma.service';
 import { VError } from 'verror';
 
@@ -20,7 +15,6 @@ export class PermissionsService {
     const res = await this.prisma.teamMember.findFirst({
       where: {
         userId,
-        active: true, // TODO remove once orgs is merged.
         team: {
           active: true,
           teamProjects: {
@@ -54,7 +48,6 @@ export class PermissionsService {
     const res = await this.prisma.teamMember.findFirst({
       where: {
         userId,
-        active: true,
         team: {
           active: true,
           teamProjects: {
@@ -78,14 +71,10 @@ export class PermissionsService {
     }
   }
 
-  async checkUserContractPermission(
-    userId: User['id'],
-    slug: Contract['slug'],
-  ) {
+  async checkUserContractPermission(userId: User['id'], slug: Project['slug']) {
     const res = await this.prisma.teamMember.findFirst({
       where: {
         userId,
-        active: true,
         team: {
           active: true,
           teamProjects: {

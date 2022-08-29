@@ -33,7 +33,15 @@ model User {
   updatedContracts    Contract[]    @relation("UserUpdatedContract")
   createdTeamProject  TeamProject[] @relation("UserCreatedTeamProject")
   updatedTeamProject  TeamProject[] @relation("UserUpdatedTeamProject")
+  createdOrg          Org[]         @relation("UserCreatedOrg")
+  updatedOrg          Org[]         @relation("UserUpdatedOrg")
+  createdOrgMember    OrgMember[]   @relation("UserCreatedOrgMember")
+  updatedOrgMember    OrgMember[]   @relation("UserUpdatedOrgMember")
+  createdOrgInvite    OrgInvite[]   @relation("UserCreatedOrgInvite")
+  updatedOrgInvite    OrgInvite[]   @relation("UserUpdatedOrgInvite")
   userActions         UserAction[]
+  personalOrg         Org?
+  orgMembers          OrgMember[]
 }
 
 model Team {
@@ -51,6 +59,10 @@ model Team {
   updatedAt     DateTime?     @updatedAt
   /// Reference to the user id who last updated the record.
   updatedBy     Int?
+  org           Org           @relation(fields: [orgSlug], references: [slug])
+  orgSlug       String
+
+  @@unique([orgSlug, name])
 }
 
 model TeamMember {
@@ -58,8 +70,6 @@ model TeamMember {
   userId        Int
   team          Team      @relation(fields: [teamId], references: [id])
   teamId        Int
-  /// If 'false', the record was soft-deleted by a user.
-  active        Boolean   @default(true)
   createdAt     DateTime? @default(now())
   createdByUser User?     @relation(name: "UserCreatedTeamMember", fields: [createdBy], references: [id])
   /// Reference to the user id who created the record.
@@ -70,6 +80,63 @@ model TeamMember {
   updatedBy     Int?
 
   @@id([userId, teamId])
+}
+
+model Org {
+  slug              String      @id
+  name              String      @unique
+  personalForUser   User?       @relation(fields: [personalForUserId], references: [id])
+  personalForUserId Int?        @unique
+  active            Boolean     @default(true)
+  orgMembers        OrgMember[]
+  projects          Project[]
+  orgInvites        OrgInvite[]
+  teams             Team[]
+  createdAt         DateTime?   @default(now())
+  createdByUser     User?       @relation(name: "UserCreatedOrg", fields: [createdBy], references: [id])
+  createdBy         Int?
+  updatedByUser     User?       @relation(name: "UserUpdatedOrg", fields: [updatedBy], references: [id])
+  updatedAt         DateTime?   @updatedAt
+  updatedBy         Int?
+}
+
+model OrgMember {
+  org           Org       @relation(fields: [orgSlug], references: [slug])
+  orgSlug       String
+  user          User      @relation(fields: [userId], references: [id])
+  userId        Int
+  role          OrgRole
+  createdAt     DateTime? @default(now())
+  createdByUser User?     @relation(name: "UserCreatedOrgMember", fields: [createdBy], references: [id])
+  createdBy     Int?
+  updatedByUser User?     @relation(name: "UserUpdatedOrgMember", fields: [updatedBy], references: [id])
+  updatedAt     DateTime? @updatedAt
+  updatedBy     Int?
+
+  @@id([orgSlug, userId])
+}
+
+enum OrgRole {
+  ADMIN
+  COLLABORATOR
+}
+
+model OrgInvite {
+  id             Int       @id @default(autoincrement())
+  org            Org       @relation(fields: [orgSlug], references: [slug])
+  orgSlug        String
+  email          String
+  role           OrgRole
+  token          String    @unique
+  tokenExpiresAt DateTime
+  createdAt      DateTime? @default(now())
+  createdByUser  User?     @relation(name: "UserCreatedOrgInvite", fields: [createdBy], references: [id])
+  createdBy      Int?
+  updatedByUser  User?     @relation(name: "UserUpdatedOrgInvite", fields: [updatedBy], references: [id])
+  updatedAt      DateTime? @updatedAt
+  updatedBy      Int?
+
+  @@unique([orgSlug, email])
 }
 
 model Project {
@@ -89,6 +156,10 @@ model Project {
   updatedAt     DateTime?        @updatedAt
   /// Reference to the user id who last updated the record.
   updatedBy     Int?
+  org           Org              @relation(fields: [orgSlug], references: [slug])
+  orgSlug       String
+
+  @@unique([name, orgSlug])
 }
 
 model TeamProject {

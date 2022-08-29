@@ -33,8 +33,8 @@ import { assertUnreachable } from 'src/helpers';
 import { AppConfig } from 'src/config/validate';
 import { ConfigService } from '@nestjs/config';
 import { DateTime } from 'luxon';
-import { EmailService } from '@/src/core/email/email.service';
 import { NearRpcService } from '@/src/core/near-rpc/near-rpc.service';
+import { EmailVerificationService } from './email-verification.service';
 
 type TxRuleSchema = {
   rule: {
@@ -199,7 +199,7 @@ export class AlertsService {
     private ruleSerializer: RuleSerializerService,
     private ruleDeserializer: RuleDeserializerService,
     private config: ConfigService<AppConfig>,
-    private emailsService: EmailService,
+    private emailVerification: EmailVerificationService,
     private nearRpc: NearRpcService,
   ) {
     this.emailTokenExpiryMin = this.config.get('alerts.email.tokenExpiryMin', {
@@ -781,7 +781,7 @@ export class AlertsService {
     }
 
     try {
-      await this.emailsService.sendEmailVerificationMessage(
+      await this.emailVerification.sendVerificationEmail(
         email,
         res.emailDestination.token,
       );
@@ -1249,7 +1249,7 @@ export class AlertsService {
           },
         },
       });
-      await this.emailsService.sendEmailVerificationMessage(
+      await this.emailVerification.sendVerificationEmail(
         res.emailDestination.email,
         res.emailDestination.token,
       );

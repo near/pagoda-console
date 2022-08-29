@@ -28,6 +28,8 @@ const BLACKLISTED_SQL_CODE = [
   'DROP TABLE "Audit";',
   // We have a custom conditional index on this table under the same name
   'CREATE UNIQUE INDEX "User_email_key" ON "User"("email");',
+  'CREATE UNIQUE INDEX "Project_name_orgSlug_key" ON "Project"("name", "orgSlug");',
+  'CREATE UNIQUE INDEX "Team_orgSlug_name_key" ON "Team"("orgSlug", "name");',
 ];
 
 async function checkMigrationsAsync() {

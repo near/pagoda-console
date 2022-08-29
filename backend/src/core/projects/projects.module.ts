@@ -7,6 +7,7 @@ import { ProjectsController } from './projects.controller';
 import { ProjectsService } from './projects.service';
 import { PermissionsService } from './permissions.service';
 import { ReadonlyService } from './readonly.service';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   providers: [
@@ -18,7 +19,13 @@ import { ReadonlyService } from './readonly.service';
     NearRpcService,
   ],
   controllers: [ProjectsController],
-  imports: [KeysModule],
+  imports: [
+    PrismaService,
+    KeysModule,
+    IndexerService,
+    NearRpcService,
+    UsersModule,
+  ],
   exports: [ProjectsService, PermissionsService, ReadonlyService],
 })
 export class ProjectsModule {}

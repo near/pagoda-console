@@ -53,11 +53,15 @@ export interface AppConfig {
     mock: {
       rpcAuth: boolean;
       rpcAuthErrors: boolean;
+      email: boolean;
     };
   };
   log: {
     queries: boolean;
     indexer: boolean;
+  };
+  orgs: {
+    inviteTokenExpiryMinutes: number;
   };
   alerts: {
     email: {
@@ -76,6 +80,7 @@ export interface AppConfig {
     apiKey: string;
   };
   email: {
+    noReply: string;
     emailVerificationFrom: string;
   };
   frontend: {
@@ -192,11 +197,15 @@ const appConfigSchema = Joi.object({
     mock: {
       rpcAuth: Joi.boolean().optional().default(false),
       rpcAuthErrors: Joi.boolean().optional().default(false),
+      email: Joi.boolean().optional().default(false),
     },
   },
   log: {
     queries: Joi.boolean().optional().default(false),
     indexer: Joi.boolean().optional().default(false),
+  },
+  orgs: {
+    inviteTokenExpiryMinutes: Joi.number().optional().default(10000), // TODO set to a small value once requesting a new token is possible
   },
   alerts: {
     email: Joi.object({
@@ -221,6 +230,7 @@ const appConfigSchema = Joi.object({
     apiKey: Joi.string(),
   },
   email: {
+    noReply: Joi.string(),
     emailVerificationFrom: Joi.string(),
   },
   frontend: {
@@ -327,11 +337,15 @@ export default function validate(config: Record<string, unknown>): AppConfig {
       mock: {
         rpcAuth: config.MOCK_KEY_SERVICE,
         rpcAuthErrors: config.MOCK_KEY_SERVICE_WITH_ERRORS,
+        email: config.MOCK_EMAIL_SERVICE,
       },
     },
     log: {
       queries: config.LOG_QUERIES,
       indexer: config.LOG_INDEXER,
+    },
+    orgs: {
+      inviteTokenExpiryMinutes: config.ORGS_INVITE_TOKEN_EXPIRY_MINUTES,
     },
     alerts: {
       email: {
@@ -351,6 +365,7 @@ export default function validate(config: Record<string, unknown>): AppConfig {
       apiKey: config.MAILGUN_API_KEY,
     },
     email: {
+      noReply: config.EMAIL_NO_REPLY,
       emailVerificationFrom: config.EMAIL_VERIFICATION_FROM,
     },
     frontend: {
