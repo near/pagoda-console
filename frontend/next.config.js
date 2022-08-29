@@ -1,7 +1,8 @@
 const { i18n } = require('./next-i18next.config');
+const { withSentryConfig } = require('@sentry/nextjs');
 
 /** @type {import('next').NextConfig} */
-module.exports = {
+const moduleExports = {
   experimental: { esmExternals: true },
   reactStrictMode: true,
   webpack(config, options) {
@@ -39,3 +40,18 @@ module.exports = {
     ];
   },
 };
+
+const sentryWebpackPluginOptions = {
+  // Additional config options for the Sentry Webpack plugin. Keep in mind that
+  // the following options are set automatically, and overriding them is not
+  // recommended:
+  //   release, url, org, project, authToken, configFile, stripPrefix,
+  //   urlPrefix, include, ignore
+
+  silent: true, // Suppresses all logs
+  // For all available options, see:
+  // https://github.com/getsentry/sentry-webpack-plugin#options.
+  ignoreFile: '/.gitignore',
+};
+
+module.exports = withSentryConfig(moduleExports, sentryWebpackPluginOptions);
