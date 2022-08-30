@@ -28,6 +28,8 @@ cd ../..;
 # Copy the template files over
 cp -r ./modules/template/* "$MODULE_PATH"
 
+echo "npx prisma \"\$@\" --schema=\"./src/modules/${MODULE_NAME}/prisma/schema.prisma\"" >> ./scripts/prisma.sh
+
 cd "$MODULE_PATH";
 
 # Generate an empty controller and service

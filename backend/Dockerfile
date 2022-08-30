@@ -14,10 +14,8 @@ RUN npm install
 COPY . ./
 
 # NOT IDEAL, WE SHOULD BE GENERATING ON THE DEPLOY IMAGE BELOW SO WE DONT
-# NEED TO FORCE COMPATIBILITY IN SCHEMA FILE
-RUN cd src/core && prisma generate
-RUN cd src/modules/alerts && prisma generate
-RUN cd src/modules/abi && prisma generate
+# NEED TO FORCE COMPATIBILITY IN SCHEMA FILES
+RUN npm run prisma:generate
 
 RUN npm run prebuild
 RUN npm run build

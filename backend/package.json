@@ -20,7 +20,10 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "husky install",
-    "gen:module": "./scripts/gen_module.sh"
+    "gen:module": "./scripts/gen_module.sh",
+    "prisma:migrate:deploy": "./scripts/prisma.sh migrate deploy",
+    "prisma:migrate:reset": "./scripts/prisma.sh migrate reset --force",
+    "prisma:generate": "./scripts/prisma.sh generate"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",

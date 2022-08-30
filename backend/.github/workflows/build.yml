@@ -18,14 +18,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Core Prisma Client
-        run: npx prisma generate --schema ./src/core/prisma/schema.prisma
-
-      - name: Build Alerts Prisma Client
-        run: npx prisma generate --schema ./src/modules/alerts/prisma/schema.prisma
-
-      - name: Build ABI Prisma Client
-        run: npx prisma generate --schema ./src/modules/abi/prisma/schema.prisma
+      - name: Build Prisma Clients
+        run: npm run prisma:generate
 
       - name: Test building a project
         run: npm run build
