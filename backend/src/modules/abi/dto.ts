@@ -12,13 +12,13 @@ export interface AddContractAbiDto {
 }
 const JsonSchemaSchema = Joi.object({}).unknown(true).required();
 export const AbiSchema = Joi.object({
-  abi_schema_version: Joi.string().required(),
+  schema_version: Joi.string().required(),
   metadata: Joi.object({
     name: Joi.string(),
     version: Joi.string(),
     authors: Joi.array().items(Joi.string()),
   }).unknown(true),
-  abi: Joi.object({
+  body: Joi.object({
     functions: Joi.array()
       .items(
         Joi.object({

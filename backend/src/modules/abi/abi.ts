@@ -2,9 +2,9 @@
 import { JSONSchema7 } from 'json-schema';
 
 export interface ABI {
-  abi_schema_version: string;
+  schema_version: string;
   metadata?: ContractMetadata;
-  abi: ABIData;
+  body: ABIData;
 }
 
 export interface ABIData {
