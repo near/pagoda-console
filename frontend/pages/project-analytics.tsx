@@ -2,7 +2,7 @@ import { iframeResizer } from 'iframe-resizer';
 import Link from 'next/link';
 import { useEffect } from 'react';
 
-import { Button, ButtonLink } from '@/components/lib/Button';
+import { ButtonLink } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
@@ -16,7 +16,7 @@ import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useTheme } from '@/hooks/theme';
 import config from '@/utils/config';
-import type { Contract, NextPageWithLayout } from '@/utils/types';
+import type { Contract, Environment, NextPageWithLayout } from '@/utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {
   const { environment, project } = useSelectedProject();
@@ -26,22 +26,18 @@ const ProjectAnalytics: NextPageWithLayout = () => {
     return <Spinner center />;
   }
 
-  if (environment?.net === 'TESTNET') {
-    return <TestnetNotice />;
-  }
-
   if (contracts.length === 0) {
     return <NoContractsNotice />;
   }
 
   return (
     <Section>
-      <AnalyticsIframe contracts={contracts} />
+      <AnalyticsIframe environment={environment} contracts={contracts} />
     </Section>
   );
 };
 
-function AnalyticsIframe({ contracts }: { contracts: Contract[] }) {
+function AnalyticsIframe({ environment, contracts }: { environment: Environment; contracts: Contract[] }) {
   const { activeTheme } = useTheme();
 
   useEffect(() => {
@@ -53,7 +49,7 @@ function AnalyticsIframe({ contracts }: { contracts: Contract[] }) {
   contracts.forEach((contract) => {
     contractParams += `&contract=${contract.address}`;
   });
-  const iframeUrl = `${config.analyticsIframeUrl}?${contractParams}${themeParam}`;
+  const iframeUrl = `${config.analyticsIframeUrl[environment.net]}?${contractParams}${themeParam}`;
 
   return (
     <iframe
@@ -88,70 +84,6 @@ function NoContractsNotice() {
               Contracts
             </ButtonLink>
           </Link>
-        </Flex>
-      </Container>
-    </Section>
-  );
-}
-
-function TestnetNotice() {
-  const { selectEnvironment, environments } = useSelectedProject();
-
-  const mainnetEnvironment = environments?.find((env) => env.net === 'MAINNET');
-
-  if (!mainnetEnvironment) {
-    return (
-      <Section css={{ margin: 'auto', textAlign: 'center' }}>
-        <Container size="s">
-          <Flex stack gap="l" align="center">
-            <H1>Analytics</H1>
-
-            <Text>
-              Currently, analytics are only viewable for the{' '}
-              <Text as="span" color="text1" family="action">
-                Mainnet
-              </Text>{' '}
-              environment. When you complete the tutorial, your project will be set up with a{' '}
-              <Text as="span" color="text1" family="action">
-                Mainnet
-              </Text>{' '}
-              environment.
-            </Text>
-
-            <Link href="/tutorials/nfts/introduction" passHref>
-              <ButtonLink>
-                <FeatherIcon icon="book" />
-                View Tutorial
-              </ButtonLink>
-            </Link>
-          </Flex>
-        </Container>
-      </Section>
-    );
-  }
-
-  return (
-    <Section css={{ margin: 'auto', textAlign: 'center' }}>
-      <Container size="s">
-        <Flex stack gap="l" align="center">
-          <H1>Analytics</H1>
-
-          <Text>
-            Currently, analytics are only viewable for the{' '}
-            <Text as="span" color="text1" family="action">
-              Mainnet
-            </Text>{' '}
-            environment.{' '}
-            <Text as="span" color="text1" family="action">
-              Testnet
-            </Text>{' '}
-            will be supported soon!
-          </Text>
-
-          <Button color="neutral" onClick={() => selectEnvironment(mainnetEnvironment?.subId)}>
-            <FeatherIcon icon="layers" css={{ color: 'var(--color-mainnet)' }} />
-            Switch to Mainnet
-          </Button>
         </Flex>
       </Container>
     </Section>
