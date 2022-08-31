@@ -537,6 +537,7 @@ export class ProjectsService {
         },
         select: {
           id: true,
+          slug: true,
           address: true,
           net: true,
         },
