@@ -13,4 +13,6 @@ export const Header = styled('header', {
   background: 'var(--color-surface-2)',
   borderBottom: '1px solid var(--color-surface-1)',
   boxShadow: 'var(--shadow-softer)',
+  zIndex: 500,
+  overflowX: 'clip',
 });

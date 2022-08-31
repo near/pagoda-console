@@ -2,6 +2,7 @@ import '@/styles/reset.css';
 import '@/styles/fonts.css';
 import '@/styles/variables.css';
 import '@/styles/global.css';
+import '@/styles/enhanced-api.scss';
 
 import * as FullStory from '@fullstory/browser';
 import { initializeApp } from 'firebase/app';

@@ -7,7 +7,7 @@ export const Sidebar = styled('nav', {
   gap: 'var(--space-l)',
   width: 'var(--sidebar-width)',
   position: 'fixed',
-  zIndex: 500,
+  zIndex: 505,
   top: 0,
   left: 0,
   bottom: 0,

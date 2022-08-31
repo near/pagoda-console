@@ -11,6 +11,7 @@ import { useDashboardLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { ApiKeys } from '@/modules/apis/components/ApiKeys';
+import EnhancedApi from '@/modules/apis/components/EnhancedApi';
 import DeleteProjectModal from '@/modules/core/components/modals/DeleteProjectModal';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -27,6 +28,12 @@ const ListApis: NextPageWithLayout = () => {
               <FeatherIcon icon="key" /> Keys
             </Tabs.TriggerLink>
           </Link>
+          <Link href="?tab=enhancedApi" passHref>
+            <Tabs.TriggerLink active={activeTab === 'enhancedApi'}>
+              <FeatherIcon icon="zap" />
+              Enhanced API
+            </Tabs.TriggerLink>
+          </Link>
         </Tabs.List>
 
         <Tabs.Content value="keys">
@@ -38,6 +45,10 @@ const ListApis: NextPageWithLayout = () => {
               the new orgs/teams/projects management flow has been implemented.
             */}
           </Flex>
+        </Tabs.Content>
+
+        <Tabs.Content value="enhancedApi">
+          <EnhancedApi />
         </Tabs.Content>
       </Tabs.Root>
     </Section>
