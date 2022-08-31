@@ -40,7 +40,7 @@ const triggerStyles: StitchesCSS = {
   display: 'flex',
   alignItems: 'center',
   gap: 'var(--space-s)',
-  color: 'var(--color-text-2)',
+  color: 'var(--color-text-1)',
   cursor: 'pointer',
   fontFamily: 'var(--font-action)',
   fontSize: 'var(--font-size-h6)',
@@ -58,7 +58,6 @@ const triggerStyles: StitchesCSS = {
   flexShrink: 0,
 
   '&:hover': {
-    color: 'var(--color-text-1)',
     boxShadow: 'inset 0 var(--border-size) 0 var(--color-text-1)',
   },
 
@@ -79,6 +78,11 @@ export const Trigger = styled(TabsPrimitive.Trigger, {
 
   '&[data-state="active"]': {
     ...triggerActiveStyles,
+  },
+
+  '&:disabled': {
+    pointerEvents: 'none',
+    color: 'var(--color-text-3)',
   },
 });
 

@@ -7,9 +7,10 @@ import * as S from './styles';
 
 type Props = Omit<ComponentProps<typeof S.Info>, 'children'> & {
   content: string;
+  size?: 'xs' | 's' | 'm' | 'l';
 };
 
-export const Info = ({ content }: Props) => {
+export const Info = ({ content, size }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   function onClick() {
@@ -28,7 +29,12 @@ export const Info = ({ content }: Props) => {
       }}
     >
       <S.Info>
-        <FeatherIcon icon="help-circle" aria-label={isOpen ? 'Close Info' : 'More Info'} onMouseDown={onClick} />
+        <FeatherIcon
+          icon="help-circle"
+          aria-label={isOpen ? 'Close Info' : 'More Info'}
+          onMouseDown={onClick}
+          size={size}
+        />
       </S.Info>
     </Tooltip>
   );

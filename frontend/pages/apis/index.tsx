@@ -1,22 +1,19 @@
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { useState } from 'react';
 
-import { Button } from '@/components/lib/Button';
+import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
-import { Flex } from '@/components/lib/Flex';
 import { Section } from '@/components/lib/Section';
 import * as Tabs from '@/components/lib/Tabs';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { ApiKeys } from '@/modules/apis/components/ApiKeys';
+import { ApiStats } from '@/modules/apis/components/ApiStats';
 import EnhancedApi from '@/modules/apis/components/EnhancedApi';
-import DeleteProjectModal from '@/modules/core/components/modals/DeleteProjectModal';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ListApis: NextPageWithLayout = () => {
-  const { project } = useSelectedProject();
+  const { environment, project } = useSelectedProject();
   const activeTab = useRouteParam('tab', '?tab=keys', true);
 
   return (
@@ -28,23 +25,33 @@ const ListApis: NextPageWithLayout = () => {
               <FeatherIcon icon="key" /> Keys
             </Tabs.TriggerLink>
           </Link>
+
+          <Link href="?tab=statistics" passHref>
+            <Tabs.TriggerLink active={activeTab === 'statistics'}>
+              <FeatherIcon icon="activity" /> Statistics
+            </Tabs.TriggerLink>
+          </Link>
+
           <Link href="?tab=enhancedApi" passHref>
             <Tabs.TriggerLink active={activeTab === 'enhancedApi'}>
               <FeatherIcon icon="zap" />
               Enhanced API
             </Tabs.TriggerLink>
           </Link>
+
+          <Tabs.Trigger value="explorer" disabled>
+            <FeatherIcon icon="search" />
+            Explorer
+            <Badge size="s">Soon</Badge>
+          </Tabs.Trigger>
         </Tabs.List>
 
         <Tabs.Content value="keys">
-          <Flex stack gap="l">
-            <ApiKeys project={project} />
-            <DeleteProject />
-            {/*
-              NOTE: The delete project button will live here temporarily until
-              the new orgs/teams/projects management flow has been implemented.
-            */}
-          </Flex>
+          <ApiKeys project={project} />
+        </Tabs.Content>
+
+        <Tabs.Content value="statistics">
+          <ApiStats project={project} environment={environment} />
         </Tabs.Content>
 
         <Tabs.Content value="enhancedApi">
@@ -54,32 +61,6 @@ const ListApis: NextPageWithLayout = () => {
     </Section>
   );
 };
-
-function DeleteProject() {
-  const { project } = useSelectedProject();
-  const [showModal, setShowModal] = useState(false);
-  const router = useRouter();
-
-  if (!project) return null;
-
-  return (
-    <>
-      <Flex justify="end">
-        <Button color="danger" onClick={() => setShowModal(true)}>
-          Remove Project
-        </Button>
-      </Flex>
-
-      <DeleteProjectModal
-        slug={project.slug}
-        name={project.name}
-        show={showModal}
-        setShow={setShowModal}
-        onDelete={() => router.push('/projects')}
-      />
-    </>
-  );
-}
 
 ListApis.getLayout = useDashboardLayout;
 

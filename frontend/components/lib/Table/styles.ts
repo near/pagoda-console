@@ -14,9 +14,24 @@ const flashRowAnimation = keyframes({
 
 export const Root = styled('div', {
   minWidth: '100%',
-  padding: '0 var(--space-s) var(--space-s)',
   borderRadius: 'var(--border-radius-m)',
   background: 'var(--color-surface-2)',
+
+  variants: {
+    padding: {
+      m: {
+        padding: '0 var(--space-s) var(--space-s)',
+      },
+      l: {
+        padding:
+          'calc(var(--space-l) - (var(--space-s) * 2)) calc(var(--space-l) - var(--space-s)) calc(var(--space-l) - var(--space-s))',
+      },
+    },
+  },
+
+  defaultVariants: {
+    padding: 'm',
+  },
 });
 
 export const Table = styled('table', {
