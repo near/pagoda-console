@@ -9,3 +9,4 @@ fi;
 npx prisma "$@" --schema="./src/core/prisma/schema.prisma"
 npx prisma "$@" --schema="./src/modules/alerts/prisma/schema.prisma"
 npx prisma "$@" --schema="./src/modules/abi/prisma/schema.prisma"
+npx prisma "$@" --schema="./src/modules/rpcstats/prisma/schema.prisma"
