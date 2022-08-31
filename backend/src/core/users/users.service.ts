@@ -960,6 +960,10 @@ export class UsersService implements OnModuleInit {
   }
 
   async isOnlyOrgAdmin(userUid: User['uid']): Promise<boolean> {
+    return (await this.listOrgsWithOnlyAdmin(userUid)).length > 0;
+  }
+
+  async listOrgsWithOnlyAdmin(userUid: User['uid']) {
     // Gets a list of all orgs this user is an admin of, not including their personal org.
     const members = await this.prisma.orgMember.findMany({
       where: {
@@ -977,6 +981,8 @@ export class UsersService implements OnModuleInit {
       select: {
         org: {
           select: {
+            name: true,
+            slug: true,
             orgMembers: {
               select: {
                 role: true,
@@ -987,14 +993,18 @@ export class UsersService implements OnModuleInit {
       },
     });
 
+    const orgs: Pick<Org, 'slug' | 'name'>[] = [];
     // Go through each org and determine if it has an admin other than the current user.
     for (const { org } of members) {
       const totalAdmins = org.orgMembers.filter((m) => m.role === 'ADMIN');
       if (totalAdmins.length == 1) {
-        return true;
+        const { name, slug } = org;
+        orgs.push({
+          name,
+          slug,
+        });
       }
     }
-
-    return false;
+    return orgs;
   }
 }

@@ -48,6 +48,17 @@ export class UsersController {
     return { uid, email, name, photoUrl };
   }
 
+  // Gets a list of orgs that this user is the sole admin of.
+  @Post('listOrgsWithOnlyAdmin')
+  @UseGuards(BearerAuthGuard)
+  async listOrgsWithOnlyAdmin(@Request() req) {
+    try {
+      return await this.usersService.listOrgsWithOnlyAdmin(req.user.uid);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
   @Post('deleteAccount')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
