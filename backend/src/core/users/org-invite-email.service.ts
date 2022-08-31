@@ -28,13 +28,13 @@ export class OrgInviteEmailService {
     // TODO notify user when invitation will expire. Maybe we should change token expiration to days instead of minutes? Days seems more common.
     const html =
       'Hello, <br><br> You are receiving this message because ' +
-      `you have been invited to join the <b>${orgName}</b> organization in the Pagoda Developer Console. <br><br>` +
+      `you have been invited to join the <b>${orgName}</b> organization in Pagoda. <br><br>` +
       '<a href="' +
       link +
       `">Follow this link to join the <b>${orgName}</b> organization.</a>` +
       '<br><br>' +
       'If you were not expecting this invitation, you can ignore this email. <br><br>' +
-      'Thanks,<br>Your Pagoda Developer Console Team';
+      'Thanks,<br>Your Pagoda Team';
 
     await this.email.sendMessage(
       this.from,

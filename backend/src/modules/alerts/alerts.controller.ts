@@ -336,7 +336,7 @@ export class AlertsController {
               case 'BAD_TELEGRAM_TOKEN':
                 await this.telegramService.sendMessage(
                   message.chat.id,
-                  `This token doesn't seem to be valid. Please check your destination in Pagoda DevConsole and try again`,
+                  `This token doesn't seem to be valid. Please check your destination in Pagoda and try again`,
                 );
                 break;
               case 'BAD_TELEGRAM_TOKEN_EXPIRED':
@@ -368,7 +368,7 @@ export class AlertsController {
       } else {
         await this.telegramService.sendMessage(
           body.message.chat.id,
-          'You can receive alerts here by setting up a Telegram destination in Pagoda DevConsole. If you are trying to provide your setup token, please enter it as follows:\n<pre>/start &lt;token&gt;</pre>',
+          'You can receive alerts here by setting up a Telegram destination in Pagoda. If you are trying to provide your setup token, please enter it as follows:\n<pre>/start &lt;token&gt;</pre>',
         );
       }
     }
