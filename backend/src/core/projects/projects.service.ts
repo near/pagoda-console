@@ -665,6 +665,11 @@ export class ProjectsService {
           active: true,
           environmentId: environment.id,
         },
+        select: {
+          slug: true,
+          net: true,
+          address: true,
+        },
       });
     } catch (e) {
       throw new VError(e, 'Failed while getting list of contracts');
@@ -673,7 +678,8 @@ export class ProjectsService {
 
   async getContract(callingUser: User, slug: Contract['slug']) {
     await this.permissions.checkUserContractPermission(callingUser.id, slug);
-    return this.readonly.getContract(slug);
+    const { net, address } = await this.readonly.getContract(slug);
+    return { slug, net, address };
   }
 
   /**

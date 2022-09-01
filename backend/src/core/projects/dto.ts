@@ -57,10 +57,10 @@ export const AddContractSchema = Joi.object({
 
 // remove contract
 export interface RemoveContractDto {
-  id: number;
+  slug: string;
 }
 export const RemoveContractSchema = Joi.object({
-  id: Joi.number().integer().required(),
+  slug: Joi.string().required(),
 });
 
 // get contracts

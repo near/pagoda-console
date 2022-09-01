@@ -133,10 +133,10 @@ export class ProjectsController {
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(RemoveContractSchema))
-  async removeContract(@Request() req, @Body() { id }: RemoveContractDto) {
+  async removeContract(@Request() req, @Body() { slug }: RemoveContractDto) {
     try {
       return await this.projectsService.removeContract(req.user, {
-        id,
+        slug,
       });
     } catch (e) {
       throw mapError(e);
