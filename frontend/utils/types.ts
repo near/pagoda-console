@@ -26,6 +26,11 @@ export interface Project {
   slug: string;
   tutorial: TutorialOption;
   active?: boolean;
+  org: {
+    name?: string;
+    slug: string;
+    isPersonal: boolean;
+  };
 }
 
 export interface Environment {

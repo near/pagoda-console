@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import { forwardRef } from 'react';
 
+import type { StitchesCSS } from '@/styles/stitches';
+
 import { ButtonDropdown } from '../Button';
 import { FeatherIcon } from '../FeatherIcon';
 import { Flex } from '../Flex';
@@ -12,6 +14,7 @@ import * as S from './styles';
 type ButtonProps = ComponentProps<typeof ButtonDropdown>;
 type ContentProps = ComponentProps<typeof S.Content> & {
   nested?: boolean;
+  innerCss?: StitchesCSS;
 };
 type CheckboxItemProps = ComponentProps<typeof S.CheckboxItem> & {
   indicator?: ReactNode | null;
@@ -40,7 +43,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, ..
 });
 Button.displayName = 'Button';
 
-export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, nested, ...props }, ref) => {
+export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, nested, innerCss, ...props }, ref) => {
   const alignOffset = nested ? -6 : props.alignOffset;
   const sideOffset = nested ? 14 : props.sideOffset || 6;
   const arrowOffset = nested ? 24 : 16;
@@ -79,7 +82,7 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, nes
       sideOffset={sideOffset}
       {...props}
     >
-      <S.ContentInner>{children}</S.ContentInner>
+      <S.ContentInner css={innerCss}>{children}</S.ContentInner>
       <S.Arrow offset={arrowOffset} />
     </S.Content>
   );
