@@ -319,7 +319,7 @@ function ContractRow(props: { contract: Contract; showDelete: boolean; onDelete:
 
     try {
       await authenticatedPost('/projects/removeContract', {
-        id: props.contract.id,
+        slug: props.contract.slug,
       });
       analytics.track('DC Remove Contract', {
         status: 'success',

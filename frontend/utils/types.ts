@@ -13,7 +13,7 @@ export interface PersistedStore {
 }
 
 export interface Contract {
-  id: number;
+  slug: string;
   address: string;
   environmentId: number;
   net: NetOption;

@@ -226,7 +226,7 @@ const NewAlert: NextPageWithLayout = () => {
 
               <datalist id="contractsDatalist">
                 {contracts?.map((c) => {
-                  return <option value={c.address} key={c.id} />;
+                  return <option value={c.address} key={c.slug} />;
                 })}
               </datalist>
             </Flex>
