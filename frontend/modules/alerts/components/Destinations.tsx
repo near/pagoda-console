@@ -1,23 +1,23 @@
 import { useState } from 'react';
 
-import { Badge } from '@/components/lib/Badge';
 import { Button } from '@/components/lib/Button';
-import { Card } from '@/components/lib/Card';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H1 } from '@/components/lib/Heading';
 import { Spinner } from '@/components/lib/Spinner';
+import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
-import { TextOverflow } from '@/components/lib/TextOverflow';
+import { openToast } from '@/components/lib/Toast';
 import { EditDestinationModal } from '@/modules/alerts/components/EditDestinationModal';
 import { NewDestinationModal } from '@/modules/alerts/components/NewDestinationModal';
 import { useDestinations } from '@/modules/alerts/hooks/destinations';
-import { destinationTypes } from '@/modules/alerts/utils/constants';
 import type { Destination } from '@/modules/alerts/utils/types';
 import type { Project } from '@/utils/types';
 
+import { DestinationTableRow } from './DestinationsTableRow';
+
 export function Destinations({ project }: { project?: Project }) {
-  const { destinations } = useDestinations(project?.slug);
+  const { destinations, mutate } = useDestinations(project?.slug);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
   const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
@@ -43,48 +43,46 @@ export function Destinations({ project }: { project?: Project }) {
           <Text>{`Your selected project doesn't have any destinations configured yet.`}</Text>
         )}
 
-        <Flex stack gap="s">
-          {destinations?.map((destination) => {
-            const destinationType = destinationTypes[destination.type];
+        {destinations && destinations?.length > 0 && (
+          <Table.Root>
+            <Table.Head>
+              <Table.Row>
+                <Table.HeaderCell></Table.HeaderCell>
+                <Table.HeaderCell>Name</Table.HeaderCell>
+                <Table.HeaderCell>Type</Table.HeaderCell>
+                <Table.HeaderCell></Table.HeaderCell>
+                <Table.HeaderCell></Table.HeaderCell>
+              </Table.Row>
+            </Table.Head>
 
-            return (
-              <Card
-                as="button"
-                type="button"
-                clickable
-                padding="m"
-                borderRadius="m"
-                key={destination.id}
-                onClick={() => openDestination(destination)}
-              >
-                <Flex align="center">
-                  <FeatherIcon icon={destinationType.icon} color="primary" size="m" />
-                  <Flex stack gap="none" css={{ minWidth: 0 }}>
-                    <Text color="text1" css={{ width: '100%' }}>
-                      <TextOverflow>{destination.name}</TextOverflow>
-                    </Text>
-                    <Text family="code" size="bodySmall" css={{ width: '100%' }}>
-                      <TextOverflow>
-                        {destination.type === 'TELEGRAM' && destination.config.chatTitle}
-                        {destination.type === 'WEBHOOK' && destination.config.url}
-                        {destination.type === 'EMAIL' && destination.config.email}
-                      </TextOverflow>
-                    </Text>
-                  </Flex>
-                  <Badge size="s" css={{ marginLeft: 'auto' }}>
-                    {destinationType.name}
-                  </Badge>
-                  {!destination.isValid && (
-                    <Badge size="s" color="warning">
-                      <FeatherIcon icon="alert-triangle" size="xs" />
-                      Needs Action
-                    </Badge>
-                  )}
-                </Flex>
-              </Card>
-            );
-          })}
-        </Flex>
+            <Table.Body>
+              {!destinations && <Table.PlaceholderRows />}
+
+              {destinations?.map((row) => {
+                return (
+                  <DestinationTableRow
+                    destination={row}
+                    onClick={() => openDestination(row)}
+                    onDelete={() => {
+                      const name = row?.name;
+
+                      openToast({
+                        type: 'success',
+                        title: 'Destination Deleted',
+                        description: name,
+                      });
+
+                      mutate(() => {
+                        return destinations?.filter((d) => d.id !== row.id);
+                      });
+                    }}
+                    key={row.id}
+                  />
+                );
+              })}
+            </Table.Body>
+          </Table.Root>
+        )}
       </Flex>
       {project && (
         <NewDestinationModal
