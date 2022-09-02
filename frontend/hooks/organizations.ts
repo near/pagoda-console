@@ -381,6 +381,34 @@ const createDeleteOrgMutationOptions = (orgSlug: string): OrgsMutationOptions<{ 
 export const useDeleteOrg = (orgSlug: string) =>
   useMutation(useMemo(() => createDeleteOrgMutationOptions(orgSlug), [orgSlug]));
 
+const getInviteErrorMessage = (code: UserError) => {
+  switch (code) {
+    case UserError.ORG_INVITE_BAD_TOKEN:
+      return 'No invite found for token';
+    case UserError.ORG_INVITE_EMAIL_MISMATCH:
+      return 'The token belongs to an invite for a different email address';
+    case UserError.ORG_INVITE_EXPIRED:
+      return 'The invite token has expired';
+    case UserError.BAD_ORG:
+      return 'Org is soft-deleted';
+    case UserError.ORG_INVITE_ALREADY_MEMBER:
+      return 'The user is already a member of the org';
+  }
+};
+
+const acceptOrgInviteOptions: MutationOptions<{ token: string }, void, unknown, { code: UserError; message: string }> =
+  {
+    eventName: 'Accept organization invite',
+    mutate: ({ token }) =>
+      authenticatedPost<void>('/users/acceptOrgInvite', { token }).catch((e) => parseError(e, getInviteErrorMessage)),
+    onSuccess: () => {
+      mutate(['/users/listOrgMembers']);
+      mutate('/users/listOrgs');
+    },
+  };
+
+export const useAcceptOrgInvite = () => useMutation(acceptOrgInviteOptions);
+
 export const useSelectedOrg = (orgSlug: string, filterPersonal: boolean) => {
   const { organizations } = useOrganizations(filterPersonal);
   return organizations?.find((organization) => organization.slug === orgSlug);

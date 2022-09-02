@@ -28,6 +28,7 @@ import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
 import config from '@/utils/config';
 import { hydrateAllStores } from '@/utils/hydrate-all-stores';
+import { storage } from '@/utils/storage';
 import { customErrorRetry } from '@/utils/swr';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -79,6 +80,13 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
     return () => unsubscribe(); // TODO why lambda function?
   }, [router, cache]);
+
+  useEffect(() => {
+    const inviteData = storage.session.getItem<{ token: string }>('inviteData');
+    if (inviteData) {
+      router.push(`/organizations/accept-invite?token=${inviteData.token}`);
+    }
+  }, [router]);
 
   const getLayout = Component.getLayout ?? ((page) => page);
 
