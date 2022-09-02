@@ -36,6 +36,7 @@ import {
 import { JoiValidationPipe } from '@/src/pipes/JoiValidationPipe';
 import { VError } from 'verror';
 import { UserError } from './user-error';
+import { Org } from '@/generated/prisma/core';
 
 @Controller('users')
 export class UsersController {
@@ -100,17 +101,13 @@ export class UsersController {
     }
   }
 
-  // TODO decide on the best UX for when a new DC user is sent an invite.
-  // 1. We could unguard this route, allow a user to accept the invite and then require that they login/signup with a notification on the login screen that tells the user to create an account or login with some_email@gmail.com
-  // 2. Leave this route guarded, require user to login/signup, do a query to see if they have some org invites and take them to a screen to accept org invitation. We can cache the org invitation in the browser while they signup so we can save a query.
   @Post('acceptOrgInvite')
-  @HttpCode(204)
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(AcceptOrgInviteSchema))
   async acceptOrgInvite(
     @Request() req,
     @Body() { token }: AcceptOrgInviteDto,
-  ): Promise<void> {
+  ): Promise<{ org: Pick<Org, 'name' | 'slug'> }> {
     try {
       return await this.usersService.acceptOrgInvite(req.user, token);
     } catch (e) {
@@ -217,14 +214,22 @@ function mapError(e: Error) {
     case UserError.ORG_INVITE_BAD_TOKEN:
     case UserError.ORG_INVITE_DUPLICATE:
     case UserError.ORG_INVITE_EMAIL_MISMATCH:
-    case UserError.ORG_INVITE_EXPIRED:
-    case UserError.ORG_INVITE_ALREADY_MEMBER:
     case UserError.BAD_ORG_INVITE:
     case UserError.BAD_ORG_PERSONAL:
     case UserError.ORG_FINAL_ADMIN:
     case UserError.BAD_USER:
       // 400: exposes error code to client
       return new BadRequestException(code);
+    case UserError.ORG_INVITE_EXPIRED:
+    case UserError.ORG_INVITE_ALREADY_MEMBER:
+      const org = VError.info(e)?.org;
+      // 400: exposes error code to client and org info.
+      return new BadRequestException({
+        statusCode: 400,
+        message: code,
+        error: 'Bad Request',
+        org,
+      });
     case UserError.NAME_CONFLICT:
       return new ConflictException(code);
     case UserError.SERVER_ERROR:

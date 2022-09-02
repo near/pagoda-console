@@ -459,7 +459,7 @@ export class UsersService implements OnModuleInit {
     let invite: Pick<
       OrgInvite,
       'email' | 'tokenExpiresAt' | 'orgSlug' | 'role'
-    > & { org: { active: boolean } };
+    > & { org: Pick<Org, 'name' | 'slug' | 'active'> };
     try {
       invite = await this.prisma.orgInvite.findUnique({
         where: {
@@ -472,6 +472,8 @@ export class UsersService implements OnModuleInit {
           role: true,
           org: {
             select: {
+              name: true,
+              slug: true,
               active: true,
             },
           },
@@ -489,6 +491,11 @@ export class UsersService implements OnModuleInit {
       );
     }
 
+    const org = {
+      name: invite.org.name,
+      slug: invite.org.slug,
+    };
+
     // is the invite being redeemed by a user with the correct email address?
     if (invite.email.toLowerCase() !== callingUser.email.toLowerCase()) {
       throw new VError(
@@ -500,7 +507,7 @@ export class UsersService implements OnModuleInit {
     // is the invite token expired?
     if (DateTime.now() > DateTime.fromJSDate(invite.tokenExpiresAt)) {
       throw new VError(
-        { info: { code: UserError.ORG_INVITE_EXPIRED } },
+        { info: { code: UserError.ORG_INVITE_EXPIRED, org } },
         'The invite token has expired',
       );
     }
@@ -561,7 +568,7 @@ export class UsersService implements OnModuleInit {
         // The .code property can be accessed in a type-safe manner
         if (e.code === 'P2002') {
           throw new VError(
-            { info: { code: UserError.ORG_INVITE_ALREADY_MEMBER } },
+            { info: { code: UserError.ORG_INVITE_ALREADY_MEMBER, org } },
             'The user is already a member of the org',
           );
         }
@@ -572,6 +579,10 @@ export class UsersService implements OnModuleInit {
         'Failed while executing transaction to create OrgMember, create TeamMember, and delete OrgInvite',
       );
     }
+
+    return {
+      org,
+    };
   }
 
   async removeFromOrg(
