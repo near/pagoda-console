@@ -16,6 +16,15 @@ export const globalStyles = globalCss({
     marginLeft: '-16px',
     marginTop: '10px',
   },
+  'p > a': {
+    color: 'var(--color-cta-primary-text) !important',
+    backgroundColor: 'var(--color-primary)',
+    borderRadius: 'var(--border-radius-s)',
+    padding: '2px 5px',
+    '&:hover': {
+      backgroundColor: 'var(--color-primary-highlight)',
+    },
+  },
   'div.sl-stack.sl-stack--horizontal.sl-stack--5.sl-flex.sl-flex-row.sl-items-center + div': {
     // path of request under title
     backgroundColor: 'var(--color-surface-1)',

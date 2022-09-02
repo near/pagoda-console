@@ -67,6 +67,12 @@ export interface FinalityStatus {
   finalBlockTimestampNanosecond: BN;
 }
 
+export interface ApiKey {
+  keySlug: string;
+  description: string;
+  key: string;
+}
+
 export interface ViewAccount {
   id: string;
   jsonrpc: string;

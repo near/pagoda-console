@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
 import { Spinner } from '@/components/lib/Spinner';
-import { TextLink } from '@/components/lib/TextLink';
+import { Text } from '@/components/lib/Text';
 
 import { globalStyles } from './styles';
 
@@ -42,12 +41,7 @@ const EnhancedAPI = () => {
             setDisplayMessage(false);
           }}
         >
-          <Flex>
-            Want to interact directly with NEAR RPC API? Check out the
-            <TextLink href="https://docs.near.org/api/rpc/introduction" external color="neutral">
-              RPC docs
-            </TextLink>
-          </Flex>
+          <Text>Want to interact with RPC API? Check out the key tab for the setup guide.</Text>
         </Message>
       )}
       {!isLoading ? (
