@@ -62,7 +62,6 @@ export class ProjectsService {
     orgSlug?: Org['slug'],
     tutorial?: Project['tutorial'],
   ): Promise<{ name: Project['name']; slug: Project['slug'] }> {
-    // TODO this org loader is temporary and should be removed once UI supports orgs.
     if (!orgSlug) {
       try {
         const { slug } = await this.users.getPersonalOrg(user);

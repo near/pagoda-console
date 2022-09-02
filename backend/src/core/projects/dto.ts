@@ -14,7 +14,7 @@ export interface CreateProjectDto {
   tutorial?: ProjectTutorial;
 }
 export const CreateProjectSchema = Joi.object({
-  org: Joi.string(), // TODO require org slug once the UI supports orgs
+  org: Joi.string(),
   name: projectNameSchema,
   tutorial: Joi.string(),
 });
