@@ -41,20 +41,11 @@ async function parseFetchResponse<R = unknown>(res: Response): Promise<R> {
   return resJson;
 }
 
-interface AuthenticatedPostOptions {
-  forceRefresh?: boolean;
-}
-
-export const authenticatedPost = async <R = unknown>(
-  endpoint: string,
-  body?: Record<string, any>,
-  options?: AuthenticatedPostOptions,
-): Promise<R> => {
+export const authenticatedPost = async <R = unknown>(endpoint: string, body?: Record<string, any>): Promise<R> => {
   const user = getAuth().currentUser;
   if (!user) throw new Error('No authenticated user');
-
   const headers = {
-    Authorization: `Bearer ${await getIdToken(user, options?.forceRefresh)}`,
+    Authorization: `Bearer ${await getIdToken(user)}`,
   };
   return unauthenticatedPost(endpoint, body, headers);
 };

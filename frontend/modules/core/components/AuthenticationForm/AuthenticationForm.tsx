@@ -8,7 +8,7 @@ import {
 } from 'firebase/auth';
 import { GithubAuthProvider, GoogleAuthProvider } from 'firebase/auth';
 import { useRouter } from 'next/router';
-import { useTranslation } from 'next-i18next';
+// import { useTranslation } from 'next-i18next';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
@@ -18,8 +18,13 @@ import { ErrorModal } from '@/components/modals/ErrorModal';
 import GithubIconSvg from '@/public/images/icons/github.svg';
 import GoogleIconSvg from '@/public/images/icons/google.svg';
 import analytics from '@/utils/analytics';
+import { signInRedirectHandler } from '@/utils/helpers';
 
 import { EmailForm } from './EmailForm';
+
+interface Props {
+  onSignIn?: () => void;
+}
 
 interface ProviderDetails {
   name: string;
@@ -49,7 +54,7 @@ const providers: Array<ProviderDetails> = [
   },
 ];
 
-export function AuthenticationForm() {
+export function AuthenticationForm({ onSignIn }: Props) {
   const router = useRouter();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authError, setAuthError] = useState('');
@@ -69,11 +74,15 @@ export function AuthenticationForm() {
       ) {
         router.push('/verification?existing=true');
       } else if (user) {
-        router.push('/projects');
+        if (onSignIn) {
+          onSignIn();
+        } else {
+          signInRedirectHandler(router, '/projects');
+        }
       }
     });
     return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
-  }, [router]);
+  }, [onSignIn, router]);
 
   async function socialSignIn(provider: AuthProvider) {
     setIsAuthenticating(true);
@@ -154,7 +163,7 @@ function ProviderButton(props: {
   provider: ProviderDetails;
   signInFunction: (provider: AuthProvider) => void;
 }) {
-  const { t } = useTranslation('login');
+  // const { t } = useTranslation('login');
   const Icon = props.provider.icon;
 
   return (
@@ -175,7 +184,7 @@ function ProviderButton(props: {
       onClick={() => props.signInFunction(props.provider.providerInstance)}
     >
       <Icon />
-      {`${t('continueWith')} ${props.provider.name}`}
+      {`Continue with ${props.provider.name}`}
     </Button>
   );
 }

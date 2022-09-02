@@ -15,6 +15,10 @@ export function useSimpleLayout(page: ReactElement) {
   return <SimpleLayout>{page}</SimpleLayout>;
 }
 
+export function useSimpleLayoutNoPadding(page: ReactElement) {
+  return <SimpleLayout noPadding>{page}</SimpleLayout>;
+}
+
 export function useSimpleLogoutLayout(page: ReactElement) {
   return <SimpleLogoutLayout>{page}</SimpleLogoutLayout>;
 }

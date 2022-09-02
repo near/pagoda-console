@@ -11,6 +11,7 @@ import { useSimpleLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { logOut } from '@/utils/auth';
+import { signInRedirectHandler } from '@/utils/helpers';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Verification: NextPageWithLayout = () => {
@@ -31,8 +32,15 @@ const Verification: NextPageWithLayout = () => {
     return setTimeout(async () => {
       await getAuth().currentUser?.reload();
       if (getAuth().currentUser?.emailVerified) {
+        await getAuth().currentUser?.getIdToken(true);
+        /*
+          Without calling getIdToken(true) to force refresh the auth token,
+          all future API calls will 401 with an invalid auth token. We might
+          want to investigate this logic in the future. You would think the
+          reload() call above would be enough, but it isn't.
+        */
         analytics.track('DC Verify Account');
-        router.push('/pick-project?onboarding=true');
+        signInRedirectHandler(router, '/pick-project?onboarding=true');
       } else {
         queueVerificationCheck();
       }

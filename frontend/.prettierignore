@@ -3,3 +3,5 @@
 
 .next
 playwright-report/
+
+/public/contract-templates

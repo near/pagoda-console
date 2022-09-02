@@ -1,9 +1,12 @@
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import { Container } from '@/components/lib/Container';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H1 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { ProjectCard } from '@/modules/core/components/ProjectCard';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -36,10 +39,16 @@ const PickTutorial: NextPageWithLayout = () => {
 
   return (
     <Container size="m">
-      <Flex stack gap="l">
-        <H1>Select Tutorial</H1>
-
-        <Text>Choose from a variety of interactive tutorials. Each one ends with a production-ready project.</Text>
+      <Flex stack gap="xl">
+        <Flex stack>
+          <Link href="/pick-project" passHref>
+            <TextLink>
+              <FeatherIcon icon="arrow-left" /> Back
+            </TextLink>
+          </Link>
+          <H1>Select Tutorial</H1>
+          <Text>Choose from a variety of interactive tutorials. Each one ends with a production-ready project.</Text>
+        </Flex>
 
         <Flex>
           {projects.map((project) => (

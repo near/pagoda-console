@@ -2,6 +2,7 @@ import '@/styles/reset.css';
 import '@/styles/fonts.css';
 import '@/styles/variables.css';
 import '@/styles/global.css';
+import '@near-wallet-selector/modal-ui/styles.css';
 import '@/styles/enhanced-api.scss';
 import '@near-wallet-selector/modal-ui/styles.css';
 
@@ -40,7 +41,14 @@ type AppPropsWithLayout = AppProps & {
 initializeApp(config.firebaseConfig);
 analytics.init();
 
-const unauthedPaths = ['/', '/register', '/ui', '/alerts/verify-email', '/alerts/unsubscribe-from-email-alert'];
+const unauthedPaths = [
+  '/',
+  '/register',
+  '/ui',
+  '/alerts/verify-email',
+  '/alerts/unsubscribe-from-email-alert',
+  '/pick-project-template/[templateSlug]',
+];
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   usePageTracker();

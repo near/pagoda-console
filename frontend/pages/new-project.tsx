@@ -43,11 +43,7 @@ const NewProject: NextPageWithLayout = () => {
   const createProject: SubmitHandler<NewProjectFormData> = async ({ projectName, projectOrg }) => {
     try {
       router.prefetch('/apis?tab=keys');
-      const project: Project = await authenticatedPost(
-        '/projects/create',
-        { name: projectName, org: projectOrg },
-        { forceRefresh: true },
-      );
+      const project = await authenticatedPost<Project>('/projects/create', { name: projectName, org: projectOrg });
       analytics.track('DC Create New Project', {
         status: 'success',
         name: projectName,

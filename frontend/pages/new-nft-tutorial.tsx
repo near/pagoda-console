@@ -9,7 +9,6 @@ import * as Form from '@/components/lib/Form';
 import { H1 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
-import { useOrganizations } from '@/hooks/organizations';
 import { ProjectCard } from '@/modules/core/components/ProjectCard';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
@@ -24,7 +23,6 @@ interface NewProjectFormData {
 const NewNftTutorial: NextPageWithLayout = () => {
   const { register, handleSubmit, formState, setError } = useForm<NewProjectFormData>();
   const router = useRouter();
-  const { organizations = [], isValidating: areOrgsLoading } = useOrganizations(false);
 
   // Project name is tutorial name. Path is the mdx file for the tutorial.
   const createProject: SubmitHandler<NewProjectFormData> = async ({ projectName }) => {
@@ -34,15 +32,10 @@ const NewNftTutorial: NextPageWithLayout = () => {
 
     try {
       router.prefetch(path);
-      const personalOrg = organizations.find((organization) => organization.isPersonal);
-      if (!personalOrg) {
-        throw new Error('No personal org in org list');
-      }
-      const project: Project = await authenticatedPost(
-        '/projects/create',
-        { name, tutorial, org: personalOrg.slug },
-        { forceRefresh: true },
-      );
+      const project: Project = await authenticatedPost<Project>('/projects/create', {
+        name,
+        tutorial,
+      });
       analytics.track('DC Create New NFT Tutorial Project', {
         status: 'success',
         name,
@@ -77,7 +70,7 @@ const NewNftTutorial: NextPageWithLayout = () => {
             }
           </Text>
 
-          <Form.Root disabled={formState.isSubmitting || areOrgsLoading} onSubmit={handleSubmit(createProject)}>
+          <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(createProject)}>
             <Flex stack align="end">
               <Form.Group>
                 <Form.Label htmlFor="projectName">Project Name</Form.Label>

@@ -16,18 +16,23 @@ import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
+import { H2 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
 import { TextLink } from '@/components/lib/TextLink';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useSimpleLayout } from '@/hooks/layouts';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
+import { signInRedirectHandler } from '@/utils/helpers';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Register: NextPageWithLayout = () => {
   return (
     <Container size="xs">
-      <RegisterForm />
+      <Flex stack gap="l">
+        <H2>Sign Up</H2>
+        <RegisterForm />
+      </Flex>
     </Container>
   );
 };
@@ -76,7 +81,7 @@ export function RegisterForm() {
         }
       } else if (user) {
         // If the user is already verified and they go to /register, let's reroute them.
-        router.push('/pick-project');
+        signInRedirectHandler(router, '/pick-project');
       }
     });
     return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
@@ -127,7 +132,7 @@ export function RegisterForm() {
 
   return (
     <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(signUpWithEmail, handleInvalidSubmit)}>
-      <Flex stack gap="l" align="center">
+      <Flex stack gap="l">
         <Flex stack>
           <Form.Group>
             <Form.Label htmlFor="email">Email address</Form.Label>
@@ -185,14 +190,16 @@ export function RegisterForm() {
 
         <ErrorModal error={registerError} setError={setRegisterError} />
 
-        <Button stretch type="submit">
+        <Button stretch type="submit" loading={formState.isSubmitting}>
           Sign Up
         </Button>
 
         <HR />
 
         <Link href="/" passHref>
-          <TextLink color="neutral">I already have an account</TextLink>
+          <TextLink color="neutral" css={{ margin: '0 auto' }}>
+            I already have an account
+          </TextLink>
         </Link>
       </Flex>
     </Form.Root>

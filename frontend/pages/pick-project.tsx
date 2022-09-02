@@ -27,6 +27,13 @@ const projects: Project[] = [
     icon: 'plus-circle',
   },
   {
+    id: 'examples',
+    title: 'Examples',
+    path: '/pick-project-template',
+    description: 'Explore an example project and contract template.',
+    icon: 'grid',
+  },
+  {
     id: 'tutorial',
     title: 'Tutorial',
     path: '/pick-tutorial',
@@ -45,18 +52,20 @@ const PickProject: NextPageWithLayout = () => {
   const isOnboarding = useRouteParam('onboarding');
 
   return (
-    <Container size="m">
-      <Flex stack gap="l">
-        <H1>New Project</H1>
+    <Container size="l">
+      <Flex stack gap="xl">
+        <Flex stack>
+          <H1>New Project</H1>
 
-        {isOnboarding ? (
-          <Text>
-            One last thing! Before we let you loose on the Developer Console, you’ll need to create a blank project or
-            get some guidance with a tutorial. Projects contain API keys and any smart contracts you wish to track.
-          </Text>
-        ) : (
-          <Text>Start with a blank project or get some guidance with a tutorial.</Text>
-        )}
+          {isOnboarding ? (
+            <Text css={{ maxWidth: '600px', marginBottom: 'var(--space-l)' }}>
+              One last thing! Before we let you loose on the Developer Console, you’ll need to create a blank project or
+              get some guidance with a tutorial. Projects contain API keys and any smart contracts you wish to track.
+            </Text>
+          ) : (
+            <Text>Start with a blank project or get some guidance with a tutorial.</Text>
+          )}
+        </Flex>
 
         <Flex>
           {projects.map((project) => (

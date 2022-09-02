@@ -105,7 +105,7 @@ export function EmailForm({ isAuthenticating, setIsAuthenticating }: Props) {
             <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
           </Form.Group>
 
-          <Button type="submit" stretch>
+          <Button type="submit" stretch loading={formState.isSubmitting}>
             Continue
           </Button>
 

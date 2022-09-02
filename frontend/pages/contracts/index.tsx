@@ -52,7 +52,9 @@ const ListContracts: NextPageWithLayout = () => {
               <FeatherIcon icon="zap" size="l" />
               <H1>Contracts</H1>
             </Flex>
-            <Button onClick={() => setAddContractIsOpen(true)}>Add Contract</Button>
+            <Button onClick={() => setAddContractIsOpen(true)}>
+              <FeatherIcon icon="plus" /> Add Contract
+            </Button>
           </Flex>
         </Flex>
       </Section>
@@ -60,16 +62,13 @@ const ListContracts: NextPageWithLayout = () => {
       <ContractsTable contracts={contracts} onDelete={onContractDelete} setAddContractIsOpen={setAddContractIsOpen} />
 
       {project && environment && (
-        <Dialog.Root open={addContractIsOpen} onOpenChange={setAddContractIsOpen}>
-          <Dialog.Content title="Add Contract" size="s">
-            <AddContractForm
-              project={project}
-              environment={environment}
-              onAdd={onContractAdd}
-              onCancel={() => setAddContractIsOpen(false)}
-            />
-          </Dialog.Content>
-        </Dialog.Root>
+        <>
+          <Dialog.Root open={addContractIsOpen} onOpenChange={setAddContractIsOpen}>
+            <Dialog.Content title="Add Contract" size="s">
+              <AddContractForm project={project} environment={environment} onAdd={onContractAdd} />
+            </Dialog.Content>
+          </Dialog.Root>
+        </>
       )}
     </>
   );

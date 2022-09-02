@@ -1,7 +1,13 @@
+import { useRouter } from 'next/router';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
+import { ContractTemplateList } from '@/components/contract-templates/ContractTemplateList';
 import { Container } from '@/components/lib/Container';
-import { useSimpleLayout } from '@/hooks/layouts';
+import { Flex } from '@/components/lib/Flex';
+import { H2 } from '@/components/lib/Heading';
+import { Section } from '@/components/lib/Section';
+import { Text } from '@/components/lib/Text';
+import { useSimpleLayoutNoPadding } from '@/hooks/layouts';
 import { AuthenticationForm } from '@/modules/core/components/AuthenticationForm';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -23,13 +29,34 @@ export async function getStaticProps({ locale }: { locale: string }) {
 }
 
 const Login: NextPageWithLayout = () => {
+  const router = useRouter();
+
   return (
-    <Container size="xs">
-      <AuthenticationForm />
-    </Container>
+    <Flex align="stretch" stack={{ '@laptop': true }} css={{ minHeight: '100%' }}>
+      <Section noBorder css={{ display: 'flex', alignItems: 'center' }}>
+        <Container size="xs">
+          <Flex stack gap="l">
+            <H2>Sign In</H2>
+            <AuthenticationForm />
+          </Flex>
+        </Container>
+      </Section>
+
+      <Section noBorder background="surface1" css={{ display: 'flex', alignItems: 'center' }}>
+        <Container css={{ maxWidth: '32.5rem' }}>
+          <Flex stack gap="l">
+            <Flex stack>
+              <H2>Launch & Explore a Project</H2>
+              <Text>Want to take console for a spin? Deploy an example project in one-click to get started!</Text>
+            </Flex>
+            <ContractTemplateList onSelect={(template) => router.push(`/pick-project-template/${template.slug}`)} />
+          </Flex>
+        </Container>
+      </Section>
+    </Flex>
   );
 };
 
-Login.getLayout = useSimpleLayout;
+Login.getLayout = useSimpleLayoutNoPadding;
 
 export default Login;

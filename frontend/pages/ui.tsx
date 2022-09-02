@@ -2,8 +2,7 @@ import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ComponentProps, FC, ReactNode } from 'react';
-import { useCallback } from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as Charts from 'recharts';
 
