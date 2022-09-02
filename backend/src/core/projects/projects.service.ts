@@ -7,17 +7,17 @@ import {
   User,
   Contract,
   Environment,
+  ApiKey,
   Org,
 } from '../../../generated/prisma/core';
 import { VError } from 'verror';
 import { customAlphabet } from 'nanoid';
-import { KeysService } from '../keys/keys.service';
 import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
 import { AppConfig } from 'src/config/validate';
 import { NearRpcService } from '../near-rpc/near-rpc.service';
 import { PermissionsService } from './permissions.service';
 import { ReadonlyService } from './readonly.service';
+import { ApiKeysService } from '../keys/apiKeys.service';
 import { ReadonlyService as UsersReadonlyService } from '../users/readonly.service';
 import { PermissionsService as UsersPermissionsService } from '../users/permissions.service';
 
@@ -33,11 +33,11 @@ export class ProjectsService {
   private contractAddressValidationEnabled: string;
   constructor(
     private prisma: PrismaService,
-    private keys: KeysService,
     private nearRpc: NearRpcService,
     private config: ConfigService<AppConfig>,
     private permissions: PermissionsService,
     private readonly: ReadonlyService,
+    private apiKeys: ApiKeysService,
     private users: UsersReadonlyService,
     private userPermissions: UsersPermissionsService,
   ) {
@@ -101,14 +101,14 @@ export class ProjectsService {
       createdBy: user.id,
       updatedBy: user.id,
     };
-
+    const projectSlug = nanoid();
     try {
       let projectInput: Prisma.ProjectUncheckedCreateInput;
 
       if (tutorial) {
         projectInput = {
           orgSlug,
-          slug: nanoid(),
+          slug: projectSlug,
           name,
           tutorial,
           teamProjects: {
@@ -135,7 +135,7 @@ export class ProjectsService {
       } else {
         projectInput = {
           orgSlug,
-          slug: nanoid(),
+          slug: projectSlug,
           name,
           teamProjects: {
             create: {
@@ -180,16 +180,7 @@ export class ProjectsService {
 
     // generate RPC keys
     try {
-      await this.keys.createProject(
-        `${this.projectRefPrefix || ''}${project.id}_1`,
-        'TESTNET',
-      );
-      if (!tutorial) {
-        await this.keys.createProject(
-          `${this.projectRefPrefix || ''}${project.id}_2`,
-          'MAINNET',
-        );
-      }
+      await this.apiKeys.generateKey(orgSlug, projectSlug, user.id);
     } catch (e) {
       // Attempt to delete the project, since API keys failed to generate.
       try {
@@ -288,28 +279,6 @@ export class ProjectsService {
       );
     }
 
-    const projectKey = `${this.projectRefPrefix || ''}${project.id}_2`;
-
-    // generate RPC keys
-    try {
-      // It's possible the user tried ejecting before and it failed.
-      // Let's check if the project already exists.
-      const mainnetKeys = await this.keys.fetchAllKeys(projectKey, 'MAINNET');
-      if (!mainnetKeys.length) {
-        await this.keys.createProject(projectKey, 'MAINNET');
-      } else {
-        const validKey = mainnetKeys.find((k) => !k.invalid);
-        if (!validKey) {
-          await this.keys.generate(projectKey, 'MAINNET');
-        }
-      }
-    } catch (e) {
-      throw new VError(
-        e,
-        'Failed while generating MAINNET API key during tutorial ejection',
-      );
-    }
-
     try {
       await this.prisma.project.update({
         where: {
@@ -334,15 +303,6 @@ export class ProjectsService {
         },
       });
     } catch (e) {
-      try {
-        await this.keys.invalidate(projectKey, 'MAINNET');
-      } catch (e) {
-        console.error(
-          'Failed to invalidate MAINNET API Key after tutorial ejection failed',
-          e,
-        );
-      }
-
       throw new VError(e, 'Failed while ejecting tutorial project');
     }
   }
@@ -360,6 +320,7 @@ export class ProjectsService {
           id: true,
           active: true,
           tutorial: true,
+          slug: true,
         },
       });
       if (!project || !project.active) {
@@ -381,7 +342,7 @@ export class ProjectsService {
       projectWhereUnique,
     });
 
-    await this.deleteApiKeys(project);
+    await this.apiKeys.deleteProjectKeys(project.slug, callingUser.id);
 
     // Soft delete the project and associated items.
     try {
@@ -399,29 +360,6 @@ export class ProjectsService {
       });
     } catch (e) {
       throw new VError(e, 'Failed while soft deleting project');
-    }
-  }
-
-  async deleteApiKeys(project: Project) {
-    try {
-      // Array of key names/ids to fetch from key service.
-      const deleteKeys: [Net, number][] = [['TESTNET', 1]];
-
-      // Tutorial projects have no Mainnet key.
-      if (!project.tutorial) {
-        deleteKeys.push(['MAINNET', 2]);
-      }
-
-      await Promise.all(
-        deleteKeys.map((keyId) =>
-          this.keys.invalidate(
-            `${this.projectRefPrefix || ''}${project.id}_${keyId[1]}`,
-            keyId[0],
-          ),
-        ),
-      );
-    } catch (e) {
-      throw new VError(e, 'Failed to invalidate one or more project API keys');
     }
   }
 
@@ -923,10 +861,11 @@ export class ProjectsService {
     }
   }
 
-  async getKeys(
-    callingUser: User,
-    projectWhereUnique: Prisma.ProjectWhereUniqueInput,
-  ) {
+  async getKeys(callingUser: User, projectSlug: Project['slug']) {
+    const projectWhereUnique = {
+      slug: projectSlug,
+    };
+
     await this.checkUserPermission({
       userId: callingUser.id,
       projectWhereUnique,
@@ -940,186 +879,164 @@ export class ProjectsService {
     }
 
     try {
-      // Array of key names/ids to fetch from key service.
-      const fetchKeys: [Net, number][] = [['TESTNET', 1]];
-
-      // Tutorial projects have no Mainnet key.
-      if (!project.tutorial) {
-        fetchKeys.push(['MAINNET', 2]);
-      }
-
-      const keys = await Promise.all(
-        fetchKeys.map((keyId) =>
-          this.keys.fetch(
-            `${this.projectRefPrefix || ''}${project.id}_${keyId[1]}`,
-            keyId[0],
-          ),
-        ),
-      );
-
-      // Builds an object of the form:
-      // {
-      //   TESTNET: '{api_key}',
-      //   MAINNET: '{api_key}'
-      // }
-      return Object.fromEntries(
-        fetchKeys.map((keyId, i) => [keyId[0], keys[i]]),
-      );
+      return await this.apiKeys.getKeys(project.slug);
     } catch (e) {
-      throw new VError(e, 'Failed to fetch keys from key management API');
+      throw new VError(e, 'Failed to fetch keys from API keys service');
     }
   }
 
-  async rotateKey(
-    callingUser: User,
-    project: Project['slug'],
-    subId: Environment['subId'],
-  ) {
-    const environment = await this.getActiveEnvironment(project, subId);
-
-    // throw an error if the user doesn't have permission to perform this action
-    await this.checkUserPermission({
-      userId: callingUser.id,
-      environmentWhereUnique: { id: environment.id },
-    });
-
-    const keyId = `${this.projectRefPrefix || ''}${
-      environment.projectId
-    }_${subId}`;
-    const net = subId === 2 ? 'MAINNET' : 'TESTNET';
+  async rotateKey(callingUser: User, keySlug: ApiKey['slug']) {
+    let keyRelatedSlugs;
     try {
-      // Track the user's action.
-      await this.prisma.userAction.create({
-        data: {
-          action: 'ROTATE_API_KEY',
-          data: {
-            net,
-            keyId,
-          },
-          userId: callingUser.id,
-        },
-      });
-      return { [net]: (await this.keys.rotate(keyId, net)).token };
+      keyRelatedSlugs = await this.apiKeys.getKeyDetails(keySlug);
     } catch (e) {
-      throw new VError(e, `Failed to rotate key ${keyId} on net ${net}`);
+      throw new VError(
+        e,
+        `Failed to get api key details for keySlug ${keySlug}`,
+      );
     }
-  }
 
-  async getRpcUsage(
-    callingUser: User,
-    projectWhereUnique: Prisma.ProjectWhereUniqueInput,
-  ) {
-    let project;
-    try {
-      project = await this.getActiveProject(projectWhereUnique, true);
-    } catch (e) {
-      throw new VError(e, 'Failed while checking that project is active');
+    if (!keyRelatedSlugs) {
+      throw new VError({ info: { code: 'BAD_KEY' } }, 'Key not found');
     }
+
+    const projectWhereUnique = {
+      slug: keyRelatedSlugs.projectSlug,
+    };
 
     await this.checkUserPermission({
       userId: callingUser.id,
       projectWhereUnique,
     });
 
-    let keys: Record<Net, Array<string>>;
+    let project: Project;
     try {
-      // run requests in parallel
-      const testnetKeyPromise = this.keys.fetchAll(
-        `${this.projectRefPrefix || ''}${project.id}_1`,
-        'TESTNET',
-      );
-      const mainnetKeyPromise = this.keys.fetchAll(
-        `${this.projectRefPrefix || ''}${project.id}_2`,
-        'MAINNET',
-      );
-
-      keys = {
-        TESTNET: await testnetKeyPromise,
-        MAINNET: await mainnetKeyPromise,
-      };
+      project = await this.getActiveProject(projectWhereUnique);
     } catch (e) {
-      throw new VError(e, 'Failed to fetch keys from key management API');
+      throw new VError(e, 'Failed while checking that project is active');
     }
 
-    if (!keys.TESTNET.length) {
-      throw new VError('No testnet keys found');
+    if (!project) {
+      throw new VError({ info: { code: 'BAD_PROJECT' } }, 'Project not found');
     }
 
-    let keyList = keys.TESTNET;
-    if (!keys.MAINNET.length) {
-      // TODO check this does not cause issues for normal projects by being removed. It is
-      // being removed last minute to fix tutorial projects
-      //   throw new VError('No mainnet keys found');
-    } else {
-      keyList = keyList.concat(keys.MAINNET);
-    }
-
-    const endDateObject = new Date();
-    const month = (endDateObject.getMonth() + 1).toString();
-    const endDate = `${endDateObject.getFullYear()}-${
-      month.length === 2 ? month : `0${month}`
-    }-${endDateObject.getDate()}`;
-
-    let usageData;
     try {
-      const usageRes = await axios.get(
-        this.config.get('analytics.url', { infer: true }),
-        {
-          params: {
-            where: `properties["$distinct_id"] in ${JSON.stringify(keyList)}`,
-            from_date: '2021-01-01', // safe start date before release of developer console
-            to_date: endDate,
-          },
-          headers: {
-            Authorization: this.mixpanelCredentials,
-          },
-        },
+      return await this.apiKeys.rotateKey(
+        keyRelatedSlugs.orgSlug,
+        keySlug,
+        callingUser.id,
       );
-      usageData = usageRes.data;
     } catch (e) {
-      throw new VError(e, 'Failed while fetching usage data from Mixpanel');
+      throw new VError(e, `Failed to rotate key ${keySlug}`);
     }
-
-    return {
-      keys,
-      events: usageData,
-    };
   }
 
-  // Deletes the projects and api keys associated with a user's personal org.
-  async deleteApiKeysByUser(user: User) {
+  async generateKey(
+    callingUser: User,
+    projectSlug: Project['slug'],
+    description?: ApiKey['description'],
+  ) {
+    const projectWhereUnique = {
+      slug: projectSlug,
+    };
+
+    await this.checkUserPermission({
+      userId: callingUser.id,
+      projectWhereUnique,
+    });
+
+    let project: Project;
     try {
-      const projects = await this.prisma.project.findMany({
-        where: {
-          active: true,
-          org: {
-            personalForUserId: user.id,
-          },
-        },
-      });
-      await Promise.all(projects.map((p) => this.deleteApiKeys(p)));
+      project = await this.getActiveProject(projectWhereUnique);
+    } catch (e) {
+      throw new VError(e, 'Failed while checking that project is active');
+    }
+
+    if (!project) {
+      throw new VError({ info: { code: 'BAD_PROJECT' } }, 'Project not found');
+    }
+
+    try {
+      return await this.apiKeys.generateKey(
+        project.orgSlug,
+        projectSlug,
+        callingUser.id,
+        description,
+      );
+    } catch (e) {
+      throw new VError(e, `Failed to generate key for project ${projectSlug}`);
+    }
+  }
+
+  async deleteKey(callingUser: User, keySlug: ApiKey['slug']) {
+    let keyRelatedSlugs;
+    try {
+      keyRelatedSlugs = await this.apiKeys.getKeyDetails(keySlug);
     } catch (e) {
       throw new VError(
         e,
-        `Failed to delete projects and API keys for user's personal org`,
+        `Failed to get api key details for keySlug ${keySlug}`,
       );
+    }
+
+    if (!keyRelatedSlugs) {
+      throw new VError({ info: { code: 'BAD_KEY' } }, 'Key not found');
+    }
+
+    const projectWhereUnique = {
+      slug: keyRelatedSlugs.projectSlug,
+    };
+
+    await this.checkUserPermission({
+      userId: callingUser.id,
+      projectWhereUnique,
+    });
+
+    let project: Project;
+    try {
+      project = await this.getActiveProject(projectWhereUnique);
+    } catch (e) {
+      throw new VError(e, 'Failed while checking that project is active');
+    }
+
+    if (!project) {
+      throw new VError({ info: { code: 'BAD_PROJECT' } }, 'Project not found');
+    }
+
+    try {
+      await this.apiKeys.deleteKey(
+        keyRelatedSlugs.orgSlug,
+        keySlug,
+        callingUser.id,
+      );
+    } catch (e) {
+      throw new VError(e, `Failed to rotate key ${keySlug}`);
     }
   }
 
-  // Deletes the projects and api keys associated with an org.
-  async deleteApiKeysByOrg(orgSlug: Org['slug']) {
+  // Deletes api keys associated with a user's personal org.
+  async deleteApiKeysByUser(user: User) {
     try {
-      const projects = await this.prisma.project.findMany({
+      const orgDetails = await this.prisma.org.findUnique({
         where: {
-          active: true,
-          org: {
-            slug: orgSlug,
-          },
+          personalForUserId: user.id,
+        },
+        select: {
+          slug: true,
         },
       });
-      await Promise.all(projects.map((p) => this.deleteApiKeys(p)));
+      await this.apiKeys.deleteOrg(orgDetails.slug, user.id);
     } catch (e) {
-      throw new VError(e, `Failed to delete projects and API keys for org`);
+      throw new VError(e, `Failed to delete API keys for user's personal org`);
+    }
+  }
+
+  // Deletes api keys associated with an org.
+  async deleteApiKeysByOrg(orgSlug: Org['slug'], user: User) {
+    try {
+      await this.apiKeys.deleteOrg(orgSlug, user.id);
+    } catch (e) {
+      throw new VError(e, `Failed to delete API keys for org`);
     }
   }
 }

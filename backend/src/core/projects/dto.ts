@@ -109,12 +109,28 @@ export const GetKeysSchema = Joi.object({
 
 // rotate key
 export interface RotateKeyDto {
-  project: string;
-  environment: number;
+  slug: string;
 }
 export const RotateKeySchema = Joi.object({
+  slug: Joi.string().required(),
+});
+
+// generate key
+export interface GenerateKeyDto {
+  project: string;
+  description: string;
+}
+export const GenerateKeySchema = Joi.object({
   project: Joi.string().required(),
-  environment: Joi.number().integer().required(),
+  description: Joi.string().required(),
+});
+
+// delete key
+export interface DeleteKeyDto {
+  slug: string;
+}
+export const DeleteKeySchema = Joi.object({
+  slug: Joi.string().required(),
 });
 
 // rotate transactions

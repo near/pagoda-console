@@ -1,20 +1,12 @@
-import { Net } from '../../../generated/prisma/core';
+import { Consumer } from './rpcaas-client';
 
-export interface Key {
-  project_ref: string;
-  invalid: boolean;
-  created_at: string;
-  invalidated_at: string;
-  token: string;
-  quota: number;
-}
-
-export interface KeysServiceInterface {
-  createProject(keyId: string, net: Net);
-  generate(keyId: string, net: Net);
-  invalidate(keyId: string, net: Net);
-  rotate(keyId: string, net: Net);
-  fetch(keyId: string, net: Net): Promise<string>;
-  fetchAll(keyId: string, net: Net): Promise<Array<string>>;
-  fetchAllKeys(keyId: string, net: Net): Promise<Array<Key>>;
+export interface ApiKeysProvisioningServiceInterface {
+  createOrganization(kongConsumer: string, orgSlug: string);
+  generate(kongConsumer: string, keySlug: string);
+  rotate(kongConsumer: string, keySlug: string);
+  delete(kongConsumer: string, keySlug: string);
+  deleteOrganization(kongConsumer: string);
+  fetch(keySlug: string): Promise<string>;
+  fetchAll(kongConsumer: string): Promise<Array<string>>;
+  getOrganization(kongConsumer: string): Promise<Consumer>;
 }

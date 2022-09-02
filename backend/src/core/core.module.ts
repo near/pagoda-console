@@ -6,8 +6,7 @@ import { ExplorerModule } from './explorer/explorer.module';
 import { AuthModule } from './auth/auth.module';
 import validate from '../config/validate';
 
-import { KeysService } from './keys/keys.service';
-import { KeysModule } from './keys/keys.module';
+import { ApiKeysModule } from './keys/apiKeys.module';
 import { IndexerService } from './indexer.service';
 import { EmailModule } from './email/email.module';
 
@@ -23,11 +22,11 @@ import { EmailModule } from './email/email.module';
     UsersModule,
     ProjectsModule,
     AuthModule,
-    KeysModule,
+    ApiKeysModule,
     EmailModule,
     ExplorerModule,
   ],
-  providers: [KeysService, IndexerService],
+  providers: [IndexerService],
   exports: [EmailModule],
 })
 export class CoreModule {}

@@ -35,7 +35,6 @@ export interface AppConfig {
   db: {
     connectionString: string;
   };
-  rpcAuth: Record<Net, { url: string; credential: string; quota: number }>;
   nearRpc: Record<Net, { url: string }>;
   nearArchivalRpc: Record<Net, { url: string }>;
   recentTransactionsCount: number;
@@ -51,8 +50,7 @@ export interface AppConfig {
   };
   dev: {
     mock: {
-      rpcAuth: boolean;
-      rpcAuthErrors: boolean;
+      rpcProvisioningService: boolean;
       email: boolean;
     };
   };
@@ -94,6 +92,10 @@ export interface AppConfig {
       contractAddressValidation: boolean;
     };
   };
+  rpcProvisioningService: {
+    apiKey: string;
+    url: string;
+  };
 }
 
 const databaseSchema = Joi.object({
@@ -118,35 +120,6 @@ const appConfigSchema = Joi.object({
   port: Joi.number().integer(),
   db: {
     connectionString: Joi.string(),
-  },
-  rpcAuth: {
-    TESTNET: {
-      url: Joi.string()
-        .uri({ scheme: 'https' })
-        .when('/dev.mock.rpcAuth', {
-          // the slash accesses off the schema root
-          is: Joi.boolean().valid(true),
-          then: Joi.optional().allow(''),
-        }),
-      credential: Joi.string().when('/dev.mock.rpcAuth', {
-        is: Joi.boolean().valid(true),
-        then: Joi.optional().allow(''),
-      }),
-      quota: Joi.number().integer(),
-    },
-    MAINNET: Joi.object({
-      url: Joi.string()
-        .uri({ scheme: 'https' })
-        .when('/dev.mock.rpcAuth', {
-          is: Joi.boolean().valid(true),
-          then: Joi.optional().allow(''),
-        }),
-      credential: Joi.string().when('/dev.mock.rpcAuth', {
-        is: Joi.boolean().valid(true),
-        then: Joi.optional().allow(''),
-      }),
-      quota: Joi.number().integer(),
-    }),
   },
   nearRpc: {
     TESTNET: {
@@ -195,8 +168,7 @@ const appConfigSchema = Joi.object({
   },
   dev: {
     mock: {
-      rpcAuth: Joi.boolean().optional().default(false),
-      rpcAuthErrors: Joi.boolean().optional().default(false),
+      rpcProvisioningService: Joi.boolean().optional().default(false),
       email: Joi.boolean().optional().default(false),
     },
   },
@@ -244,6 +216,19 @@ const appConfigSchema = Joi.object({
       contractAddressValidation: Joi.boolean().optional().default(true),
     },
   },
+  rpcProvisioningService: {
+    url: Joi.string()
+      .uri({ scheme: 'http' })
+      .when('/dev.mock.rpcAuth', {
+        // the slash accesses off the schema root
+        is: Joi.boolean().valid(true),
+        then: Joi.optional().allow(''),
+      }),
+    apiKey: Joi.string().when('/dev.mock.rpcAuth', {
+      is: Joi.boolean().valid(true),
+      then: Joi.optional().allow(''),
+    }),
+  },
 });
 
 export default function validate(config: Record<string, unknown>): AppConfig {
@@ -254,18 +239,6 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     port: config.PORT,
     db: {
       connectionString: config.DATABASE_URL,
-    },
-    rpcAuth: {
-      TESTNET: {
-        url: config.KEY_MANAGEMENT_URL_TEST,
-        credential: config.KEY_MANAGEMENT_CREDENTIALS_TEST,
-        quota: config.KEY_MANAGEMENT_QUOTA_TEST,
-      },
-      MAINNET: {
-        url: config.KEY_MANAGEMENT_URL_MAIN,
-        credential: config.KEY_MANAGEMENT_CREDENTIALS_MAIN,
-        quota: config.KEY_MANAGEMENT_QUOTA_MAIN,
-      },
     },
     nearRpc: {
       TESTNET: {
@@ -335,8 +308,7 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     },
     dev: {
       mock: {
-        rpcAuth: config.MOCK_KEY_SERVICE,
-        rpcAuthErrors: config.MOCK_KEY_SERVICE_WITH_ERRORS,
+        rpcProvisioningService: config.MOCK_KEY_SERVICE,
         email: config.MOCK_EMAIL_SERVICE,
       },
     },
@@ -380,6 +352,10 @@ export default function validate(config: Record<string, unknown>): AppConfig {
         contractAddressValidation:
           config.ALERT_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
       },
+    },
+    rpcProvisioningService: {
+      url: config.RPC_API_KEYS_URL,
+      apiKey: config.RPC_API_KEYS_API_KEY,
     },
   };
 

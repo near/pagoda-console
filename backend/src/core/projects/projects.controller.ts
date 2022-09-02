@@ -18,10 +18,14 @@ import {
   AddContractSchema,
   CreateProjectDto,
   CreateProjectSchema,
+  DeleteKeyDto,
+  DeleteKeySchema,
   DeleteProjectDto,
   DeleteProjectSchema,
   EjectTutorialProjectDto,
   EjectTutorialProjectSchema,
+  GenerateKeyDto,
+  GenerateKeySchema,
   GetContractDto,
   GetContractSchema,
   GetContractsDto,
@@ -34,8 +38,6 @@ import {
   GetKeysSchema,
   GetProjectDetailsDto,
   GetProjectDetailsSchema,
-  GetRpcUsageDto,
-  GetRpcUsageSchema,
   GetTransactionsDto,
   GetTransactionsSchema,
   RemoveContractDto,
@@ -217,7 +219,7 @@ export class ProjectsController {
   @UsePipes(new JoiValidationPipe(GetKeysSchema))
   async getKeys(@Request() req, @Body() { project }: GetKeysDto) {
     try {
-      return await this.projectsService.getKeys(req.user, { slug: project });
+      return await this.projectsService.getKeys(req.user, project);
     } catch (e) {
       throw mapError(e);
     }
@@ -226,16 +228,39 @@ export class ProjectsController {
   @Post('rotateKey')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(RotateKeySchema))
-  async RotateKey(
+  async rotateKey(@Request() req, @Body() { slug }: RotateKeyDto) {
+    try {
+      return await this.projectsService.rotateKey(req.user, slug);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('generateKey')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(GenerateKeySchema))
+  async generateKey(
     @Request() req,
-    @Body() { project, environment }: RotateKeyDto,
+    @Body() { project, description }: GenerateKeyDto,
   ) {
     try {
-      return await this.projectsService.rotateKey(
+      return await this.projectsService.generateKey(
         req.user,
         project,
-        environment,
+        description,
       );
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('deleteKey')
+  @HttpCode(204)
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new JoiValidationPipe(DeleteKeySchema))
+  async deleteKey(@Request() req, @Body() { slug }: DeleteKeyDto) {
+    try {
+      return await this.projectsService.deleteKey(req.user, slug);
     } catch (e) {
       throw mapError(e);
     }
@@ -246,15 +271,6 @@ export class ProjectsController {
   @UsePipes(new JoiValidationPipe(GetTransactionsSchema))
   async getTransactions(@Body() { contracts, net }: GetTransactionsDto) {
     return this.indexerService.fetchRecentTransactions(contracts, net);
-  }
-
-  @Post('getRpcUsage')
-  @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(GetRpcUsageSchema))
-  async getRpcUsage(@Request() req, @Body() { project }: GetRpcUsageDto) {
-    return this.projectsService.getRpcUsage(req.user, {
-      slug: project,
-    });
   }
 }
 
@@ -268,6 +284,8 @@ function mapError(e: Error) {
     case 'BAD_PROJECT':
     case 'BAD_ENVIRONMENT':
     case 'BAD_CONTRACT':
+    case 'BAD_KEY':
+    case 'BAD_ORG':
       return new BadRequestException();
     case 'NOT_FOUND':
       return new BadRequestException(errorInfo.response);

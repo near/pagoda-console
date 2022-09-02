@@ -65,15 +65,9 @@ export class RpcStatsController {
       const keyPromises = [];
       projects.forEach((project) => {
         keyPromises.push(
-          this.projectsService
-            .getKeys(req.user, {
-              slug: project.slug,
-            })
-            .then((keys) => {
-              if (keys && keys[environment.net]) {
-                allKeys.push(keys[environment.net]);
-              }
-            }),
+          this.projectsService.getKeys(req.user, project.slug).then((keys) => {
+            allKeys.push(keys.map((k) => k.key));
+          }),
         );
       });
 

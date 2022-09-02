@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { IndexerService } from '../indexer.service';
-import { KeysModule } from '../keys/keys.module';
+import { ApiKeysModule } from '../keys/apiKeys.module';
 import { NearRpcService } from '@/src/core/near-rpc/near-rpc.service';
 import { PrismaService } from '../prisma.service';
 import { ProjectsController } from './projects.controller';
@@ -21,7 +21,7 @@ import { UsersModule } from '../users/users.module';
   controllers: [ProjectsController],
   imports: [
     PrismaService,
-    KeysModule,
+    ApiKeysModule,
     IndexerService,
     NearRpcService,
     UsersModule,
