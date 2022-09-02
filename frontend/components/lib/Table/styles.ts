@@ -222,6 +222,13 @@ export const Cell = styled('td', {
       },
     },
 
+    disabled: {
+      true: {
+        pointerEvents: 'none',
+        opacity: 0.5,
+      },
+    },
+
     link: {
       true: {
         padding: 0,

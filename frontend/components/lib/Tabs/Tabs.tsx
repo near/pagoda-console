@@ -9,33 +9,6 @@ export const Root = styled(TabsPrimitive.Root, {
   width: '100%',
 });
 
-export const List = styled(TabsPrimitive.List, {
-  '--border-size': '-2px',
-  '--trigger-padding': 'var(--space-m)',
-  display: 'flex',
-  width: '100%',
-  boxShadow: 'inset 0 var(--border-size) 0 var(--color-surface-5)',
-  overflow: 'auto',
-  '-ms-overflow-style': 'none',
-  scrollbarWidth: 'none',
-  scrollBehavior: 'smooth',
-
-  '&::-webkit-scrollbar': {
-    display: 'none',
-  },
-
-  variants: {
-    inline: {
-      true: {
-        '--trigger-padding': 'var(--space-xs) 0',
-        boxShadow: 'none',
-        width: 'auto',
-        gap: 'var(--space-l)',
-      },
-    },
-  },
-});
-
 const triggerStyles: StitchesCSS = {
   display: 'flex',
   alignItems: 'center',
@@ -52,8 +25,8 @@ const triggerStyles: StitchesCSS = {
   userSelect: 'none',
   whiteSpace: 'nowrap',
   border: '1px solid transparent',
-  borderTopRightRadius: 'var(--border-radius-m)',
-  borderTopLeftRadius: 'var(--border-radius-m)',
+  borderTopRightRadius: 'var(--border-radius)',
+  borderTopLeftRadius: 'var(--border-radius)',
   borderBottom: 'none',
   flexShrink: 0,
 
@@ -62,7 +35,7 @@ const triggerStyles: StitchesCSS = {
   },
 
   '&:focus': {
-    borderColor: 'var(--focus-outline-color)',
+    borderColor: 'var(--focus-outline-color) !important',
   },
 };
 
@@ -93,6 +66,39 @@ export const TriggerLink = styled('a', {
     active: {
       true: {
         ...triggerActiveStyles,
+      },
+    },
+  },
+});
+
+export const List = styled(TabsPrimitive.List, {
+  '--border-radius': 'var(--border-radius-m)',
+  '--border-size': '-2px',
+  '--trigger-padding': 'var(--space-m)',
+  display: 'flex',
+  width: '100%',
+  boxShadow: 'inset 0 var(--border-size) 0 var(--color-surface-5)',
+  overflow: 'auto',
+  '-ms-overflow-style': 'none',
+  scrollbarWidth: 'none',
+  scrollBehavior: 'smooth',
+
+  '&::-webkit-scrollbar': {
+    display: 'none',
+  },
+
+  variants: {
+    inline: {
+      true: {
+        '--border-radius': '0',
+        '--trigger-padding': 'var(--space-xs) 0',
+        boxShadow: 'none',
+        width: 'auto',
+        gap: 'var(--space-l)',
+
+        [`${Trigger}, ${TriggerLink}`]: {
+          border: '1px solid transparent',
+        },
       },
     },
   },

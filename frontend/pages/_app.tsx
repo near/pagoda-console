@@ -3,6 +3,7 @@ import '@/styles/fonts.css';
 import '@/styles/variables.css';
 import '@/styles/global.css';
 import '@/styles/enhanced-api.scss';
+import '@near-wallet-selector/modal-ui/styles.css';
 
 import * as FullStory from '@fullstory/browser';
 import { initializeApp } from 'firebase/app';

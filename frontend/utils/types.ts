@@ -15,9 +15,7 @@ export interface PersistedStore {
 export interface Contract {
   slug: string;
   address: string;
-  environmentId: number;
   net: NetOption;
-  active?: boolean;
 }
 
 export interface Project {
@@ -25,7 +23,6 @@ export interface Project {
   name: string;
   slug: string;
   tutorial: TutorialOption;
-  active?: boolean;
   org: {
     name?: string;
     slug: string;
@@ -52,12 +49,9 @@ export type OrganizationMember = {
 };
 
 export interface Environment {
-  // id: number,
   name: string;
   subId: number;
-  // projectId: number,
   net: NetOption;
-  active?: boolean;
   project?: Project;
 }
 
@@ -71,4 +65,18 @@ export interface User {
 export interface FinalityStatus {
   finalBlockHeight: number;
   finalBlockTimestampNanosecond: BN;
+}
+
+export interface ViewAccount {
+  id: string;
+  jsonrpc: string;
+  result: {
+    amount: string;
+    block_hash: string;
+    block_height: number;
+    code_hash: string;
+    locked: string;
+    storage_paid_at: number;
+    storage_usage: number;
+  };
 }

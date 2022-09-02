@@ -11,6 +11,7 @@ import useFeatureFlag from '@/hooks/features';
 import { useSelectedProject } from '@/hooks/selected-project';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
 import apisEntries from '@/modules/apis/sidebar-entries';
+import contractsEntries from '@/modules/contracts/sidebar-entries';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
 import type { SidebarEntry } from '@/shared/utils/types';
@@ -38,11 +39,11 @@ function useProjectPages(): SidebarEntry[] {
   }
 
   // pushed individually so that module pages can be placed at any point
-  pages.push({ display: 'Contracts', route: `/contracts`, icon: 'zap' });
   pages.push(...apisEntries);
   if (useFeatureFlag('momentary-alerts-enabled')) {
     pages.push(...alertsEntries);
   }
+  pages.push(...contractsEntries);
   pages.push({ display: 'Analytics', route: '/project-analytics', icon: 'bar-chart-2' });
   pages.push(...indexersEntries);
   pages.push({ display: 'Settings', route: '/project-settings', icon: 'settings' });

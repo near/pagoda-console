@@ -152,7 +152,7 @@ Sometimes it makes sense for an entire table row to be clickable. You can apply 
 
 ## Clickable Cells
 
-Sometimes it makes sense for individual cells to be clickable. You can apply the `clickable` prop to a `Cell`:
+Sometimes it makes sense for individual cells to be clickable. You can apply the `clickable` and `disabled` props to a `Cell`:
 
 ```tsx
 ...
@@ -160,7 +160,7 @@ Sometimes it makes sense for individual cells to be clickable. You can apply the
   <Table.Cell
     clickable
     onClick={() => {
-      alert('Table Cell Click 1');
+      alert('This will trigger');
     }}
   >
     {row.id}
@@ -168,8 +168,9 @@ Sometimes it makes sense for individual cells to be clickable. You can apply the
 
   <Table.Cell
     clickable
+    disabled
     onClick={() => {
-      alert('Table Cell Click 2');
+      alert('This will not trigger');
     }}
   >
     {row.name}

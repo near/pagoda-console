@@ -29,7 +29,14 @@ const moduleExports = {
     return config;
   },
   i18n,
-  swcMinify: true,
+  swcMinify: false,
+  /*
+    NOTE: "swcMinify: true" was throwing an error when running "npm run build" due to the "@near-wallet-selector" package
+    used in useWalletSelector() "hooks/wallet-selector.ts"
+
+    The production code is still minified - just a little bit slower during the build step using Terse. We can revist
+    after NEAR Con.
+  */
   async redirects() {
     return [
       {

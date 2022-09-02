@@ -52,7 +52,7 @@ const activeTab = useRouteParam('tab', '?tab=section-1', true);
 ...
 
 <Tabs.Root value={activeTab || ''}>
-  <Tabs.List>
+  <Tabs.List tabIndex={-1}>
     <Link href="?tab=section-1" passHref>
       <Tabs.TriggerLink active={activeTab === 'section-1'}>Section 1</Tabs.TriggerLink>
     </Link>
@@ -68,3 +68,5 @@ const activeTab = useRouteParam('tab', '?tab=section-1', true);
 ```
 
 Note the use of `Tabs.TriggerLink` wrapped by `Link` (an anchor element) instead of `Tabs.Trigger` (a button element). This will allow users to interact with the tabs as standard links (supports opening new tabs, browser history, etc).
+
+Also, note the use of `tabIndex={-1}` on `Tabs.List`. The `Tabs.List` component is designed to receive keyboard focus when using the standard `Tabs.Trigger` inside the list. However, when we use `Tabs.TriggerLink`, keyboard focus works differently (each trigger should receive focus, not the wrapping list).
