@@ -49,7 +49,10 @@ export function ApiKeys({ project }: Props) {
       });
 
       await mutateKeys(async (cachedKeys) => {
-        const newKey = await authenticatedPost('/projects/rotateKey', { project: project?.slug, environment: subId });
+        const newKey = await authenticatedPost<Partial<Record<NetOption, string>>>('/projects/rotateKey', {
+          project: project?.slug,
+          environment: subId,
+        });
 
         analytics.track('DC Rotate API Key', {
           status: 'success',

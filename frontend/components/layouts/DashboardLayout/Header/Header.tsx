@@ -3,13 +3,10 @@ import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
 
 import { ProjectSelector } from '@/components/layouts/DashboardLayout/ProjectSelector';
-import * as DropdownMenu from '@/components/lib/DropdownMenu';
-import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
+import { UserFullDropdown } from '@/components/lib/UserFullDropdown';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useAccount } from '@/hooks/user';
-import { logOut } from '@/utils/auth';
 
 import { EnvironmentSelector } from '../EnvironmentSelector';
 import type { Redirect } from '../types';
@@ -21,7 +18,6 @@ type Props = ComponentProps<typeof S.Header> & {
 
 export function Header({ redirect, ...props }: Props) {
   const router = useRouter();
-  const { user } = useAccount();
   const [redirectMessage, setRedirectMessage] = useState('');
   const redirectOnConfirmRef = useRef<() => void>();
   const [showRedirectConfirmModal, setShowRedirectConfirmModal] = useState(false);
@@ -36,14 +32,6 @@ export function Header({ redirect, ...props }: Props) {
     setRedirectMessage(message);
     redirectOnConfirmRef.current = onConfirm;
     setShowRedirectConfirmModal(true);
-  }
-
-  function onSelectLogout() {
-    logOut();
-  }
-
-  function onSelectUserSettings() {
-    router.push('/settings');
   }
 
   return (
@@ -77,26 +65,7 @@ export function Header({ redirect, ...props }: Props) {
           />
         </Flex>
 
-        <DropdownMenu.Root>
-          <DropdownMenu.Button color="transparent" css={{ height: 'auto' }}>
-            <FeatherIcon icon="user" />
-            <Text as="span" color="text1" family="body" weight="semibold">
-              {user?.name}
-            </Text>
-          </DropdownMenu.Button>
-
-          <DropdownMenu.Content align="end">
-            <DropdownMenu.Item onSelect={() => onSelectUserSettings()}>
-              <FeatherIcon icon="settings" />
-              User Settings
-            </DropdownMenu.Item>
-
-            <DropdownMenu.Item onSelect={() => onSelectLogout()}>
-              <FeatherIcon icon="log-out" />
-              Logout
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu.Root>
+        <UserFullDropdown />
       </S.Header>
 
       <ConfirmModal

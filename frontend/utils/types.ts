@@ -33,6 +33,24 @@ export interface Project {
   };
 }
 
+export type Organization = {
+  slug: string;
+  name: string;
+  isPersonal: boolean;
+};
+
+export type OrganizationRole = 'ADMIN' | 'COLLABORATOR';
+
+export type OrganizationMember = {
+  role: OrganizationRole;
+  orgSlug: string;
+  user: {
+    uid: string | null;
+    email: string;
+  };
+  isInvite?: boolean;
+};
+
 export interface Environment {
   // id: number,
   name: string;

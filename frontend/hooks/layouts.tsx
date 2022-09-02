@@ -1,6 +1,7 @@
 import type { ComponentProps, ReactElement } from 'react';
 
 import { DashboardLayout } from '@/components/layouts/DashboardLayout';
+import { OrganizationsLayout } from '@/components/layouts/OrganizationsLayout';
 import { SimpleLayout } from '@/components/layouts/SimpleLayout';
 import { SimpleLogoutLayout } from '@/components/layouts/SimpleLogoutLayout';
 
@@ -17,6 +18,10 @@ export function useSimpleLayout(page: ReactElement) {
 export function useSimpleLogoutLayout(page: ReactElement) {
   return <SimpleLogoutLayout>{page}</SimpleLogoutLayout>;
 }
+
+export const useOrganizationsLayout = (page: ReactElement) => {
+  return <OrganizationsLayout>{page}</OrganizationsLayout>;
+};
 
 export function wrapDashboardLayoutWithOptions(options: DashboardLayoutProps) {
   /*

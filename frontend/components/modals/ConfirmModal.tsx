@@ -14,6 +14,7 @@ interface Props {
   confirmText?: string;
   errorText?: string | undefined;
   isProcessing?: boolean;
+  disabled?: boolean;
   onConfirm?: () => void;
   setErrorText?: (error: string) => void;
   setShow: (show: boolean) => void;
@@ -35,7 +36,12 @@ export function ConfirmModal(props: Props) {
           />
 
           <Flex justify="spaceBetween" align="center">
-            <Button loading={props.isProcessing} onClick={props.onConfirm} color={props.confirmColor || 'primary'}>
+            <Button
+              loading={props.isProcessing}
+              onClick={props.onConfirm}
+              color={props.confirmColor || 'primary'}
+              disabled={props.disabled}
+            >
               {props.confirmText || 'Confirm'}
             </Button>
 

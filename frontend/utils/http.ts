@@ -2,7 +2,11 @@ import { getAuth, getIdToken } from 'firebase/auth';
 
 import config from '@/utils/config';
 
-export const unauthenticatedPost = async (endpoint: string, body?: Record<string, any>, headers?: HeadersInit) => {
+export const unauthenticatedPost = async <R = unknown>(
+  endpoint: string,
+  body?: Record<string, any>,
+  headers?: HeadersInit,
+): Promise<R> => {
   const res = await fetch(`${config.url.api}${endpoint}`, {
     method: 'POST',
     headers: {
@@ -15,7 +19,7 @@ export const unauthenticatedPost = async (endpoint: string, body?: Record<string
   return parseFetchResponse(res);
 };
 
-async function parseFetchResponse(res: Response) {
+async function parseFetchResponse<R = unknown>(res: Response): Promise<R> {
   let resJson;
   try {
     if (res.status === 204) {
@@ -25,9 +29,8 @@ async function parseFetchResponse(res: Response) {
     }
   } catch (e) {
     if (res.ok) {
-      throw new Error('Failed to convert to JSON');
+      return undefined as unknown as R;
     }
-    // ignore failure to convert to JSON on error
   }
   if (!res.ok) {
     // TODO (P2+) it is generally frowned upon to throw a non-Error object, but we
@@ -42,11 +45,11 @@ interface AuthenticatedPostOptions {
   forceRefresh?: boolean;
 }
 
-export const authenticatedPost = async (
+export const authenticatedPost = async <R = unknown>(
   endpoint: string,
   body?: Record<string, any>,
   options?: AuthenticatedPostOptions,
-) => {
+): Promise<R> => {
   const user = getAuth().currentUser;
   if (!user) throw new Error('No authenticated user');
 
