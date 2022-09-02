@@ -1,4 +1,4 @@
-import type { DateTime } from 'luxon';
+import type { DateTime, DateTimeUnit } from 'luxon';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
@@ -83,6 +83,53 @@ function resolutionForTimeRange(timeRangeValue: TimeRangeValue): DateTimeResolut
 export enum GroupBy {
   date = 'date',
   endpoint = 'endpoint',
+}
+
+function toLuxonDateTimeResolution(dateTimeResolution: DateTimeResolution) {
+  switch (dateTimeResolution) {
+    case DateTimeResolution.FIFTEEN_SECONDS:
+      return 'seconds';
+    case DateTimeResolution.ONE_MINUTE:
+      return 'minutes';
+    case DateTimeResolution.ONE_HOUR:
+      return 'hours';
+    case DateTimeResolution.ONE_DAY:
+      return 'days';
+  }
+}
+
+function fillEmptyDateValues(
+  dateValues: Array<any>,
+  startDateTime: DateTime,
+  endDateTime: DateTime,
+  dateTimeResolution: DateTimeResolution,
+) {
+  const filledDateValues = [];
+  const luxonDateTimeResolution = toLuxonDateTimeResolution(dateTimeResolution);
+  // set currentDateTime to start of next dateTimeResolution
+  let currentDateTime = startDateTime
+    .plus({ [luxonDateTimeResolution]: 1 })
+    .startOf(<DateTimeUnit>luxonDateTimeResolution.slice(0, -1));
+  while (currentDateTime <= endDateTime) {
+    const dateValue = dateValues.find((dateValue) => dateValue.windowStart === currentDateTime.toUTC().toISO());
+    if (dateValue) {
+      filledDateValues.push(dateValue);
+    } else {
+      filledDateValues.push({
+        windowStart: currentDateTime.toUTC().toISO(),
+        successCount: 0,
+        errorCount: 0,
+        minLatency: 0,
+        maxLatency: 0,
+        meanLatency: 0,
+      });
+    }
+    currentDateTime =
+      dateTimeResolution === DateTimeResolution.FIFTEEN_SECONDS
+        ? currentDateTime.plus({ [luxonDateTimeResolution]: 15 })
+        : currentDateTime.plus({ [luxonDateTimeResolution]: 1 });
+  }
+  return filledDateValues;
 }
 
 export function useApiStats(
@@ -188,7 +235,7 @@ export function useApiStats(
         },
       ],
       totalRequestsPerMethod: endpointTotals(dataByEndpoint?.page ?? []),
-      totalRequestVolume: dataByDate?.page || [],
+      totalRequestVolume: fillEmptyDateValues(dataByDate?.page || [], startDateTime, endDateTime, dateTimeResolution),
     },
   };
 }
