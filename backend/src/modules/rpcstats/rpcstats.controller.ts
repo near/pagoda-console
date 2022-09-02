@@ -66,7 +66,7 @@ export class RpcStatsController {
       projects.forEach((project) => {
         keyPromises.push(
           this.projectsService.getKeys(req.user, project.slug).then((keys) => {
-            allKeys.push(keys.map((k) => k.key));
+            keys.forEach((k) => allKeys.push(k.key));
           }),
         );
       });
