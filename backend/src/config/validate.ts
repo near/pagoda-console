@@ -219,12 +219,12 @@ const appConfigSchema = Joi.object({
   rpcProvisioningService: {
     url: Joi.string()
       .uri({ scheme: 'http' })
-      .when('/dev.mock.rpcAuth', {
+      .when('/dev.mock.rpcProvisioningService', {
         // the slash accesses off the schema root
         is: Joi.boolean().valid(true),
         then: Joi.optional().allow(''),
       }),
-    apiKey: Joi.string().when('/dev.mock.rpcAuth', {
+    apiKey: Joi.string().when('/dev.mock.rpcProvisioningService', {
       is: Joi.boolean().valid(true),
       then: Joi.optional().allow(''),
     }),
