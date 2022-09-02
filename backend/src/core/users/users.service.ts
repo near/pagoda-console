@@ -365,8 +365,9 @@ export class UsersService implements OnModuleInit {
 
     const orgName = permissionCheck.name;
     const token = newInviteToken();
+    let res: OrgInvite;
     try {
-      await this.prisma.orgInvite.create({
+      res = await this.prisma.orgInvite.create({
         data: {
           email: recipient,
           orgSlug,
@@ -389,7 +390,21 @@ export class UsersService implements OnModuleInit {
       throw new VError(e, 'Failed to create OrgInvite DB record');
     }
 
-    await this.orgInviteEmail.sendInvite(orgName, recipient, token);
+    try {
+      await this.orgInviteEmail.sendInvite(orgName, recipient, token);
+    } catch (e) {
+      try {
+        await this.prisma.orgInvite.delete({
+          where: {
+            id: res.id,
+          },
+        });
+      } catch (e) {
+        console.error('Failed while rolling back org invite creation', e);
+      }
+
+      throw new VError(e, 'Failed to send an org invitation email');
+    }
   }
 
   async removeOrgInvite(
