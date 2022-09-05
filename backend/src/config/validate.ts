@@ -79,7 +79,6 @@ export interface AppConfig {
   };
   email: {
     noReply: string;
-    emailVerificationFrom: string;
   };
   frontend: {
     baseUrl: string;
@@ -203,7 +202,6 @@ const appConfigSchema = Joi.object({
   },
   email: {
     noReply: Joi.string(),
-    emailVerificationFrom: Joi.string(),
   },
   frontend: {
     baseUrl: Joi.string(),
@@ -338,7 +336,6 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     },
     email: {
       noReply: config.EMAIL_NO_REPLY,
-      emailVerificationFrom: config.EMAIL_VERIFICATION_FROM,
     },
     frontend: {
       baseUrl: config.FRONTEND_BASE_URL,
