@@ -919,6 +919,9 @@ export class AlertsService {
           },
         },
       },
+      orderBy: {
+        id: 'asc',
+      },
     });
 
     return destinations.map(this.transformDestinationRes);
