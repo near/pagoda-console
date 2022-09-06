@@ -126,13 +126,10 @@ export const useMutation = <Input = void, Result = void, M = unknown, E = unknow
 
   useEffect(() => {
     mutationRef.current.mutateAsync = mutateAsync;
-  }, [mutateAsync]);
-  useEffect(() => {
     mutationRef.current.mutate = mutate;
-  }, [mutate]);
-  useEffect(() => {
     mutationRef.current.reset = reset;
-  }, [reset]);
+    forceRefresh();
+  }, [mutateAsync, mutate, reset, forceRefresh]);
 
   return mutationRef.current;
 };
