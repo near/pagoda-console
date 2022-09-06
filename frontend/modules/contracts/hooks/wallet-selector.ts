@@ -1,7 +1,5 @@
 import type { AccountState, NetworkId, WalletSelector } from '@near-wallet-selector/core';
 import { setupWalletSelector } from '@near-wallet-selector/core';
-import { setupLedger } from '@near-wallet-selector/ledger';
-import ledgerIconUrl from '@near-wallet-selector/ledger/assets/ledger-icon.png';
 import type { WalletSelectorModal } from '@near-wallet-selector/modal-ui';
 import { setupModal } from '@near-wallet-selector/modal-ui';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
@@ -30,10 +28,9 @@ export const useWalletSelector = (contractId: string | undefined) => {
     const waletSelector = await setupWalletSelector({
       network: environment.net.toLowerCase() as NetworkId,
       modules: [
-        setupNearWallet({ iconUrl: nearWalletIconUrl.src }),
         setupMyNearWallet({ iconUrl: myNearWalletIconUrl.src }),
         setupSender({ iconUrl: senderIconUrl.src }),
-        setupLedger({ iconUrl: ledgerIconUrl.src }),
+        setupNearWallet({ iconUrl: nearWalletIconUrl.src }),
       ],
     });
     const selectModal = setupModal(waletSelector, {
