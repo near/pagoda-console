@@ -193,7 +193,7 @@ model ApiKey {
   slug          String     @unique
   projectSlug   String
   orgSlug       String
-  // foreign key to the kong consumer object in RPCaaS
+  /// Foreign key to the kong consumer object in RPCaaS
   kongConsumerName  String
   description   String
   /// If 'false', the record was soft-deleted by a user.
