@@ -8,7 +8,6 @@ import { Spinner } from '@/components/lib/Spinner';
 import { useOrganizationsLayout } from '@/hooks/layouts';
 import { useAcceptOrgInvite } from '@/hooks/organizations';
 import { useIdentity } from '@/hooks/user';
-import { storage } from '@/utils/storage';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const AcceptOrgInvite: NextPageWithLayout = () => {
@@ -25,10 +24,9 @@ const AcceptOrgInvite: NextPageWithLayout = () => {
   }, [acceptMutation, token]);
   useEffect(() => {
     if (user) {
-      storage.session.removeItem('inviteData');
       acceptInvite();
     } else if (token) {
-      storage.session.setItem('inviteData', { token });
+      sessionStorage.setItem('signInRedirectUrl', router.asPath);
     }
   }, [router, user, acceptInvite, token]);
   const toProjects = useCallback(() => router.replace('/projects'), [router]);
