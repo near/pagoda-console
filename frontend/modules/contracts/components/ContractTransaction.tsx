@@ -4,9 +4,13 @@ import type { AbiParameter, AbiRoot, AnyContract as AbiContract } from 'near-abi
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import TransactionActions from '@/components/explorer/transaction/TransactionActions';
+import { NetContext } from '@/components/explorer/utils/NetContext';
 import { Box } from '@/components/lib/Box';
 import { Button } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
+import { CodeBlock } from '@/components/lib/CodeBlock';
+import { Container } from '@/components/lib/Container';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
@@ -16,6 +20,7 @@ import { List, ListItem } from '@/components/lib/List';
 import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
+import { useSelectedProject } from '@/hooks/selected-project';
 import { initContractMethods, useContractAbi } from '@/modules/contracts/hooks/abi';
 import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import TxList from '@/public/contracts/images/TxList.svg';
@@ -30,6 +35,10 @@ const Heading = styled(H3, {
 });
 const SectionTitle = styled(H5, {
   marginTop: '1rem',
+  marginBottom: '1rem',
+  userSelect: 'none',
+});
+const ResultTitle = styled(H5, {
   marginBottom: '1rem',
   userSelect: 'none',
 });
@@ -104,6 +113,16 @@ const resolveDefinition = (abi: AbiRoot, def: any) => {
 export const ContractTransaction = ({ contract }: Props) => {
   const { accountId, modal, selector } = useWalletSelector(contract.address);
   const handleWalletSelect = useCallback(() => modal?.show(), [modal]);
+  const [txResult, setTxResult] = useState<any>(undefined);
+
+  function onTxResult(result: any) {
+    const hash = result?.transaction?.hash;
+    setTxResult(hash ? { hash } : result);
+  }
+
+  function onTxError() {
+    setTxResult(undefined);
+  }
 
   return (
     <Flex gap="l">
@@ -123,11 +142,17 @@ export const ContractTransaction = ({ contract }: Props) => {
           </Btn>
         </Flex>
 
-        <ContractTransactionForm accountId={accountId} contract={contract} selector={selector} />
+        <ContractTransactionForm
+          accountId={accountId}
+          contract={contract}
+          selector={selector}
+          onTxResult={onTxResult}
+          onTxError={onTxError}
+        />
       </ContractParams>
-      <Box>
-        <SendTransactionBanner />
-      </Box>
+      <Container size="m">
+        <TxResultView result={txResult} />
+      </Container>
     </Flex>
   );
 };
@@ -136,9 +161,11 @@ interface ContractFormProps {
   accountId?: string;
   contract: Contract;
   selector: WalletSelector | null;
+  onTxResult: (result: any) => void;
+  onTxError: () => void;
 }
 
-const ContractTransactionForm = ({ accountId, contract, selector }: ContractFormProps) => {
+const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, onTxError }: ContractFormProps) => {
   const [contractMethods, setContractMethods] = useState<AbiContract | null>(null);
   const form = useForm<{ contractFunction: string; gas: string; deposit: string } & any>();
   const { contractAbi } = useContractAbi(contract?.slug);
@@ -213,18 +240,18 @@ const ContractTransactionForm = ({ accountId, contract, selector }: ContractForm
       } else {
         res = await call.view();
       }
-      console.log('tx output: ', res);
+      onTxResult(res);
       openToast({
         type: 'success',
-        title: 'Succeed!',
-        description: typeof res === 'string' ? res : 'Try to make a call method to see the result',
+        title: 'Transaction sent successfully',
       });
     } catch (e) {
       console.error(e);
+      onTxError();
       openToast({
         duration: Infinity,
         type: 'error',
-        title: 'Error on sending transaction',
+        title: 'Failed to send transaction',
         description: `${e}`,
       });
     }
@@ -250,20 +277,16 @@ const ContractTransactionForm = ({ accountId, contract, selector }: ContractForm
                 <Form.FloatingLabelInput
                   type="string"
                   label="Gas: default 10 TeraGas"
-                  isInvalid={!!form.formState.errors.gas}
-                  {...form.register('gas')}
+                  // TODO this field should be validated as gas
                 />
-                <Form.Feedback>{form.formState.errors.gas?.message}</Form.Feedback>
               </Form.Group>
 
               <Form.Group>
                 <Form.FloatingLabelInput
                   type="string"
                   label="Deposit: default 0 yoctoNEAR"
-                  isInvalid={!!form.formState.errors.deposit}
-                  {...form.register('deposit')}
+                  // TODO this field should be validated as yoctoNEAR
                 />
-                <Form.Feedback>{form.formState.errors.deposit?.message}</Form.Feedback>
               </Form.Group>
 
               <Btn type="submit" loading={form.formState.isSubmitting} fullWidth>
@@ -365,6 +388,28 @@ const ContractTransactionForm = ({ accountId, contract, selector }: ContractForm
   );
 };
 
+const TxResultView = ({ result }: { result: any }) => {
+  if (result === undefined) {
+    return <SendTransactionBanner />;
+  }
+  if (result?.hash) {
+    const hash = result?.hash as string;
+    return (
+      <>
+        <ResultTitle>Result</ResultTitle>
+        <TxResultHash hash={hash} />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <ResultTitle>Result</ResultTitle>
+      <TxResult result={result} />
+    </>
+  );
+};
+
 const SendTransactionBanner = () => (
   <Card padding="xl">
     <Flex>
@@ -384,3 +429,30 @@ const SendTransactionBanner = () => (
     <TextItalic>The transaction execution and history will show up here</TextItalic>
   </Card>
 );
+
+const TxResult = ({ result }: { result: any }) => (
+  <Card padding="l">
+    <Box>
+      <CodeBlock>{JSON.stringify(result, null, 2)}</CodeBlock>
+    </Box>
+  </Card>
+);
+
+const TxResultHash = ({ hash }: { hash: string }) => {
+  const { environment } = useSelectedProject();
+  const net = environment?.net;
+
+  if (!net) {
+    return <></>;
+  }
+
+  return (
+    <Card padding="l">
+      <Box>
+        <NetContext.Provider value={net}>
+          <TransactionActions transactionHash={hash} />
+        </NetContext.Provider>
+      </Box>
+    </Card>
+  );
+};

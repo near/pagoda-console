@@ -47,6 +47,7 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
 
   async function uploadAbi() {
     if (!previewAbi) {
+      // TODO this should be implemented as form validation error message instead.
       openToast({
         type: 'error',
         title: 'Error on Contract ABI Upload',
@@ -60,14 +61,12 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
       setShowModal(false);
       openToast({
         type: 'success',
-        title: 'Contract ABI Uploaded',
-        description: `${contractSlug}`,
+        title: 'ABI Uploaded.',
       });
     } else {
       openToast({
         type: 'error',
-        title: 'Error on Contract ABI Upload',
-        description: `${contractSlug}`,
+        title: 'Failed to upload ABI.',
       });
     }
   }
@@ -82,7 +81,18 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
     fileReader.readAsText(e.target.files[0], 'UTF-8');
     fileReader.onload = (e) => {
       if (e && e.target && e.target.result) {
-        setPreviewAbi(e.target.result as any);
+        const content = e.target.result as any;
+        try {
+          JSON.parse(content);
+          setPreviewAbi(content);
+        } catch {
+          openToast({
+            type: 'error',
+            title: 'Error parsing ABI',
+            description: 'Please ensure file is in JSON format.',
+          });
+          return null;
+        }
       } else {
         openToast({
           type: 'error',
@@ -93,6 +103,7 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
     };
   }, []);
 
+  // TODO break out modal and default state into separate components. That should help with clearing the form data in the modal.
   if (!showModal) {
     return (
       <Card>
@@ -130,7 +141,7 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
         </Flex>
         <CodeWrapper>
           <CodeBlock customStyle={{ overflowY: 'scroll', maxHeight: MAX_CODE_HEIGHT }} language="json">
-            {previewAbi ?? '{}'}
+            {!previewAbi ? '{}' : JSON.stringify(JSON.parse(previewAbi), null, 2)}
           </CodeBlock>
         </CodeWrapper>
       </Form.Root>
