@@ -399,30 +399,32 @@ const OrganizationView: NextPageWithLayout = () => {
 
         <InviteUserDialog modalOpen={inviteModalOpen} switchModal={switchInviteModalOpen} orgSlug={orgSlug} />
 
-        {self === undefined || !selectedOrganization ? (
-          <Message type="error" content="You are not a part of this organization." />
-        ) : members ? (
-          <Table.Root>
-            <Table.Head css={{ top: 0 }}>
-              <Table.Row>
-                <Table.HeaderCell>Name</Table.HeaderCell>
-                <Table.HeaderCell>Role</Table.HeaderCell>
-                <Table.HeaderCell></Table.HeaderCell>
-              </Table.Row>
-            </Table.Head>
+        {members ? (
+          self === undefined || !selectedOrganization ? (
+            <Message type="error" content="You are not a part of this organization." />
+          ) : (
+            <Table.Root>
+              <Table.Head css={{ top: 0 }}>
+                <Table.Row>
+                  <Table.HeaderCell>Name</Table.HeaderCell>
+                  <Table.HeaderCell>Role</Table.HeaderCell>
+                  <Table.HeaderCell></Table.HeaderCell>
+                </Table.Row>
+              </Table.Head>
 
-            <Table.Body>
-              {members.map((member) => (
-                <OrganizationMemberView
-                  key={member.user.email}
-                  organization={selectedOrganization}
-                  member={member}
-                  self={self}
-                  singleAdmin={adminsQuantity <= 1}
-                />
-              ))}
-            </Table.Body>
-          </Table.Root>
+              <Table.Body>
+                {members.map((member) => (
+                  <OrganizationMemberView
+                    key={member.user.email}
+                    organization={selectedOrganization}
+                    member={member}
+                    self={self}
+                    singleAdmin={adminsQuantity <= 1}
+                  />
+                ))}
+              </Table.Body>
+            </Table.Root>
+          )
         ) : error ? (
           <>
             <Message type="error" content="An error occurred." />{' '}
