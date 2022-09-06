@@ -1,5 +1,6 @@
 import type { WalletSelector } from '@near-wallet-selector/core';
-import type { AnyContract as AbiContract } from 'near-abi-client-js';
+import { BN } from 'bn.js';
+import type { AbiParameter, AbiRoot, AnyContract as AbiContract } from 'near-abi-client-js';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -80,6 +81,26 @@ interface Props {
   contract: Contract;
 }
 
+// Recursively resolve references to collapse type.
+// This is useful to be able to infer the actual types of data and avoid accepting the
+// fallback JSON input when possible.
+const resolveDefinition = (abi: AbiRoot, def: any) => {
+  const jsonRoot = abi.body.root_schema;
+  while (def && def.$ref) {
+    const ref: string = def.$ref;
+    if (ref.slice(0, 14) === '#/definitions/') {
+      // It's a JSON Pointer reference, resolve the type.
+      const defName = ref.slice(14);
+      if (!jsonRoot.definitions || !jsonRoot.definitions[defName]) {
+        break;
+      }
+
+      def = jsonRoot.definitions[defName];
+    }
+  }
+  return def.type;
+};
+
 export const ContractTransaction = ({ contract }: Props) => {
   const { accountId, modal, selector } = useWalletSelector(contract.address);
   const handleWalletSelect = useCallback(() => modal?.show(), [modal]);
@@ -144,22 +165,24 @@ const ContractTransactionForm = ({ accountId, contract, selector }: ContractForm
     initMethods();
   }, [initMethods]);
 
-  const functionItems = contractMethods?.abi.body.functions;
-  const selectedFunction = form.watch('contractFunction');
-  const selectedFunctionParams = functionItems?.find((option) => option.name === selectedFunction);
+  const abi = contractMethods?.abi;
+  const functionItems = abi?.body.functions;
+  const selectedFunctionName = form.watch('contractFunction');
+  const selectedFunction = functionItems?.find((option) => option.name === selectedFunctionName);
 
   const submitForm = async (params: any) => {
     // Asserts that contract exists and selected function is valid
-    const contractFn = contractMethods![selectedFunctionParams!.name];
+    const contractFn = contractMethods![selectedFunction!.name];
 
     let call;
 
-    if (selectedFunctionParams?.params) {
-      const fieldParams = selectedFunctionParams.params.map((p) => {
+    if (selectedFunction?.params) {
+      const fieldParams = selectedFunction.params.map((p) => {
         const value = params[p.name];
-        if (p.type_schema.type === 'integer') {
+        const schema_ty = resolveDefinition(abi!, p.type_schema);
+        if (schema_ty === 'integer') {
           return parseInt(value);
-        } else if (p.type_schema.type === 'string') {
+        } else if (schema_ty === 'string') {
           // Return value as is, already a string.
           return value;
         } else {
@@ -174,12 +197,15 @@ const ContractTransactionForm = ({ accountId, contract, selector }: ContractForm
     let res;
 
     try {
-      if (selectedFunctionParams?.params) {
-        // TODO: fix call transaction
+      if (!selectedFunction?.is_view) {
+        // Pull gas/deposit from fields or default. This default will be done by the abi client
+        // library, but doing it here to have more control and ensure no hidden bugs.
+        const gas = params.gas ? new BN(params.gas) : new BN(10_000_000_000_000);
+        const attachedDeposit = params.deposit ? new BN(params.deposit) : new BN(0);
+
         res = await call.callFrom(await selector?.wallet(), {
-          gas: params.gas,
-          // TODO double check if this is where deposit is yoinked from
-          attachedDeposit: params.deposit,
+          gas,
+          attachedDeposit,
           // TODO might want to set this when testing the redirect flow (deposit sending txs)
           walletCallbackUrl: undefined,
           signer: accountId,
@@ -203,6 +229,81 @@ const ContractTransactionForm = ({ accountId, contract, selector }: ContractForm
       });
     }
     return null;
+  };
+
+  const TransactionParameters = () => {
+    if (selectedFunction) {
+      if (selectedFunction?.is_view) {
+        return (
+          <Flex stack gap="l">
+            <Btn type="submit" loading={form.formState.isSubmitting} fullWidth>
+              View Call
+            </Btn>
+          </Flex>
+        );
+      } else {
+        return (
+          <>
+            <SectionTitle>3. Transaction Parameters</SectionTitle>
+            <Flex stack gap="l">
+              <Form.Group>
+                <Form.FloatingLabelInput
+                  type="string"
+                  label="Gas: default 10 TeraGas"
+                  isInvalid={!!form.formState.errors.gas}
+                  {...form.register('gas')}
+                />
+                <Form.Feedback>{form.formState.errors.gas?.message}</Form.Feedback>
+              </Form.Group>
+
+              <Form.Group>
+                <Form.FloatingLabelInput
+                  type="string"
+                  label="Deposit: default 0 yoctoNEAR"
+                  isInvalid={!!form.formState.errors.deposit}
+                  {...form.register('deposit')}
+                />
+                <Form.Feedback>{form.formState.errors.deposit?.message}</Form.Feedback>
+              </Form.Group>
+
+              <Btn type="submit" loading={form.formState.isSubmitting} fullWidth>
+                {selectedFunction && selectedFunction.is_view ? 'View Call' : 'Send Transaction'}
+              </Btn>
+            </Flex>
+          </>
+        );
+      }
+    } else {
+      return null;
+    }
+  };
+
+  const ParamInput = ({ param }: { param: AbiParameter }) => {
+    const resolved = resolveDefinition(abi!, param.type_schema);
+    let fieldType;
+    let inputTy;
+    if (resolved === 'integer') {
+      fieldType = 'number';
+      inputTy = 'integer';
+    } else if (resolved === 'string') {
+      fieldType = 'string';
+      inputTy = 'string';
+    } else {
+      fieldType = 'text';
+      inputTy = 'JSON';
+    }
+
+    return (
+      <Form.Group key={param.name}>
+        <Form.FloatingLabelInput
+          type={fieldType}
+          label={`${param.name}: ${inputTy}`}
+          isInvalid={!!form.formState.errors?.name}
+          {...form.register(`${param.name}`)}
+        />
+        <Form.Feedback>{form.formState.errors.name?.message}</Form.Feedback>
+      </Form.Group>
+    );
   };
 
   return (
@@ -251,64 +352,14 @@ const ContractTransactionForm = ({ accountId, contract, selector }: ContractForm
             }}
           />
 
-          {selectedFunctionParams?.params
-            ? selectedFunctionParams?.params.map((param) => (
-                <Form.Group key={param.name}>
-                  <Form.FloatingLabelInput
-                    type={
-                      param.type_schema?.type === 'integer'
-                        ? 'number'
-                        : param.type_schema?.type === 'string'
-                        ? 'string'
-                        : 'text'
-                    }
-                    label="Input Parameter"
-                    isInvalid={!!form.formState.errors?.name}
-                    {...form.register(`${param.name}`, {
-                      required: 'Please enter input parameter',
-                    })}
-                  />
-                  <Form.Feedback>{form.formState.errors.name?.message}</Form.Feedback>
-                </Form.Group>
-              ))
+          {selectedFunction?.params
+            ? selectedFunction?.params.map((param) => <ParamInput key={param.name} param={param} />)
             : null}
 
           <Form.Group></Form.Group>
         </Flex>
 
-        <SectionTitle>3. Transaction Parameters</SectionTitle>
-        <Flex stack gap="l">
-          <Form.Group>
-            <Form.FloatingLabelInput
-              type="string"
-              label="Gas"
-              isInvalid={!!form.formState.errors.gas}
-              {...form.register('gas', {
-                // TODO this should not be required. Should be a reasonable default, and maybe a
-                // max gas option?
-                required: 'Please enter input parameter',
-              })}
-            />
-            <Form.Feedback>{form.formState.errors.gas?.message}</Form.Feedback>
-          </Form.Group>
-
-          <Form.Group>
-            <Form.FloatingLabelInput
-              type="string"
-              label="Deposit"
-              isInvalid={!!form.formState.errors.deposit}
-              {...form.register('deposit', {
-                // TODO this shouldn't be required. Should default to 0
-                required: 'Please enter input parameter',
-              })}
-            />
-            <Form.Feedback>{form.formState.errors.deposit?.message}</Form.Feedback>
-          </Form.Group>
-
-          <Btn type="submit" loading={form.formState.isSubmitting} fullWidth>
-            Send Transaction
-          </Btn>
-        </Flex>
+        <TransactionParameters />
       </Form.Root>
     </FormWrapper>
   );
