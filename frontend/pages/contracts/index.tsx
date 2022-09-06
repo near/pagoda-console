@@ -19,6 +19,7 @@ import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { AddContractForm } from '@/modules/contracts/components/AddContractForm';
 import { DeleteContractModal } from '@/modules/contracts/components/DeleteContractModal';
+import { useContractAbi } from '@/modules/contracts/hooks/abi';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatBytes } from '@/utils/format-bytes';
 import type { Contract } from '@/utils/types';
@@ -133,6 +134,7 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
   const url = `/contracts/${contract.slug}`;
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { contractAbi } = useContractAbi(contract.slug);
 
   function ContractTableCellData({ children }: { children: ReactNode }) {
     if (metrics)
@@ -187,11 +189,13 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
               </Flex>
             </DropdownMenu.Item>
 
-            <DropdownMenu.Item onClick={() => router.push(`/contracts/${contract.slug}?tab=abi`)}>
-              <Flex align="center">
-                <FeatherIcon icon="file-text" color="primary" /> Contract ABI
-              </Flex>
-            </DropdownMenu.Item>
+            {contractAbi && (
+              <DropdownMenu.Item onClick={() => router.push(`/contracts/${contract.slug}?tab=abi`)}>
+                <Flex align="center">
+                  <FeatherIcon icon="file-text" color="primary" /> Contract ABI
+                </Flex>
+              </DropdownMenu.Item>
+            )}
 
             <DropdownMenu.Item onClick={() => setShowDeleteModal(true)}>
               <Flex align="center">
