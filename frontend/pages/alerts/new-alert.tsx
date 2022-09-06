@@ -241,6 +241,11 @@ const NewAlert: NextPageWithLayout = () => {
                 Select Condition
               </H4>
 
+              <Text>
+                Not finding the alert condition you need? Leave a feature suggestion using the widget in the lower-right
+                corner.
+              </Text>
+
               <Controller
                 name="type"
                 control={form.control}
