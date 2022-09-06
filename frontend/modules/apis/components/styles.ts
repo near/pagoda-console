@@ -16,15 +16,6 @@ export const globalStyles = globalCss({
     marginLeft: '-16px',
     marginTop: '10px',
   },
-  'p > a': {
-    color: 'var(--color-cta-primary-text) !important',
-    backgroundColor: 'var(--color-primary)',
-    borderRadius: 'var(--border-radius-s)',
-    padding: '2px 5px',
-    '&:hover': {
-      backgroundColor: 'var(--color-primary-highlight)',
-    },
-  },
   'div.sl-stack.sl-stack--horizontal.sl-stack--5.sl-flex.sl-flex-row.sl-items-center + div': {
     // path of request under title
     backgroundColor: 'var(--color-surface-1)',
@@ -140,7 +131,7 @@ export const globalStyles = globalCss({
     // button that opens dropdown menu for Export
     color: 'var(--color-text-1) !important',
     backgroundColor: 'var(--color-surface-2) !important',
-    borderRadius: 'var(--border-radius-xs) ~important',
+    borderRadius: 'var(--border-radius-xs) !important',
     border: '1px solid var(--color-border-2) !important',
     '&:hover': {
       backgroundColor: 'var(--color-surface-1) !important',

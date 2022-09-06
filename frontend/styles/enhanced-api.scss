@@ -9911,4 +9911,10 @@
     font-size: 12px;
     line-height: 1.5em;
   }
+  p > a {
+    color: var(--color-primary) !important;
+    &:hover {
+      color: var(--color-primary-highlight) !important;
+    }
+  }
 }
