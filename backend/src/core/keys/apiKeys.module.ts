@@ -29,7 +29,6 @@ const apiKeysFactory = {
 
 @Module({
   providers: [apiKeysFactory, ApiKeysService, PrismaService],
-  //providers: [keysFactory, apiKeysFactory, ApiKeysService, PrismaService],
   exports: [ApiKeysService],
 })
 export class ApiKeysModule {}

@@ -7,6 +7,8 @@ import { Consumer, ConsumerRateLimitingPolicyEnum } from './rpcaas-client';
 export class ApiKeysMockProvisioningService
   implements ApiKeysProvisioningServiceInterface
 {
+  private MOCK_KEY = 'e470632d-2884-439e-880b-a73c8a7bf42d';
+
   async getOrganization(kongConsumer: string): Promise<Consumer> {
     return {
       custom_id: kongConsumer,
@@ -19,10 +21,10 @@ export class ApiKeysMockProvisioningService
     return;
   }
   async generate(kongConsumer: string, keySlug: string) {
-    return keySlug;
+    return this.MOCK_KEY;
   }
   async rotate(kongConsumer: string, keySlug: string) {
-    return keySlug;
+    return this.MOCK_KEY;
   }
   async delete(kongConsumer: string, keySlug: string) {
     return;
@@ -31,7 +33,7 @@ export class ApiKeysMockProvisioningService
     return;
   }
   async fetch(keySlug: string): Promise<string> {
-    return keySlug;
+    return this.MOCK_KEY;
   }
   async fetchAll(kongConsumer: string): Promise<string[]> {
     return [];

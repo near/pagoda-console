@@ -15,9 +15,9 @@ export class ApiKeysService {
   ) {}
 
   async generateKey(
+    userId: User['id'],
     orgSlug: string,
     projectSlug: string,
-    userId: User['id'],
     usersDescription?: string,
   ) {
     const slug = nanoid();
@@ -90,7 +90,7 @@ export class ApiKeysService {
     }
   }
 
-  async rotateKey(orgSlug: string, slug: string, userId: User['id']) {
+  async rotateKey(userId: User['id'], slug: string) {
     let keyDetails;
     try {
       keyDetails = await this.getKeyDetails(slug);
@@ -125,7 +125,7 @@ export class ApiKeysService {
     }
   }
 
-  async deleteKey(orgSlug: string, slug: string, userId: User['id']) {
+  async deleteKey(userId: User['id'], orgSlug: string, slug: string) {
     let kongConsumerObj;
     try {
       kongConsumerObj = await this.prisma.apiKey.findFirst({
@@ -253,7 +253,7 @@ export class ApiKeysService {
     }
   }
 
-  async deleteOrg(orgSlug: string, userId: User['id']) {
+  async deleteOrg(userId: User['id'], orgSlug: string) {
     let kongConsumerObj;
     try {
       kongConsumerObj = await this.prisma.apiKey.findFirst({
@@ -286,7 +286,7 @@ export class ApiKeysService {
       });
 
       await Promise.all(
-        orgKeySlugs.map((el) => this.deleteKey(orgSlug, el.slug, userId)),
+        orgKeySlugs.map((el) => this.deleteKey(userId, orgSlug, el.slug)),
       );
 
       await this.provisioningService.deleteOrganization(
@@ -317,7 +317,7 @@ export class ApiKeysService {
     return keyDetails;
   }
 
-  async deleteProjectKeys(projectSlug: string, userId: User['id']) {
+  async deleteProjectKeys(userId: User['id'], projectSlug: string) {
     try {
       const projectKeySlugs = await this.prisma.apiKey.findMany({
         where: {
@@ -335,7 +335,7 @@ export class ApiKeysService {
 
       const keyPromises = [];
       projectKeySlugs.forEach((el) => {
-        keyPromises.push(this.deleteKey(el.orgSlug, el.slug, userId));
+        keyPromises.push(this.deleteKey(userId, el.orgSlug, el.slug));
       });
 
       await Promise.all(keyPromises);

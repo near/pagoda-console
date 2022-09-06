@@ -179,7 +179,7 @@ export class ProjectsService {
 
     // generate RPC keys
     try {
-      await this.apiKeys.generateKey(orgSlug, projectSlug, user.id);
+      await this.apiKeys.generateKey(user.id, orgSlug, projectSlug);
     } catch (e) {
       // Attempt to delete the project, since API keys failed to generate.
       try {
@@ -341,7 +341,7 @@ export class ProjectsService {
       projectWhereUnique,
     });
 
-    await this.apiKeys.deleteProjectKeys(project.slug, callingUser.id);
+    await this.apiKeys.deleteProjectKeys(callingUser.id, project.slug);
 
     // Soft delete the project and associated items.
     try {
@@ -920,11 +920,7 @@ export class ProjectsService {
     }
 
     try {
-      return await this.apiKeys.rotateKey(
-        keyRelatedSlugs.orgSlug,
-        keySlug,
-        callingUser.id,
-      );
+      return await this.apiKeys.rotateKey(callingUser.id, keySlug);
     } catch (e) {
       throw new VError(e, `Failed to rotate key ${keySlug}`);
     }
@@ -957,9 +953,9 @@ export class ProjectsService {
 
     try {
       return await this.apiKeys.generateKey(
+        callingUser.id,
         project.orgSlug,
         projectSlug,
-        callingUser.id,
         description,
       );
     } catch (e) {
@@ -1004,9 +1000,9 @@ export class ProjectsService {
 
     try {
       await this.apiKeys.deleteKey(
+        callingUser.id,
         keyRelatedSlugs.orgSlug,
         keySlug,
-        callingUser.id,
       );
     } catch (e) {
       throw new VError(e, `Failed to rotate key ${keySlug}`);
@@ -1024,16 +1020,16 @@ export class ProjectsService {
           slug: true,
         },
       });
-      await this.apiKeys.deleteOrg(orgDetails.slug, user.id);
+      await this.apiKeys.deleteOrg(user.id, orgDetails.slug);
     } catch (e) {
       throw new VError(e, `Failed to delete API keys for user's personal org`);
     }
   }
 
   // Deletes api keys associated with an org.
-  async deleteApiKeysByOrg(orgSlug: Org['slug'], user: User) {
+  async deleteApiKeysByOrg(user: User, orgSlug: Org['slug']) {
     try {
-      await this.apiKeys.deleteOrg(orgSlug, user.id);
+      await this.apiKeys.deleteOrg(user.id, orgSlug);
     } catch (e) {
       throw new VError(e, `Failed to delete API keys for org`);
     }

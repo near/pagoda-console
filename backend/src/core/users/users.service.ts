@@ -743,7 +743,7 @@ export class UsersService implements OnModuleInit {
     }
     const updatedBy = callingUser.id;
 
-    await this.projectsService.deleteApiKeysByOrg(orgSlug, callingUser);
+    await this.projectsService.deleteApiKeysByOrg(callingUser, orgSlug);
 
     await this.prisma.$transaction([
       this.prisma.org.update({
