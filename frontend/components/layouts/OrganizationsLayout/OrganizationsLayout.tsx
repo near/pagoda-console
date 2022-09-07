@@ -1,7 +1,6 @@
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
-import { useCallback } from 'react';
 
 import { ButtonLink } from '@/components/lib/Button';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -13,20 +12,17 @@ import { Footer } from '../Footer';
 import * as S from './styles';
 
 export const OrganizationsLayout = ({ children }: { children: ReactElement }) => {
-  const router = useRouter();
-  const back = useCallback(() => router.back(), [router]);
-
   return (
     <S.Wrapper>
       <S.Header>
         <Flex align="center" justify="spaceBetween">
           <S.Title>
-            <FeatherIcon
-              size="m"
-              icon="arrow-left"
-              onClick={back}
-              css={{ cursor: 'pointer', color: 'var(--color-cta-primary)' }}
-            />
+            <Link href="/projects" passHref>
+              <a>
+                <FeatherIcon size="m" icon="arrow-left" color="primary" css={{ cursor: 'pointer' }} />
+                <VisuallyHidden>Back to Projects</VisuallyHidden>
+              </a>
+            </Link>
 
             <H3>Organizations</H3>
           </S.Title>
