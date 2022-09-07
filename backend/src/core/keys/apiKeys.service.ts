@@ -198,18 +198,25 @@ export class ApiKeysService {
         select: {
           slug: true,
           description: true,
+          id: true,
         },
       });
       if (projectKeySlugs.length === 0) {
         return [];
       }
 
-      const keys: { keySlug: string; description: string; key: string }[] = [];
+      const keys: {
+        id: number;
+        keySlug: string;
+        description: string;
+        key: string;
+      }[] = [];
       const keyPromises = [];
       projectKeySlugs.forEach((el) => {
         keyPromises.push(
           this.provisioningService.fetch(el.slug).then((key) => {
             keys.push({
+              id: el.id,
               keySlug: el.slug,
               description: el.description,
               key,
@@ -220,7 +227,9 @@ export class ApiKeysService {
 
       await Promise.all(keyPromises);
 
-      return keys;
+      return keys
+        .sort((a, b) => a.id - b.id) // sorting in ascending order by id
+        .map(({ id: _id, ...el }) => el); // cutting out the id
     } catch (e) {
       throw new VError(e, 'Failed while getting keys');
     }
