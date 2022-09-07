@@ -141,7 +141,7 @@ const ViewContract: NextPageWithLayout = () => {
 
           {contractAbi && (
             <Tabs.Content css={{ paddingTop: 0 }} value="abi">
-              <ContractAbi />
+              <ContractAbi contract={contract} />
             </Tabs.Content>
           )}
         </Section>
