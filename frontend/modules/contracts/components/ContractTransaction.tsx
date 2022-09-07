@@ -191,7 +191,7 @@ interface ContractFormData {
   gas: string;
   deposit: string;
   nearFormat: 'NEAR' | 'yoctoⓃ';
-  gasFormat: 'Tgas' | 'Ggas' | 'Mgas';
+  gasFormat: 'Tgas' | 'Ggas' | 'Mgas' | 'gas';
   [param: string]: any;
 }
 
@@ -220,6 +220,8 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
         return new BN(gasUtils.convertGasToGgas(gas));
       case 'Mgas':
         return new BN(gasUtils.convertGasToMgas(gas));
+      case 'gas':
+        return new BN(gas);
       default:
         return new BN(gasUtils.convertGasToTgas(gas));
     }
@@ -468,6 +470,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                     <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Tgas')}>Tgas</DropdownMenu.Item>
                     <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Ggas')}>Ggas</DropdownMenu.Item>
                     <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Mgas')}>Mgas</DropdownMenu.Item>
+                    <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'gas')}>gas</DropdownMenu.Item>
                   </DropdownMenu.Content>
                 </DropdownMenu.Root>
               </Flex>
