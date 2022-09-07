@@ -156,6 +156,16 @@ export const Input = styled('input', {
         ...inputInvalidStyles,
       },
     },
+    file: {
+      true: {
+        position: 'absolute',
+        inset: 0,
+        opacity: 0,
+        padding: 0,
+        height: 'auto',
+        pointerEvents: 'none',
+      },
+    },
   },
 });
 

@@ -44,3 +44,29 @@ import { ButtonLink } from '@/components/lib/Button';
   Try Out NEAR Lake
 </ButtonLink>;
 ```
+
+## Label Button
+
+The `ButtonLabel` component is useful when needing to accomplish a file upload button:
+
+```tsx
+import { ButtonLabel } from '@/components/lib/Button';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
+import * as Form from '@/components/lib/Form';
+
+...
+
+<ButtonLabel color="primaryBorder" size="s">
+  <FeatherIcon size="xs" icon="upload" />
+
+  Upload
+
+  <Form.Input
+    file
+    type="file"
+    onChange={handleUpload}
+    tabIndex={-1}
+    accept="application/JSON"
+  />
+</ButtonLabel>
+```

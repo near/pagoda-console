@@ -1,4 +1,4 @@
-import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, LabelHTMLAttributes } from 'react';
 import { forwardRef } from 'react';
 
 import type { StitchesCSS, StitchesProps } from '@/styles/stitches';
@@ -13,6 +13,7 @@ type Props = StitchesProps<typeof S.Button> & {
 type ButtonProps = Props & ButtonHTMLAttributes<HTMLButtonElement>;
 type ButtonDropdownProps = Props & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'>;
 type ButtonLinkProps = Props & AnchorHTMLAttributes<HTMLAnchorElement> & { external?: boolean };
+type ButtonLabelProps = Props & LabelHTMLAttributes<HTMLLabelElement>;
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ children, type = 'button', stableId, ...props }, ref) => {
@@ -71,3 +72,14 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
   },
 );
 ButtonLink.displayName = 'ButtonLink';
+
+export const ButtonLabel = forwardRef<HTMLLabelElement, ButtonLabelProps>(
+  ({ children, size, stableId, ...props }, ref) => {
+    return (
+      <S.Button as="label" ref={ref} size={size} data-stable-id={stableId} tabIndex={0} {...props}>
+        <S.Content>{children}</S.Content>
+      </S.Button>
+    );
+  },
+);
+ButtonLabel.displayName = 'ButtonLabel';

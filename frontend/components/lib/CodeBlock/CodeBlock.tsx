@@ -6,6 +6,7 @@ import { atomOneDark, atomOneLight } from 'react-syntax-highlighter/dist/cjs/sty
 import { Button } from '@/components/lib/Button';
 import * as Popover from '@/components/lib/Popover';
 import { useTheme } from '@/hooks/theme';
+import type { StitchesCSS } from '@/styles/stitches';
 
 import { Box } from '../Box';
 import { FeatherIcon } from '../FeatherIcon';
@@ -13,9 +14,10 @@ import { Text } from '../Text';
 
 type Props = ComponentProps<typeof SyntaxHighlighter> & {
   children: ReactNode;
+  css?: StitchesCSS;
 };
 
-export function CodeBlock({ children, customStyle, ...passedProps }: Props) {
+export function CodeBlock({ children, css, customStyle, ...passedProps }: Props) {
   const { activeTheme } = useTheme();
   const isChildString = typeof children === 'string';
   const [showCopiedAlert, setShowCopiedAlert] = useState(false);
@@ -40,6 +42,10 @@ export function CodeBlock({ children, customStyle, ...passedProps }: Props) {
       css={{
         position: 'relative',
         width: '100%',
+        borderRadius: 'var(--border-radius-m)',
+        background: 'var(--color-surface-1)',
+        overflow: 'auto',
+        ...css,
       }}
     >
       <SyntaxHighlighter
@@ -48,7 +54,7 @@ export function CodeBlock({ children, customStyle, ...passedProps }: Props) {
           fontFamily: 'var(--font-code)',
           borderRadius: 'var(--border-radius-m)',
           padding: '1rem 3rem 1rem 1.2rem',
-          background: 'var(--color-surface-1)',
+          background: 'none',
           border: '1px solid var(--color-border-1)',
           ...customStyle,
         }}
@@ -71,11 +77,12 @@ export function CodeBlock({ children, customStyle, ...passedProps }: Props) {
               right: '0rem',
               background: 'transparent',
               boxShadow: 'none',
-              borderRadius: '0 var(--border-radius-m) 0 var(--border-radius-m)',
+              borderRadius: '0',
               padding: '0 6px',
 
-              '&:hover': {
+              '&:hover, &:focus': {
                 background: 'var(--color-surface-overlay)',
+                outline: 'none',
               },
             }}
           >

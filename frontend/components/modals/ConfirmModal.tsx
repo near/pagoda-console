@@ -18,14 +18,17 @@ interface Props {
   onConfirm?: () => void;
   setErrorText?: (error: string) => void;
   setShow: (show: boolean) => void;
+  size?: 's' | 'm';
   show: boolean;
   title: string;
 }
 
 export function ConfirmModal(props: Props) {
+  const size = props.size || 's';
+
   return (
     <Dialog.Root open={props.show} onOpenChange={props.setShow}>
-      <Dialog.Content title={props.title} size="s">
+      <Dialog.Content title={props.title} size={size}>
         <Flex stack gap="l">
           {props.children}
 

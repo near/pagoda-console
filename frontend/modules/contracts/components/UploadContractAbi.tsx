@@ -1,40 +1,18 @@
 import { useCallback, useState } from 'react';
 
-import { Box } from '@/components/lib/Box';
-import { Button, ButtonLink } from '@/components/lib/Button';
+import { Button, ButtonLabel, ButtonLink } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
 import { CodeBlock } from '@/components/lib/CodeBlock';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { uploadContractAbi } from '@/modules/contracts/hooks/abi';
-import { styled } from '@/styles/stitches';
 
 const MAX_CODE_HEIGHT = '18rem';
-
-const Upload = styled('div', {
-  position: 'relative',
-  overflow: 'hidden',
-
-  [`& ${Text}`]: {
-    color: 'var(--color-primary)',
-  },
-
-  '& input[type=file]': {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    opacity: 0,
-  },
-});
-
-const CodeWrapper = styled(Box, {
-  marginTop: '1.5rem',
-  maxHeight: MAX_CODE_HEIGHT,
-});
 
 type Props = {
   contractSlug: string;
@@ -104,8 +82,9 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
   }, []);
 
   // TODO break out modal and default state into separate components. That should help with clearing the form data in the modal.
-  if (!showModal) {
-    return (
+
+  return (
+    <>
       <Card>
         <Flex stack align="center">
           <FeatherIcon icon="file-text" size="l" />
@@ -120,31 +99,32 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
           </Flex>
         </Flex>
       </Card>
-    );
-  }
 
-  return (
-    <ConfirmModal
-      confirmColor="primary"
-      onConfirm={uploadAbi}
-      setShow={setShowModal}
-      show={showModal}
-      title={`Before you start, add an ABI`}
-    >
-      <Form.Root>
+      <ConfirmModal
+        confirmColor="primary"
+        onConfirm={uploadAbi}
+        setShow={setShowModal}
+        show={showModal}
+        title={`Before you start, add an ABI`}
+        size="m"
+        disabled={!previewAbi}
+      >
         <Flex inline justify="spaceBetween">
-          <Text>Contract ABI</Text>
-          <Upload>
-            <Text>Upload</Text>
-            <Form.Input type="file" title="Upload" onChange={handleUpload} />
-          </Upload>
+          <TextLink href="https://github.com/near/abi" external>
+            To generate an ABI
+          </TextLink>
+
+          <ButtonLabel color="primaryBorder" size="s">
+            <FeatherIcon size="xs" icon="upload" />
+            Upload
+            <Form.Input type="file" onChange={handleUpload} file tabIndex={-1} accept="application/JSON" />
+          </ButtonLabel>
         </Flex>
-        <CodeWrapper>
-          <CodeBlock customStyle={{ overflowY: 'scroll', maxHeight: MAX_CODE_HEIGHT }} language="json">
-            {!previewAbi ? '{}' : JSON.stringify(JSON.parse(previewAbi), null, 2)}
-          </CodeBlock>
-        </CodeWrapper>
-      </Form.Root>
-    </ConfirmModal>
+
+        <CodeBlock css={{ maxHeight: MAX_CODE_HEIGHT }} language="json">
+          {!previewAbi ? '{}' : JSON.stringify(JSON.parse(previewAbi), null, 2)}
+        </CodeBlock>
+      </ConfirmModal>
+    </>
   );
 };
