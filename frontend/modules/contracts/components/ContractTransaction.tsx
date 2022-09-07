@@ -27,11 +27,13 @@ import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { initContractMethods, useContractAbi } from '@/modules/contracts/hooks/abi';
 import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
+import * as gasUtils from '@/modules/contracts/utils/convert-gas';
 import TxList from '@/public/contracts/images/TxList.svg';
 import WalletIcon from '@/public/images/icons/wallet.svg';
 import { styled } from '@/styles/stitches';
+import { convertNearToYocto } from '@/utils/convert-near';
 import type { Contract } from '@/utils/types';
-import { validateMaxYoctoU128 } from '@/utils/validations';
+import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
 const TextItalic = styled(Text, {
   fontStyle: 'italic',
@@ -178,14 +180,54 @@ interface ContractFormProps {
   onTxError: () => void;
 }
 
+interface ContractFormData {
+  contractFunction: string;
+  gas: string;
+  deposit: string;
+  nearFormat: 'NEAR' | 'yoctoⓃ';
+  gasFormat: 'Tgas' | 'Ggas' | 'Mgas';
+  [param: string]: any;
+}
+
 const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, onTxError }: ContractFormProps) => {
   const [contractMethods, setContractMethods] = useState<AbiContract | null>(null);
-  const form = useForm<{ contractFunction: string; gas: string; deposit: string } & any>();
+  const form = useForm<ContractFormData>();
   const { contractAbi } = useContractAbi(contract?.slug);
+
+  const nearFormat = form.watch('nearFormat');
+  const gasFormat = form.watch('gasFormat');
+  const abi = contractMethods?.abi;
+  const functionItems = abi?.body.functions;
+  const selectedFunctionName = form.watch('contractFunction');
+  const selectedFunction = functionItems?.find((option) => option.name === selectedFunctionName);
 
   const signedIn = (accountId: string | undefined, wallet: WalletSelector | null): boolean => {
     // TODO determine if certain wallets leave the account id undefined when signed in.
     return accountId != undefined && wallet != null;
+  };
+
+  const convertGas = (gas: string) => {
+    switch (gasFormat) {
+      case 'Tgas':
+        return new BN(gasUtils.convertGasToTgas(gas));
+      case 'Ggas':
+        return new BN(gasUtils.convertGasToGgas(gas));
+      case 'Mgas':
+        return new BN(gasUtils.convertGasToMgas(gas));
+      default:
+        return new BN(gasUtils.convertGasToTgas(gas));
+    }
+  };
+
+  const convertNearDeposit = (deposit: string) => {
+    switch (nearFormat) {
+      case 'NEAR':
+        return new BN(convertNearToYocto(deposit));
+      case 'yoctoⓃ':
+        return new BN(deposit);
+      default:
+        return new BN(deposit);
+    }
   };
 
   const initMethods = useCallback(async () => {
@@ -223,12 +265,13 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
     }
   }, [contract.slug, form]);
 
-  const abi = contractMethods?.abi;
-  const functionItems = abi?.body.functions;
-  const selectedFunctionName = form.watch('contractFunction');
-  const selectedFunction = functionItems?.find((option) => option.name === selectedFunctionName);
+  useEffect(() => {
+    if (!form.getValues('nearFormat')) form.setValue('nearFormat', 'yoctoⓃ');
+    if (!form.getValues('gasFormat')) form.setValue('gasFormat', 'Tgas');
+    form.clearErrors();
+  }, [nearFormat, gasFormat, form]);
 
-  const submitForm = async (params: any) => {
+  const submitForm = async (params: ContractFormData) => {
     // Asserts that contract exists and selected function is valid
     const contractFn = contractMethods![selectedFunction!.name];
     let call;
@@ -236,19 +279,28 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
     sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
 
     if (selectedFunction?.params) {
-      const fieldParams = selectedFunction.params.map((p) => {
-        const value = params[p.name];
-        const schema_ty = resolveDefinition(abi!, p.type_schema);
-        if (schema_ty === 'integer') {
-          return parseInt(value);
-        } else if (schema_ty === 'string') {
-          // Return value as is, already a string.
-          return value;
-        } else {
-          return JSON.parse(value);
-        }
-      });
-      call = contractFn(...fieldParams);
+      try {
+        const fieldParams = selectedFunction.params.map((p) => {
+          const value = params[p.name];
+          const schema_ty = resolveDefinition(abi!, p.type_schema);
+          if (schema_ty === 'integer') {
+            return parseInt(value);
+          } else if (schema_ty === 'string') {
+            // Return value as is, already a string.
+            return value;
+          } else {
+            return JSON.parse(value);
+          }
+        });
+        call = contractFn(...fieldParams);
+      } catch (e) {
+        console.error(e);
+        openToast({
+          type: 'error',
+          title: 'Invalid Params',
+          description: 'Please check your function parameters and try again.',
+        });
+      }
     } else {
       call = contractFn();
     }
@@ -259,8 +311,9 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
       if (!selectedFunction?.is_view) {
         // Pull gas/deposit from fields or default. This default will be done by the abi client
         // library, but doing it here to have more control and ensure no hidden bugs.
-        const gas = params.gas ? new BN(params.gas) : new BN(10_000_000_000_000);
-        const attachedDeposit = params.deposit ? new BN(params.deposit) : new BN(0);
+
+        const gas = params.gas ? convertGas(params.gas).toString() : new BN(10_000_000_000_000).toString();
+        const attachedDeposit = params.deposit ? convertNearDeposit(params.deposit).toString() : '0';
 
         res = await call.callFrom(await selector?.wallet(), {
           gas,
@@ -288,61 +341,6 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
       });
     }
     return null;
-  };
-
-  const TransactionParameters = () => {
-    if (selectedFunction) {
-      if (selectedFunction?.is_view) {
-        return (
-          <Flex stack gap="l">
-            <Button type="submit" loading={form.formState.isSubmitting} stretch>
-              View Call
-            </Button>
-          </Flex>
-        );
-      } else {
-        return (
-          <Flex stack>
-            <SectionTitle>3. Transaction Parameters</SectionTitle>
-            <Form.Group>
-              <Form.FloatingLabelInput
-                type="string"
-                label="Gas: defaults to 10 TeraGas"
-                {...form.register('gas')}
-                // TODO this field should be validated as gas
-              />
-            </Form.Group>
-
-            <Form.Group>
-              <Controller
-                name="deposit"
-                control={form.control}
-                rules={{
-                  validate: {
-                    maxValue: validateMaxYoctoU128,
-                  },
-                }}
-                render={({ field }) => (
-                  <NearInput
-                    yocto
-                    label="Deposit: defaults to 0"
-                    field={field}
-                    isInvalid={!!form.formState.errors.deposit}
-                  />
-                )}
-              />
-              <Form.Feedback>{form.formState.errors.deposit?.message}</Form.Feedback>
-            </Form.Group>
-
-            <Button type="submit" loading={form.formState.isSubmitting} stretch>
-              {selectedFunction && selectedFunction.is_view ? 'View Call' : 'Send Transaction'}
-            </Button>
-          </Flex>
-        );
-      }
-    } else {
-      return null;
-    }
   };
 
   const ParamInput = ({ param }: { param: AbiParameter }) => {
@@ -426,7 +424,92 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
               : null}
           </Flex>
 
-          <TransactionParameters />
+          {selectedFunction?.is_view && (
+            <Flex stack gap="l">
+              <Button type="submit" loading={form.formState.isSubmitting} stretch>
+                View Call
+              </Button>
+            </Flex>
+          )}
+
+          {selectedFunction && !selectedFunction.is_view && (
+            <Flex stack>
+              <SectionTitle>3. Transaction Parameters</SectionTitle>
+
+              <Flex inline>
+                <Form.Group>
+                  <Form.FloatingLabelInput
+                    type="string"
+                    label="Gas:"
+                    isInvalid={!!form.formState.errors.gas}
+                    defaultValue="10"
+                    {...form.register(`gas`, {
+                      validate: {
+                        minValue: (value: string) => new BN(value).gtn(0) || 'You need to attach at least 10Tgas',
+                        maxValue: (value: string) =>
+                          convertGas(value).lt(new BN(gasUtils.convertGasToTgas('300'))) ||
+                          'You can attach a maximum of 300Tgas to a transaction',
+                      },
+                    })}
+                  />
+
+                  <Form.Feedback>{form.formState.errors.gas?.message}</Form.Feedback>
+                </Form.Group>
+
+                <DropdownMenu.Root>
+                  <DropdownMenu.Button css={{ width: '9rem' }}>{gasFormat}</DropdownMenu.Button>
+                  <DropdownMenu.Content>
+                    <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Tgas')}>Tgas</DropdownMenu.Item>
+                    <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Ggas')}>Ggas</DropdownMenu.Item>
+                    <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Mgas')}>Mgas</DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+              </Flex>
+
+              <Flex inline>
+                <Form.Group>
+                  <Controller
+                    name="deposit"
+                    control={form.control}
+                    rules={{
+                      validate:
+                        nearFormat === 'yoctoⓃ'
+                          ? {
+                              integer: validateInteger,
+                              maxValue: validateMaxYoctoU128,
+                            }
+                          : {
+                              maxValue: validateMaxNearU128,
+                            },
+                    }}
+                    defaultValue="0"
+                    render={({ field }) => (
+                      <NearInput
+                        yocto={nearFormat === 'yoctoⓃ'}
+                        label="Deposit:"
+                        field={field}
+                        isInvalid={!!form.formState.errors.deposit}
+                      />
+                    )}
+                  />
+
+                  <Form.Feedback>{form.formState.errors.deposit?.message}</Form.Feedback>
+                </Form.Group>
+
+                <DropdownMenu.Root>
+                  <DropdownMenu.Button css={{ width: '9rem' }}>{nearFormat}</DropdownMenu.Button>
+                  <DropdownMenu.Content>
+                    <DropdownMenu.Item onSelect={() => form.setValue('nearFormat', 'NEAR')}>NEAR</DropdownMenu.Item>
+                    <DropdownMenu.Item onSelect={() => form.setValue('nearFormat', 'yoctoⓃ')}>yoctoⓃ</DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+              </Flex>
+
+              <Button type="submit" loading={form.formState.isSubmitting} stretch>
+                {selectedFunction && selectedFunction.is_view ? 'View Call' : 'Send Transaction'}
+              </Button>
+            </Flex>
+          )}
         </Flex>
       </Form.Root>
     </FormWrapper>
