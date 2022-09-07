@@ -94,6 +94,8 @@ model Org {
   projects          Project[]
   orgInvites        OrgInvite[]
   teams             Team[]
+    /// Foreign key to the kong consumer object in EMS
+  emsId             String      @unique
   createdAt         DateTime?   @default(now())
   createdByUser     User?       @relation(name: "UserCreatedOrg", fields: [createdBy], references: [id])
   createdBy         Int?
@@ -193,8 +195,6 @@ model ApiKey {
   slug          String     @unique
   projectSlug   String
   orgSlug       String
-  /// Foreign key to the kong consumer object in RPCaaS
-  kongConsumerName  String
   description   String
   /// If 'false', the record was soft-deleted by a user.
   active        Boolean     @default(true)
