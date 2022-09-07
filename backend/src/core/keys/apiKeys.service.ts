@@ -278,10 +278,7 @@ export class ApiKeysService {
     }
 
     if (!kongConsumerObj) {
-      throw new VError(
-        { info: { code: 'BAD_REQUEST' } },
-        'Could not find org details',
-      );
+      return; // no kong consumer and keys to delete
     }
     try {
       const orgKeySlugs = await this.prisma.apiKey.findMany({
