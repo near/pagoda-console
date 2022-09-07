@@ -18,6 +18,7 @@ class MyDocument extends Document {
         </Head>
         <body>
           <script dangerouslySetInnerHTML={{ __html: initializeTheme }} />
+          <script defer src="https://p5c5wl39l4g2.statuspage.io/embed/script.js"></script>
           <Main />
           <NextScript />
         </body>

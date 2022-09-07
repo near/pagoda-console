@@ -17,6 +17,15 @@ export function Footer(props: Props) {
         <TextLink size="s" color="neutral" href="/PrivacyPolicy.pdf" target="_blank" rel="noopener noreferrer">
           Privacy Policy
         </TextLink>
+        <TextLink
+          size="s"
+          color="neutral"
+          href="https://pagoda.statuspage.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Pagoda Status
+        </TextLink>
       </Flex>
     </S.Footer>
   );
