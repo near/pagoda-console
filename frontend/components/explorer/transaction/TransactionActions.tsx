@@ -2,9 +2,13 @@ import type { DurationLikeObject } from 'luxon';
 import { Duration, Interval } from 'luxon';
 import * as React from 'react';
 import useSWR from 'swr';
+import type { BareFetcher, PublicConfiguration, Revalidator, RevalidatorOptions } from 'swr/dist/types';
 
+import { Flex } from '@/components/lib/Flex';
 import { H4 } from '@/components/lib/Heading';
+import { Placeholder } from '@/components/lib/Placeholder';
 import { Spinner } from '@/components/lib/Spinner';
+import { Text } from '@/components/lib/Text';
 import { useNet } from '@/hooks/net';
 import { styled } from '@/styles/stitches';
 import { unauthenticatedPost } from '@/utils/http';
@@ -30,17 +34,57 @@ const TitleWrapper = styled('div', {
   marginBottom: 30,
 });
 
+// Differs from the global error retry by retrying on 400 errors.
+function customErrorRetry(
+  err: any,
+  __: string,
+  config: Readonly<PublicConfiguration<Transaction, any, BareFetcher<Transaction>>>,
+  revalidate: Revalidator,
+  opts: Required<RevalidatorOptions>,
+): void {
+  switch (err.statusCode) {
+    case 401:
+    case 403:
+    case 404:
+      console.log(`breaking for status code of ${err.status}`);
+      return;
+  }
+
+  const maxRetryCount = config.errorRetryCount;
+  const currentRetryCount = opts.retryCount;
+
+  const timeout = ~~((Math.random() + 0.5) * (1 << (currentRetryCount < 8 ? currentRetryCount : 8))) + 1500;
+
+  if (maxRetryCount !== undefined && currentRetryCount > maxRetryCount) {
+    return;
+  }
+
+  setTimeout(revalidate, timeout, opts);
+}
+
 const TransactionActions: React.FC<Props> = React.memo(({ transactionHash }) => {
   const net = useNet();
-  const query = useSWR<Transaction>(transactionHash ? ['explorer/transaction', transactionHash, net] : null, () =>
-    unauthenticatedPost(`/explorer/transaction/`, { hash: transactionHash, net }),
+
+  const query = useSWR<Transaction>(
+    transactionHash ? ['explorer/transaction', transactionHash, net] : null,
+    () => unauthenticatedPost(`/explorer/transaction/`, { hash: transactionHash, net }),
+    {
+      onErrorRetry: customErrorRetry,
+      // TODO currently this is a quick hack to load TXs that may have pending receipts that are scheduled to execute in the next block. We could stop refreshing once we get the last receipt's execution outcome timestamp.
+      refreshInterval: 3000,
+    },
   );
 
   if (!transactionHash) {
     return <div>No transaction hash</div>;
   }
   if (!query.data) {
-    return <Spinner center />;
+    return (
+      <Flex stack gap="l" align="center">
+        <Spinner center />
+        <Text>Loading Transaction (this could take a few seconds)</Text>
+      </Flex>
+    );
   }
   return <TransactionActionsList transaction={query.data} />;
 });
@@ -78,16 +122,13 @@ const TransactionActionsList: React.FC<ListProps> = React.memo(({ transaction })
   const expandAllReceipts = React.useCallback(() => setExpanded((x) => !x), [setExpanded]);
 
   const nestedReceipts = transaction.receipt.outcome.nestedReceipts;
-  const pending = React.useMemo(
-    () =>
-      toHuman(
-        Interval.fromDateTimes(
-          new Date(transaction.timestamp),
-          new Date(nestedReceipts.at(-1)?.outcome?.block?.timestamp ?? Infinity),
-        ).toDuration(),
-      ),
-    [transaction.timestamp, nestedReceipts],
-  );
+  const pending = React.useMemo(() => {
+    const completedTimestamp = nestedReceipts.at(-1)?.outcome?.block?.timestamp;
+    if (!completedTimestamp) {
+      return <Placeholder css={{ display: 'inline-block', width: '8rem' }} />;
+    }
+    return toHuman(Interval.fromDateTimes(new Date(transaction.timestamp), new Date(completedTimestamp)).toDuration());
+  }, [transaction.timestamp, nestedReceipts]);
 
   return (
     <Wrapper>

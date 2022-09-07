@@ -18,7 +18,6 @@ import * as Form from '@/components/lib/Form';
 import { H3, H5 } from '@/components/lib/Heading';
 import { List, ListItem } from '@/components/lib/List';
 import { NearInput } from '@/components/lib/NearInput';
-import { Spinner } from '@/components/lib/Spinner';
 import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
@@ -116,11 +115,8 @@ export const ContractTransaction = ({ contract }: Props) => {
   useEffect(() => {
     if (transactionHashParam) {
       const hash = transactionHashParam;
-
-      setTimeout(() => {
-        setTxResult({ hash });
-        router.replace(`/contracts/${contract.slug}?tab=interact`);
-      }, 1000); // This timeout avoids a race condition where the transaction isn't quite ready yet
+      setTxResult({ hash });
+      router.replace(`/contracts/${contract.slug}?tab=interact`);
     }
   }, [transactionHashParam, contract.slug, router]);
 
@@ -172,7 +168,7 @@ export const ContractTransaction = ({ contract }: Props) => {
       </ContractParams>
 
       <Box css={{ width: '100%' }}>
-        {transactionHashParam ? <Spinner center /> : <TxResultView result={txResult} />}
+        <TxResultView result={txResult} />
       </Box>
     </Flex>
   );
