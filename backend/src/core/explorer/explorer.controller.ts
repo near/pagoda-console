@@ -1,4 +1,10 @@
-import { Controller, Post, UsePipes, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UsePipes,
+  Body,
+  BadRequestException,
+} from '@nestjs/common';
 import {
   ExplorerService,
   AccountActivity,
@@ -31,7 +37,11 @@ export class ExplorerController {
   async transaction(
     @Body() { net, hash }: TransactionInputDto,
   ): Promise<Transaction> {
-    return this.explorerService.fetchTransaction(net, hash);
+    const tx = await this.explorerService.fetchTransaction(net, hash);
+    if (!tx) {
+      throw new BadRequestException('TX_NOT_FOUND');
+    }
+    return tx;
   }
 
   @Post('balanceChanges')
