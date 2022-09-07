@@ -53,7 +53,11 @@ const ViewContract: NextPageWithLayout = () => {
       setSelectedContractSlug(slug);
       setWalletNotice(true);
     } else {
-      router.push(`/contracts/${slug}?tab=${activeTab}`);
+      //* This is a hack, this is forcing a reload to be able to refresh the modal component
+      //* for wallet selector to allow switching contract.
+      //* See: https://github.com/near/wallet-selector/issues/403
+      // router.push(`/contracts/${slug}?tab=${activeTab}`);
+      window.location.href = `/contracts/${slug}?tab=${activeTab}`;
     }
   }
 

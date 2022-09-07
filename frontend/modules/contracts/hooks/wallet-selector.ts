@@ -15,17 +15,19 @@ import { openToast } from '@/components/lib/Toast';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useThemeStore } from '@/modules/core/components/ThemeToggle';
 
+// Cache in module to ensure we don't re-init
+let selector: WalletSelector | null = null;
+let modal: WalletSelectorModal | null = null;
+
 export const useWalletSelector = (contractId: string | undefined) => {
-  const [selector, setSelector] = useState<WalletSelector | null>(null);
-  const [modal, setModal] = useState<WalletSelectorModal | null>(null);
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
   const { activeTheme } = useThemeStore();
   const { environment } = useSelectedProject();
 
   const init = useCallback(async () => {
-    if (!contractId || !environment) return null;
+    if (modal || !contractId || !environment) return null;
 
-    const waletSelector = await setupWalletSelector({
+    selector = await setupWalletSelector({
       network: environment.net.toLowerCase() as NetworkId,
       modules: [
         setupMyNearWallet({ iconUrl: myNearWalletIconUrl.src }),
@@ -33,15 +35,12 @@ export const useWalletSelector = (contractId: string | undefined) => {
         setupNearWallet({ iconUrl: nearWalletIconUrl.src }),
       ],
     });
-    const selectModal = setupModal(waletSelector, {
+    modal = setupModal(selector, {
       contractId,
       theme: activeTheme,
     });
-    const state = waletSelector.store.getState();
+    const state = selector.store.getState();
     setAccounts(state.accounts);
-
-    setSelector(waletSelector);
-    setModal(selectModal);
   }, [activeTheme, contractId, environment]);
 
   useEffect(() => {
@@ -71,7 +70,7 @@ export const useWalletSelector = (contractId: string | undefined) => {
       });
 
     return () => subscription.unsubscribe();
-  }, [selector]);
+  }, []);
 
   const accountId = accounts.find((account) => account.active)?.accountId;
 
