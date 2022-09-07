@@ -22,13 +22,23 @@ export function TutorialPage(props: Props) {
             },
 
             ol: {
+              maxWidth: '100%',
               listStyle: 'number outside',
-              marginLeft: '1rem',
+              paddingLeft: '2rem',
             },
 
             ul: {
+              maxWidth: '100%',
               listStyle: 'disc outside',
-              marginLeft: '1rem',
+              paddingLeft: '2rem',
+            },
+
+            'ol li': {
+              marginBottom: '1rem',
+            },
+
+            'ol li > *': {
+              marginBottom: '1rem',
             },
 
             hr: {
@@ -54,6 +64,7 @@ export function TutorialPage(props: Props) {
 
             th: {
               fontWeight: 600,
+              whiteSpace: 'nowrap',
               borderBottom: '2px solid var(--color-border-1)',
             },
           }}

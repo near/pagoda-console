@@ -73,8 +73,7 @@ near call nft.examples.testnet nft_mint '{"token_id": "TYPE_A_UNIQUE_VALUE_HERE"
 You can also replace the `media` URL with a link to any image file hosted on your web server.
 </Tip>
 
-<details>
-<summary>Example response: </summary>
+Example response:
 
 ```json
 {
@@ -97,9 +96,6 @@ You can also replace the `media` URL with a link to any image file hosted on you
   "approved_account_ids": {}
 }
 ```
-
-</details>
-<br />
 </li>
 <li>
 To view tokens owned by an account you can call the NFT contract with the following `near-cli` command:
@@ -108,8 +104,7 @@ To view tokens owned by an account you can call the NFT contract with the follow
 near view nft.examples.testnet nft_tokens_for_owner '{"account_id": "'$NEARID'"}'
 ```
 
-<details>
-<summary>Example response: </summary>
+Example response:
 
 ```json
 [
@@ -134,9 +129,6 @@ near view nft.examples.testnet nft_tokens_for_owner '{"account_id": "'$NEARID'"}
   }
 ]
 ```
-
-</details>
-<br />
 
 </li>
 </ol>

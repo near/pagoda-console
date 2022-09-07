@@ -377,8 +377,7 @@ Now that you've approved another account to transfer the token, you can test tha
 near call $APPROVAL_NFT_CONTRACT_ID nft_transfer '{"receiver_id": "'$NFT_CONTRACT_ID'", "token_id": "approval-token", "approval_id": 1}' --accountId $NFT_CONTRACT_ID --depositYocto 1
 ```
 
-<details>
-<summary>Example response: </summary>
+Example response:
 
 ```bash
 kind: {
@@ -387,8 +386,6 @@ kind: {
       " right: `1`: The actual approval_id 0 is different from the given approval_id 1', src/internal.rs:165:17"
   },
 ```
-
-</details>
 
 If you pass the correct approval ID which is `0`, everything should work fine.
 
@@ -434,8 +431,7 @@ Calling the view function again show now return an approval ID of 1 for the sub-
 near view $APPROVAL_NFT_CONTRACT_ID nft_tokens_for_owner '{"account_id": "'$NFT_CONTRACT_ID'", "limit": 10}'
 ```
 
-<details>
-<summary>Example response: </summary>
+Example response:
 
 ```json
 [
@@ -460,8 +456,6 @@ near view $APPROVAL_NFT_CONTRACT_ID nft_tokens_for_owner '{"account_id": "'$NFT_
   }
 ]
 ```
-
-</details>
 
 With the testing finished, you've successfully implemented the approvals extension to the standard!
 
