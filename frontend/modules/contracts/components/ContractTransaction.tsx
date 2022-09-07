@@ -453,10 +453,11 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                     defaultValue="10"
                     {...form.register(`gas`, {
                       validate: {
-                        minValue: (value: string) => new BN(value).gtn(0) || 'You need to attach at least 10Tgas',
+                        minValue: (value: string) =>
+                          new BN(value).gtn(0) || 'Value must be greater than 0. Try using 10 Tgas',
                         maxValue: (value: string) =>
                           convertGas(value).lt(new BN(gasUtils.convertGasToTgas('300'))) ||
-                          'You can attach a maximum of 300Tgas to a transaction',
+                          'You can attach a maximum of 300 Tgas to a transaction',
                       },
                     })}
                   />
