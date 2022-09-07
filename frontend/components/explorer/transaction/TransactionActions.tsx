@@ -40,7 +40,7 @@ const TransactionActions: React.FC<Props> = React.memo(({ transactionHash }) => 
     return <div>No transaction hash</div>;
   }
   if (!query.data) {
-    return <Spinner />;
+    return <Spinner center />;
   }
   return <TransactionActionsList transaction={query.data} />;
 });
@@ -83,7 +83,7 @@ const TransactionActionsList: React.FC<ListProps> = React.memo(({ transaction })
       toHuman(
         Interval.fromDateTimes(
           new Date(transaction.timestamp),
-          new Date(nestedReceipts.at(-1)?.outcome.block.timestamp ?? Infinity),
+          new Date(nestedReceipts.at(-1)?.outcome?.block?.timestamp ?? Infinity),
         ).toDuration(),
       ),
     [transaction.timestamp, nestedReceipts],

@@ -41,6 +41,12 @@ export const Root = styled('div', {
       },
     },
 
+    noFill: {
+      true: {
+        svg: { fill: 'none' },
+      },
+    },
+
     size: {
       xs: {
         width: 'var(--size-icon-xs)',

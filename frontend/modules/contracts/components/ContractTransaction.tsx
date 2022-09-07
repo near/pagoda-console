@@ -1,6 +1,7 @@
 import type { WalletSelector } from '@near-wallet-selector/core';
 import { BN } from 'bn.js';
 import type { AbiParameter, AbiRoot, AnyContract as AbiContract } from 'near-abi-client-js';
+import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -10,42 +11,38 @@ import { Box } from '@/components/lib/Box';
 import { Button } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
 import { CodeBlock } from '@/components/lib/CodeBlock';
-import { Container } from '@/components/lib/Container';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H3, H5 } from '@/components/lib/Heading';
 import { List, ListItem } from '@/components/lib/List';
+import { NearInput } from '@/components/lib/NearInput';
+import { Spinner } from '@/components/lib/Spinner';
 import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Text } from '@/components/lib/Text';
+import { TextOverflow } from '@/components/lib/TextOverflow';
 import { openToast } from '@/components/lib/Toast';
+import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { initContractMethods, useContractAbi } from '@/modules/contracts/hooks/abi';
 import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import TxList from '@/public/contracts/images/TxList.svg';
+import WalletIcon from '@/public/images/icons/wallet.svg';
 import { styled } from '@/styles/stitches';
 import type { Contract } from '@/utils/types';
+import { validateMaxYoctoU128 } from '@/utils/validations';
 
 const TextItalic = styled(Text, {
   fontStyle: 'italic',
 });
-const Heading = styled(H3, {
-  lineHeight: '52px',
-});
 const SectionTitle = styled(H5, {
-  marginTop: '1rem',
-  marginBottom: '1rem',
   userSelect: 'none',
 });
 const ResultTitle = styled(H5, {
-  marginBottom: '1rem',
   userSelect: 'none',
 });
 const ListWrapper = styled(List, {
-  marginTop: 24,
-  marginBottom: 24,
-
   [`& ${ListItem}`]: {
     color: 'var(--color-text-1)',
 
@@ -56,25 +53,16 @@ const ListWrapper = styled(List, {
 });
 const ContractParams = styled(Box, {
   width: '26.25rem',
+  flexShrink: 0,
+  flexGrow: 0,
 
-  [`& ${SectionTitle}`]: {
-    '&:first-child': {
-      marginTop: 0,
-    },
-  },
-});
-const Btn = styled(Button, {
-  marginBottom: '1rem',
-
-  variants: {
-    fullWidth: {
-      true: {
-        width: '100%',
-      },
-    },
+  '@laptop': {
+    width: '100%',
   },
 });
 const FormWrapper = styled(Box, {
+  width: '100%',
+
   variants: {
     disabled: {
       true: {
@@ -114,6 +102,19 @@ export const ContractTransaction = ({ contract }: Props) => {
   const { accountId, modal, selector } = useWalletSelector(contract.address);
   const handleWalletSelect = useCallback(() => modal?.show(), [modal]);
   const [txResult, setTxResult] = useState<any>(undefined);
+  const transactionHashParam = useRouteParam('transactionHashes');
+  const router = useRouter();
+
+  useEffect(() => {
+    if (transactionHashParam) {
+      const hash = transactionHashParam;
+
+      setTimeout(() => {
+        setTxResult({ hash });
+        router.replace(`/contracts/${contract.slug}?tab=interact`);
+      }, 1000); // This timeout avoids a race condition where the transaction isn't quite ready yet
+    }
+  }, [transactionHashParam, contract.slug, router]);
 
   function onTxResult(result: any) {
     const hash = result?.transaction?.hash;
@@ -125,34 +126,46 @@ export const ContractTransaction = ({ contract }: Props) => {
   }
 
   return (
-    <Flex gap="l">
+    <Flex gap="l" stack={{ '@laptop': true }}>
       <ContractParams>
-        <SectionTitle>1. Account</SectionTitle>
-        <Flex inline align="center">
-          {accountId ? (
-            <>
-              <FeatherIcon icon="user" size="s" />
-              <Text weight="semibold" color="text1">
-                {accountId}
-              </Text>
-            </>
-          ) : null}
-          <Btn fullWidth={Boolean(!accountId)} color="primaryBorder" onClick={handleWalletSelect}>
-            {!accountId ? 'Connect A Wallet' : 'Change Wallet'}
-          </Btn>
-        </Flex>
+        <Flex stack gap="l">
+          <Flex stack>
+            <SectionTitle>1. Account</SectionTitle>
+            <Flex inline align="center">
+              {accountId ? (
+                <>
+                  <FeatherIcon icon="user" size="s" />
+                  <Text weight="semibold" color="text1" css={{ minWidth: 0 }}>
+                    <TextOverflow>{accountId}</TextOverflow>
+                  </Text>
+                </>
+              ) : null}
+              <Button
+                color="primaryBorder"
+                size={!accountId ? 'm' : 's'}
+                onClick={handleWalletSelect}
+                stretch={!accountId}
+                css={{ marginLeft: 'auto' }}
+              >
+                <SvgIcon icon={WalletIcon} noFill size={!accountId ? 's' : 'xs'} />
+                {!accountId ? 'Connect A Wallet' : 'Change'}
+              </Button>
+            </Flex>
+          </Flex>
 
-        <ContractTransactionForm
-          accountId={accountId}
-          contract={contract}
-          selector={selector}
-          onTxResult={onTxResult}
-          onTxError={onTxError}
-        />
+          <ContractTransactionForm
+            accountId={accountId}
+            contract={contract}
+            selector={selector}
+            onTxResult={onTxResult}
+            onTxError={onTxError}
+          />
+        </Flex>
       </ContractParams>
-      <Container size="m">
-        <TxResultView result={txResult} />
-      </Container>
+
+      <Box css={{ width: '100%' }}>
+        {transactionHashParam ? <Spinner center /> : <TxResultView result={txResult} />}
+      </Box>
     </Flex>
   );
 };
@@ -192,6 +205,24 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
     initMethods();
   }, [initMethods]);
 
+  useEffect(() => {
+    const paramsRaw = sessionStorage.getItem(`contractInteractForm:${contract.slug}`);
+
+    if (paramsRaw) {
+      try {
+        const params = JSON.parse(paramsRaw);
+
+        for (const param in params) {
+          form.setValue(param, params[param]);
+        }
+
+        sessionStorage.removeItem(`contractInteractForm:${contract.slug}`);
+      } catch (e) {
+        console.error('Unable to parse form params from session storage:', e);
+      }
+    }
+  }, [contract.slug, form]);
+
   const abi = contractMethods?.abi;
   const functionItems = abi?.body.functions;
   const selectedFunctionName = form.watch('contractFunction');
@@ -200,8 +231,9 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   const submitForm = async (params: any) => {
     // Asserts that contract exists and selected function is valid
     const contractFn = contractMethods![selectedFunction!.name];
-
     let call;
+
+    sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
 
     if (selectedFunction?.params) {
       const fieldParams = selectedFunction.params.map((p) => {
@@ -263,37 +295,49 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
       if (selectedFunction?.is_view) {
         return (
           <Flex stack gap="l">
-            <Btn type="submit" loading={form.formState.isSubmitting} fullWidth>
+            <Button type="submit" loading={form.formState.isSubmitting} stretch>
               View Call
-            </Btn>
+            </Button>
           </Flex>
         );
       } else {
         return (
-          <>
+          <Flex stack>
             <SectionTitle>3. Transaction Parameters</SectionTitle>
-            <Flex stack gap="l">
-              <Form.Group>
-                <Form.FloatingLabelInput
-                  type="string"
-                  label="Gas: default 10 TeraGas"
-                  // TODO this field should be validated as gas
-                />
-              </Form.Group>
+            <Form.Group>
+              <Form.FloatingLabelInput
+                type="string"
+                label="Gas: defaults to 10 TeraGas"
+                {...form.register('gas')}
+                // TODO this field should be validated as gas
+              />
+            </Form.Group>
 
-              <Form.Group>
-                <Form.FloatingLabelInput
-                  type="string"
-                  label="Deposit: default 0 yoctoNEAR"
-                  // TODO this field should be validated as yoctoNEAR
-                />
-              </Form.Group>
+            <Form.Group>
+              <Controller
+                name="deposit"
+                control={form.control}
+                rules={{
+                  validate: {
+                    maxValue: validateMaxYoctoU128,
+                  },
+                }}
+                render={({ field }) => (
+                  <NearInput
+                    yocto
+                    label="Deposit: defaults to 0"
+                    field={field}
+                    isInvalid={!!form.formState.errors.deposit}
+                  />
+                )}
+              />
+              <Form.Feedback>{form.formState.errors.deposit?.message}</Form.Feedback>
+            </Form.Group>
 
-              <Btn type="submit" loading={form.formState.isSubmitting} fullWidth>
-                {selectedFunction && selectedFunction.is_view ? 'View Call' : 'Send Transaction'}
-              </Btn>
-            </Flex>
-          </>
+            <Button type="submit" loading={form.formState.isSubmitting} stretch>
+              {selectedFunction && selectedFunction.is_view ? 'View Call' : 'Send Transaction'}
+            </Button>
+          </Flex>
         );
       }
     } else {
@@ -334,55 +378,56 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
     // TODO condition if submitted before the contract is loaded through the async fn?
     <FormWrapper disabled={!signedIn(accountId, selector)}>
       <Form.Root disabled={!signedIn(accountId, selector)} onSubmit={form.handleSubmit(submitForm)}>
-        <SectionTitle>2. Function</SectionTitle>
-        <Flex stack>
-          <Controller
-            name="contractFunction"
-            control={form.control}
-            rules={{
-              required: 'Please select function',
-            }}
-            render={({ field }) => {
-              const contractFunction = functionItems?.find((option) => option.name === field.value);
+        <Flex stack gap="l">
+          <Flex stack>
+            <SectionTitle>2. Function</SectionTitle>
 
-              return (
-                <Form.Group>
-                  <DropdownMenu.Root>
-                    <DropdownMenu.Trigger asChild>
-                      <Form.FloatingLabelSelect
-                        label="Select Function"
-                        isInvalid={!!form.formState.errors.contractFunction}
-                        onBlur={field.onBlur}
-                        ref={field.ref}
-                        selection={contractFunction && contractFunction.name}
-                      />
-                    </DropdownMenu.Trigger>
+            <Controller
+              name="contractFunction"
+              control={form.control}
+              rules={{
+                required: 'Please select function',
+              }}
+              render={({ field }) => {
+                const contractFunction = functionItems?.find((option) => option.name === field.value);
 
-                    <DropdownMenu.Content align="start">
-                      <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
-                        {functionItems?.map((option) => (
-                          <DropdownMenu.RadioItem value={option.name} key={option.name}>
-                            {option.name}
-                          </DropdownMenu.RadioItem>
-                        ))}
-                      </DropdownMenu.RadioGroup>
-                    </DropdownMenu.Content>
-                  </DropdownMenu.Root>
+                return (
+                  <Form.Group>
+                    <DropdownMenu.Root>
+                      <DropdownMenu.Trigger asChild>
+                        <Form.FloatingLabelSelect
+                          label="Select Function"
+                          isInvalid={!!form.formState.errors.contractFunction}
+                          onBlur={field.onBlur}
+                          ref={field.ref}
+                          selection={contractFunction && contractFunction.name}
+                        />
+                      </DropdownMenu.Trigger>
 
-                  <Form.Feedback>{form.formState.errors.contractFunction?.message}</Form.Feedback>
-                </Form.Group>
-              );
-            }}
-          />
+                      <DropdownMenu.Content align="start" width="trigger">
+                        <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
+                          {functionItems?.map((option) => (
+                            <DropdownMenu.RadioItem value={option.name} key={option.name}>
+                              {option.name}
+                            </DropdownMenu.RadioItem>
+                          ))}
+                        </DropdownMenu.RadioGroup>
+                      </DropdownMenu.Content>
+                    </DropdownMenu.Root>
 
-          {selectedFunction?.params
-            ? selectedFunction?.params.map((param) => <ParamInput key={param.name} param={param} />)
-            : null}
+                    <Form.Feedback>{form.formState.errors.contractFunction?.message}</Form.Feedback>
+                  </Form.Group>
+                );
+              }}
+            />
 
-          <Form.Group></Form.Group>
+            {selectedFunction?.params
+              ? selectedFunction?.params.map((param) => <ParamInput key={param.name} param={param} />)
+              : null}
+          </Flex>
+
+          <TransactionParameters />
         </Flex>
-
-        <TransactionParameters />
       </Form.Root>
     </FormWrapper>
   );
@@ -392,21 +437,22 @@ const TxResultView = ({ result }: { result: any }) => {
   if (result === undefined) {
     return <SendTransactionBanner />;
   }
+
   if (result?.hash) {
     const hash = result?.hash as string;
     return (
-      <>
+      <Flex stack>
         <ResultTitle>Result</ResultTitle>
         <TxResultHash hash={hash} />
-      </>
+      </Flex>
     );
   }
 
   return (
-    <>
+    <Flex stack>
       <ResultTitle>Result</ResultTitle>
       <TxResult result={result} />
-    </>
+    </Flex>
   );
 };
 
@@ -416,17 +462,17 @@ const SendTransactionBanner = () => (
       <Box>
         <SvgIcon size="xl" color="success" icon={TxList} />
       </Box>
-      <Box>
-        <Heading>Sending a Transaction</Heading>
+      <Flex stack gap="l">
+        <H3>Sending a Transaction</H3>
         <ListWrapper as="ol">
           <ListItem>Connect Wallet</ListItem>
           <ListItem>Select Function</ListItem>
           <ListItem>Input function parameters</ListItem>
           <ListItem>Send transaction</ListItem>
         </ListWrapper>
-      </Box>
+        <TextItalic>The transaction execution and history will show up here</TextItalic>
+      </Flex>
     </Flex>
-    <TextItalic>The transaction execution and history will show up here</TextItalic>
   </Card>
 );
 
