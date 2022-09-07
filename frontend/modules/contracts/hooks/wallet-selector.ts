@@ -64,8 +64,6 @@ export const useWalletSelector = (contractId: string | undefined) => {
         distinctUntilChanged(),
       )
       .subscribe((nextAccounts) => {
-        console.log('Accounts Update', nextAccounts);
-
         setAccounts(nextAccounts);
       });
 

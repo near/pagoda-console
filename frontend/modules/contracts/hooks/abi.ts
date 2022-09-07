@@ -4,6 +4,7 @@ import { connect, keyStores } from 'near-api-js';
 import useSWR from 'swr';
 
 import { useIdentity } from '@/hooks/user';
+import analytics from '@/utils/analytics';
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
 
@@ -36,9 +37,22 @@ export const uploadContractAbi = async (contractSlug: string, abi: AbiRoot) => {
       contract: contractSlug,
       abi,
     });
+
+    analytics.track('DC Upload Contract ABI', {
+      status: 'success',
+      contract: contractSlug,
+    });
+
     return true;
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
+
+    analytics.track('DC Upload Contract ABI', {
+      status: 'failure',
+      contract: contractSlug,
+      error: e.message,
+    });
+
     return false;
   }
 };

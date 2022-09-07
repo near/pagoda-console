@@ -35,9 +35,9 @@ function track(eventLabel: string, properties?: Dict) {
   });
 }
 
-function identify(id: string) {
-  userId = id;
+function identify(userId: string, traits: Record<string, any>) {
   segment.identify({
+    traits,
     userId,
   });
 }

@@ -8,7 +8,6 @@ import '@near-wallet-selector/modal-ui/styles.css';
 
 import * as FullStory from '@fullstory/browser';
 import { initializeApp } from 'firebase/app';
-import type { User } from 'firebase/auth';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Gleap from 'gleap';
 import { withLDProvider } from 'launchdarkly-react-client-sdk';
@@ -24,6 +23,7 @@ import { SimpleLayout } from '@/components/layouts/SimpleLayout';
 import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
 import { Toaster } from '@/components/lib/Toast';
 import { usePageTracker } from '@/hooks/page-tracker';
+import { useAccount } from '@/hooks/user';
 import { DowntimeMode } from '@/modules/core/components/DowntimeMode';
 import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
 import analytics from '@/utils/analytics';
@@ -52,6 +52,7 @@ const unauthedPaths = [
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   usePageTracker();
   const router = useRouter();
+  const { user } = useAccount();
   const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
 
   useEffect(() => {
@@ -76,10 +77,14 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
-      if (user) {
-        analytics.identify(user.uid);
-      } else if (!user && !unauthedPaths.includes(router.pathname)) {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        analytics.identify(firebaseUser.uid, {
+          email: user?.email,
+          displayName: user?.name,
+          userId: user?.uid,
+        });
+      } else if (!firebaseUser && !unauthedPaths.includes(router.pathname)) {
         analytics.reset();
         cache.clear();
         router.push('/');
@@ -87,7 +92,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     });
 
     return () => unsubscribe(); // TODO why lambda function?
-  }, [router, cache]);
+  }, [router, cache, user]);
 
   const getLayout = Component.getLayout ?? ((page) => page);
 

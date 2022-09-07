@@ -30,6 +30,7 @@ import * as gasUtils from '@/modules/contracts/utils/convert-gas';
 import TxList from '@/public/contracts/images/TxList.svg';
 import WalletIcon from '@/public/images/icons/wallet.svg';
 import { styled } from '@/styles/stitches';
+import analytics from '@/utils/analytics';
 import { convertNearToYocto } from '@/utils/convert-near';
 import type { Contract } from '@/utils/types';
 import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
@@ -128,6 +129,12 @@ export const ContractTransaction = ({ contract }: Props) => {
   function onTxError() {
     setTxResult(undefined);
   }
+
+  useEffect(() => {
+    if (accountId) {
+      analytics.track('DC Contract Connect Wallet', { status: 'success', accountId, contract: contract.address });
+    }
+  }, [accountId, contract.address]);
 
   return (
     <Flex gap="l" stack={{ '@laptop': true }}>
@@ -334,7 +341,13 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
         type: 'success',
         title: 'Transaction sent successfully',
       });
-    } catch (e) {
+      analytics.track('DC Contract Interact', {
+        status: 'success',
+        accountId,
+        contract: contract.address,
+        function: selectedFunctionName,
+      });
+    } catch (e: any) {
       console.error(e);
       onTxError();
       openToast({
@@ -342,6 +355,13 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
         type: 'error',
         title: 'Failed to send transaction',
         description: `${e}`,
+      });
+      analytics.track('DC Contract Interact', {
+        status: 'failure',
+        accountId,
+        contract: contract.address,
+        function: selectedFunctionName,
+        error: e.message,
       });
     }
     return null;
