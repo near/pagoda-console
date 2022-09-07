@@ -102,7 +102,13 @@ const resolveDefinition = (abi: AbiRoot, def: any) => {
 
 export const ContractTransaction = ({ contract }: Props) => {
   const { accountId, modal, selector } = useWalletSelector(contract.address);
-  const handleWalletSelect = useCallback(() => modal?.show(), [modal]);
+  const handleWalletSelect = useCallback(async () => {
+    if (selector && selector!.store.getState().selectedWalletId) {
+      const wallet = await selector.wallet();
+      await wallet.signOut();
+    }
+    modal?.show();
+  }, [modal, selector]);
   const [txResult, setTxResult] = useState<any>(undefined);
   const transactionHashParam = useRouteParam('transactionHashes');
   const router = useRouter();

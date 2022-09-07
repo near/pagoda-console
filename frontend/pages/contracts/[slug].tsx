@@ -59,8 +59,7 @@ const ViewContract: NextPageWithLayout = () => {
 
   async function onWalletLogoutConfirm() {
     setWalletNotice(false);
-    const selectedWallet = selector!.store.getState();
-    const wallet = await selector!.wallet(selectedWallet.selectedWalletId!);
+    const wallet = await selector!.wallet();
     await wallet.signOut();
     router.push(`/contracts/${selectedContractSlug}?tab=${activeTab}`);
   }
