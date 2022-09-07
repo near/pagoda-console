@@ -13,6 +13,7 @@ import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import type { ContractTemplate } from '@/hooks/contract-templates';
+import { useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
 import { formRegex } from '@/utils/constants';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
@@ -33,6 +34,7 @@ export function AddContractForm(props: Props) {
   const { register, handleSubmit, formState } = useForm<FormData>();
   const [isDeployingContract, setIsDeployingContract] = useState(false);
   const [selectedContractTemplate, setSelectedContractTemplate] = useState<ContractTemplate | undefined>();
+  const { selectEnvironment } = useSelectedProject();
 
   const environmentTitle = props.environment?.net === 'TESTNET' ? 'Testnet' : 'Mainnet';
   const environmentTla = props.environment?.net === 'TESTNET' ? 'testnet' : 'near';
@@ -53,6 +55,8 @@ export function AddContractForm(props: Props) {
         title: 'Contract Deployed',
         description: contract.address,
       });
+
+      selectEnvironment(1); // Make sure TESTNET is selected if they happened to currently be on MAINNET
 
       props.onAdd(contract);
     } catch (e: any) {
