@@ -14,7 +14,7 @@ export class RpcStatsService {
 
   async endpointMetrics(
     network: Net,
-    apiKeys: Array<string>,
+    apiKeyConsumerNames: Array<string>,
     startDateTime: DateTime,
     endDateTime: DateTime,
     dateTimeResolution: DateTimeResolution,
@@ -22,7 +22,7 @@ export class RpcStatsService {
   ): Promise<EndpointMetricsResponseDto> {
     const whereClause = this.determineWhereClause(
       network,
-      apiKeys,
+      apiKeyConsumerNames,
       startDateTime,
       endDateTime,
     );
@@ -149,7 +149,6 @@ export class RpcStatsService {
 
     if (dateTimeResolution && aggregatedMetricRow.year) {
       const windowStart = this.dateTimePartsToResolution(
-        // !!! something is wrong here
         dateTimeResolution,
         aggregatedMetricRow,
       );
@@ -160,13 +159,13 @@ export class RpcStatsService {
 
   private determineWhereClause(
     network: Net,
-    apiKeys: Array<string>,
+    apiKeyConsumerNames: Array<string>,
     startDateTime: DateTime,
     endDateTime: DateTime,
   ) {
     const whereCriteria = {
       network,
-      apiKeyIdentifier: { in: apiKeys },
+      apiKeyConsumerName: { in: apiKeyConsumerNames },
       windowStartEpochMs: {
         gt: startDateTime.toMillis(),
       },

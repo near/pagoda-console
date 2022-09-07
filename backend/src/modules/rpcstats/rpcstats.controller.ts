@@ -60,13 +60,15 @@ export class RpcStatsController {
         environmentSubId,
       );
 
-      const allKeys = [];
+      const allApiKeyConsumerNames = [];
       const projects = await this.projectsService.list(req.user);
       const keyPromises = [];
       projects.forEach((project) => {
         keyPromises.push(
           this.projectsService.getKeys(req.user, project.slug).then((keys) => {
-            keys.forEach((k) => allKeys.push(k.key));
+            keys.forEach((k) =>
+              allApiKeyConsumerNames.push(k.kongConsumerName),
+            );
           }),
         );
       });
@@ -75,7 +77,7 @@ export class RpcStatsController {
 
       return await this.rpcStatsService.endpointMetrics(
         environment.net,
-        allKeys,
+        allApiKeyConsumerNames,
         DateTime.fromISO(startDateTime),
         DateTime.fromISO(endDateTime),
         dateTimeResolution,

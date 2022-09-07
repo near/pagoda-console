@@ -199,6 +199,7 @@ export class ApiKeysService {
           slug: true,
           description: true,
           id: true,
+          kongConsumerName: true,
         },
       });
       if (projectKeySlugs.length === 0) {
@@ -210,6 +211,7 @@ export class ApiKeysService {
         keySlug: string;
         description: string;
         key: string;
+        kongConsumerName: string;
       }[] = [];
       const keyPromises = [];
       projectKeySlugs.forEach((el) => {
@@ -220,6 +222,7 @@ export class ApiKeysService {
               keySlug: el.slug,
               description: el.description,
               key,
+              kongConsumerName: el.kongConsumerName,
             });
           }),
         );
