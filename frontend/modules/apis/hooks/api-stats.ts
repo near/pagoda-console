@@ -88,7 +88,7 @@ export enum GroupBy {
 function toLuxonDateTimeResolution(dateTimeResolution: DateTimeResolution) {
   switch (dateTimeResolution) {
     case DateTimeResolution.FIFTEEN_SECONDS:
-      return 'seconds';
+      return 'minutes'; // for boundary calculation, addition is handled separately
     case DateTimeResolution.ONE_MINUTE:
       return 'minutes';
     case DateTimeResolution.ONE_HOUR:
@@ -126,7 +126,7 @@ function fillEmptyDateValues(
     }
     currentDateTime =
       dateTimeResolution === DateTimeResolution.FIFTEEN_SECONDS
-        ? currentDateTime.plus({ [luxonDateTimeResolution]: 15 })
+        ? currentDateTime.plus({ ['seconds']: 15 })
         : currentDateTime.plus({ [luxonDateTimeResolution]: 1 });
   }
   return filledDateValues;
