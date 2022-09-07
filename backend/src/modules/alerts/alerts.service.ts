@@ -225,7 +225,7 @@ export class AlertsService {
 
   async createTxSuccessAlert(user: User, alert: CreateTxAlertSchema) {
     const { contract } = alert.rule;
-    const defaultName = `Successful transaction in ${contract}`;
+    const defaultName = `Successful action in ${contract}`;
     alert = {
       ...alert,
       name: alert.name || defaultName,
@@ -237,7 +237,7 @@ export class AlertsService {
 
   async createTxFailureAlert(user: User, alert: CreateTxAlertSchema) {
     const { contract } = alert.rule;
-    const defaultName = `Failed transaction in ${contract}`;
+    const defaultName = `Failed action in ${contract}`;
     alert = {
       ...alert,
       name: alert.name || defaultName,
