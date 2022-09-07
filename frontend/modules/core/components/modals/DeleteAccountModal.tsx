@@ -36,6 +36,8 @@ export default function DeleteAccountModal({
     }
   }
 
+  const isOnlyAdmin = organizations && organizations.length > 0;
+
   return (
     <ConfirmModal
       confirmColor="danger"
@@ -46,10 +48,10 @@ export default function DeleteAccountModal({
       setErrorText={setErrorText}
       setShow={setShow}
       show={show}
-      disabled={!organizations || organizations.length >= 0}
+      disabled={isOnlyAdmin}
       title={`Delete Account`}
     >
-      {organizations && organizations.length >= 0 ? (
+      {isOnlyAdmin ? (
         <>
           <Message type="warning">
             <Text color="warning">Your account currently owns the following organizations:</Text>
