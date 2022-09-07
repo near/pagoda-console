@@ -9,15 +9,15 @@ interface AlertTypeOption {
 
 export const alertTypes: Record<AlertType, AlertTypeOption> = {
   TX_SUCCESS: {
-    description: 'Triggers whenever a successful transaction happened.',
+    description: 'Triggers whenever a successful action occurs.',
     icon: 'check-circle',
-    name: 'Successful Transaction',
+    name: 'Successful Action',
     value: 'TX_SUCCESS',
   },
   TX_FAILURE: {
-    description: 'Triggers whenever a transaction fails.',
+    description: 'Triggers whenever an action fails.',
     icon: 'alert-circle',
-    name: 'Failed Transaction',
+    name: 'Failed Action',
     value: 'TX_FAILURE',
   },
   EVENT: {
