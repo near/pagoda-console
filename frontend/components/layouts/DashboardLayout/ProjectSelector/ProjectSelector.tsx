@@ -6,7 +6,7 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
-import { useProjects } from '@/hooks/projects';
+import { useProjectGroups } from '@/hooks/projects';
 import { useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
 import type { Project } from '@/utils/types';
@@ -17,16 +17,7 @@ interface Props {
 
 export function ProjectSelector(props: Props) {
   const { project, selectProject } = useSelectedProject();
-  const { projects } = useProjects();
-  const projectGroups =
-    projects?.reduce<Record<string, Project[]>>((acc, project) => {
-      const orgName = project.org.isPersonal ? 'Personal' : project.org.name || 'unknown';
-      if (!acc[orgName]) {
-        acc[orgName] = [];
-      }
-      acc[orgName].push(project);
-      return acc;
-    }, {}) ?? {};
+  const { projectGroups } = useProjectGroups();
   const router = useRouter();
 
   function onSelectProject(project: Project) {
@@ -67,7 +58,7 @@ export function ProjectSelector(props: Props) {
             padding: 'var(--space-s)',
           }}
         >
-          {Object.entries(projectGroups)?.map(([orgName, projects]) => {
+          {projectGroups?.map(([orgName, projects]) => {
             return (
               <div key={orgName}>
                 <DropdownMenu.ContentItem css={{ paddingBottom: 0 }}>

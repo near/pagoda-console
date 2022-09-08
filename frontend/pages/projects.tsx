@@ -10,15 +10,16 @@ import { Flex } from '@/components/lib/Flex';
 import { H1, H4 } from '@/components/lib/Heading';
 import { Message } from '@/components/lib/Message';
 import { Spinner } from '@/components/lib/Spinner';
+import { Text } from '@/components/lib/Text';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
-import { useProjects } from '@/hooks/projects';
+import { useProjectGroups } from '@/hooks/projects';
 import DeleteProjectModal from '@/modules/core/components/modals/DeleteProjectModal';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Projects: NextPageWithLayout = () => {
   const router = useRouter();
-  const { projects, error, isValidating, mutate: refetchProjects } = useProjects();
+  const { projectGroups, error, isValidating, mutate: refetchProjects } = useProjectGroups();
   const [isEditing, setIsEditing] = useState(false);
   const [showRedirectAlert, setShowRedirectAlert] = useState(false);
 
@@ -32,10 +33,10 @@ const Projects: NextPageWithLayout = () => {
   }, [router]);
 
   useEffect(() => {
-    if (!error && projects && !projects.length && !isValidating) {
+    if (!error && projectGroups && projectGroups.length === 0 && !isValidating) {
       router.push('/pick-project?onboarding=true');
     }
-  }, [router, error, projects, isValidating]);
+  }, [router, error, projectGroups, isValidating]);
 
   return (
     <Container size="s">
@@ -63,19 +64,24 @@ const Projects: NextPageWithLayout = () => {
           />
         )}
 
-        {projects ? (
-          <Flex stack gap="none">
-            {projects.map((p, i) => {
-              return (
-                <ProjectRow
-                  key={p.id}
-                  project={p}
-                  showDelete={isEditing}
-                  isTop={i === 0}
-                  onDelete={() => refetchProjects()}
-                />
-              );
-            })}
+        {projectGroups ? (
+          <Flex stack gap="none" align="stretch">
+            {projectGroups.map(([orgName, projects], i) => (
+              <div key={orgName}>
+                <Text css={{ padding: '12px 0', borderBottom: '1px solid var(--color-surface-5)' }}>{orgName}</Text>
+                <Flex stack css={{ paddingLeft: 12 }}>
+                  {projects.map((project) => (
+                    <ProjectRow
+                      key={project.id}
+                      project={project}
+                      showDelete={isEditing}
+                      isTop={i === 0}
+                      onDelete={() => refetchProjects()}
+                    />
+                  ))}
+                </Flex>
+              </div>
+            ))}
           </Flex>
         ) : (
           <Spinner center />
@@ -95,9 +101,6 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
       css={{
         borderBottom: '1px solid var(--color-surface-5)',
         padding: 'var(--space-m) 0',
-        '&:first-child': {
-          borderTop: '1px solid var(--color-surface-5)',
-        },
       }}
     >
       <DeleteProjectModal

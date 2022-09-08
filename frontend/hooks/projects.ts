@@ -88,3 +88,35 @@ export function useProjects() {
 
   return { projects, error, mutate, isValidating };
 }
+
+export function useProjectGroups() {
+  const { projects, error, isValidating, mutate } = useProjects();
+  return {
+    projectGroups: projects
+      ? Object.entries(
+          projects.reduce<Record<string, Project[]>>((acc, project) => {
+            const orgName = project.org.isPersonal ? 'Personal' : project.org.name || 'unknown';
+            if (!acc[orgName]) {
+              acc[orgName] = [];
+            }
+            acc[orgName].push(project);
+            return acc;
+          }, {}),
+        ).sort(([, [projectA]], [, [projectB]]) => {
+          if (projectA.org.isPersonal && projectB.org.isPersonal) {
+            return 0;
+          }
+          if (projectA.org.isPersonal) {
+            return -1;
+          }
+          if (projectB.org.isPersonal) {
+            return 1;
+          }
+          return projectA.name.localeCompare(projectB.name);
+        })
+      : undefined,
+    error,
+    isValidating,
+    mutate,
+  };
+}
