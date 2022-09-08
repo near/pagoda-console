@@ -5,6 +5,7 @@ import { Message } from '@/components/lib/Message';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { useSelectedProject } from '@/hooks/selected-project';
+import config from '@/utils/config';
 
 import { globalStyles } from './styles';
 
@@ -61,7 +62,7 @@ const EnhancedAPI = () => {
         <div className="enhanced-api">
           <Box css={{ display: !isMainnet ? 'none' : undefined }}>
             <elements-api
-              apiDescriptionUrl={'https://near-mainnet.api.pagoda.co/eapi/v1/api/spec/v3.json'}
+              apiDescriptionUrl={`${config.url.eapi.MAINNET}/api/spec/v3.json`}
               router="hash"
               layout="sidebar"
             />
@@ -69,7 +70,7 @@ const EnhancedAPI = () => {
 
           <Box css={{ display: isMainnet ? 'none' : undefined }}>
             <elements-api
-              apiDescriptionUrl={'https://near-testnet.api.pagoda.co/eapi/v1/api/spec/v3.json'}
+              apiDescriptionUrl={`${config.url.eapi.TESTNET}/api/spec/v3.json`}
               router="hash"
               layout="sidebar"
             />
