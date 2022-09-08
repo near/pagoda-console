@@ -1,6 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
-import { useCallback } from 'react';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { Button } from '@/components/lib/Button';
@@ -64,6 +63,19 @@ export function DestinationsSelector(props: Props) {
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
   const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
+  const previousDestinations = useRef<Destination[]>([]);
+
+  useEffect(() => {
+    destinations?.forEach((current) => {
+      const previous = previousDestinations.current.find((p) => p.id === current.id);
+
+      if (current.isValid && previous && !previous.isValid) {
+        toggleDestination(true, current, props.setSelectedIds, props.onChange);
+      }
+    });
+
+    previousDestinations.current = [...(destinations || [])];
+  }, [destinations, props]);
 
   function openDestination(destination: Destination) {
     setSelectedEditDestination(destination);
