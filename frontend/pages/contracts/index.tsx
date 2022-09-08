@@ -19,7 +19,7 @@ import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { AddContractForm } from '@/modules/contracts/components/AddContractForm';
 import { DeleteContractModal } from '@/modules/contracts/components/DeleteContractModal';
-import { useContractAbi } from '@/modules/contracts/hooks/abi';
+import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatBytes } from '@/utils/format-bytes';
 import type { Contract } from '@/utils/types';
@@ -134,7 +134,7 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
   const url = `/contracts/${contract.slug}`;
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { contractAbi } = useContractAbi(contract.slug);
+  const { contractAbi } = useAnyAbi(contract);
 
   function ContractTableCellData({ children }: { children: ReactNode }) {
     if (metrics)

@@ -21,7 +21,7 @@ import { ContractAbi } from '@/modules/contracts/components/ContractAbi';
 import { ContractDetails } from '@/modules/contracts/components/ContractDetails';
 import { ContractInteract } from '@/modules/contracts/components/ContractInteract';
 import { DeleteContractModal } from '@/modules/contracts/components/DeleteContractModal';
-import { useContractAbi } from '@/modules/contracts/hooks/abi';
+import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import type { NextPageWithLayout } from '@/utils/types';
 import type { Contract } from '@/utils/types';
@@ -37,7 +37,7 @@ const ViewContract: NextPageWithLayout = () => {
   const [selectedContractSlug, setSelectedContractSlug] = useState<string | null>(null);
   const [walletNotice, setWalletNotice] = useState(false);
   const { selector } = useWalletSelector(contract?.address);
-  const { contractAbi } = useContractAbi(contract?.slug);
+  const { contractAbi } = useAnyAbi(contract);
 
   // TODO: Pull in useSelectedProjectSync() to match [triggeredAlertId].tsx logic to sync env/proj to loaded contract.
   // TODO: Handle 404

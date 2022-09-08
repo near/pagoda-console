@@ -6,7 +6,7 @@ import { Spinner } from '@/components/lib/Spinner';
 import { openToast } from '@/components/lib/Toast';
 import { ContractTransaction } from '@/modules/contracts/components/ContractTransaction';
 import { UploadContractAbi } from '@/modules/contracts/components/UploadContractAbi';
-import { useContractAbi } from '@/modules/contracts/hooks/abi';
+import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 import type { Contract } from '@/utils/types';
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
 
 export const ContractInteract = ({ contract }: Props) => {
   const [abiUploaded, setAbiUploaded] = useState<boolean | undefined>(undefined);
-  const { contractAbi, error } = useContractAbi(contract?.slug);
+  const { contractAbi, error } = useAnyAbi(contract);
 
   useEffect(() => {
     if (contractAbi) {

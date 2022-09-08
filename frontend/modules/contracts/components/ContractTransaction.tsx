@@ -24,7 +24,7 @@ import { TextOverflow } from '@/components/lib/TextOverflow';
 import { openToast } from '@/components/lib/Toast';
 import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
-import { initContractMethods, useContractAbi } from '@/modules/contracts/hooks/abi';
+import { initContractMethods, useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import * as gasUtils from '@/modules/contracts/utils/convert-gas';
 import TxList from '@/public/contracts/images/TxList.svg';
@@ -201,7 +201,7 @@ interface ContractFormData {
 const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, onTxError }: ContractFormProps) => {
   const [contractMethods, setContractMethods] = useState<AbiContract | null>(null);
   const form = useForm<ContractFormData>();
-  const { contractAbi } = useContractAbi(contract?.slug);
+  const { contractAbi } = useAnyAbi(contract);
 
   const nearFormat = form.watch('nearFormat');
   const gasFormat = form.watch('gasFormat');

@@ -1,5 +1,5 @@
 import type { AbiRoot, AnyContract } from 'near-abi-client-js';
-import { Contract } from 'near-abi-client-js';
+import { Contract as NearContract } from 'near-abi-client-js';
 import { connect, keyStores } from 'near-api-js';
 import useSWR from 'swr';
 
@@ -7,6 +7,9 @@ import { useIdentity } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
+import type { Contract, NetOption } from '@/utils/types';
+
+import { inspectContract } from '../utils/embedded-abi';
 
 const RPC_API_ENDPOINT = config.url.rpc.default.TESTNET;
 
@@ -14,6 +17,36 @@ interface AbiResponse {
   contractSlug: string;
   abi: AbiRoot;
 }
+
+// Prefers an embedded ABI in the wasm, if there is one, else returns any manually uploaded ABI.
+export const useAnyAbi = (contract: Contract | undefined) => {
+  const { embeddedAbi } = useEmbeddedAbi(contract?.net, contract?.address);
+  const { contractAbi, error } = useContractAbi(contract?.slug);
+
+  // We haven't determined if there is an embedded ABI yet, so let's return nothing for now.
+  if (embeddedAbi === undefined) {
+    return { contractAbi: null };
+  }
+
+  // There is an embedded ABI in the wasm.
+  if (embeddedAbi !== null) {
+    return { contractAbi: embeddedAbi, embedded: true };
+  }
+
+  // There is no embedded ABI.
+  return { contractAbi, error };
+};
+
+export const useEmbeddedAbi = (net: NetOption | undefined, address: string | undefined) => {
+  const {
+    data: embeddedAbi,
+    error,
+    mutate,
+  } = useSWR<AbiRoot | null | undefined>(net && address ? [net, address] : null, (net, address) => {
+    return inspectContract(net, address);
+  });
+  return { embeddedAbi, error, mutate };
+};
 
 export const useContractAbi = (contract: string | undefined) => {
   const identity = useIdentity();
@@ -74,6 +107,6 @@ export const initContractMethods = async (
     },
   };
   const near = await connect(config);
-  const contract = new Contract(near.connection, contractId, abi);
+  const contract = new NearContract(near.connection, contractId, abi);
   return contract;
 };
