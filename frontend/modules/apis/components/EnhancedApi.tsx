@@ -61,7 +61,7 @@ const EnhancedAPI = () => {
         <div className="enhanced-api">
           <Box css={{ display: !isMainnet ? 'none' : undefined }}>
             <elements-api
-              apiDescriptionUrl={'https://near-mainnet.api.pagoda.co/api/spec/v3.json'}
+              apiDescriptionUrl={'https://near-mainnet.api.pagoda.co/eapi/v1/api/spec/v3.json'}
               router="hash"
               layout="sidebar"
             />
@@ -69,7 +69,7 @@ const EnhancedAPI = () => {
 
           <Box css={{ display: isMainnet ? 'none' : undefined }}>
             <elements-api
-              apiDescriptionUrl={'https://near-testnet.api.pagoda.co/api/spec/v3.json'}
+              apiDescriptionUrl={'https://near-testnet.api.pagoda.co/eapi/v1/api/spec/v3.json'}
               router="hash"
               layout="sidebar"
             />
