@@ -27,7 +27,7 @@ export const Viewport = styled(ToastPrimitive.Viewport, {
   width: '100%',
   maxHeight: '100vh',
   maxWidth: 'var(--size-max-container-width-s)',
-  zIndex: 5000,
+  zIndex: 2147483632, // This is two zindex higher than Gleap's fixed bottom right icon
 });
 
 export const Root = styled(ToastPrimitive.Root, {

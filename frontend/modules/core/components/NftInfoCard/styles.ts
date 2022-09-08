@@ -3,7 +3,7 @@ import { styled } from '@/styles/stitches';
 export const Root = styled('div', {
   '--animation-speed': '300ms',
   position: 'fixed',
-  zIndex: 100,
+  zIndex: 2147483631, // This is one zindex higher than Gleap's fixed bottom right icon
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--space-m)',
