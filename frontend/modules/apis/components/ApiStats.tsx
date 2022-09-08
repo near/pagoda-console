@@ -8,7 +8,7 @@ import { Card } from '@/components/lib/Card';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
-import { H1, H4 } from '@/components/lib/Heading';
+import { H2, H4 } from '@/components/lib/Heading';
 import { Placeholder } from '@/components/lib/Placeholder';
 import { Switch } from '@/components/lib/Switch';
 import * as Table from '@/components/lib/Table';
@@ -64,8 +64,7 @@ export function ApiStats({ environment, project }: Props) {
         }}
       >
         <Flex gap="l" align="center">
-          <H1 css={{ marginRight: 'auto' }}>RPC Statistics</H1>
-
+          <H2 css={{ marginRight: 'auto' }}>RPC Statistics</H2>
           <Tooltip align="end" content={liveRefreshTooltipTitle}>
             <span>
               <Switch aria-label="Live Updates" checked={liveRefreshEnabled} onCheckedChange={setLiveRefreshEnabled}>
@@ -97,6 +96,7 @@ export function ApiStats({ environment, project }: Props) {
             </DropdownMenu.Content>
           </DropdownMenu.Root>
         </Flex>
+        <Text color="text2">Stats are for all projects in the organization</Text>
       </Box>
 
       {stats?.totalRequestVolume === 0 ? (
