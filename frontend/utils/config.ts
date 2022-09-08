@@ -4,6 +4,7 @@ import type { NetOption } from './types';
 
 type ExplorerNets = Record<NetOption, string>;
 type RpcNets = Record<NetOption, string>;
+type EapiNets = Record<NetOption, string>;
 type DeployEnvironment = 'LOCAL' | 'DEVELOPMENT' | 'PRODUCTION';
 
 // * NOTE: This is ugly, but we are limited in how we can
@@ -21,6 +22,8 @@ if (
   !process.env.NEXT_PUBLIC_TEST_NET_ARCHIVAL_RPC ||
   !process.env.NEXT_PUBLIC_RECOMMENDED_MAIN_NET_RPC ||
   !process.env.NEXT_PUBLIC_RECOMMENDED_TEST_NET_RPC ||
+  !process.env.NEXT_PUBLIC_EAPI_MAINNET_URL ||
+  !process.env.NEXT_PUBLIC_EAPI_TESTNET_URL ||
   !process.env.NEXT_PUBLIC_MAIN_NET_EXPLORER ||
   !process.env.NEXT_PUBLIC_TEST_NET_EXPLORER ||
   !process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE ||
@@ -71,6 +74,7 @@ interface AppConfig {
       archival: RpcNets;
       recommended: RpcNets;
     };
+    eapi: EapiNets;
   };
   buttonDebounce: number;
   usagePersistenceMinutes: number;
@@ -108,6 +112,10 @@ const config: AppConfig = {
         MAINNET: process.env.NEXT_PUBLIC_RECOMMENDED_MAIN_NET_RPC,
         TESTNET: process.env.NEXT_PUBLIC_RECOMMENDED_TEST_NET_RPC,
       },
+    },
+    eapi: {
+      MAINNET: process.env.NEXT_PUBLIC_EAPI_MAINNET_URL,
+      TESTNET: process.env.NEXT_PUBLIC_EAPI_TESTNET_URL,
     },
   },
   buttonDebounce: parseInt(process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE),

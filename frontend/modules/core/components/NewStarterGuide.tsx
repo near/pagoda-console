@@ -62,7 +62,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 const CLI_URL_TEMPLATE = `export NEAR_CLI_TESTNET_RPC_SERVER_URL=<RPC service url>`;
 const CLI_KEY_TEMPLATE = `near set-api-key $NEAR_CLI_TESTNET_RPC_SERVER_URL <your API Key>`;
-const TEST_API_KEYS = `curl -X POST -H 'x-api-key:<YOUR-API-KEY>' -H 'Content-Type: application/json' -d '{"jsonrpc": "2.0", "id":"dontcare","method":"status","params":[] }' https://near-testnet.api.pagoda.co/`;
+const TEST_API_KEYS = `curl -X POST -H 'x-api-key:<YOUR-API-KEY>' -H 'Content-Type: application/json' -d '{"jsonrpc": "2.0", "id":"dontcare","method":"status","params":[] }' ${config.url.rpc.recommended.TESTNET}`;
 
 export default function NewStarterGuide() {
   const [starterCode, setStarterCode] = useState<{ naj: string; rust: string; cliUrl: string; cliKey: string }>({
@@ -104,17 +104,6 @@ export default function NewStarterGuide() {
         <Text weight="semibold">Quick Endpoint Setup</Text>
         <List as="ul">
           <ListItem>
-            Endpoint URL varies by network, shared for both RPC and Enhanced API Access
-            <List as="ul">
-              <ListItem>
-                <Badge size="s">https://near-testnet.api.pagoda.co</Badge>
-              </ListItem>
-              <ListItem>
-                <Badge size="s">https://near-mainnet.api.pagoda.co</Badge>
-              </ListItem>
-            </List>
-          </ListItem>
-          <ListItem>
             RPC API Access
             <List as="ul">
               <ListItem>
@@ -126,6 +115,18 @@ export default function NewStarterGuide() {
               <ListItem>
                 <Badge size="s">id: &quot;dontcare&quot;</Badge>
               </ListItem>
+              <ListItem>
+                Endpoint URL varies by network
+                <List as="ul">
+                  <ListItem>
+                    <Badge size="s">{config.url.rpc.recommended.TESTNET}</Badge>
+                  </ListItem>
+                  <ListItem>
+                    <Badge size="s">{config.url.rpc.recommended.MAINNET}</Badge>
+                  </ListItem>
+                </List>
+              </ListItem>
+              <ListItem>We are working on supporting Archival RPC as the next phase</ListItem>
             </List>
           </ListItem>
           <ListItem>
@@ -137,6 +138,17 @@ export default function NewStarterGuide() {
               </ListItem>
               <ListItem>
                 The API key should be set as <Badge size="s">x-api-key</Badge> HTTP Header for each Enhanced API call
+              </ListItem>
+              <ListItem>
+                Endpoint URL varies by network
+                <List as="ul">
+                  <ListItem>
+                    <Badge size="s">{config.url.eapi.TESTNET}</Badge>
+                  </ListItem>
+                  <ListItem>
+                    <Badge size="s">{config.url.eapi.MAINNET}</Badge>
+                  </ListItem>
+                </List>
               </ListItem>
             </List>
           </ListItem>
