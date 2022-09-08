@@ -16,7 +16,7 @@ export class OrgInviteEmailService {
       infer: true,
     });
 
-    this.endpoint = `${frontendBaseUrl}/orgs/accept-invite`;
+    this.endpoint = `${frontendBaseUrl}/organizations/accept-invite`;
 
     this.from = this.config.get('email.noReply', {
       infer: true,
