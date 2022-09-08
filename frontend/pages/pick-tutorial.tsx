@@ -43,7 +43,7 @@ const PickTutorial: NextPageWithLayout = () => {
         <Flex stack>
           <Link href="/pick-project" passHref>
             <TextLink>
-              <FeatherIcon icon="arrow-left" /> Back
+              <FeatherIcon icon="arrow-left" /> Project Type
             </TextLink>
           </Link>
           <H1>Select Tutorial</H1>

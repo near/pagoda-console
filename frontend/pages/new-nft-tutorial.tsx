@@ -1,13 +1,15 @@
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
-import { H1 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { ProjectCard } from '@/modules/core/components/ProjectCard';
 import analytics from '@/utils/analytics';
@@ -63,7 +65,12 @@ const NewNftTutorial: NextPageWithLayout = () => {
         />
 
         <Flex stack gap="l">
-          <H1>{"Let's Go!"}</H1>
+          <Link href="/pick-tutorial" passHref>
+            <TextLink>
+              <FeatherIcon icon="arrow-left" /> Tutorial Type
+            </TextLink>
+          </Link>
+
           <Text>
             {
               "In this Zero to Hero series, you'll find a set of tutorials that will cover every aspect of a non-fungible token (NFT) smart contract. You'll start by minting an NFT using a pre-deployed contract and by the end you'll end up building a fully-fledged NFT smart contract that supports every extension."

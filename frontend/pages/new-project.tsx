@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
@@ -6,10 +7,12 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H1 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useOrganizations } from '@/hooks/organizations';
 import { useRouteParam } from '@/hooks/route';
@@ -81,7 +84,15 @@ const NewProject: NextPageWithLayout = () => {
   return (
     <Container size="s">
       <Flex stack gap="l">
-        <H1>New Project</H1>
+        <Flex stack>
+          <Link href="/pick-project" passHref>
+            <TextLink>
+              <FeatherIcon icon="arrow-left" /> Project Type
+            </TextLink>
+          </Link>
+
+          <H1>New Project</H1>
+        </Flex>
 
         {isOnboarding && (
           <Text>

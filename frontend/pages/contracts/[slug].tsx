@@ -9,6 +9,7 @@ import { Flex } from '@/components/lib/Flex';
 import { Section } from '@/components/lib/Section';
 import * as Tabs from '@/components/lib/Tabs';
 import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
@@ -72,63 +73,76 @@ const ViewContract: NextPageWithLayout = () => {
     <>
       <Tabs.Root value={activeTab || ''}>
         <Section>
-          <Flex gap="l" stack={{ '@laptop': true }} align={{ '@initial': 'center', '@laptop': 'stretch' }}>
-            <DropdownMenu.Root>
-              <DropdownMenu.Button
-                css={{
-                  width: '100%',
-                  flexShrink: 1,
-                  maxWidth: '26rem',
-                  '@laptop': {
-                    maxWidth: '100%',
-                  },
-                }}
-              >
-                <FeatherIcon icon="zap" color="primary" />
-                <TextOverflow>{contract?.address || '...'}</TextOverflow>
-              </DropdownMenu.Button>
+          <Flex stack>
+            <Link href="/contracts" passHref>
+              <TextLink>
+                <FeatherIcon icon="arrow-left" /> Contracts
+              </TextLink>
+            </Link>
 
-              <DropdownMenu.Content align="start" width="trigger">
-                <DropdownMenu.RadioGroup value={contractSlug} onValueChange={onSelectedContractChange}>
-                  {contracts?.map((c) => {
-                    return (
-                      <DropdownMenu.RadioItem key={c.slug} value={c.slug.toString()}>
-                        {c.address}
-                      </DropdownMenu.RadioItem>
-                    );
-                  })}
-                </DropdownMenu.RadioGroup>
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
+            <Flex gap="l" stack={{ '@laptop': true }} align={{ '@initial': 'center', '@laptop': 'stretch' }}>
+              <DropdownMenu.Root>
+                <DropdownMenu.Button
+                  css={{
+                    width: '100%',
+                    flexShrink: 1,
+                    maxWidth: '26rem',
+                    '@laptop': {
+                      maxWidth: '100%',
+                    },
+                  }}
+                >
+                  <FeatherIcon icon="zap" color="primary" />
+                  <TextOverflow>{contract?.address || '...'}</TextOverflow>
+                </DropdownMenu.Button>
 
-            <Flex gap="l" css={{ width: 'auto', flexGrow: 1 }}>
-              <Tabs.List tabIndex={-1} inline css={{ marginRight: 'auto' }}>
-                <Link href={`/contracts/${contractSlug}?tab=details`} passHref>
-                  <Tabs.TriggerLink active={activeTab === 'details'}>
-                    <FeatherIcon icon="list" size="xs" /> Details
-                  </Tabs.TriggerLink>
-                </Link>
+                <DropdownMenu.Content align="start" width="trigger">
+                  <DropdownMenu.RadioGroup value={contractSlug} onValueChange={onSelectedContractChange}>
+                    {contracts?.map((c) => {
+                      return (
+                        <DropdownMenu.RadioItem key={c.slug} value={c.slug.toString()}>
+                          {c.address}
+                        </DropdownMenu.RadioItem>
+                      );
+                    })}
+                  </DropdownMenu.RadioGroup>
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
 
-                <Link href={`/contracts/${contractSlug}?tab=interact`} passHref>
-                  <Tabs.TriggerLink active={activeTab === 'interact'}>
-                    <FeatherIcon icon="terminal" size="xs" /> Interact
-                  </Tabs.TriggerLink>
-                </Link>
-
-                {contractAbi && (
-                  <Link href={`/contracts/${contractSlug}?tab=abi`} passHref>
-                    <Tabs.TriggerLink active={activeTab === 'abi'}>
-                      <FeatherIcon icon="file-text" size="xs" /> Contract ABI
+              <Flex gap="l" css={{ width: 'auto', flexGrow: 1 }}>
+                <Tabs.List tabIndex={-1} inline css={{ marginRight: 'auto' }}>
+                  <Link href={`/contracts/${contractSlug}?tab=details`} passHref>
+                    <Tabs.TriggerLink active={activeTab === 'details'}>
+                      <FeatherIcon icon="list" size="xs" /> Details
                     </Tabs.TriggerLink>
                   </Link>
-                )}
-              </Tabs.List>
 
-              <Tooltip content="Remove this contract">
-                <Button color="neutral" aria-label="Remove Contract" size="s" onClick={() => setShowDeleteModal(true)}>
-                  <FeatherIcon icon="trash-2" size="xs" color="text2" />
-                </Button>
-              </Tooltip>
+                  <Link href={`/contracts/${contractSlug}?tab=interact`} passHref>
+                    <Tabs.TriggerLink active={activeTab === 'interact'}>
+                      <FeatherIcon icon="terminal" size="xs" /> Interact
+                    </Tabs.TriggerLink>
+                  </Link>
+
+                  {contractAbi && (
+                    <Link href={`/contracts/${contractSlug}?tab=abi`} passHref>
+                      <Tabs.TriggerLink active={activeTab === 'abi'}>
+                        <FeatherIcon icon="file-text" size="xs" /> Contract ABI
+                      </Tabs.TriggerLink>
+                    </Link>
+                  )}
+                </Tabs.List>
+
+                <Tooltip content="Remove this contract">
+                  <Button
+                    color="neutral"
+                    aria-label="Remove Contract"
+                    size="s"
+                    onClick={() => setShowDeleteModal(true)}
+                  >
+                    <FeatherIcon icon="trash-2" size="xs" color="text2" />
+                  </Button>
+                </Tooltip>
+              </Flex>
             </Flex>
           </Flex>
         </Section>

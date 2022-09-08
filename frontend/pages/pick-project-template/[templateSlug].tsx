@@ -81,7 +81,7 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
       <Flex stack gap="l">
         <Link href={user ? '/pick-project-template' : '/'} passHref>
           <TextLink>
-            <FeatherIcon icon="arrow-left" /> Back
+            <FeatherIcon icon="arrow-left" /> Example Projects
           </TextLink>
         </Link>
 

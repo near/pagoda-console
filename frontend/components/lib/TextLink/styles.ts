@@ -30,6 +30,7 @@ export const TextLink = styled('a', {
       },
       primary: {
         color: 'var(--color-cta-primary)',
+        borderBottom: 'none',
         '&:hover': {
           color: 'var(--color-cta-primary-highlight)',
         },

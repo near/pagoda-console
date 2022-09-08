@@ -1,10 +1,13 @@
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
 import { Container } from '@/components/lib/Container';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H1 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import { ProjectCard } from '@/modules/core/components/ProjectCard';
@@ -55,6 +58,14 @@ const PickProject: NextPageWithLayout = () => {
     <Container size="l">
       <Flex stack gap="xl">
         <Flex stack>
+          {!isOnboarding && (
+            <Link href="/projects" passHref>
+              <TextLink>
+                <FeatherIcon icon="arrow-left" /> Projects
+              </TextLink>
+            </Link>
+          )}
+
           <H1>New Project</H1>
 
           {isOnboarding ? (
