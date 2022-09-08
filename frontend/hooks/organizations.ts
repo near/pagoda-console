@@ -411,15 +411,15 @@ export const useDeleteOrg = (orgSlug: string) =>
 const getInviteErrorMessage = (code: UserError) => {
   switch (code) {
     case UserError.ORG_INVITE_BAD_TOKEN:
-      return 'No invite found for token';
+      return 'This invitation does not exist.';
     case UserError.ORG_INVITE_EMAIL_MISMATCH:
-      return 'The token belongs to an invite for a different email address';
+      return 'This invitation belongs to a different email address.';
     case UserError.ORG_INVITE_EXPIRED:
-      return 'The invite token has expired';
+      return 'This invitation has expired.';
     case UserError.BAD_ORG:
-      return 'Org is soft-deleted';
+      return 'The organization has been deleted.';
     case UserError.ORG_INVITE_ALREADY_MEMBER:
-      return 'The user is already a member of the org';
+      return 'The user is already a member of the organization.';
   }
 };
 
