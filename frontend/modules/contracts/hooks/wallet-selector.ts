@@ -13,19 +13,51 @@ import { distinctUntilChanged, map } from 'rxjs';
 
 import { openToast } from '@/components/lib/Toast';
 import { useSelectedProject } from '@/hooks/selected-project';
-import { useThemeStore } from '@/modules/core/components/ThemeToggle';
+import type { NetOption } from '@/utils/types';
 
 // Cache in module to ensure we don't re-init
 let selector: WalletSelector | null = null;
 let modal: WalletSelectorModal | null = null;
 
+//! *** IMPORTANT ***
+// Do not call useWalletSelector hook anywhere but ContractTransaction.tsx. This current implementation is highly
+// coupled to being called once in ContractTransaction.tsx and serious side-effects may occur if this is changed.
 export const useWalletSelector = (contractId: string | undefined) => {
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
-  const { activeTheme } = useThemeStore();
   const { environment } = useSelectedProject();
+  const [prevNet, setPrevNet] = useState<NetOption | undefined>();
 
   const init = useCallback(async () => {
-    if (modal || !contractId || !environment) return null;
+    if (!contractId || !environment) return null;
+
+    //* Bail early if the environment has changed.
+    //* There is some logic in Header.tsx to redirect to the /contracts page
+    //* if environment changes and that should take precedence over this flow's window reload.
+    if (prevNet && prevNet !== environment.net) {
+      return null;
+    }
+    setPrevNet(environment.net);
+
+    //* This is a hack, this is forcing a reload to be able to refresh the modal component
+    //* and wallet selector to allow switching contract.
+    //* See: https://github.com/near/wallet-selector/issues/403
+    const prevSelection = localStorage.getItem('selectedWalletSelectorContract');
+    const currSelection = `${environment.net.toLowerCase()}:${contractId}`;
+    if (prevSelection && prevSelection !== currSelection) {
+      // sign out
+      if (selector && selector.isSignedIn()) {
+        const wallet = await selector.wallet();
+        await wallet.signOut();
+      }
+
+      // We can get the current account and selected contract environment
+      localStorage.setItem('selectedWalletSelectorContract', currSelection);
+      window.location.reload();
+    }
+
+    if (!prevSelection) {
+      localStorage.setItem('selectedWalletSelectorContract', currSelection);
+    }
 
     selector = await setupWalletSelector({
       network: environment.net.toLowerCase() as NetworkId,
@@ -37,26 +69,11 @@ export const useWalletSelector = (contractId: string | undefined) => {
     });
     modal = setupModal(selector, {
       contractId,
-      theme: activeTheme,
+      // Hardcoding theme so that we don't have to reload screen to re-initialize modal and wallet selector.
+      theme: 'dark',
     });
     const state = selector.store.getState();
     setAccounts(state.accounts);
-  }, [activeTheme, contractId, environment]);
-
-  useEffect(() => {
-    init().catch((err) => {
-      console.error(err);
-      openToast({
-        type: 'error',
-        title: 'Failed to initialise wallet selector',
-      });
-    });
-  }, [init]);
-
-  useEffect(() => {
-    if (!selector) {
-      return;
-    }
 
     const subscription = selector.store.observable
       .pipe(
@@ -68,7 +85,17 @@ export const useWalletSelector = (contractId: string | undefined) => {
       });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [contractId, environment, prevNet]);
+
+  useEffect(() => {
+    init().catch((err) => {
+      console.error(err);
+      openToast({
+        type: 'error',
+        title: 'Failed to initialise wallet selector',
+      });
+    });
+  }, [init]);
 
   const accountId = accounts.find((account) => account.active)?.accountId;
 
