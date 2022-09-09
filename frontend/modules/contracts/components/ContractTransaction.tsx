@@ -103,7 +103,7 @@ const resolveDefinition = (abi: AbiRoot, def: any) => {
 export const ContractTransaction = ({ contract }: Props) => {
   const { accountId, modal, selector } = useWalletSelector(contract.address);
   const handleWalletSelect = useCallback(async () => {
-    if (selector && selector!.store.getState().selectedWalletId) {
+    if (selector && selector.store.getState().selectedWalletId) {
       const wallet = await selector.wallet();
       await wallet.signOut();
     }

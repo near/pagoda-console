@@ -22,7 +22,6 @@ import { ContractDetails } from '@/modules/contracts/components/ContractDetails'
 import { ContractInteract } from '@/modules/contracts/components/ContractInteract';
 import { DeleteContractModal } from '@/modules/contracts/components/DeleteContractModal';
 import { useAnyAbi } from '@/modules/contracts/hooks/abi';
-import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import type { NextPageWithLayout } from '@/utils/types';
 import type { Contract } from '@/utils/types';
 
@@ -36,7 +35,6 @@ const ViewContract: NextPageWithLayout = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedContractSlug, setSelectedContractSlug] = useState<string | null>(null);
   const [walletNotice, setWalletNotice] = useState(false);
-  const { selector } = useWalletSelector(contract?.address);
   const { contractAbi } = useAnyAbi(contract);
 
   // TODO: Pull in useSelectedProjectSync() to match [triggeredAlertId].tsx logic to sync env/proj to loaded contract.
@@ -50,22 +48,12 @@ const ViewContract: NextPageWithLayout = () => {
   }
 
   function onSelectedContractChange(slug: string) {
-    if (selector && selector.isSignedIn()) {
-      setSelectedContractSlug(slug);
-      setWalletNotice(true);
-    } else {
-      //* This is a hack, this is forcing a reload to be able to refresh the modal component
-      //* for wallet selector to allow switching contract.
-      //* See: https://github.com/near/wallet-selector/issues/403
-      // router.push(`/contracts/${slug}?tab=${activeTab}`);
-      window.location.href = `/contracts/${slug}?tab=${activeTab}`;
-    }
+    setSelectedContractSlug(slug);
+    setWalletNotice(true);
   }
 
   async function onWalletLogoutConfirm() {
     setWalletNotice(false);
-    const wallet = await selector!.wallet();
-    await wallet.signOut();
     router.push(`/contracts/${selectedContractSlug}?tab=${activeTab}`);
   }
 
@@ -173,7 +161,7 @@ const ViewContract: NextPageWithLayout = () => {
         />
       )}
 
-      {selector && selector.isSignedIn() && (
+      {
         <ConfirmModal
           onConfirm={onWalletLogoutConfirm}
           setShow={setWalletNotice}
@@ -182,7 +170,7 @@ const ViewContract: NextPageWithLayout = () => {
         >
           <Text>Changing contracts will log out you away from your wallet account. Would you like to change?</Text>
         </ConfirmModal>
-      )}
+      }
     </>
   );
 };
