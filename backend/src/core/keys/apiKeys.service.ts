@@ -21,32 +21,15 @@ export class ApiKeysService {
     usersDescription?: string,
   ) {
     const slug = nanoid();
-    let kongConsumerObj;
-
-    try {
-      kongConsumerObj = await this.prisma.apiKey.findFirst({
-        where: {
-          orgSlug,
-        },
-        select: {
-          kongConsumerName: true,
-        },
-      });
-    } catch (e) {
-      throw new VError('Failed while getting org from db.');
-    }
-
     const description = usersDescription ? usersDescription : 'default';
-    const kongConsumerName = kongConsumerObj
-      ? kongConsumerObj.kongConsumerName
-      : nanoid();
+    const kongConsumerName = await this.getKongConsumerName(orgSlug);
+
     try {
       await this.prisma.apiKey.create({
         data: {
           slug,
           projectSlug,
           orgSlug,
-          kongConsumerName,
           description,
           createdBy: userId,
           updatedBy: userId,
@@ -58,13 +41,15 @@ export class ApiKeysService {
 
     try {
       // creating kong consumer object if it's the first time the org is creating a key
+      const kongConsumerObj = await this.provisioningService.getOrganization(
+        kongConsumerName,
+      );
       if (!kongConsumerObj) {
         await this.provisioningService.createOrganization(
           kongConsumerName,
           orgSlug,
         );
       }
-
       // generating key for kong consumer
       await this.provisioningService.generate(kongConsumerName, slug);
 
@@ -108,8 +93,10 @@ export class ApiKeysService {
       );
     }
 
+    const kongConsumerName = await this.getKongConsumerName(keyDetails.orgSlug);
+
     try {
-      await this.provisioningService.rotate(keyDetails.kongConsumerName, slug);
+      await this.provisioningService.rotate(kongConsumerName, slug);
       // updating the record so that it shows that the external key was rotated
       await this.prisma.apiKey.update({
         where: {
@@ -126,21 +113,9 @@ export class ApiKeysService {
   }
 
   async deleteKey(userId: User['id'], orgSlug: string, slug: string) {
-    let kongConsumerObj;
-    try {
-      kongConsumerObj = await this.prisma.apiKey.findFirst({
-        where: {
-          orgSlug,
-        },
-        select: {
-          kongConsumerName: true,
-        },
-      });
-    } catch (e) {
-      throw new VError('Failed while getting org from db.');
-    }
+    const kongConsumerName = await this.getKongConsumerName(orgSlug);
 
-    if (!kongConsumerObj) {
+    if (!kongConsumerName) {
       throw new VError(
         { info: { code: 'BAD_ORG' } },
         'Could not find org details',
@@ -165,10 +140,7 @@ export class ApiKeysService {
     }
 
     try {
-      await this.provisioningService.delete(
-        kongConsumerObj.kongConsumerName,
-        slug,
-      );
+      await this.provisioningService.delete(kongConsumerName, slug);
     } catch (e) {
       throw new VError(e, 'Failed while deleting key in provisioning service');
     }
@@ -198,21 +170,35 @@ export class ApiKeysService {
         select: {
           slug: true,
           description: true,
+          id: true,
+          orgSlug: true,
         },
       });
       if (projectKeySlugs.length === 0) {
         return [];
       }
 
-      const keys: { keySlug: string; description: string; key: string }[] = [];
+      const kongConsumerName = await this.getKongConsumerName(
+        projectKeySlugs[0].orgSlug,
+      );
+
+      const keys: {
+        id: number;
+        keySlug: string;
+        description: string;
+        key: string;
+        kongConsumerName: string;
+      }[] = [];
       const keyPromises = [];
       projectKeySlugs.forEach((el) => {
         keyPromises.push(
           this.provisioningService.fetch(el.slug).then((key) => {
             keys.push({
+              id: el.id,
               keySlug: el.slug,
               description: el.description,
               key,
+              kongConsumerName,
             });
           }),
         );
@@ -220,7 +206,9 @@ export class ApiKeysService {
 
       await Promise.all(keyPromises);
 
-      return keys;
+      return keys
+        .sort((a, b) => a.id - b.id) // sorting in ascending order by id
+        .map(({ id: _id, ...el }) => el); // cutting out the id
     } catch (e) {
       throw new VError(e, 'Failed while getting keys');
     }
@@ -254,23 +242,11 @@ export class ApiKeysService {
   }
 
   async deleteOrg(userId: User['id'], orgSlug: string) {
-    let kongConsumerObj;
-    try {
-      kongConsumerObj = await this.prisma.apiKey.findFirst({
-        where: {
-          orgSlug,
-        },
-        select: {
-          kongConsumerName: true,
-        },
-      });
-    } catch (e) {
-      throw new VError('Failed while getting org from db.');
-    }
+    const kongConsumerName = await this.getKongConsumerName(orgSlug);
 
-    if (!kongConsumerObj) {
+    if (!kongConsumerName) {
       throw new VError(
-        { info: { code: 'BAD_REQUEST' } },
+        { info: { code: 'BAD_ORG' } },
         'Could not find org details',
       );
     }
@@ -289,9 +265,7 @@ export class ApiKeysService {
         orgKeySlugs.map((el) => this.deleteKey(userId, orgSlug, el.slug)),
       );
 
-      await this.provisioningService.deleteOrganization(
-        kongConsumerObj.kongConsumerName,
-      );
+      await this.provisioningService.deleteOrganization(kongConsumerName);
     } catch (e) {
       throw new VError(e, 'Failed while deleting org');
     }
@@ -308,7 +282,6 @@ export class ApiKeysService {
           orgSlug: true,
           projectSlug: true,
           active: true,
-          kongConsumerName: true,
         },
       });
     } catch (e) {
@@ -340,7 +313,37 @@ export class ApiKeysService {
 
       await Promise.all(keyPromises);
     } catch (e) {
-      return new VError('Deleting project keys failed.', e);
+      throw new VError('Deleting project keys failed.', e);
+    }
+  }
+
+  async createOrganization(kongConsumerName: string, orgSlug: string) {
+    try {
+      await this.provisioningService.createOrganization(
+        kongConsumerName,
+        orgSlug,
+      );
+    } catch (e) {
+      throw new VError(
+        'Creating a kong consumer for an organization failed.',
+        e,
+      );
+    }
+  }
+
+  private async getKongConsumerName(orgSlug: string) {
+    try {
+      const res = await this.prisma.org.findFirst({
+        where: {
+          slug: orgSlug,
+        },
+        select: {
+          emsId: true,
+        },
+      });
+      return res.emsId;
+    } catch (e) {
+      throw new VError('Getting emsId from org table failed', e);
     }
   }
 }

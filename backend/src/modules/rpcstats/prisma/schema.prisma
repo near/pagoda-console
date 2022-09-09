@@ -19,6 +19,9 @@ enum Net {
 
 model ApikeyEndpointMetricsPerBaseWindow {
   apiKeyIdentifier    String        @map("api_key_identifier")
+  apiKeyConsumerName  String        @map("api_key_consumer_name")
+  apiKeyOrgSlug       String        @map("api_key_org_slug")
+  apiKeyConsumerId    String        @map("api_key_consumer_id")
   network             String           
   endpointMethod      String        @map("endpoint_method")
   endpointGroup       String?       @map("endpoint_group")
@@ -36,12 +39,15 @@ model ApikeyEndpointMetricsPerBaseWindow {
   minute              Int
   quarterMinute       Int           @map("quarter_minute")
 
-  @@id([apiKeyIdentifier, network, endpointMethod, year, month, day, hour24, minute, quarterMinute])
+  @@id([apiKeyIdentifier, apiKeyConsumerName, apiKeyOrgSlug, apiKeyConsumerId, network, endpointMethod, year, month, day, hour24, minute, quarterMinute])
   @@map("apikey_endpoint_metrics_per_base_window")
 }
 
 model ApikeyGeographyMetricsPerBaseWindow {
   apiKeyIdentifier    String        @map("api_key_identifier")
+  apiKeyConsumerName  String        @map("api_key_consumer_name")
+  apiKeyOrgSlug       String        @map("api_key_org_slug")
+  apiKeyConsumerId    String        @map("api_key_consumer_id")
   network             String           
   country             String          
   state               String
@@ -59,6 +65,6 @@ model ApikeyGeographyMetricsPerBaseWindow {
   minute              Int
   quarterMinute       Int           @map("quarter_minute")
 
-  @@id([apiKeyIdentifier, network, country, state, year, month, day, hour24, minute, quarterMinute])
+  @@id([apiKeyIdentifier, apiKeyConsumerName, apiKeyOrgSlug, apiKeyConsumerId, network, country, state, year, month, day, hour24, minute, quarterMinute])
   @@map("apikey_geography_metrics_per_base_window")
 }

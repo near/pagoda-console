@@ -18,6 +18,7 @@ import { OrgInviteEmailService } from './org-invite-email.service';
 import { ModuleRef } from '@nestjs/core';
 import { ProjectsService } from '../projects/projects.service';
 import firebaseAdmin from 'firebase-admin';
+import { ApiKeysService } from '../keys/apiKeys.service';
 
 const newOrgSlug = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -27,6 +28,8 @@ const newInviteToken = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
   14,
 );
+
+const newEmsId = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 20);
 
 const DEFAULT_TEAM_NAME = 'default';
 
@@ -39,6 +42,7 @@ export class UsersService implements OnModuleInit {
     private config: ConfigService<AppConfig>,
     private orgInviteEmail: OrgInviteEmailService,
     private moduleRef: ModuleRef,
+    private apiKeysService: ApiKeysService,
   ) {
     this.orgInviteExpiryMinutes = this.config.get(
       'orgs.inviteTokenExpiryMinutes',
@@ -73,6 +77,15 @@ export class UsersService implements OnModuleInit {
     };
 
     const orgSlug = newOrgSlug();
+    const emsId = newEmsId();
+    try {
+      await this.apiKeysService.createOrganization(emsId, orgSlug);
+    } catch (e) {
+      throw new VError(
+        { info: { code: UserError.SERVER_ERROR } },
+        'Creating a kong consumer for an org failed.',
+      );
+    }
 
     return this.prisma.user.create({
       data: {
@@ -104,6 +117,7 @@ export class UsersService implements OnModuleInit {
                         ...metadata,
                       },
                     },
+                    emsId,
                     ...metadata,
                   },
                 },
@@ -271,6 +285,15 @@ export class UsersService implements OnModuleInit {
     const metadata = this.creationMetadata(callingUser);
 
     const slug = newOrgSlug();
+    const emsId = newEmsId();
+    try {
+      await this.apiKeysService.createOrganization(emsId, slug);
+    } catch (e) {
+      throw new VError(
+        { info: { code: UserError.SERVER_ERROR } },
+        'Creating a kong consumer for an org failed.',
+      );
+    }
 
     // create org, create default team, add user to team, add user to org
     const created = await this.prisma.org.create({
@@ -297,6 +320,7 @@ export class UsersService implements OnModuleInit {
             ...metadata,
           },
         },
+        emsId,
       },
       select: {
         slug: true,

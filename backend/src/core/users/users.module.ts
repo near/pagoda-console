@@ -6,6 +6,7 @@ import { EmailModule } from '../email/email.module';
 import { OrgInviteEmailService } from './org-invite-email.service';
 import { ReadonlyService } from './readonly.service';
 import { PermissionsService } from './permissions.service';
+import { ApiKeysModule } from '../keys/apiKeys.module';
 
 @Module({
   providers: [
@@ -15,7 +16,7 @@ import { PermissionsService } from './permissions.service';
     ReadonlyService,
     PermissionsService,
   ],
-  imports: [PrismaService, EmailModule],
+  imports: [PrismaService, EmailModule, ApiKeysModule],
   exports: [UsersService, ReadonlyService, PermissionsService],
   controllers: [UsersController],
 })

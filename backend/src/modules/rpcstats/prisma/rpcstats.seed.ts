@@ -1,7 +1,7 @@
 /*
   Generates mock RPC stats data.
   Run by (globally) installing ts-node then run
-    SEED_API_KEY=<A KEY TO USE> ts-node rpcstats.seed.ts
+    SEED_API_KEY=<A KEY TO USE> SEED_CONSUMER_NAME=<a consumer name> SEED_ORG_SLUG=<an org slug> SEED_CONSUMER_ID=foo ts-node rpcstats.seed.ts
 
   Creates 100 records with a 1ms delay between records. To create more, change ROWS_TO_CREATE.
 */
@@ -19,7 +19,7 @@ type metric =
   | ApikeyEndpointMetricsPerBaseWindow
   | ApikeyGeographyMetricsPerBaseWindow;
 
-const ROWS_TO_CREATE = 4800;
+const ROWS_TO_CREATE = 900;
 const WINDOW_LENGTH_IN_SECONDS = 15;
 const startingSecondsAgo = WINDOW_LENGTH_IN_SECONDS * ROWS_TO_CREATE;
 const startDateTime = DateTime.now()
@@ -59,6 +59,9 @@ async function createRow(iteration: number) {
     const row = await prisma.apikeyEndpointMetricsPerBaseWindow.create({
       data: {
         apiKeyIdentifier: process.env.SEED_API_KEY,
+        apiKeyConsumerName: process.env.SEED_CONSUMER_NAME,
+        apiKeyOrgSlug: process.env.SEED_ORG_SLUG,
+        apiKeyConsumerId: process.env.SEED_CONSUMER_ID,
         successCount: Math.ceil(randomNumber(1, 100)),
         errorCount: Math.floor(randomNumber(1, 3)),
         network: 'TESTNET',
@@ -69,14 +72,18 @@ async function createRow(iteration: number) {
         windowEndEpochMs: Math.ceil(windowEndTime.toMillis()),
         // endpointGroup: 'Protocol',
         // endpointMethod: 'EXPERIMENTAL_genesis_config',
-        endpointGroup: 'Gas',
-        endpointMethod: 'gas_price',
+        // endpointGroup: 'Gas',
+        // endpointMethod: 'gas_price',
+        // endpointGroup: 'Network',
+        // endpointMethod: 'status',
+        endpointGroup: 'Network',
+        endpointMethod: 'network_info',
         year: windowStartTime.year,
         month: windowStartTime.month,
         day: windowStartTime.day,
         hour24: windowStartTime.hour,
         minute: windowStartTime.minute,
-        quarterMinute: windowStartTime.second,
+        quarterMinute: windowStartTime.second / 15,
       },
     });
   } catch (e) {
