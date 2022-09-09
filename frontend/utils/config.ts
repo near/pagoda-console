@@ -24,6 +24,8 @@ if (
   !process.env.NEXT_PUBLIC_RECOMMENDED_TEST_NET_RPC ||
   !process.env.NEXT_PUBLIC_EAPI_MAINNET_URL ||
   !process.env.NEXT_PUBLIC_EAPI_TESTNET_URL ||
+  !process.env.NEXT_PUBLIC_EAPI_SPEC_MAINNET_URL ||
+  !process.env.NEXT_PUBLIC_EAPI_SPEC_TESTNET_URL ||
   !process.env.NEXT_PUBLIC_MAIN_NET_EXPLORER ||
   !process.env.NEXT_PUBLIC_TEST_NET_EXPLORER ||
   !process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE ||
@@ -75,6 +77,7 @@ interface AppConfig {
       recommended: RpcNets;
     };
     eapi: EapiNets;
+    eapiSpec: EapiNets;
   };
   buttonDebounce: number;
   usagePersistenceMinutes: number;
@@ -116,6 +119,10 @@ const config: AppConfig = {
     eapi: {
       MAINNET: process.env.NEXT_PUBLIC_EAPI_MAINNET_URL,
       TESTNET: process.env.NEXT_PUBLIC_EAPI_TESTNET_URL,
+    },
+    eapiSpec: {
+      MAINNET: process.env.NEXT_PUBLIC_EAPI_SPEC_MAINNET_URL,
+      TESTNET: process.env.NEXT_PUBLIC_EAPI_SPEC_TESTNET_URL,
     },
   },
   buttonDebounce: parseInt(process.env.NEXT_PUBLIC_BUTTON_DEBOUNCE),

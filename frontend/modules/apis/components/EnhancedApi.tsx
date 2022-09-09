@@ -61,19 +61,11 @@ const EnhancedAPI = () => {
       {!isLoading ? (
         <div className="enhanced-api">
           <Box css={{ display: !isMainnet ? 'none' : undefined }}>
-            <elements-api
-              apiDescriptionUrl={`${config.url.eapi.MAINNET}/api/spec/specz`}
-              router="hash"
-              layout="sidebar"
-            />
+            <elements-api apiDescriptionUrl={config.url.eapiSpec.MAINNET} router="hash" layout="sidebar" />
           </Box>
 
           <Box css={{ display: isMainnet ? 'none' : undefined }}>
-            <elements-api
-              apiDescriptionUrl={`${config.url.eapi.TESTNET}/api/spec/specz`}
-              router="hash"
-              layout="sidebar"
-            />
+            <elements-api apiDescriptionUrl={config.url.eapiSpec.TESTNET} router="hash" layout="sidebar" />
           </Box>
         </div>
       ) : (
