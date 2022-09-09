@@ -18,7 +18,7 @@ export class EmailVerificationService {
 
     this.emailVerificationEndpoint = `${frontendBaseUrl}/alerts/verify-email`;
 
-    this.from = this.config.get('email.noReply', {
+    this.from = this.config.get('email.alerts.noReply', {
       infer: true,
     });
   }
