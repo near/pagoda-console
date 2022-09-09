@@ -62,7 +62,7 @@ const EnhancedAPI = () => {
         <div className="enhanced-api">
           <Box css={{ display: !isMainnet ? 'none' : undefined }}>
             <elements-api
-              apiDescriptionUrl={`${config.url.eapi.MAINNET}/api/spec/v3.json`}
+              apiDescriptionUrl={`${config.url.eapi.MAINNET}/api/spec/specz`}
               router="hash"
               layout="sidebar"
             />
@@ -70,7 +70,7 @@ const EnhancedAPI = () => {
 
           <Box css={{ display: isMainnet ? 'none' : undefined }}>
             <elements-api
-              apiDescriptionUrl={`${config.url.eapi.TESTNET}/api/spec/v3.json`}
+              apiDescriptionUrl={`${config.url.eapi.TESTNET}/api/spec/specz`}
               router="hash"
               layout="sidebar"
             />
