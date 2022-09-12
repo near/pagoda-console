@@ -7,7 +7,7 @@ import { Text } from '@/components/lib/Text';
 import { useSelectedProject } from '@/hooks/selected-project';
 import config from '@/utils/config';
 
-import { globalStyles } from './styles';
+import * as S from './styles';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -46,7 +46,6 @@ const EnhancedAPI = () => {
     };
   }, []);
 
-  globalStyles();
   return (
     <>
       {displayMessage && (
@@ -59,7 +58,7 @@ const EnhancedAPI = () => {
         </Message>
       )}
       {!isLoading ? (
-        <div className="enhanced-api">
+        <S.Root className="enhanced-api">
           <Box css={{ display: !isMainnet ? 'none' : undefined }}>
             <elements-api apiDescriptionUrl={config.url.eapiSpec.MAINNET} router="hash" layout="sidebar" />
           </Box>
@@ -67,7 +66,7 @@ const EnhancedAPI = () => {
           <Box css={{ display: isMainnet ? 'none' : undefined }}>
             <elements-api apiDescriptionUrl={config.url.eapiSpec.TESTNET} router="hash" layout="sidebar" />
           </Box>
-        </div>
+        </S.Root>
       ) : (
         <Spinner center />
       )}
