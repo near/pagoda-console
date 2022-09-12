@@ -112,6 +112,16 @@ export const Root = styled('div', {
   },
   'div.sl-code-highlight': {
     backgroundColor: 'white',
+    overflowY: 'inherit',
+  },
+  'div.sl-code-highlight .sl-flex .token.punctuation': {
+    color: 'rgb(51, 51, 51) !important',
+  },
+  'div.sl-code-highlight .sl-flex .token.property': {
+    color: 'rgb(24, 54, 145) !important',
+  },
+  'div.sl-code-highlight .sl-flex .token.string': {
+    color: 'rgb(3, 47, 98) !important',
   },
   'svg.sl-icon': {
     maxHeight: '18px',
