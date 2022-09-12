@@ -1,10 +1,6 @@
-import { globalCss } from '@/styles/stitches';
+import { styled } from '@/styles/stitches';
 
-export const globalStyles = globalCss({
-  'main > section': {
-    // makes the elements content scrollable instead of the entire page
-    overflow: 'auto',
-  },
+export const Root = styled('div', {
   'div.sl-px-24.sl-overflow-y-auto': {
     // increase the width by decreasing padding
     paddingLeft: '80px',
