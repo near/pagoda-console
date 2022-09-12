@@ -833,10 +833,40 @@ export class ProjectsService {
     });
 
     try {
-      const { name, slug, tutorial } = await this.getActiveProject(
-        projectWhereUnique,
-      );
-      return { name, slug, tutorial };
+      const project = await this.prisma.project.findUnique({
+        where: projectWhereUnique,
+        select: {
+          name: true,
+          slug: true,
+          tutorial: true,
+          active: true,
+          org: {
+            select: {
+              name: true,
+              slug: true,
+              personalForUserId: true,
+            },
+          },
+        },
+      });
+      if (!project) {
+        throw new VError(
+          { info: { code: 'BAD_PROJECT' } },
+          'Project not found',
+        );
+      }
+      if (!project.active) {
+        throw new VError(
+          { info: { code: 'BAD_PROJECT' } },
+          'Project not active',
+        );
+      }
+      return {
+        name: project.name,
+        slug: project.slug,
+        tutorial: project.tutorial,
+        org: project.org,
+      };
     } catch (e) {
       throw new VError(e, 'Failed while fetching project details');
     }
