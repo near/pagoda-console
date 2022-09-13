@@ -31,7 +31,7 @@ interface FormData {
 }
 
 export function AddContractForm(props: Props) {
-  const { register, handleSubmit, formState } = useForm<FormData>();
+  const { register, handleSubmit, formState, setValue } = useForm<FormData>();
   const [isDeployingContract, setIsDeployingContract] = useState(false);
   const [selectedContractTemplate, setSelectedContractTemplate] = useState<ContractTemplate | undefined>();
   const { selectEnvironment } = useSelectedProject();
@@ -77,16 +77,17 @@ export function AddContractForm(props: Props) {
   }
 
   const submitForm: SubmitHandler<FormData> = async ({ contractAddress }) => {
+    const contractAddressValue = contractAddress.trim();
     try {
       const contract: Contract = await authenticatedPost('/projects/addContract', {
         project: props.project.slug,
         environment: props.environment.subId,
-        address: contractAddress,
+        address: contractAddressValue,
       });
 
       analytics.track('DC Add Contract', {
         status: 'success',
-        contractId: contractAddress,
+        contractId: contractAddressValue,
         net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
       });
 
@@ -112,7 +113,7 @@ export function AddContractForm(props: Props) {
         openToast({
           type: 'error',
           title: 'Contract not found',
-          description: `Contract ${contractAddress} was not found on ${net}.`,
+          description: `Contract ${contractAddressValue} was not found on ${net}.`,
         });
         return;
       }
@@ -120,7 +121,7 @@ export function AddContractForm(props: Props) {
       analytics.track('DC Add Contract', {
         status: 'failure',
         error: e.message,
-        contractId: contractAddress,
+        contractId: contractAddressValue,
         net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
       });
 
@@ -170,6 +171,7 @@ export function AddContractForm(props: Props) {
                       message: 'Invalid address format.',
                     },
                   })}
+                  onChange={(e) => setValue('contractAddress', e.target.value.trim())}
                 />
                 <Form.Feedback>{formState.errors.contractAddress?.message}</Form.Feedback>
               </Form.Group>
