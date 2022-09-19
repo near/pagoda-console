@@ -8,7 +8,7 @@ test.use({
 
 test('test', async ({ page }) => {
   await page.goto('/', {
-    waitUntil: 'networkidle',
+    waitUntil: 'load',
   });
 
   await page.locator('text=See you on the big screen!').waitFor({ state: 'visible' });

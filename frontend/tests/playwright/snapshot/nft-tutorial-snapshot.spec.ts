@@ -24,7 +24,7 @@ import { login } from '../login';
     await login(page);
 
     await page.goto(`/tutorials/nfts/${path}?project=${project}&environment=1`, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
 
     expect(
@@ -56,7 +56,7 @@ const CHUNK = 10000;
       await login(page);
 
       await page.goto(`/tutorials/nfts/${path}?project=${project}&environment=1`, {
-        waitUntil: 'networkidle',
+        waitUntil: 'load',
       });
 
       expect(

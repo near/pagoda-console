@@ -1,8 +1,10 @@
-import { expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 import { test } from '../fixtures';
 import { login } from '../login';
+import { clickAndWaitForNavigation } from '../utils';
 
+// * This test assumes there are other projects that the user has access to.
 test(`create blank project test`, async ({ page }) => {
   if (!process.env.TEST_CREATE_BLANK_PROJECT || !process.env.TEST_URL) {
     throw 'missing env variables';
@@ -12,33 +14,18 @@ test(`create blank project test`, async ({ page }) => {
 
   await login(page);
 
-  await page.click('text=Create');
+  // If there are no other projects, the user will be rerouted to
+  await clickAndWaitForNavigation(page, 'button:has-text("Create")', 'pick-project');
   await page.locator('text=New Project').waitFor({ state: 'visible' });
+  // Click on "Blank" project button.
+  await clickAndWaitForNavigation(page, '#blank', 'new-project');
+  await page.fill('[placeholder="Cool New Project"]', project);
+  await clickAndWaitForNavigation(page, 'text=Create Project', 'apis?tab=keys');
 
-  await page.locator('#blank').click();
-
-  await expect(page).toHaveURL(`${process.env.TEST_URL}/new-project`);
-
-  await page.locator('[placeholder="Cool New Project"]').fill(project);
-
-  await Promise.all([
-    page.waitForNavigation({
-      url: `${process.env.TEST_URL}/apis?tab=keys`,
-    }),
-    page.locator('text=Create Project').click(),
-  ]);
-
-  await page.click('text=Remove Project');
-
-  await Promise.all([
-    page.waitForNavigation({
-      // The user could land on the /pick-project screen if there are no other projects listed on the /projects page.
-      url: `${process.env.TEST_URL}/projects`,
-    }),
-    page.locator('div[role="dialog"] button:has-text("Remove")').click(),
-  ]);
+  await removeProject(page);
 });
 
+// * This test assumes there are other projects that the user has access to.
 test(`create tutorial project test`, async ({ page }) => {
   if (!process.env.TEST_CREATE_NFT_TUTORIAL_PROJECT || !process.env.TEST_URL) {
     throw 'missing env variables';
@@ -50,35 +37,18 @@ test(`create tutorial project test`, async ({ page }) => {
 
   await page.click('text=Create');
   await page.locator('text=New Project').waitFor({ state: 'visible' });
+  await clickAndWaitForNavigation(page, '#tutorial', 'pick-tutorial');
+  await clickAndWaitForNavigation(page, '#nft-market', 'new-nft-tutorial');
+  await page.fill('[placeholder="Cool New Project"]', project);
+  await clickAndWaitForNavigation(page, 'text=Create Project', 'tutorials/nfts/introduction');
 
-  await page.click('#tutorial');
-
-  await expect(page).toHaveURL(`${process.env.TEST_URL}/pick-tutorial`);
-
-  await Promise.all([
-    page.waitForNavigation({
-      url: `${process.env.TEST_URL}/new-nft-tutorial`,
-    }),
-    page.click('#nft-market'),
-  ]);
-
-  await page.locator('[placeholder="Cool New Project"]').fill(project);
-
-  await Promise.all([
-    page.waitForNavigation({
-      url: `${process.env.TEST_URL}/tutorials/nfts/introduction`,
-    }),
-    page.locator('text=Create Project').click(),
-  ]);
-
-  await page.goto('/apis?tab=keys', { waitUntil: 'networkidle' });
-  await page.click('text=Remove Project');
-
-  await Promise.all([
-    page.waitForNavigation({
-      // The user could land on the /pick-project screen if there are no other projects listed on the /projects page.
-      url: `${process.env.TEST_URL}/projects`,
-    }),
-    page.locator('div[role="dialog"] button:has-text("Remove")').click(),
-  ]);
+  await removeProject(page);
 });
+
+async function removeProject(page: Page) {
+  await clickAndWaitForNavigation(page, 'a:has-text("Settings")', 'project-settings');
+  await page.click('button:has-text("Remove Project")');
+  // The user might land on the /pick-project screen if there are no other projects listed on the /projects page.
+  // We'll assume there are other projects on the user for now.
+  await clickAndWaitForNavigation(page, 'div[role="dialog"] button:has-text("Remove")', 'projects');
+}

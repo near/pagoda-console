@@ -148,19 +148,9 @@ Tests are written in [Playwright](https://playwright.dev). See `/tests/playwrigh
 
 The screenshot tests are used for testing tutorial pages that have dynamic content that could potentially change outside of our team (tests/playwright/snapshot/nft-tutorial-snapshot.spec.ts).
 
-Note: playwright tests can only run on [specific OSes](https://playwright.dev/docs/library#system-requirements). This means we can't run it in the VS Code dev container. Currently, you must run this project on your host machine.
+Note: playwright tests can only run on [specific OSes](https://playwright.dev/docs/library#system-requirements). This means we can't run it in the VS Code dev container that we use for development. If you want to run the tests from your local, it is recommended that you overwrite the contents of `.devcontainer/devcontainer.json` with the `.devcontainer/playwright/devcontainer.json` file and rebuild the dev container.
 
-If you want to run these tests in your local on your host machine (this will not work in docker):
-
-```bash
-npm run test:e2e:local
-```
-
-```bash
-npm run test:snapshot:local
-```
-
-then run `npm run test:e2e` for integration tests or `npm run test:snapshot` for snapshot tests.
+You can run `npm run test:e2e` for integration tests or `npm run test:snapshot` for snapshot tests.
 
 ### Updating Snapshots
 

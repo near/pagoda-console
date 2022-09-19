@@ -1,0 +1,6 @@
+FROM mcr.microsoft.com/playwright:v1.23.1-focal
+
+# Remove node 16 from the playwright image and replace with node 14 which is what this project uses.
+RUN apt remove -y nodejs && \
+    curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
+    apt-get install -y nodejs

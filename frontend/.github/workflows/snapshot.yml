@@ -27,7 +27,7 @@ jobs:
           TEST_URL: https://core.dev.console.pagoda.co
           TEST_EMAIL: jon+e2e@near.org
           TEST_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
-          TEST_NFT_TUTORIAL_PROJECT: dD188d1fpAfJZ
+          TEST_NFT_TUTORIAL_PROJECT: AcxeBjT5uWPLG
       - uses: actions/upload-artifact@v2
         if: always()
         with:

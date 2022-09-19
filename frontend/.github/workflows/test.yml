@@ -1,7 +1,7 @@
 name: Test Project
 on:
   pull_request:
-    branches: [development, module, release, main]
+    branches: [develop, module, release, main]
 jobs:
   build:
     timeout-minutes: 5
