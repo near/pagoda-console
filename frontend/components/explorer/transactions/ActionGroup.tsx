@@ -1,4 +1,4 @@
-import BN from 'bn.js';
+import JSBI from 'jsbi';
 
 import BatchTransactionIcon from '@/public/static/images/icon-m-batch.svg';
 import type { FinalityStatus } from '@/utils/types';
@@ -27,7 +27,10 @@ const ActionGroup = ({ actionGroup, detailsLink, status, viewMode, title, icon, 
 
   const isFinal =
     typeof finalityStatus?.finalBlockTimestampNanosecond !== 'undefined'
-      ? new BN(actionGroup.blockTimestamp).lte(finalityStatus.finalBlockTimestampNanosecond.divn(10 ** 6))
+      ? JSBI.lessThanOrEqual(
+          JSBI.BigInt(actionGroup.blockTimestamp),
+          JSBI.divide(finalityStatus.finalBlockTimestampNanosecond, JSBI.BigInt(10 ** 6)),
+        )
       : undefined;
 
   return (

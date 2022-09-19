@@ -1,4 +1,4 @@
-import type BN from 'bn.js';
+import type JSBI from 'jsbi';
 import type { NextPage } from 'next';
 import type { ReactElement, ReactNode } from 'react';
 
@@ -64,7 +64,7 @@ export interface User {
 
 export interface FinalityStatus {
   finalBlockHeight: number;
-  finalBlockTimestampNanosecond: BN;
+  finalBlockTimestampNanosecond: JSBI;
 }
 
 export interface ApiKey {

@@ -1,6 +1,6 @@
-import { BN } from 'bn.js';
+import JSBI from 'jsbi';
 
-export const U128 = new BN('2', 10).pow(new BN('128', 10)).sub(new BN('1', 10)); // Max yoctoNEAR allowed in a state change
+export const U128 = JSBI.subtract(JSBI.exponentiate(JSBI.BigInt('2'), JSBI.BigInt('128')), JSBI.BigInt('1')); // Max yoctoNEAR allowed in a state change
 
 export const formRegex = {
   contractAddressWildcard:

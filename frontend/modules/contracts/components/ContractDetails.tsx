@@ -1,4 +1,4 @@
-import BN from 'bn.js';
+import JSBI from 'jsbi';
 import { useEffect, useState } from 'react';
 
 import TransactionAction from '@/components/explorer/transactions/TransactionAction';
@@ -97,7 +97,7 @@ function RecentTransactionList({ contract, net }: { contract?: Contract; net?: N
     }
     const finalBlock = res.result;
     const newStatus = {
-      finalBlockTimestampNanosecond: new BN(finalBlock.header.timestamp_nanosec),
+      finalBlockTimestampNanosecond: JSBI.BigInt(finalBlock.header.timestamp_nanosec),
       finalBlockHeight: finalBlock.header.height,
     };
     setFinalityStatus(newStatus);

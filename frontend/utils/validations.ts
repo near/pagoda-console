@@ -1,4 +1,4 @@
-import { BN } from 'bn.js';
+import JSBI from 'jsbi';
 
 import { U128 } from './constants';
 import { convertNearToYocto } from './convert-near';
@@ -9,7 +9,7 @@ export function validateInteger(value: string) {
 }
 
 export function validateMaxYoctoU128(value: string) {
-  return new BN(value || '', 10).lte(U128) || 'Must be less than 2^128 yoctoⓃ';
+  return JSBI.lessThanOrEqual(JSBI.BigInt(value || ''), U128) || 'Must be less than 2^128 yoctoⓃ';
 }
 
 export function validateMaxNearU128(value: string) {

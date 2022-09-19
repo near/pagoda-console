@@ -1,5 +1,5 @@
 import type { WalletSelector } from '@near-wallet-selector/core';
-import { BN } from 'bn.js';
+import JSBI from 'jsbi';
 import type { AbiParameter, AbiRoot, AnyContract as AbiContract } from 'near-abi-client-js';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
@@ -218,26 +218,26 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   const convertGas = (gas: string) => {
     switch (gasFormat) {
       case 'Tgas':
-        return new BN(gasUtils.convertGasToTgas(gas));
+        return JSBI.BigInt(gasUtils.convertGasToTgas(gas));
       case 'Ggas':
-        return new BN(gasUtils.convertGasToGgas(gas));
+        return JSBI.BigInt(gasUtils.convertGasToGgas(gas));
       case 'Mgas':
-        return new BN(gasUtils.convertGasToMgas(gas));
+        return JSBI.BigInt(gasUtils.convertGasToMgas(gas));
       case 'gas':
-        return new BN(gas);
+        return JSBI.BigInt(gas);
       default:
-        return new BN(gasUtils.convertGasToTgas(gas));
+        return JSBI.BigInt(gasUtils.convertGasToTgas(gas));
     }
   };
 
   const convertNearDeposit = (deposit: string) => {
     switch (nearFormat) {
       case 'NEAR':
-        return new BN(convertNearToYocto(deposit));
+        return JSBI.BigInt(convertNearToYocto(deposit));
       case 'yoctoⓃ':
-        return new BN(deposit);
+        return JSBI.BigInt(deposit);
       default:
-        return new BN(deposit);
+        return JSBI.BigInt(deposit);
     }
   };
 
@@ -323,7 +323,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
         // Pull gas/deposit from fields or default. This default will be done by the abi client
         // library, but doing it here to have more control and ensure no hidden bugs.
 
-        const gas = params.gas ? convertGas(params.gas).toString() : new BN(10_000_000_000_000).toString();
+        const gas = params.gas ? convertGas(params.gas).toString() : JSBI.BigInt(10_000_000_000_000).toString();
         const attachedDeposit = params.deposit ? convertNearDeposit(params.deposit).toString() : '0';
 
         res = await call.callFrom(await selector?.wallet(), {
@@ -470,9 +470,10 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                     {...form.register(`gas`, {
                       validate: {
                         minValue: (value: string) =>
-                          new BN(value).gtn(0) || 'Value must be greater than 0. Try using 10 Tgas',
+                          JSBI.greaterThan(JSBI.BigInt(value), JSBI.BigInt(0)) ||
+                          'Value must be greater than 0. Try using 10 Tgas',
                         maxValue: (value: string) =>
-                          convertGas(value).lt(new BN(gasUtils.convertGasToTgas('300'))) ||
+                          JSBI.lessThan(convertGas(value), JSBI.BigInt(gasUtils.convertGasToTgas('300'))) ||
                           'You can attach a maximum of 300 Tgas to a transaction',
                       },
                     })}

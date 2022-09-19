@@ -1,5 +1,5 @@
 /// Copied from near-wallet project:
-import BN from 'bn.js';
+import JSBI from 'jsbi';
 import { PureComponent } from 'react';
 
 import { Tooltip } from '@/components/lib/Tooltip';
@@ -75,12 +75,12 @@ export const NEAR_NOMINATION_EXP = 24;
 /**
  * Number of indivisible units in one NEAR. Derived from {@link NEAR_NOMINATION_EXP}.
  */
-export const NEAR_NOMINATION = new BN('10', 10).pow(new BN(NEAR_NOMINATION_EXP, 10));
+export const NEAR_NOMINATION = JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(NEAR_NOMINATION_EXP));
 
 // Pre-calculate offests used for rounding to different number of digits
 const ROUNDING_OFFSETS = [];
-const BN10 = new BN(10);
-for (let i = 0, offset = new BN(5); i < NEAR_NOMINATION_EXP; i++, offset = offset.mul(BN10)) {
+const BN10 = JSBI.BigInt(10);
+for (let i = 0, offset = JSBI.BigInt(5); i < NEAR_NOMINATION_EXP; i++, offset = JSBI.multiply(offset, BN10)) {
   ROUNDING_OFFSETS[i] = offset;
 }
 
@@ -93,12 +93,12 @@ for (let i = 0, offset = new BN(5); i < NEAR_NOMINATION_EXP; i++, offset = offse
  * @returns Value in Ⓝ
  */
 export function formatNearAmount(balance, fracDigits = NEAR_NOMINATION_EXP) {
-  const balanceBN = new BN(balance, 10);
+  let balanceBN = JSBI.BigInt(balance);
   if (fracDigits !== NEAR_NOMINATION_EXP) {
     // Adjust balance for rounding at given number of digits
     const roundingExp = NEAR_NOMINATION_EXP - fracDigits - 1;
     if (roundingExp > 0) {
-      balanceBN.iadd(ROUNDING_OFFSETS[roundingExp]);
+      balanceBN = JSBI.add(balanceBN, ROUNDING_OFFSETS[roundingExp]);
     }
   }
 

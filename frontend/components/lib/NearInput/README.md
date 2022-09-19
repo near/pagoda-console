@@ -96,12 +96,12 @@ Note that the `validate` rules are different when dealing with `yocto`. Since we
 
 ### Big Number
 
-When needing to perform math operations on yoctoNEAR values, you'll need to use [bn.js](https://github.com/indutny/bn.js). Here's an example of checking if `valueOne` is less than `valueTwo`:
+When needing to perform math operations on yoctoNEAR values, you'll need to use [JSBI](https://github.com/GoogleChromeLabs/jsbi). Here's an example of checking if `valueOne` is less than `valueTwo`:
 
 ```tsx
-import { BN } from 'bn.js';
+import JSBI from 'jsbi';
 
-const isValid = new BN(valueOne || '', 10).lt(new BN(valueTwo || '', 10));
+const isValid = JSBI.lessThan(JSBI.BigInt(valueOne || ''), JSBI.BigInt(valueTwo || '', 10));
 ```
 
 ## Converting
