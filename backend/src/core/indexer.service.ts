@@ -2,18 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { VError } from 'verror';
 import { ConfigService } from '@nestjs/config';
 
-import { BN } from 'bn.js';
 // const models = require('./models');
-
-interface Transaction {
-  hash: string;
-  signerId: string;
-  receiverId: string;
-  blockHash: string;
-  blockTimestamp: string;
-  transactionIndex: number;
-  actions?: any[];
-}
 
 const INDEXER_COMPATIBILITY_TRANSACTION_ACTION_KINDS = new Map([
   ['ADD_KEY', 'AddKey'],
@@ -122,7 +111,9 @@ export class IndexerService {
         {
           account_id: accountId,
           end_timestamp: paginationIndexer
-            ? new BN(paginationIndexer.endTimestamp).muln(10 ** 6).toString()
+            ? (
+                BigInt(paginationIndexer.endTimestamp) * BigInt(10 ** 6)
+              ).toString()
             : undefined,
           transaction_index: paginationIndexer?.transactionIndex,
           limit,
@@ -284,11 +275,13 @@ export class IndexerService {
     }
     */
     return mergedTransactions
-      .sort(compareTransactions)
+      .sort((a, b) => sortBigInts(a.blockTimestamp, b.blockTimestamp))
       .slice(0, this.recentTransactionsCount);
   }
 }
 
-function compareTransactions(a: Transaction, b: Transaction) {
-  return new BN(b.blockTimestamp).cmp(new BN(a.blockTimestamp));
+function sortBigInts(a: string, b: string) {
+  const aBigInt = BigInt(a);
+  const bBigInt = BigInt(b);
+  return bBigInt > aBigInt ? 1 : aBigInt > bBigInt ? -1 : 0;
 }
