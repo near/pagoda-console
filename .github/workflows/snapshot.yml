@@ -1,8 +1,16 @@
-name: Builds a Zip of Updated Snapshot Images for Snapshot Tests (dev.console.pagoda.co)
+name: Snapshot Tests
 on:
-  workflow_dispatch
+  # Run once every other day
+  schedule:
+    - cron: '43 7 2-30/2 * *'
+  push:
+    branches: [develop]
+  # You could test this CI job in a PR by uncommenting the below pull_request line.
   # pull_request:
   #   branches: [develop]
+defaults:
+  run:
+    working-directory: frontend
 jobs:
   test:
     timeout-minutes: 60
@@ -17,7 +25,7 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps
       - name: Run snapshot tests
-        run: npx playwright test tests/playwright/snapshot/ --update-snapshots
+        run: npm run test:snapshot
         env:
           TEST_URL: https://core.dev.console.pagoda.co
           TEST_EMAIL: jon+e2e@near.org
@@ -26,6 +34,6 @@ jobs:
       - uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: updated-snapshots
-          path: tests/playwright/snapshot
-          retention-days: 1
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
