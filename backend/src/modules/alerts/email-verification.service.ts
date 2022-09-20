@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class EmailVerificationService {
   private emailVerificationEndpoint: string;
-  private emailVerificationFrom: string;
+  private from: string;
 
   constructor(
     private config: ConfigService<AppConfig>,
@@ -18,12 +18,9 @@ export class EmailVerificationService {
 
     this.emailVerificationEndpoint = `${frontendBaseUrl}/alerts/verify-email`;
 
-    this.emailVerificationFrom = this.config.get(
-      'email.emailVerificationFrom',
-      {
-        infer: true,
-      },
-    );
+    this.from = this.config.get('email.alerts.noReply', {
+      infer: true,
+    });
   }
 
   async sendVerificationEmail(recipient: string, token: string) {
@@ -39,11 +36,6 @@ export class EmailVerificationService {
       'If you did not ask to verify this address, you can ignore this email. <br><br>' +
       'Thanks,<br>Your Pagoda Team';
 
-    await this.email.sendMessage(
-      this.emailVerificationFrom,
-      [recipient],
-      subject,
-      html,
-    );
+    await this.email.sendMessage(this.from, [recipient], subject, html);
   }
 }
