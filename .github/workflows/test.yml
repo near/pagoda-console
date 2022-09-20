@@ -2,6 +2,9 @@ name: Test Project
 on:
   pull_request:
     branches: [develop, module, release, main]
+defaults:
+  run:
+    working-directory: frontend
 jobs:
   build:
     timeout-minutes: 5

@@ -1,10 +1,11 @@
-name: E2E Tests
+name: Builds a Zip of Updated Snapshot Images for Snapshot Tests (dev.console.pagoda.co)
 on:
-  push:
-    branches: [develop]
-  # You could test this CI job in a PR by uncommenting the below pull_request line.
+  workflow_dispatch
   # pull_request:
   #   branches: [develop]
+defaults:
+  run:
+    working-directory: frontend
 jobs:
   test:
     timeout-minutes: 60
@@ -18,17 +19,16 @@ jobs:
         run: npm ci
       - name: Install Playwright
         run: npx playwright install --with-deps
-      - name: Run e2e tests
-        run: npm run test:e2e
+      - name: Run snapshot tests
+        run: npx playwright test tests/playwright/snapshot/ --update-snapshots
         env:
           TEST_URL: https://core.dev.console.pagoda.co
           TEST_EMAIL: jon+e2e@near.org
           TEST_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
-          TEST_CREATE_BLANK_PROJECT: 'My Cool Project for E2E Testing'
-          TEST_CREATE_NFT_TUTORIAL_PROJECT: 'My Cool NFT Project for E2E Testing'
+          TEST_NFT_TUTORIAL_PROJECT: AcxeBjT5uWPLG
       - uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 14
+          name: updated-snapshots
+          path: tests/playwright/snapshot
+          retention-days: 1

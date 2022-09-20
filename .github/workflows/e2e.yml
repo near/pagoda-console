@@ -1,13 +1,13 @@
-name: Prod Snapshot Tests
+name: E2E Tests
 on:
-  # Run once every other day
-  schedule:
-    - cron: '11 8 2-30/2 * *'
   push:
-    branches: [main]
+    branches: [develop]
   # You could test this CI job in a PR by uncommenting the below pull_request line.
   # pull_request:
   #   branches: [develop]
+defaults:
+  run:
+    working-directory: frontend
 jobs:
   test:
     timeout-minutes: 60
@@ -21,13 +21,14 @@ jobs:
         run: npm ci
       - name: Install Playwright
         run: npx playwright install --with-deps
-      - name: Run snapshot tests
-        run: npm run test:snapshot
+      - name: Run e2e tests
+        run: npm run test:e2e
         env:
-          TEST_URL: https://console.pagoda.co
+          TEST_URL: https://core.dev.console.pagoda.co
           TEST_EMAIL: jon+e2e@near.org
           TEST_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
-          TEST_NFT_TUTORIAL_PROJECT: UqHi29EL2YQoY
+          TEST_CREATE_BLANK_PROJECT: 'My Cool Project for E2E Testing'
+          TEST_CREATE_NFT_TUTORIAL_PROJECT: 'My Cool NFT Project for E2E Testing'
       - uses: actions/upload-artifact@v2
         if: always()
         with:

@@ -1,10 +1,13 @@
 name: Generate DB Docs
 on:
   push:
-    branches: [main]
+    branches: [develop]
   # You could test this CI job in a PR by uncommenting the below pull_request line.
   # pull_request:
   #   branches: [develop]
+defaults:
+  run:
+    working-directory: backend
 jobs:
   generate-docs:
     timeout-minutes: 5
@@ -36,4 +39,4 @@ jobs:
       - name: Upload DB Docs schema file
         env:
           DBDOCS_TOKEN: ${{ secrets.DBDOCS_TOKEN }}
-        run: dbdocs build ./src/core/prisma/dbml/schema.dbml --password ${{ secrets.DBDOCS_PROJECT_PASSWORD }} --project "Pagoda Developer Console"
+        run: dbdocs build ./src/core/prisma/dbml/schema.dbml --password ${{ secrets.DBDOCS_PROJECT_PASSWORD }} --project "Pagoda Developer Console Dev"
