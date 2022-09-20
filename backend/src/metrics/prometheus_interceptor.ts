@@ -4,18 +4,20 @@ import {
   ExecutionContext,
   CallHandler,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Registry } from 'prom-client';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { AppConfig } from '../config/validate';
 import { createLogging, getMetricsHandler } from './logging';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const express = require('express');
 
-const port = process.env.METRICS_PORT || 3003;
-
 @Injectable()
 export class PromethusInterceptor implements NestInterceptor {
   static server;
+  config: ConfigService<AppConfig>;
+  port: number;
   logger: {
     onRequest: ({ method, path }: { method: string; path: string }) => void;
     onResponse: ({
@@ -30,11 +32,24 @@ export class PromethusInterceptor implements NestInterceptor {
   };
   static registry: Registry;
 
+  constructor(config: ConfigService<AppConfig>) {
+    this.config = config;
+  }
+
   async init() {
     PromethusInterceptor.registry = new Registry();
+    PromethusInterceptor.registry.setDefaultLabels({
+      job: 'pagoda-console',
+      envrionment: this.config.get('deployEnv', {
+        infer: true,
+      }),
+    });
     this.logger = await createLogging(PromethusInterceptor.registry);
     const app = express();
     app.use('/metrics', getMetricsHandler(PromethusInterceptor.registry));
+    const port = this.config.get('metricsPort', {
+      infer: true,
+    });
     PromethusInterceptor.server = app.listen(port);
   }
 

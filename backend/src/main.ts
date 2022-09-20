@@ -10,10 +10,10 @@ import { PromethusInterceptor } from './metrics/prometheus_interceptor';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors(); // TODO re-evaluate need for CORS once we have domains
-  const prom = new PromethusInterceptor();
+  const configService: ConfigService<AppConfig> = app.get(ConfigService);
+  const prom = new PromethusInterceptor(configService);
   await prom.init();
   app.useGlobalInterceptors(prom);
-  const configService: ConfigService<AppConfig> = app.get(ConfigService);
 
   // initialize Firebase
   const sa = JSON.parse(

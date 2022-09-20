@@ -94,6 +94,7 @@ export interface AppConfig {
       contractAddressValidation: boolean;
     };
   };
+  metricsPort: string;
   rpcProvisioningService: {
     apiKey: string;
     url: string;
@@ -220,6 +221,7 @@ const appConfigSchema = Joi.object({
       contractAddressValidation: Joi.boolean().optional().default(true),
     },
   },
+  metricsPort: Joi.number().optional().default(3003),
   rpcProvisioningService: {
     url: Joi.string()
       .uri({ scheme: 'http' })
@@ -359,6 +361,7 @@ export default function validate(config: Record<string, unknown>): AppConfig {
           config.ALERT_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
       },
     },
+    metricsPort: config.METRICS_PORT,
     rpcProvisioningService: {
       url: config.RPC_API_KEYS_URL,
       apiKey: config.RPC_API_KEYS_API_KEY,
