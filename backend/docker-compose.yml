@@ -1,0 +1,19 @@
+version: '3.9'
+services:
+  backend:
+    image: near-developer-console-api:latest
+    ports:
+      - '8080:3001'
+    env_file:
+      - .env
+  db:
+    image: postgres
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pgpass
+      POSTGRES_DB: pgdb
+    volumes:
+      - './dbData:/var/lib/postgresql/data'

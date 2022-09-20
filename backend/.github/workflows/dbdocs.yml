@@ -1,0 +1,39 @@
+name: Generate DB Docs
+on:
+  push:
+    branches: [main]
+  # You could test this CI job in a PR by uncommenting the below pull_request line.
+  # pull_request:
+  #   branches: [develop]
+jobs:
+  generate-docs:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install dbdocs
+        run: sudo npm install -g dbdocs
+
+      - name: Check dbdocs
+        run: dbdocs
+
+      - name: Install DB Generator for Prisma
+        run: npm install prisma-dbml-generator
+
+      - name: add generator to Prisma's schema
+        run: printf '\ngenerator dbml {\n  provider = "prisma-dbml-generator"\n}' >> ./src/core/prisma/schema.prisma
+
+      - name: Generate DB Docs schema file
+        run: npx prisma generate --schema ./src/core/prisma/schema.prisma
+
+      - name: Upload DB Docs schema file
+        env:
+          DBDOCS_TOKEN: ${{ secrets.DBDOCS_TOKEN }}
+        run: dbdocs build ./src/core/prisma/dbml/schema.dbml --password ${{ secrets.DBDOCS_PROJECT_PASSWORD }} --project "Pagoda Developer Console"

@@ -1,0 +1,270 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["linux-musl", "native"]
+  output        = "../../../generated/prisma/core"
+}
+
+model User {
+  id                  Int           @id @default(autoincrement())
+  uid                 String        @unique
+  email               String        @unique
+  /// If 'false', the record was soft-deleted by a user.
+  active              Boolean       @default(true)
+  teamMembers         TeamMember[]
+  createdAt           DateTime?     @default(now())
+  updatedAt           DateTime?     @updatedAt
+  createdTeams        Team[]        @relation("UserCreatedTeam")
+  updatedTeams        Team[]        @relation("UserUpdatedTeam")
+  createdTeamMembers  TeamMember[]  @relation("UserCreatedTeamMember")
+  updatedTeamMembers  TeamMember[]  @relation("UserUpdatedTeamMember")
+  createdProjects     Project[]     @relation("UserCreatedProject")
+  updatedProjects     Project[]     @relation("UserUpdatedProject")
+  createdEnvironments Environment[] @relation("UserCreatedEnvironment")
+  updatedEnvironments Environment[] @relation("UserUpdatedEnvironment")
+  createdContracts    Contract[]    @relation("UserCreatedContract")
+  updatedContracts    Contract[]    @relation("UserUpdatedContract")
+  createdTeamProject  TeamProject[] @relation("UserCreatedTeamProject")
+  updatedTeamProject  TeamProject[] @relation("UserUpdatedTeamProject")
+  createdOrg          Org[]         @relation("UserCreatedOrg")
+  updatedOrg          Org[]         @relation("UserUpdatedOrg")
+  createdOrgMember    OrgMember[]   @relation("UserCreatedOrgMember")
+  updatedOrgMember    OrgMember[]   @relation("UserUpdatedOrgMember")
+  createdOrgInvite    OrgInvite[]   @relation("UserCreatedOrgInvite")
+  updatedOrgInvite    OrgInvite[]   @relation("UserUpdatedOrgInvite")
+  userActions         UserAction[]
+  createdApiKey       ApiKey[]      @relation("UserCreatedApiKey")
+  updatedApiKey       ApiKey[]      @relation("UserUpdatedApiKey")
+  personalOrg         Org?
+  orgMembers          OrgMember[]
+}
+
+model Team {
+  id            Int           @id @default(autoincrement())
+  name          String
+  /// If 'false', the record was soft-deleted by a user.
+  active        Boolean       @default(true)
+  teamMembers   TeamMember[]
+  teamProjects  TeamProject[]
+  createdAt     DateTime?     @default(now())
+  createdByUser User?         @relation(name: "UserCreatedTeam", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
+  createdBy     Int?
+  updatedByUser User?         @relation(name: "UserUpdatedTeam", fields: [updatedBy], references: [id])
+  updatedAt     DateTime?     @updatedAt
+  /// Reference to the user id who last updated the record.
+  updatedBy     Int?
+  org           Org           @relation(fields: [orgSlug], references: [slug])
+  orgSlug       String
+
+  @@unique([orgSlug, name])
+}
+
+model TeamMember {
+  user          User      @relation(fields: [userId], references: [id])
+  userId        Int
+  team          Team      @relation(fields: [teamId], references: [id])
+  teamId        Int
+  createdAt     DateTime? @default(now())
+  createdByUser User?     @relation(name: "UserCreatedTeamMember", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
+  createdBy     Int?
+  updatedByUser User?     @relation(name: "UserUpdatedTeamMember", fields: [updatedBy], references: [id])
+  updatedAt     DateTime? @updatedAt
+  /// Reference to the user id who last updated the record.
+  updatedBy     Int?
+
+  @@id([userId, teamId])
+}
+
+model Org {
+  slug              String      @id
+  name              String      @unique
+  personalForUser   User?       @relation(fields: [personalForUserId], references: [id])
+  personalForUserId Int?        @unique
+  active            Boolean     @default(true)
+  orgMembers        OrgMember[]
+  projects          Project[]
+  orgInvites        OrgInvite[]
+  teams             Team[]
+    /// Foreign key to the kong consumer object in EMS
+  emsId             String      @unique
+  createdAt         DateTime?   @default(now())
+  createdByUser     User?       @relation(name: "UserCreatedOrg", fields: [createdBy], references: [id])
+  createdBy         Int?
+  updatedByUser     User?       @relation(name: "UserUpdatedOrg", fields: [updatedBy], references: [id])
+  updatedAt         DateTime?   @updatedAt
+  updatedBy         Int?
+}
+
+model OrgMember {
+  org           Org       @relation(fields: [orgSlug], references: [slug])
+  orgSlug       String
+  user          User      @relation(fields: [userId], references: [id])
+  userId        Int
+  role          OrgRole
+  createdAt     DateTime? @default(now())
+  createdByUser User?     @relation(name: "UserCreatedOrgMember", fields: [createdBy], references: [id])
+  createdBy     Int?
+  updatedByUser User?     @relation(name: "UserUpdatedOrgMember", fields: [updatedBy], references: [id])
+  updatedAt     DateTime? @updatedAt
+  updatedBy     Int?
+
+  @@id([orgSlug, userId])
+}
+
+enum OrgRole {
+  ADMIN
+  COLLABORATOR
+}
+
+model OrgInvite {
+  id             Int       @id @default(autoincrement())
+  org            Org       @relation(fields: [orgSlug], references: [slug])
+  orgSlug        String
+  email          String
+  role           OrgRole
+  token          String    @unique
+  tokenExpiresAt DateTime
+  createdAt      DateTime? @default(now())
+  createdByUser  User?     @relation(name: "UserCreatedOrgInvite", fields: [createdBy], references: [id])
+  createdBy      Int?
+  updatedByUser  User?     @relation(name: "UserUpdatedOrgInvite", fields: [updatedBy], references: [id])
+  updatedAt      DateTime? @updatedAt
+  updatedBy      Int?
+
+  @@unique([orgSlug, email])
+}
+
+model Project {
+  id            Int              @id @default(autoincrement())
+  name          String
+  slug          String           @unique
+  /// If 'false', the record was soft-deleted by a user.
+  active        Boolean          @default(true)
+  teamProjects  TeamProject[]
+  environments  Environment[]
+  tutorial      ProjectTutorial?
+  createdAt     DateTime?        @default(now())
+  createdByUser User?            @relation(name: "UserCreatedProject", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
+  createdBy     Int?
+  updatedByUser User?            @relation(name: "UserUpdatedProject", fields: [updatedBy], references: [id])
+  updatedAt     DateTime?        @updatedAt
+  /// Reference to the user id who last updated the record.
+  updatedBy     Int?
+  org           Org              @relation(fields: [orgSlug], references: [slug])
+  orgSlug       String
+
+  @@unique([name, orgSlug])
+}
+
+model TeamProject {
+  team          Team      @relation(fields: [teamId], references: [id])
+  teamId        Int
+  project       Project   @relation(fields: [projectId], references: [id])
+  projectId     Int
+  /// If 'false', the record was soft-deleted by a user.
+  active        Boolean   @default(true)
+  createdAt     DateTime? @default(now())
+  createdByUser User?     @relation(name: "UserCreatedTeamProject", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
+  createdBy     Int?
+  updatedByUser User?     @relation(name: "UserUpdatedTeamProject", fields: [updatedBy], references: [id])
+  updatedAt     DateTime? @updatedAt
+  /// Reference to the user id who last updated the record.
+  updatedBy     Int?
+
+  @@id([teamId, projectId])
+}
+
+enum Net {
+  MAINNET
+  TESTNET
+}
+
+model ApiKey {
+  id            Int        @id @default(autoincrement())
+  slug          String     @unique
+  projectSlug   String
+  orgSlug       String
+  description   String
+  /// If 'false', the record was soft-deleted by a user.
+  active        Boolean     @default(true)
+  createdAt     DateTime?        @default(now())
+  createdByUser User?            @relation(name: "UserCreatedApiKey", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
+  createdBy     Int?
+  updatedByUser User?            @relation(name: "UserUpdatedApiKey", fields: [updatedBy], references: [id])
+  updatedAt     DateTime?        @updatedAt
+  /// Reference to the user id who last updated the record.
+  updatedBy     Int?
+}
+
+model Environment {
+  id            Int        @id @default(autoincrement())
+  name          String
+  project       Project    @relation(fields: [projectId], references: [id])
+  projectId     Int
+  net           Net
+  subId         Int
+  /// If 'false', the record was soft-deleted by a user.
+  active        Boolean    @default(true)
+  contracts     Contract[]
+  createdAt     DateTime?  @default(now())
+  createdByUser User?      @relation(name: "UserCreatedEnvironment", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
+  createdBy     Int?
+  updatedByUser User?      @relation(name: "UserUpdatedEnvironment", fields: [updatedBy], references: [id])
+  updatedAt     DateTime?  @updatedAt
+  /// Reference to the user id who last updated the record.
+  updatedBy     Int?
+
+  @@unique([projectId, subId])
+}
+
+model Contract {
+  id            Int         @id @default(autoincrement())
+  slug          String      @unique
+  environment   Environment @relation(fields: [environmentId], references: [id])
+  environmentId Int
+  // A conditional unique index exists in the DB migration `unique_contract_addresses`.
+  address       String
+  net           Net
+  /// If 'false', the record was soft-deleted by a user.
+  active        Boolean     @default(true)
+  createdAt     DateTime?   @default(now())
+  createdByUser User?       @relation(name: "UserCreatedContract", fields: [createdBy], references: [id])
+  /// Reference to the user id who created the record.
+  createdBy     Int?
+  updatedByUser User?       @relation(name: "UserUpdatedContract", fields: [updatedBy], references: [id])
+  updatedAt     DateTime?   @updatedAt
+  /// Reference to the user id who last updated the record.
+  updatedBy     Int?
+}
+
+enum ProjectTutorial {
+  NFT_MARKET
+  CROSSWORD
+}
+
+/// UserAction is used to audit user actions that can't be captured in the Audit table.
+model UserAction {
+  id              Int            @id @default(autoincrement())
+  action          UserActionType
+  data            Json?
+  user            User           @relation(fields: [userId], references: [id])
+  userId          Int
+  actionTimestamp DateTime       @default(now())
+}
+
+enum UserActionType {
+  ROTATE_API_KEY
+}
