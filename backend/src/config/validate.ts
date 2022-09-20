@@ -221,7 +221,7 @@ const appConfigSchema = Joi.object({
       contractAddressValidation: Joi.boolean().optional().default(true),
     },
   },
-  metricsPort: Joi.number().optional().default(3003),
+  metricsPort: Joi.number().optional().default(3030),
   rpcProvisioningService: {
     url: Joi.string()
       .uri({ scheme: 'http' })
