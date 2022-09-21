@@ -407,6 +407,24 @@ resource "google_cloud_run_service" "console_api" {
   ]
 }
 
+# Allows unauthenticated access to the console_api cloud run instance.
+data "google_iam_policy" "no_auth" {
+  binding {
+    role = "roles/run.invoker"
+    members = [
+      "allUsers",
+    ]
+  }
+}
+
+resource "google_cloud_run_service_iam_policy" "no_auth" {
+  location = google_cloud_run_service.console_api.location
+  project  = google_cloud_run_service.console_api.project
+  service  = google_cloud_run_service.console_api.name
+
+  policy_data = data.google_iam_policy.no_auth.policy_data
+}
+
 # Credentials saved to file: [/Users/jon/.config/gcloud/application_default_credentials.json]
 
 # These credentials will be used by any library that requests Application Default Credentials (ADC).
