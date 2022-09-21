@@ -6,6 +6,7 @@ then
     exit 1;
 fi;
 
+# TODO should we default to production or dev project?
 PROJECT_ID="$2"
 if [ -z "$2" ]
 then

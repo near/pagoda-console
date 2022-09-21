@@ -1,5 +1,4 @@
 # TODO run this gcloud command to gen terraform code: https://cloud.google.com/docs/terraform/resource-management/export
-# TODO move TF state to a GCP cloud storage: https://cloud.google.com/docs/terraform/resource-management/store-state
 locals {
   environment_upper    = upper(var.environment)
   db_namespaced_suffix = var.environment == "preview" ? "/${var.namespace}" : ""
