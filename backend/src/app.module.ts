@@ -5,6 +5,8 @@ import validate from './config/validate';
 import { ConfigModule } from '@nestjs/config';
 import { CoreModule } from './core/core.module';
 import { ModulesModule } from './modules/modules.module';
+import { LoggerModule } from './logger/logger.module';
+import { Logger } from './logger/logger.service';
 
 @Module({
   imports: [
@@ -17,8 +19,9 @@ import { ModulesModule } from './modules/modules.module';
     }),
     CoreModule,
     ModulesModule,
+    LoggerModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, Logger],
 })
 export class AppModule {}
