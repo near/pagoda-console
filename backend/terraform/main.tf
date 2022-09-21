@@ -16,6 +16,10 @@ terraform {
       version = "3.1.1"
     }
   }
+
+  backend "gcs" {
+    bucket = "terraform-pagoda-console-dev"
+  }
 }
 
 provider "null" {}
