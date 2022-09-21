@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Button, ButtonLabel, ButtonLink } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
@@ -49,28 +49,28 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
     }
   }
 
-  const handleUpload = useCallback((e) => {
-    const fileReader = new FileReader();
-
-    if (!e.target.files[0]) {
+  function tryLoadPreview(content: any) {
+    try {
+      JSON.parse(content);
+      setPreviewAbi(content);
+    } catch {
+      openToast({
+        type: 'error',
+        title: 'Error parsing ABI',
+        description: 'Please ensure file is in JSON format.',
+      });
       return null;
     }
+  }
 
-    fileReader.readAsText(e.target.files[0], 'UTF-8');
+  const loadFilePreview = useCallback((file: any, onFileLoaded: any = null) => {
+    const fileReader = new FileReader();
+    fileReader.readAsText(file, 'UTF-8');
     fileReader.onload = (e) => {
       if (e && e.target && e.target.result) {
         const content = e.target.result as any;
-        try {
-          JSON.parse(content);
-          setPreviewAbi(content);
-        } catch {
-          openToast({
-            type: 'error',
-            title: 'Error parsing ABI',
-            description: 'Please ensure file is in JSON format.',
-          });
-          return null;
-        }
+        tryLoadPreview(content);
+        if (onFileLoaded) onFileLoaded();
       } else {
         openToast({
           type: 'error',
@@ -81,6 +81,44 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
     };
   }, []);
 
+  const handleUpload = useCallback(
+    (e) => {
+      if (!e.target.files[0]) {
+        return null;
+      }
+      loadFilePreview(e.target.files[0]);
+    },
+    [loadFilePreview],
+  );
+
+  function handlePaste(event: any) {
+    event.preventDefault();
+    if (event.clipboardData) {
+      const clipText = event.clipboardData?.getData('text');
+      tryLoadPreview(clipText);
+    } else {
+      // Will require users to provide permision to read clipboard.
+      navigator.clipboard
+        .readText()
+        .then(tryLoadPreview)
+        .catch((reason: any) => {
+          openToast({
+            type: 'error',
+            title: 'Unable to paste contents from clipboard',
+            description: `${reason}`,
+          });
+        });
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('paste', handlePaste);
+    return () => {
+      window.removeEventListener('paste', handlePaste);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // TODO break out modal and default state into separate components. That should help with clearing the form data in the modal.
 
   return (
@@ -88,7 +126,10 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
       <Card>
         <Flex stack align="center">
           <FeatherIcon icon="file-text" size="l" />
-          <Text>To start interacting with your contract you need to upload ABI first.</Text>
+          <Text>
+            To start interacting with our contract we need the ABI first. Drag and drop the ABI file here or follow the
+            following options.
+          </Text>
           <Flex justify="center">
             <Button onClick={() => setShowModal(true)} color="primaryBorder">
               Upload ABI
@@ -121,7 +162,7 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
           </ButtonLabel>
         </Flex>
 
-        <CodeBlock css={{ maxHeight: MAX_CODE_HEIGHT }} language="json">
+        <CodeBlock css={{ maxHeight: MAX_CODE_HEIGHT }} onPaste={handlePaste} language="json">
           {!previewAbi ? '{}' : JSON.stringify(JSON.parse(previewAbi), null, 2)}
         </CodeBlock>
       </ConfirmModal>
