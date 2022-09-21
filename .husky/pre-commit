@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "Frontend:"
+cd frontend
+npx lint-staged
+
+echo "\n\nBackend:"
+cd ../backend
+npx lint-staged
