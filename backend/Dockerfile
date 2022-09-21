@@ -1,4 +1,5 @@
-FROM node:16 as builder
+# Implements some security tips found here: https://snyk.io/blog/10-best-practices-to-containerize-nodejs-web-applications-with-docker/
+FROM --platform=linux/amd64 node:16 as builder
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -23,18 +24,19 @@ RUN npm run build
 FROM --platform=linux/amd64 node:16-alpine as runner
 
 EXPOSE 8080
-USER node
+ENV NODE_ENV=production
 
 # Create app directory
 WORKDIR /usr/src/app
 
-COPY --from=builder /usr/src/app/package*.json ./
-COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/generated ./generated
+COPY --from=builder --chown=node:node /usr/src/app/package*.json ./
+COPY --from=builder --chown=node:node /usr/src/app/dist ./dist
+COPY --from=builder --chown=node:node /usr/src/app/generated ./generated
 
+# Ignore prepare script which will attempt to install husky: https://typicode.github.io/husky/#/?id=disable-husky-in-cidockerprod
+RUN npm set-script prepare ""
 # Install optimized dependencies, running after having all files
 RUN npm ci
 
-ENV NODE_ENV=production
-
+USER node
 CMD ["npm", "run", "start:prod"]
