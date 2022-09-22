@@ -1,4 +1,6 @@
-name: Build and push a docker image for preview deployments
+# TODO take control over the vercel deployment so we can get the urls for backend and update vercel with it https://vercel.com/guides/how-can-i-use-github-actions-with-vercel
+
+name: Deploy a preview environment
 on:
   pull_request:
     branches: [develop]
@@ -6,7 +8,7 @@ defaults:
   run:
     working-directory: backend
 jobs:
-  build:
+  docker-build-and-push:
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
@@ -39,5 +41,32 @@ jobs:
       - name: Build docker image and push
         run: ./scripts/docker_build_and_push.sh ${GITHUB_REF##*/} developer-platform-dev
 
-      - name: Docker image digest
-        run: docker inspect --format='{{index .RepoDigests 0}}' gcr.io/developer-platform-dev/developer-console-api:${GITHUB_REF##*/}
+  terraform-preview-environment:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    needs: [docker-build-and-push]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: hashicorp/setup-terraform@v2
+
+      # Setup auth: https://github.com/google-github-actions/setup-gcloud#service-account-key-json
+      - id: "auth"
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v0"
+
+      - name: Terraform Apply
+        run: terraform apply \
+          -var "project_id=developer-platform-dev" \
+          -var "region=us-east1" \
+          -var "environment=preview" \
+          -var "namespace=${GITHUB_REF##*/}" \
+          -var "api_name=console-api-preview-${GITHUB_REF##*/}" \
+          -var "sql_instance_name=preview-console-db" \
+          -var "database_user=postgres" \
+          -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
+          -var "api_image=$(docker inspect --format='{{index .RepoDigests 0}}' gcr.io/developer-platform-dev/developer-console-api:${GITHUB_REF##*/})" \
+          -var "frontend_base_url=https://todo"

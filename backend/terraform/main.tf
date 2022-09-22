@@ -42,7 +42,7 @@ provider "google" {
 // and namespace the databases by PR. The theory is that there shouldn't be too many PR previews actively running
 // at once. So we shouldn't run out of db connections, etc.
 resource "google_sql_database_instance" "console_db" {
-  name             = var.database_name
+  name             = var.sql_instance_name
   database_version = "POSTGRES_13"
 
   # TODO setup replica_configuration for prod

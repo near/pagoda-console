@@ -31,7 +31,7 @@ variable "api_name" {
   nullable    = false
 }
 
-variable "database_name" {
+variable "sql_instance_name" {
   type      = string
   sensitive = true
   nullable  = false
