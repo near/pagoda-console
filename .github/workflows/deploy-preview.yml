@@ -59,14 +59,15 @@ jobs:
         uses: "google-github-actions/setup-gcloud@v0"
 
       - name: Terraform Apply
-        run: terraform apply \
-          -var "project_id=developer-platform-dev" \
-          -var "region=us-east1" \
-          -var "environment=preview" \
-          -var "namespace=${GITHUB_REF##*/}" \
-          -var "api_name=console-api-preview-${GITHUB_REF##*/}" \
-          -var "sql_instance_name=preview-console-db" \
-          -var "database_user=postgres" \
-          -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
-          -var "api_image=$(docker inspect --format='{{index .RepoDigests 0}}' gcr.io/developer-platform-dev/developer-console-api:${GITHUB_REF##*/})" \
-          -var "frontend_base_url=https://todo"
+        run: |
+          terraform apply \
+            -var "project_id=developer-platform-dev" \
+            -var "region=us-east1" \
+            -var "environment=preview" \
+            -var "namespace=${GITHUB_REF##*/}" \
+            -var "api_name=console-api-preview-${GITHUB_REF##*/}" \
+            -var "sql_instance_name=preview-console-db" \
+            -var "database_user=postgres" \
+            -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
+            -var "api_image=$(docker inspect --format='{{index .RepoDigests 0}}' gcr.io/developer-platform-dev/developer-console-api:${GITHUB_REF##*/})" \
+            -var "frontend_base_url=https://todo"
