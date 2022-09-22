@@ -8,7 +8,6 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -71,8 +70,6 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^3.4.0",
     "jest": "^27.0.6",
-    "lint-staged": "^12.4.0",
-    "prettier": "^2.7.1",
     "prisma": "^3.4.2",
     "supertest": "^6.2.4",
     "ts-jest": "^27.0.3",
@@ -109,7 +106,6 @@
   },
   "lint-staged": {
     "**/.{js,ts}": "eslint --cache --max-warnings 0",
-    "*.{js,ts,json}": "prettier --check",
     "**/prisma/migrations/**/*.sql": "npx ts-node ./scripts/checkMigrations.ts"
   }
 }
