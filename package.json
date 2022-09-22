@@ -4,8 +4,8 @@
   "description": "Pagoda Console",
   "main": "index.js",
   "scripts": {
-    "format:verify": "prettier --check '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
-    "format": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
+    "format:verify": "prettier --check '**/*.{js,jsx,ts,tsx,json,css,scss,md,yml}'",
+    "format": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md,yml}'",
     "prepare": "husky install"
   },
   "repository": {
@@ -24,6 +24,6 @@
     "lint-staged": "^12.4.0"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,css,scss,md,json}": "prettier --check"
+    "*.{js,jsx,ts,tsx,css,scss,md,json,yml}": "prettier --check"
   }
 }
