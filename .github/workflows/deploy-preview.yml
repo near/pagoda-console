@@ -63,6 +63,9 @@ jobs:
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v0"
 
+      - name: Terraform Init
+        run: terraform init
+
       # Vercel doesn't have a lot of good ways to get the preview url:
       #     https://github.com/vercel/vercel/discussions/6045
       #     
