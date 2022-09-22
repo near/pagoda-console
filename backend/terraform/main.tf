@@ -98,16 +98,15 @@ resource "google_cloud_run_service" "console_api" {
 
   template {
     metadata {
-      #* You can find these annotations through gcp console. Go to the cloud run revision and click on the "yaml" tab.
+      #* You can find these annotations through GCP console. Go to the cloud run revision and click on the "yaml" tab.
       annotations = {
         "autoscaling.knative.dev/minScale" = "1"
         "autoscaling.knative.dev/maxScale" = "10"
+
         # VPC connector for EMS connections. Preview and dev environments share the dev connection.
-        #* SRE team must have firewall rules in place in order to connect to the VPC before terraform can successfully create this cloud run resource.
-        #* We should confirm with them if they have Terraform files to create the firewall rules or if we should create the firewall rules here.
-        # TODO enable VPC
-        # "run.googleapis.com/vpc-access-connector" = "projects/pagoda-shared-infrastructure/locations/us-east1/connectors/${var.environment == "prod" ? "prod-us-east1-connector" : "dev-connector1"}"
-        # "run.googleapis.com/vpc-access-egress"    = "private-ranges-only"
+        "run.googleapis.com/vpc-access-connector" = "projects/pagoda-shared-infrastructure/locations/us-east1/connectors/${var.environment == "prod" ? "prod-us-east1-connector" : "dev-connector1"}"
+        "run.googleapis.com/vpc-access-egress"    = "private-ranges-only"
+
         "run.googleapis.com/cloudsql-instances" = google_sql_database_instance.console_db.connection_name # TODO make sure this connection_name is like "near-dev-platform:us-east1:api-console-preview"
       }
     }
