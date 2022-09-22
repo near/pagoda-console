@@ -64,15 +64,15 @@ jobs:
         uses: "google-github-actions/setup-gcloud@v0"
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
 
       # Vercel doesn't have a lot of good ways to get the preview url:
       #     https://github.com/vercel/vercel/discussions/6045
       #     
       # We can determine the vercel url here: https://vercel.com/docs/concepts/deployments/generated-urls#url-with-git-branch
-      - name: Terraform Apply
+      - name: Terraform Plan
         run: |
-          terraform apply \
+          terraform plan -input=false -out=tfplan \
             -var "project_id=developer-platform-dev" \
             -var "region=us-east1" \
             -var "environment=preview" \
@@ -83,3 +83,24 @@ jobs:
             -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
             -var "api_image=$(docker inspect --format='{{index .RepoDigests 0}}' gcr.io/developer-platform-dev/developer-console-api:${GITHUB_REF##*/})" \
             -var "frontend_base_url=https://todo"
+
+      - name: Terraform Apply
+        run: terraform apply -input=false tfplan
+
+
+  # TODO redeploy preview environment with updated backend url
+  # update-preview-:
+  #   timeout-minutes: 15
+  #   runs-on: ubuntu-latest
+  #     - name: Update UI backend URL
+  #       run: |
+  #         vercel deploy --force --with-cache 
+
+  # TODO destroy databases
+    # ...
+    # steps:
+    #   - run: |
+    #       apt-get update
+    #       apt-get install --yes --no-install-recommends postgresql-client
+    #   - run: |
+    #       psql postgresql://postgres:password@1.1.1.1 -f ./scripts/drop_databases.sql
