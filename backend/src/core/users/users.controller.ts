@@ -42,6 +42,10 @@ import { Org } from '@/generated/prisma/core';
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
+  // ! It is important this function is not extended to include any system data
+  // ! since we allow it to be called by users who have not verified their email
+  // ! address. All data here is simply extracted from the JWT passed in the
+  // ! request
   @Post('getAccountDetails')
   @UseGuards(BearerAuthGuard)
   async getAccountDetails(@Request() req) {
