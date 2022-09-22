@@ -2,7 +2,13 @@
   "name": "pagoda-console",
   "version": "1.0.0",
   "description": "Pagoda Console",
-  "main": "index.js",
+  "engines": {
+    "node": "^16.0.0"
+  },
+  "workspaces": [
+    "./frontend",
+    "./backend"
+  ],
   "scripts": {
     "format:verify": "prettier --check '**/*.{js,jsx,ts,tsx,json,css,scss,md,yml}'",
     "format": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md,yml}'",
@@ -12,7 +18,6 @@
     "type": "git",
     "url": "git+https://github.com/near/pagoda-console.git"
   },
-  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/near/pagoda-console/issues"
