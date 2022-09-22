@@ -4,7 +4,8 @@
   "description": "Pagoda Console",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "format:verify": "prettier --check '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
+    "format": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
     "prepare": "husky install"
   },
   "repository": {
@@ -18,6 +19,11 @@
   },
   "homepage": "https://github.com/near/pagoda-console#readme",
   "devDependencies": {
-    "husky": "^8.0.0"
+    "husky": "^8.0.0",
+    "prettier": "^2.7.1",
+    "lint-staged": "^12.4.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,css,scss,md,json}": "prettier --check"
   }
 }

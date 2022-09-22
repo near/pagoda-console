@@ -13,7 +13,6 @@
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "lint:prettier": "prettier --write .",
     "test:snapshot": "playwright test tests/playwright/snapshot/",
     "test:e2e": "playwright test tests/playwright/e2e/",
     "test": "jest",
@@ -94,15 +93,12 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-testing-library": "^5.6.4",
     "jest": "27.4.5",
-    "lint-staged": "^12.3.7",
-    "prettier": "^2.6.0",
     "typescript": "4.5.4"
   },
   "optionalDependencies": {
     "fsevents": "^1.0.0"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint --cache --max-warnings 0",
-    "*.{js,jsx,ts,tsx,css,scss,md,json}": "prettier --check"
+    "*.{js,jsx,ts,tsx}": "eslint --cache --max-warnings 0"
   }
 }
