@@ -8,43 +8,48 @@ defaults:
   run:
     working-directory: backend
 jobs:
-  docker-build-and-push:
-    timeout-minutes: 5
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+  # TODO reenable
+  # docker-build-and-push:
+  #   timeout-minutes: 5
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      # Setup auth: https://github.com/google-github-actions/setup-gcloud#service-account-key-json
-      - id: "auth"
-        uses: "google-github-actions/auth@v0"
-        with:
-          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+  #     # Setup auth: https://github.com/google-github-actions/setup-gcloud#service-account-key-json
+  #     - id: "auth"
+  #       uses: "google-github-actions/auth@v0"
+  #       with:
+  #         credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
 
-      - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v0"
+  #     - name: "Set up Cloud SDK"
+  #       uses: "google-github-actions/setup-gcloud@v0"
 
-      - name: "Use gcloud CLI"
-        run: gcloud auth configure-docker -q
+  #     - name: "Use gcloud CLI"
+  #       run: gcloud auth configure-docker -q
 
-      # Gets the last part of a github branch name after all the '/'
-      #   https://stackoverflow.com/questions/58033366/how-to-get-the-current-branch-within-github-actions
-      # This assumes that branch names after all '/' will be unique enough.
-      # We could refine this further if this is not the case.
-      #* i.e. If a branch name is `feat/sub-feature`, the tag name will be `sub-feature`.
-      #* This is helpful since Docker doesn't allow '/' in tag names.
-      - name: Git branch name / Docker tag
-        run: echo ${GITHUB_REF##*/}
+  #     # Gets the last part of a github branch name after all the '/'
+  #     #   https://stackoverflow.com/questions/58033366/how-to-get-the-current-branch-within-github-actions
+  #     # This assumes that branch names after all '/' will be unique enough.
+  #     # We could refine this further if this is not the case.
+  #     #* i.e. If a branch name is `feat/sub-feature`, the tag name will be `sub-feature`.
+  #     #* This is helpful since Docker doesn't allow '/' in tag names.
+  #     - name: Git branch name / Docker tag
+  #       run: echo ${GITHUB_REF##*/}
 
-      # Last line of this script is the docker image url with the sha256 hash that
-      # was uploaded. This should be used in terraform so that we can deploy a new
-      # cloud run instance if the docker image has changed.
-      - name: Build docker image and push
-        run: ./scripts/docker_build_and_push.sh ${GITHUB_REF##*/} developer-platform-dev
+  #     # Last line of this script is the docker image url with the sha256 hash that
+  #     # was uploaded. This should be used in terraform so that we can deploy a new
+  #     # cloud run instance if the docker image has changed.
+  #     - name: Build docker image and push
+  #       run: ./scripts/docker_build_and_push.sh ${GITHUB_REF##*/} developer-platform-dev
 
   terraform-preview-environment:
     timeout-minutes: 15
     runs-on: ubuntu-latest
-    needs: [docker-build-and-push]
+    # TODO reenable
+    #needs: [docker-build-and-push]
+    defaults:
+      run:
+        working-directory: backend/terraform
     steps:
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v2
@@ -58,6 +63,10 @@ jobs:
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v0"
 
+      # Vercel doesn't have a lot of good ways to get the preview url:
+      #     https://github.com/vercel/vercel/discussions/6045
+      #     
+      # We can determine the vercel url here: https://vercel.com/docs/concepts/deployments/generated-urls#url-with-git-branch
       - name: Terraform Apply
         run: |
           terraform apply \
