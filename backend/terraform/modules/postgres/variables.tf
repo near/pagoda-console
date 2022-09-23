@@ -17,3 +17,8 @@ variable "database_tier" {
   # Don't want the db to be too small because it will affect the number of available db connections: https://stackoverflow.com/a/51097061 and https://cloud.google.com/sql/docs/quotas#postgresql
   default = "db-custom-4-26624"
 }
+
+variable "deletion_protection" {
+  type    = bool
+  default = true
+}

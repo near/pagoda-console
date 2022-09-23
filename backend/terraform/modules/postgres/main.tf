@@ -3,7 +3,7 @@ resource "google_sql_database_instance" "console_db" {
   database_version = "POSTGRES_13"
 
   # If you would like to delete this SQL instance, you must explicitly set this to false and terraform apply then terraform destroy.
-  deletion_protection = true
+  deletion_protection = var.deletion_protection
 
   # TODO setup replica_configuration for prod
 
