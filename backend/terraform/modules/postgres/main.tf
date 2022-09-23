@@ -8,8 +8,7 @@ resource "google_sql_database_instance" "console_db" {
   # TODO setup replica_configuration for prod
 
   settings {
-    # The first number is CPU, second is RAM in MB: https://cloud.google.com/sql/docs/mysql/instance-settings
-    tier = "db-custom-4-26624"
+    tier = var.database_tier
     # TODO turn on backups on dev and prod environments
     # backup_configuration {
     #   // should only be false on preview environments, we just don't need it
