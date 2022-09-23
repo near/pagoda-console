@@ -5,11 +5,11 @@ variable "region" {
 
 variable "environment" {
   type        = string
-  description = "The type of environment that you want to deploy to"
+  description = "The environment name. Used to determine which environment secrets to use."
 
   validation {
-    condition     = contains(["dev", "prod"], var.environment)
-    error_message = "Allowed values for environment are \"dev\" or \"prod\"."
+    condition     = contains(["preview", "dev", "prod"], var.environment)
+    error_message = "Allowed values for environment are \"preview\", \"dev\" or \"prod\"."
   }
 }
 
