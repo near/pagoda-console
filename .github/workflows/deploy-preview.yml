@@ -63,6 +63,11 @@ jobs:
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v0"
 
+      - name: Terraform Workspace
+        run: |
+          terraform workspace create ${GITHUB_REF##*/}
+          terraform workspace switch ${GITHUB_REF##*/}
+
       - name: Terraform Init
         run: terraform init -input=false
 
@@ -72,20 +77,14 @@ jobs:
       # We can determine the vercel url here: https://vercel.com/docs/concepts/deployments/generated-urls#url-with-git-branch
       - name: Terraform Plan
         run: |
-          terraform plan -input=false -out=tfplan \
-            -var "project_id=developer-platform-dev" \
-            -var "region=us-east1" \
-            -var "environment=preview" \
+          terraform plan -input=false -out=tfplan.out -var-file ./env/preview.tfvars \
             -var "namespace=${GITHUB_REF##*/}" \
-            -var "api_name=console-api-preview-${GITHUB_REF##*/}" \
-            -var "sql_instance_name=preview-console-db" \
-            -var "database_user=postgres" \
             -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
             -var "api_image=$(docker inspect --format='{{index .RepoDigests 0}}' gcr.io/developer-platform-dev/developer-console-api:${GITHUB_REF##*/})" \
             -var "frontend_base_url=https://todo"
 
       - name: Terraform Apply
-        run: terraform apply -input=false tfplan
+        run: terraform apply -input=false tfplan.out
 
 
   # TODO redeploy preview environment with updated backend url
