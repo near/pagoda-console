@@ -20,6 +20,8 @@ provider "null" {}
 provider "google" {
   project = var.project_id
   region  = var.region
+  # TODO enable to have the same zone as current sql instances
+  # zone    = "us-east1-b"
 }
 
 locals {
@@ -40,7 +42,9 @@ module "postgres" {
 resource "null_resource" "db_migration" {
   # Trick to get terraform to run this db migration script every run.
   triggers = {
-    always_run = "${timestamp()}"
+    always_run                 = "${timestamp()}"
+    database_password          = var.database_password
+    database_public_ip_address = module.postgres.database_public_ip_address
   }
 
   provisioner "local-exec" {
@@ -48,6 +52,15 @@ resource "null_resource" "db_migration" {
       cd .. &&
       source ./scripts/export_prisma_env_vars.sh postgres ${var.database_password} ${module.postgres.database_public_ip_address} &&
       ${var.prisma_migration_command}
+    EOT
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<EOT
+      apt-get update &&
+      apt-get install --yes --no-install-recommends postgresql-client
+      psql postgresql://postgres:${self.triggers.database_password}@${self.triggers.database_public_ip_address} -f ../scripts/drop_databases.sql
     EOT
   }
 }
@@ -66,10 +79,15 @@ resource "null_resource" "env_secrets" {
 
   provisioner "local-exec" {
     command = <<EOT
-      ../scripts/new-gcp-secret.sh postgresql://postgres:${var.database_password}@localhost/devconsole?host=${module.postgres.database_connection_name} DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account};
-      ../scripts/new-gcp-secret.sh postgresql://postgres:${var.database_password}@localhost/abi?host=${module.postgres.database_connection_name} ABI_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account};
-      ../scripts/new-gcp-secret.sh postgresql://postgres:${var.database_password}@localhost/alerts?host=${module.postgres.database_connection_name} ALERTS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account};
-      ../scripts/new-gcp-secret.sh postgresql://postgres:${var.database_password}@localhost/rpcstats?host=${module.postgres.database_connection_name} RPCSTATS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account};
+      ../scripts/new-gcp-secret.sh postgresql://postgres:${var.database_password}@localhost/devconsole?host=${module.postgres.database_connection_name} DATABASE_URL_${local.database_secret_suffix} &&
+      ../scripts/new-gcp-secret.sh postgresql://postgres:${var.database_password}@localhost/abi?host=${module.postgres.database_connection_name} ABI_DATABASE_URL_${local.database_secret_suffix} &&
+      ../scripts/new-gcp-secret.sh postgresql://postgres:${var.database_password}@localhost/alerts?host=${module.postgres.database_connection_name} ALERTS_DATABASE_URL_${local.database_secret_suffix} &&
+      ../scripts/new-gcp-secret.sh postgresql://postgres:${var.database_password}@localhost/rpcstats?host=${module.postgres.database_connection_name} RPCSTATS_DATABASE_URL_${local.database_secret_suffix} &&
+   
+      ../scripts/gcp-secret-access.sh DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} &&
+      ../scripts/gcp-secret-access.sh ABI_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} && 
+      ../scripts/gcp-secret-access.sh ALERTS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} &&
+      ../scripts/gcp-secret-access.sh RPCSTATS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account}
     EOT
   }
 

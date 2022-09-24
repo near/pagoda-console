@@ -20,10 +20,6 @@
 # ./scripts/gcp-secret-access.sh INDEXER_TESTNET_USER $PRINCIPAL &&\
 # ./scripts/gcp-secret-access.sh MAILGUN_API_KEY_PREVIEW $PRINCIPAL &&\
 # ./scripts/gcp-secret-access.sh MIXPANEL_TOKEN $PRINCIPAL &&\
-# ./scripts/gcp-secret-access.sh DATABASE_URL_PREVIEW $PRINCIPAL &&\
-# ./scripts/gcp-secret-access.sh ABI_DATABASE_URL_PREVIEW $PRINCIPAL &&\
-# ./scripts/gcp-secret-access.sh ALERTS_DATABASE_URL_PREVIEW $PRINCIPAL &&\
-# ./scripts/gcp-secret-access.sh RPCSTATS_DATABASE_URL_PREVIEW $PRINCIPAL &&\
 # ./scripts/gcp-secret-access.sh RPC_API_KEYS_API_KEY_PREVIEW $PRINCIPAL &&\
 # ./scripts/gcp-secret-access.sh TELEGRAM_BOT_TOKEN_PREVIEW $PRINCIPAL &&\
 # ./scripts/gcp-secret-access.sh TELEGRAM_SECRET_PREVIEW $PRINCIPAL
@@ -39,7 +35,7 @@ fi;
 SECRET_NAME=$1
 SERVICE_ACCOUNT=$2
 
-# TODO switch to using near-dev-platform project
+# TODO inject project id
 gcloud secrets add-iam-policy-binding $SECRET_NAME\
     --member "serviceAccount:$SERVICE_ACCOUNT"\
     --project "developer-platform-dev"\
