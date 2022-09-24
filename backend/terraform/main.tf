@@ -59,10 +59,8 @@ resource "null_resource" "db_migration" {
   provisioner "local-exec" {
     when    = destroy
     command = <<EOT
-      apt-get update &&
-      apt-get install --yes --no-install-recommends postgresql-client &&
       psql postgresql://postgres:${self.triggers.database_password}@${self.triggers.database_public_ip_address} -f ../scripts/drop_databases.sql &&
-      sleep 10
+      sleep 30
     EOT
   }
 }
