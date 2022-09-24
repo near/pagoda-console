@@ -13,9 +13,10 @@ SECRET_VALUE=$1
 SECRET_NAME=$2
 SERVICE_ACCOUNT=$3
 
-# TODO switch to using near-dev-platform project
+# TODO inject project id
+# `--data-file=-` file is important so GCP creates the first secret version.
 echo -n "$SECRET_VALUE" | gcloud secrets create $SECRET_NAME\
-    --data-file=-\ # This argument is important so GCP creates the first secret version.
+    --data-file=-\
     --project "developer-platform-dev"
 
-./gcp-secret-access $SECRET_NAME $SERVICE_ACCOUNT
+./gcp-secret-access.sh $SECRET_NAME $SERVICE_ACCOUNT

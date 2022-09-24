@@ -138,7 +138,7 @@ resource "google_cloud_run_service" "console_api" {
           name = "DATABASE_URL"
           value_from {
             secret_key_ref {
-              name = "DATABASE_URL_${local.environment_upper}"
+              name = "DATABASE_URL_${var.database_secret_suffix}"
               key  = "1"
             }
           }
@@ -148,7 +148,7 @@ resource "google_cloud_run_service" "console_api" {
           name = "ABI_DATABASE_URL"
           value_from {
             secret_key_ref {
-              name = "ABI_DATABASE_URL_${local.environment_upper}"
+              name = "ABI_DATABASE_URL_${var.database_secret_suffix}"
               key  = "1"
             }
           }
@@ -158,7 +158,7 @@ resource "google_cloud_run_service" "console_api" {
           name = "ALERTS_DATABASE_URL"
           value_from {
             secret_key_ref {
-              name = "ALERTS_DATABASE_URL_${local.environment_upper}"
+              name = "ALERTS_DATABASE_URL_${var.database_secret_suffix}"
               key  = "1"
             }
           }
@@ -168,7 +168,7 @@ resource "google_cloud_run_service" "console_api" {
           name = "RPCSTATS_DATABASE_URL"
           value_from {
             secret_key_ref {
-              name = "RPCSTATS_DATABASE_URL_${local.environment_upper}"
+              name = "RPCSTATS_DATABASE_URL_${var.database_secret_suffix}"
               key  = "1"
             }
           }

@@ -13,6 +13,11 @@ variable "environment" {
   }
 }
 
+variable "database_secret_suffix" {
+  type     = string
+  nullable = false
+}
+
 variable "api_name" {
   type        = string
   description = "Used to name the cloud run instance (e.g. console-api-preview-ci-cd, console-api-dev, console-api-prod, etc)"

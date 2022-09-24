@@ -20,8 +20,7 @@ variable "environment" {
 
 variable "namespace" {
   type        = string
-  description = "Unique name for this environment. Will be used to name the database and api instances."
-  nullable    = false
+  description = "Optional unique name for this environment. Mainly used to uniquely name multiple preview environments. Will be used to name the database, secrets and api instances."
 }
 
 variable "prisma_migration_command" {
@@ -61,4 +60,10 @@ variable "ems_provisioning_service_url" {
 variable "deletion_protection" {
   type    = bool
   default = true
+}
+
+variable "api_service_account" {
+  type        = string
+  description = "Cloud run service account. Will be granted access to database secrets after creation."
+  nullable    = false
 }
