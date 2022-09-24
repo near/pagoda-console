@@ -55,12 +55,14 @@ resource "null_resource" "db_migration" {
     EOT
   }
 
+  # Note that deleting databases is an async operation. We must sleep after deleting so we give time for the deletion to happen before we delete the db instance.
   provisioner "local-exec" {
     when    = destroy
     command = <<EOT
       apt-get update &&
-      apt-get install --yes --no-install-recommends postgresql-client
-      psql postgresql://postgres:${self.triggers.database_password}@${self.triggers.database_public_ip_address} -f ../scripts/drop_databases.sql
+      apt-get install --yes --no-install-recommends postgresql-client &&
+      psql postgresql://postgres:${self.triggers.database_password}@${self.triggers.database_public_ip_address} -f ../scripts/drop_databases.sql &&
+      sleep 10
     EOT
   }
 }
