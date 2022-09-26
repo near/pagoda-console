@@ -10,10 +10,12 @@ jobs:
   namespace:
     timeout-minutes: 1
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./
     outputs:
       namespace: ${{ steps.namespace.outputs.namespace }}
     steps:
-      - working-directory: ./
       - id: "namespace"
         run: |
           # PREVIEW_NAMESPACE is intended to be unique and is composed of:
