@@ -523,7 +523,12 @@ export class UsersService implements OnModuleInit {
     // is the invite being redeemed by a user with the correct email address?
     if (invite.email.toLowerCase() !== callingUser.email.toLowerCase()) {
       throw new VError(
-        { info: { code: UserError.ORG_INVITE_EMAIL_MISMATCH } },
+        {
+          info: {
+            code: UserError.ORG_INVITE_EMAIL_MISMATCH,
+            email: invite.email,
+          },
+        },
         'The token belongs to an invite for a different email address',
       );
     }

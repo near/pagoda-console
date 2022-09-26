@@ -213,13 +213,21 @@ function mapError(e: Error) {
     case UserError.MISSING_ORG_NAME:
     case UserError.ORG_INVITE_BAD_TOKEN:
     case UserError.ORG_INVITE_DUPLICATE:
-    case UserError.ORG_INVITE_EMAIL_MISMATCH:
     case UserError.BAD_ORG_INVITE:
     case UserError.BAD_ORG_PERSONAL:
     case UserError.ORG_FINAL_ADMIN:
     case UserError.BAD_USER:
       // 400: exposes error code to client
       return new BadRequestException(code);
+    case UserError.ORG_INVITE_EMAIL_MISMATCH:
+      const email = VError.info(e)?.email;
+      // 400: exposes error code to client and email info.
+      return new BadRequestException({
+        statusCode: 400,
+        message: code,
+        error: 'Bad Request',
+        email,
+      });
     case UserError.ORG_INVITE_EXPIRED:
     case UserError.ORG_INVITE_ALREADY_MEMBER:
       const org = VError.info(e)?.org;
