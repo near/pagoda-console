@@ -6,10 +6,10 @@ on:
 defaults:
   run:
     working-directory: backend
-    runs-on: ubuntu-latest
 jobs:
   namespace:
     timeout-minutes: 1
+    runs-on: ubuntu-latest
     outputs:
       namespace: ${{ steps.namespace.outputs.namespace }}
     steps:
@@ -25,6 +25,7 @@ jobs:
 
   docker-build-and-push:
     timeout-minutes: 5
+    runs-on: ubuntu-latest
     needs: [namespace]
     steps:
       - uses: actions/checkout@v2
@@ -61,17 +62,16 @@ jobs:
 
   terraform-preview-environment:
     timeout-minutes: 15
+    runs-on: ubuntu-latest
     needs: [namespace, docker-build-and-push]
     defaults:
       run:
         working-directory: backend/terraform
     env:
-      # TODO we might consider making these secrets so they are configurable outside of code
-      VERCEL_PROJECT_NAME=developer-console-framework-prod
-      VERCEL_PROJECT_ID=prj_0Jo3dzbJ2fg8A05qSzDNYUnrU6fS
-      VERCEL_TEAM_ID=team_0XCkE3xOywBTMmd6s7bqJQot
-      # TODO update to match the monorepo's id
-      GIT_REPO_ID=408256485
+      VERCEL_PROJECT_NAME: developer-console-framework-prod
+      VERCEL_PROJECT_ID: prj_0Jo3dzbJ2fg8A05qSzDNYUnrU6fS
+      VERCEL_TEAM_ID: team_0XCkE3xOywBTMmd6s7bqJQot
+      GIT_REPO_ID: 408256485
 
     steps:
       - uses: actions/checkout@v2
@@ -99,7 +99,7 @@ jobs:
 
       # Vercel doesn't have a lot of good ways to get the preview url:
       #     https://github.com/vercel/vercel/discussions/6045
-      #     
+      #
       # We can determine the vercel url here: https://vercel.com/docs/concepts/deployments/generated-urls#url-with-git-branch
       - name: Terraform Plan
         run: |
@@ -110,7 +110,7 @@ jobs:
             -H "Content-Type: application/json" \
             -d "{\"name\":\"${VERCEL_PROJECT_NAME}\",\"gitSource\":{\"ref\":\"${GITHUB_HEAD_REF}\",\"repoId\":${GIT_REPO_ID},\"type\":\"github\"}}" \
             | jq .alias | jq first -r)
-          
+
 
           terraform plan -input=false -out=tfplan.out -var-file ./env/preview.tfvars \
             -var "namespace=${PREVIEW_NAMESPACE}" \
@@ -140,5 +140,3 @@ jobs:
             -H "Authorization: Bearer ${{secrets.VERCEL_AUTH_TOKEN}}" \
             -H "Content-Type: application/json" \
             -d "{\"name\":\"${VERCEL_PROJECT_NAME}\",\"gitSource\":{\"ref\":\"${GITHUB_HEAD_REF}\",\"repoId\":${GIT_REPO_ID},\"type\":\"github\"}}"
-
-
