@@ -17,6 +17,7 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H3, H5 } from '@/components/lib/Heading';
 import { List, ListItem } from '@/components/lib/List';
+import { Message } from '@/components/lib/Message';
 import { NearInput } from '@/components/lib/NearInput';
 import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Text } from '@/components/lib/Text';
@@ -135,6 +136,7 @@ export const ContractTransaction = ({ contract }: Props) => {
     modal?.show();
   }, [modal, selector]);
   const [txResult, setTxResult] = useState<any>(undefined);
+  const [txError, setTxError] = useState<any>(undefined);
   const transactionHashParam = useRouteParam('transactionHashes');
   const router = useRouter();
 
@@ -149,10 +151,12 @@ export const ContractTransaction = ({ contract }: Props) => {
   function onTxResult(result: any) {
     const hash = result?.transaction?.hash;
     setTxResult(hash ? { hash } : result);
+    setTxError(undefined);
   }
 
-  function onTxError() {
+  function onTxError(error: any) {
     setTxResult(undefined);
+    setTxError(error);
   }
 
   useEffect(() => {
@@ -200,7 +204,7 @@ export const ContractTransaction = ({ contract }: Props) => {
       </ContractParams>
 
       <Box css={{ width: '100%' }}>
-        <TxResultView result={txResult} />
+        <TxResultView result={txResult} error={txError} />
       </Box>
     </Flex>
   );
@@ -211,7 +215,7 @@ interface ContractFormProps {
   contract: Contract;
   selector: WalletSelector | null;
   onTxResult: (result: any) => void;
-  onTxError: () => void;
+  onTxError: (error: any) => void;
 }
 
 interface ContractFormData {
@@ -337,6 +341,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
           title: 'Invalid Params',
           description: 'Please check your function parameters and try again.',
         });
+        return;
       }
     } else {
       call = contractFn();
@@ -375,12 +380,10 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
       });
     } catch (e: any) {
       console.error(e);
-      onTxError();
+      onTxError(e);
       openToast({
-        duration: Infinity,
         type: 'error',
         title: 'Failed to send transaction',
-        description: `${e}`,
       });
       analytics.track('DC Contract Interact', {
         status: 'failure',
@@ -582,9 +585,18 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   );
 };
 
-const TxResultView = ({ result }: { result: any }) => {
-  if (result === undefined) {
+const TxResultView = ({ result, error }: { result: any, error: any }) => {
+  if (!result && !error) {
     return <SendTransactionBanner />;
+  }
+
+  if (error) {
+    return (
+      <Flex stack>
+        <ResultTitle>Result</ResultTitle>
+        <Message type="error" content={error.toString()} />
+      </Flex>
+    );
   }
 
   if (result?.hash) {
