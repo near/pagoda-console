@@ -1,0 +1,9 @@
+name: Destroy a preview environment
+on:
+  pull_request:
+    types: [closed]
+    branches: [develop]
+defaults:
+  run:
+    working-directory: backend
+    # TODO
