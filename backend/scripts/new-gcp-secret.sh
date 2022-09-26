@@ -11,9 +11,14 @@ fi;
 
 SECRET_VALUE=$1
 SECRET_NAME=$2
-
 # TODO inject project id
-# `--data-file=-` file is important so GCP creates the first secret version.
-echo "$SECRET_VALUE" | gcloud secrets create $SECRET_NAME\
-    --data-file=-\
-    --project "developer-platform-dev"
+PROJECT_ID="developer-platform-dev"
+
+if gcloud secrets describe $SECRET_NAME --project $PROJECT_ID; then
+    echo 'Secret already exists'
+else
+    # `--data-file=-` file is important so GCP creates the first secret version.
+    echo "$SECRET_VALUE" | gcloud secrets create $SECRET_NAME \
+        --data-file=- \
+        --project $PROJECT_ID
+fi;
