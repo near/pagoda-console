@@ -12,4 +12,5 @@ Sentry.init({
   tracesSampleRate: 1.0,
   debug: false,
   environment: process.env.NEXT_PUBLIC_DEPLOY_ENV,
+  tunnel: '/api/tunnel',
 });
