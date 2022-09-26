@@ -4,8 +4,6 @@ services:
     image: near-developer-console-api:latest
     ports:
       - '8080:3001'
-    env_file:
-      - .env
   db:
     image: postgres
     restart: unless-stopped
