@@ -2,9 +2,6 @@ name: Test Project
 on:
   pull_request:
     branches: [develop, module, release, main]
-defaults:
-  run:
-    working-directory: frontend
 jobs:
   build:
     timeout-minutes: 5
@@ -13,8 +10,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
+          node-version: "16.x"
       - name: Install dependencies
         run: npm ci
       - name: Run tests
-        run: npm run test
+        run: npm -w frontend run test

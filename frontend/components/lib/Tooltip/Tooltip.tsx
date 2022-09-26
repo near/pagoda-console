@@ -16,13 +16,15 @@ export const Tooltip = ({ children, content, root, side = 'top', sideOffset = 6,
   const delayDuration = root?.delayDuration || 200;
 
   return (
-    <TooltipPrimitive.Root delayDuration={delayDuration} {...root}>
-      <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
+    <TooltipPrimitive.Provider>
+      <TooltipPrimitive.Root delayDuration={delayDuration} {...root}>
+        <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
 
-      <S.Content side={side} sideOffset={sideOffset} {...props}>
-        {content}
-        <S.Arrow offset={6} />
-      </S.Content>
-    </TooltipPrimitive.Root>
+        <S.Content side={side} sideOffset={sideOffset} {...props}>
+          {content}
+          <S.Arrow offset={6} />
+        </S.Content>
+      </TooltipPrimitive.Root>
+    </TooltipPrimitive.Provider>
   );
 };
