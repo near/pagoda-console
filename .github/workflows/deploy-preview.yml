@@ -14,7 +14,6 @@ jobs:
       namespace: ${{ steps.namespace.outputs.namespace }}
     steps:
       - id: "namespace"
-      - name: "Create a namespace"
         run: |
           # PREVIEW_NAMESPACE is intended to be unique and is composed of:
           # The first 10 chars in the github branch name after the last '/' followed by
@@ -60,82 +59,82 @@ jobs:
       - name: Build docker image and push
         run: ./scripts/docker_build_and_push.sh ${PREVIEW_NAMESPACE} developer-platform-dev
 
-  # terraform-preview-environment:
-  #   timeout-minutes: 15
-  #   runs-on: ubuntu-latest
-  #   needs: [namespace, docker-build-and-push]
-  #   defaults:
-  #     run:
-  #       working-directory: backend/terraform
-  #   env:
-  #     VERCEL_PROJECT_NAME: developer-console-framework-prod
-  #     VERCEL_PROJECT_ID: prj_0Jo3dzbJ2fg8A05qSzDNYUnrU6fS
-  #     VERCEL_TEAM_ID: team_0XCkE3xOywBTMmd6s7bqJQot
-  #     GIT_REPO_ID: 408256485
+  terraform-preview-environment:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    needs: [namespace, docker-build-and-push]
+    defaults:
+      run:
+        working-directory: backend/terraform
+    env:
+      VERCEL_PROJECT_NAME: developer-console-framework-prod
+      VERCEL_PROJECT_ID: prj_0Jo3dzbJ2fg8A05qSzDNYUnrU6fS
+      VERCEL_TEAM_ID: team_0XCkE3xOywBTMmd6s7bqJQot
+      GIT_REPO_ID: 408256485
 
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: hashicorp/setup-terraform@v2
+    steps:
+      - uses: actions/checkout@v2
+      - uses: hashicorp/setup-terraform@v2
 
-  #     # Setup auth: https://github.com/google-github-actions/setup-gcloud#service-account-key-json
-  #     - id: "auth"
-  #       uses: "google-github-actions/auth@v0"
-  #       with:
-  #         credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+      # Setup auth: https://github.com/google-github-actions/setup-gcloud#service-account-key-json
+      - id: "auth"
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
 
-  #     - name: "Set up Cloud SDK"
-  #       uses: "google-github-actions/setup-gcloud@v0"
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v0"
 
-  #     - name: "Set namespace"
-  #       run: echo "PREVIEW_NAMESPACE=${{ needs.namespace.outputs.namespace }}" >> $GITHUB_ENV
+      - name: "Set namespace"
+        run: echo "PREVIEW_NAMESPACE=${{ needs.namespace.outputs.namespace }}" >> $GITHUB_ENV
 
-  #     - name: Terraform Workspace
-  #       run: |
-  #         terraform workspace create $PREVIEW_NAMESPACE
-  #         terraform workspace switch $PREVIEW_NAMESPACE
+      - name: Terraform Workspace
+        run: |
+          terraform workspace create $PREVIEW_NAMESPACE
+          terraform workspace switch $PREVIEW_NAMESPACE
 
-  #     - name: Terraform Init
-  #       run: terraform init -input=false
+      - name: Terraform Init
+        run: terraform init -input=false
 
-  #     # Vercel doesn't have a lot of good ways to get the preview url:
-  #     #     https://github.com/vercel/vercel/discussions/6045
-  #     #
-  #     # We can determine the vercel url here: https://vercel.com/docs/concepts/deployments/generated-urls#url-with-git-branch
-  #     - name: Terraform Plan
-  #       run: |
-  #         #* We could refactor this to build the branch's preview url ourselves based on this page: https://vercel.com/docs/concepts/deployments/generated-urls#truncation
-  #         #* This was a quick hack to get the url from Vercel so we don't have to build it ourselves but it does make Vercel cancel any existing deployments and redeploy.
-  #         export FRONTEND_BASE_URL=$(curl -X POST "https://vercel.com/api/v13/deployments?teamId=${VERCEL_TEAM_ID}&forceNew=1&withCache=1" \
-  #           -H "Authorization: Bearer ${{secrets.VERCEL_AUTH_TOKEN}}" \
-  #           -H "Content-Type: application/json" \
-  #           -d "{\"name\":\"${VERCEL_PROJECT_NAME}\",\"gitSource\":{\"ref\":\"${GITHUB_HEAD_REF}\",\"repoId\":${GIT_REPO_ID},\"type\":\"github\"}}" \
-  #           | jq .alias | jq first -r)
+      # Vercel doesn't have a lot of good ways to get the preview url:
+      #     https://github.com/vercel/vercel/discussions/6045
+      #
+      # We can determine the vercel url here: https://vercel.com/docs/concepts/deployments/generated-urls#url-with-git-branch
+      - name: Terraform Plan
+        run: |
+          #* We could refactor this to build the branch's preview url ourselves based on this page: https://vercel.com/docs/concepts/deployments/generated-urls#truncation
+          #* This was a quick hack to get the url from Vercel so we don't have to build it ourselves but it does make Vercel cancel any existing deployments and redeploy.
+          export FRONTEND_BASE_URL=$(curl -X POST "https://vercel.com/api/v13/deployments?teamId=${VERCEL_TEAM_ID}&forceNew=1&withCache=1" \
+            -H "Authorization: Bearer ${{secrets.VERCEL_AUTH_TOKEN}}" \
+            -H "Content-Type: application/json" \
+            -d "{\"name\":\"${VERCEL_PROJECT_NAME}\",\"gitSource\":{\"ref\":\"${GITHUB_HEAD_REF}\",\"repoId\":${GIT_REPO_ID},\"type\":\"github\"}}" \
+            | jq .alias | jq first -r)
 
-  #         terraform plan -input=false -out=tfplan.out -var-file ./env/preview.tfvars \
-  #           -var "namespace=${PREVIEW_NAMESPACE}" \
-  #           -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
-  #           -var "api_image=$(docker inspect --format='{{index .RepoDigests 0}}' gcr.io/developer-platform-dev/developer-console-api:${PREVIEW_NAMESPACE})" \
-  #           -var "frontend_base_url=${FRONTEND_BASE_URL}"
-  #           -var "api_service_account=${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}"
+          terraform plan -input=false -out=tfplan.out -var-file ./env/preview.tfvars \
+            -var "namespace=${PREVIEW_NAMESPACE}" \
+            -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
+            -var "api_image=$(docker inspect --format='{{index .RepoDigests 0}}' gcr.io/developer-platform-dev/developer-console-api:${PREVIEW_NAMESPACE})" \
+            -var "frontend_base_url=${FRONTEND_BASE_URL}"
+            -var "api_service_account=${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}"
 
-  #     - name: Terraform Apply
-  #       run: terraform apply -input=false tfplan.out
+      - name: Terraform Apply
+        run: terraform apply -input=false tfplan.out
 
-  #     - name: Vercel deploy with API URL
-  #       # This only needs to run once at PR creation.
-  #       # TODO if someone closes a branch's PR and opens a new one, this will probably fail because it tries to recreate an existing environment variable.
-  #       if: github.event.pull_request.created
-  #       run: |
-  #         export API_BASE_URL=$(terraform output -raw api_public_url)
+      - name: Vercel deploy with API URL
+        # This only needs to run once at PR creation.
+        # TODO if someone closes a branch's PR and opens a new one, this will probably fail because it tries to recreate an existing environment variable.
+        if: github.event.pull_request.created
+        run: |
+          export API_BASE_URL=$(terraform output -raw api_public_url)
 
-  #         # Set an env var for this branch's preview environment
-  #         curl -X POST "https://vercel.com/api/v7/projects/${VERCEL_PROJECT_ID}/env?teamId=${VERCEL_TEAM_ID}" \
-  #           -H "Authorization: Bearer ${{secrets.VERCEL_AUTH_TOKEN}}" \
-  #           -H "Content-Type: application/json" \
-  #           -d "{\"key\":\"NEXT_PUBLIC_API_BASE_URL\",\"value\":\"${API_BASE_URL}\",\"target\":[\"preview\"],\"type\":\"encrypted\",\"gitBranch\":\"${GITHUB_HEAD_REF}\"}"
+          # Set an env var for this branch's preview environment
+          curl -X POST "https://vercel.com/api/v7/projects/${VERCEL_PROJECT_ID}/env?teamId=${VERCEL_TEAM_ID}" \
+            -H "Authorization: Bearer ${{secrets.VERCEL_AUTH_TOKEN}}" \
+            -H "Content-Type: application/json" \
+            -d "{\"key\":\"NEXT_PUBLIC_API_BASE_URL\",\"value\":\"${API_BASE_URL}\",\"target\":[\"preview\"],\"type\":\"encrypted\",\"gitBranch\":\"${GITHUB_HEAD_REF}\"}"
 
-  #         # Redeploy branch preview in Vercel
-  #         curl -X POST "https://vercel.com/api/v13/deployments?teamId=${VERCEL_TEAM_ID}&forceNew=1&withCache=1" \
-  #           -H "Authorization: Bearer ${{secrets.VERCEL_AUTH_TOKEN}}" \
-  #           -H "Content-Type: application/json" \
-  #           -d "{\"name\":\"${VERCEL_PROJECT_NAME}\",\"gitSource\":{\"ref\":\"${GITHUB_HEAD_REF}\",\"repoId\":${GIT_REPO_ID},\"type\":\"github\"}}"
+          # Redeploy branch preview in Vercel
+          curl -X POST "https://vercel.com/api/v13/deployments?teamId=${VERCEL_TEAM_ID}&forceNew=1&withCache=1" \
+            -H "Authorization: Bearer ${{secrets.VERCEL_AUTH_TOKEN}}" \
+            -H "Content-Type: application/json" \
+            -d "{\"name\":\"${VERCEL_PROJECT_NAME}\",\"gitSource\":{\"ref\":\"${GITHUB_HEAD_REF}\",\"repoId\":${GIT_REPO_ID},\"type\":\"github\"}}"
