@@ -203,7 +203,7 @@ export const ContractTransaction = ({ contract }: Props) => {
         </Flex>
       </ContractParams>
 
-      <Box css={{ width: '100%' }}>
+      <Box css={{ width: '100%', minWidth: '0' }}>
         <TxResultView result={txResult} error={txError} />
       </Box>
     </Flex>
