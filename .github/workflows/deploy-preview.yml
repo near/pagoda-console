@@ -77,7 +77,6 @@ jobs:
         working-directory: backend/terraform
     env:
       VERCEL_PROJECT_NAME: developer-console-framework-prod
-      VERCEL_PROJECT_ID: prj_0Jo3dzbJ2fg8A05qSzDNYUnrU6fS
       VERCEL_ORG: near
       VERCEL_TEAM_ID: team_0XCkE3xOywBTMmd6s7bqJQot
       GIT_REPO: pagoda-console
@@ -126,16 +125,10 @@ jobs:
         run: terraform apply -input=false tfplan.out
 
       - name: Vercel deploy with API URL
-        # This only needs to run once at PR creation. Once the API url is set in an env var, it is not expected to change.
-        if: github.event.pull_request.created
         run: |
           export API_BASE_URL=$(terraform output -raw api_public_url)
 
-          # TODO if someone closes a branch's PR and opens a new one, this will probably fail because it tries to recreate an existing environment variable.
           # Set an env var for this branch's preview environment
-          curl -X POST "https://vercel.com/api/v7/projects/${VERCEL_PROJECT_ID}/env?teamId=${VERCEL_TEAM_ID}" \
-            -H "Authorization: Bearer ${VERCEL_AUTH_TOKEN}" \
-            -H "Content-Type: application/json" \
-            -d "{\"key\":\"NEXT_PUBLIC_API_BASE_URL\",\"value\":\"${API_BASE_URL}\",\"target\":[\"preview\"],\"type\":\"encrypted\",\"gitBranch\":\"${BRANCH_NAME}\"}"
+          ./scripts/vercel_upsert_env_var.sh NEXT_PUBLIC_API_BASE_URL $API_BASE_URL
 
           ./scripts/vercel_redeploy.sh
