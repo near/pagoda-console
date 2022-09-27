@@ -82,15 +82,15 @@ resource "null_resource" "env_secrets" {
 
   provisioner "local-exec" {
     command = <<EOT
-      ../scripts/new-gcp-secret.sh postgresql://postgres:${var.database_password}@localhost/devconsole?host=/cloudsql/${module.postgres.database_connection_name} DATABASE_URL_${local.database_secret_suffix} &&
-      ../scripts/new-gcp-secret.sh postgresql://postgres:${var.database_password}@localhost/abi?host=/cloudsql/${module.postgres.database_connection_name} ABI_DATABASE_URL_${local.database_secret_suffix} &&
-      ../scripts/new-gcp-secret.sh postgresql://postgres:${var.database_password}@localhost/alerts?host=/cloudsql/${module.postgres.database_connection_name} ALERTS_DATABASE_URL_${local.database_secret_suffix} &&
-      ../scripts/new-gcp-secret.sh postgresql://postgres:${var.database_password}@localhost/rpcstats?host=/cloudsql/${module.postgres.database_connection_name} RPCSTATS_DATABASE_URL_${local.database_secret_suffix} &&
+      ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/devconsole?host=/cloudsql/${module.postgres.database_connection_name} DATABASE_URL_${local.database_secret_suffix} &&
+      ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/abi?host=/cloudsql/${module.postgres.database_connection_name} ABI_DATABASE_URL_${local.database_secret_suffix} &&
+      ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/alerts?host=/cloudsql/${module.postgres.database_connection_name} ALERTS_DATABASE_URL_${local.database_secret_suffix} &&
+      ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/rpcstats?host=/cloudsql/${module.postgres.database_connection_name} RPCSTATS_DATABASE_URL_${local.database_secret_suffix} &&
    
-      ../scripts/gcp-secret-access.sh DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} &&
-      ../scripts/gcp-secret-access.sh ABI_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} && 
-      ../scripts/gcp-secret-access.sh ALERTS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} &&
-      ../scripts/gcp-secret-access.sh RPCSTATS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account}
+      ../scripts/gcp_access_secret.sh DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} &&
+      ../scripts/gcp_access_secret.sh ABI_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} && 
+      ../scripts/gcp_access_secret.sh ALERTS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} &&
+      ../scripts/gcp_access_secret.sh RPCSTATS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account}
     EOT
   }
 

@@ -5,7 +5,7 @@
 
 if [ -z $2 ]
 then
-    echo "usage: ./new-gcp-secret <value> <name>";
+    echo "usage: ./gcp_new_secret <value> <name>";
     exit 1;
 fi;
 

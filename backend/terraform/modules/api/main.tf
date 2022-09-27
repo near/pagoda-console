@@ -34,7 +34,7 @@ resource "google_cloud_run_service" "console_api" {
         #* Environment variables
         # Adding a new secret and version is currently a manual process done through gcloud cli or console.
         # Make sure you give the service account for the cloud run application access to the secret.
-        # See `scripts/new-gcp-secret.sh` for reference
+        # See `scripts/gcp_new_secret.sh` for reference
         #
         # GCP recommends pinning to a secret version rather than using `latest`: https://cloud.google.com/secret-manager/docs/best-practices#administration
         # Consider using a version # instead of latest in order to get repeatable and deterministic builds. It might also be better for preview deployments when one dev needs to modify the secret value but the modification will affect other devs.
