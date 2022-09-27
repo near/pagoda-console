@@ -28,43 +28,43 @@ jobs:
           export BRANCH_NAME=$(echo -n ${GITHUB_HEAD_REF##*/} | cut -c -10)
           export BRANCH_SHA=$(echo -n $GITHUB_HEAD_REF | sha256sum | cut -c -5)
           echo "::set-output name=namespace::${BRANCH_NAME}-${BRANCH_SHA}"
+  # TODO reenable
+  # docker-build-and-push:
+  #   timeout-minutes: 5
+  #   runs-on: ubuntu-latest
+  #   needs: [namespace]
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-  docker-build-and-push:
-    timeout-minutes: 5
-    runs-on: ubuntu-latest
-    needs: [namespace]
-    steps:
-      - uses: actions/checkout@v2
+  #     # Setup auth: https://github.com/google-github-actions/setup-gcloud#service-account-key-json
+  #     - id: "auth"
+  #       uses: "google-github-actions/auth@v0"
+  #       with:
+  #         credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
 
-      # Setup auth: https://github.com/google-github-actions/setup-gcloud#service-account-key-json
-      - id: "auth"
-        uses: "google-github-actions/auth@v0"
-        with:
-          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+  #     - name: "Set up Cloud SDK"
+  #       uses: "google-github-actions/setup-gcloud@v0"
 
-      - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v0"
+  #     - name: "Use gcloud CLI"
+  #       run: gcloud auth configure-docker -q
 
-      - name: "Use gcloud CLI"
-        run: gcloud auth configure-docker -q
+  #     - name: "Set namespace"
+  #       run: echo "PREVIEW_NAMESPACE=${{ needs.namespace.outputs.namespace }}" >> $GITHUB_ENV
 
-      - name: "Set namespace"
-        run: echo "PREVIEW_NAMESPACE=${{ needs.namespace.outputs.namespace }}" >> $GITHUB_ENV
+  #     # Gets the last part of a github branch name after all the '/'
+  #     #   https://stackoverflow.com/questions/58033366/how-to-get-the-current-branch-within-github-actions
+  #     # This assumes that branch names after all '/' will be unique enough.
+  #     # We could refine this further if this is not the case.
+  #     #* i.e. If a branch name is `feat/sub-feature`, the tag name will be `sub-feature`.
+  #     #* This is helpful since Docker doesn't allow '/' in tag names.
+  #     - name: Git branch name / Docker tag
+  #       run: echo ${PREVIEW_NAMESPACE}
 
-      # Gets the last part of a github branch name after all the '/'
-      #   https://stackoverflow.com/questions/58033366/how-to-get-the-current-branch-within-github-actions
-      # This assumes that branch names after all '/' will be unique enough.
-      # We could refine this further if this is not the case.
-      #* i.e. If a branch name is `feat/sub-feature`, the tag name will be `sub-feature`.
-      #* This is helpful since Docker doesn't allow '/' in tag names.
-      - name: Git branch name / Docker tag
-        run: echo ${PREVIEW_NAMESPACE}
-
-      # Last line of this script is the docker image url with the sha256 hash that
-      # was uploaded. This should be used in terraform so that we can deploy a new
-      # cloud run instance if the docker image has changed.
-      - name: Build docker image and push
-        run: ./scripts/docker_build_and_push.sh ${PREVIEW_NAMESPACE} developer-platform-dev
+  #     # Last line of this script is the docker image url with the sha256 hash that
+  #     # was uploaded. This should be used in terraform so that we can deploy a new
+  #     # cloud run instance if the docker image has changed.
+  #     - name: Build docker image and push
+  #       run: ./scripts/docker_build_and_push.sh ${PREVIEW_NAMESPACE} developer-platform-dev
 
   terraform-preview-environment:
     timeout-minutes: 15
