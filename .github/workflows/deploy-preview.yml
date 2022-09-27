@@ -31,6 +31,7 @@ jobs:
           echo PREVIEW_NAMESPACE $PREVIEW_NAMESPACE
 
           echo "::set-output name=namespace::$PREVIEW_NAMESPACE"
+
   docker-build-and-push:
     timeout-minutes: 5
     runs-on: ubuntu-latest
@@ -104,19 +105,10 @@ jobs:
       - name: Terraform Init
         run: terraform init -input=false
 
-      # Vercel doesn't have a lot of good ways to get the preview url:
-      #     https://github.com/vercel/vercel/discussions/6045
-      #
-      # We can determine the vercel url here: https://vercel.com/docs/concepts/deployments/generated-urls#url-with-git-branch
       - name: Terraform Plan
         run: |
-          #* We could refactor this to build the branch's preview url ourselves based on this page: https://vercel.com/docs/concepts/deployments/generated-urls#truncation
-          #* This was a quick hack to get the url from Vercel so we don't have to build it ourselves but it does make Vercel cancel any existing deployments and redeploy.
-          export FRONTEND_BASE_URL=$(curl -X POST "https://vercel.com/api/v13/deployments?teamId=${VERCEL_TEAM_ID}&forceNew=1&withCache=1" \
-            -H "Authorization: Bearer ${{secrets.VERCEL_AUTH_TOKEN}}" \
-            -H "Content-Type: application/json" \
-            -d "{\"name\":\"${VERCEL_PROJECT_NAME}\",\"gitSource\":{\"ref\":\"${GITHUB_HEAD_REF}\",\"repoId\":${GIT_REPO_ID},\"type\":\"github\"}}" \
-            | jq .alias | jq first -r)
+          # TODO move this step to the beginning and set DOWNTIME_MODE=maintenance so it's clear that the preview env is being updated with a new backend and db.
+          export FRONTEND_BASE_URL=$(./scripts/vercel_redeploy.sh)
 
           echo FRONTEND_BASE_URL $FRONTEND_BASE_URL
 
@@ -131,20 +123,16 @@ jobs:
         run: terraform apply -input=false tfplan.out
 
       - name: Vercel deploy with API URL
-        # This only needs to run once at PR creation.
-        # TODO if someone closes a branch's PR and opens a new one, this will probably fail because it tries to recreate an existing environment variable.
+        # This only needs to run once at PR creation. Once the API url is set in an env var, it is not expected to change.
         if: github.event.pull_request.created
         run: |
           export API_BASE_URL=$(terraform output -raw api_public_url)
 
+          # TODO if someone closes a branch's PR and opens a new one, this will probably fail because it tries to recreate an existing environment variable.
           # Set an env var for this branch's preview environment
           curl -X POST "https://vercel.com/api/v7/projects/${VERCEL_PROJECT_ID}/env?teamId=${VERCEL_TEAM_ID}" \
             -H "Authorization: Bearer ${{secrets.VERCEL_AUTH_TOKEN}}" \
             -H "Content-Type: application/json" \
             -d "{\"key\":\"NEXT_PUBLIC_API_BASE_URL\",\"value\":\"${API_BASE_URL}\",\"target\":[\"preview\"],\"type\":\"encrypted\",\"gitBranch\":\"${GITHUB_HEAD_REF}\"}"
 
-          # Redeploy branch preview in Vercel
-          curl -X POST "https://vercel.com/api/v13/deployments?teamId=${VERCEL_TEAM_ID}&forceNew=1&withCache=1" \
-            -H "Authorization: Bearer ${{secrets.VERCEL_AUTH_TOKEN}}" \
-            -H "Content-Type: application/json" \
-            -d "{\"name\":\"${VERCEL_PROJECT_NAME}\",\"gitSource\":{\"ref\":\"${GITHUB_HEAD_REF}\",\"repoId\":${GIT_REPO_ID},\"type\":\"github\"}}"
+          ./scripts/vercel_redeploy.sh
