@@ -78,8 +78,11 @@ jobs:
     env:
       VERCEL_PROJECT_NAME: developer-console-framework-prod
       VERCEL_PROJECT_ID: prj_0Jo3dzbJ2fg8A05qSzDNYUnrU6fS
+      VERCEL_ORG: near
       VERCEL_TEAM_ID: team_0XCkE3xOywBTMmd6s7bqJQot
-      GIT_REPO_ID: 408256485
+      GIT_REPO: pagoda-console
+      BRANCH_NAME: $GITHUB_HEAD_REF
+      VERCEL_AUTH_TOKEN: ${{ secrets.VERCEL_AUTH_TOKEN }}
 
     steps:
       - uses: actions/checkout@v2
@@ -131,8 +134,8 @@ jobs:
           # TODO if someone closes a branch's PR and opens a new one, this will probably fail because it tries to recreate an existing environment variable.
           # Set an env var for this branch's preview environment
           curl -X POST "https://vercel.com/api/v7/projects/${VERCEL_PROJECT_ID}/env?teamId=${VERCEL_TEAM_ID}" \
-            -H "Authorization: Bearer ${{secrets.VERCEL_AUTH_TOKEN}}" \
+            -H "Authorization: Bearer ${VERCEL_AUTH_TOKEN}" \
             -H "Content-Type: application/json" \
-            -d "{\"key\":\"NEXT_PUBLIC_API_BASE_URL\",\"value\":\"${API_BASE_URL}\",\"target\":[\"preview\"],\"type\":\"encrypted\",\"gitBranch\":\"${GITHUB_HEAD_REF}\"}"
+            -d "{\"key\":\"NEXT_PUBLIC_API_BASE_URL\",\"value\":\"${API_BASE_URL}\",\"target\":[\"preview\"],\"type\":\"encrypted\",\"gitBranch\":\"${BRANCH_NAME}\"}"
 
           ./scripts/vercel_redeploy.sh
