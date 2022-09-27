@@ -81,7 +81,7 @@ jobs:
       VERCEL_ORG: near
       VERCEL_TEAM_ID: team_0XCkE3xOywBTMmd6s7bqJQot
       GIT_REPO: pagoda-console
-      BRANCH_NAME: $GITHUB_HEAD_REF
+      BRANCH_NAME: ${GITHUB_HEAD_REF}
       VERCEL_AUTH_TOKEN: ${{ secrets.VERCEL_AUTH_TOKEN }}
 
     steps:
