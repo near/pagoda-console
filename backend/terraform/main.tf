@@ -50,7 +50,10 @@ resource "null_resource" "db_migration" {
   provisioner "local-exec" {
     command = <<EOT
       cd .. &&
-      . ./scripts/export_prisma_env_vars.sh postgres ${var.database_password} ${module.postgres.database_public_ip_address} &&
+      DB_USER=postgres
+      DB_PASS=${var.database_password}
+      DB_URL=${module.postgres.database_public_ip_address}
+        . ./scripts/export_prisma_env_vars.sh &&
       ${var.prisma_migration_command}
     EOT
   }
