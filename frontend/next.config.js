@@ -3,6 +3,9 @@ const { withSentryConfig } = require('@sentry/nextjs');
 
 /** @type {import('next').NextConfig} */
 const moduleExports = {
+  sentry: {
+    hideSourceMaps: true, // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#use-hidden-source-map
+  },
   experimental: { esmExternals: true },
   reactStrictMode: true,
   webpack(config, options) {
