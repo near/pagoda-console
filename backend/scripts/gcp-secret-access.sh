@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Gives the cloud run service account access to view the secret.
 #

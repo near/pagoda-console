@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Creates a new GCP secret with an initial version and
 # gives the principal (e.g. cloud run service account) access.
