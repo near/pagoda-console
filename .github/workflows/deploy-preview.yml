@@ -1,3 +1,5 @@
+# TODO this workflow only needs to run when the PR is initially opened or the backend/ changes.
+# Frontend changes will automatically deploy via the vercel git integration.
 name: Deploy a preview environment
 on:
   #* This workflow expects to be ran on pull requests only. Push and other triggers may not result in a successful run.
@@ -22,7 +24,7 @@ jobs:
           echo GITHUB_REF $GITHUB_REF 
           echo GITHUB_HEAD_REF $GITHUB_HEAD_REF
 
-          # PREVIEW_NAMESPACE is intended to be unique and is composed of:
+          # PREVIEW_NAMESPACE is intended to be small and unique and is composed of:
           # The first 10 chars in the github branch name after the last '/' followed by
           # the first 5 chars in the sha256 of the whole branch name.
           export BRANCH_NAME=$(echo -n ${GITHUB_HEAD_REF##*/} | cut -c -10)
@@ -95,6 +97,9 @@ jobs:
 
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v0"
+
+      - name: "Install postgres client"
+        run: apt-get install -y postgresql-client
 
       - name: "Set namespace"
         run: echo "PREVIEW_NAMESPACE=${{ needs.namespace.outputs.namespace }}" >> $GITHUB_ENV
