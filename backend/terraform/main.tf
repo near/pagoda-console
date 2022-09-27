@@ -48,7 +48,7 @@ resource "null_resource" "db_migration" {
   }
 
   provisioner "local-exec" {
-    interpreter = ["bash"]
+    interpreter = ["/bin/bash"]
     command     = <<EOT
       cd .. &&
       source ./scripts/export_prisma_env_vars.sh postgres ${var.database_password} ${module.postgres.database_public_ip_address} &&
