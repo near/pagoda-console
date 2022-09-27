@@ -27,7 +27,10 @@ jobs:
           # the first 5 chars in the sha256 of the whole branch name.
           export BRANCH_NAME=$(echo -n ${GITHUB_HEAD_REF##*/} | cut -c -10)
           export BRANCH_SHA=$(echo -n $GITHUB_HEAD_REF | sha256sum | cut -c -5)
-          echo "::set-output name=namespace::${BRANCH_NAME}-${BRANCH_SHA}"
+          export PREVIEW_NAMESPACE="${BRANCH_NAME}-${BRANCH_SHA}"
+          echo $PREVIEW_NAMESPACE
+
+          echo "::set-output name=namespace::$PREVIEW_NAMESPACE"
   # TODO reenable
   # docker-build-and-push:
   #   timeout-minutes: 5
