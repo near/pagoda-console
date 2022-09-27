@@ -123,7 +123,7 @@ jobs:
           terraform plan -input=false -out=tfplan.out -var-file ./env/preview.tfvars \
             -var "namespace=${PREVIEW_NAMESPACE}" \
             -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
-            -var "api_image=${{needs.docker-build-and-push.outputs.image}}"" \
+            -var "api_image=${{needs.docker-build-and-push.outputs.image}}" \
             -var "frontend_base_url=${FRONTEND_BASE_URL}" \
             -var "api_service_account=${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}"
 
