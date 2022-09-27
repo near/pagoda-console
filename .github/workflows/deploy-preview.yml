@@ -110,7 +110,7 @@ jobs:
       - name: Terraform Plan
         run: |
           # TODO move this step to the beginning and set DOWNTIME_MODE=maintenance so it's clear that the preview env is being updated with a new backend and db.
-          export FRONTEND_BASE_URL=$(./scripts/vercel-redeploy.sh)
+          export FRONTEND_BASE_URL=$(../scripts/vercel-redeploy.sh)
 
           echo FRONTEND_BASE_URL $FRONTEND_BASE_URL
 
@@ -129,6 +129,6 @@ jobs:
           export API_BASE_URL=$(terraform output -raw api_public_url)
 
           # Set an env var for this branch's preview environment
-          ./scripts/vercel_upsert_env_var.sh NEXT_PUBLIC_API_BASE_URL $API_BASE_URL
+          ../scripts/vercel_upsert_env_var.sh NEXT_PUBLIC_API_BASE_URL $API_BASE_URL
 
-          ./scripts/vercel-redeploy.sh
+          ../scripts/vercel-redeploy.sh
