@@ -141,7 +141,7 @@ import { TextOverflow } from '@/components/lib/TextOverflow';
 
 ## Nested Menus
 
-In the primary `Example` section above, note the used of the `nested` prop on the nested menu content component: `<DropdownMenu.Content nested>`. This will set proper offsets for the menu and arrow for nested menus. This prop shouldn't be used on the root menu - only on child menus inside.
+In the primary `Example` section above, note the use of the `Sub`, `SubTrigger`, and `SubContent` components to achieve a nested menu.
 
 ## Form Select Dropdown
 
