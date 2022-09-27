@@ -109,6 +109,8 @@ jobs:
             -H "Content-Type: application/json" \
             -d "{\"name\":\"${VERCEL_PROJECT_NAME}\",\"gitSource\":{\"ref\":\"${GITHUB_HEAD_REF}\",\"repoId\":${GIT_REPO_ID},\"type\":\"github\"}}" \
             | jq .alias | jq first -r)
+
+          docker pull gcr.io/developer-platform-dev/developer-console-api:$PREVIEW_NAMESPACE
           export DOCKER_IMAGE=$(docker inspect --format='{{index .RepoDigests 0}}' gcr.io/developer-platform-dev/developer-console-api:$PREVIEW_NAMESPACE)
 
           echo FRONTEND_BASE_URL $FRONTEND_BASE_URL
@@ -117,7 +119,7 @@ jobs:
           terraform plan -input=false -out=tfplan.out -var-file ./env/preview.tfvars \
             -var "namespace=${PREVIEW_NAMESPACE}" \
             -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
-            -var "api_image=$DOCKER_IMAGE" \
+            -var "api_image=${DOCKER_IMAGE}" \
             -var "frontend_base_url=${FRONTEND_BASE_URL}" \
             -var "api_service_account=${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}"
 
