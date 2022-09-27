@@ -98,9 +98,6 @@ jobs:
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v0"
 
-      - name: "Install postgres client"
-        run: sudo apt-get install -y postgresql-client
-
       - name: "Set namespace"
         run: echo "PREVIEW_NAMESPACE=${{ needs.namespace.outputs.namespace }}" >> $GITHUB_ENV
 
