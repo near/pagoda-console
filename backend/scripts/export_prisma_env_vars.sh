@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #* This script is helpful before immediately calling `prisma.sh`.
 #* In order to get the exported variables to stick properly, you will
