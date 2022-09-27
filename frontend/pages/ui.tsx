@@ -354,7 +354,7 @@ const Settings: NextPageWithLayout = () => {
             </Accordion.Content>
           </Accordion.Item>
 
-          <Accordion.Item value="item-1">
+          <Accordion.Item value="item-2">
             <Accordion.Trigger>Section Two</Accordion.Trigger>
             <Accordion.Content>
               <Flex stack>
@@ -769,22 +769,22 @@ const Settings: NextPageWithLayout = () => {
 
               <DropdownMenu.Separator />
 
-              <DropdownMenu.Item>New Tab</DropdownMenu.Item>
               <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
               <DropdownMenu.Item>
                 <FeatherIcon icon="eye" /> With Icon
               </DropdownMenu.Item>
 
-              <DropdownMenu.Root>
-                <DropdownMenu.TriggerItem>More Tools</DropdownMenu.TriggerItem>
-                <DropdownMenu.Content nested>
+              <DropdownMenu.Sub>
+                <DropdownMenu.SubTrigger>More Tools</DropdownMenu.SubTrigger>
+
+                <DropdownMenu.SubContent>
                   <DropdownMenu.Item>Save Page As...</DropdownMenu.Item>
                   <DropdownMenu.Item>Create Shortcut…</DropdownMenu.Item>
                   <DropdownMenu.Item>Name Window…</DropdownMenu.Item>
                   <DropdownMenu.Separator />
                   <DropdownMenu.Item>Developer Tools</DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu.Root>
+                </DropdownMenu.SubContent>
+              </DropdownMenu.Sub>
 
               <DropdownMenu.Separator />
 

@@ -13,7 +13,7 @@ const closeAnimation = keyframes({
   '100%': { opacity: 0, transform: 'scale(0.9, 0.9)' },
 });
 
-export const Content = styled(DropdownMenuPrimitive.Content, {
+const contentStyles: StitchesCSS = {
   '--animation-speed': '200ms',
   '--background-color': 'var(--color-surface-overlay)',
   backgroundColor: 'var(--background-color)',
@@ -27,6 +27,10 @@ export const Content = styled(DropdownMenuPrimitive.Content, {
   '&[data-state="closed"]': {
     animation: `${closeAnimation} var(--animation-speed)`,
   },
+};
+
+export const Content = styled(DropdownMenuPrimitive.Content, {
+  ...contentStyles,
 
   variants: {
     width: {
@@ -116,7 +120,11 @@ export const Item = styled(DropdownMenuPrimitive.Item, {
   gap: 'var(--space-s)',
 });
 
-export const TriggerItem = styled(DropdownMenuPrimitive.TriggerItem, {
+export const SubContent = styled(DropdownMenuPrimitive.SubContent, {
+  ...contentStyles,
+});
+
+export const SubTrigger = styled(DropdownMenuPrimitive.SubTrigger, {
   ...dropdownItemStyles,
 
   '& > svg': {
