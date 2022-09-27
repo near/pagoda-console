@@ -142,11 +142,3 @@ export const GetTransactionsSchema = Joi.object({
   contracts: Joi.array().items(Joi.string()),
   net: Joi.string(),
 });
-
-// get RPC data
-export interface GetRpcUsageDto {
-  project: string;
-}
-export const GetRpcUsageSchema = Joi.object({
-  project: Joi.string().required(),
-});
