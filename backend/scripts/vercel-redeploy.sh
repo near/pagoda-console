@@ -38,7 +38,7 @@ then
     exit 1;
 fi;
 
-curl -X POST "https://vercel.com/api/v13/deployments?teamId=${VERCEL_TEAM_ID}&forceNew=1&withCache=1" \
+curl -X POST "https://api.vercel.com/v9/deployments?teamId=${VERCEL_TEAM_ID}&forceNew=1&withCache=1" \
     -H "Authorization: Bearer ${VERCEL_AUTH_TOKEN}" \
     -H "Content-Type: application/json" \
     -d "{\"name\":\"${VERCEL_PROJECT_NAME}\",\"gitSource\":{\"ref\":\"${BRANCH_NAME}\",\"repo\":\"${GIT_REPO}\",\"org\":\"${VERCEL_ORG}\",\"type\":\"github\"}}" \
