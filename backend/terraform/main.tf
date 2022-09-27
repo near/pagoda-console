@@ -68,9 +68,9 @@ resource "null_resource" "db_migration" {
   }
 }
 
-# Note this is only creating database secrets that need to be generated.
+# Note this is only creating database secrets that need to be generated per environment. Runs once and will need to be updated manually if password changes.
 # All other secrets are created manually.
-# We could create these secrets in terraform but if we create the secret versions then the secret values would be saved to state.
+# We could create other secrets in terraform but if we create the secret versions then the secret values would be saved to state.
 # We would then need to encrypt the terraform state file in the gcp bucket: 
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version
 resource "null_resource" "env_secrets" {

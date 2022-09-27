@@ -30,6 +30,7 @@ resource "google_cloud_run_service" "console_api" {
       containers {
         image = var.api_image
 
+        # TODO inject env secret keys/versions, these should be set in the tfvars files, preview envs should have db secrets set to latest and everything else should be set to something specific.
         #* Environment variables
         # Adding a new secret and version is currently a manual process done through gcloud cli or console.
         # Make sure you give the service account for the cloud run application access to the secret.
@@ -139,7 +140,7 @@ resource "google_cloud_run_service" "console_api" {
           value_from {
             secret_key_ref {
               name = "DATABASE_URL_${var.database_secret_suffix}"
-              key  = "1"
+              key  = "latest"
             }
           }
         }
@@ -149,7 +150,7 @@ resource "google_cloud_run_service" "console_api" {
           value_from {
             secret_key_ref {
               name = "ABI_DATABASE_URL_${var.database_secret_suffix}"
-              key  = "1"
+              key  = "latest"
             }
           }
         }
@@ -159,7 +160,7 @@ resource "google_cloud_run_service" "console_api" {
           value_from {
             secret_key_ref {
               name = "ALERTS_DATABASE_URL_${var.database_secret_suffix}"
-              key  = "1"
+              key  = "latest"
             }
           }
         }
@@ -169,7 +170,7 @@ resource "google_cloud_run_service" "console_api" {
           value_from {
             secret_key_ref {
               name = "RPCSTATS_DATABASE_URL_${var.database_secret_suffix}"
-              key  = "1"
+              key  = "latest"
             }
           }
         }
