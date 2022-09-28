@@ -53,7 +53,7 @@ fi
 ERROR_CODE=$(echo "$ERROR" | jq .code -r)
 # echo ERROR_CODE $ERROR_CODE
 
-if [ "$ERROR_CODE" == 'ENV_ALREADY_EXISTS' ]
+if [ "$ERROR_CODE" = "ENV_ALREADY_EXISTS" ]
 then
     echo "env var already exists... attempting to update"
 

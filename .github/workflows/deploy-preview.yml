@@ -86,8 +86,7 @@ jobs:
       - name: Terraform Plan
         run: |
           # TODO we could move this redeploy and fetch FE url to the beginning and set DOWNTIME_MODE=maintenance so it's clear that the preview env is being updated with a new backend and db.
-          export FRONTEND_BASE_URL=$(../scripts/vercel_redeploy.sh)
-          echo FRONTEND_BASE_URL $FRONTEND_BASE_URL
+          export FRONTEND_BASE_URL=https://$(../scripts/vercel_redeploy.sh)
 
           terraform plan -input=false -out=tfplan.out -var-file ./env/preview.tfvars \
             -var "namespace=${PREVIEW_NAMESPACE}" \
