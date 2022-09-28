@@ -48,7 +48,6 @@ Button.displayName = 'Button';
 export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, innerCss, ...props }, ref) => {
   const alignOffset = props.alignOffset || 0;
   const sideOffset = props.sideOffset || 6;
-  const arrowOffset = 16;
   const containerRef = useRef<HTMLDivElement>();
 
   useEffect(() => {
@@ -86,7 +85,7 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, inn
         {...props}
       >
         <S.ContentInner css={innerCss}>{children}</S.ContentInner>
-        <S.Arrow offset={arrowOffset} />
+        <S.Arrow />
       </S.Content>
     </DropdownMenuPrimitive.Portal>
   );
@@ -96,13 +95,12 @@ Content.displayName = 'Content';
 export const SubContent = forwardRef<HTMLDivElement, SubContentProps>(({ children, ...props }, ref) => {
   const alignOffset = props.alignOffset || -6;
   const sideOffset = props.sideOffset || 14;
-  const arrowOffset = 24;
 
   return (
     <DropdownMenuPrimitive.Portal>
       <S.SubContent ref={ref} alignOffset={alignOffset} sideOffset={sideOffset} {...props}>
         <S.ContentInner>{children}</S.ContentInner>
-        <S.Arrow offset={arrowOffset} />
+        <S.Arrow />
       </S.SubContent>
     </DropdownMenuPrimitive.Portal>
   );
