@@ -51,7 +51,7 @@
     "luxon": "^2.4.0",
     "near-abi-client-js": "https://github.com/near/near-abi-client-js.git#f05fb6ed132a34927b693fda58a79744cea93fd7",
     "near-api-js": "^0.44.2",
-    "next": "^12.1.0",
+    "next": "12.2.0",
     "next-i18next": "^8.10.0",
     "qrcode.react": "^3.1.0",
     "react": "^17.0.2",
