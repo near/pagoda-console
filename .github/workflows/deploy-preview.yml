@@ -56,9 +56,6 @@ jobs:
       VERCEL_ORG: near
       VERCEL_TEAM_ID: team_0XCkE3xOywBTMmd6s7bqJQot
       GIT_REPO: pagoda-console
-      BRANCH_NAME: ${GITHUB_HEAD_REF}
-      VERCEL_AUTH_TOKEN: ${{ secrets.VERCEL_AUTH_TOKEN }}
-
     steps:
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v2
@@ -80,6 +77,11 @@ jobs:
 
       - name: "Terraform init"
         run: terraform init -input=false
+
+      - name: "Set Vercel env"
+        run: |
+          echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
+          echo "VERCEL_AUTH_TOKEN=${{ secrets.VERCEL_AUTH_TOKEN }}" >> $GITHUB_ENV
 
       - name: Terraform Plan
         run: |
