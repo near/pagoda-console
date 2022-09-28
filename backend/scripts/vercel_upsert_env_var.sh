@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Redeploy an existing branch deployment in Vercel. Prints/outputs the branch's URL.
+# Creates or updates an environment variable for a specific branch.
 
 if [ -z "$VERCEL_TEAM_ID" ]
 then
