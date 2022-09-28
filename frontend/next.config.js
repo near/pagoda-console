@@ -7,7 +7,7 @@ const moduleExports = {
     hideSourceMaps: false, // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#use-hidden-source-map
   },
   experimental: { esmExternals: true },
-  reactStrictMode: true,
+  reactStrictMode: false, // Temporarily disabling strict mode until we can audit all useEffect() usage
   webpack(config, options) {
     config.module.rules.push({
       test: /\.svg$/,
