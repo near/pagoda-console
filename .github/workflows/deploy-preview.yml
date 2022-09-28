@@ -96,12 +96,12 @@ jobs:
             -var "api_service_account=${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}"
 
       - name: Terraform Apply
-        run: terraform apply -input=false tfplan.out
+        run: |
+          terraform apply -input=false tfplan.out
+          echo "API_BASE_URL=$(terraform output -raw api_public_url)" >> $GITHUB_ENV
 
       - name: Vercel deploy with API URL
         run: |
-          export API_BASE_URL=$(terraform output -raw api_public_url)
-
           # Set an env var for this branch's preview environment
           ../scripts/vercel_upsert_env_var.sh NEXT_PUBLIC_API_BASE_URL $API_BASE_URL
 
