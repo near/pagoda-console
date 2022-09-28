@@ -23,6 +23,7 @@ import { SimpleLayout } from '@/components/layouts/SimpleLayout';
 import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
 import { Toaster } from '@/components/lib/Toast';
 import { usePageTracker } from '@/hooks/page-tracker';
+import { useSelectedProjectRouteParamSync } from '@/hooks/selected-project';
 import { useAccount } from '@/hooks/user';
 import { DowntimeMode } from '@/modules/core/components/DowntimeMode';
 import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
@@ -50,6 +51,7 @@ const unauthedPaths = [
 ];
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  useSelectedProjectRouteParamSync();
   usePageTracker();
   const router = useRouter();
   const { user } = useAccount();
