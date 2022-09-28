@@ -62,15 +62,19 @@ jobs:
       - name: "Set namespace"
         run: echo "PREVIEW_NAMESPACE=${{ needs.namespace.outputs.namespace }}" >> $GITHUB_ENV
 
+      - name: "Set Terraform workspace"
+        run: echo "TF_WORKSPACE=preview-$PREVIEW_NAMESPACE" >> $GITHUB_ENV
+
+      - name: "Terraform init"
+        run: terraform init -input=false
+
       - name: Terraform Destroy
         run: |
-          export TF_WORKSPACE=preview-$PREVIEW_NAMESPACE
-          terraform init -input=false
-          terraform destroy -input=false -var-file ./env/preview.tfvars \
+          terraform destroy -input=false -auto-approve -var-file ./env/preview.tfvars \
             -var "namespace=${PREVIEW_NAMESPACE}" \
             -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
             -var "api_image=${{needs.docker-build-and-push.outputs.image}}" \
-            -var "frontend_base_url=destroy" \
+            -var "frontend_base_url=dontcare" \
             -var "api_service_account=${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}"
 
           # TODO make sure this deletes the TF state file from GCP bucket.
