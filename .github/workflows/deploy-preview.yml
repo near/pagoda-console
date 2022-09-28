@@ -58,7 +58,14 @@ jobs:
       GIT_REPO: pagoda-console
     steps:
       - uses: actions/checkout@v2
-      - uses: hashicorp/setup-terraform@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          #* This allows us to use terraform output as one would expect to run it on their local machine.
+          # https://github.com/hashicorp/setup-terraform/issues/20#issuecomment-679424701
+          # We can re-enable it if needed in the future but `terraform output` commands will need to be reworked.
+          terraform_wrapper: false
 
       # Setup auth: https://github.com/google-github-actions/setup-gcloud#service-account-key-json
       - id: "auth"
