@@ -73,7 +73,7 @@ jobs:
   terraform-preview-environment:
     timeout-minutes: 15
     runs-on: ubuntu-latest
-    needs: [namespace, docker-build-and-push]
+    needs: [namespace] #, docker-build-and-push]
     defaults:
       run:
         working-directory: backend/terraform
