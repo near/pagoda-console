@@ -387,10 +387,8 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
         <Form.FloatingLabelInput
           type={fieldType}
           label={`${param.name}: ${inputTy}`}
-          isInvalid={!!form.formState.errors?.name}
           {...form.register(`${param.name}`)}
         />
-        <Form.Feedback>{form.formState.errors.name?.message}</Form.Feedback>
       </Form.Group>
     );
   };

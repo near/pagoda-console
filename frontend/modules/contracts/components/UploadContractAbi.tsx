@@ -1,3 +1,4 @@
+import type { ChangeEvent } from 'react';
 import { useCallback, useState } from 'react';
 
 import { Button, ButtonLabel, ButtonLink } from '@/components/lib/Button';
@@ -49,10 +50,10 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
     }
   }
 
-  const handleUpload = useCallback((e) => {
+  const handleUpload = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const fileReader = new FileReader();
 
-    if (!e.target.files[0]) {
+    if (!e.target.files?.[0]) {
       return null;
     }
 
