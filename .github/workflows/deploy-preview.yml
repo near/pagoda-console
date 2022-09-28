@@ -101,14 +101,6 @@ jobs:
       - name: "Set namespace"
         run: echo "PREVIEW_NAMESPACE=${{ needs.namespace.outputs.namespace }}" >> $GITHUB_ENV
 
-      - name: Terraform Workspace
-        run: |
-          terraform workspace new preview-$PREVIEW_NAMESPACE
-          terraform workspace select preview-$PREVIEW_NAMESPACE
-
-      - name: Terraform Init
-        run: terraform init -input=false
-
       - name: Terraform Apply
         run: |
           # TODO move this step to the beginning and set DOWNTIME_MODE=maintenance so it's clear that the preview env is being updated with a new backend and db.
@@ -116,6 +108,8 @@ jobs:
 
           echo FRONTEND_BASE_URL $FRONTEND_BASE_URL
 
+          export TF_WORKSPACE=preview-$PREVIEW_NAMESPACE
+          terraform init -input=false
           terraform apply -input=false -var-file ./env/preview.tfvars \
             -var "namespace=${PREVIEW_NAMESPACE}" \
             -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
