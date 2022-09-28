@@ -20,8 +20,7 @@ provider "null" {}
 provider "google" {
   project = var.project_id
   region  = var.region
-  # TODO enable to have the same zone as current sql instances
-  # zone    = "us-east1-b"
+  zone    = "us-east1-b"
 }
 
 locals {
