@@ -3,35 +3,7 @@ on:
   pull_request:
     types: [closed]
     branches: [develop]
-defaults:
-  run:
-    working-directory: backend
 jobs:
-  namespace:
-    timeout-minutes: 1
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./
-    outputs:
-      namespace: ${{ steps.namespace.outputs.namespace }}
-    steps:
-      - id: "namespace"
-        name: "Build namespace from Git branch name"
-        run: |
-          echo GITHUB_REF $GITHUB_REF 
-          echo GITHUB_HEAD_REF $GITHUB_HEAD_REF
-
-          # PREVIEW_NAMESPACE is intended to be small and unique and is composed of:
-          # The first 10 chars in the github branch name after the last '/' followed by
-          # the first 5 chars in the sha256 of the whole branch name.
-          export BRANCH_NAME=$(echo -n ${GITHUB_HEAD_REF##*/} | cut -c -10)
-          export BRANCH_SHA=$(echo -n $GITHUB_HEAD_REF | sha256sum | cut -c -5)
-          export PREVIEW_NAMESPACE="${BRANCH_NAME}-${BRANCH_SHA}"
-          echo PREVIEW_NAMESPACE $PREVIEW_NAMESPACE
-
-          echo "::set-output name=namespace::$PREVIEW_NAMESPACE"
-
   destroy-preview-environment:
     timeout-minutes: 15
     runs-on: ubuntu-latest
@@ -60,7 +32,7 @@ jobs:
         uses: "google-github-actions/setup-gcloud@v0"
 
       - name: "Set namespace"
-        run: echo "PREVIEW_NAMESPACE=${{ needs.namespace.outputs.namespace }}" >> $GITHUB_ENV
+        run: echo "PREVIEW_NAMESPACE=$(../scripts/preview_namespace.sh)" >> $GITHUB_ENV
 
       - name: "Set Terraform workspace"
         run: echo "TF_WORKSPACE=preview-$PREVIEW_NAMESPACE" >> $GITHUB_ENV
