@@ -82,4 +82,4 @@ jobs:
           terraform workspace select default
           terraform workspace delete $TF_WORKSPACE
 
-      # TODO do we need to destroy any GCP or Vercel secrets?
+          ../scripts/vercel_delete_env_var.sh NEXT_PUBLIC_API_BASE_URL
