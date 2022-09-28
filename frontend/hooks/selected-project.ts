@@ -126,8 +126,7 @@ export function useSelectedProjectSync(
 }
 
 export function useSelectedProjectRouteParamSync() {
-  const { selectEnvironment, selectProject } = useSelectedProject();
-  const { settingsInitialized } = useSettingsStoreForUser();
+  const { settingsInitialized, updateSettings, updateProjectSettings } = useSettingsStoreForUser();
   const projectSlugRouteParam = useRouteParam('project');
   const environmentSubIdRouteParam = useRouteParam('environment');
   const hasSelected = useRef(false);
@@ -138,11 +137,15 @@ export function useSelectedProjectRouteParamSync() {
     if (!settingsInitialized || hasSelected.current) return;
 
     if (projectSlugRouteParam) {
-      selectProject(projectSlugRouteParam);
+      updateSettings({
+        selectedProjectSlug: projectSlugRouteParam,
+      });
     }
 
     if (environmentSubIdRouteParam) {
-      selectEnvironment(parseInt(environmentSubIdRouteParam));
+      updateProjectSettings({
+        selectedEnvironmentSubId: parseInt(environmentSubIdRouteParam),
+      });
     }
 
     if (projectSlugRouteParam || environmentSubIdRouteParam) {
@@ -154,8 +157,8 @@ export function useSelectedProjectRouteParamSync() {
     }
   }, [
     hasSelected,
-    selectEnvironment,
-    selectProject,
+    updateSettings,
+    updateProjectSettings,
     settingsInitialized,
     projectSlugRouteParam,
     environmentSubIdRouteParam,

@@ -56,10 +56,6 @@ export function useProject(projectSlug: string | undefined) {
   const router = useRouter();
   const identity = useIdentity();
 
-  useEffect(() => {
-    router.prefetch('/projects');
-  }, [router]);
-
   const { data: project, error } = useSWR<Project>(
     identity && projectSlug ? ['/projects/getDetails', projectSlug, identity.uid] : null,
     (key, projectSlug) => {
@@ -67,10 +63,18 @@ export function useProject(projectSlug: string | undefined) {
     },
   );
 
-  if ([400, 403].includes(error?.statusCode)) {
-    window.sessionStorage.setItem('redirected', 'true');
-    router.push('/projects');
-  }
+  useEffect(() => {
+    router.prefetch('/projects');
+  }, [router]);
+
+  useEffect(() => {
+    if (router.pathname !== '/projects') {
+      if ([400, 403].includes(error?.statusCode)) {
+        window.sessionStorage.setItem('redirected', 'true');
+        router.push('/projects');
+      }
+    }
+  }, [error, router]);
 
   return { project, error };
 }
