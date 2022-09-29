@@ -1,5 +1,5 @@
 import router from 'next/router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useSettingsStoreForUser } from '@/stores/settings';
 import type { Environment, Project } from '@/utils/types';
@@ -19,7 +19,7 @@ export function useSelectedProject(
   },
 ) {
   const projectSlugRouteParam = useRouteParam('project');
-  const environmentSubIdRouteParam = useRouteParam('environment');
+
   const [environment, setEnvironment] = useState<Environment>();
   const { projectSettings, settings, settingsInitialized, updateSettings, updateProjectSettings } =
     useSettingsStoreForUser();
@@ -68,26 +68,6 @@ export function useSelectedProject(
     const selectedEnvironmentSubId = projectSettings.selectedEnvironmentSubId || 1;
     setEnvironment(environments.find((e) => e.subId === selectedEnvironmentSubId) || environments[0]);
   }, [environments, projectSettings]);
-
-  // Overwrite selections via query params:
-
-  useEffect(() => {
-    if (!settingsInitialized) return;
-
-    if (projectSlugRouteParam) {
-      selectProject(projectSlugRouteParam);
-    }
-
-    if (environmentSubIdRouteParam) {
-      selectEnvironment(parseInt(environmentSubIdRouteParam));
-    }
-
-    if (projectSlugRouteParam || environmentSubIdRouteParam) {
-      router.replace(router.pathname, undefined, {
-        shallow: true,
-      });
-    }
-  }, [selectEnvironment, selectProject, settingsInitialized, projectSlugRouteParam, environmentSubIdRouteParam]);
 
   return {
     environment,
@@ -142,5 +122,45 @@ export function useSelectedProjectSync(
     selectProject,
     selectedEnvironmentSubId,
     selectedProjectSlug,
+  ]);
+}
+
+export function useSelectedProjectRouteParamSync() {
+  const { settingsInitialized, updateSettings, updateProjectSettings } = useSettingsStoreForUser();
+  const projectSlugRouteParam = useRouteParam('project');
+  const environmentSubIdRouteParam = useRouteParam('environment');
+  const hasSelected = useRef(false);
+
+  // Change selected project/environment via URL query param:
+
+  useEffect(() => {
+    if (!settingsInitialized || hasSelected.current) return;
+
+    if (projectSlugRouteParam) {
+      updateSettings({
+        selectedProjectSlug: projectSlugRouteParam,
+      });
+    }
+
+    if (environmentSubIdRouteParam) {
+      updateProjectSettings({
+        selectedEnvironmentSubId: parseInt(environmentSubIdRouteParam),
+      });
+    }
+
+    if (projectSlugRouteParam || environmentSubIdRouteParam) {
+      router.replace(router.pathname, undefined, {
+        shallow: true,
+      });
+
+      hasSelected.current = true;
+    }
+  }, [
+    hasSelected,
+    updateSettings,
+    updateProjectSettings,
+    settingsInitialized,
+    projectSlugRouteParam,
+    environmentSubIdRouteParam,
   ]);
 }

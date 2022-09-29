@@ -2224,7 +2224,7 @@ function DocSectionForm() {
                       />
                     </DropdownMenu.Trigger>
 
-                    <DropdownMenu.Content align="start">
+                    <DropdownMenu.Content width="trigger">
                       <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
                         {favoriteWeatherOptions.map((option) => (
                           <DropdownMenu.RadioItem
