@@ -41,6 +41,11 @@ type AppPropsWithLayout = AppProps & {
 initializeApp(config.firebaseConfig);
 analytics.init();
 
+if (typeof window !== 'undefined') {
+  FullStory.init({ orgId: 'o-1A5K4V-na1' });
+  if (config.gleapAuth) Gleap.initialize(config.gleapAuth);
+}
+
 const unauthedPaths = [
   '/',
   '/register',
@@ -66,10 +71,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   }, [initializeCurrentUserSettings, identity?.uid]);
 
   useEffect(() => {
-    FullStory.init({ orgId: 'o-1A5K4V-na1' });
-  }, []);
-
-  useEffect(() => {
     router.prefetch('/');
   }, [router]);
 
@@ -79,10 +80,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   useEffect(() => {
     initializeNaj();
-  }, []);
-
-  useEffect(() => {
-    if (config.gleapAuth) Gleap.initialize(config.gleapAuth);
   }, []);
 
   useEffect(() => {
