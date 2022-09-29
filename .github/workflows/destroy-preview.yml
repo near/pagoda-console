@@ -4,20 +4,12 @@ on:
     types: [closed]
     branches: [develop]
 jobs:
-  destroy-preview-environment:
+  destroy-terraform-environment:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: backend/terraform
-    env:
-      VERCEL_PROJECT_NAME: developer-console-framework-prod
-      VERCEL_ORG: near
-      VERCEL_TEAM_ID: team_0XCkE3xOywBTMmd6s7bqJQot
-      GIT_REPO: pagoda-console
-      BRANCH_NAME: ${GITHUB_HEAD_REF}
-      VERCEL_AUTH_TOKEN: ${{ secrets.VERCEL_AUTH_TOKEN }}
-
     steps:
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v2
@@ -38,7 +30,6 @@ jobs:
 
       - name: "Set Terraform workspace"
         run: |
-          terraform workspace new preview-$PREVIEW_NAMESPACE
           terraform workspace select preview-$PREVIEW_NAMESPACE
           terraform init -input=false
 
@@ -55,4 +46,23 @@ jobs:
           terraform workspace select default
           terraform workspace delete preview-$PREVIEW_NAMESPACE
 
-          ../scripts/vercel_delete_env_var.sh NEXT_PUBLIC_API_BASE_URL
+  cleanup-vercel-environment:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      VERCEL_PROJECT_NAME: developer-console-framework-prod
+      VERCEL_ORG: near
+      VERCEL_TEAM_ID: team_0XCkE3xOywBTMmd6s7bqJQot
+      GIT_REPO: pagoda-console
+      BRANCH_NAME: ${GITHUB_HEAD_REF}
+      VERCEL_AUTH_TOKEN: ${{ secrets.VERCEL_AUTH_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Delete environment variables
+        run: |
+          ./scripts/vercel_delete_env_var.sh NEXT_PUBLIC_API_BASE_URL
