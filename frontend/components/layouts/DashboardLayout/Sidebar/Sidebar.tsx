@@ -61,7 +61,7 @@ export function Sidebar({ children, ...props }: Props) {
 
   useEffect(() => {
     setSidebarCollapsed(localStorage.getItem('sidebarCollapsed') === 'true');
-  }, [setSidebarCollapsed]);
+  }, []);
 
   function isLinkSelected(page: SidebarEntry): boolean {
     const matchesPattern = page.routeMatchPattern ? router.pathname.startsWith(page.routeMatchPattern) : false;
