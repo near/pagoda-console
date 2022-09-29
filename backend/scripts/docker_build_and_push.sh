@@ -2,10 +2,21 @@
 
 if [ -z "$1" ]
 then
-    echo "usage: ./docker_build_and_push.sh <dev|latest>";
+    echo "usage: ./docker_build_and_push.sh <dev|latest|branch_name> <optional: gcp project id>";
     exit 1;
 fi;
 
+# TODO use $PROJECT_ID 
+PROJECT_ID="$2"
+if [ -z "$2" ]
+then
+    PROJECT_ID="near-dev-platform"
+fi;
+
+TAG="gcr.io/$PROJECT_ID/developer-console-api:$1"
+
+echo "Docker tag: $TAG"
+
 # Build and push the docker container
-docker build -t gcr.io/near-dev-platform/developer-console-api:$1 .
-docker push gcr.io/near-dev-platform/developer-console-api:$1
+docker build -t "$TAG" .
+docker push "$TAG"

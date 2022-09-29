@@ -47,3 +47,9 @@ ignore
 
 # prisma for modules
 generated
+
+# terraform
+*.out
+.terraform
+*.tfstate
+*.tfstate.backup

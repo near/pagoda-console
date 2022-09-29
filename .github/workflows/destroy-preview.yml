@@ -1,0 +1,79 @@
+name: Destroy a preview environment
+on:
+  pull_request:
+    types: [closed]
+    branches: [develop]
+jobs:
+  destroy-terraform-environment:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/terraform
+    steps:
+      - uses: actions/checkout@v2
+      - uses: hashicorp/setup-terraform@v2
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v0"
+
+      - name: "Set namespace"
+        run: echo "PREVIEW_NAMESPACE=$(../scripts/preview_namespace.sh)" >> $GITHUB_ENV
+
+      - name: "Terraform init"
+        run: terraform init -input=false
+
+      - name: "Set Terraform workspace"
+        run: |
+          terraform workspace select preview-$PREVIEW_NAMESPACE
+          terraform init -input=false
+
+      # Retrying is in place on terraform destroy because we need to drop Prisma databases before destroying the SQL instance.
+      # Dropping databases is an async operation and retrying might be better than waiting for an arbitrarily long time or writing another script.
+      - name: Terraform Destroy
+        uses: nick-fields/retry@v2.8.1
+        with:
+          max_attempts: 3
+          timeout_minutes: 10
+          command: |
+            cd ./backend/terraform
+            terraform destroy -input=false -auto-approve -var-file ./env/preview.tfvars \
+              -var "namespace=${PREVIEW_NAMESPACE}" \
+              -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
+              -var "api_image=${{needs.docker-build-and-push.outputs.image}}" \
+              -var "frontend_base_url=dontcare" \
+              -var "api_service_account=${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}"
+
+      - name: Delete Terraform Workspace
+        run: |
+          terraform workspace select default
+          terraform workspace delete preview-$PREVIEW_NAMESPACE
+
+  cleanup-vercel-environment:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      VERCEL_PROJECT_NAME: developer-console-framework-prod
+      VERCEL_ORG: near
+      VERCEL_TEAM_ID: team_0XCkE3xOywBTMmd6s7bqJQot
+      GIT_REPO: pagoda-console
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Set Vercel env"
+        run: |
+          echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
+          echo "VERCEL_AUTH_TOKEN=${{ secrets.VERCEL_AUTH_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Delete environment variables
+        run: |
+          ./scripts/vercel_delete_env_var.sh NEXT_PUBLIC_API_BASE_URL
