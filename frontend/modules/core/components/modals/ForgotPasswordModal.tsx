@@ -23,7 +23,7 @@ interface Props {
 }
 
 const ModalContent = ({ setShow }: Props) => {
-  const { register, handleSubmit, formState, setError, getValues } = useForm<ForgotPasswordFormData>();
+  const { register, handleSubmit, formState, setError } = useForm<ForgotPasswordFormData>();
   const [hasSent, setHasSent] = useState(false);
 
   const sendPasswordReset: SubmitHandler<ForgotPasswordFormData> = async ({ email }) => {
@@ -50,9 +50,8 @@ const ModalContent = ({ setShow }: Props) => {
           });
           break;
         case 'auth/user-not-found':
-          setError('email', {
-            message: 'User not found',
-          });
+          // No error shown for this case
+          setHasSent(true);
           break;
         default:
           setError('email', {
@@ -70,10 +69,7 @@ const ModalContent = ({ setShow }: Props) => {
           <FeatherIcon icon="check-circle" color="success" size="l" />
 
           <Text>
-            A reset email has been sent to your address:{' '}
-            <Text as="span" color="text1">
-              {getValues('email')}
-            </Text>
+            If an account is associated to this email, you will receive an email with a link to reset your password.
           </Text>
 
           <Button onClick={() => setShow(false)}>Okay</Button>
