@@ -4,7 +4,7 @@ name: Deploy a preview environment
 on:
   #* This workflow expects to be ran on pull requests only. Push and other triggers may not result in a successful run.
   pull_request:
-    branches: [develop]
+    branches: [develop, test-preview-deploy]
 defaults:
   run:
     working-directory: backend
