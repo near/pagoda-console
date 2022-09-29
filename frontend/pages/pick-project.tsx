@@ -61,7 +61,7 @@ const PickProject: NextPageWithLayout = () => {
           {!isOnboarding && (
             <Link href="/projects" passHref>
               <TextLink>
-                <FeatherIcon icon="arrow-left" /> Projects
+                <FeatherIcon icon="arrow-left" /> Jon Test Projects
               </TextLink>
             </Link>
           )}
