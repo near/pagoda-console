@@ -62,7 +62,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   useEffect(() => {
     if (identity?.uid) {
-      console.log(identity.uid);
       initializeCurrentUserSettings(identity.uid);
     }
   }, [initializeCurrentUserSettings, identity?.uid]);
