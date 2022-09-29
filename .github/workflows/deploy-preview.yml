@@ -79,11 +79,14 @@ jobs:
       - name: "Set namespace"
         run: echo "PREVIEW_NAMESPACE=$(../scripts/preview_namespace.sh)" >> $GITHUB_ENV
 
-      - name: "Set Terraform workspace"
-        run: echo "TF_WORKSPACE=preview-$PREVIEW_NAMESPACE" >> $GITHUB_ENV
-
       - name: "Terraform init"
         run: terraform init -input=false
+
+      - name: "Set Terraform workspace"
+        run: |
+          terraform workspace new preview-$PREVIEW_NAMESPACE
+          terraform workspace select preview-$PREVIEW_NAMESPACE
+          terraform init -input=false
 
       - name: "Set Vercel env"
         run: |

@@ -33,14 +33,14 @@ jobs:
       - name: "Set namespace"
         run: echo "PREVIEW_NAMESPACE=$(../scripts/preview_namespace.sh)" >> $GITHUB_ENV
 
-      - name: "Set Terraform workspace"
-        run: |
-          terraform init -input=false
-          terraform workspace new preview-$PREVIEW_NAMESPACE
-          terraform workspace select preview-$PREVIEW_NAMESPACE
-
       - name: "Terraform init"
         run: terraform init -input=false
+
+      - name: "Set Terraform workspace"
+        run: |
+          terraform workspace new preview-$PREVIEW_NAMESPACE
+          terraform workspace select preview-$PREVIEW_NAMESPACE
+          terraform init -input=false
 
       - name: Terraform Destroy
         run: |
@@ -54,6 +54,6 @@ jobs:
           # TODO make sure this deletes the TF state file from GCP bucket.
           # Delete this unneeded workspace
           terraform workspace select default
-          terraform workspace delete $TF_WORKSPACE
+          terraform workspace delete preview-$PREVIEW_NAMESPACE
 
           ../scripts/vercel_delete_env_var.sh NEXT_PUBLIC_API_BASE_URL
