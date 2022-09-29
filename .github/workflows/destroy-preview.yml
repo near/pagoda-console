@@ -34,7 +34,10 @@ jobs:
         run: echo "PREVIEW_NAMESPACE=$(../scripts/preview_namespace.sh)" >> $GITHUB_ENV
 
       - name: "Set Terraform workspace"
-        run: echo "TF_WORKSPACE=preview-$PREVIEW_NAMESPACE" >> $GITHUB_ENV
+        run: |
+          terraform init -input=false
+          terraform workspace new preview-$PREVIEW_NAMESPACE
+          terraform workspace select preview-$PREVIEW_NAMESPACE
 
       - name: "Terraform init"
         run: terraform init -input=false
