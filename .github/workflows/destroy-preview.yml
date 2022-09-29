@@ -39,6 +39,7 @@ jobs:
         uses: nick-fields/retry@v2.8.1
         with:
           max_attempts: 3
+          timeout_minutes: 10 
           command: |
             terraform destroy -input=false -auto-approve -var-file ./env/preview.tfvars \
               -var "namespace=${PREVIEW_NAMESPACE}" \
