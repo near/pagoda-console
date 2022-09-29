@@ -56,10 +56,12 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, sid
   }
 
   return (
-    <S.Content onAnimationStart={(e) => calculateWidth(e.currentTarget)} ref={ref} sideOffset={sideOffset} {...props}>
-      <S.ContentInner>{children}</S.ContentInner>
-      <S.Arrow offset={16} />
-    </S.Content>
+    <PopoverPrimitive.Portal>
+      <S.Content onAnimationStart={(e) => calculateWidth(e.currentTarget)} ref={ref} sideOffset={sideOffset} {...props}>
+        <S.ContentInner>{children}</S.ContentInner>
+        <S.Arrow offset={16} />
+      </S.Content>
+    </PopoverPrimitive.Portal>
   );
 });
 Content.displayName = 'Content';

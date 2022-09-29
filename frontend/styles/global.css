@@ -45,3 +45,9 @@ pre {
 .gleap-frame-container {
   bottom: 80px !important;
 }
+
+/* Radix overrides: */
+
+[data-radix-popper-content-wrapper] {
+  z-index: 1000 !important;
+}

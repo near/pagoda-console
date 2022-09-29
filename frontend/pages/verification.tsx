@@ -12,6 +12,7 @@ import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { logOut } from '@/utils/auth';
 import { signInRedirectHandler } from '@/utils/helpers';
+import { authenticatedPost } from '@/utils/http';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Verification: NextPageWithLayout = () => {
@@ -22,6 +23,18 @@ const Verification: NextPageWithLayout = () => {
   useEffect(() => {
     router.prefetch('/pick-project');
   }, [router]);
+
+  // send off a trivial request to make sure this user is initialized in DB
+  useEffect(() => {
+    initAccount();
+  }, []);
+  async function initAccount() {
+    try {
+      await authenticatedPost('/users/getAccountDetails');
+    } catch (e) {
+      // silently fail
+    }
+  }
 
   useEffect(() => {
     queueVerificationCheck(); // only run once since it will re-queue itself

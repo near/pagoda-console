@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import firebaseAdmin from 'firebase-admin';
 import { User } from '../../../generated/prisma/core';
+import { Request } from 'express';
 
 type UserDetails = User & { name?: string; picture?: string };
 
@@ -9,14 +10,15 @@ type UserDetails = User & { name?: string; picture?: string };
 export class AuthService {
   constructor(private usersService: UsersService) {}
 
-  async validateUser(token: string): Promise<UserDetails> {
+  async validateUser(req: Request, token: string): Promise<UserDetails> {
     try {
       const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
 
       // reject users who have not completed email verification
       if (
         decodedToken.firebase.sign_in_provider === 'password' &&
-        !decodedToken.email_verified
+        !decodedToken.email_verified &&
+        req.path !== '/users/getAccountDetails'
       ) {
         return null;
       }
