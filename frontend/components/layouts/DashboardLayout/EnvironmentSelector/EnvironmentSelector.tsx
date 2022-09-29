@@ -1,6 +1,6 @@
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { SubnetIcon } from '@/components/lib/SubnetIcon';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
 import type { Environment } from '@/utils/types';
 
@@ -9,18 +9,21 @@ interface Props {
 }
 
 export function EnvironmentSelector(props: Props) {
-  const { environment, environments, selectEnvironment } = useSelectedProject();
+  const { environment, environments, project } = useSelectedProject({ enforceSelectedProject: false });
+  const { selectEnvironment } = useProjectSelector();
 
   function onSelectEnvironment(environment: Environment) {
+    if (!project) return;
+
     if (props.onBeforeChange) {
       props.onBeforeChange(() => {
-        selectEnvironment(environment.subId);
+        selectEnvironment(project.slug, environment.subId);
         analytics.track('DC Switch Network');
       });
       return;
     }
 
-    selectEnvironment(environment.subId);
+    selectEnvironment(project.slug, environment.subId);
     analytics.track('DC Switch Network', {
       status: 'success',
       net: environment.net,
