@@ -41,6 +41,7 @@ jobs:
           max_attempts: 3
           timeout_minutes: 10 
           command: |
+            cd ./backend/terraform
             terraform destroy -input=false -auto-approve -var-file ./env/preview.tfvars \
               -var "namespace=${PREVIEW_NAMESPACE}" \
               -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
