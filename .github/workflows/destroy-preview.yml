@@ -33,18 +33,23 @@ jobs:
           terraform workspace select preview-$PREVIEW_NAMESPACE
           terraform init -input=false
 
+      # Retrying is in place on terraform destroy because we need to drop Prisma databases before destroying the SQL instance.
+      # Dropping databases is an async operation and retrying might be better than waiting for an arbitrarily long time or writing another script.
       - name: Terraform Destroy
-        run: |
-          terraform destroy -input=false -auto-approve -var-file ./env/preview.tfvars \
-            -var "namespace=${PREVIEW_NAMESPACE}" \
-            -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
-            -var "api_image=${{needs.docker-build-and-push.outputs.image}}" \
-            -var "frontend_base_url=dontcare" \
-            -var "api_service_account=${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}"
+        uses: nick-fields/retry@v2.8.1
+        with:
+          max_attempts: 3
+          command: |
+            terraform destroy -input=false -auto-approve -var-file ./env/preview.tfvars \
+              -var "namespace=${PREVIEW_NAMESPACE}" \
+              -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
+              -var "api_image=${{needs.docker-build-and-push.outputs.image}}" \
+              -var "frontend_base_url=dontcare" \
+              -var "api_service_account=${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}"
 
-          # Delete this unneeded workspace
-          terraform workspace select default
-          terraform workspace delete preview-$PREVIEW_NAMESPACE
+            # Delete this unneeded workspace
+            terraform workspace select default
+            terraform workspace delete preview-$PREVIEW_NAMESPACE
 
   cleanup-vercel-environment:
     timeout-minutes: 5
