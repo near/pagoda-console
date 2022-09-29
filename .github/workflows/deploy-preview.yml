@@ -1,10 +1,14 @@
-# TODO this workflow only needs to run when the PR is initially opened or the backend/ changes.
+# TODO this workflow only needs to run when the PR is initially opened or the backend folder changes.
 # Frontend changes will automatically deploy via the vercel git integration.
 name: Deploy a preview environment
 on:
   #* This workflow expects to be ran on pull requests only. Push and other triggers may not result in a successful run.
   pull_request:
     branches: [develop]
+    # We only need to deploy a custom preview backend if there are backend changes.
+    # Otherwise, a preview environment will point to the dev backend.
+    paths:
+      - "backend/**"
 defaults:
   run:
     working-directory: backend
@@ -95,7 +99,8 @@ jobs:
 
       - name: Terraform Plan
         run: |
-          # TODO we could move this redeploy and fetch FE url to the beginning and set DOWNTIME_MODE=maintenance so it's clear that the preview env is being updated with a new backend and db.
+          # We could move this redeploy and fetch FE url to the beginning and set DOWNTIME_MODE=maintenance so it's clear that the preview env is being updated with a new backend and db.
+          # Performing a redeploy isn't necessary here but it's a quick and dirty way for us to get the branch preview url without building it ourselves: https://vercel.com/docs/concepts/deployments/generated-urls#url-with-git-branch
           export FRONTEND_BASE_URL=https://$(../scripts/vercel_redeploy.sh)
 
           terraform plan -input=false -out=tfplan.out -var-file ./env/preview.tfvars \
