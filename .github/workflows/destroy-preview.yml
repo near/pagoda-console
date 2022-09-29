@@ -39,7 +39,7 @@ jobs:
         uses: nick-fields/retry@v2.8.1
         with:
           max_attempts: 3
-          timeout_minutes: 10 
+          timeout_minutes: 10
           command: |
             cd ./backend/terraform
             terraform destroy -input=false -auto-approve -var-file ./env/preview.tfvars \
@@ -49,9 +49,10 @@ jobs:
               -var "frontend_base_url=dontcare" \
               -var "api_service_account=${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}"
 
-            # Delete this unneeded workspace
-            terraform workspace select default
-            terraform workspace delete preview-$PREVIEW_NAMESPACE
+      - name: Delete Terraform Workspace
+        run: |
+          terraform workspace select default
+          terraform workspace delete preview-$PREVIEW_NAMESPACE
 
   cleanup-vercel-environment:
     timeout-minutes: 5
