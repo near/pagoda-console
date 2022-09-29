@@ -84,7 +84,7 @@ jobs:
 
       - name: "Set Terraform workspace"
         run: |
-          terraform workspace new preview-$PREVIEW_NAMESPACE
+          terraform workspace new preview-$PREVIEW_NAMESPACE || true
           terraform workspace select preview-$PREVIEW_NAMESPACE
           terraform init -input=false
 
