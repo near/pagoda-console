@@ -1,6 +1,6 @@
 import { getAuth, sendEmailVerification } from 'firebase/auth';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
@@ -19,6 +19,7 @@ const Verification: NextPageWithLayout = () => {
   const router = useRouter();
   const [hasResent, setHasResent] = useState(false);
   const existing = useRouteParam('existing') === 'true';
+  const hasCalledInitAccount = useRef(false);
 
   useEffect(() => {
     router.prefetch('/pick-project');
@@ -26,7 +27,10 @@ const Verification: NextPageWithLayout = () => {
 
   // send off a trivial request to make sure this user is initialized in DB
   useEffect(() => {
-    initAccount();
+    if (!hasCalledInitAccount.current) {
+      initAccount();
+      hasCalledInitAccount.current = true;
+    }
   }, []);
   async function initAccount() {
     try {
@@ -37,11 +41,15 @@ const Verification: NextPageWithLayout = () => {
   }
 
   useEffect(() => {
-    queueVerificationCheck(); // only run once since it will re-queue itself
+    const timer = queueVerificationCheck(); // only run once since it will re-queue itself
+
+    return () => {
+      clearTimeout(timer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function queueVerificationCheck() {
+  function queueVerificationCheck() {
     return setTimeout(async () => {
       await getAuth().currentUser?.reload();
       if (getAuth().currentUser?.emailVerified) {
