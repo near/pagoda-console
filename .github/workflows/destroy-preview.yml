@@ -2,7 +2,7 @@ name: Destroy a preview environment
 on:
   pull_request:
     types: [closed]
-    branches: [develop]
+    branches: [develop, feat/preview-deployments]
 jobs:
   destroy-terraform-environment:
     timeout-minutes: 15

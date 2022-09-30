@@ -3,7 +3,7 @@ name: Deploy a preview environment
 on:
   #* This workflow expects to be ran on pull requests only. Push and other triggers may not result in a successful run.
   pull_request:
-    branches: [develop]
+    branches: [develop, feat/preview-deployments]
     # We only need to deploy a custom preview backend if there are backend changes.
     # Otherwise, a preview environment will point to the dev backend.
     paths:
