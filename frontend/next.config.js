@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { i18n } = require('./next-i18next.config');
 const { withSentryConfig } = require('@sentry/nextjs');
 
@@ -32,7 +33,7 @@ const moduleExports = {
     return config;
   },
   i18n,
-  swcMinify: false,
+  swcMinify: true,
   /*
     NOTE: "swcMinify: true" was throwing an error when running "npm run build" due to the "@near-wallet-selector" package
     used in useWalletSelector() "hooks/wallet-selector.ts"
