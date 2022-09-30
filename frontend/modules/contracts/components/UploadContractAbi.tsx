@@ -11,8 +11,10 @@ import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { uploadContractAbi } from '@/modules/contracts/hooks/abi';
+import { FileUploader } from 'react-drag-drop-files';
 
 const MAX_CODE_HEIGHT = '18rem';
+const FILE_TYPES = ["JSON"];
 
 type Props = {
   contractSlug: string;
@@ -155,11 +157,13 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
             To generate an ABI
           </TextLink>
 
-          <ButtonLabel color="primaryBorder" size="s">
+          {/* <ButtonLabel color="primaryBorder" size="s">
             <FeatherIcon size="xs" icon="upload" />
             Upload
             <Form.Input type="file" onChange={handleUpload} file tabIndex={-1} accept="application/JSON" />
-          </ButtonLabel>
+          </ButtonLabel> */}
+
+          <FileUploader handleChange={loadFilePreview} name="file" types={FILE_TYPES} />
         </Flex>
 
         <CodeBlock css={{ maxHeight: MAX_CODE_HEIGHT }} onPaste={handlePaste} language="json">
