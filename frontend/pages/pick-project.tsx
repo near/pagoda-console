@@ -69,12 +69,9 @@ const PickProject: NextPageWithLayout = () => {
           <H1>New Project</H1>
 
           {isOnboarding ? (
-            <Text css={{ maxWidth: '600px', marginBottom: 'var(--space-l)' }}>
-              One last thing! Before we let you loose on the Developer Console, you’ll need to create a blank project or
-              get some guidance with a tutorial. Projects contain API keys and any smart contracts you wish to track.
-            </Text>
+            <Text css={{ maxWidth: '600px', marginBottom: 'var(--space-l)' }}>One last thing! Hello, world.</Text>
           ) : (
-            <Text>Start with a blank project or get some guidance with a tutorial.</Text>
+            <Text>Hello World.</Text>
           )}
         </Flex>
 
