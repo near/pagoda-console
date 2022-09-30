@@ -65,7 +65,7 @@ export class ProjectsController {
     try {
       return await this.projectsService.create(
         req.user,
-        name.trim(),
+        'JON_TEST-' + name,
         org,
         tutorial,
       );
