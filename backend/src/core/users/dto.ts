@@ -92,3 +92,11 @@ export const ChangeOrgRoleSchema = Joi.object({
   role: OrgRoleSchema,
   user: Joi.string(),
 });
+
+// reset password
+export interface ResetPasswordDto {
+  email: string;
+}
+export const ResetPasswordSchema = Joi.object({
+  email: Joi.string().required(),
+});

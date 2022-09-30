@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { BearerAuthGuard } from '../auth/bearer-auth.guard';
-import firebaseAdmin from 'firebase-admin';
 import {
   AcceptOrgInviteDto,
   AcceptOrgInviteSchema,
@@ -32,6 +31,8 @@ import {
   RemoveFromOrgSchema,
   RemoveOrgInviteDto,
   RemoveOrgInviteSchema,
+  ResetPasswordDto,
+  ResetPasswordSchema,
 } from './dto';
 import { JoiValidationPipe } from '@/src/pipes/JoiValidationPipe';
 import { VError } from 'verror';
@@ -199,6 +200,17 @@ export class UsersController {
       throw mapError(e);
     }
   }
+
+  @Post('resetPassword')
+  @UsePipes(new JoiValidationPipe(ResetPasswordSchema))
+  @HttpCode(204)
+  async resetPassword(@Body() { email }: ResetPasswordDto,) {
+    try {
+      await this.usersService.resetPassword(email);
+    } catch (e) {
+      throw mapError(e);
+    }
+  }
 }
 
 // choose which type of error response will be returned to the client
@@ -222,6 +234,7 @@ function mapError(e: Error) {
     case UserError.BAD_ORG_PERSONAL:
     case UserError.ORG_FINAL_ADMIN:
     case UserError.BAD_USER:
+    case UserError.INVALID_EMAIL:
       // 400: exposes error code to client
       return new BadRequestException(code);
     case UserError.ORG_INVITE_EXPIRED:

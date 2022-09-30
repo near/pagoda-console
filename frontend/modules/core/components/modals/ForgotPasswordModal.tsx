@@ -1,4 +1,3 @@
-import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 import { useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
@@ -10,6 +9,7 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
+import { resetPassword } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 
@@ -28,8 +28,7 @@ const ModalContent = ({ setShow }: Props) => {
 
   const sendPasswordReset: SubmitHandler<ForgotPasswordFormData> = async ({ email }) => {
     try {
-      const auth = getAuth();
-      await sendPasswordResetEmail(auth, email);
+      await resetPassword(email);
       analytics.track('DC Forgot Password', {
         status: 'success',
       });
@@ -43,15 +42,10 @@ const ModalContent = ({ setShow }: Props) => {
       });
 
       switch (e.code) {
-        case 'auth/missing-email':
-        case 'auth/invalid-email':
+        case 400:
           setError('email', {
             message: 'Please enter a valid email address',
           });
-          break;
-        case 'auth/user-not-found':
-          // No error shown for this case
-          setHasSent(true);
           break;
         default:
           setError('email', {
