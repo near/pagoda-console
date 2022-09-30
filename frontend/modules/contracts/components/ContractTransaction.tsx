@@ -32,6 +32,8 @@ import WalletIcon from '@/public/images/icons/wallet.svg';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
 import { convertNearToYocto } from '@/utils/convert-near';
+import { numberInputHandler } from '@/utils/input-handlers';
+import { sanitizeNumber } from '@/utils/sanitize-number';
 import type { Contract } from '@/utils/types';
 import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
@@ -74,6 +76,29 @@ const FormWrapper = styled(Box, {
       },
     },
   },
+});
+const UseMaxButton = styled(Button, {
+  textTransform: 'uppercase',
+  position: 'absolute',
+  right: 0,
+  top: 0,
+  color: 'var(--color-primary) !important',
+  fontSize: 'var(--font-size-body-small) !important',
+
+  '&:hover': {
+    background: 'transparent !important',
+  },
+  '&:focus': {
+    outline: 'none'
+  },
+
+  variants: {
+    hidden: {
+      true: {
+        visibility: 'hidden',
+      }
+    }
+  }
 });
 
 interface Props {
@@ -205,6 +230,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
 
   const nearFormat = form.watch('nearFormat');
   const gasFormat = form.watch('gasFormat');
+  const gas = form.watch('gas');
   const abi = contractMethods?.abi;
   const functionItems = abi?.body.functions;
   const selectedFunctionName = form.watch('contractFunction');
@@ -465,19 +491,34 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                     label="Gas:"
                     isInvalid={!!form.formState.errors.gas}
                     defaultValue="10"
+                    onInput={(event) => {
+                      numberInputHandler(event, { allowComma: false, allowDecimal: false, allowNegative: false });
+                    }}
                     {...form.register(`gas`, {
+                      setValueAs: (value) => sanitizeNumber(value),
                       validate: {
                         minValue: (value: string) =>
                           JSBI.greaterThan(JSBI.BigInt(value), JSBI.BigInt(0)) ||
                           'Value must be greater than 0. Try using 10 Tgas',
                         maxValue: (value: string) =>
-                          JSBI.lessThan(convertGas(value), JSBI.BigInt(gasUtils.convertGasToTgas('300'))) ||
+                          JSBI.lessThan(convertGas(value), JSBI.BigInt(gasUtils.convertGasToTgas('301'))) ||
                           'You can attach a maximum of 300 Tgas to a transaction',
                       },
                     })}
                   />
 
                   <Form.Feedback>{form.formState.errors.gas?.message}</Form.Feedback>
+
+                  <UseMaxButton
+                    color='transparent'
+                    onClick={() => {
+                      form.setValue('gas', '300');
+                      form.setValue('gasFormat', 'Tgas');
+                    }}
+                    hidden={Boolean(gas)}
+                  >
+                    Use Max
+                  </UseMaxButton>
                 </Form.Group>
 
                 <DropdownMenu.Root>
