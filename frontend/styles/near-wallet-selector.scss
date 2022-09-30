@@ -1,0 +1,41 @@
+@use './variables.css';
+@import '@near-wallet-selector/modal-ui/styles.css';
+
+#near-wallet-selector-modal {
+  .nws-modal-wrapper {
+    z-index: calc(var(--sidebar-z-index) + 1);
+
+    .nws-modal {
+      .nws-modal-body {
+        .alert-message {
+          button {
+            color: var(--color-success);
+          }
+        }
+
+        .wallet-not-installed-wrapper {
+          & > p {
+            margin: 25px 0;
+          }
+          .refresh-link {
+            color: var(--color-success);
+          }
+          .action-buttons {
+            .right-button {
+              border-color: var(--color-success);
+
+              &:hover {
+                background: var(--color-success);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+:root {
+  --wallet-selector-selected-wallet-bg: var(--color-success);
+  --wallet-selector-confirm-button-bg: var(--color-success);
+}
