@@ -6,6 +6,8 @@ import '@/styles/enhanced-api.scss';
 import '@/styles/near-wallet-selector.scss';
 
 import * as FullStory from '@fullstory/browser';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Gleap from 'gleap';
@@ -29,6 +31,7 @@ import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
 import config from '@/utils/config';
+import { defaultQueryFn } from '@/utils/http';
 import { hydrateAllStores } from '@/utils/hydrate-all-stores';
 import { customErrorRetry } from '@/utils/swr';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -53,7 +56,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   useSelectedProjectRouteParamSync();
   usePageTracker();
   const router = useRouter();
-  const { user } = useAccount();
+  const { data: user } = useAccount();
   const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
 
   useEffect(() => {
@@ -103,6 +106,9 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         onErrorRetry: customErrorRetry,
       }}
     >
+      {/* DO NOT MERGE: Adding QueryClientProvider does not seem to work here */}
+      {/* <QueryClientProvider client={queryClient} contextSharing={true}> */}
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       <Head>
         <title>Pagoda Developer Console</title>
         <meta
@@ -124,7 +130,25 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       ) : (
         getLayout(<Component {...pageProps} />)
       )}
+      {/* </QueryClientProvider> */}
     </SWRConfig>
+  );
+}
+
+// Set up react-query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: defaultQueryFn,
+    },
+  },
+});
+function QueryApp(appProps: AppPropsWithLayout) {
+  return (
+    <QueryClientProvider client={queryClient} contextSharing={true}>
+      <ReactQueryDevtools initialIsOpen={false} />
+      <MyApp {...appProps} />
+    </QueryClientProvider>
   );
 }
 
@@ -133,4 +157,4 @@ export default withLDProvider({
   reactOptions: {
     useCamelCaseFlagKeys: false,
   },
-})(appWithTranslation(MyApp) as ComponentType);
+})(appWithTranslation(QueryApp) as ComponentType);

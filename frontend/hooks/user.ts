@@ -1,23 +1,31 @@
+import { useQuery } from '@tanstack/react-query';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { getAuth, onAuthStateChanged, onIdTokenChanged } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import useSWR from 'swr';
 
 import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
+import { authenticatedPost, authQueryKey } from '@/utils/http';
 import type { User } from '@/utils/types';
 
 export function useAccount() {
   const identity = useIdentity();
-  const {
-    data: user,
-    error,
-    mutate,
-  } = useSWR<User>(identity ? ['/users/getAccountDetails', identity.uid] : null, (key) => {
-    return authenticatedPost(key);
-  });
 
-  return { user, error, mutate };
+  return useQuery(
+    authQueryKey(['user', 'details']),
+    () => {
+      return authenticatedPost<User>('/users/getAccountDetails');
+    },
+    { enabled: !!identity },
+  );
+  // alternatively:
+  // const { data: user, ...other } = res;
+  // return {
+  //   user,
+  //   ...other,
+  // };
+  // alternatively:
+  // const { data: user, ...other } = res;
+  // return Object.assign(other, {user});
 }
 
 export function useDisplayName(): string | null {

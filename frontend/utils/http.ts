@@ -1,3 +1,4 @@
+import type { QueryFunction, QueryKey } from '@tanstack/react-query';
 import { getAuth, getIdToken } from 'firebase/auth';
 
 import config from '@/utils/config';
@@ -48,4 +49,18 @@ export const authenticatedPost = async <R = unknown>(endpoint: string, body?: Re
     Authorization: `Bearer ${await getIdToken(user)}`,
   };
   return unauthenticatedPost(endpoint, body, headers);
+};
+
+export const defaultQueryFn: QueryFunction = async ({ queryKey }) => {
+  const [_, endpoint, body] = queryKey;
+
+  if (typeof endpoint !== 'string') return;
+  if (typeof body !== 'object') return;
+  return authenticatedPost(endpoint, body as Record<string, any>);
+};
+
+// takes a query key and pushes uid onto the front so the cache is scoped
+// to the current user
+export const authQueryKey = (qk: QueryKey): QueryKey => {
+  return [getAuth().currentUser?.uid, ...qk];
 };

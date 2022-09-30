@@ -6,7 +6,7 @@ import { Text } from '@/components/lib/Text';
 import { useAccount } from '@/hooks/user';
 
 export const UserDropdown = ({ children }: { children: ReactNode }) => {
-  const { user } = useAccount();
+  const { data: user } = useAccount();
 
   return (
     <DropdownMenu.Root>

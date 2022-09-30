@@ -24,7 +24,7 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
   const router = useRouter();
   const slug = useRouteParam('templateSlug');
   const template = useContractTemplate(slug);
-  const { user } = useAccount();
+  const { data: user } = useAccount();
   const [isDeploying, setIsDeploying] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
 

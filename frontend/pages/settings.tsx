@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { getIdToken, updateProfile } from 'firebase/auth';
 import { useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
@@ -18,6 +19,7 @@ import { useAccount, useIdentity } from '@/hooks/user';
 import DeleteAccountModal from '@/modules/core/components/modals/DeleteAccountModal';
 import { logOut } from '@/utils/auth';
 import { formValidations } from '@/utils/constants';
+import { authQueryKey } from '@/utils/http';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface SettingsFormData {
@@ -27,10 +29,11 @@ interface SettingsFormData {
 const Settings: NextPageWithLayout = () => {
   const { register, handleSubmit, formState, setValue } = useForm<SettingsFormData>();
   const [isEditing, setIsEditing] = useState(false);
-  const { user, error, mutate } = useAccount();
+  const { data: user, error } = useAccount();
   const identity = useIdentity();
   const [updateError, setUpdateError] = useState('');
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const queryClient = useQueryClient();
 
   function edit() {
     setValue('displayName', user!.name!);
@@ -48,14 +51,8 @@ const Settings: NextPageWithLayout = () => {
       // force token refresh since that is where the backend gets user details
       await getIdToken(identity, true);
 
-      mutate((data) => {
-        if (data) {
-          return {
-            ...data,
-            name: displayName,
-          };
-        }
-      });
+      // add displayName to account details locally
+      queryClient.setQueryData(authQueryKey(['user', 'details']), { ...user, name: displayName });
     } catch (e) {
       setUpdateError('Something went wrong while attempting to update your settings');
     } finally {

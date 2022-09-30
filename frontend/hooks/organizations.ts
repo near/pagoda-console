@@ -184,8 +184,8 @@ const createOrgMutationOptions = (user?: User): OrgsMutationOptions<{ name: stri
 });
 
 export const useCreateOrg = () => {
-  const account = useAccount();
-  return useMutation(useMemo(() => createOrgMutationOptions(account.user), [account.user]));
+  const { data: user } = useAccount();
+  return useMutation(useMemo(() => createOrgMutationOptions(user), [user]));
 };
 
 const updateOrgMembersCache = (orgSlug: string, uid: string, role: OrganizationRole) => {
