@@ -104,7 +104,6 @@ resource "google_cloud_run_service" "console_api" {
           }
         }
 
-        # TODO unless we generate a preview url with the branch name in the url somewhere. We won't be able to predict what the url will be unless we deploy UI first -> set BE url to '' -> deploy BE with UI url -> update UI with correct BE url.
         env {
           name  = "FRONTEND_BASE_URL"
           value = var.frontend_base_url
