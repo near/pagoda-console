@@ -50,6 +50,12 @@ const moduleExports = {
       },
     ];
   },
+  rewrites: async () => [
+    {
+      source: '/api/segment',
+      destination: 'https://api.segment.io/v1/batch',
+    },
+  ],
 };
 
 const sentryWebpackPluginOptions = {
