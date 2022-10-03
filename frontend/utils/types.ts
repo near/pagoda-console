@@ -24,9 +24,9 @@ export interface Project {
   slug: string;
   tutorial: TutorialOption;
   org: {
-    name?: string;
+    name: string;
     slug: string;
-    isPersonal: boolean;
+    personalForUserId: number | null;
   };
 }
 

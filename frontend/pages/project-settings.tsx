@@ -51,6 +51,21 @@ const ProjectSettings: NextPageWithLayout = () => {
                   <TextLink>View All Projects</TextLink>
                 </Link>
               </ListItem>
+
+              {project.org.personalForUserId !== null ? (
+                <ListItem>
+                  Looking to invite team members to the project?
+                  <Link href="/organizations" passHref>
+                    <TextLink>Create an organization to collaborate with others</TextLink>
+                  </Link>
+                </ListItem>
+              ) : (
+                <ListItem>
+                  <Link href={`/organizations/${project.org.slug}`} passHref>
+                    <TextLink>Take me to &quot;{project.org.name}&quot; organization</TextLink>
+                  </Link>
+                </ListItem>
+              )}
             </List>
 
             <HR />

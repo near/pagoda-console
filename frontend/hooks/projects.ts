@@ -99,7 +99,7 @@ export function useProjectGroups() {
     projectGroups: projects
       ? Object.entries(
           projects.reduce<Record<string, Project[]>>((acc, project) => {
-            const orgName = project.org.isPersonal ? 'Personal' : project.org.name || 'unknown';
+            const orgName = project.org.personalForUserId !== null ? 'Personal' : project.org.name || 'unknown';
             if (!acc[orgName]) {
               acc[orgName] = [];
             }
@@ -107,13 +107,13 @@ export function useProjectGroups() {
             return acc;
           }, {}),
         ).sort(([, [projectA]], [, [projectB]]) => {
-          if (projectA.org.isPersonal && projectB.org.isPersonal) {
+          if (projectA.org.personalForUserId !== null && projectB.org.personalForUserId !== null) {
             return 0;
           }
-          if (projectA.org.isPersonal) {
+          if (projectA.org.personalForUserId !== null) {
             return -1;
           }
-          if (projectB.org.isPersonal) {
+          if (projectB.org.personalForUserId !== null) {
             return 1;
           }
           return projectA.name.localeCompare(projectB.name);
