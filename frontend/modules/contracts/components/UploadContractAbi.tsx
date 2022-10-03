@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { Button, ButtonLabel, ButtonLink } from '@/components/lib/Button';
+import { Button, ButtonLabelDragAndDrop, ButtonLink } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
 import { CodeBlock } from '@/components/lib/CodeBlock';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -11,10 +11,8 @@ import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { uploadContractAbi } from '@/modules/contracts/hooks/abi';
-import { FileUploader } from 'react-drag-drop-files';
 
 const MAX_CODE_HEIGHT = '18rem';
-const FILE_TYPES = ["JSON"];
 
 type Props = {
   contractSlug: string;
@@ -93,6 +91,16 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
     [loadFilePreview],
   );
 
+  const handleDrop = useCallback(
+    (e) => {
+      if (!e.dataTransfer.files[0]) {
+        return null;
+      }
+      loadFilePreview(e.dataTransfer.files[0]);
+    },
+    [loadFilePreview],
+  )
+
   function handlePaste(event: any) {
     event.preventDefault();
     if (event.clipboardData) {
@@ -157,13 +165,12 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
             To generate an ABI
           </TextLink>
 
-          {/* <ButtonLabel color="primaryBorder" size="s">
+          <ButtonLabelDragAndDrop color="primaryBorder" size="s" handleChange={handleDrop}>
             <FeatherIcon size="xs" icon="upload" />
-            Upload
+            {/* Upload */}
+            <span>Upload</span> or drop a file right here
             <Form.Input type="file" onChange={handleUpload} file tabIndex={-1} accept="application/JSON" />
-          </ButtonLabel> */}
-
-          <FileUploader handleChange={loadFilePreview} name="file" types={FILE_TYPES} />
+          </ButtonLabelDragAndDrop>
         </Flex>
 
         <CodeBlock css={{ maxHeight: MAX_CODE_HEIGHT }} onPaste={handlePaste} language="json">
