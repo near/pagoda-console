@@ -17,7 +17,6 @@ export default function useDragging({
   const handleDragIn = useCallback((ev) => {
     ev.preventDefault();
     ev.stopPropagation();
-    // TODO: use dragging instead
     draggingCount++;
     if (ev.dataTransfer.items && ev.dataTransfer.items.length !== 0) {
       setDragging(true);
