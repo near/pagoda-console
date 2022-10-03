@@ -105,4 +105,4 @@ export const ButtonLabelDragAndDrop = forwardRef<HTMLLabelElement, ButtonLabelDr
     );
   },
 );
-ButtonLabel.displayName = 'ButtonLabel';
+ButtonLabelDragAndDrop.displayName = 'ButtonLabelDragAndDrop';

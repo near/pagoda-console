@@ -92,6 +92,14 @@ export const Button = styled('button', {
           background: 'var(--color-surface-1)',
         },
       },
+      primaryDragAndDropBorder: {
+        background: 'transparent',
+        boxShadow: 'none',
+        color: 'var(--color-primary)',
+        '&:hover': {
+          background: 'var(--color-surface-1)',
+        },
+      },
       neutral: {
         background: 'transparent',
         boxShadow: 'inset 0 0 0 1px var(--color-surface-5)',

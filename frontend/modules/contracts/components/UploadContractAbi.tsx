@@ -165,7 +165,7 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
             To generate an ABI
           </TextLink>
 
-          <ButtonLabelDragAndDrop color="primaryBorder" size="s" handleChange={handleDrop}>
+          <ButtonLabelDragAndDrop color="primaryDragAndDropBorder" size="s" handleChange={handleDrop}>
             <FeatherIcon size="xs" icon="upload" />
             {/* Upload */}
             <span>Upload</span> or drop a file right here
