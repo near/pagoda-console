@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { FieldValues } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import { Badge } from '@/components/lib/Badge';
@@ -34,7 +35,7 @@ interface FormProps extends Props {
   setIsCreated: (value: boolean) => void;
 }
 
-function useNewDestinationForm<T>(props: FormProps) {
+function useNewDestinationForm<T extends FieldValues>(props: FormProps) {
   const { mutate } = useDestinations(props.projectSlug);
   const [destination, setDestination] = useState<Destination>();
   const form = useForm<T>();

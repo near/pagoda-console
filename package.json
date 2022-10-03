@@ -1,0 +1,35 @@
+{
+  "name": "pagoda-console",
+  "version": "1.0.0",
+  "description": "Pagoda Console",
+  "engines": {
+    "node": "^16.0.0",
+    "npm": "^8.0.0"
+  },
+  "workspaces": [
+    "./frontend",
+    "./backend"
+  ],
+  "scripts": {
+    "format:verify": "prettier --check '**/*.{js,jsx,ts,tsx,json,css,scss,md,yml}'",
+    "format": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md,yml}'",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/near/pagoda-console.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/near/pagoda-console/issues"
+  },
+  "homepage": "https://github.com/near/pagoda-console#readme",
+  "devDependencies": {
+    "husky": "^8.0.0",
+    "prettier": "^2.7.1",
+    "lint-staged": "^12.4.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,css,scss,md,json,yml}": "prettier --check"
+  }
+}

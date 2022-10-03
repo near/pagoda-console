@@ -1,7 +1,6 @@
-version: '3.8'
+version: "3.8"
 services:
-  # Update this to the name of the service you want to work with in your docker-compose.yml file
-  backend:
+  app:
     # If you want add a non-root user to your Dockerfile, you can use the "remoteUser"
     # property in devcontainer.json to cause VS Code its sub-processes (terminals, tasks,
     # debugging) to execute as the user. Uncomment the next line if you want the entire
@@ -27,6 +26,8 @@ services:
     volumes:
       # Update this to wherever you want VS Code to mount the folder of your project
       - ..:/workspace:cached
+      # Use a named volume for node modules to improve npm install performance
+      - pagoda-console-node_modules:/workspace/node_modules
       # Uncomment the next line to use Docker from inside the container. See https://aka.ms/vscode-remote/samples/docker-from-docker-compose for details.
       # - /var/run/docker.sock:/var/run/docker.sock
 
@@ -48,8 +49,11 @@ services:
     image: postgres
     restart: unless-stopped
     ports:
-      - '5432:5432'
+      - "5432:5432"
     environment:
       POSTGRES_USER: pguser
       POSTGRES_PASSWORD: pgpass
       POSTGRES_DB: pgdb
+
+volumes:
+  pagoda-console-node_modules:

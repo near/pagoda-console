@@ -2,15 +2,12 @@ name: Prod Snapshot Tests
 on:
   # Run once every other day
   schedule:
-    - cron: '11 8 2-30/2 * *'
+    - cron: "11 8 2-30/2 * *"
   push:
     branches: [main]
   # You could test this CI job in a PR by uncommenting the below pull_request line.
   # pull_request:
   #   branches: [develop]
-defaults:
-  run:
-    working-directory: frontend
 jobs:
   test:
     timeout-minutes: 60
@@ -19,13 +16,13 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
+          node-version: "16.x"
       - name: Install dependencies
         run: npm ci
       - name: Install Playwright
         run: npx playwright install --with-deps
       - name: Run snapshot tests
-        run: npm run test:snapshot
+        run: npm -w frontend run test:snapshot
         env:
           TEST_URL: https://console.pagoda.co
           TEST_EMAIL: jon+e2e@near.org
@@ -35,5 +32,5 @@ jobs:
         if: always()
         with:
           name: playwright-report
-          path: playwright-report/
+          path: frontend/playwright-report/
           retention-days: 14

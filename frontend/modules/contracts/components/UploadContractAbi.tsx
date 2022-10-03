@@ -1,3 +1,4 @@
+import type { ChangeEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Button, ButtonLabelDragAndDrop, ButtonLink } from '@/components/lib/Button';
@@ -83,7 +84,7 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
 
   const handleUpload = useCallback(
     (e) => {
-      if (!e.target.files[0]) {
+      if (!e.target.files?.[0]) {
         return null;
       }
       loadFilePreview(e.target.files[0]);

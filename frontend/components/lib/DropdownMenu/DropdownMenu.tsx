@@ -13,7 +13,6 @@ import * as S from './styles';
 
 type ButtonProps = ComponentProps<typeof ButtonDropdown>;
 type ContentProps = ComponentProps<typeof S.Content> & {
-  nested?: boolean;
   innerCss?: StitchesCSS;
 };
 type CheckboxItemProps = ComponentProps<typeof S.CheckboxItem> & {
@@ -22,7 +21,8 @@ type CheckboxItemProps = ComponentProps<typeof S.CheckboxItem> & {
 type RadioItemProps = ComponentProps<typeof S.RadioItem> & {
   indicator?: ReactNode | null;
 };
-type TriggerItemProps = ComponentProps<typeof S.TriggerItem>;
+type SubContentProps = ComponentProps<typeof S.SubContent>;
+type SubTriggerProps = ComponentProps<typeof S.SubTrigger>;
 
 export const Item = S.Item;
 export const Label = S.Label;
@@ -31,6 +31,8 @@ export const Root = DropdownMenuPrimitive.Root;
 export const Separator = S.Separator;
 export const Trigger = DropdownMenuPrimitive.Trigger;
 export const ContentItem = S.ContentItem;
+export const Portal = DropdownMenuPrimitive.Portal;
+export const Sub = DropdownMenuPrimitive.Sub;
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, ...props }, ref) => {
   return (
@@ -43,10 +45,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, ..
 });
 Button.displayName = 'Button';
 
-export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, nested, innerCss, ...props }, ref) => {
-  const alignOffset = nested ? -6 : props.alignOffset;
-  const sideOffset = nested ? 14 : props.sideOffset || 6;
-  const arrowOffset = nested ? 24 : 16;
+export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, innerCss, ...props }, ref) => {
+  const alignOffset = props.alignOffset || 0;
+  const sideOffset = props.sideOffset || 6;
   const containerRef = useRef<HTMLDivElement>();
 
   useEffect(() => {
@@ -75,19 +76,36 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, nes
   }
 
   return (
-    <S.Content
-      onAnimationStart={(e) => calculateWidth(e.currentTarget)}
-      ref={ref}
-      alignOffset={alignOffset}
-      sideOffset={sideOffset}
-      {...props}
-    >
-      <S.ContentInner css={innerCss}>{children}</S.ContentInner>
-      <S.Arrow offset={arrowOffset} />
-    </S.Content>
+    <DropdownMenuPrimitive.Portal>
+      <S.Content
+        onAnimationStart={(e) => calculateWidth(e.currentTarget)}
+        ref={ref}
+        alignOffset={alignOffset}
+        sideOffset={sideOffset}
+        {...props}
+      >
+        <S.ContentInner css={innerCss}>{children}</S.ContentInner>
+        <S.Arrow />
+      </S.Content>
+    </DropdownMenuPrimitive.Portal>
   );
 });
 Content.displayName = 'Content';
+
+export const SubContent = forwardRef<HTMLDivElement, SubContentProps>(({ children, ...props }, ref) => {
+  const alignOffset = props.alignOffset || -6;
+  const sideOffset = props.sideOffset || 14;
+
+  return (
+    <DropdownMenuPrimitive.Portal>
+      <S.SubContent ref={ref} alignOffset={alignOffset} sideOffset={sideOffset} {...props}>
+        <S.ContentInner>{children}</S.ContentInner>
+        <S.Arrow />
+      </S.SubContent>
+    </DropdownMenuPrimitive.Portal>
+  );
+});
+SubContent.displayName = 'SubContent';
 
 export const CheckboxItem = forwardRef<HTMLDivElement, CheckboxItemProps>(({ children, indicator, ...props }, ref) => {
   return (
@@ -125,13 +143,13 @@ export const RadioItem = forwardRef<HTMLDivElement, RadioItemProps>(({ children,
 });
 RadioItem.displayName = 'RadioItem';
 
-export const TriggerItem = forwardRef<HTMLDivElement, TriggerItemProps>(({ children, ...props }, ref) => {
+export const SubTrigger = forwardRef<HTMLDivElement, SubTriggerProps>(({ children, ...props }, ref) => {
   return (
-    <S.TriggerItem ref={ref} {...props}>
+    <S.SubTrigger ref={ref} {...props}>
       <Flex gap="s">{children}</Flex>
 
       <FeatherIcon icon="chevron-right" />
-    </S.TriggerItem>
+    </S.SubTrigger>
   );
 });
-TriggerItem.displayName = 'TriggerItem';
+SubTrigger.displayName = 'SubTrigger';

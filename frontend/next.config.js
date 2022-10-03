@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { i18n } = require('./next-i18next.config');
 const { withSentryConfig } = require('@sentry/nextjs');
 
 /** @type {import('next').NextConfig} */
 const moduleExports = {
+  sentry: {
+    hideSourceMaps: false, // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#use-hidden-source-map
+  },
   experimental: { esmExternals: true },
-  reactStrictMode: true,
+  reactStrictMode: false, // Temporarily disabling strict mode until we can audit all useEffect() usage
   webpack(config, options) {
     config.module.rules.push({
       test: /\.svg$/,
@@ -29,7 +33,7 @@ const moduleExports = {
     return config;
   },
   i18n,
-  swcMinify: false,
+  swcMinify: true,
   /*
     NOTE: "swcMinify: true" was throwing an error when running "npm run build" due to the "@near-wallet-selector" package
     used in useWalletSelector() "hooks/wallet-selector.ts"
@@ -46,6 +50,12 @@ const moduleExports = {
       },
     ];
   },
+  rewrites: async () => [
+    {
+      source: '/api/segment',
+      destination: 'https://api.segment.io/v1/batch',
+    },
+  ],
 };
 
 const sentryWebpackPluginOptions = {

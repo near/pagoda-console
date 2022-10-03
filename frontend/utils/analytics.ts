@@ -14,7 +14,14 @@ const anonymousId = uniqueId();
 function init() {
   if (segment) return console.log('Segment Analytics has already been initialized');
   //flushAt=1 is useful for testing new events
-  const options = config.deployEnv === 'LOCAL' ? { flushAt: 1 } : {};
+  const proxySettings =
+    typeof window === 'undefined'
+      ? {}
+      : {
+          host: `${window.location.protocol}//${window.location.host}`,
+          path: '/api/segment',
+        };
+  const options = config.deployEnv === 'LOCAL' ? { flushAt: 1, ...proxySettings } : proxySettings;
   segment = new Analytics(config.segment, options);
 }
 
