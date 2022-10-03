@@ -1,0 +1,16 @@
+name: Audit NPM dependencies
+on:
+  pull_request:
+    # To test this CI flow in a PR add "develop" to the branches list.
+    branches: [release, main]
+jobs:
+  audit:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16.x"
+      - name: Audit dependencies
+        run: npm audit
