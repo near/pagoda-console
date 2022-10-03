@@ -158,6 +158,12 @@ export const Button = styled('button', {
         fontSize: 'var(--font-size-body)',
         height: 'var(--size-input-height-m)',
       },
+      l: {
+        fontSize: 'var(--font-size-body-small)',
+        height: 'calc(2 * var(--size-input-height-s))',
+        padding: '0 var(--space-s)',
+        borderRadius: 'var(--border-radius-xs)',
+      },
     },
 
     stretch: {
@@ -177,16 +183,4 @@ export const DragAndDropButton = styled(Button, {
   display: 'flex',
   alignItems: 'center',
   border: `dashed 2px currentColor`,
-  padding: '8px 16px 8px 8p',
-  cursor: 'pointer',
-  flexGrow: 0,
-  size: {
-    s: {
-      height: 'var(--size-input-height-s)',
-      padding: '8px 16px 8px 8p',
-    },
-  },
-  '& > input': {
-    display: 'none',
-  },
 });
