@@ -14,7 +14,6 @@ import { Text } from '@/components/lib/Text';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useProjectGroups } from '@/hooks/projects';
 import DeleteProjectModal from '@/modules/core/components/modals/DeleteProjectModal';
-import { useSettingsStoreForUser } from '@/stores/settings';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -23,7 +22,6 @@ const Projects: NextPageWithLayout = () => {
   const { projectGroups, error, isValidating, mutate: refetchProjects } = useProjectGroups();
   const [isEditing, setIsEditing] = useState(false);
   const [showRedirectAlert, setShowRedirectAlert] = useState(false);
-  const { settingsInitialized, updateSettings } = useSettingsStoreForUser();
 
   useEffect(() => {
     if (window.sessionStorage.getItem('redirected') === 'true') {
@@ -33,16 +31,6 @@ const Projects: NextPageWithLayout = () => {
 
     router.prefetch('/pick-project');
   }, [router]);
-
-  useEffect(() => {
-    if (settingsInitialized && showRedirectAlert) {
-      updateSettings({
-        selectedProjectSlug: undefined,
-      });
-    }
-    // TODO: Adding updateSettings to dep array causes infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showRedirectAlert, settingsInitialized]);
 
   useEffect(() => {
     if (!error && projectGroups && projectGroups.length === 0 && !isValidating && !showRedirectAlert) {

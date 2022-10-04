@@ -23,9 +23,10 @@ import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
 import { Toaster } from '@/components/lib/Toast';
 import { usePageTracker } from '@/hooks/page-tracker';
 import { useSelectedProjectRouteParamSync } from '@/hooks/selected-project';
-import { useAccount } from '@/hooks/user';
+import { useAccount, useIdentity } from '@/hooks/user';
 import { DowntimeMode } from '@/modules/core/components/DowntimeMode';
 import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
+import { useSettingsStore } from '@/stores/settings';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
 import config from '@/utils/config';
@@ -52,9 +53,17 @@ const unauthedPaths = [
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   useSelectedProjectRouteParamSync();
   usePageTracker();
+  const identity = useIdentity();
   const router = useRouter();
   const { user } = useAccount();
   const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
+  const initializeCurrentUserSettings = useSettingsStore((store) => store.initializeCurrentUserSettings);
+
+  useEffect(() => {
+    if (identity?.uid) {
+      initializeCurrentUserSettings(identity.uid);
+    }
+  }, [initializeCurrentUserSettings, identity?.uid]);
 
   useEffect(() => {
     FullStory.init({ orgId: 'o-1A5K4V-na1' });
@@ -74,7 +83,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   useEffect(() => {
     if (config.gleapAuth) Gleap.initialize(config.gleapAuth);
-  });
+  }, []);
 
   useEffect(() => {
     const auth = getAuth();

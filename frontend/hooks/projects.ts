@@ -8,6 +8,8 @@ import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 import type { Project } from '@/utils/types';
 
+import { useProjectSelector } from './selected-project';
+
 export async function ejectTutorial(slug: string, name: string) {
   try {
     await authenticatedPost('/projects/ejectTutorial', { slug });
@@ -55,6 +57,7 @@ export async function deleteProject(userId: string | undefined, slug: string, na
 export function useProject(projectSlug: string | undefined) {
   const router = useRouter();
   const identity = useIdentity();
+  const { selectProject } = useProjectSelector();
 
   const { data: project, error } = useSWR<Project>(
     identity && projectSlug ? ['/projects/getDetails', projectSlug, identity.uid] : null,
@@ -70,11 +73,12 @@ export function useProject(projectSlug: string | undefined) {
   useEffect(() => {
     if (router.pathname !== '/projects') {
       if ([400, 403].includes(error?.statusCode)) {
+        selectProject(undefined);
         window.sessionStorage.setItem('redirected', 'true');
         router.push('/projects');
       }
     }
-  }, [error, router]);
+  }, [error, router, selectProject]);
 
   return { project, error };
 }
