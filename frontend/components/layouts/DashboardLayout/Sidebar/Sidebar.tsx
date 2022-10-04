@@ -60,8 +60,10 @@ export function Sidebar({ children, ...props }: Props) {
   const sidebarCollapseToggleLabel = sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
 
   useEffect(() => {
-    setSidebarCollapsed(localStorage.getItem('sidebarCollapsed') === 'true');
-  }, []);
+    if (sidebarCollapsed === undefined) {
+      setSidebarCollapsed(localStorage.getItem('sidebarCollapsed') === 'true');
+    }
+  }, [sidebarCollapsed]);
 
   function isLinkSelected(page: SidebarEntry): boolean {
     const matchesPattern = page.routeMatchPattern ? router.pathname.startsWith(page.routeMatchPattern) : false;
