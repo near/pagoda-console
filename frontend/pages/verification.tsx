@@ -1,6 +1,6 @@
 import { getAuth, sendEmailVerification } from 'firebase/auth';
 import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
@@ -20,6 +20,26 @@ const Verification: NextPageWithLayout = () => {
   const [hasResent, setHasResent] = useState(false);
   const existing = useRouteParam('existing') === 'true';
   const hasCalledInitAccount = useRef(false);
+  const verificationCheckTimer = useRef<NodeJS.Timeout | undefined>();
+
+  const queueVerificationCheck = useCallback(() => {
+    verificationCheckTimer.current = setTimeout(async () => {
+      await getAuth().currentUser?.reload();
+      if (getAuth().currentUser?.emailVerified) {
+        await getAuth().currentUser?.getIdToken(true);
+        /*
+          Without calling getIdToken(true) to force refresh the auth token,
+          all future API calls will 401 with an invalid auth token. We might
+          want to investigate this logic in the future. You would think the
+          reload() call above would be enough, but it isn't.
+        */
+        analytics.track('DC Verify Account');
+        signInRedirectHandler(router, '/pick-project?onboarding=true');
+      } else {
+        queueVerificationCheck();
+      }
+    }, 3000);
+  }, [router]);
 
   useEffect(() => {
     router.prefetch('/pick-project');
@@ -41,32 +61,12 @@ const Verification: NextPageWithLayout = () => {
   }
 
   useEffect(() => {
-    const timer = queueVerificationCheck(); // only run once since it will re-queue itself
+    queueVerificationCheck(); // only run once since it will re-queue itself
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(verificationCheckTimer.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  function queueVerificationCheck() {
-    return setTimeout(async () => {
-      await getAuth().currentUser?.reload();
-      if (getAuth().currentUser?.emailVerified) {
-        await getAuth().currentUser?.getIdToken(true);
-        /*
-          Without calling getIdToken(true) to force refresh the auth token,
-          all future API calls will 401 with an invalid auth token. We might
-          want to investigate this logic in the future. You would think the
-          reload() call above would be enough, but it isn't.
-        */
-        analytics.track('DC Verify Account');
-        signInRedirectHandler(router, '/pick-project?onboarding=true');
-      } else {
-        queueVerificationCheck();
-      }
-    }, 3000);
-  }
+  }, [queueVerificationCheck]);
 
   async function resendVerification() {
     try {
