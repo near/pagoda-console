@@ -3,7 +3,7 @@
 // and had many unaddressed github issues
 
 import * as Joi from 'joi';
-import { Net } from '../../../generated/prisma/core';
+import { Net } from 'pagoda-console-database/clients/core';
 
 // activity
 export type ActivityInputDto = {

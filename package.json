@@ -8,12 +8,14 @@
   },
   "workspaces": [
     "./frontend",
-    "./backend"
+    "./backend",
+    "database"
   ],
   "scripts": {
     "format:verify": "prettier --check '**/*.{js,jsx,ts,tsx,json,css,scss,md,yml}'",
     "format": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md,yml}'",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "postinstall": "npm run -w database generate"
   },
   "repository": {
     "type": "git",

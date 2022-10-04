@@ -1,5 +1,5 @@
-import { Abi } from '@/generated/prisma/abi';
-import { User } from '@/generated/prisma/core';
+import { Abi } from 'pagoda-console-database/clients/abi';
+import { User } from 'pagoda-console-database/clients/core';
 import { Injectable } from '@nestjs/common';
 import { ABI } from './abi';
 import { PrismaService } from './prisma.service';

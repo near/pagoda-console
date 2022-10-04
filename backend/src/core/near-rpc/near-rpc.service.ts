@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { VError } from 'verror';
-import { Net } from '../../../generated/prisma/core';
+import { Net } from 'pagoda-console-database/clients/core';
 import { AppConfig } from '../../config/validate';
 import * as RPC from './types';
 

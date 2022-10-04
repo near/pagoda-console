@@ -4,7 +4,7 @@ import {
   Environment,
   Net,
   Project,
-} from '../../../generated/prisma/core';
+} from 'pagoda-console-database/clients/core';
 import { PrismaService } from '../prisma.service';
 import { VError } from 'verror';
 

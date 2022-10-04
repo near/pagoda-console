@@ -9,7 +9,7 @@ import {
   Environment,
   ApiKey,
   Org,
-} from '../../../generated/prisma/core';
+} from 'pagoda-console-database/clients/core';
 import { VError } from 'verror';
 import { customAlphabet } from 'nanoid';
 import { ConfigService } from '@nestjs/config';
