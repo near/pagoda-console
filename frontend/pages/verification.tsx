@@ -1,6 +1,6 @@
 import { getAuth, sendEmailVerification } from 'firebase/auth';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
@@ -19,30 +19,11 @@ const Verification: NextPageWithLayout = () => {
   const router = useRouter();
   const [hasResent, setHasResent] = useState(false);
   const existing = useRouteParam('existing') === 'true';
+  const hasCalledInitAccount = useRef(false);
+  const verificationCheckTimer = useRef<NodeJS.Timeout | undefined>();
 
-  useEffect(() => {
-    router.prefetch('/pick-project');
-  }, [router]);
-
-  // send off a trivial request to make sure this user is initialized in DB
-  useEffect(() => {
-    initAccount();
-  }, []);
-  async function initAccount() {
-    try {
-      await authenticatedPost('/users/getAccountDetails');
-    } catch (e) {
-      // silently fail
-    }
-  }
-
-  useEffect(() => {
-    queueVerificationCheck(); // only run once since it will re-queue itself
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function queueVerificationCheck() {
-    return setTimeout(async () => {
+  const queueVerificationCheck = useCallback(() => {
+    verificationCheckTimer.current = setTimeout(async () => {
       await getAuth().currentUser?.reload();
       if (getAuth().currentUser?.emailVerified) {
         await getAuth().currentUser?.getIdToken(true);
@@ -58,7 +39,34 @@ const Verification: NextPageWithLayout = () => {
         queueVerificationCheck();
       }
     }, 3000);
+  }, [router]);
+
+  useEffect(() => {
+    router.prefetch('/pick-project');
+  }, [router]);
+
+  // send off a trivial request to make sure this user is initialized in DB
+  useEffect(() => {
+    if (!hasCalledInitAccount.current) {
+      initAccount();
+      hasCalledInitAccount.current = true;
+    }
+  }, []);
+  async function initAccount() {
+    try {
+      await authenticatedPost('/users/getAccountDetails');
+    } catch (e) {
+      // silently fail
+    }
   }
+
+  useEffect(() => {
+    queueVerificationCheck(); // only run once since it will re-queue itself
+
+    return () => {
+      clearTimeout(verificationCheckTimer.current);
+    };
+  }, [queueVerificationCheck]);
 
   async function resendVerification() {
     try {

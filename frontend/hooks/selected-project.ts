@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useSettingsStore } from '@/stores/settings';
+import config from '@/utils/config';
 import type { Environment, Project } from '@/utils/types';
 
 import { useEnvironments } from './environments';
@@ -14,8 +15,6 @@ interface Options {
   enforceSelectedProject?: boolean;
 }
 
-let hasRedirectedToSelectProject = false;
-
 export function useSelectedProject(
   options: Options = {
     enforceSelectedProject: true,
@@ -27,10 +26,6 @@ export function useSelectedProject(
   const { project } = useProject(settings?.selectedProjectSlug);
   const { environments } = useEnvironments(settings?.selectedProjectSlug);
   const [environment, setEnvironment] = useState<Environment>();
-
-  useEffect(() => {
-    hasRedirectedToSelectProject = false;
-  }, []);
 
   // Compute the currently selected environment:
 
@@ -48,24 +43,19 @@ export function useSelectedProject(
   // Conditionally redirect to force user to select project:
 
   useEffect(() => {
-    if (
-      !options.enforceSelectedProject ||
-      projectSlugRouteParam ||
-      !settings ||
-      settings.selectedProjectSlug ||
-      hasRedirectedToSelectProject
-    ) {
+    if (!options.enforceSelectedProject || projectSlugRouteParam || !settings || settings.selectedProjectSlug) {
       return;
     }
 
+    if (config.deployEnv === 'LOCAL') {
+      console.warn('The following router abort error can be safely ignored in local dev mode:');
+      /*
+        Next Router throws a harmless error when router.replace() is called rapidly in dev mode.
+        We can safely ignore this for now. Let's keep an eye on Next Router and React updates.
+      */
+    }
+
     router.replace('/projects');
-
-    hasRedirectedToSelectProject = true;
-
-    /*
-      hasRedirectedToSelectProject helps prevent calling router.replace() multiple times
-      and throwing this error: "Error: Abort fetching component for route: "/projects"
-    */
   }, [options, projectSlugRouteParam, router, settings]);
 
   return {

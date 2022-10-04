@@ -1,6 +1,6 @@
 import { iframeResizer } from 'iframe-resizer';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { ButtonLink } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
@@ -39,9 +39,14 @@ const ProjectAnalytics: NextPageWithLayout = () => {
 
 function AnalyticsIframe({ environment, contracts }: { environment: Environment; contracts: Contract[] }) {
   const { activeTheme } = useTheme();
+  const iframeId = 'analytics-iframe';
+  const initialized = useRef(false);
 
   useEffect(() => {
-    iframeResizer({}, 'iframe');
+    if (!initialized.current) {
+      iframeResizer({}, `#${iframeId}`);
+      initialized.current = true;
+    }
   }, []);
 
   const themeParam = activeTheme === 'dark' ? '#theme=night' : '';
@@ -53,6 +58,7 @@ function AnalyticsIframe({ environment, contracts }: { environment: Environment;
 
   return (
     <iframe
+      id={iframeId}
       src={iframeUrl}
       frameBorder="0"
       style={{
