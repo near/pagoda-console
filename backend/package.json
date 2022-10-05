@@ -9,7 +9,8 @@
     "start": "nest start",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint:check": "eslint --cache --max-warnings 0 .",
+    "format:check": "prettier --check .",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -97,9 +98,5 @@
     ],
     "coverageDirectory": "<rootDir>/coverage",
     "testEnvironment": "node"
-  },
-  "lint-staged": {
-    "**/.{js,ts}": "eslint --cache --max-warnings 0",
-    "**/prisma/migrations/**/*.sql": "npx ts-node ./scripts/checkMigrations.ts"
   }
 }

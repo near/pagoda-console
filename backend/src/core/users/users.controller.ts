@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { BearerAuthGuard } from '../auth/bearer-auth.guard';
-import firebaseAdmin from 'firebase-admin';
 import {
   AcceptOrgInviteDto,
   AcceptOrgInviteSchema,

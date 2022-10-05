@@ -9,6 +9,12 @@
     },
     "start": {
       "dependsOn": ["build"]
+    },
+    "lint:check": {
+      "outputs": []
+    },
+    "format:check": {
+      "outputs": []
     }
   }
 }

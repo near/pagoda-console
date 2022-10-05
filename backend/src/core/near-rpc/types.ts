@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 // TODO: get type generation
 // https://github.com/Aleph-Alpha/ts-rs
 // https://github.com/timfish/bincode-typescript
@@ -23,6 +24,7 @@ type ProtocolVersion = u32;
 type Utc = unknown;
 
 // https://docs.rs/chrono/latest/chrono/struct.DateTime.html
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
 type DateTime<T extends unknown = unknown> = string & T;
 
 // https://docs.rs/near-primitives/0.12.0/near_primitives/types/type.BlockHeight.html
