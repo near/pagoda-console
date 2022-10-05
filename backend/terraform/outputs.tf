@@ -12,6 +12,7 @@ output "database_secret_suffix" {
 
 output "database_instance_name" {
   value = module.postgres.database_instance_name
+  sensitive = true
 }
 
 output "api_public_url" {
