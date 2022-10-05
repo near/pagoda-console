@@ -1,29 +1,28 @@
-import { useState, useEffect, useCallback } from 'react';
+import type { DragEvent } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 let draggingCount = 0;
 type Params = {
   labelRef: any;
-  handleChange?: (arg0: any) => any;
-  onDrop?: (arg0: Array<File>) => void;
+  handleChange?: (event: DragEvent<HTMLLabelElement>) => any;
 };
 
 export default function useDragging({
   labelRef,
   handleChange,
-  onDrop
 }: Params): boolean {
   const [dragging, setDragging] = useState(false);
 
-  const handleDragIn = useCallback((ev) => {
+  const handleDragIn = useCallback((ev: DragEvent<HTMLLabelElement>) => {
     ev.preventDefault();
     ev.stopPropagation();
     draggingCount++;
-    if (ev.dataTransfer.items && ev.dataTransfer.items.length !== 0) {
+    if (ev.dataTransfer?.items && ev.dataTransfer.items.length !== 0) {
       setDragging(true);
     }
   }, []);
 
-  const handleDragOut = useCallback((ev) => {
+  const handleDragOut = useCallback((ev: DragEvent<HTMLLabelElement>) => {
     ev.preventDefault();
     ev.stopPropagation();
     draggingCount--;
@@ -31,22 +30,21 @@ export default function useDragging({
     setDragging(false);
   }, []);
 
-  const handleDrag = useCallback((ev) => {
+  const handleDrag = useCallback((ev: DragEvent<HTMLLabelElement>) => {
     ev.preventDefault();
     ev.stopPropagation();
   }, []);
 
   const handleDrop = useCallback(
-    (ev) => {
+    (ev: DragEvent<HTMLLabelElement>) => {
       ev.preventDefault();
       ev.stopPropagation();
       setDragging(false);
       draggingCount = 0;
 
-      const files = ev.dataTransfer.files;
+      const files = ev.dataTransfer?.files;
       if (files && files.length > 0 && handleChange) {
-        const success = handleChange(ev);
-        if (onDrop && success) onDrop(files);
+        return handleChange(ev);
       }
     },
     [handleChange]

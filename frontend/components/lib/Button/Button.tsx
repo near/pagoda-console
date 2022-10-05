@@ -1,11 +1,10 @@
-import { AnchorHTMLAttributes, ButtonHTMLAttributes, LabelHTMLAttributes, useRef } from 'react';
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, LabelHTMLAttributes } from 'react';
 import { forwardRef } from 'react';
 
 import type { StitchesCSS, StitchesProps } from '@/styles/stitches';
 
 import { FeatherIcon } from '../FeatherIcon';
 import * as S from './styles';
-import useDragging from './useDragging';
 
 type Props = StitchesProps<typeof S.Button> & {
   css?: StitchesCSS;
@@ -15,10 +14,6 @@ type ButtonProps = Props & ButtonHTMLAttributes<HTMLButtonElement>;
 type ButtonDropdownProps = Props & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'>;
 type ButtonLinkProps = Props & AnchorHTMLAttributes<HTMLAnchorElement> & { external?: boolean };
 type ButtonLabelProps = Props & LabelHTMLAttributes<HTMLLabelElement>;
-type ButtonLabelDragAndDropProps = Props & LabelHTMLAttributes<HTMLLabelElement> & {
-  handleChange?: (arg0: any) => any;
-  onDrop?: (arg0: Array<File>) => void;
-};
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ children, type = 'button', stableId, ...props }, ref) => {
@@ -88,21 +83,3 @@ export const ButtonLabel = forwardRef<HTMLLabelElement, ButtonLabelProps>(
   },
 );
 ButtonLabel.displayName = 'ButtonLabel';
-
-export const ButtonLabelDragAndDrop = forwardRef<HTMLLabelElement, ButtonLabelDragAndDropProps>(
-  ({ children, size, stableId, handleChange, onDrop, ...props }, ref) => {
-    const labelRef = useRef<HTMLLabelElement>(null);
-    useDragging({
-      labelRef,
-      handleChange,
-      onDrop,
-    })
-
-    return (
-      <S.DragAndDropButton as="label" ref={labelRef} size={size} data-stable-id={stableId} tabIndex={0} {...props}>
-        <S.Content>{children}</S.Content>
-      </S.DragAndDropButton>
-    );
-  },
-);
-ButtonLabelDragAndDrop.displayName = 'ButtonLabelDragAndDrop';

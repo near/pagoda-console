@@ -1,9 +1,10 @@
-import type { ChangeEvent } from 'react';
+import type { ChangeEvent, DragEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Button, ButtonLabelDragAndDrop, ButtonLink } from '@/components/lib/Button';
+import { Button, ButtonLink } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
 import { CodeBlock } from '@/components/lib/CodeBlock';
+import { DragAndDropLabel } from '@/components/lib/DragAndDrop/DragAndDrop';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
@@ -83,7 +84,7 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
   }, []);
 
   const handleUpload = useCallback(
-    (e) => {
+    (e: ChangeEvent<HTMLInputElement>) => {
       if (!e.target.files?.[0]) {
         return null;
       }
@@ -93,8 +94,8 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
   );
 
   const handleDrop = useCallback(
-    (e) => {
-      if (!e.dataTransfer.files[0]) {
+    (e: DragEvent<HTMLLabelElement>) => {
+      if (!e.dataTransfer?.files[0]) {
         return null;
       }
       loadFilePreview(e.dataTransfer.files[0]);
@@ -166,11 +167,11 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
             To generate an ABI
           </TextLink>
 
-          <ButtonLabelDragAndDrop color="primaryDragAndDropBorder" size="l" handleChange={handleDrop}>
+          <DragAndDropLabel handleChange={handleDrop}>
             <FeatherIcon size="xs" icon="upload" />
             <span>Upload</span> or drop a file here
             <Form.Input type="file" onChange={handleUpload} file tabIndex={-1} accept="application/JSON" />
-          </ButtonLabelDragAndDrop>
+          </DragAndDropLabel>
         </Flex>
 
         <CodeBlock css={{ maxHeight: MAX_CODE_HEIGHT }} onPaste={handlePaste} language="json">
