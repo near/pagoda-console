@@ -15,7 +15,8 @@
     "format:verify": "prettier --check '**/*.{js,jsx,ts,tsx,json,css,scss,md,yml}'",
     "format": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md,yml}'",
     "prepare": "husky install",
-    "postinstall": "npm run -w database generate"
+    "postinstall": "npm run -w database generate",
+    "dev": "turbo run dev"
   },
   "repository": {
     "type": "git",
@@ -28,8 +29,9 @@
   "homepage": "https://github.com/near/pagoda-console#readme",
   "devDependencies": {
     "husky": "^8.0.0",
+    "lint-staged": "^12.4.0",
     "prettier": "^2.7.1",
-    "lint-staged": "^12.4.0"
+    "turbo": "^1.5.5"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,css,scss,md,json,yml}": "prettier --check"
