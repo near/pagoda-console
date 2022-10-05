@@ -5,7 +5,7 @@ Imports should target `@pc/database/clients/<module>`
 e.g.
 
 ```ts
-import { User } from "@pc/database/clients/core";
+import { User } from '@pc/database/clients/core';
 ```
 
 ## Client Generation
