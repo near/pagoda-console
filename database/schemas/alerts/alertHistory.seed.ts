@@ -6,21 +6,27 @@
   Creates 10 records with a 1s delay between records. To create more, change line 59.
 */
 
-import { Alert, PrismaClient } from '../../clients/alerts';
-import { createHash, randomBytes } from 'crypto';
+import { Alert, PrismaClient } from "../../clients/alerts";
+import { createHash, randomBytes } from "crypto";
 const prisma = new PrismaClient();
 
 function randomHash() {
-  const randomString = randomBytes(20).toString('hex');
-  return createHash('sha256').update(randomString).digest('base64');
+  const randomString = randomBytes(20).toString("hex");
+  return createHash("sha256").update(randomString).digest("base64");
 }
 
-async function createTriggeredAlertAndScheduleNext(alert, numberRemaining: number) {
+async function createTriggeredAlertAndScheduleNext(
+  alert,
+  numberRemaining: number
+) {
   if (numberRemaining <= 0) {
     return;
   }
   await createTriggeredAlert(alert);
-  setTimeout(() => createTriggeredAlertAndScheduleNext(alert, numberRemaining - 1), 1000);
+  setTimeout(
+    () => createTriggeredAlertAndScheduleNext(alert, numberRemaining - 1),
+    1000
+  );
 }
 async function createTriggeredAlert(firstAlert: Alert) {
   const triggeredAlert = await prisma.triggeredAlert.create({
@@ -32,10 +38,10 @@ async function createTriggeredAlert(firstAlert: Alert) {
       triggeredInTransactionHash: randomHash(),
       triggeredInReceiptId: randomHash(),
       triggeredAt: new Date(),
-      extraData: { foo: 'bar' },
+      extraData: { foo: "bar" },
     },
   });
-  console.log('Created: ', { triggeredAlert });
+  console.log("Created: ", { triggeredAlert });
 }
 
 async function main() {
@@ -44,7 +50,9 @@ async function main() {
   const firstAlert = await prisma.alert.findFirst();
 
   if (!firstAlert) {
-    console.error('Please generate at least 1 alert before running this script');
+    console.error(
+      "Please generate at least 1 alert before running this script"
+    );
     process.exit(1);
   }
 
