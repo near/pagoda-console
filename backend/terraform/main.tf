@@ -121,4 +121,9 @@ module "api" {
   database_connection_name     = module.postgres.database_connection_name
   ems_vpc_access_connector     = var.ems_vpc_access_connector
   ems_provisioning_service_url = var.ems_provisioning_service_url
+
+  # Secret versions
+  mixpanel_token_version       = var.mixpanel_token_version
+  mailgun_api_key_version      = var.mailgun_api_key_version
+  rpc_api_keys_api_key_version = var.rpc_api_keys_api_key_version
 }
