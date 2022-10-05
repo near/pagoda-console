@@ -371,13 +371,20 @@ export default function validate(config: Record<string, unknown>): AppConfig {
   // Joi.attempt will return the validated object with values
   // cast to their proper types or throw an error if validation
   // fails
-  const validatedConfig: AppConfig = Joi.attempt(
-    structuredConfig,
-    appConfigSchema,
-    {
-      presence: 'required',
-    },
-  );
-
-  return validatedConfig;
+  try {
+    const validatedConfig: AppConfig = Joi.attempt(
+      structuredConfig,
+      appConfigSchema,
+      {
+        presence: 'required',
+      },
+    );
+    return validatedConfig;
+  } catch (e) {
+    if (e.details) {
+      // very simplistic error formatic since we are replacing Joi soon anyways
+      throw new Error(JSON.stringify(e.details));
+    }
+    throw e;
+  }
 }
