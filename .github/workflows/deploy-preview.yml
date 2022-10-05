@@ -95,6 +95,26 @@ jobs:
         run: |
           echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
           echo "VERCEL_AUTH_TOKEN=${{ secrets.VERCEL_AUTH_TOKEN }}" >> $GITHUB_ENV
+      - name: "Generate temp DB password"
+        run: |
+          echo "TEMP_DB_PASSWORD=$(../scripts/generate_temp_db_password.sh)" >> $GITHUB_ENV
+
+      - name: "Export secret related env variables"
+        run: |
+          echo "DATABASE_CONNECTION_NAME=$(terraform output -raw database_connection_name)" >> $GITHUB_ENV
+          echo "DATABASE_SECRET_SUFFIX=$(terraform output -raw database_secret_suffix)" >> $GITHUB_ENV
+
+      - name: "GCP DB secrets"
+        run: |
+          ../scripts/gcp_new_secret.sh postgresql://postgres:${TEMP_DB_PASSWORD}@localhost/devconsole?host=/cloudsql/${DATABASE_CONNECTION_NAME} DATABASE_URL_${DATABASE_SECRET_SUFFIX} &&
+          ../scripts/gcp_new_secret.sh postgresql://postgres:${TEMP_DB_PASSWORD}@localhost/abi?host=/cloudsql/${DATABASE_CONNECTION_NAME} ABI_DATABASE_URL_${DATABASE_SECRET_SUFFIX} &&
+          ../scripts/gcp_new_secret.sh postgresql://postgres:${TEMP_DB_PASSWORD}@localhost/alerts?host=/cloudsql/${DATABASE_CONNECTION_NAME} ALERTS_DATABASE_URL_${DATABASE_SECRET_SUFFIX} &&
+          ../scripts/gcp_new_secret.sh postgresql://postgres:${TEMP_DB_PASSWORD}@localhost/rpcstats?host=/cloudsql/${DATABASE_CONNECTION_NAME} RPCSTATS_DATABASE_URL_${DATABASE_SECRET_SUFFIX} &&
+
+          ../scripts/gcp_access_secret.sh DATABASE_URL_${DATABASE_SECRET_SUFFIX} ${{secrets.API_SERVICE_ACCOUNT_PREVIEW}} &&
+          ../scripts/gcp_access_secret.sh ABI_DATABASE_URL_${DATABASE_SECRET_SUFFIX} ${{secrets.API_SERVICE_ACCOUNT_PREVIEW}} && 
+          ../scripts/gcp_access_secret.sh ALERTS_DATABASE_URL_${DATABASE_SECRET_SUFFIX} ${{secrets.API_SERVICE_ACCOUNT_PREVIEW}} &&
+          ../scripts/gcp_access_secret.sh RPCSTATS_DATABASE_URL_${DATABASE_SECRET_SUFFIX} ${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}
 
       - name: Terraform Plan
         run: |
@@ -104,7 +124,7 @@ jobs:
 
           terraform plan -input=false -out=tfplan.out -var-file ./env/preview.tfvars \
             -var "namespace=${PREVIEW_NAMESPACE}" \
-            -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
+            -var "database_password=${TEMP_DB_PASSWORD}" \
             -var "api_image=${{needs.docker-build-and-push.outputs.image}}" \
             -var "frontend_base_url=${FRONTEND_BASE_URL}" \
             -var "api_service_account=${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}"
@@ -113,6 +133,24 @@ jobs:
         run: |
           terraform apply -input=false tfplan.out
           echo "API_BASE_URL=$(terraform output -raw api_public_url)" >> $GITHUB_ENV
+
+      - name: Update DB password in DB
+        run: |
+          gcloud sql users set-password ${{secrets.API_SERVICE_ACCOUNT_PREVIEW}} \
+            --instance=$(terraform output -raw database_instance_name) \
+            --password=${{secrets.DATABASE_PASSWORD_PREVIEW}}
+
+      - name: Update DB passwords in secrets manager
+        run: |
+          echo ${{secrets.DATABASE_PASSWORD_PREVIEW}} | gcloud secrets versions add DATABASE_URL_${DATABASE_SECRET_SUFFIX} --data-file=- &&
+          echo ${{secrets.DATABASE_PASSWORD_PREVIEW}} | gcloud secrets versions add ABI_DATABASE_URL_${DATABASE_SECRET_SUFFIX} --data-file=- &&
+          echo ${{secrets.DATABASE_PASSWORD_PREVIEW}} | gcloud secrets versions add ALERTS_DATABASE_URL_${DATABASE_SECRET_SUFFIX} --data-file=- &&
+          echo ${{secrets.DATABASE_PASSWORD_PREVIEW}} | gcloud secrets versions add RPCSTATS_DATABASE_URL_${DATABASE_SECRET_SUFFIX} --data-file=- &&
+      - name: Restart api
+        run: |
+          echo "API_NAME=$(terraform output -raw api_name)" >> $GITHUB_ENV
+          gcloud run deploy ${API_NAME} --namespace=${PREVIEW_NAMESPACE} \
+           --image=${{needs.docker-build-and-push.outputs.image}}
 
       - name: Vercel deploy with API URL
         run: |

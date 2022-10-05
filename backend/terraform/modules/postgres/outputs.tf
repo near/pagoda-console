@@ -6,3 +6,7 @@ output "database_public_ip_address" {
 output "database_connection_name" {
   value = google_sql_database_instance.console_db.connection_name
 }
+
+output "database_instance_name" {
+  value = google_sql_database_instance.console_db.name
+}
