@@ -3,7 +3,7 @@ import {
   EmailDestination,
   TelegramDestination,
   WebhookDestination,
-} from 'pagoda-console-database/clients/alerts';
+} from '@pc/database/clients/alerts';
 
 export type RuleType =
   | 'TX_SUCCESS'

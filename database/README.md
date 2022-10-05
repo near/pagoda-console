@@ -1,11 +1,11 @@
 ## Imports
 
-Imports should target `pagoda-console-database/clients/<module>`
+Imports should target `@pc/database/clients/<module>`
 
 e.g.
 
 ```ts
-import { User } from 'pagoda-console-database/clients/core';
+import { User } from "@pc/database/clients/core";
 ```
 
 ## Client Generation

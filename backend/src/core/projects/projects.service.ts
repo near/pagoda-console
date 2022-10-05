@@ -9,7 +9,7 @@ import {
   Environment,
   ApiKey,
   Org,
-} from 'pagoda-console-database/clients/core';
+} from '@pc/database/clients/core';
 import { VError } from 'verror';
 import { customAlphabet } from 'nanoid';
 import { ConfigService } from '@nestjs/config';

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
-import { TelegramDestination } from 'pagoda-console-database/clients/alerts';
+import { TelegramDestination } from '@pc/database/clients/alerts';
 import { DateTime } from 'luxon';
 import { AppConfig } from 'src/config/validate';
 import { VError } from 'verror';

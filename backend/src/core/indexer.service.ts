@@ -29,7 +29,7 @@ const DS_INDEXER_TESTNET = 'DS_INDEXER_TESTNET';
 // }
 
 import { Sequelize, QueryTypes } from 'sequelize';
-import { Net } from 'pagoda-console-database/clients/core';
+import { Net } from '@pc/database/clients/core';
 import { AppConfig } from '../config/validate';
 
 @Injectable()

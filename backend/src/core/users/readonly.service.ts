@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { Org, Team, User } from 'pagoda-console-database/clients/core';
+import { Org, Team, User } from '@pc/database/clients/core';
 import { VError } from 'verror';
 
 @Injectable()

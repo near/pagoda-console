@@ -1,6 +1,6 @@
 import { INestApplication, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaClient } from 'pagoda-console-database/clients/alerts';
+import { PrismaClient } from '@pc/database/clients/alerts';
 import { AppConfig } from '../../config/validate';
 
 @Injectable()

@@ -1,5 +1,5 @@
 {
-  "name": "pagoda-console-database",
+  "name": "@pc/database",
   "version": "1.0.0",
   "description": "",
   "scripts": {
