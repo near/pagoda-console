@@ -51,3 +51,21 @@ variable "ems_provisioning_service_url" {
   type     = string
   nullable = false
 }
+
+variable "mixpanel_token_version" {
+  type     = string
+  nullable = false
+  default  = "1"
+}
+
+variable "mailgun_api_key_version" {
+  type     = string
+  nullable = false
+  default  = "1"
+}
+
+variable "rpc_api_keys_api_key_version" {
+  type     = string
+  nullable = false
+  default  = "1"
+}
