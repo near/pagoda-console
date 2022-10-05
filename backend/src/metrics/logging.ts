@@ -1,4 +1,3 @@
-import { RequestHandler } from 'express-serve-static-core';
 import {
   collectDefaultMetrics,
   Counter,
@@ -51,15 +50,3 @@ export const createLogging = async (registry: Registry) => {
     },
   };
 };
-
-export const getMetricsHandler =
-  (registry: Registry): RequestHandler =>
-  async (_req, res, next) => {
-    try {
-      res.setHeader('content-type', registry.contentType);
-      const metrics = await registry.metrics();
-      res.send(metrics);
-    } catch (error) {
-      return next(error);
-    }
-  };

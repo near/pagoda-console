@@ -9,13 +9,10 @@ import { Registry } from 'prom-client';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { AppConfig } from '../config/validate';
-import { createLogging, getMetricsHandler } from './logging';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const express = require('express');
+import { createLogging } from './logging';
 
 @Injectable()
 export class PromethusInterceptor implements NestInterceptor {
-  static server;
   config: ConfigService<AppConfig>;
   port: number;
   logger: {
@@ -45,12 +42,6 @@ export class PromethusInterceptor implements NestInterceptor {
       }),
     });
     this.logger = await createLogging(PromethusInterceptor.registry);
-    const app = express();
-    app.use('/metrics', getMetricsHandler(PromethusInterceptor.registry));
-    const port = this.config.get('metricsPort', {
-      infer: true,
-    });
-    PromethusInterceptor.server = app.listen(port);
   }
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -77,13 +68,3 @@ export class PromethusInterceptor implements NestInterceptor {
     );
   }
 }
-
-process.on('SIGTERM', async () => {
-  try {
-    await PromethusInterceptor.server.close();
-    process.exit(0);
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
-});
