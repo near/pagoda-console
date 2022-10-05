@@ -10,9 +10,9 @@ import {
   ApikeyEndpointMetricsPerBaseWindow,
   ApikeyGeographyMetricsPerBaseWindow,
   PrismaClient,
-} from "../../clients/rpcstats";
-import { DateTime } from "luxon";
-import { createHash, randomBytes } from "crypto";
+} from '../../clients/rpcstats';
+import { DateTime } from 'luxon';
+import { createHash, randomBytes } from 'crypto';
 const prisma = new PrismaClient();
 
 type metric =
@@ -23,13 +23,13 @@ const ROWS_TO_CREATE = 900;
 const WINDOW_LENGTH_IN_SECONDS = 15;
 const startingSecondsAgo = WINDOW_LENGTH_IN_SECONDS * ROWS_TO_CREATE;
 const startDateTime = DateTime.now()
-  .setZone("UTC")
-  .startOf("minute") // align window with minute
+  .setZone('UTC')
+  .startOf('minute') // align window with minute
   .minus({ seconds: startingSecondsAgo });
 
 function randomHash() {
-  const randomString = randomBytes(20).toString("hex");
-  return createHash("sha256").update(randomString).digest("base64");
+  const randomString = randomBytes(20).toString('hex');
+  return createHash('sha256').update(randomString).digest('base64');
 }
 
 function randomNumber(min: number, max: number) {
@@ -64,7 +64,7 @@ async function createRow(iteration: number) {
         apiKeyConsumerId: process.env.SEED_CONSUMER_ID,
         successCount: Math.ceil(randomNumber(1, 100)),
         errorCount: Math.floor(randomNumber(1, 3)),
-        network: "TESTNET",
+        network: 'TESTNET',
         minLatency: minLatency,
         maxLatency: maxLatency,
         meanLatency: meanLatency,
@@ -76,8 +76,8 @@ async function createRow(iteration: number) {
         // endpointMethod: 'gas_price',
         // endpointGroup: 'Network',
         // endpointMethod: 'status',
-        endpointGroup: "Network",
-        endpointMethod: "network_info",
+        endpointGroup: 'Network',
+        endpointMethod: 'network_info',
         year: windowStartTime.year,
         month: windowStartTime.month,
         day: windowStartTime.day,
@@ -89,11 +89,11 @@ async function createRow(iteration: number) {
   } catch (e) {
     // console.error(e);
     console.error(
-      "Error, likely there is already data for this endpoint and time. Continuing",
+      'Error, likely there is already data for this endpoint and time. Continuing',
       windowStartTime.day,
       windowStartTime.hour,
       windowStartTime.minute,
-      windowStartTime.second
+      windowStartTime.second,
     );
   }
   // console.log('Created: ', { row });
