@@ -37,7 +37,7 @@ e.g.
 npx prisma migrate dev --create-only --schema=schemas/<module>/schema.prisma
 ```
 
-To apply all migrations in production mode
+To apply all migrations in production mode (should only be needed by CI)
 
 ```
 npm run migrate:deploy
