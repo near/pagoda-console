@@ -23,7 +23,7 @@ export const DragAndDropButton = styled('button', {
   fontWeight: 500,
   fontFamily: 'var(--font-action)',
   fontSize: 'var(--font-size-body-small)',
-  height: 'calc(2 * var(--size-input-height-s))',
+  height: 'var(--size-input-height-m)',
   padding: '0 var(--space-m)',
   flexShrink: 0,
   transition: 'var(--transitions)',

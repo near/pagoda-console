@@ -92,14 +92,6 @@ export const Button = styled('button', {
           background: 'var(--color-surface-1)',
         },
       },
-      primaryDragAndDropBorder: {
-        background: 'transparent',
-        boxShadow: 'none',
-        color: 'var(--color-primary)',
-        '&:hover': {
-          background: 'var(--color-surface-1)',
-        },
-      },
       neutral: {
         background: 'transparent',
         boxShadow: 'inset 0 0 0 1px var(--color-surface-5)',
@@ -158,12 +150,6 @@ export const Button = styled('button', {
         fontSize: 'var(--font-size-body)',
         height: 'var(--size-input-height-m)',
       },
-      l: {
-        fontSize: 'var(--font-size-body-small)',
-        height: 'calc(2 * var(--size-input-height-s))',
-        padding: '0 var(--space-s)',
-        borderRadius: 'var(--border-radius-xs)',
-      },
     },
 
     stretch: {
@@ -177,10 +163,4 @@ export const Button = styled('button', {
     color: 'primary',
     size: 'm',
   },
-});
-
-export const DragAndDropButton = styled(Button, {
-  display: 'flex',
-  alignItems: 'center',
-  border: `dashed 2px currentColor`,
 });

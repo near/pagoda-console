@@ -15,16 +15,13 @@ import { Text } from '../Text';
 type Props = ComponentProps<typeof SyntaxHighlighter> & {
   children: ReactNode;
   css?: StitchesCSS;
-  onPaste?: (event: any) => void;
 };
 
-export function CodeBlock({ children, css, customStyle, onPaste, ...passedProps }: Props) {
+export function CodeBlock({ children, css, customStyle, ...passedProps }: Props) {
   const { activeTheme } = useTheme();
   const isChildString = typeof children === 'string';
   const [showCopiedAlert, setShowCopiedAlert] = useState(false);
-  const [showPastedAlert, setShowPastedAlert] = useState(false);
   const copiedTimer = useRef<NodeJS.Timeout>();
-  const pastedTimer = useRef<NodeJS.Timeout>();
   const codeTheme = activeTheme === 'dark' ? atomOneDark : atomOneLight;
 
   function copyCode() {
@@ -37,18 +34,6 @@ export function CodeBlock({ children, css, customStyle, onPaste, ...passedProps 
     setShowCopiedAlert(true);
     copiedTimer.current = setTimeout(() => {
       setShowCopiedAlert(false);
-    }, 2000);
-  }
-
-  function pasteCode(event: any) {
-    if (pastedTimer.current) {
-      clearTimeout(pastedTimer.current);
-    }
-
-    if (onPaste) onPaste(event);
-    setShowPastedAlert(true);
-    pastedTimer.current = setTimeout(() => {
-      setShowPastedAlert(false);
     }, 2000);
   }
 
@@ -109,38 +94,6 @@ export function CodeBlock({ children, css, customStyle, onPaste, ...passedProps 
           <Text>Copied!</Text>
         </Popover.Content>
       </Popover.Root>
-
-      {onPaste && (
-        <Popover.Root open={showPastedAlert} onOpenChange={setShowPastedAlert}>
-          <Popover.Anchor asChild>
-            <Button
-              aria-label="Paste code to clipboard"
-              color="neutral"
-              size="s"
-              onClick={pasteCode}
-              css={{
-                position: 'absolute',
-                top: '0rem',
-                right: '1.5rem',
-                background: 'transparent',
-                boxShadow: 'none',
-                borderRadius: '0 0 0 var(--border-radius-m)',
-                padding: '0 6px',
-
-                '&:hover': {
-                  background: 'var(--color-surface-overlay)',
-                },
-              }}
-            >
-              <FeatherIcon icon="clipboard" size="xs" />
-            </Button>
-          </Popover.Anchor>
-
-          <Popover.Content side="top">
-            <Text>Pasted!</Text>
-          </Popover.Content>
-        </Popover.Root>
-      )}
     </Box>
   );
 }

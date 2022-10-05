@@ -1,7 +1,7 @@
 import type { ChangeEvent, DragEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Button, ButtonLink } from '@/components/lib/Button';
+import { Button, ButtonLabel, ButtonLink } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
 import { CodeBlock } from '@/components/lib/CodeBlock';
 import { DragAndDropLabel } from '@/components/lib/DragAndDrop/DragAndDrop';
@@ -167,14 +167,18 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
             To generate an ABI
           </TextLink>
 
+          <ButtonLabel color="primaryBorder" size="m" onClick={handlePaste}>
+            Upload from clipboard
+          </ButtonLabel>
+
           <DragAndDropLabel handleChange={handleDrop}>
             <FeatherIcon size="xs" icon="upload" />
-            <span>Upload</span> or drop a file here
+            Upload or drop a file here
             <Form.Input type="file" onChange={handleUpload} file tabIndex={-1} accept="application/JSON" />
           </DragAndDropLabel>
         </Flex>
 
-        <CodeBlock css={{ maxHeight: MAX_CODE_HEIGHT }} onPaste={handlePaste} language="json">
+        <CodeBlock css={{ maxHeight: MAX_CODE_HEIGHT }} language="json">
           {!previewAbi ? '{}' : JSON.stringify(JSON.parse(previewAbi), null, 2)}
         </CodeBlock>
       </ConfirmModal>
