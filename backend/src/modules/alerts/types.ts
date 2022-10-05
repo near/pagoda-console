@@ -3,7 +3,7 @@ import {
   EmailDestination,
   TelegramDestination,
   WebhookDestination,
-} from 'generated/prisma/alerts';
+} from '@pc/database/clients/alerts';
 
 export type RuleType =
   | 'TX_SUCCESS'

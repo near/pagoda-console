@@ -1,10 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  Contract,
-  Environment,
-  Net,
-  Project,
-} from '../../../generated/prisma/core';
+import { Contract, Environment, Net, Project } from '@pc/database/clients/core';
 import { PrismaService } from '../prisma.service';
 import { VError } from 'verror';
 
