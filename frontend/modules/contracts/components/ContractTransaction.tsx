@@ -90,16 +90,16 @@ const UseMaxButton = styled(Button, {
     background: 'transparent !important',
   },
   '&:focus': {
-    outline: 'none'
+    outline: 'none',
   },
 
   variants: {
     hidden: {
       true: {
         visibility: 'hidden',
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
 interface Props {
@@ -513,7 +513,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                   <Form.Feedback>{form.formState.errors.gas?.message}</Form.Feedback>
 
                   <UseMaxButton
-                    color='transparent'
+                    color="transparent"
                     onClick={() => {
                       form.setValue('gas', '300');
                       form.setValue('gasFormat', 'Tgas');
@@ -585,7 +585,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   );
 };
 
-const TxResultView = ({ result, error }: { result: any, error: any }) => {
+const TxResultView = ({ result, error }: { result: any; error: any }) => {
   if (!result && !error) {
     return <SendTransactionBanner />;
   }
