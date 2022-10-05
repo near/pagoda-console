@@ -5,7 +5,7 @@
   "scripts": {
     "migrate:deploy": "./scripts/prisma.sh migrate deploy",
     "migrate:reset": "./scripts/prisma.sh migrate reset --force",
-    "generate": "./scripts/prisma.sh generate"
+    "build": "./scripts/prisma.sh generate"
   },
   "repository": {
     "type": "git",

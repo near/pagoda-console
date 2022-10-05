@@ -15,8 +15,10 @@
     "format:verify": "prettier --check '**/*.{js,jsx,ts,tsx,json,css,scss,md,yml}'",
     "format": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md,yml}'",
     "prepare": "husky install",
-    "postinstall": "npm run -w database generate",
-    "dev": "turbo run dev"
+    "postinstall": "npm run -w database build",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start"
   },
   "repository": {
     "type": "git",

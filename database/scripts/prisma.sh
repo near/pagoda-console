@@ -2,7 +2,7 @@
 
 if [ -z "$1" ]
 then
-    echo "usage: ./prisma_migrate.sh <sub_command>";
+    echo "usage: ./scripts/prisma.sh <sub_command>";
     exit 1;
 fi;
 
