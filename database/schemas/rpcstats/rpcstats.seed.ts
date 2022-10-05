@@ -15,7 +15,9 @@ import { DateTime } from 'luxon';
 import { createHash, randomBytes } from 'crypto';
 const prisma = new PrismaClient();
 
-type metric = ApikeyEndpointMetricsPerBaseWindow | ApikeyGeographyMetricsPerBaseWindow;
+type metric =
+  | ApikeyEndpointMetricsPerBaseWindow
+  | ApikeyGeographyMetricsPerBaseWindow;
 
 const ROWS_TO_CREATE = 900;
 const WINDOW_LENGTH_IN_SECONDS = 15;
@@ -49,7 +51,9 @@ async function createRow(iteration: number) {
   const windowStartTime = startDateTime.plus({
     seconds: WINDOW_LENGTH_IN_SECONDS * iteration,
   });
-  const windowEndTime = windowStartTime.plus({ seconds: WINDOW_LENGTH_IN_SECONDS }).minus({ milliseconds: 1 });
+  const windowEndTime = windowStartTime
+    .plus({ seconds: WINDOW_LENGTH_IN_SECONDS })
+    .minus({ milliseconds: 1 });
 
   try {
     const row = await prisma.apikeyEndpointMetricsPerBaseWindow.create({

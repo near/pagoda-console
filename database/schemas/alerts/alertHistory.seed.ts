@@ -15,12 +15,18 @@ function randomHash() {
   return createHash('sha256').update(randomString).digest('base64');
 }
 
-async function createTriggeredAlertAndScheduleNext(alert, numberRemaining: number) {
+async function createTriggeredAlertAndScheduleNext(
+  alert,
+  numberRemaining: number,
+) {
   if (numberRemaining <= 0) {
     return;
   }
   await createTriggeredAlert(alert);
-  setTimeout(() => createTriggeredAlertAndScheduleNext(alert, numberRemaining - 1), 1000);
+  setTimeout(
+    () => createTriggeredAlertAndScheduleNext(alert, numberRemaining - 1),
+    1000,
+  );
 }
 async function createTriggeredAlert(firstAlert: Alert) {
   const triggeredAlert = await prisma.triggeredAlert.create({
@@ -44,7 +50,9 @@ async function main() {
   const firstAlert = await prisma.alert.findFirst();
 
   if (!firstAlert) {
-    console.error('Please generate at least 1 alert before running this script');
+    console.error(
+      'Please generate at least 1 alert before running this script',
+    );
     process.exit(1);
   }
 
