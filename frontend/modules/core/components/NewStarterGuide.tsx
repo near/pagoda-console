@@ -156,7 +156,7 @@ export default function NewStarterGuide() {
         <Text>Pagoda RPC service follows NEAR RPC standards.</Text>
         <Text>
           Refer to the{' '}
-          <TextLink href="https://docs.near.org/api/overview" external>
+          <TextLink href="https://docs.near.org/api/rpc/introduction" external>
             NEAR API Documentation
           </TextLink>{' '}
           for the list of JSON RPC methods to interact with the NEAR blockchain and instructions below in the dropdown
