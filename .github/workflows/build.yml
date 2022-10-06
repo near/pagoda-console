@@ -18,9 +18,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Prisma Clients
-        run: npm -w backend run prisma:generate
-
       - name: Test building a project
         run: npm -w backend run build
 

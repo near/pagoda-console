@@ -9,7 +9,7 @@ datasource db {
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["linux-musl", "native"]
-  output        = "../../../generated/prisma/core"
+  output        = env("GENERATE_PATH")
 }
 
 model User {
@@ -19,8 +19,8 @@ model User {
   /// If 'false', the record was soft-deleted by a user.
   active              Boolean       @default(true)
   teamMembers         TeamMember[]
-  createdAt           DateTime?     @default(now())
-  updatedAt           DateTime?     @updatedAt
+  createdAt           DateTime?     @default(now()) @db.Timestamptz
+  updatedAt           DateTime?     @updatedAt @db.Timestamptz
   createdTeams        Team[]        @relation("UserCreatedTeam")
   updatedTeams        Team[]        @relation("UserUpdatedTeam")
   createdTeamMembers  TeamMember[]  @relation("UserCreatedTeamMember")
@@ -53,12 +53,12 @@ model Team {
   active        Boolean       @default(true)
   teamMembers   TeamMember[]
   teamProjects  TeamProject[]
-  createdAt     DateTime?     @default(now())
+  createdAt     DateTime?     @default(now()) @db.Timestamptz
   createdByUser User?         @relation(name: "UserCreatedTeam", fields: [createdBy], references: [id])
   /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?         @relation(name: "UserUpdatedTeam", fields: [updatedBy], references: [id])
-  updatedAt     DateTime?     @updatedAt
+  updatedAt     DateTime?     @updatedAt @db.Timestamptz
   /// Reference to the user id who last updated the record.
   updatedBy     Int?
   org           Org           @relation(fields: [orgSlug], references: [slug])
@@ -72,12 +72,12 @@ model TeamMember {
   userId        Int
   team          Team      @relation(fields: [teamId], references: [id])
   teamId        Int
-  createdAt     DateTime? @default(now())
+  createdAt     DateTime? @default(now()) @db.Timestamptz
   createdByUser User?     @relation(name: "UserCreatedTeamMember", fields: [createdBy], references: [id])
   /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?     @relation(name: "UserUpdatedTeamMember", fields: [updatedBy], references: [id])
-  updatedAt     DateTime? @updatedAt
+  updatedAt     DateTime? @updatedAt @db.Timestamptz
   /// Reference to the user id who last updated the record.
   updatedBy     Int?
 
@@ -94,13 +94,13 @@ model Org {
   projects          Project[]
   orgInvites        OrgInvite[]
   teams             Team[]
-    /// Foreign key to the kong consumer object in EMS
+  /// Foreign key to the kong consumer object in EMS
   emsId             String      @unique
-  createdAt         DateTime?   @default(now())
+  createdAt         DateTime?   @default(now()) @db.Timestamptz
   createdByUser     User?       @relation(name: "UserCreatedOrg", fields: [createdBy], references: [id])
   createdBy         Int?
   updatedByUser     User?       @relation(name: "UserUpdatedOrg", fields: [updatedBy], references: [id])
-  updatedAt         DateTime?   @updatedAt
+  updatedAt         DateTime?   @updatedAt @db.Timestamptz
   updatedBy         Int?
 }
 
@@ -110,11 +110,11 @@ model OrgMember {
   user          User      @relation(fields: [userId], references: [id])
   userId        Int
   role          OrgRole
-  createdAt     DateTime? @default(now())
+  createdAt     DateTime? @default(now()) @db.Timestamptz
   createdByUser User?     @relation(name: "UserCreatedOrgMember", fields: [createdBy], references: [id])
   createdBy     Int?
   updatedByUser User?     @relation(name: "UserUpdatedOrgMember", fields: [updatedBy], references: [id])
-  updatedAt     DateTime? @updatedAt
+  updatedAt     DateTime? @updatedAt @db.Timestamptz
   updatedBy     Int?
 
   @@id([orgSlug, userId])
@@ -132,8 +132,8 @@ model OrgInvite {
   email          String
   role           OrgRole
   token          String    @unique
-  tokenExpiresAt DateTime
-  createdAt      DateTime? @default(now())
+  tokenExpiresAt DateTime  @db.Timestamptz
+  createdAt      DateTime? @default(now()) @db.Timestamptz
   createdByUser  User?     @relation(name: "UserCreatedOrgInvite", fields: [createdBy], references: [id])
   createdBy      Int?
   updatedByUser  User?     @relation(name: "UserUpdatedOrgInvite", fields: [updatedBy], references: [id])
@@ -152,12 +152,12 @@ model Project {
   teamProjects  TeamProject[]
   environments  Environment[]
   tutorial      ProjectTutorial?
-  createdAt     DateTime?        @default(now())
+  createdAt     DateTime?        @default(now()) @db.Timestamptz
   createdByUser User?            @relation(name: "UserCreatedProject", fields: [createdBy], references: [id])
   /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?            @relation(name: "UserUpdatedProject", fields: [updatedBy], references: [id])
-  updatedAt     DateTime?        @updatedAt
+  updatedAt     DateTime?        @updatedAt @db.Timestamptz
   /// Reference to the user id who last updated the record.
   updatedBy     Int?
   org           Org              @relation(fields: [orgSlug], references: [slug])
@@ -173,12 +173,12 @@ model TeamProject {
   projectId     Int
   /// If 'false', the record was soft-deleted by a user.
   active        Boolean   @default(true)
-  createdAt     DateTime? @default(now())
+  createdAt     DateTime? @default(now()) @db.Timestamptz
   createdByUser User?     @relation(name: "UserCreatedTeamProject", fields: [createdBy], references: [id])
   /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?     @relation(name: "UserUpdatedTeamProject", fields: [updatedBy], references: [id])
-  updatedAt     DateTime? @updatedAt
+  updatedAt     DateTime? @updatedAt @db.Timestamptz
   /// Reference to the user id who last updated the record.
   updatedBy     Int?
 
@@ -191,19 +191,19 @@ enum Net {
 }
 
 model ApiKey {
-  id            Int        @id @default(autoincrement())
-  slug          String     @unique
+  id            Int       @id @default(autoincrement())
+  slug          String    @unique
   projectSlug   String
   orgSlug       String
   description   String
   /// If 'false', the record was soft-deleted by a user.
-  active        Boolean     @default(true)
-  createdAt     DateTime?        @default(now())
-  createdByUser User?            @relation(name: "UserCreatedApiKey", fields: [createdBy], references: [id])
+  active        Boolean   @default(true)
+  createdAt     DateTime? @default(now()) @db.Timestamptz
+  createdByUser User?     @relation(name: "UserCreatedApiKey", fields: [createdBy], references: [id])
   /// Reference to the user id who created the record.
   createdBy     Int?
-  updatedByUser User?            @relation(name: "UserUpdatedApiKey", fields: [updatedBy], references: [id])
-  updatedAt     DateTime?        @updatedAt
+  updatedByUser User?     @relation(name: "UserUpdatedApiKey", fields: [updatedBy], references: [id])
+  updatedAt     DateTime? @updatedAt @db.Timestamptz
   /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }
@@ -218,12 +218,12 @@ model Environment {
   /// If 'false', the record was soft-deleted by a user.
   active        Boolean    @default(true)
   contracts     Contract[]
-  createdAt     DateTime?  @default(now())
+  createdAt     DateTime?  @default(now()) @db.Timestamptz
   createdByUser User?      @relation(name: "UserCreatedEnvironment", fields: [createdBy], references: [id])
   /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?      @relation(name: "UserUpdatedEnvironment", fields: [updatedBy], references: [id])
-  updatedAt     DateTime?  @updatedAt
+  updatedAt     DateTime?  @updatedAt @db.Timestamptz
   /// Reference to the user id who last updated the record.
   updatedBy     Int?
 
@@ -240,12 +240,12 @@ model Contract {
   net           Net
   /// If 'false', the record was soft-deleted by a user.
   active        Boolean     @default(true)
-  createdAt     DateTime?   @default(now())
+  createdAt     DateTime?   @default(now()) @db.Timestamptz
   createdByUser User?       @relation(name: "UserCreatedContract", fields: [createdBy], references: [id])
   /// Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?       @relation(name: "UserUpdatedContract", fields: [updatedBy], references: [id])
-  updatedAt     DateTime?   @updatedAt
+  updatedAt     DateTime?   @updatedAt @db.Timestamptz
   /// Reference to the user id who last updated the record.
   updatedBy     Int?
 }
@@ -262,7 +262,7 @@ model UserAction {
   data            Json?
   user            User           @relation(fields: [userId], references: [id])
   userId          Int
-  actionTimestamp DateTime       @default(now())
+  actionTimestamp DateTime       @default(now()) @db.Timestamptz
 }
 
 enum UserActionType {

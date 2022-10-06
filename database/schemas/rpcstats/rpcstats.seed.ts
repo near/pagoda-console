@@ -10,7 +10,7 @@ import {
   ApikeyEndpointMetricsPerBaseWindow,
   ApikeyGeographyMetricsPerBaseWindow,
   PrismaClient,
-} from '../../../../generated/prisma/rpcstats';
+} from '../../clients/rpcstats';
 import { DateTime } from 'luxon';
 import { createHash, randomBytes } from 'crypto';
 const prisma = new PrismaClient();

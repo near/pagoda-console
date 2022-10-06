@@ -33,6 +33,7 @@ import { useRouteParam } from '@/hooks/route';
 import { useIdentity } from '@/hooks/user';
 import { styled } from '@/styles/stitches';
 import { formValidations } from '@/utils/constants';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout, Organization, OrganizationMember, OrganizationRole } from '@/utils/types';
 
 const ROLES: OrganizationRole[] = ['COLLABORATOR', 'ADMIN'];
@@ -164,7 +165,9 @@ const OrganizationMemberView = ({
         ) : (
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild disabled={!member.user.uid || (singleAdmin && member.role === 'ADMIN')}>
-              <DropdownMenu.Button css={{ width: '100%' }}>{ROLE_NAMES[member.role]}</DropdownMenu.Button>
+              <DropdownMenu.Button stableId={StableId.ORGANIZATION_MEMBER_ROLE_DROPDOWN} css={{ width: '100%' }}>
+                {ROLE_NAMES[member.role]}
+              </DropdownMenu.Button>
             </DropdownMenu.Trigger>
 
             <DropdownMenu.Content align="start">
@@ -293,11 +296,15 @@ const InviteUserDialog = ({
             <InviteFormRoleDropdown form={form} />
           </Flex>
           <Flex>
-            <Button loading={inviteMutation.loading} onClick={form.handleSubmit(inviteMutation.mutate)}>
+            <Button
+              stableId={StableId.ORGANIZATION_ADD_USER_BUTTON}
+              loading={inviteMutation.loading}
+              onClick={form.handleSubmit(inviteMutation.mutate)}
+            >
               Add user
             </Button>
             {inviteMutation.loading ? null : (
-              <Button onClick={switchModal} color="transparent">
+              <Button stableId={StableId.ORGANIZATION_CANCEL_ADD_USER_BUTTON} onClick={switchModal} color="transparent">
                 Cancel
               </Button>
             )}
@@ -371,11 +378,20 @@ const OrganizationView: NextPageWithLayout = () => {
           <OrganizationsDropdown selectedOrganization={selectedOrganization} />
           {self?.role === 'ADMIN' ? (
             <Flex justify="end">
-              <Button color="primaryBorder" onClick={switchInviteModalOpen}>
+              <Button
+                stableId={StableId.ORGANIZATION_OPEN_ADD_MEMBER_MODAL_BUTTON}
+                color="primaryBorder"
+                onClick={switchInviteModalOpen}
+              >
                 <FeatherIcon icon="user-plus" /> Add member
               </Button>
 
-              <Button color="neutral" onClick={switchDeleteModalOpen} disabled={!selectedOrganization}>
+              <Button
+                stableId={StableId.ORGANIZATION_OPEN_DELETE_ORGANIZATION_MODAL_BUTTON}
+                color="neutral"
+                onClick={switchDeleteModalOpen}
+                disabled={!selectedOrganization}
+              >
                 <FeatherIcon icon="trash-2" />
               </Button>
 
@@ -428,7 +444,9 @@ const OrganizationView: NextPageWithLayout = () => {
         ) : error ? (
           <>
             <Message type="error" content="An error occurred." />{' '}
-            <Button onClick={() => refetchOrganization()}>Refetch</Button>
+            <Button stableId={StableId.ORGANIZATION_REFETCH_BUTTON} onClick={() => refetchOrganization()}>
+              Refetch
+            </Button>
           </>
         ) : (
           <Spinner center />

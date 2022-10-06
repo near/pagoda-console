@@ -10,6 +10,7 @@ import { H1 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
 import { useOrganizationsLayout } from '@/hooks/layouts';
 import { useCreateOrg } from '@/hooks/organizations';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const CreateOrganization: NextPageWithLayout = () => {
@@ -43,11 +44,19 @@ const CreateOrganization: NextPageWithLayout = () => {
               <Form.Feedback>{form.formState.errors.name?.message}</Form.Feedback>
             </Form.Group>
             <Flex>
-              <Button loading={loading} onClick={form.handleSubmit(createOrganization)}>
+              <Button
+                stableId={StableId.CREATE_ORGANIZATION_SAVE_BUTTON}
+                loading={loading}
+                onClick={form.handleSubmit(createOrganization)}
+              >
                 Save
               </Button>
               {loading ? null : (
-                <Button onClick={closeDialog} color="transparent">
+                <Button
+                  stableId={StableId.CREATE_ORGANIZATION_CANCEL_SAVE_BUTTON}
+                  onClick={closeDialog}
+                  color="transparent"
+                >
                   Cancel
                 </Button>
               )}

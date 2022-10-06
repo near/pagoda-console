@@ -12,6 +12,7 @@ import { EditDestinationModal } from '@/modules/alerts/components/EditDestinatio
 import { NewDestinationModal } from '@/modules/alerts/components/NewDestinationModal';
 import { useDestinations } from '@/modules/alerts/hooks/destinations';
 import type { Destination } from '@/modules/alerts/utils/types';
+import { StableId } from '@/utils/stable-ids';
 import type { Project } from '@/utils/types';
 
 import { DestinationTableRow } from './DestinationsTableRow';
@@ -32,7 +33,10 @@ export function Destinations({ project }: { project?: Project }) {
       <Flex stack gap="l">
         <Flex justify="spaceBetween">
           <H1>Destinations</H1>
-          <Button onClick={() => setShowNewDestinationModal(true)}>
+          <Button
+            stableId={StableId.DESTINATIONS_OPEN_CREATE_MODAL_BUTTON}
+            onClick={() => setShowNewDestinationModal(true)}
+          >
             <FeatherIcon icon="plus" /> New Destination
           </Button>
         </Flex>

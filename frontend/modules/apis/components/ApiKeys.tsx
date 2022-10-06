@@ -1,21 +1,23 @@
 import { Root as VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useRef, useState } from 'react';
 
+import { Badge } from '@/components/lib/Badge';
 import { Button } from '@/components/lib/Button';
-import { Card } from '@/components/lib/Card';
+import * as Dialog from '@/components/lib/Dialog';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
-import { H1, H5 } from '@/components/lib/Heading';
 import { Placeholder } from '@/components/lib/Placeholder';
 import * as Popover from '@/components/lib/Popover';
-import { SubnetIcon } from '@/components/lib/SubnetIcon';
+import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useApiKeys } from '@/hooks/api-keys';
+import { useApiKeys } from '@/hooks/new-api-keys';
+import { CreateApiKeyForm } from '@/modules/apis/components/CreateApiKeyForm';
 import StarterGuide from '@/modules/core/components/StarterGuide';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
-import type { NetOption, Project } from '@/utils/types';
+import { StableId } from '@/utils/stable-ids';
+import type { ApiKey, Project } from '@/utils/types';
 
 const ROTATION_WARNING =
   'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';
@@ -26,99 +28,101 @@ interface Props {
 
 export function ApiKeys({ project }: Props) {
   const { keys, mutate: mutateKeys } = useApiKeys(project?.slug);
-  const [showMainnetRotationModal, setShowMainnetRotationModal] = useState(false);
-  const [showTestnetRotationModal, setShowTestnetRotationModal] = useState(false);
+  const [showRotationModal, setShowRotationModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
-  // Tutorial projects do not have MAINNET keys.
-  const hasMainnetKey = !project?.tutorial;
+  const [keyToRotate, setKeyToRotate] = useState<ApiKey>({ keySlug: '', description: '', key: '' });
 
-  async function rotateKey(net: NetOption) {
-    showMainnetRotationModal && setShowMainnetRotationModal(false);
-    showTestnetRotationModal && setShowTestnetRotationModal(false);
-
-    const subId = net === 'MAINNET' ? 2 : 1;
-
+  async function rotateKey(keySlug: string) {
+    showRotationModal && setShowRotationModal(false);
     try {
-      // clear current key from the UI
       mutateKeys((cachedKeys) => {
-        const clone = {
-          ...cachedKeys,
-        };
-        delete clone[net];
-        return clone;
-      });
-
-      await mutateKeys(async (cachedKeys) => {
-        const newKey = await authenticatedPost<Partial<Record<NetOption, string>>>('/projects/rotateKey', {
-          project: project?.slug,
-          environment: subId,
+        return cachedKeys?.map((key) => {
+          if (key.keySlug === keySlug) {
+            key.keySlug = '';
+            key.key = '';
+          }
+          return key;
         });
-
+      });
+      await mutateKeys(async (cachedKeys) => {
+        const { keySlug: newKeySlug, key: newKey }: { keySlug: string; key: string } = await authenticatedPost(
+          '/projects/rotateKey',
+          { slug: keySlug },
+        );
         analytics.track('DC Rotate API Key', {
           status: 'success',
-          net: net,
+          description: keyToRotate.description,
         });
-
-        return {
-          ...cachedKeys,
-          ...newKey,
-        };
+        return cachedKeys?.map((key: ApiKey) => {
+          if (key.keySlug === keyToRotate.keySlug) {
+            key.keySlug = newKeySlug;
+            key.key = newKey;
+          }
+          return key;
+        });
       });
     } catch (e: any) {
       analytics.track('DC Rotate API Key', {
         status: 'failure',
-        net: net,
+        description: keyToRotate.description,
         error: e.message,
       });
-      // refetch just in case we cleared the old key from the UI but it was not actually rotated
-      mutateKeys();
-      // TODO log error
       throw new Error('Failed to rotate key');
     }
   }
 
   return (
     <Flex stack gap="l">
-      <H1>API Keys</H1>
-
+      <Button
+        stableId={StableId.API_KEYS_OPEN_CREATE_MODAL_BUTTON}
+        css={{ alignSelf: 'flex-end' }}
+        onClick={() => setShowCreateModal(true)}
+      >
+        Create New Key
+      </Button>
       <Flex stack>
-        {hasMainnetKey && (
-          <>
-            <ConfirmModal
-              confirmText="Rotate"
-              onConfirm={() => rotateKey('MAINNET')}
-              setShow={setShowMainnetRotationModal}
-              show={showMainnetRotationModal}
-              title="Rotate Mainnet Key?"
-            >
-              <Text>{ROTATION_WARNING}</Text>
-            </ConfirmModal>
-
-            <KeyRow
-              name="Mainnet"
-              net="MAINNET"
-              token={keys?.MAINNET}
-              onRotateKey={() => setShowMainnetRotationModal(true)}
-            />
-          </>
-        )}
-
+        <Dialog.Root open={showCreateModal} onOpenChange={setShowCreateModal}>
+          <Dialog.Content title="Create New Key" size="s">
+            <CreateApiKeyForm setShow={setShowCreateModal} show={showCreateModal} project={project} />
+          </Dialog.Content>
+        </Dialog.Root>
         <ConfirmModal
           confirmText="Rotate"
-          onConfirm={() => rotateKey('TESTNET')}
-          setShow={setShowTestnetRotationModal}
-          show={showTestnetRotationModal}
-          title="Rotate Testnet Key?"
+          onConfirm={() => rotateKey(keyToRotate.keySlug)}
+          setShow={setShowRotationModal}
+          show={showRotationModal}
+          title="Rotate Key?"
         >
           <Text>{ROTATION_WARNING}</Text>
         </ConfirmModal>
+        <Table.Root>
+          <Table.Head css={{ top: 0 }}>
+            <Table.Row>
+              <Table.HeaderCell>Key</Table.HeaderCell>
+              <Table.HeaderCell>Description</Table.HeaderCell>
+              <Table.HeaderCell></Table.HeaderCell>
+            </Table.Row>
+          </Table.Head>
 
-        <KeyRow
-          name="Testnet"
-          net="TESTNET"
-          token={keys?.TESTNET}
-          onRotateKey={() => setShowTestnetRotationModal(true)}
-        />
+          <Table.Body>
+            {keys &&
+              keys.map((apiKey, index) => {
+                return (
+                  <Table.Row key={index}>
+                    <KeyRow
+                      token={apiKey?.key}
+                      description={apiKey?.description}
+                      onClickRotateIcon={() => {
+                        setKeyToRotate(apiKey);
+                        setShowRotationModal(true);
+                      }}
+                    />
+                  </Table.Row>
+                );
+              })}
+          </Table.Body>
+        </Table.Root>
       </Flex>
 
       <StarterGuide />
@@ -126,7 +130,7 @@ export function ApiKeys({ project }: Props) {
   );
 }
 
-function KeyRow(props: { name: string; net: NetOption; token?: string; onRotateKey: () => void }) {
+function KeyRow(props: { token?: string; description: string; onClickRotateIcon: () => void }) {
   const [keyObscured, setKeyObscured] = useState(true);
   const [showCopiedAlert, setShowCopiedAlert] = useState(false);
   const copiedTimer = useRef<NodeJS.Timeout>();
@@ -143,7 +147,7 @@ function KeyRow(props: { name: string; net: NetOption; token?: string; onRotateK
     props.token && navigator.clipboard.writeText(props.token);
 
     analytics.track('DC Copy API Key', {
-      net: props.name,
+      description: props.description,
     });
 
     setShowCopiedAlert(true);
@@ -154,50 +158,58 @@ function KeyRow(props: { name: string; net: NetOption; token?: string; onRotateK
   }
 
   return (
-    <Card padding="m" borderRadius="m">
-      <Flex align="center" justify="spaceBetween">
-        <Flex align="center" gap="l">
-          <Flex align="center" autoWidth>
-            <SubnetIcon net={props.net} />
+    <>
+      <Table.Cell css={{ width: '400px' }}>
+        {props.token ? (
+          <Badge size="s">{keyObscured ? getObscuredKey(props.token) : props.token}</Badge>
+        ) : (
+          <Placeholder css={{ width: '10rem', height: '1rem' }} />
+        )}
+      </Table.Cell>
+      <Table.Cell css={{ maxWidth: '500px', whiteSpace: 'normal' }}>{props.description}</Table.Cell>
+      <Table.Cell css={{ width: '1px' }}>
+        <Flex>
+          <Button
+            stableId={StableId.API_KEYS_REVEAL_KEY_TOGGLE_BUTTON}
+            size="s"
+            color="neutral"
+            onClick={() => setKeyObscured(!keyObscured)}
+            disabled={!props.token}
+          >
+            <FeatherIcon icon={keyObscured ? 'eye-off' : 'eye'} size="xs" />
+            <VisuallyHidden>{keyObscured ? 'Reveal' : 'Obscure'} API Key</VisuallyHidden>
+          </Button>
 
-            <H5 css={{ width: '5rem' }}>{props.name}</H5>
-          </Flex>
+          <Popover.Root open={showCopiedAlert} onOpenChange={setShowCopiedAlert}>
+            <Popover.Anchor asChild>
+              <Button
+                stableId={StableId.API_KEYS_COPY_KEY_BUTTON}
+                size="s"
+                color="neutral"
+                onClick={copyKey}
+                disabled={!props.token}
+              >
+                <FeatherIcon icon="copy" size="xs" />
+                <VisuallyHidden>Copy API Key</VisuallyHidden>
+              </Button>
+            </Popover.Anchor>
 
-          <Text family="number" color="text1">
-            {props.token ? (
-              keyObscured ? (
-                getObscuredKey(props.token)
-              ) : (
-                props.token
-              )
-            ) : (
-              <Placeholder css={{ width: '10rem', height: '1rem' }} />
-            )}
-          </Text>
+            <Popover.Content side="top">
+              <Text>Copied!</Text>
+            </Popover.Content>
+          </Popover.Root>
+
+          <Button
+            stableId={StableId.API_KEYS_OPEN_ROTATE_MODAL_BUTTON}
+            size="s"
+            color="neutral"
+            onClick={() => props.onClickRotateIcon()}
+            disabled={!props.token}
+          >
+            Rotate
+          </Button>
         </Flex>
-
-        <Button size="s" color="neutral" onClick={() => setKeyObscured(!keyObscured)} disabled={!props.token}>
-          <FeatherIcon icon={keyObscured ? 'eye-off' : 'eye'} size="xs" />
-          <VisuallyHidden>{keyObscured ? 'Reveal' : 'Obscure'} API Key</VisuallyHidden>
-        </Button>
-
-        <Popover.Root open={showCopiedAlert} onOpenChange={setShowCopiedAlert}>
-          <Popover.Anchor asChild>
-            <Button size="s" color="neutral" onClick={copyKey} disabled={!props.token}>
-              <FeatherIcon icon="copy" size="xs" />
-              <VisuallyHidden>Copy API Key</VisuallyHidden>
-            </Button>
-          </Popover.Anchor>
-
-          <Popover.Content side="top">
-            <Text>Copied!</Text>
-          </Popover.Content>
-        </Popover.Root>
-
-        <Button size="s" color="neutral" onClick={() => props.onRotateKey()} disabled={!props.token}>
-          Rotate
-        </Button>
-      </Flex>
-    </Card>
+      </Table.Cell>
+    </>
   );
 }

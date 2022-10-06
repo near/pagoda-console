@@ -1,7 +1,7 @@
 import type { ChangeEvent, DragEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Button, ButtonLabel, ButtonLink } from '@/components/lib/Button';
+import { Button, ButtonLink } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
 import { CodeBlock } from '@/components/lib/CodeBlock';
 import { DragAndDropLabel } from '@/components/lib/DragAndDrop/DragAndDrop';
@@ -13,6 +13,7 @@ import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { uploadContractAbi } from '@/modules/contracts/hooks/abi';
+import { StableId } from '@/utils/stable-ids';
 
 const MAX_CODE_HEIGHT = '18rem';
 
@@ -101,7 +102,7 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
       loadFilePreview(e.dataTransfer.files[0]);
     },
     [loadFilePreview],
-  )
+  );
 
   function handlePaste(event: any) {
     event.preventDefault();
@@ -143,10 +144,18 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
             following options.
           </Text>
           <Flex justify="center">
-            <Button onClick={() => setShowModal(true)} color="primaryBorder">
+            <Button
+              stableId={StableId.UPLOAD_CONTRACT_ABI_OPEN_UPLOAD_MODAL_BUTTON}
+              onClick={() => setShowModal(true)}
+              color="primaryBorder"
+            >
               Upload ABI
             </Button>
-            <ButtonLink href="https://github.com/near/abi" external>
+            <ButtonLink
+              stableId={StableId.UPLOAD_CONTRACT_ABI_NEAR_ABI_DOCS_LINK}
+              href="https://github.com/near/abi"
+              external
+            >
               Near ABI
             </ButtonLink>
           </Flex>
@@ -163,15 +172,24 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
         disabled={!previewAbi}
       >
         <Flex inline justify="spaceBetween">
-          <TextLink href="https://github.com/near/abi" external>
+          <TextLink
+            stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_NEAR_ABI_DOCS_LINK}
+            href="https://github.com/near/abi"
+            external
+          >
             To generate an ABI
           </TextLink>
 
-          <ButtonLabel color="primaryBorder" size="m" onClick={handlePaste}>
+          <Button
+            stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_UPLOAD_CLIPBOARD_BUTTON}
+            color="primaryBorder"
+            size="m"
+            onClick={handlePaste}
+          >
             Upload from clipboard
-          </ButtonLabel>
+          </Button>
 
-          <DragAndDropLabel handleChange={handleDrop}>
+          <DragAndDropLabel stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_CHOOSE_FILE_BUTTON} handleChange={handleDrop}>
             <FeatherIcon size="xs" icon="upload" />
             Upload or drop a file here
             <Form.Input type="file" onChange={handleUpload} file tabIndex={-1} accept="application/JSON" />

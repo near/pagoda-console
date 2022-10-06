@@ -8,6 +8,7 @@ import { Spinner } from '@/components/lib/Spinner';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
+import { StableId } from '@/utils/stable-ids';
 import type { Environment, Project } from '@/utils/types';
 
 import { useAlerts } from '../hooks/alerts';
@@ -21,7 +22,7 @@ export function Alerts({ environment, project }: { environment?: Environment; pr
       <Flex justify="spaceBetween">
         <H1>Alerts</H1>
         <Link href="/alerts/new-alert" passHref>
-          <ButtonLink stableId="new-alert">
+          <ButtonLink stableId={StableId.ALERTS_NEW_ALERT_LINK}>
             <FeatherIcon icon="plus" /> New Alert
           </ButtonLink>
         </Link>

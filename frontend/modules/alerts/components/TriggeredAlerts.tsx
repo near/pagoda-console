@@ -18,6 +18,7 @@ import { Tooltip } from '@/components/lib/Tooltip';
 import { usePagination } from '@/hooks/pagination';
 import { useRouteParam } from '@/hooks/route';
 import { useOnSelectedProjectChange } from '@/hooks/selected-project';
+import { StableId } from '@/utils/stable-ids';
 import { truncateMiddle } from '@/utils/truncate-middle';
 import type { Environment, Project } from '@/utils/types';
 
@@ -78,7 +79,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
           <FeatherIcon icon="bell-off" size="l" />
           <Text>{`Your selected environment doesn't have any alerts configured yet.`}</Text>
           <Link href="/alerts/new-alert" passHref>
-            <TextLink>Create an Alert</TextLink>
+            <TextLink stableId={StableId.TRIGGERED_ALERTS_CREATE_ALERT_LINK}>Create an Alert</TextLink>
           </Link>
         </Flex>
       </Card>
@@ -97,7 +98,11 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
                 ) : (
                   <>
                     <DropdownMenu.Root>
-                      <DropdownMenu.Button css={{ minWidth: '15rem', maxWidth: '30rem' }} size="s">
+                      <DropdownMenu.Button
+                        stableId={StableId.TRIGGERED_ALERTS_ALERT_FILTER_DROPDOWN}
+                        css={{ minWidth: '15rem', maxWidth: '30rem' }}
+                        size="s"
+                      >
                         <Text color={filteredAlert ? 'text1' : 'text3'} as="span">
                           <TextOverflow> {filteredAlert?.name || 'Filter by an Alert...'}</TextOverflow>
                         </Text>
@@ -147,6 +152,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
               >
                 <span>
                   <Switch
+                    stableId={StableId.TRIGGERED_ALERTS_LIVE_UPDATES_SWITCH}
                     aria-label="Live Updates"
                     checked={pagination.state.liveRefreshEnabled}
                     onCheckedChange={pagination.updateLiveRefresh}

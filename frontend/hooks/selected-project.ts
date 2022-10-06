@@ -1,13 +1,15 @@
-import router from 'next/router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
+import { useCallback, useEffect, useState } from 'react';
 
-import { useSettingsStoreForUser } from '@/stores/settings';
+import { useSettingsStore } from '@/stores/settings';
+import config from '@/utils/config';
 import type { Environment, Project } from '@/utils/types';
 
 import { useEnvironments } from './environments';
 import { usePreviousValue } from './previous-value';
 import { useProject } from './projects';
 import { useRouteParam } from './route';
+import { useIdentity } from './user';
 
 interface Options {
   enforceSelectedProject?: boolean;
@@ -18,61 +20,79 @@ export function useSelectedProject(
     enforceSelectedProject: true,
   },
 ) {
+  const router = useRouter();
   const projectSlugRouteParam = useRouteParam('project');
-
-  const [environment, setEnvironment] = useState<Environment>();
-  const { projectSettings, settings, settingsInitialized, updateSettings, updateProjectSettings } =
-    useSettingsStoreForUser();
+  const settings = useSettingsStore((store) => store.currentUser);
   const { project } = useProject(settings?.selectedProjectSlug);
   const { environments } = useEnvironments(settings?.selectedProjectSlug);
+  const [environment, setEnvironment] = useState<Environment>();
 
-  const selectEnvironment = useCallback(
-    (environmentSubId: number) => {
-      if (environmentSubId === projectSettings.selectedEnvironmentSubId) return;
-      updateProjectSettings({
-        selectedEnvironmentSubId: environmentSubId,
-      });
-    },
-    [projectSettings, updateProjectSettings],
-  );
+  // Compute the currently selected environment:
 
-  const selectProject = useCallback(
-    (projectSlug: string) => {
-      if (projectSlug === settings.selectedProjectSlug) return;
-      updateSettings({
-        selectedProjectSlug: projectSlug,
-      });
-    },
-    [updateSettings, settings],
-  );
+  useEffect(() => {
+    if (settings && project) {
+      const projectSettings = settings.projects[project.slug];
+      const env = environments?.find((e) => e.subId === projectSettings?.selectedEnvironmentSubId) || environments?.[0];
+
+      if (env) {
+        setEnvironment(env);
+      }
+    }
+  }, [environments, project, settings]);
 
   // Conditionally redirect to force user to select project:
 
   useEffect(() => {
-    if (
-      !options.enforceSelectedProject ||
-      !settingsInitialized ||
-      settings.selectedProjectSlug ||
-      projectSlugRouteParam
-    ) {
+    if (!options.enforceSelectedProject || projectSlugRouteParam || !settings || settings.selectedProjectSlug) {
       return;
     }
 
-    router.push('/projects');
-  }, [options, projectSlugRouteParam, settingsInitialized, settings]);
+    if (config.deployEnv === 'LOCAL') {
+      console.warn('The following router abort error can be safely ignored in local dev mode:');
+      /*
+        Next Router throws a harmless error when router.replace() is called rapidly in dev mode.
+        We can safely ignore this for now. Let's keep an eye on Next Router and React updates.
+      */
+    }
 
-  // Sync local state with selected environment:
-
-  useEffect(() => {
-    if (!environments) return;
-    const selectedEnvironmentSubId = projectSettings.selectedEnvironmentSubId || 1;
-    setEnvironment(environments.find((e) => e.subId === selectedEnvironmentSubId) || environments[0]);
-  }, [environments, projectSettings]);
+    router.replace('/projects');
+  }, [options, projectSlugRouteParam, router, settings]);
 
   return {
     environment,
     environments,
     project,
+  };
+}
+
+export function useProjectSelector() {
+  const identity = useIdentity();
+  const updateSettings = useSettingsStore((store) => store.updateSettings);
+  const updateProjectSettings = useSettingsStore((store) => store.updateProjectSettings);
+
+  const selectProject = useCallback(
+    (selectedProjectSlug?: string) => {
+      if (!identity) throw new Error('Attempted to call selectProject() without an identity');
+
+      updateSettings(identity.uid, {
+        selectedProjectSlug,
+      });
+    },
+    [identity, updateSettings],
+  );
+
+  const selectEnvironment = useCallback(
+    (selectedProjectSlug: string, selectedEnvironmentSubId: number) => {
+      if (!identity) throw new Error('Attempted to call selectEnvironment() without an identity');
+
+      updateProjectSettings(identity.uid, selectedProjectSlug, {
+        selectedEnvironmentSubId,
+      });
+    },
+    [identity, updateProjectSettings],
+  );
+
+  return {
     selectEnvironment,
     selectProject,
   };
@@ -97,8 +117,10 @@ export function useSelectedProjectSync(
   selectedEnvironmentSubId: Environment['subId'] | undefined,
   selectedProjectSlug: Project['slug'] | undefined,
 ) {
-  const { environment, project, selectEnvironment, selectProject } = useSelectedProject();
+  const settings = useSettingsStore((store) => store.currentUser);
+  const { environment, project } = useSelectedProject();
   const [hasSelectedProjectSyncRun, setHasSelectedProjectSyncRun] = useState(false);
+  const { selectEnvironment, selectProject } = useProjectSelector();
 
   useEffect(() => {
     if (!environment || !project || !selectedProjectSlug || !selectedEnvironmentSubId || hasSelectedProjectSyncRun)
@@ -106,61 +128,49 @@ export function useSelectedProjectSync(
 
     setHasSelectedProjectSyncRun(true);
 
-    if (selectedProjectSlug === project.slug && selectedEnvironmentSubId === environment.subId) return;
-
     if (selectedProjectSlug !== project.slug) {
       selectProject(selectedProjectSlug);
     }
+
     if (selectedEnvironmentSubId !== environment.subId) {
-      selectEnvironment(selectedEnvironmentSubId);
+      selectEnvironment(selectedProjectSlug, selectedEnvironmentSubId);
     }
   }, [
     environment,
-    project,
     hasSelectedProjectSyncRun,
+    project,
     selectEnvironment,
     selectProject,
     selectedEnvironmentSubId,
     selectedProjectSlug,
+    settings,
   ]);
 }
 
 export function useSelectedProjectRouteParamSync() {
-  const { settingsInitialized, updateSettings, updateProjectSettings } = useSettingsStoreForUser();
+  const hasInitialized = useSettingsStore((store) => store.hasInitialized);
+  const { selectEnvironment, selectProject } = useProjectSelector();
   const projectSlugRouteParam = useRouteParam('project');
   const environmentSubIdRouteParam = useRouteParam('environment');
-  const hasSelected = useRef(false);
+  const router = useRouter();
 
   // Change selected project/environment via URL query param:
 
   useEffect(() => {
-    if (!settingsInitialized || hasSelected.current) return;
+    if (!hasInitialized) return;
 
     if (projectSlugRouteParam) {
-      updateSettings({
-        selectedProjectSlug: projectSlugRouteParam,
-      });
-    }
+      selectProject(projectSlugRouteParam);
 
-    if (environmentSubIdRouteParam) {
-      updateProjectSettings({
-        selectedEnvironmentSubId: parseInt(environmentSubIdRouteParam),
-      });
+      if (environmentSubIdRouteParam) {
+        selectEnvironment(projectSlugRouteParam, parseInt(environmentSubIdRouteParam));
+      }
     }
 
     if (projectSlugRouteParam || environmentSubIdRouteParam) {
       router.replace(router.pathname, undefined, {
         shallow: true,
       });
-
-      hasSelected.current = true;
     }
-  }, [
-    hasSelected,
-    updateSettings,
-    updateProjectSettings,
-    settingsInitialized,
-    projectSlugRouteParam,
-    environmentSubIdRouteParam,
-  ]);
+  }, [environmentSubIdRouteParam, hasInitialized, projectSlugRouteParam, router, selectEnvironment, selectProject]);
 }

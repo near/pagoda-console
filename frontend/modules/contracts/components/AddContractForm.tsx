@@ -13,11 +13,12 @@ import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import type { ContractTemplate } from '@/hooks/contract-templates';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
 import { formRegex } from '@/utils/constants';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
 import { authenticatedPost } from '@/utils/http';
+import { StableId } from '@/utils/stable-ids';
 import type { Contract, Environment, Project } from '@/utils/types';
 
 interface Props {
@@ -34,12 +35,15 @@ export function AddContractForm(props: Props) {
   const { register, handleSubmit, formState, setValue } = useForm<FormData>();
   const [isDeployingContract, setIsDeployingContract] = useState(false);
   const [selectedContractTemplate, setSelectedContractTemplate] = useState<ContractTemplate | undefined>();
-  const { selectEnvironment } = useSelectedProject();
+  const { project } = useSelectedProject();
+  const { selectEnvironment } = useProjectSelector();
 
   const environmentTitle = props.environment?.net === 'TESTNET' ? 'Testnet' : 'Mainnet';
   const environmentTla = props.environment?.net === 'TESTNET' ? 'testnet' : 'near';
 
   async function deployContract(template: ContractTemplate) {
+    if (!project) return;
+
     try {
       setIsDeployingContract(true);
 
@@ -56,7 +60,7 @@ export function AddContractForm(props: Props) {
         description: contract.address,
       });
 
-      selectEnvironment(1); // Make sure TESTNET is selected if they happened to currently be on MAINNET
+      selectEnvironment(project.slug, 1); // Make sure TESTNET is selected if they happened to currently be on MAINNET
 
       props.onAdd(contract);
     } catch (e: any) {
@@ -136,7 +140,10 @@ export function AddContractForm(props: Props) {
     <Flex stack gap="l">
       {selectedContractTemplate ? (
         <>
-          <TextButton onClick={() => setSelectedContractTemplate(undefined)}>
+          <TextButton
+            stableId={StableId.ADD_CONTRACT_FORM_TEMPLATE_BACK_BUTTON}
+            onClick={() => setSelectedContractTemplate(undefined)}
+          >
             <FeatherIcon icon="arrow-left" /> Back
           </TextButton>
           <ContractTemplateDetails
@@ -176,7 +183,12 @@ export function AddContractForm(props: Props) {
                 <Form.Feedback>{formState.errors.contractAddress?.message}</Form.Feedback>
               </Form.Group>
 
-              <Button type="submit" loading={formState.isSubmitting} stretch>
+              <Button
+                stableId={StableId.ADD_CONTRACT_FORM_CONFIRM_BUTTON}
+                type="submit"
+                loading={formState.isSubmitting}
+                stretch
+              >
                 Add
               </Button>
             </Flex>

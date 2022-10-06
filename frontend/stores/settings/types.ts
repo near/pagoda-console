@@ -11,7 +11,10 @@ export interface UserSettings {
 }
 
 export interface SettingsStore extends PersistedStore {
+  currentUser: UserSettings | undefined;
+  hasInitialized: boolean;
   users: Record<string, UserSettings | undefined>;
+  initializeCurrentUserSettings: (userId: string) => void;
   updateSettings: (userId: string, settings: Partial<UserSettings>) => void;
   updateProjectSettings: (userId: string, projectSlug: string, settings: Partial<ProjectSettings>) => void;
 }

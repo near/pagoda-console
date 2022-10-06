@@ -1,4 +1,5 @@
 import type { Pagination } from '@/hooks/pagination';
+import { StableId } from '@/utils/stable-ids';
 
 import { Button } from '../Button';
 import { FeatherIcon } from '../FeatherIcon';
@@ -21,6 +22,7 @@ export function Pagination({ pagination, totalCount }: Props) {
 
       <Flex align="center" css={{ width: 'auto' }}>
         <Button
+          stableId={StableId.PAGINATION_PREV_PAGE_BUTTON}
           aria-label="Previous Page"
           color="neutral"
           size="s"
@@ -33,6 +35,7 @@ export function Pagination({ pagination, totalCount }: Props) {
           Page {pagination.state.currentPage} / {pagination.numberOfPages}
         </Text>
         <Button
+          stableId={StableId.PAGINATION_NEXT_PAGE_BUTTON}
           aria-label="Next Page"
           color="neutral"
           size="s"

@@ -19,6 +19,7 @@ import GithubIconSvg from '@/public/images/icons/github.svg';
 import GoogleIconSvg from '@/public/images/icons/google.svg';
 import analytics from '@/utils/analytics';
 import { signInRedirectHandler } from '@/utils/helpers';
+import { StableId } from '@/utils/stable-ids';
 
 import { EmailForm } from './EmailForm';
 
@@ -33,6 +34,7 @@ interface ProviderDetails {
   backgroundColorHover: string;
   providerInstance: AuthProvider;
   icon: () => JSX.Element;
+  stableId: StableId;
 }
 
 const providers: Array<ProviderDetails> = [
@@ -43,6 +45,7 @@ const providers: Array<ProviderDetails> = [
     backgroundColorHover: '#222222',
     providerInstance: new GithubAuthProvider(),
     icon: GithubIconSvg,
+    stableId: StableId.AUTHENTICATION_FORM_SIGN_IN_WITH_GITHUB_BUTTON,
   },
   {
     name: 'Google',
@@ -51,6 +54,7 @@ const providers: Array<ProviderDetails> = [
     backgroundColorHover: '#eeeeee',
     providerInstance: new GoogleAuthProvider(),
     icon: GoogleIconSvg,
+    stableId: StableId.AUTHENTICATION_FORM_SIGN_IN_WITH_GOOGLE_BUTTON,
   },
 ];
 
@@ -168,6 +172,7 @@ function ProviderButton(props: {
 
   return (
     <Button
+      stableId={props.provider.stableId}
       stretch
       disabled={props.isAuthenticating}
       css={{

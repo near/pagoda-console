@@ -9,6 +9,7 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { ProjectCard } from '@/modules/core/components/ProjectCard';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 enum Tutorial {
@@ -42,7 +43,7 @@ const PickTutorial: NextPageWithLayout = () => {
       <Flex stack gap="xl">
         <Flex stack>
           <Link href="/pick-project" passHref>
-            <TextLink>
+            <TextLink stableId={StableId.TUTORIAL_TYPE_BACK_TO_PROJECT_TYPE_LINK}>
               <FeatherIcon icon="arrow-left" /> Project Type
             </TextLink>
           </Link>

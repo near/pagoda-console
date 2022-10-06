@@ -7,6 +7,7 @@ import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { StableId } from '@/utils/stable-ids';
 
 import { alertTypes } from '../utils/constants';
 import type { Alert } from '../utils/types';
@@ -49,7 +50,13 @@ export function AlertTableRow({ alert, onDelete }: { alert: Alert; onDelete: () 
         </Table.Cell>
         <Table.Cell>
           <Tooltip content="Delete this alert">
-            <Button size="s" aria-label="Delete Alert" color="neutral" onClick={() => setShowDeleteModal(true)}>
+            <Button
+              stableId={StableId.ALERT_TABLE_ROW_OPEN_DELETE_MODAL_BUTTON}
+              size="s"
+              aria-label="Delete Alert"
+              color="neutral"
+              onClick={() => setShowDeleteModal(true)}
+            >
               <FeatherIcon icon="trash-2" size="xs" />
             </Button>
           </Tooltip>

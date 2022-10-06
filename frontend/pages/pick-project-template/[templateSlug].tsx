@@ -17,6 +17,7 @@ import { useAccount } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
 import { authenticatedPost } from '@/utils/http';
+import { StableId } from '@/utils/stable-ids';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -80,7 +81,7 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
     <Container size="s">
       <Flex stack gap="l">
         <Link href={user ? '/pick-project-template' : '/'} passHref>
-          <TextLink>
+          <TextLink stableId={StableId.PROJECT_TEMPLATE_BACK_TO_TEMPLATES_LINK}>
             <FeatherIcon icon="arrow-left" /> Example Projects
           </TextLink>
         </Link>

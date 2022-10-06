@@ -9,11 +9,11 @@ import {
   DestinationType,
   TelegramDestination,
   ChainId,
-} from '../../../generated/prisma/alerts';
+} from '@pc/database/clients/alerts';
 
 // TODO should we re-export these types from the core module? So there is no dependency on the core prisma/client
 // yes
-import { User, Project } from '../../../generated/prisma/core';
+import { User, Project } from '@pc/database/clients/core';
 import { PermissionsService as ProjectPermissionsService } from '../../core/projects/permissions.service';
 
 import { customAlphabet } from 'nanoid';

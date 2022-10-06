@@ -14,6 +14,7 @@ import { TextLink } from '@/components/lib/TextLink';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import DeleteProjectModal from '@/modules/core/components/modals/DeleteProjectModal';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ProjectSettings: NextPageWithLayout = () => {
@@ -42,20 +43,24 @@ const ProjectSettings: NextPageWithLayout = () => {
             <List>
               <ListItem>
                 <Link href="/apis?tab=keys" passHref>
-                  <TextLink>View & Manage API Keys</TextLink>
+                  <TextLink stableId={StableId.PROJECT_SETTINGS_VIEW_API_KEYS_LINK}>View & Manage API Keys</TextLink>
                 </Link>
               </ListItem>
 
               <ListItem>
                 <Link href="/projects" passHref>
-                  <TextLink>View All Projects</TextLink>
+                  <TextLink stableId={StableId.PROJECT_SETTINGS_VIEW_PROJECTS_LINK}>View All Projects</TextLink>
                 </Link>
               </ListItem>
             </List>
 
             <HR />
 
-            <Button color="danger" onClick={() => setShowModal(true)}>
+            <Button
+              stableId={StableId.PROJECT_SETTINGS_OPEN_DELETE_PROJECT_MODAL}
+              color="danger"
+              onClick={() => setShowModal(true)}
+            >
               Remove Project
             </Button>
           </Flex>
