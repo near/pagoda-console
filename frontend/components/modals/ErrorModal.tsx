@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import * as Dialog from '@/components/lib/Dialog';
+import { StableId } from '@/utils/stable-ids';
 
 import { Button } from '../lib/Button';
 import { FeatherIcon } from '../lib/FeatherIcon';
@@ -30,7 +31,7 @@ export const ErrorModal = ({ error, setError }: Props) => {
         <Flex stack gap="l" align="center">
           <FeatherIcon icon="alert-circle" color="danger" size="l" />
           <Text size="h5">{errorCopy}</Text>
-          <Button color="neutral" onClick={close}>
+          <Button stableId={StableId.ERROR_MODAL_DISMISS_BUTTON} color="neutral" onClick={close}>
             Dismiss
           </Button>
         </Flex>

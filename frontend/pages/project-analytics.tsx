@@ -16,6 +16,7 @@ import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useTheme } from '@/hooks/theme';
 import config from '@/utils/config';
+import { StableId } from '@/utils/stable-ids';
 import type { Contract, Environment, NextPageWithLayout } from '@/utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {
@@ -79,13 +80,13 @@ function NoContractsNotice() {
           <Text>
             Your selected project and environment doesn&apos;t have any saved contracts yet. Visit the{' '}
             <Link href="/contracts" passHref>
-              <TextLink>Contracts</TextLink>
+              <TextLink stableId={StableId.PROJECT_ANALYTICS_NO_CONTRACTS_LINK}>Contracts</TextLink>
             </Link>{' '}
             page to add a contract.
           </Text>
 
           <Link href="/contracts" passHref>
-            <ButtonLink>
+            <ButtonLink stableId={StableId.PROJECT_ANALYTICS_NO_CONTRACTS_BUTTON_LINK}>
               <FeatherIcon icon="zap" />
               Contracts
             </ButtonLink>

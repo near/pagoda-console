@@ -12,6 +12,7 @@ import { TextButton } from '@/components/lib/TextLink';
 import { ForgotPasswordModal } from '@/modules/core/components/modals/ForgotPasswordModal';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
+import { StableId } from '@/utils/stable-ids';
 
 interface Props {
   isAuthenticating: boolean;
@@ -105,17 +106,31 @@ export function EmailForm({ isAuthenticating, setIsAuthenticating }: Props) {
             <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
           </Form.Group>
 
-          <Button type="submit" stretch loading={formState.isSubmitting}>
+          <Button
+            stableId={StableId.AUTHENTICATION_EMAIL_FORM_SIGN_IN_BUTTON}
+            type="submit"
+            stretch
+            loading={formState.isSubmitting}
+          >
             Continue
           </Button>
 
           <Link href="/register" passHref>
-            <ButtonLink color="neutral" stretch onClick={() => analytics.track('DC Clicked Sign Up on Login')}>
+            <ButtonLink
+              stableId={StableId.AUTHENTICATION_EMAIL_FORM_SIGN_UP_BUTTON}
+              color="neutral"
+              stretch
+              onClick={() => analytics.track('DC Clicked Sign Up on Login')}
+            >
               Sign Up
             </ButtonLink>
           </Link>
 
-          <TextButton color="neutral" onClick={() => setShowResetModal(true)}>
+          <TextButton
+            stableId={StableId.AUTHENTICATION_EMAIL_FORM_FORGOT_PASSWORD_BUTTON}
+            color="neutral"
+            onClick={() => setShowResetModal(true)}
+          >
             Forgot Password?
           </TextButton>
         </Flex>

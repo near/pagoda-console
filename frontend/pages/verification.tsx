@@ -13,6 +13,7 @@ import analytics from '@/utils/analytics';
 import { logOut } from '@/utils/auth';
 import { signInRedirectHandler } from '@/utils/helpers';
 import { authenticatedPost } from '@/utils/http';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Verification: NextPageWithLayout = () => {
@@ -92,13 +93,18 @@ const Verification: NextPageWithLayout = () => {
         </Text>
 
         {!hasResent ? (
-          <Button stretch disabled={hasResent} onClick={resendVerification}>
+          <Button
+            stableId={StableId.ACCOUNT_VERIFICATION_SEND_AGAIN_BUTTON}
+            stretch
+            disabled={hasResent}
+            onClick={resendVerification}
+          >
             Send Again
           </Button>
         ) : (
           <Text color="primary">Sent!</Text>
         )}
-        <TextButton color="neutral" onClick={logOut}>
+        <TextButton stableId={StableId.ACCOUNT_VERIFICATION_LOG_OUT_BUTTON} color="neutral" onClick={logOut}>
           Log Out
         </TextButton>
       </Flex>

@@ -12,6 +12,7 @@ import { Text } from '@/components/lib/Text';
 import { useNet } from '@/hooks/net';
 import { styled } from '@/styles/stitches';
 import { unauthenticatedPost } from '@/utils/http';
+import { StableId } from '@/utils/stable-ids';
 
 import { Button } from '../../lib/Button';
 import TransactionReceipt from './TransactionReceipt';
@@ -137,7 +138,7 @@ const TransactionActionsList: React.FC<ListProps> = React.memo(({ transaction })
           <H4>Execution Plan</H4>
           <span>Processed in {pending}</span>
         </div>
-        <Button size="s" onClick={expandAllReceipts}>
+        <Button stableId={StableId.TRANSACTION_ACTIONS_RESPONSE_EXPAND_BUTTON} size="s" onClick={expandAllReceipts}>
           {expanded ? 'Collapse all -' : 'Expand All + '}
         </Button>
       </TitleWrapper>

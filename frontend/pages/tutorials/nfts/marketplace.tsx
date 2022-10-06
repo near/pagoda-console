@@ -10,6 +10,7 @@ import TableOfContents from '@/modules/core/components/tutorials/TableOfContents
 import TutorialFooter from '@/modules/core/components/tutorials/TutorialFooter';
 import { TutorialPage } from '@/modules/core/components/tutorials/TutorialPage';
 import Content from '@/tutorials/nfts/md/8-marketplace.mdx';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Marketplace: NextPageWithLayout = () => {
@@ -23,7 +24,9 @@ const Marketplace: NextPageWithLayout = () => {
         <Content components={components} />
         {project && (
           <TutorialFooter>
-            <Button onClick={() => setShowModal(true)}>Complete Tutorial</Button>
+            <Button stableId={StableId.TUTORIAL_CONTENT_COMPLETE_BUTTON} onClick={() => setShowModal(true)}>
+              Complete Tutorial
+            </Button>
             <EjectProjectModal
               slug={project.slug}
               name={project.name}

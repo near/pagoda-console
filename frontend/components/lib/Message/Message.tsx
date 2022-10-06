@@ -1,5 +1,7 @@
 import type { ComponentProps } from 'react';
 
+import { StableId } from '@/utils/stable-ids';
+
 import { Button } from '../Button';
 import { FeatherIcon } from '../FeatherIcon';
 import { Flex } from '../Flex';
@@ -50,7 +52,7 @@ export const Message = ({
         </Flex>
 
         {dismiss && (
-          <Button size="s" color="neutral" onClick={dismiss}>
+          <Button stableId={StableId.MESSAGE_DISMISS_BUTTON} size="s" color="neutral" onClick={dismiss}>
             {dismissText || 'Dismiss'}
           </Button>
         )}

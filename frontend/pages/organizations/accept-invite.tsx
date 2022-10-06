@@ -8,6 +8,7 @@ import { Spinner } from '@/components/lib/Spinner';
 import { useOrganizationsLayout } from '@/hooks/layouts';
 import { useAcceptOrgInvite } from '@/hooks/organizations';
 import { useIdentity } from '@/hooks/user';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const AcceptOrgInvite: NextPageWithLayout = () => {
@@ -44,7 +45,9 @@ const AcceptOrgInvite: NextPageWithLayout = () => {
         ) : (
           <Message type="success" content="Invite successfully accepted." css={{ width: 'initial' }} />
         )}
-        <Button onClick={toProjects}>Take me to projects</Button>
+        <Button stableId={StableId.ACCEPT_ORGANIZATION_INVITE_PROJECTS_BUTTON} onClick={toProjects}>
+          Take me to projects
+        </Button>
       </Flex>
     );
   }
