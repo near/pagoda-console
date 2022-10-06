@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button, ButtonLink } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
 import { CodeBlock } from '@/components/lib/CodeBlock';
-import { DragAndDropLabel } from '@/components/lib/DragAndDrop/DragAndDrop';
+import { DragAndDropLabel } from '@/components/lib/DragAndDrop';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
@@ -107,10 +107,11 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
   function handlePaste(event: any) {
     event.preventDefault();
     if (event.clipboardData) {
+      // This occurs if the clipboard button has keyboard focus and the user pastes
       const clipText = event.clipboardData?.getData('text');
       tryLoadPreview(clipText);
     } else {
-      // Will require users to provide permision to read clipboard.
+      // Will require users to provide permission to read clipboard
       navigator.clipboard
         .readText()
         .then(tryLoadPreview)
@@ -171,29 +172,39 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
         size="m"
         disabled={!previewAbi}
       >
-        <Flex inline justify="spaceBetween">
-          <TextLink
-            stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_NEAR_ABI_DOCS_LINK}
-            href="https://github.com/near/abi"
-            external
-          >
-            To generate an ABI
-          </TextLink>
+        <TextLink
+          stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_NEAR_ABI_DOCS_LINK}
+          href="https://github.com/near/abi"
+          external
+        >
+          To generate an ABI
+        </TextLink>
 
-          <Button
-            stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_UPLOAD_CLIPBOARD_BUTTON}
-            color="primaryBorder"
-            size="m"
-            onClick={handlePaste}
+        <Flex align="center">
+          <DragAndDropLabel
+            css={{ flexGrow: 1 }}
+            stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_CHOOSE_FILE_BUTTON}
+            onChange={handleDrop}
           >
-            Upload from clipboard
-          </Button>
-
-          <DragAndDropLabel stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_CHOOSE_FILE_BUTTON} handleChange={handleDrop}>
-            <FeatherIcon size="xs" icon="upload" />
-            Upload or drop a file here
+            <FeatherIcon color="primary" size="s" icon="upload" />
+            Choose or drop a file
             <Form.Input type="file" onChange={handleUpload} file tabIndex={-1} accept="application/JSON" />
           </DragAndDropLabel>
+
+          <Text color="text3" size="bodySmall">
+            OR
+          </Text>
+
+          <Button
+            css={{ flexGrow: 1 }}
+            stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_UPLOAD_CLIPBOARD_BUTTON}
+            size="m"
+            color="neutral"
+            onClick={handlePaste}
+          >
+            <FeatherIcon color="primary" size="s" icon="clipboard" />
+            Upload from clipboard
+          </Button>
         </Flex>
 
         <CodeBlock css={{ maxHeight: MAX_CODE_HEIGHT }} language="json">

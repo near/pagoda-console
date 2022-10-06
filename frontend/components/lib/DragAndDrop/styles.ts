@@ -12,9 +12,9 @@ export const Content = styled('span', {
   overflow: 'hidden',
 });
 
-export const DragAndDropButton = styled('button', {
-  border: `dashed 2px currentColor`,
-  borderRadius: 'var(--border-radius-xs)',
+export const Root = styled('label', {
+  border: `dashed 2px var(--color-border-2)`,
+  borderRadius: 'var(--border-radius-s)',
   display: 'inline-flex',
   alignItems: 'center',
   gap: 'var(--space-m)',
@@ -22,7 +22,7 @@ export const DragAndDropButton = styled('button', {
   cursor: 'pointer',
   fontWeight: 500,
   fontFamily: 'var(--font-action)',
-  fontSize: 'var(--font-size-body-small)',
+  fontSize: 'var(--font-size-body)',
   height: 'var(--size-input-height-m)',
   padding: '0 var(--space-m)',
   flexShrink: 0,
@@ -32,8 +32,8 @@ export const DragAndDropButton = styled('button', {
   whiteSpace: 'nowrap',
   background: 'transparent',
   boxShadow: 'none',
+  color: 'var(--color-text-1)',
 
-  color: 'var(--color-primary)',
   '&:hover': {
     background: 'var(--color-surface-1)',
   },
@@ -48,17 +48,14 @@ export const DragAndDropButton = styled('button', {
     outlineOffset: 'var(--focus-outline-offset)',
   },
 
-  '& > [data-icon-arrow]': {
-    transition: 'transform var(--transition-speed)',
-    transform: 'rotate(0deg)',
-    color: 'var(--color-text-3)',
-  },
-
-  '&[data-state="open"] > [data-icon-arrow]': {
-    transform: 'rotate(-180deg)',
-  },
-
   variants: {
+    dragging: {
+      true: {
+        background: 'var(--color-surface-1)',
+        borderColor: 'var(--color-primary)',
+      },
+    },
+
     loading: {
       true: {
         pointerEvents: 'none',

@@ -21,6 +21,7 @@ import * as Combobox from '@/components/lib/Combobox';
 import { Container } from '@/components/lib/Container';
 import { CopyButton } from '@/components/lib/CopyButton';
 import * as Dialog from '@/components/lib/Dialog';
+import { DragAndDropLabel } from '@/components/lib/DragAndDrop';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
@@ -785,6 +786,14 @@ const Settings: NextPageWithLayout = () => {
             </Flex>
           </Dialog.Content>
         </Dialog.Root>
+      </DocSection>
+
+      <DocSection title="Drag And Drop">
+        <DragAndDropLabel stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_CHOOSE_FILE_BUTTON}>
+          <FeatherIcon color="primary" size="s" icon="upload" />
+          Choose or drop a file
+          <Form.Input type="file" file tabIndex={-1} />
+        </DragAndDropLabel>
       </DocSection>
 
       <DocSection title="Dropdown Menu">
