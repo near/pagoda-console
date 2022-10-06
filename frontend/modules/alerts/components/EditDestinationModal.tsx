@@ -12,6 +12,7 @@ import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { formValidations } from '@/utils/constants';
+import { StableId } from '@/utils/stable-ids';
 
 import { updateDestination, useDestinations } from '../hooks/destinations';
 import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
@@ -123,7 +124,13 @@ function ModalContent(props: Props) {
             </Flex>
           </Flex>
 
-          <Button size="s" aria-label="Delete Destination" color="danger" onClick={() => setShowDeleteModal(true)}>
+          <Button
+            stableId={StableId.EDIT_DESTINATION_MODAL_OPEN_DELETE_MODAL_BUTTON}
+            size="s"
+            aria-label="Delete Destination"
+            color="danger"
+            onClick={() => setShowDeleteModal(true)}
+          >
             <FeatherIcon icon="trash-2" size="xs" />
           </Button>
         </Flex>
@@ -206,10 +213,18 @@ function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps) 
         </Flex>
 
         <Flex justify="spaceBetween" align="center">
-          <Button type="submit" loading={formState.isSubmitting}>
+          <Button
+            stableId={StableId.EDIT_DESTINATION_MODAL_UPDATE_BUTTON}
+            type="submit"
+            loading={formState.isSubmitting}
+          >
             Update
           </Button>
-          <TextButton color="neutral" onClick={() => setShow(false)}>
+          <TextButton
+            stableId={StableId.EDIT_DESTINATION_MODAL_CANCEL_BUTTON}
+            color="neutral"
+            onClick={() => setShow(false)}
+          >
             Cancel
           </TextButton>
         </Flex>
@@ -291,10 +306,18 @@ function WebhookDestinationForm({ destination, onUpdate, setShow, onSecretRotate
         </Flex>
 
         <Flex justify="spaceBetween" align="center">
-          <Button type="submit" loading={formState.isSubmitting}>
+          <Button
+            stableId={StableId.EDIT_DESTINATION_MODAL_UPDATE_BUTTON}
+            type="submit"
+            loading={formState.isSubmitting}
+          >
             Update
           </Button>
-          <TextButton color="neutral" onClick={() => setShow(false)}>
+          <TextButton
+            stableId={StableId.EDIT_DESTINATION_MODAL_CANCEL_BUTTON}
+            color="neutral"
+            onClick={() => setShow(false)}
+          >
             Cancel
           </TextButton>
         </Flex>
@@ -364,10 +387,18 @@ function EmailDestinationForm({ destination, onUpdate, setShow }: FormProps) {
         </Flex>
 
         <Flex justify="spaceBetween" align="center">
-          <Button type="submit" loading={formState.isSubmitting}>
+          <Button
+            stableId={StableId.EDIT_DESTINATION_MODAL_UPDATE_BUTTON}
+            type="submit"
+            loading={formState.isSubmitting}
+          >
             Update
           </Button>
-          <TextButton color="neutral" onClick={() => setShow(false)}>
+          <TextButton
+            stableId={StableId.EDIT_DESTINATION_MODAL_CANCEL_BUTTON}
+            color="neutral"
+            onClick={() => setShow(false)}
+          >
             Cancel
           </TextButton>
         </Flex>

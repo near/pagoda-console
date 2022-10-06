@@ -19,6 +19,7 @@ import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import { authenticatedPost } from '@/utils/http';
+import { StableId } from '@/utils/stable-ids';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -86,7 +87,7 @@ const NewProject: NextPageWithLayout = () => {
       <Flex stack gap="l">
         <Flex stack>
           <Link href="/pick-project" passHref>
-            <TextLink>
+            <TextLink stableId={StableId.NEW_PROJECT_BACK_TO_PROJECT_TYPE_LINK}>
               <FeatherIcon icon="arrow-left" /> Project Type
             </TextLink>
           </Link>
@@ -143,7 +144,7 @@ const NewProject: NextPageWithLayout = () => {
               ) : null}
             </Form.Group>
 
-            <Button loading={formState.isSubmitting} type="submit">
+            <Button stableId={StableId.NEW_PROJECT_CREATE_BUTTON} loading={formState.isSubmitting} type="submit">
               Create Project
             </Button>
           </Flex>

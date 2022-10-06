@@ -8,6 +8,7 @@ import { useApiKeys } from '@/hooks/new-api-keys';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
+import { StableId } from '@/utils/stable-ids';
 import type { ApiKey, Project } from '@/utils/types';
 
 interface NewKeyFormData {
@@ -24,7 +25,7 @@ const ButtonContainer = styled(Flex, {
   marginTop: '24px',
 });
 
-export const ModalContent = ({ show, setShow, project }: Props) => {
+export const CreateApiKeyForm = ({ show, setShow, project }: Props) => {
   const { mutate: mutateKeys } = useApiKeys(project?.slug);
   const { register, handleSubmit, formState } = useForm<NewKeyFormData>();
 
@@ -66,11 +67,16 @@ export const ModalContent = ({ show, setShow, project }: Props) => {
         <Form.Feedback>{formState.errors.description?.message}</Form.Feedback>
       </Form.Group>
       <ButtonContainer justify="spaceBetween" align="center">
-        <Button onClick={handleSubmit(({ description }) => createKey(description))} color={'primary'}>
+        <Button
+          stableId={StableId.CREATE_API_KEY_FORM_CONFIRM_BUTTON}
+          onClick={handleSubmit(({ description }) => createKey(description))}
+          color={'primary'}
+        >
           Confirm
         </Button>
 
         <TextButton
+          stableId={StableId.CREATE_API_KEY_FORM_CANCEL_BUTTON}
           color="neutral"
           onClick={() => {
             setShow(false);

@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Box } from '@/components/lib/Box';
 import { CodeBlock } from '@/components/lib/CodeBlock';
 import { TextLink } from '@/components/lib/TextLink';
+import { StableId } from '@/utils/stable-ids';
 
 export interface GitHubReference {
   url: string;
@@ -43,7 +44,13 @@ export default function MdxCodeBlock(props: any) {
       <>
         <CodeBlock language={props.className.replace('language-', '')}>{content}</CodeBlock>
         <Box css={{ paddingTop: 'var(--space-s)', textAlign: 'center' }}>
-          <TextLink color="neutral" target="_blank" rel="noreferrer" css={{ fontWeight: 400 }}>
+          <TextLink
+            stableId={StableId.TUTORIAL_CONTENT_CODE_BLOCK_GITHUB_LINK}
+            color="neutral"
+            target="_blank"
+            rel="noreferrer"
+            css={{ fontWeight: 400 }}
+          >
             See full example on Github
           </TextLink>
         </Box>

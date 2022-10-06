@@ -2,6 +2,7 @@ import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { SubnetIcon } from '@/components/lib/SubnetIcon';
 import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
+import { StableId } from '@/utils/stable-ids';
 import type { Environment } from '@/utils/types';
 
 interface Props {
@@ -32,7 +33,7 @@ export function EnvironmentSelector(props: Props) {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button css={{ width: '11rem', height: 'auto' }}>
+      <DropdownMenu.Button stableId={StableId.ENVIRONMENT_SELECTOR_DROPDOWN} css={{ width: '11rem', height: 'auto' }}>
         <SubnetIcon net={environment?.net} />
         {environment?.name || '...'}
       </DropdownMenu.Button>

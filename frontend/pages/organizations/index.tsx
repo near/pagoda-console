@@ -8,6 +8,7 @@ import { Message } from '@/components/lib/Message';
 import { Spinner } from '@/components/lib/Spinner';
 import { useOrganizationsLayout } from '@/hooks/layouts';
 import { useOrganizations } from '@/hooks/organizations';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Organizations: NextPageWithLayout = () => {
@@ -30,7 +31,9 @@ const Organizations: NextPageWithLayout = () => {
         {error ? (
           <>
             <Message type="error" content="An error occurred." />{' '}
-            <Button onClick={() => refetchOrganizations()}>Refetch</Button>
+            <Button stableId={StableId.ORGANIZATIONS_REFETCH_BUTTON} onClick={() => refetchOrganizations()}>
+              Refetch
+            </Button>
           </>
         ) : (
           <Spinner center />

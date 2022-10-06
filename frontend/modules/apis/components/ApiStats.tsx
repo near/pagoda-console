@@ -16,6 +16,7 @@ import { Text } from '@/components/lib/Text';
 import { Tooltip } from '@/components/lib/Tooltip';
 import config from '@/utils/config';
 import { formatNumber } from '@/utils/format-number';
+import { StableId } from '@/utils/stable-ids';
 import type { Environment, Project } from '@/utils/types';
 
 import { useApiStats } from '../hooks/api-stats';
@@ -67,7 +68,12 @@ export function ApiStats({ environment, project }: Props) {
           <H2 css={{ marginRight: 'auto' }}>RPC Statistics</H2>
           <Tooltip align="end" content={liveRefreshTooltipTitle}>
             <span>
-              <Switch aria-label="Live Updates" checked={liveRefreshEnabled} onCheckedChange={setLiveRefreshEnabled}>
+              <Switch
+                stableId={StableId.API_STATS_LIVE_UPDATES_SWITCH}
+                aria-label="Live Updates"
+                checked={liveRefreshEnabled}
+                onCheckedChange={setLiveRefreshEnabled}
+              >
                 <FeatherIcon icon="refresh-cw" size="xs" data-on />
                 <FeatherIcon icon="pause" size="xs" data-off />
               </Switch>
@@ -75,7 +81,7 @@ export function ApiStats({ environment, project }: Props) {
           </Tooltip>
 
           <DropdownMenu.Root>
-            <DropdownMenu.Button css={{ width: '15rem' }}>
+            <DropdownMenu.Button stableId={StableId.API_STATS_TIME_RANGE_DROPDOWN} css={{ width: '15rem' }}>
               <FeatherIcon icon="clock" color="primary" />
               {selectedTimeRange?.label}
             </DropdownMenu.Button>

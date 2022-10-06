@@ -14,6 +14,7 @@ import { H5 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { formValidations } from '@/utils/constants';
+import { StableId } from '@/utils/stable-ids';
 
 import { createDestination, useDestinations } from '../hooks/destinations';
 import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
@@ -163,10 +164,18 @@ function TelegramDestinationForm(props: FormProps) {
         </Text>
 
         <Flex>
-          <Button loading={form.formState.isSubmitting} type="submit" stableId="create-destination">
+          <Button
+            loading={form.formState.isSubmitting}
+            type="submit"
+            stableId={StableId.NEW_DESTINATION_MODAL_CREATE_BUTTON}
+          >
             Create
           </Button>
-          <Button onClick={() => props.setShow(false)} color="neutral" stableId="cancel-create-destination">
+          <Button
+            onClick={() => props.setShow(false)}
+            color="neutral"
+            stableId={StableId.NEW_DESTINATION_MODAL_CANCEL_BUTTON}
+          >
             Cancel
           </Button>
         </Flex>
@@ -203,7 +212,9 @@ function WebhookDestinationForm(props: FormProps) {
         <WebhookDestinationSecret destination={destination} />
 
         <Flex gap="l" align="center">
-          <Button onClick={() => props.setShow(false)}>Finish</Button>
+          <Button stableId={StableId.NEW_DESTINATION_MODAL_FINISH_WEBHOOK_BUTTON} onClick={() => props.setShow(false)}>
+            Finish
+          </Button>
           <Text size="bodySmall" color="text3">
             You can access this secret again by visiting the Alerts page, clicking the Destinations tab, and then
             clicking on a specific destination.
@@ -228,10 +239,18 @@ function WebhookDestinationForm(props: FormProps) {
         </Flex>
 
         <Flex>
-          <Button loading={form.formState.isSubmitting} type="submit">
+          <Button
+            loading={form.formState.isSubmitting}
+            type="submit"
+            stableId={StableId.NEW_DESTINATION_MODAL_CREATE_BUTTON}
+          >
             Create
           </Button>
-          <Button onClick={() => props.setShow(false)} color="neutral">
+          <Button
+            onClick={() => props.setShow(false)}
+            color="neutral"
+            stableId={StableId.NEW_DESTINATION_MODAL_CANCEL_BUTTON}
+          >
             Cancel
           </Button>
         </Flex>
@@ -285,10 +304,18 @@ function EmailDestinationForm(props: FormProps) {
         </Flex>
 
         <Flex>
-          <Button loading={form.formState.isSubmitting} type="submit">
+          <Button
+            loading={form.formState.isSubmitting}
+            type="submit"
+            stableId={StableId.NEW_DESTINATION_MODAL_CREATE_BUTTON}
+          >
             Create
           </Button>
-          <Button onClick={() => props.setShow(false)} color="neutral">
+          <Button
+            onClick={() => props.setShow(false)}
+            color="neutral"
+            stableId={StableId.NEW_DESTINATION_MODAL_CANCEL_BUTTON}
+          >
             Cancel
           </Button>
         </Flex>

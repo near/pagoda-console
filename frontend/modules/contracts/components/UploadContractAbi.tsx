@@ -12,6 +12,7 @@ import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { uploadContractAbi } from '@/modules/contracts/hooks/abi';
+import { StableId } from '@/utils/stable-ids';
 
 const MAX_CODE_HEIGHT = '18rem';
 
@@ -91,10 +92,18 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
           <FeatherIcon icon="file-text" size="l" />
           <Text>To start interacting with your contract you need to upload ABI first.</Text>
           <Flex justify="center">
-            <Button onClick={() => setShowModal(true)} color="primaryBorder">
+            <Button
+              stableId={StableId.UPLOAD_CONTRACT_ABI_OPEN_UPLOAD_MODAL_BUTTON}
+              onClick={() => setShowModal(true)}
+              color="primaryBorder"
+            >
               Upload ABI
             </Button>
-            <ButtonLink href="https://github.com/near/abi" external>
+            <ButtonLink
+              stableId={StableId.UPLOAD_CONTRACT_ABI_NEAR_ABI_DOCS_LINK}
+              href="https://github.com/near/abi"
+              external
+            >
               Near ABI
             </ButtonLink>
           </Flex>
@@ -111,11 +120,15 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
         disabled={!previewAbi}
       >
         <Flex inline justify="spaceBetween">
-          <TextLink href="https://github.com/near/abi" external>
+          <TextLink
+            stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_NEAR_ABI_DOCS_LINK}
+            href="https://github.com/near/abi"
+            external
+          >
             To generate an ABI
           </TextLink>
 
-          <ButtonLabel color="primaryBorder" size="s">
+          <ButtonLabel stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_CHOOSE_FILE_BUTTON} color="primaryBorder" size="s">
             <FeatherIcon size="xs" icon="upload" />
             Upload
             <Form.Input type="file" onChange={handleUpload} file tabIndex={-1} accept="application/JSON" />

@@ -4,15 +4,17 @@ import { useEffect, useState } from 'react';
 import { forwardRef } from 'react';
 
 import { useDebounce } from '@/hooks/debounce';
+import type { StableId } from '@/utils/stable-ids';
 
 import * as S from './styles';
 
 type Props = ComponentProps<typeof S.Switch> & {
   debounce?: boolean | number;
+  stableId: StableId;
 };
 
 export const Switch = forwardRef<HTMLButtonElement, Props>(
-  ({ checked, children, debounce, defaultChecked, onCheckedChange, ...props }, ref) => {
+  ({ checked, children, debounce, defaultChecked, onCheckedChange, stableId, ...props }, ref) => {
     const [isChecked, setIsChecked] = useState(checked || defaultChecked || false);
     const debounceDelay: number = (debounce === true && 700) || (typeof debounce === 'number' && debounce) || 0;
 
@@ -50,7 +52,13 @@ export const Switch = forwardRef<HTMLButtonElement, Props>(
     }
 
     return (
-      <S.Switch checked={isChecked} onCheckedChange={onCheckedChangeInternal} ref={ref} {...props}>
+      <S.Switch
+        checked={isChecked}
+        onCheckedChange={onCheckedChangeInternal}
+        ref={ref}
+        data-stable-id={stableId}
+        {...props}
+      >
         <S.SwitchThumb>{children}</S.SwitchThumb>
       </S.Switch>
     );

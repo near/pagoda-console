@@ -11,6 +11,7 @@ import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import { ProjectCard } from '@/modules/core/components/ProjectCard';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface Project {
@@ -60,7 +61,7 @@ const PickProject: NextPageWithLayout = () => {
         <Flex stack>
           {!isOnboarding && (
             <Link href="/projects" passHref>
-              <TextLink>
+              <TextLink stableId={StableId.PROJECT_TYPE_BACK_TO_PROJECTS_LINK}>
                 <FeatherIcon icon="arrow-left" /> Projects
               </TextLink>
             </Link>

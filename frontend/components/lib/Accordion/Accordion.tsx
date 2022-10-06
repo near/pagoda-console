@@ -1,20 +1,24 @@
 import type { ComponentProps } from 'react';
 import { forwardRef } from 'react';
 
+import type { StableId } from '@/utils/stable-ids';
+
 import { FeatherIcon } from '../FeatherIcon';
 import { Flex } from '../Flex';
 import * as S from './styles';
 
 type ContentProps = ComponentProps<typeof S.Content>;
-type TriggerProps = ComponentProps<typeof S.Trigger>;
+type TriggerProps = ComponentProps<typeof S.Trigger> & {
+  stableId: StableId;
+};
 
 export const Root = S.Root;
 export const Item = S.Item;
 
-export const Trigger = forwardRef<HTMLButtonElement, TriggerProps>(({ children, ...props }, ref) => {
+export const Trigger = forwardRef<HTMLButtonElement, TriggerProps>(({ children, stableId, ...props }, ref) => {
   return (
     <S.Header>
-      <S.Trigger ref={ref} {...props}>
+      <S.Trigger ref={ref} data-stable-id={stableId} {...props}>
         <Flex gap="m" align="center">
           {children}
         </Flex>

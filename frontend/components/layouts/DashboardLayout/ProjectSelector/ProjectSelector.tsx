@@ -9,6 +9,7 @@ import { TextOverflow } from '@/components/lib/TextOverflow';
 import { useProjectGroups } from '@/hooks/projects';
 import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
+import { StableId } from '@/utils/stable-ids';
 import type { Project } from '@/utils/types';
 
 interface Props {
@@ -45,7 +46,7 @@ export function ProjectSelector(props: Props) {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button css={{ width: '22rem', height: 'auto' }}>
+      <DropdownMenu.Button stableId={StableId.PROJECT_SELECTOR_DROPDOWN} css={{ width: '22rem', height: 'auto' }}>
         <TextOverflow>{project?.name || '...'}</TextOverflow>
       </DropdownMenu.Button>
 

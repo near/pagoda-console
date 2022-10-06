@@ -22,6 +22,7 @@ import { DeleteContractModal } from '@/modules/contracts/components/DeleteContra
 import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatBytes } from '@/utils/format-bytes';
+import { StableId } from '@/utils/stable-ids';
 import type { Contract } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -53,7 +54,10 @@ const ListContracts: NextPageWithLayout = () => {
               <FeatherIcon icon="zap" size="l" />
               <H1>Contracts</H1>
             </Flex>
-            <Button onClick={() => setAddContractIsOpen(true)}>
+            <Button
+              stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON}
+              onClick={() => setAddContractIsOpen(true)}
+            >
               <FeatherIcon icon="plus" /> Add Contract
             </Button>
           </Flex>
@@ -97,7 +101,12 @@ function ContractsTable({
             <ListItem>Upload a Contract ABI.</ListItem>
             <ListItem>Interact with the contract via the ABI.</ListItem>
           </List>
-          <TextButton onClick={() => setAddContractIsOpen(true)}>Add a Contract</TextButton>
+          <TextButton
+            stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_TEXT_BUTTON}
+            onClick={() => setAddContractIsOpen(true)}
+          >
+            Add a Contract
+          </TextButton>
         </Flex>
       </Section>
     );

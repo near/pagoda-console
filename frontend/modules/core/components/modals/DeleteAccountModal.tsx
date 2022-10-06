@@ -8,6 +8,7 @@ import { TextLink } from '@/components/lib/TextLink';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useOrgsWithOnlyAdmin } from '@/hooks/organizations';
 import { deleteAccount, useIdentity } from '@/hooks/user';
+import { StableId } from '@/utils/stable-ids';
 
 export default function DeleteAccountModal({
   show,
@@ -61,7 +62,7 @@ export default function DeleteAccountModal({
             {organizations.map(({ name, slug }) => (
               <ListItem key={slug}>
                 <Link href={`/organizations/${slug}`} passHref>
-                  <TextLink>{name}</TextLink>
+                  <TextLink stableId={StableId.DELETE_ACCOUNT_MODAL_ORGANIZATION_LINK}>{name}</TextLink>
                 </Link>
               </ListItem>
             ))}
