@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Endpoints as a Service Provisiong Service (epaas-ps)
- * This is the documentation for the Endpoint as a Service Provisioning Service system.
+ * This is the documentation for the Endpoint as a Service Provisioning Service system. 
  *
  * OpenAPI spec version: 0.0.1
  * Contact: will@near.org
@@ -12,21 +12,21 @@
  * Do not edit the class manually.
  */
 /**
- *
+ * 
  * @export
  * @interface ApiResponseMetadata
  */
 export interface ApiResponseMetadata {
-  /**
-   *
-   * @type {string}
-   * @memberof ApiResponseMetadata
-   */
-  name?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof ApiResponseMetadata
-   */
-  namespace?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ApiResponseMetadata
+     */
+    name?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ApiResponseMetadata
+     */
+    namespace?: string;
 }
