@@ -224,8 +224,7 @@ export default function StarterGuide() {
                 <TextLink
                   stableId={StableId.STARTER_GUIDE_NEAR_API_JS_DOCS_LINK}
                   href="https://docs.near.org/docs/api/naj-quick-reference#install"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  external
                 >
                   near-api-js quick reference guide
                 </TextLink>
@@ -272,8 +271,7 @@ export default function StarterGuide() {
                   <TextLink
                     stableId={StableId.STARTER_GUIDE_NEAR_SDK_JS_DOCS_LINK}
                     href="https://docs.near.org/tools/near-sdk-js#create-your-first-javascript-contract"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    external
                   >
                     near-sdk-js quick reference guide
                   </TextLink>{' '}
