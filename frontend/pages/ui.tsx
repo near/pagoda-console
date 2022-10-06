@@ -789,10 +789,13 @@ const Settings: NextPageWithLayout = () => {
       </DocSection>
 
       <DocSection title="Drag And Drop">
-        <DragAndDropLabel stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_CHOOSE_FILE_BUTTON}>
+        <DragAndDropLabel
+          onChange={(e) => console.log(e)}
+          stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_CHOOSE_FILE_BUTTON}
+        >
           <FeatherIcon color="primary" size="s" icon="upload" />
           Choose or drop a file
-          <Form.Input type="file" file tabIndex={-1} />
+          <Form.Input type="file" file tabIndex={-1} onChange={(e) => console.log(e)} />
         </DragAndDropLabel>
       </DocSection>
 
