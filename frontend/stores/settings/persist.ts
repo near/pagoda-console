@@ -6,11 +6,13 @@ import type { SettingsStore } from './types';
 const key = 'settings';
 
 useSettingsStore.subscribe((store) => {
-  storage.hybrid.setItem<SettingsStore>(key, store);
+  storage.hybrid.setItem<Partial<SettingsStore>>(key, {
+    users: store.users,
+  });
 });
 
 export function hydrate() {
-  const value = storage.hybrid.getItem<SettingsStore>(key);
+  const value = storage.hybrid.getItem<Partial<SettingsStore>>(key);
 
   useSettingsStore.setState({
     ...value,

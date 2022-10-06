@@ -43,42 +43,6 @@ If you need to expose your API beyond your local machine—e.g. to test the fron
 
 More details [here](https://nearinc.atlassian.net/wiki/spaces/DEVCONSOLE/pages/36438083/Onboarding)
 
-## Database
-
-When running the below commands, make sure you are in the parent directory that contains the `prisma` folder. E.g. `./src/core`.
-
-Initialize database with Prisma models and generate Prisma Client for current schema
-
-```
-npx prisma migrate dev
-```
-
-Wipe the contents of the database (as needed) and apply all migrations
-
-```
-npx prisma migrate reset
-```
-
-To create a new migration. This will attempt to delete custom SQL entities (e.g. Audit table) since it cannot be defined in the Prisma schema. Please remove this code from your migration!
-
-```
-npx prisma migrate dev --create-only
-```
-
-To apply all migrations
-
-```
-npx prisma migrate deploy
-```
-
-### Database Documentation
-
-We currently have a Github action that will generate DB docs and upload them to:
-`https://dbdocs.io/jon-lewis/Pagoda-Developer-Console-Dev` when a PR is merged into `development` and
-`https://dbdocs.io/jon-lewis/Pagoda-Developer-Console` when merged into `main`.
-
-You will need a password to view these docs, please ask the team for it.
-
 ### Update models
 
 Whenever models are changed, even locally, a new Prisma client must be generated

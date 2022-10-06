@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
+import { useRef } from 'react';
 import { useEffect } from 'react';
 import { useState } from 'react';
 
@@ -15,6 +16,7 @@ export interface GitHubReference {
 
 export default function MdxCodeBlock(props: any) {
   const [content, setContent] = useState('');
+  const lastFetchedUrl = useRef('');
 
   // className is the language used in the code block.
   // It's currently the only way for us to guess if the .mdx is using a single tick (`) vs three ticks (```).
@@ -23,11 +25,16 @@ export default function MdxCodeBlock(props: any) {
     if (!isGithubReference(props)) {
       return;
     }
+
     const url = props.children;
-    // Render the github content in OtherCodeBlock
-    const codeSnippetDetails = parseReference(url);
-    // This isn't getting the line numbers correctly.
-    fetchCode(codeSnippetDetails, setContent);
+
+    if (url !== lastFetchedUrl.current) {
+      // Render the github content in OtherCodeBlock
+      const codeSnippetDetails = parseReference(url);
+      // This isn't getting the line numbers correctly.
+      fetchCode(codeSnippetDetails, setContent);
+      lastFetchedUrl.current = url;
+    }
   }, [props]);
 
   if (isGithubReference(props)) {
