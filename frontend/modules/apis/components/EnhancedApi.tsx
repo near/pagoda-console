@@ -16,6 +16,12 @@ import * as S from './styles';
   their styles would be applied globally (overriding our own variables like --color-primary).
 */
 
+/*
+  NOTE: In local dev mode, the `API` component will log an error:
+  "Warning: Legacy context API has been detected within a strict-mode tree."
+  This appears to be a harmless error that we can ignore for now.
+*/
+
 const EnhancedAPI = () => {
   const [displayMessage, setDisplayMessage] = useState(true);
   const { environment } = useSelectedProject();

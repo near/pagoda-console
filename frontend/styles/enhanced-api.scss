@@ -3,6 +3,139 @@
 */
 
 .e-api {
+  blockquote,
+  dd,
+  dl,
+  figure,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  hr,
+  p,
+  pre {
+    margin: 0;
+  }
+  button {
+    background-color: initial;
+    background-image: none;
+  }
+  :focus {
+    outline: none;
+  }
+  fieldset,
+  ol,
+  ul {
+    margin: 0;
+    padding: 0;
+  }
+  ol,
+  ul {
+    list-style: none;
+  }
+  html {
+    font-family: var(--font-ui);
+    line-height: 1.5;
+  }
+  body {
+    text-rendering: optimizeSpeed;
+    font-family: inherit;
+    line-height: inherit;
+    margin: 0;
+    min-height: 100vh;
+  }
+  *,
+  :after,
+  :before {
+    border: 0 solid var(--color-border, currentColor);
+    box-sizing: border-box;
+  }
+  hr {
+    border-top-width: 1px;
+  }
+  img {
+    border-style: solid;
+  }
+  textarea {
+    resize: vertical;
+  }
+  input::-ms-input-placeholder,
+  textarea::-ms-input-placeholder {
+    color: #a1a1aa;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #a1a1aa;
+  }
+  [role='button'],
+  button {
+    cursor: pointer;
+  }
+  table {
+    border-collapse: collapse;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+  a {
+    color: inherit;
+    text-decoration: inherit;
+  }
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    color: inherit;
+    line-height: inherit;
+    padding: 0;
+  }
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-mono);
+  }
+  audio,
+  canvas,
+  embed,
+  iframe,
+  img,
+  object,
+  svg,
+  video {
+    display: block;
+    vertical-align: middle;
+  }
+  img,
+  video {
+    height: auto;
+    max-width: 100%;
+  }
+  button {
+    font-family: var(--font-ui);
+  }
+  select {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+  }
+  select::-ms-expand {
+    display: none;
+  }
+  select {
+    font-size: inherit;
+  }
+  iframe {
+    border: 0;
+  }
   @media (prefers-reduced-motion: reduce) {
     * {
       animation-duration: 0.01ms !important;
