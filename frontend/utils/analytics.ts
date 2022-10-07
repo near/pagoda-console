@@ -42,7 +42,8 @@ function track(eventLabel: string, properties?: Dict) {
   });
 }
 
-function identify(userId: string, traits: Record<string, any>) {
+function identify(id: string, traits: Record<string, any>) {
+  userId = id;
   segment.identify({
     traits,
     userId,
@@ -50,9 +51,9 @@ function identify(userId: string, traits: Record<string, any>) {
 }
 
 function pageView(name: string, properties?: Dict) {
+  const id = userId ? { userId } : { anonymousId };
   segment.page({
-    userId,
-    anonymousId,
+    ...id,
     name,
     properties,
   });
