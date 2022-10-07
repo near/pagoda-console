@@ -1,6 +1,5 @@
 import { Box } from '@/components/lib/Box';
 import { ButtonLink } from '@/components/lib/Button';
-import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H1, H5 } from '@/components/lib/Heading';
 import { List, ListItem } from '@/components/lib/List';
@@ -60,11 +59,9 @@ const Indexers: NextPageWithLayout = () => {
                 <TextLink
                   stableId={StableId.INDEXERS_NEAR_LAKE_RAW_PRINTER_LINK}
                   href="https://near-indexers.io/tutorials/lake/js-lake-indexer"
-                  target="_blank"
-                  rel="noop noreferrer"
+                  external
                 >
                   near-lake-raw-printer
-                  <FeatherIcon css={{ marginLeft: '0.25rem' }} icon="external-link" size="xs" />
                 </TextLink>
                 : simple example of a data printer
               </ListItem>
@@ -72,11 +69,9 @@ const Indexers: NextPageWithLayout = () => {
                 <TextLink
                   stableId={StableId.INDEXERS_NEAR_LAKE_ACCOUNT_WATCHER_LINK}
                   href="https://near-indexers.io/tutorials/lake/near-lake-state-changes-indexer"
-                  target="_blank"
-                  rel="noop noreferrer"
+                  external
                 >
                   accounts-watcher
-                  <FeatherIcon css={{ marginLeft: '0.25rem' }} icon="external-link" size="xs" />
                 </TextLink>
                 : indexer example that watches for transactions related to specified accounts/contracts
               </ListItem>
@@ -84,11 +79,9 @@ const Indexers: NextPageWithLayout = () => {
                 <TextLink
                   stableId={StableId.INDEXERS_NEAR_LAKE_NFT_INDEXER_LINK}
                   href="https://near-indexers.io/tutorials/lake/nft-indexer"
-                  target="_blank"
-                  rel="noop noreferrer"
+                  external
                 >
                   nft-indexer
-                  <FeatherIcon css={{ marginLeft: '0.25rem' }} icon="external-link" size="xs" />
                 </TextLink>
                 : a working NFT indexer
               </ListItem>
