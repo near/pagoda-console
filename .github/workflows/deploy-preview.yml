@@ -101,8 +101,8 @@ jobs:
 
       - name: "Export secret related env variables"
         run: |
-          echo "DATABASE_CONNECTION_NAME=$(terraform output -raw database_connection_name)" >> $GITHUB_ENV
-          echo "DATABASE_SECRET_SUFFIX=$(terraform output -raw database_secret_suffix)" >> $GITHUB_ENV
+          echo "DATABASE_CONNECTION_NAME=developer-platform-dev:us-east1:console-db-preview-${PREVIEW_NAMESPACE}" >> $GITHUB_ENV
+          echo "DATABASE_SECRET_SUFFIX=PREVIEW_$(echo $PREVIEW_NAMESPACE | tr 'a-z' 'A-Z')" >> $GITHUB_ENV
 
       - name: "GCP DB secrets"
         run: |
