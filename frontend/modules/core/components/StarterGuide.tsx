@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
 
 import * as Accordion from '@/components/lib/Accordion';
+import { Badge } from '@/components/lib/Badge';
 import { CodeBlock } from '@/components/lib/CodeBlock';
 import { Flex } from '@/components/lib/Flex';
 import { H4 } from '@/components/lib/Heading';
 import { List, ListItem } from '@/components/lib/List';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
-import { useApiKeys } from '@/hooks/api-keys';
 import { useSelectedProject } from '@/hooks/selected-project';
 import config from '@/utils/config';
+import { StableId } from '@/utils/stable-ids';
 import type { NetOption } from '@/utils/types';
 
 const NAJ_STARTER_TEMPLATE = `const { connect, keyStores } = require("near-api-js");
@@ -19,7 +20,7 @@ const NAJ_STARTER_TEMPLATE = `const { connect, keyStores } = require("near-api-j
 const keyStore = new keyStores.BrowserLocalStorageKeyStore();
 
 const RPC_API_ENDPOINT = '<RPC service url>';
-const API_KEY = '<your API Key>';
+const API_KEY = '<YOUR-API-KEY>';
 
 const ACCOUNT_ID = 'account.near';
 
@@ -47,7 +48,7 @@ use near_primitives::types::{BlockReference, Finality};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = JsonRpcClient::connect("<RPC service url>")
-        .header(auth::ApiKey::new("<your API Key>")?);
+        .header(auth::ApiKey::new("<YOUR-API-KEY>")?);
 
     let request = methods::block::RpcBlockRequest {
         block_reference: BlockReference::Finality(Finality::Final),
@@ -62,6 +63,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 const CLI_URL_TEMPLATE = `export NEAR_CLI_TESTNET_RPC_SERVER_URL=<RPC service url>`;
 const CLI_KEY_TEMPLATE = `near set-api-key $NEAR_CLI_TESTNET_RPC_SERVER_URL <your API Key>`;
+const TEST_API_KEYS = `curl -X POST -H 'x-api-key:<YOUR-API-KEY>' -H 'Content-Type: application/json' -d '{"jsonrpc": "2.0", "id":"dontcare","method":"status","params":[] }' ${config.url.rpc.recommended.TESTNET}`;
 
 export default function StarterGuide() {
   const [starterCode, setStarterCode] = useState<{ naj: string; rust: string; cliUrl: string; cliKey: string }>({
@@ -71,37 +73,23 @@ export default function StarterGuide() {
     cliKey: CLI_KEY_TEMPLATE,
   });
 
-  const { project, environment } = useSelectedProject();
-
-  const { keys } = useApiKeys(project?.slug, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  const { environment } = useSelectedProject();
 
   // TODO (P2+) determine net by other means than subId
   useEffect(() => {
     const net: NetOption = environment?.subId === 2 ? 'MAINNET' : 'TESTNET';
 
-    if (!environment?.subId || !keys || !keys[net]) {
+    if (!environment?.subId) {
       return;
     }
 
     setStarterCode({
-      naj: NAJ_STARTER_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(
-        /<RPC service url>/,
-        config.url.rpc.recommended[net],
-      ),
-      rust: RUST_STARTER_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(
-        /<RPC service url>/,
-        config.url.rpc.recommended[net],
-      ),
-      cliUrl: CLI_URL_TEMPLATE.replace(/<your API Key>/, keys[net]!).replace(
-        /<RPC service url>/,
-        config.url.rpc.recommended[net],
-      ),
-      cliKey: CLI_KEY_TEMPLATE.replace(/<your API Key>/, keys[net]!),
+      naj: NAJ_STARTER_TEMPLATE.replace(/<RPC service url>/, config.url.rpc.recommended[net]),
+      rust: RUST_STARTER_TEMPLATE.replace(/<RPC service url>/, config.url.rpc.recommended[net]),
+      cliUrl: CLI_URL_TEMPLATE.replace(/<RPC service url>/, config.url.rpc.recommended[net]),
+      cliKey: CLI_KEY_TEMPLATE,
     });
-  }, [keys, environment]);
+  }, [environment]);
 
   return (
     <Flex stack gap="l">
@@ -109,19 +97,103 @@ export default function StarterGuide() {
         <H4>Using Your API Keys</H4>
 
         <Text>
-          Follow the instructions below to get started with making requests to the NEAR RPC service.
-          {keys && " We've already filled in your API keys in these instructions."}
+          Use your API key to access Pagoda API (in Beta) to use RPC and Enhanced APIs. Unlock insights from the
+          Statistics Page into your RPC usage and performance (e.g. latency, success%), subscribe to updates from Status
+          page to get notified and react when incidents happened, and upgrade your data query experiences with instant
+          access to balances and more with Enhanced APIs.
         </Text>
+        <Text weight="semibold">Quick Endpoint Setup</Text>
+        <List as="ul">
+          <ListItem>
+            RPC API Access
+            <List as="ul">
+              <ListItem>
+                <Badge size="s">POST</Badge> for all RPC methods
+              </ListItem>
+              <ListItem>
+                <Badge size="s">JSON RPC 2.0</Badge>
+              </ListItem>
+              <ListItem>
+                <Badge size="s">id: &quot;dontcare&quot;</Badge>
+              </ListItem>
+              <ListItem>
+                Endpoint URL varies by network
+                <List as="ul">
+                  <ListItem>
+                    <Badge size="s">{config.url.rpc.recommended.TESTNET}</Badge>
+                  </ListItem>
+                  <ListItem>
+                    <Badge size="s">{config.url.rpc.recommended.MAINNET}</Badge>
+                  </ListItem>
+                </List>
+              </ListItem>
+              <ListItem>We are working on supporting Archival RPC as the next phase</ListItem>
+            </List>
+          </ListItem>
+          <ListItem>
+            Enhanced API Access
+            <List as="ul">
+              <ListItem>Follows RESTful API design</ListItem>
+              <ListItem>
+                Default Content Type: <Badge size="s">application/json</Badge>
+              </ListItem>
+              <ListItem>
+                The API key should be set as <Badge size="s">x-api-key</Badge> HTTP Header for each Enhanced API call
+              </ListItem>
+              <ListItem>
+                Endpoint URL varies by network
+                <List as="ul">
+                  <ListItem>
+                    <Badge size="s">{config.url.eapi.TESTNET}</Badge>
+                  </ListItem>
+                  <ListItem>
+                    <Badge size="s">{config.url.eapi.MAINNET}</Badge>
+                  </ListItem>
+                </List>
+              </ListItem>
+            </List>
+          </ListItem>
+        </List>
+        <Text>Pagoda RPC service follows NEAR RPC standards.</Text>
+        <Text>
+          Refer to the{' '}
+          <TextLink
+            stableId={StableId.STARTER_GUIDE_NEAR_API_DOCS_LINK}
+            href="https://docs.near.org/api/overview"
+            external
+          >
+            NEAR API Documentation
+          </TextLink>{' '}
+          for the list of JSON RPC methods to interact with the NEAR blockchain and instructions below in the dropdown
+          to get started.
+        </Text>
+        <Text>Refer to the Enhanced API tab for instructions and documentation to use Enhanced APIs.</Text>
+        <Text weight="semibold">Instructions to get started with making requests to the Pagoda RPC service.</Text>
       </Flex>
 
       <Accordion.Root type="multiple" inline>
+        <Accordion.Item value="test">
+          <Accordion.Trigger stableId={StableId.STARTER_GUIDE_ACCORDION_TEST_KEYS_TRIGGER}>
+            Quickly Test your API Keys
+          </Accordion.Trigger>
+          <Accordion.Content>
+            <CodeBlock language="bash">{TEST_API_KEYS}</CodeBlock>
+          </Accordion.Content>
+        </Accordion.Item>
+
         <Accordion.Item value="cli">
-          <Accordion.Trigger>Command Line (near-cli)</Accordion.Trigger>
+          <Accordion.Trigger stableId={StableId.STARTER_GUIDE_ACCORDION_CLI_TRIGGER}>
+            Command Line (near-cli)
+          </Accordion.Trigger>
           <Accordion.Content>
             <List as="ol" gap="l">
               <ListItem>
                 If you don&#39;t yet have near-cli installed on your machine, follow the instructions in the{' '}
-                <TextLink href="https://docs.near.org/docs/tools/near-cli#installation" external>
+                <TextLink
+                  stableId={StableId.STARTER_GUIDE_NEAR_CLI_DOCS_LINK}
+                  href="https://docs.near.org/docs/tools/near-cli#installation"
+                  external
+                >
                   near-cli installation docs
                 </TextLink>
               </ListItem>
@@ -142,15 +214,17 @@ export default function StarterGuide() {
         </Accordion.Item>
 
         <Accordion.Item value="js">
-          <Accordion.Trigger>Javascript (near-api-js)</Accordion.Trigger>
+          <Accordion.Trigger stableId={StableId.STARTER_GUIDE_ACCORDION_JS_TRIGGER}>
+            Javascript (near-api-js)
+          </Accordion.Trigger>
           <Accordion.Content>
             <List as="ol" gap="l">
               <ListItem>
                 If you don&#39;t yet have near-api-js installed in your project, follow the instructions from the{' '}
                 <TextLink
+                  stableId={StableId.STARTER_GUIDE_NEAR_API_JS_DOCS_LINK}
                   href="https://docs.near.org/docs/api/naj-quick-reference#install"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  external
                 >
                   near-api-js quick reference guide
                 </TextLink>
@@ -167,12 +241,43 @@ export default function StarterGuide() {
         </Accordion.Item>
 
         <Accordion.Item value="rust">
-          <Accordion.Trigger>Rust (near-jsonrpc-client)</Accordion.Trigger>
+          <Accordion.Trigger stableId={StableId.STARTER_GUIDE_ACCORDION_RUST_TRIGGER}>
+            Rust (near-jsonrpc-client)
+          </Accordion.Trigger>
           <Accordion.Content>
             <Flex stack>
               <Text>Example of asynchronously fetching the latest block using tokio:</Text>
               <CodeBlock language="rust">{starterCode.rust}</CodeBlock>
             </Flex>
+          </Accordion.Content>
+        </Accordion.Item>
+
+        <Accordion.Item value="compare">
+          <Accordion.Trigger stableId={StableId.STARTER_GUIDE_ACCORDION_JS_API_VS_SDK_TRIGGER}>
+            Difference Between near-api-js and near-sdk-js
+          </Accordion.Trigger>
+          <Accordion.Content>
+            <List as="ul">
+              <ListItem>
+                The JavaScript API is a complete library for all possible commands to interact with NEAR. It’s a wrapper
+                for the RPC endpoints, a library to interact with NEAR Wallet in the browser, and a tool for keys
+                management.
+              </ListItem>
+              <ListItem>
+                <Text>
+                  The JavaScript SDK is a library for developing smart contracts. It contains classes and functions you
+                  use to write your smart contract code. To get started building smart contracts with near-sdk-js,
+                  follow the instructions from the{' '}
+                  <TextLink
+                    stableId={StableId.STARTER_GUIDE_NEAR_SDK_JS_DOCS_LINK}
+                    href="https://docs.near.org/tools/near-sdk-js#create-your-first-javascript-contract"
+                    external
+                  >
+                    near-sdk-js quick reference guide
+                  </TextLink>{' '}
+                </Text>
+              </ListItem>
+            </List>
           </Accordion.Content>
         </Accordion.Item>
       </Accordion.Root>

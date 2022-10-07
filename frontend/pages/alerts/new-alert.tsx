@@ -34,6 +34,7 @@ import { assertUnreachable } from '@/utils/helpers';
 import { numberInputHandler } from '@/utils/input-handlers';
 import { mergeInputProps } from '@/utils/merge-input-props';
 import { sanitizeNumber } from '@/utils/sanitize-number';
+import { StableId } from '@/utils/stable-ids';
 import type { Contract, Environment, NextPageWithLayout, Project } from '@/utils/types';
 import { validateMaxNearDecimalLength, validateMaxNearU128 } from '@/utils/validations';
 
@@ -150,7 +151,7 @@ const NewAlert: NextPageWithLayout = () => {
           <Text>Configure a new alert to be notified when certain conditions occur on a specific contract.</Text>
 
           <Link href="/alerts" passHref>
-            <TextLink>
+            <TextLink stableId={StableId.NEW_ALERT_BACK_TO_ALERTS_LINK}>
               <FeatherIcon icon="arrow-left" />
               Alerts
             </TextLink>
@@ -536,12 +537,14 @@ const NewAlert: NextPageWithLayout = () => {
             <HR />
 
             <Flex justify="spaceBetween" align="center">
-              <Button type="submit" loading={form.formState.isSubmitting} stableId="create-alert">
+              <Button type="submit" loading={form.formState.isSubmitting} stableId={StableId.NEW_ALERT_CREATE_BUTTON}>
                 <FeatherIcon icon="bell" /> Create Alert
               </Button>
 
               <Link href="/alerts" passHref>
-                <TextLink color="neutral">Cancel</TextLink>
+                <TextLink color="neutral" stableId={StableId.NEW_ALERT_CANCEL_BUTTON}>
+                  Cancel
+                </TextLink>
               </Link>
             </Flex>
           </Flex>

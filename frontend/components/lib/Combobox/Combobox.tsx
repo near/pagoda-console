@@ -1,12 +1,14 @@
 import type { ComponentProps } from 'react';
 import { forwardRef } from 'react';
 
+import { StableId } from '@/utils/stable-ids';
+
 import { Button } from '../Button';
 import { FeatherIcon } from '../FeatherIcon';
 import * as S from './styles';
 
 type BoxProps = ComponentProps<typeof S.Box> & {
-  toggleButtonProps?: ComponentProps<typeof Button>;
+  toggleButtonProps?: Omit<ComponentProps<typeof Button>, 'stableId'>;
 };
 
 export const Root = S.Root;
@@ -21,7 +23,7 @@ export const Box = forwardRef<HTMLDivElement, BoxProps>(({ children, toggleButto
       {children}
 
       {toggleButtonProps && (
-        <Button color="input" {...toggleButtonProps}>
+        <Button stableId={StableId.COMBOBOX_TOGGLE_BUTTON} color="input" {...toggleButtonProps}>
           <FeatherIcon color="text3" fill="currentColor" stroke="none" icon="chevron-down" />
         </Button>
       )}

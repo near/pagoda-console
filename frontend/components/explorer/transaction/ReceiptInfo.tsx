@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import * as Tabs from '@/components/lib/Tabs';
+import { StableId } from '@/utils/stable-ids';
 
 import InspectReceipt from './InspectReceipt';
 import ReceiptDetails from './ReceiptDetails';
@@ -14,8 +15,12 @@ const ReceiptInfo: React.FC<Props> = React.memo(({ receipt }) => {
   return (
     <Tabs.Root defaultValue="output" css={{ paddingLeft: 40, paddingRight: 40 }}>
       <Tabs.List>
-        <Tabs.Trigger value="output">Output</Tabs.Trigger>
-        <Tabs.Trigger value="inspect">Inspect</Tabs.Trigger>
+        <Tabs.Trigger stableId={StableId.RECEIPT_INFO_TABS_OUTPUT_TRIGGER} value="output">
+          Output
+        </Tabs.Trigger>
+        <Tabs.Trigger stableId={StableId.RECEIPT_INFO_TABS_INPUT_TRIGGER} value="inspect">
+          Inspect
+        </Tabs.Trigger>
       </Tabs.List>
 
       <Tabs.Content value="output">

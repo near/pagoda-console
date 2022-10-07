@@ -15,6 +15,7 @@ import { ProjectCard } from '@/modules/core/components/ProjectCard';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import { authenticatedPost } from '@/utils/http';
+import { StableId } from '@/utils/stable-ids';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -66,7 +67,7 @@ const NewNftTutorial: NextPageWithLayout = () => {
 
         <Flex stack gap="l">
           <Link href="/pick-tutorial" passHref>
-            <TextLink>
+            <TextLink stableId={StableId.NEW_NFT_TUTORIAL_BACK_TO_TUTORIAL_TYPE_LINK}>
               <FeatherIcon icon="arrow-left" /> Tutorial Type
             </TextLink>
           </Link>
@@ -90,7 +91,7 @@ const NewNftTutorial: NextPageWithLayout = () => {
                 <Form.Feedback>{formState.errors.projectName?.message}</Form.Feedback>
               </Form.Group>
 
-              <Button type="submit" loading={formState.isSubmitting}>
+              <Button stableId={StableId.NEW_NFT_TUTORIAL_CREATE_BUTTON} type="submit" loading={formState.isSubmitting}>
                 Create Project
               </Button>
             </Flex>

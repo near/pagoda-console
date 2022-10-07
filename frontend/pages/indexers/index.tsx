@@ -1,6 +1,5 @@
 import { Box } from '@/components/lib/Box';
 import { ButtonLink } from '@/components/lib/Button';
-import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H1, H5 } from '@/components/lib/Heading';
 import { List, ListItem } from '@/components/lib/List';
@@ -9,6 +8,7 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useDashboardLayout } from '@/hooks/layouts';
 import SailboatImage from '@/public/indexers/images/Sailboat.svg';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Indexers: NextPageWithLayout = () => {
@@ -57,41 +57,42 @@ const Indexers: NextPageWithLayout = () => {
             <List>
               <ListItem>
                 <TextLink
+                  stableId={StableId.INDEXERS_NEAR_LAKE_RAW_PRINTER_LINK}
                   href="https://near-indexers.io/tutorials/lake/js-lake-indexer"
-                  target="_blank"
-                  rel="noop noreferrer"
+                  external
                 >
                   near-lake-raw-printer
-                  <FeatherIcon css={{ marginLeft: '0.25rem' }} icon="external-link" size="xs" />
                 </TextLink>
                 : simple example of a data printer
               </ListItem>
               <ListItem>
                 <TextLink
+                  stableId={StableId.INDEXERS_NEAR_LAKE_ACCOUNT_WATCHER_LINK}
                   href="https://near-indexers.io/tutorials/lake/near-lake-state-changes-indexer"
-                  target="_blank"
-                  rel="noop noreferrer"
+                  external
                 >
                   accounts-watcher
-                  <FeatherIcon css={{ marginLeft: '0.25rem' }} icon="external-link" size="xs" />
                 </TextLink>
                 : indexer example that watches for transactions related to specified accounts/contracts
               </ListItem>
               <ListItem>
                 <TextLink
+                  stableId={StableId.INDEXERS_NEAR_LAKE_NFT_INDEXER_LINK}
                   href="https://near-indexers.io/tutorials/lake/nft-indexer"
-                  target="_blank"
-                  rel="noop noreferrer"
+                  external
                 >
                   nft-indexer
-                  <FeatherIcon css={{ marginLeft: '0.25rem' }} icon="external-link" size="xs" />
                 </TextLink>
                 : a working NFT indexer
               </ListItem>
             </List>
           </Flex>
         </Flex>
-        <ButtonLink href="https://near-indexers.io/docs/projects/near-lake-framework" external>
+        <ButtonLink
+          stableId={StableId.INDEXERS_TRY_NEAR_LAKE_LINK}
+          href="https://near-indexers.io/docs/projects/near-lake-framework"
+          external
+        >
           Try Out NEAR Lake
         </ButtonLink>
       </Flex>

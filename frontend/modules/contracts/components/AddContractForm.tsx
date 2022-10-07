@@ -18,6 +18,7 @@ import analytics from '@/utils/analytics';
 import { formRegex } from '@/utils/constants';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
 import { authenticatedPost } from '@/utils/http';
+import { StableId } from '@/utils/stable-ids';
 import type { Contract, Environment, Project } from '@/utils/types';
 
 interface Props {
@@ -139,7 +140,10 @@ export function AddContractForm(props: Props) {
     <Flex stack gap="l">
       {selectedContractTemplate ? (
         <>
-          <TextButton onClick={() => setSelectedContractTemplate(undefined)}>
+          <TextButton
+            stableId={StableId.ADD_CONTRACT_FORM_TEMPLATE_BACK_BUTTON}
+            onClick={() => setSelectedContractTemplate(undefined)}
+          >
             <FeatherIcon icon="arrow-left" /> Back
           </TextButton>
           <ContractTemplateDetails
@@ -179,7 +183,12 @@ export function AddContractForm(props: Props) {
                 <Form.Feedback>{formState.errors.contractAddress?.message}</Form.Feedback>
               </Form.Group>
 
-              <Button type="submit" loading={formState.isSubmitting} stretch>
+              <Button
+                stableId={StableId.ADD_CONTRACT_FORM_CONFIRM_BUTTON}
+                type="submit"
+                loading={formState.isSubmitting}
+                stretch
+              >
                 Add
               </Button>
             </Flex>

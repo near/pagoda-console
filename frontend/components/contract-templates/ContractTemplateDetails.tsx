@@ -4,6 +4,7 @@ import { H3 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
 import type { ContractTemplate } from '@/hooks/contract-templates';
 import { styled } from '@/styles/stitches';
+import { StableId } from '@/utils/stable-ids';
 
 const Image = styled('img', {
   aspectRatio: '16 / 10',
@@ -31,6 +32,7 @@ export function ContractTemplateDetails({ isDeploying, template, onSelect }: Pro
 
       <Flex stack gap="m">
         <Button
+          stableId={StableId.CONTRACT_TEMPLATE_DETAILS_DEPLOY_BUTTON}
           loading={isDeploying}
           color="primary"
           onClick={() => {
@@ -41,7 +43,13 @@ export function ContractTemplateDetails({ isDeploying, template, onSelect }: Pro
           Deploy & Explore Contract
         </Button>
 
-        <ButtonLink href={template.repositoryUrl} color="neutral" external stretch>
+        <ButtonLink
+          stableId={StableId.CONTRACT_TEMPLATE_DETAILS_GITHUB_LINK}
+          href={template.repositoryUrl}
+          color="neutral"
+          external
+          stretch
+        >
           View on Github
         </ButtonLink>
       </Flex>

@@ -35,6 +35,7 @@ import analytics from '@/utils/analytics';
 import { convertNearToYocto } from '@/utils/convert-near';
 import { numberInputHandler } from '@/utils/input-handlers';
 import { sanitizeNumber } from '@/utils/sanitize-number';
+import { StableId } from '@/utils/stable-ids';
 import type { Contract } from '@/utils/types';
 import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
@@ -181,6 +182,7 @@ export const ContractTransaction = ({ contract }: Props) => {
                 </>
               ) : null}
               <Button
+                stableId={StableId.CONTRACT_TRANSACTION_CONNECT_WALLET_BUTTON}
                 color="primaryBorder"
                 size={!accountId ? 'm' : 's'}
                 onClick={handleWalletSelect}
@@ -477,7 +479,12 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
 
           {selectedFunction?.is_view && (
             <Flex stack gap="l">
-              <Button type="submit" loading={form.formState.isSubmitting} stretch>
+              <Button
+                stableId={StableId.CONTRACT_TRANSACTION_VIEW_CALL_BUTTON}
+                type="submit"
+                loading={form.formState.isSubmitting}
+                stretch
+              >
                 View Call
               </Button>
             </Flex>
@@ -513,6 +520,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                   <Form.Feedback>{form.formState.errors.gas?.message}</Form.Feedback>
 
                   <UseMaxButton
+                    stableId={StableId.CONTRACT_TRANSACTION_MAX_GAS_BUTTON}
                     color="transparent"
                     onClick={() => {
                       form.setValue('gas', '300');
@@ -525,7 +533,12 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                 </Form.Group>
 
                 <DropdownMenu.Root>
-                  <DropdownMenu.Button css={{ width: '9rem' }}>{gasFormat}</DropdownMenu.Button>
+                  <DropdownMenu.Button
+                    stableId={StableId.CONTRACT_TRANSACTION_GAS_FORMAT_DROPDOWN}
+                    css={{ width: '9rem' }}
+                  >
+                    {gasFormat}
+                  </DropdownMenu.Button>
                   <DropdownMenu.Content>
                     <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Tgas')}>Tgas</DropdownMenu.Item>
                     <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Ggas')}>Ggas</DropdownMenu.Item>
@@ -566,7 +579,12 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                 </Form.Group>
 
                 <DropdownMenu.Root>
-                  <DropdownMenu.Button css={{ width: '9rem' }}>{nearFormat}</DropdownMenu.Button>
+                  <DropdownMenu.Button
+                    stableId={StableId.CONTRACT_TRANSACTION_NEAR_FORMAT_DROPDOWN}
+                    css={{ width: '9rem' }}
+                  >
+                    {nearFormat}
+                  </DropdownMenu.Button>
                   <DropdownMenu.Content>
                     <DropdownMenu.Item onSelect={() => form.setValue('nearFormat', 'NEAR')}>NEAR</DropdownMenu.Item>
                     <DropdownMenu.Item onSelect={() => form.setValue('nearFormat', 'yoctoⓃ')}>yoctoⓃ</DropdownMenu.Item>
@@ -574,7 +592,12 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                 </DropdownMenu.Root>
               </Flex>
 
-              <Button type="submit" loading={form.formState.isSubmitting} stretch>
+              <Button
+                stableId={StableId.CONTRACT_TRANSACTION_SEND_BUTTON}
+                type="submit"
+                loading={form.formState.isSubmitting}
+                stretch
+              >
                 {selectedFunction && selectedFunction.is_view ? 'View Call' : 'Send Transaction'}
               </Button>
             </Flex>

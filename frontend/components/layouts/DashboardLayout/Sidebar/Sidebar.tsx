@@ -16,6 +16,7 @@ import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
 import type { SidebarEntry } from '@/shared/utils/types';
 import { logOut } from '@/utils/auth';
+import { StableId } from '@/utils/stable-ids';
 
 import { Logo } from './Logo';
 import * as S from './styles';
@@ -35,6 +36,7 @@ function useProjectPages(): SidebarEntry[] {
       route: '/tutorials/nfts/introduction',
       routeMatchPattern: '/tutorials/',
       icon: 'book',
+      stableId: StableId.SIDEBAR_TUTORIAL_LINK,
     });
   }
 
@@ -44,9 +46,19 @@ function useProjectPages(): SidebarEntry[] {
     pages.push(...alertsEntries);
   }
   pages.push(...contractsEntries);
-  pages.push({ display: 'Analytics', route: '/project-analytics', icon: 'bar-chart-2' });
+  pages.push({
+    display: 'Analytics',
+    route: '/project-analytics',
+    icon: 'bar-chart-2',
+    stableId: StableId.SIDEBAR_ANALYTICS_LINK,
+  });
   pages.push(...indexersEntries);
-  pages.push({ display: 'Settings', route: '/project-settings', icon: 'settings' });
+  pages.push({
+    display: 'Settings',
+    route: '/project-settings',
+    icon: 'settings',
+    stableId: StableId.SIDEBAR_PROJECT_SETTINGS_LINK,
+  });
 
   return pages;
 }
@@ -116,7 +128,7 @@ export function Sidebar({ children, ...props }: Props) {
             <S.NavItem key={page.display}>
               {page.route ? (
                 <Link href={page.route} passHref>
-                  <S.NavLink selected={isLinkSelected(page)} data-stable-id={`sidebar-link-${page.display}`}>
+                  <S.NavLink selected={isLinkSelected(page)} data-stable-id={page.stableId}>
                     <FeatherIcon icon={page.icon} />
                     <S.NavLinkLabel>
                       {page.display}
