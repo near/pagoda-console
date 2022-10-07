@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { API } from '@stoplight/elements';
+import { useState } from 'react';
 
-import { Box } from '@/components/lib/Box';
+import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
@@ -9,45 +10,19 @@ import config from '@/utils/config';
 
 import * as S from './styles';
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace JSX {
-    interface IntrinsicElements {
-      'elements-api': { apiDescriptionUrl: string; router: string; layout?: string; apiKey?: string };
-    }
-  }
-}
+/* 
+  NOTE: The styles for this component are imported in _app.tsx via import '@/styles/enhanced-api.scss';
+  This allows us to customize and properly scope the styles with the `.e-api` selector. Otherwise,
+  their styles would be applied globally (overriding our own variables like --color-primary).
+*/
 
 const EnhancedAPI = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const [displayMessage, setDisplayMessage] = useState(true);
-  const [isMainnet, setIsMainnet] = useState<boolean>(false);
-
   const { environment } = useSelectedProject();
-
-  useEffect(() => {
-    if (environment?.net === 'MAINNET') {
-      setIsMainnet(true);
-    } else {
-      setIsMainnet(false);
-    }
-  }, [environment?.net]);
-
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/@stoplight/elements/web-components.min.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    setIsLoading(false);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+  const url = environment && config.url.eapiSpec[environment.net];
 
   return (
-    <>
+    <Flex stack>
       {displayMessage && (
         <Message
           dismiss={() => {
@@ -57,20 +32,11 @@ const EnhancedAPI = () => {
           <Text>Want to interact with RPC API? Check out the key tab for the setup guide.</Text>
         </Message>
       )}
-      {!isLoading ? (
-        <S.Root className="enhanced-api">
-          <Box css={{ display: !isMainnet ? 'none' : undefined }}>
-            <elements-api apiDescriptionUrl={config.url.eapiSpec.MAINNET} router="hash" layout="sidebar" />
-          </Box>
 
-          <Box css={{ display: isMainnet ? 'none' : undefined }}>
-            <elements-api apiDescriptionUrl={config.url.eapiSpec.TESTNET} router="hash" layout="sidebar" />
-          </Box>
-        </S.Root>
-      ) : (
-        <Spinner center />
-      )}
-    </>
+      <S.Root className="e-api">
+        {url ? <API apiDescriptionUrl={url} router="hash" layout="sidebar" /> : <Spinner center />}
+      </S.Root>
+    </Flex>
   );
 };
 
