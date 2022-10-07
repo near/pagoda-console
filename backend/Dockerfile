@@ -37,14 +37,14 @@ COPY --from=builder --chown=node:node /usr/src/app/turbo.json ./
 COPY --from=builder --chown=node:node /usr/src/app/backend/package*.json ./backend/
 COPY --from=builder --chown=node:node /usr/src/app/database ./database
 COPY --from=builder --chown=node:node /usr/src/app/backend/dist ./backend/dist
-# COPY --from=builder --chown=node:node /usr/src/app/backend/generated ./backend/generated
+COPY --from=builder --chown=node:node /usr/src/app/node_modules ./node_modules
 
 # Ignore prepare script which will attempt to install husky: https://typicode.github.io/husky/#/?id=disable-husky-in-cidockerprod
-RUN npm set-script prepare ""
+#RUN npm set-script prepare ""
 
 #USER node
 # Install optimized dependencies, running after having all files
-RUN npm ci -w backend
+#RUN npm ci -w backend
 
 USER node
 CMD ["npm", "run", "-w", "backend", "start:prod"]
