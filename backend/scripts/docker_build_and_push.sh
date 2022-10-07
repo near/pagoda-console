@@ -7,5 +7,5 @@ then
 fi;
 
 # Build and push the docker container
-docker build -t gcr.io/near-dev-platform/developer-console-api:$1 .
+docker build -t gcr.io/near-dev-platform/developer-console-api:$1 -f ./Dockerfile ../
 docker push gcr.io/near-dev-platform/developer-console-api:$1
