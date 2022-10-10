@@ -12,16 +12,19 @@ RUN npm install -g prisma
 
 COPY ./database ./database
 COPY ./backend/package.json ./backend/package.json
+COPY ./frontend/package.json ./frontend/package.json
 
 # Ignore prepare script which will attempt to install husky: https://typicode.github.io/husky/#/?id=disable-husky-in-cidockerprod
 RUN npm set-script prepare ""
 
-RUN npm install -w backend
+RUN npm install
 
 COPY ./backend ./backend
 
 RUN npm run -w backend prebuild
 RUN npm run -w backend build
+
+RUN rm -rf ./frontend
 
 FROM --platform=linux/amd64 node:16-alpine as runner
 
