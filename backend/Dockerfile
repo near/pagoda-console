@@ -24,6 +24,8 @@ COPY ./backend ./backend
 RUN npm run -w backend prebuild
 RUN npm run -w backend build
 
+RUN npm run -w database build
+
 RUN rm -rf ./frontend
 
 FROM --platform=linux/amd64 node:16-alpine as runner
