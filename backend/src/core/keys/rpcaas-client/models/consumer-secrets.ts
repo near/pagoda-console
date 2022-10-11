@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Endpoints as a Service Provisiong Service (epaas-ps)
- * This is the documentation for the Endpoint as a Service Provisioning Service system. 
+ * This is the documentation for the Endpoint as a Service Provisioning Service system.
  *
  * OpenAPI spec version: 0.0.1
  * Contact: will@near.org
@@ -13,21 +13,21 @@
  */
 import { Secret } from './secret';
 /**
- * 
+ *
  * @export
  * @interface ConsumerSecrets
  */
 export interface ConsumerSecrets {
-    /**
-     * Name that makes logical sense for use in your service
-     * @type {string}
-     * @memberof ConsumerSecrets
-     */
-    consumer?: string;
-    /**
-     * List of credentials names associated with the consumer
-     * @type {Array<Secret>}
-     * @memberof ConsumerSecrets
-     */
-    keys?: Array<Secret>;
+  /**
+   * Name that makes logical sense for use in your service
+   * @type {string}
+   * @memberof ConsumerSecrets
+   */
+  consumer?: string;
+  /**
+   * List of credentials names associated with the consumer
+   * @type {Array<Secret>}
+   * @memberof ConsumerSecrets
+   */
+  keys?: Array<Secret>;
 }
