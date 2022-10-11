@@ -9,7 +9,7 @@ interface ModelTypeMap {
   balance_changes: BalanceChanges;
 }
 
-interface ModelIdTypeMap {}
+type ModelIdTypeMap = Record<string, never>;
 
 type Initializer = BalanceChangesInitializer;
 
