@@ -116,6 +116,13 @@ jobs:
           ../scripts/gcp_access_secret.sh ALERTS_DATABASE_URL_${DATABASE_SECRET_SUFFIX} ${{secrets.API_SERVICE_ACCOUNT_PREVIEW}} &&
           ../scripts/gcp_access_secret.sh RPCSTATS_DATABASE_URL_${DATABASE_SECRET_SUFFIX} ${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}
 
+      - name: "Update DB secret if already exists"
+        continue-on-error: true
+        run: |
+          gcloud sql users set-password postgres \
+            --instance=console-db-preview-${PREVIEW_NAMESPACE} \
+            --password=${TEMP_DB_PASSWORD}
+
       - name: Terraform Plan
         run: |
           # We could move this redeploy and fetch FE url to the beginning and set DOWNTIME_MODE=maintenance so it's clear that the preview env is being updated with a new backend and db.
