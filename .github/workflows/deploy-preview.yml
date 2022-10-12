@@ -102,7 +102,7 @@ jobs:
       - name: "Export secret related env variables"
         run: |
           echo "DATABASE_CONNECTION_NAME=developer-platform-dev:us-east1:console-db-preview-${PREVIEW_NAMESPACE}" >> $GITHUB_ENV
-          echo "DATABASE_SECRET_SUFFIX=PREVIEW_$(echo $PREVIEW_NAMESPACE | tr 'a-z' 'A-Z')" >> $GITHUB_ENV
+          echo "DATABASE_SECRET_SUFFIX=PREVIEW-$(echo $PREVIEW_NAMESPACE | tr 'a-z' 'A-Z')" >> $GITHUB_ENV
 
       - name: "GCP DB secrets"
         run: |
@@ -136,7 +136,7 @@ jobs:
 
       - name: Update DB password in DB
         run: |
-          gcloud sql users set-password ${{secrets.API_SERVICE_ACCOUNT_PREVIEW}} \
+          gcloud sql users set-password postgres \
             --instance=$(terraform output -raw database_instance_name) \
             --password=${{secrets.DATABASE_PASSWORD_PREVIEW}}
 
@@ -145,7 +145,8 @@ jobs:
           echo ${{secrets.DATABASE_PASSWORD_PREVIEW}} | gcloud secrets versions add DATABASE_URL_${DATABASE_SECRET_SUFFIX} --data-file=- &&
           echo ${{secrets.DATABASE_PASSWORD_PREVIEW}} | gcloud secrets versions add ABI_DATABASE_URL_${DATABASE_SECRET_SUFFIX} --data-file=- &&
           echo ${{secrets.DATABASE_PASSWORD_PREVIEW}} | gcloud secrets versions add ALERTS_DATABASE_URL_${DATABASE_SECRET_SUFFIX} --data-file=- &&
-          echo ${{secrets.DATABASE_PASSWORD_PREVIEW}} | gcloud secrets versions add RPCSTATS_DATABASE_URL_${DATABASE_SECRET_SUFFIX} --data-file=- &&
+          echo ${{secrets.DATABASE_PASSWORD_PREVIEW}} | gcloud secrets versions add RPCSTATS_DATABASE_URL_${DATABASE_SECRET_SUFFIX} --data-file=-
+
       - name: Restart api
         run: |
           echo "API_NAME=$(terraform output -raw api_name)" >> $GITHUB_ENV
