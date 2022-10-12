@@ -16,7 +16,7 @@ PROJECT_ID="developer-platform-dev"
 
 if gcloud secrets describe $SECRET_NAME --project $PROJECT_ID; then
     echo 'Secret already exists' 
-    #echo "$SECRET_VALUE"| gcloud secrets versions add $SECRET_NAME --data-file=-
+    echo "$SECRET_VALUE"| gcloud secrets versions add $SECRET_NAME --data-file=-
 else
     # `--data-file=-` file is important so GCP creates the first secret version.
     echo "$SECRET_VALUE" | gcloud secrets create $SECRET_NAME \
