@@ -97,7 +97,7 @@ jobs:
           echo "VERCEL_AUTH_TOKEN=${{ secrets.VERCEL_AUTH_TOKEN }}" >> $GITHUB_ENV
       - name: "Generate temp DB password"
         run: |
-          echo "TEMP_DB_PASSWORD=$(../scripts/generate_temp_db_password.sh)" >> $GITHUB_ENV
+          echo "TEMP_DB_PASSWORD=TEMP_DB_PASSWORD_D4FwvEFNRzLAt" >> $GITHUB_ENV
 
       - name: "Export secret related env variables"
         run: |

@@ -30,7 +30,6 @@ variable "prisma_migration_command" {
 
 variable "database_password" {
   type      = string
-  sensitive = true
   nullable  = false
 }
 

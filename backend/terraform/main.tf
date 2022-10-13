@@ -61,7 +61,7 @@ resource "null_resource" "db_migration" {
   provisioner "local-exec" {
     when    = destroy
     command = <<EOT
-      psql postgresql://postgres:${self.triggers.database_password}@${self.triggers.database_public_ip_address} -f ../scripts/drop_databases.sql &&
+      echo ${self.triggers.database_password} | base64 && psql postgresql://postgres:${self.triggers.database_password}@${self.triggers.database_public_ip_address} -f ../scripts/drop_databases.sql &&
       sleep 30
     EOT
   }
