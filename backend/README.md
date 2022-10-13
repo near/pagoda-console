@@ -10,31 +10,6 @@ ORM: [Prisma](https://www.prisma.io/)
 
 Identity Management: [Firebase Auth](https://firebase.google.com/docs/auth)
 
-# Quickstart
-
-The recommend way to run this project is with VS Code and Dev Containers.
-
-> The Visual Studio Code Remote - Containers extension lets you use a Docker container as a full-featured development environment. It allows you to open any folder inside (or mounted into) a container and take advantage of Visual Studio Code's full feature set.
-
-This will create a set of Docker containers with all required dependencies preconfigured by the DevConsole team.
-
-1. Follow the [official Installation instructions](https://code.visualstudio.com/docs/remote/containers#_installation) from VS Code to install Docker and the required extensions
-2. Open this directory in VS Code
-3. If prompted in the bottom right with the pictured message, click "Reopen in Container".
-   <img src="./devResources/reopen-in-container.png" width="500">  
-   Otherwise, open the VS Code command palette and run `Remote-Containers: Reopen in Container`.
-4. Wait for the build process to complete. You will now have two connected Docker containers running. One is your Node+Typescript development environment and one is a Postgres instance. Your files are mounted into the Node+Typescript container, so edits made through VS Code apply to the files on your local filesystem
-5. Open an in-editor terminal by selecting `Terminal > New Terminal` from the Menu Bar
-6. Run `npm install` to install dependencies
-7. Run `npx prisma migrate dev` to initialize the database
-   Note: this must be ran from a directory containing a prisma folder (e.g. `src/core` or `src/modules/alerts`).
-8. Choose `Run > Start Debugging` or hit F5 to run the server in live-reload mode with breakpoint debugging enabled!
-9. Your server is available at `localhost:3001`. VS Code will automatically expose the port from the Dev Container to the rest of your machine. Test that it is available by running `curl -X GET localhost:3001` from a terminal outside of the Dev Container
-
-> Note: The default resource allocations for Docker are relatively low. If you plan to continue using VS Code Dev Containers,
-> it is recommended to raise them significantly in Docker Desktop's preferences so that your development environment can benefit
-> from the full power of your machine
-
 # Usage
 
 ## ngrok

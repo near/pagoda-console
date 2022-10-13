@@ -29,7 +29,6 @@ const nanoid = customAlphabet(
 @Injectable()
 export class ProjectsService {
   private projectRefPrefix: string;
-  private mixpanelCredentials: string;
   private contractAddressValidationEnabled: string;
   constructor(
     private prisma: PrismaService,
@@ -44,12 +43,6 @@ export class ProjectsService {
     this.projectRefPrefix = this.config.get('projectRefPrefix', {
       infer: true,
     });
-    const token = this.config.get('analytics.token', {
-      infer: true,
-    });
-    this.mixpanelCredentials = `Basic ${Buffer.from(token + ':').toString(
-      'base64',
-    )}`;
     this.contractAddressValidationEnabled = this.config.get(
       'featureEnabled.core.contractAddressValidation',
       { infer: true },
