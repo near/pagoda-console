@@ -37,7 +37,16 @@ If you're running in to performance issues running/building the app inside the D
 
 #### Postgres
 
-The following will start a Postgres container with the appropriate default environment variables
+You can run a Postgres container with the appropriate default environment variables via either `docker compose` or `docker run`
+
+##### Docker Compose
+
+```bash
+cd .devcontainer
+docker compose up db
+```
+
+##### Docker Run
 
 ```bash
 docker run -d --name console-db -p 5432:5432 -e POSTGRES_USER=pguser -e POSTGRES_PASSWORD=pgpass -e POSTGRES_DB=devconsole postgres:13-alpine
