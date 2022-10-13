@@ -11,6 +11,7 @@ import { Box } from '@/components/lib/Box';
 import { Button } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
 import { CodeBlock } from '@/components/lib/CodeBlock';
+import { CopyButton } from '@/components/lib/CopyButton';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
@@ -179,6 +180,7 @@ export const ContractTransaction = ({ contract }: Props) => {
                   <Text weight="semibold" color="text1" css={{ minWidth: 0 }}>
                     <TextOverflow>{accountId}</TextOverflow>
                   </Text>
+                  <CopyButton value={accountId} stableId={StableId.WALLET_ACCOUNT_ID_COPY_BUTTON} />
                 </>
               ) : null}
               <Button
