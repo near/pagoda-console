@@ -37,6 +37,9 @@ If you're running in to performance issues running/building the app inside the D
 
 #### Postgres
 
+For now, you will need to make a change to your `/etc/hosts` file to properly resolve connections to the database container.
+See the following comment: https://github.com/near/pagoda-console/pull/18#issuecomment-1258366725
+
 You can run a Postgres container with the appropriate default environment variables via either `docker compose` or `docker run`
 
 ##### Docker Compose
