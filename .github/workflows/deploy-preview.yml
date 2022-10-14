@@ -117,6 +117,6 @@ jobs:
       - name: Vercel deploy with API URL
         run: |
           # Set an env var for this branch's preview environment
-          ../scripts/vercel_upsert_env_var.sh NEXT_PUBLIC_API_BASE_URL $API_BASE_URL
+          ../scripts/vercel_upsert_env_var.sh NEXT_PUBLIC_API_BASE_URL ${API_BASE_URL}
 
           ../scripts/vercel_redeploy.sh
