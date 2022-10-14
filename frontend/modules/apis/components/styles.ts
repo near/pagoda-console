@@ -1,6 +1,8 @@
 import { styled } from '@/styles/stitches';
 
 export const Root = styled('div', {
+  width: '100%',
+
   'div.sl-px-24.sl-overflow-y-auto': {
     // increase the width by decreasing padding
     paddingLeft: '80px',
