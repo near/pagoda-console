@@ -156,9 +156,8 @@ jobs:
 
       - name: Restart api
         run: |
-          echo "API_NAME=$(terraform output -raw api_name)" >> $GITHUB_ENV
-          gcloud run deploy ${API_NAME} --namespace=${PREVIEW_NAMESPACE} \
-           --image=${{needs.docker-build-and-push.outputs.image}}
+          echo "API_NAME=$(terraform output -raw database_connection_name)" >> $GITHUB_ENV
+          gcloud run deploy console-api-preview-new-secure-e7e14 --region us-east1 --image=${{needs.docker-build-and-push.outputs.image}}
 
       - name: Vercel deploy with API URL
         run: |
