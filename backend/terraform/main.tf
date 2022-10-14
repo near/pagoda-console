@@ -61,7 +61,7 @@ resource "null_resource" "db_migration" {
   provisioner "local-exec" {
     when    = destroy
     command = <<EOT
-      echo ${self.triggers.database_password} | base64 && psql postgresql://postgres:${self.triggers.database_password}@${self.triggers.database_public_ip_address} -f ../scripts/drop_databases.sql &&
+      psql postgresql://postgres:${self.triggers.database_password}@${self.triggers.database_public_ip_address} -f ../scripts/drop_databases.sql &&
       sleep 30
     EOT
   }
@@ -79,29 +79,29 @@ resource "null_resource" "env_secrets" {
     project_id               = var.project_id
   }
 
-  # provisioner "local-exec" {
-  #   command = <<EOT
-  #     ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/devconsole?host=/cloudsql/${module.postgres.database_connection_name} DATABASE_URL_${local.database_secret_suffix} &&
-  #     ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/abi?host=/cloudsql/${module.postgres.database_connection_name} ABI_DATABASE_URL_${local.database_secret_suffix} &&
-  #     ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/alerts?host=/cloudsql/${module.postgres.database_connection_name} ALERTS_DATABASE_URL_${local.database_secret_suffix} &&
-  #     ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/rpcstats?host=/cloudsql/${module.postgres.database_connection_name} RPCSTATS_DATABASE_URL_${local.database_secret_suffix} &&
+  provisioner "local-exec" {
+    command = <<EOT
+      ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/devconsole?host=/cloudsql/${module.postgres.database_connection_name} DATABASE_URL_${local.database_secret_suffix} &&
+      ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/abi?host=/cloudsql/${module.postgres.database_connection_name} ABI_DATABASE_URL_${local.database_secret_suffix} &&
+      ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/alerts?host=/cloudsql/${module.postgres.database_connection_name} ALERTS_DATABASE_URL_${local.database_secret_suffix} &&
+      ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/rpcstats?host=/cloudsql/${module.postgres.database_connection_name} RPCSTATS_DATABASE_URL_${local.database_secret_suffix} &&
    
-  #     ../scripts/gcp_access_secret.sh DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} &&
-  #     ../scripts/gcp_access_secret.sh ABI_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} && 
-  #     ../scripts/gcp_access_secret.sh ALERTS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} &&
-  #     ../scripts/gcp_access_secret.sh RPCSTATS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account}
-  #   EOT
-  # }
+      ../scripts/gcp_access_secret.sh DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} &&
+      ../scripts/gcp_access_secret.sh ABI_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} && 
+      ../scripts/gcp_access_secret.sh ALERTS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} &&
+      ../scripts/gcp_access_secret.sh RPCSTATS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account}
+    EOT
+  }
 
-  # provisioner "local-exec" {
-  #   when    = destroy
-  #   command = <<EOT
-  #     gcloud secrets delete --quiet --project ${self.triggers.project_id} DATABASE_URL_${self.triggers.database_secret_suffix};
-  #     gcloud secrets delete --quiet --project ${self.triggers.project_id} ABI_DATABASE_URL_${self.triggers.database_secret_suffix};
-  #     gcloud secrets delete --quiet --project ${self.triggers.project_id} ALERTS_DATABASE_URL_${self.triggers.database_secret_suffix};
-  #     gcloud secrets delete --quiet --project ${self.triggers.project_id} RPCSTATS_DATABASE_URL_${self.triggers.database_secret_suffix};
-  #   EOT
-  # }
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<EOT
+      gcloud secrets delete --quiet --project ${self.triggers.project_id} DATABASE_URL_${self.triggers.database_secret_suffix};
+      gcloud secrets delete --quiet --project ${self.triggers.project_id} ABI_DATABASE_URL_${self.triggers.database_secret_suffix};
+      gcloud secrets delete --quiet --project ${self.triggers.project_id} ALERTS_DATABASE_URL_${self.triggers.database_secret_suffix};
+      gcloud secrets delete --quiet --project ${self.triggers.project_id} RPCSTATS_DATABASE_URL_${self.triggers.database_secret_suffix};
+    EOT
+  }
 }
 
 module "api" {
