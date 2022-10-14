@@ -7,7 +7,7 @@ import { Consumer, ConsumerRateLimitingPolicyEnum } from './rpcaas-client';
 export class ApiKeysMockProvisioningService
   implements ApiKeysProvisioningServiceInterface
 {
-  private MOCK_KEY = 'e470632d-2884-439e-880b-a73c8a7bf42d';
+  private MOCK_KEY = 'mockkey1-2884-439e-880b-a73c8a7bf42d';
 
   async getOrganization(kongConsumer: string): Promise<Consumer> {
     return {

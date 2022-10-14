@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Endpoints as a Service Provisiong Service (epaas-ps)
- * This is the documentation for the Endpoint as a Service Provisioning Service system. 
+ * This is the documentation for the Endpoint as a Service Provisioning Service system.
  *
  * OpenAPI spec version: 0.0.1
  * Contact: will@near.org
@@ -12,30 +12,29 @@
  * Do not edit the class manually.
  */
 /**
- * 
+ *
  * @export
  * @interface SecretBody
  */
 export interface SecretBody {
-    /**
-     * Additional ID field used for further linking with external systems
-     * @type {string}
-     * @memberof SecretBody
-     */
-    kongCredType: SecretBodyKongCredTypeEnum;
-    /**
-     * Name that makes logical sense for use in your service
-     * @type {string}
-     * @memberof SecretBody
-     */
-    name: string;
+  /**
+   * Additional ID field used for further linking with external systems
+   * @type {string}
+   * @memberof SecretBody
+   */
+  kongCredType: SecretBodyKongCredTypeEnum;
+  /**
+   * Name that makes logical sense for use in your service
+   * @type {string}
+   * @memberof SecretBody
+   */
+  name: string;
 }
 
 /**
-    * @export
-    * @enum {string}
-    */
+ * @export
+ * @enum {string}
+ */
 export enum SecretBodyKongCredTypeEnum {
-    KeyAuth = 'key-auth'
+  KeyAuth = 'key-auth',
 }
-

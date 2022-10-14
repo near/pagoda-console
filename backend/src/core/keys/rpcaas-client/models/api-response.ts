@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Endpoints as a Service Provisiong Service (epaas-ps)
- * This is the documentation for the Endpoint as a Service Provisioning Service system. 
+ * This is the documentation for the Endpoint as a Service Provisioning Service system.
  *
  * OpenAPI spec version: 0.0.1
  * Contact: will@near.org
@@ -13,39 +13,39 @@
  */
 import { ApiResponseMetadata } from './api-response-metadata';
 /**
- * 
+ *
  * @export
  * @interface ApiResponse
  */
 export interface ApiResponse {
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof ApiResponse
-     */
-    credentials?: Array<string>;
-    /**
-     * 
-     * @type {string}
-     * @memberof ApiResponse
-     */
-    custom_id?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof ApiResponse
-     */
-    key?: string;
-    /**
-     * 
-     * @type {ApiResponseMetadata}
-     * @memberof ApiResponse
-     */
-    metadata?: ApiResponseMetadata;
-    /**
-     * 
-     * @type {string}
-     * @memberof ApiResponse
-     */
-    username?: string;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof ApiResponse
+   */
+  credentials?: Array<string>;
+  /**
+   *
+   * @type {string}
+   * @memberof ApiResponse
+   */
+  custom_id?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ApiResponse
+   */
+  key?: string;
+  /**
+   *
+   * @type {ApiResponseMetadata}
+   * @memberof ApiResponse
+   */
+  metadata?: ApiResponseMetadata;
+  /**
+   *
+   * @type {string}
+   * @memberof ApiResponse
+   */
+  username?: string;
 }

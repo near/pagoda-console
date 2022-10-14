@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Endpoints as a Service Provisiong Service (epaas-ps)
- * This is the documentation for the Endpoint as a Service Provisioning Service system. 
+ * This is the documentation for the Endpoint as a Service Provisioning Service system.
  *
  * OpenAPI spec version: 0.0.1
  * Contact: will@near.org
@@ -13,27 +13,27 @@
  */
 import { DeleteObjectDetails } from './delete-object-details';
 /**
- * 
+ *
  * @export
  * @interface DeleteObject
  */
 export interface DeleteObject {
-    /**
-     * 
-     * @type {DeleteObjectDetails}
-     * @memberof DeleteObject
-     */
-    details?: DeleteObjectDetails;
-    /**
-     * 
-     * @type {string}
-     * @memberof DeleteObject
-     */
-    kind?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof DeleteObject
-     */
-    status?: string;
+  /**
+   *
+   * @type {DeleteObjectDetails}
+   * @memberof DeleteObject
+   */
+  details?: DeleteObjectDetails;
+  /**
+   *
+   * @type {string}
+   * @memberof DeleteObject
+   */
+  kind?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof DeleteObject
+   */
+  status?: string;
 }
