@@ -48,18 +48,6 @@ jobs:
               -var "api_image=${{needs.docker-build-and-push.outputs.image}}" \
               -var "frontend_base_url=dontcare" \
               -var "api_service_account=${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}"
-      - name: Set secrets env variables
-        run: |
-          echo "DATABASE_SECRET_SUFFIX=$(terraform output -raw database_secret_suffix)" >> $GITHUB_ENV
-
-      - name: Delete secrets
-        run: |
-          export PROJECT_ID=developer-platform-dev
-
-          gcloud secrets delete --quiet --project ${PROJECT_ID} DATABASE_URL_${DATABASE_SECRET_SUFFIX};
-          gcloud secrets delete --quiet --project ${PROJECT_ID} ABI_DATABASE_URL_${DATABASE_SECRET_SUFFIX};
-          gcloud secrets delete --quiet --project ${PROJECT_ID} ALERTS_DATABASE_URL_${DATABASE_SECRET_SUFFIX};
-          gcloud secrets delete --quiet --project ${PROJECT_ID} RPCSTATS_DATABASE_URL_${DATABASE_SECRET_SUFFIX};
 
       - name: Delete Terraform Workspace
         run: |
@@ -73,7 +61,7 @@ jobs:
       run:
         working-directory: backend
     env:
-      VERCEL_PROJECT_NAME: developer-console-framework-preview
+      VERCEL_PROJECT_NAME: developer-console-framework-prod
       VERCEL_ORG: near
       VERCEL_TEAM_ID: team_0XCkE3xOywBTMmd6s7bqJQot
       GIT_REPO: pagoda-console
