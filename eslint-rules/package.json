@@ -1,0 +1,16 @@
+{
+  "name": "@pc/eslint-rules",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "test": "ts-node test.ts"
+  },
+  "main": "./dist/index.js",
+  "dependencies": {
+    "@typescript-eslint/utils": "^5.38.1"
+  },
+  "lint-staged": {
+    "*.{ts}": "eslint --cache --max-warnings 0"
+  }
+}
