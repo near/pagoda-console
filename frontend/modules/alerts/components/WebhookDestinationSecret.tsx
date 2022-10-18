@@ -7,6 +7,7 @@ import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { StableId } from '@/utils/stable-ids';
 
 import { rotateWebhookDestinationSecret } from '../hooks/destinations';
 import type { Destination } from '../utils/types';
@@ -68,9 +69,19 @@ export function WebhookDestinationSecret({ destination, onRotate }: Props) {
             <Text family="code" color="text1" weight="semibold">
               {authorizationHeader}
             </Text>
-            <CopyButton value={authorizationHeader} css={{ marginLeft: 'auto' }} color="transparent" />
+            <CopyButton
+              stableId={StableId.WEBHOOK_DESTINATION_SECRET_COPY_SECRET_BUTTON}
+              value={authorizationHeader}
+              css={{ marginLeft: 'auto' }}
+              color="transparent"
+            />
             {onRotate && (
-              <Button color="neutral" loading={isSending} onClick={() => setShowRotateConfirmModal(true)}>
+              <Button
+                stableId={StableId.WEBHOOK_DESTINATION_SECRET_ROTATE_SECRET_BUTTON}
+                color="neutral"
+                loading={isSending}
+                onClick={() => setShowRotateConfirmModal(true)}
+              >
                 Rotate
               </Button>
             )}

@@ -9,6 +9,7 @@ import { H2 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const PickProjectTemplate: NextPageWithLayout = () => {
@@ -19,7 +20,7 @@ const PickProjectTemplate: NextPageWithLayout = () => {
       <Flex stack gap="xl">
         <Flex stack>
           <Link href="/pick-project" passHref>
-            <TextLink>
+            <TextLink stableId={StableId.PROJECT_TEMPLATES_BACK_TO_PROJECT_TYPE_LINK}>
               <FeatherIcon icon="arrow-left" /> Project Type
             </TextLink>
           </Link>

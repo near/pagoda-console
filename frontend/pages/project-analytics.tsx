@@ -1,6 +1,6 @@
 import { iframeResizer } from 'iframe-resizer';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { ButtonLink } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
@@ -16,6 +16,7 @@ import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useTheme } from '@/hooks/theme';
 import config from '@/utils/config';
+import { StableId } from '@/utils/stable-ids';
 import type { Contract, Environment, NextPageWithLayout } from '@/utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {
@@ -39,9 +40,14 @@ const ProjectAnalytics: NextPageWithLayout = () => {
 
 function AnalyticsIframe({ environment, contracts }: { environment: Environment; contracts: Contract[] }) {
   const { activeTheme } = useTheme();
+  const iframeId = 'analytics-iframe';
+  const initialized = useRef(false);
 
   useEffect(() => {
-    iframeResizer({}, 'iframe');
+    if (!initialized.current) {
+      iframeResizer({}, `#${iframeId}`);
+      initialized.current = true;
+    }
   }, []);
 
   const themeParam = activeTheme === 'dark' ? '#theme=night' : '';
@@ -53,6 +59,7 @@ function AnalyticsIframe({ environment, contracts }: { environment: Environment;
 
   return (
     <iframe
+      id={iframeId}
       src={iframeUrl}
       frameBorder="0"
       style={{
@@ -73,13 +80,13 @@ function NoContractsNotice() {
           <Text>
             Your selected project and environment doesn&apos;t have any saved contracts yet. Visit the{' '}
             <Link href="/contracts" passHref>
-              <TextLink>Contracts</TextLink>
+              <TextLink stableId={StableId.PROJECT_ANALYTICS_NO_CONTRACTS_LINK}>Contracts</TextLink>
             </Link>{' '}
             page to add a contract.
           </Text>
 
           <Link href="/contracts" passHref>
-            <ButtonLink>
+            <ButtonLink stableId={StableId.PROJECT_ANALYTICS_NO_CONTRACTS_BUTTON_LINK}>
               <FeatherIcon icon="zap" />
               Contracts
             </ButtonLink>

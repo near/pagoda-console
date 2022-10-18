@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
@@ -14,13 +14,17 @@ const Unsubscribe: NextPageWithLayout = () => {
   const [error, setError] = useState('');
   const router = useRouter();
   const { token } = router.query;
+  const hasSentRequest = useRef(false);
 
   useEffect(() => {
     if (typeof token !== 'string') {
       return;
     }
 
-    sendUnsubscribeRequest(token);
+    if (!hasSentRequest.current) {
+      sendUnsubscribeRequest(token);
+      hasSentRequest.current = true;
+    }
   }, [token]);
 
   async function sendUnsubscribeRequest(token: string) {

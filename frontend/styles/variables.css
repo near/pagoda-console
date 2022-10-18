@@ -108,6 +108,8 @@
   --transition-speed: 150ms;
   --transitions: color var(--transition-speed), border-color var(--transition-speed),
     background-color var(--transition-speed), box-shadow var(--transition-speed), opacity var(--transition-speed);
+
+  --sidebar-z-index: 505;
 }
 
 .light-theme,

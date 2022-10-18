@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { VError } from 'verror';
@@ -16,7 +17,7 @@ import {
 } from './transaction-status';
 import * as Indexer from './models/readOnlyIndexer';
 import * as IndexerActivity from './models/readOnlyIndexerActivity';
-import { Net } from '../../../generated/prisma/core';
+import { Net } from '@pc/database/clients/core';
 import { StringReference } from 'kysely/dist/cjs/parser/reference-parser';
 import { ExtractColumnType } from 'kysely/dist/cjs/util/type-utils';
 import { AppConfig } from '../../config/validate';

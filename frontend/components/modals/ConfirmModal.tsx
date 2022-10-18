@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import * as Dialog from '@/components/lib/Dialog';
+import { StableId } from '@/utils/stable-ids';
 
 import { Button } from '../lib/Button';
 import { Flex } from '../lib/Flex';
@@ -40,6 +41,7 @@ export function ConfirmModal(props: Props) {
 
           <Flex justify="spaceBetween" align="center">
             <Button
+              stableId={StableId.CONFIRM_MODAL_CONFIRM_BUTTON}
               loading={props.isProcessing}
               onClick={props.onConfirm}
               color={props.confirmColor || 'primary'}
@@ -49,6 +51,7 @@ export function ConfirmModal(props: Props) {
             </Button>
 
             <TextButton
+              stableId={StableId.CONFIRM_MODAL_CANCEL_BUTTON}
               color="neutral"
               onClick={() => {
                 props.setShow(false);

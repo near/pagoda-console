@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { Box } from '@/components/lib/Box';
 import { Flex } from '@/components/lib/Flex';
 import { TextLink } from '@/components/lib/TextLink';
+import { StableId } from '@/utils/stable-ids';
 
 interface Route {
   label: string;
@@ -643,6 +644,7 @@ function RouteItem({ route, isChild }: { route: Route; isChild: boolean }) {
     >
       {path.startsWith('#') && (
         <TextLink
+          stableId={StableId.TUTORIAL_CONTENT_TABLE_OF_CONTENTS_LINK}
           href={path}
           css={{ fontWeight: 400, border: 'none', whiteSpace: 'pre-line', padding: 'var(--space-xs) 0' }}
         >
@@ -652,6 +654,7 @@ function RouteItem({ route, isChild }: { route: Route; isChild: boolean }) {
       {!path.startsWith('#') && (
         <Link href={path} passHref>
           <TextLink
+            stableId={StableId.TUTORIAL_CONTENT_TABLE_OF_CONTENTS_LINK}
             color="neutral"
             css={{ fontWeight: 400, border: 'none', whiteSpace: 'pre-line', padding: 'var(--space-xs) 0' }}
           >

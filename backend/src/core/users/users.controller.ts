@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { BearerAuthGuard } from '../auth/bearer-auth.guard';
-import firebaseAdmin from 'firebase-admin';
 import {
   AcceptOrgInviteDto,
   AcceptOrgInviteSchema,
@@ -36,7 +35,7 @@ import {
 import { JoiValidationPipe } from '@/src/pipes/JoiValidationPipe';
 import { VError } from 'verror';
 import { UserError } from './user-error';
-import { Org } from '@/generated/prisma/core';
+import { Org } from '@pc/database/clients/core';
 
 @Controller('users')
 export class UsersController {

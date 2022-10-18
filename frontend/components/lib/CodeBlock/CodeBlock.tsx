@@ -7,6 +7,7 @@ import { Button } from '@/components/lib/Button';
 import * as Popover from '@/components/lib/Popover';
 import { useTheme } from '@/hooks/theme';
 import type { StitchesCSS } from '@/styles/stitches';
+import { StableId } from '@/utils/stable-ids';
 
 import { Box } from '../Box';
 import { FeatherIcon } from '../FeatherIcon';
@@ -66,6 +67,7 @@ export function CodeBlock({ children, css, customStyle, ...passedProps }: Props)
       <Popover.Root open={showCopiedAlert} onOpenChange={setShowCopiedAlert}>
         <Popover.Anchor asChild>
           <Button
+            stableId={StableId.CODE_BLOCK_COPY_BUTTON}
             aria-label="Copy code to clipboard"
             color="neutral"
             size="s"

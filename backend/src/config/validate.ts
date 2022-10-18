@@ -1,4 +1,4 @@
-import { Net } from '../../generated/prisma/core';
+import { Net } from '@pc/database/clients/core';
 import * as Joi from 'joi';
 
 // * Adding an environment variable? There are three places in this
@@ -41,10 +41,6 @@ export interface AppConfig {
   projectRefPrefix: string;
   indexerDatabase: Record<Net, Database>;
   indexerActivityDatabase: Partial<Record<Net, Database>>;
-  analytics: {
-    url: string;
-    token: string;
-  };
   firebase: {
     credentials: string;
   };
@@ -162,10 +158,6 @@ const appConfigSchema = Joi.object({
   }),
   recentTransactionsCount: Joi.number().integer(),
   projectRefPrefix: Joi.string().optional().default(''),
-  analytics: {
-    url: Joi.string().uri({ scheme: 'https' }),
-    token: Joi.string(),
-  },
   firebase: {
     credentials: Joi.string(),
   },
@@ -305,10 +297,6 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     },
     recentTransactionsCount: config.RECENT_TRANSACTIONS_COUNT,
     projectRefPrefix: config.PROJECT_REF_PREFIX,
-    analytics: {
-      url: config.MIXPANEL_API,
-      token: config.MIXPANEL_TOKEN,
-    },
     firebase: {
       credentials: config.FIREBASE_CREDENTIALS,
     },
@@ -371,13 +359,20 @@ export default function validate(config: Record<string, unknown>): AppConfig {
   // Joi.attempt will return the validated object with values
   // cast to their proper types or throw an error if validation
   // fails
-  const validatedConfig: AppConfig = Joi.attempt(
-    structuredConfig,
-    appConfigSchema,
-    {
-      presence: 'required',
-    },
-  );
-
-  return validatedConfig;
+  try {
+    const validatedConfig: AppConfig = Joi.attempt(
+      structuredConfig,
+      appConfigSchema,
+      {
+        presence: 'required',
+      },
+    );
+    return validatedConfig;
+  } catch (e) {
+    if (e.details) {
+      // very simplistic error formatic since we are replacing Joi soon anyways
+      throw new Error(JSON.stringify(e.details));
+    }
+    throw e;
+  }
 }

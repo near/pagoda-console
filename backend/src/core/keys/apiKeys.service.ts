@@ -1,4 +1,4 @@
-import { User } from '@/generated/prisma/core';
+import { User } from '@pc/database/clients/core';
 import { Injectable } from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
 import { VError } from 'verror';

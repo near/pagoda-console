@@ -50,6 +50,10 @@ then
     exit 0
 fi
 
+echo "===="
+echo $VAR_VALUE
+echo "===="
+
 ERROR_CODE=$(echo "$ERROR" | jq .code -r)
 # echo ERROR_CODE $ERROR_CODE
 

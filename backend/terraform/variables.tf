@@ -25,13 +25,13 @@ variable "namespace" {
 
 variable "prisma_migration_command" {
   type    = string
-  default = "npm run prisma:migrate:deploy"
+  default = "npm run -w database migrate:deploy"
 }
 
 variable "database_password" {
   type      = string
-  sensitive = true
   nullable  = false
+  sensitive = true
 }
 
 variable "frontend_base_url" {

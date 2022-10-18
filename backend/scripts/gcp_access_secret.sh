@@ -35,6 +35,8 @@ fi;
 SECRET_NAME=$1
 SERVICE_ACCOUNT=$2
 
+echo $SECRET_NAME
+
 # TODO inject project id
 gcloud secrets add-iam-policy-binding $SECRET_NAME\
     --member "serviceAccount:$SERVICE_ACCOUNT"\

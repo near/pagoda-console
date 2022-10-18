@@ -18,5 +18,5 @@ TAG="gcr.io/$PROJECT_ID/developer-console-api:$1"
 echo "Docker tag: $TAG"
 
 # Build and push the docker container
-docker build -t "$TAG" .
+docker build -t "$TAG" -f ./Dockerfile ../
 docker push "$TAG"

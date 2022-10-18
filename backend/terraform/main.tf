@@ -53,7 +53,7 @@ resource "null_resource" "db_migration" {
       DB_PASS=${var.database_password}
       DB_URL=${module.postgres.database_public_ip_address}
         . ./scripts/export_prisma_env_vars.sh &&
-      ${var.prisma_migration_command}
+       cd .. && npm ci && ${var.prisma_migration_command}
     EOT
   }
 

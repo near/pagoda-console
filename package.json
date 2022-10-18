@@ -8,12 +8,15 @@
   },
   "workspaces": [
     "./frontend",
-    "./backend"
+    "./backend",
+    "database"
   ],
   "scripts": {
-    "format:verify": "prettier --check '**/*.{js,jsx,ts,tsx,json,css,scss,md,yml}'",
-    "format": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md,yml}'",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "postinstall": "npm install turbo -D && npm run -w database build",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start"
   },
   "repository": {
     "type": "git",
@@ -27,9 +30,6 @@
   "devDependencies": {
     "husky": "^8.0.0",
     "prettier": "^2.7.1",
-    "lint-staged": "^12.4.0"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx,css,scss,md,json,yml}": "prettier --check"
+    "turbo": "^1.5.6"
   }
 }

@@ -3,7 +3,7 @@ import * as RPC from '../near-rpc/types';
 export type Action =
   | {
       kind: 'createAccount';
-      args: {};
+      args: Record<string, never>;
     }
   | {
       kind: 'deployContract';
@@ -88,7 +88,7 @@ type DatabaseAddKey = {
 
 type DatabaseCreateAccount = {
   kind: 'CREATE_ACCOUNT';
-  args: {};
+  args: Record<string, never>;
 };
 
 type DatabaseDeleteAccount = {

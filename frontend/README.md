@@ -12,45 +12,6 @@ UI: [Radix](https://www.radix-ui.com/) & [Stitches](https://stitches.dev/)
 
 Identity Management: [Firebase Auth](https://firebase.google.com/docs/auth)
 
-# Quickstart
-
-Before getting started, make sure you have the [Dev Console API](https://github.com/near/developer-console-api) up and running. Once you have the API running, continue on with the frontend quickstart guide.
-
-There are two ways to run this project locally:
-
-1. **VS Code Dev Containers (Docker).** This is the recommended approach when first starting with the project.
-2. **Manually with NVM and NPM.** This will provide the best performance, but you might run in to environment issues based on how your machine is configured.
-
-However, before you start the project, you'll need to configure your environment variables:
-
-### Configure Environment Variables
-
-Environment variables are loaded automatically from `.env` and `.env.local` at the root of the project. Use `.env.local` to override any values in `.env`. Please copy the `.env.local.example` file as a starting point for your own `.env.local` file and ask the team for any secrets if there are any.
-
-Now that your environment variables are set up, continue with one of the quickstart options below:
-
-### Option 1: VS Code Dev Containers (Docker)
-
-1. Follow the [official Installation instructions](https://code.visualstudio.com/docs/remote/containers#_installation) from VS Code to install Docker and the required extensions.
-2. Open this directory in VS Code.
-3. If prompted in the bottom right of VS Code, click "Reopen in Container". Otherwise, open the VS Code command palette and run `Remote-Containers: Reopen in Container`.
-4. Wait for the build process to complete. You will now have a Docker container running. Your files are mounted into the container, so edits made through VS Code apply to the files on your local filesystem.
-5. Open an in-editor terminal by selecting `Terminal > New Terminal` from the Menu Bar.
-6. Run `npm install` to install dependecies.
-7. Run `npm run dev` to start the server. All code changes will be hot reloaded.
-8. Your server is available at `localhost:3000`. VS Code will automatically expose the port from the Dev Container to the rest of your machine.
-
-### Option 2: Manually with NVM and NPM
-
-If you're running in to performance issues running/building the app inside the Dev Container, another option is run the app locally via [NVM](https://github.com/nvm-sh/nvm).
-
-1. Install `NVM`.
-2. Open your preferred terminal and navigate to the project's root directory.
-3. Run `nvm use`. This will install and activate the correct version of `NPM` and `Node` within your terminal session.
-4. Run `npm install` to install dependecies.
-5. Run `npm run dev` to start the server. All code changes will be hot reloaded.
-6. Your server is available at `localhost:3000`.
-
 ### Ngrok
 
 Now that you have the server running, you'll most likely want to set up `localhost:3000` with an `ngrok` proxy domain as detailed [here](https://nearinc.atlassian.net/wiki/spaces/DEVCONSOLE/pages/36438083/Onboarding).

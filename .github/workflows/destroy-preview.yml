@@ -30,7 +30,7 @@ jobs:
 
       - name: "Set Terraform workspace"
         run: |
-          terraform workspace select preview-$PREVIEW_NAMESPACE
+          terraform workspace select preview-${PREVIEW_NAMESPACE}
           terraform init -input=false
 
       # Retrying is in place on terraform destroy because we need to drop Prisma databases before destroying the SQL instance.
@@ -52,7 +52,7 @@ jobs:
       - name: Delete Terraform Workspace
         run: |
           terraform workspace select default
-          terraform workspace delete preview-$PREVIEW_NAMESPACE
+          terraform workspace delete preview-${PREVIEW_NAMESPACE}
 
   cleanup-vercel-environment:
     timeout-minutes: 5

@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { styled } from '@/styles/stitches';
+import { StableId } from '@/utils/stable-ids';
 
 import { Button } from '../../lib/Button';
 import CodeArgs from '../utils/CodeArgs';
@@ -54,7 +55,7 @@ const RECEIPT_TYPES = {
 const ReceiptKind: React.FC<Props> = React.memo(({ action, onClick, isTxTypeActive }) => {
   return (
     <Wrapper>
-      <Button size="s" onClick={onClick}>
+      <Button stableId={StableId.RECEIPT_KIND_EXPAND_BUTTON} size="s" onClick={onClick}>
         {RECEIPT_TYPES[action.kind]}
         {action.kind === 'functionCall' ? <Description>&apos;{action.args.methodName}&apos;</Description> : null}
         <ExpandSign>{isTxTypeActive ? '-' : '+'}</ExpandSign>
