@@ -51,7 +51,6 @@ then
 fi
 
 ERROR_CODE=$(echo "$ERROR" | jq .code -r)
-# echo ERROR_CODE $ERROR_CODE
 
 if [ "$ERROR_CODE" = "ENV_ALREADY_EXISTS" ]
 then
