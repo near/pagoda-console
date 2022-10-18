@@ -85,13 +85,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        analytics.identify(firebaseUser.uid, {
-          email: user?.email,
-          displayName: user?.name,
-          userId: user?.uid,
-        });
-      } else if (!firebaseUser && !unauthedPaths.includes(router.pathname)) {
+      if (!firebaseUser && !unauthedPaths.includes(router.pathname)) {
         analytics.reset();
         cache.clear();
         router.push('/');
@@ -100,6 +94,16 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
     return () => unsubscribe(); // TODO why lambda function?
   }, [router, cache, user]);
+
+  useEffect(() => {
+    if (user) {
+      analytics.identify(user.uid, {
+        email: user.email,
+        displayName: user.name,
+        userId: user.uid,
+      });
+    }
+  }, [user]);
 
   const getLayout = Component.getLayout ?? ((page) => page);
 
