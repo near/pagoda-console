@@ -2,6 +2,9 @@
 
 This monorepo uses [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces) and [turborepo](https://turborepo.org/)
 
+**Prod**: [console.pagoda.co](https://console.pagoda.co)  
+**Dev**: [core.dev.console.pagoda.co](https://core.dev.console.pagoda.co)
+
 ## Quickstart
 
 ### Configure Environment Variables
