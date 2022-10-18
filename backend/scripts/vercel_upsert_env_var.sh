@@ -52,6 +52,7 @@ fi
 
 echo "===="
 echo $VAR_VALUE
+echo $ERROR
 echo "===="
 
 ERROR_CODE=$(echo "$ERROR" | jq .code -r)
