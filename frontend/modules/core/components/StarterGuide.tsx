@@ -159,7 +159,7 @@ export default function StarterGuide() {
           Refer to the{' '}
           <TextLink
             stableId={StableId.STARTER_GUIDE_NEAR_API_DOCS_LINK}
-            href="https://docs.near.org/api/overview"
+            href="https://docs.near.org/api/rpc/introduction"
             external
           >
             NEAR API Documentation
