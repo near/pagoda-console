@@ -98,7 +98,6 @@ export function AuthenticationForm({ onSignIn }: Props) {
 
       try {
         if (additional?.isNewUser) {
-          analytics.alias(socialResult.user.uid);
           analytics.track(`DC Signed up with ${provider.providerId.split('.')[0].toUpperCase()}`);
         } else {
           analytics.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);

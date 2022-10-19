@@ -21,9 +21,9 @@ import { SWRConfig, useSWRConfig } from 'swr';
 import { SimpleLayout } from '@/components/layouts/SimpleLayout';
 import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
 import { Toaster } from '@/components/lib/Toast';
-import { usePageTracker } from '@/hooks/page-tracker';
+import { useAnalytics } from '@/hooks/analytics';
 import { useSelectedProjectRouteParamSync } from '@/hooks/selected-project';
-import { useAccount, useIdentity } from '@/hooks/user';
+import { useIdentity } from '@/hooks/user';
 import { DowntimeMode } from '@/modules/core/components/DowntimeMode';
 import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
 import { useSettingsStore } from '@/stores/settings';
@@ -57,10 +57,9 @@ const unauthedPaths = [
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   useSelectedProjectRouteParamSync();
-  usePageTracker();
+  useAnalytics();
   const identity = useIdentity();
   const router = useRouter();
-  const { user } = useAccount();
   const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
   const initializeCurrentUserSettings = useSettingsStore((store) => store.initializeCurrentUserSettings);
 
@@ -93,17 +92,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     });
 
     return () => unsubscribe(); // TODO why lambda function?
-  }, [router, cache, user]);
-
-  useEffect(() => {
-    if (user) {
-      analytics.identify(user.uid, {
-        email: user.email,
-        displayName: user.name,
-        userId: user.uid,
-      });
-    }
-  }, [user]);
+  }, [router, cache]);
 
   const getLayout = Component.getLayout ?? ((page) => page);
 
