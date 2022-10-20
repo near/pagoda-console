@@ -883,7 +883,10 @@ export class ProjectsService {
     }
   }
 
-  async getKeys(callingUser: User, projectSlug: Project['slug']) {
+  async getKeysWithKongConsumer(
+    callingUser: User,
+    projectSlug: Project['slug'],
+  ) {
     const projectWhereUnique = {
       slug: projectSlug,
     };
@@ -905,6 +908,12 @@ export class ProjectsService {
     } catch (e) {
       throw new VError(e, 'Failed to fetch keys from API keys service');
     }
+  }
+
+  async getKeys(callingUser: User, projectSlug: Project['slug']) {
+    return (await this.getKeysWithKongConsumer(callingUser, projectSlug)).map(
+      ({ kongConsumerName: _kongConsumerName, ...el }) => el,
+    );
   }
 
   async rotateKey(callingUser: User, keySlug: ApiKey['slug']) {
