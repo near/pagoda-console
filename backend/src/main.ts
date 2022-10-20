@@ -27,10 +27,10 @@ async function bootstrap() {
     credential: credential.cert(sa),
   });
   // initialize Firebase client
-  const firebaseClientCredentials = JSON.parse(
+  const firebaseClientConfig = JSON.parse(
     configService.get('firebase.clientConfig', { infer: true }),
   ) as FirebaseOptions;
-  clientInitializeApp(firebaseClientCredentials);
+  clientInitializeApp(firebaseClientConfig);
 
   await app.listen(configService.get('port', { infer: true }), '0.0.0.0');
 }
