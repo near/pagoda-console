@@ -19,6 +19,7 @@ import { ModuleRef } from '@nestjs/core';
 import { ProjectsService } from '../projects/projects.service';
 import firebaseAdmin from 'firebase-admin';
 import { ApiKeysService } from '../keys/apiKeys.service';
+import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 
 const newOrgSlug = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -1056,5 +1057,31 @@ export class UsersService implements OnModuleInit {
       }
     }
     return orgs;
+  }
+
+  async resetPassword(email: string) {
+    try {
+      const auth = getAuth();
+      await sendPasswordResetEmail(auth, email);
+    } catch (e: any) {
+      console.error(e);
+
+      switch (e.code) {
+        case 'auth/user-not-found':
+          break;
+        case 'auth/missing-email':
+        case 'auth/invalid-email':
+          throw new VError(
+            { info: { code: UserError.INVALID_EMAIL } },
+            'Invalid email',
+          );
+        default:
+          throw new VError(
+            { info: { code: UserError.SERVER_ERROR } },
+            'Something went wrong',
+          );
+          break;
+      }
+    }
   }
 }
