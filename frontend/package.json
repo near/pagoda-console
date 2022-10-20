@@ -8,8 +8,9 @@
     "buildStart": "next build && next start",
     "export": "next build && next export",
     "start": "next start",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
+    "lint:check": "eslint --cache --max-warnings 0 .",
+    "lint:fix": "eslint --cache --fix .",
+    "format:check": "prettier --check .",
     "test:snapshot": "playwright test tests/playwright/snapshot/",
     "test:e2e": "playwright test tests/playwright/e2e/",
     "test": "jest",
@@ -19,12 +20,13 @@
   },
   "dependencies": {
     "@fullstory/browser": "^1.5.1",
-    "@near-wallet-selector/core": "^6.0.0",
-    "@near-wallet-selector/ledger": "^6.0.0",
-    "@near-wallet-selector/modal-ui": "^6.0.0",
-    "@near-wallet-selector/my-near-wallet": "^6.0.0",
-    "@near-wallet-selector/near-wallet": "^6.0.0",
-    "@near-wallet-selector/sender": "^6.0.0",
+    "@near-wallet-selector/core": "^7.0.3",
+    "@near-wallet-selector/ledger": "^7.0.3",
+    "@near-wallet-selector/modal-ui": "^7.0.3",
+    "@near-wallet-selector/my-near-wallet": "^7.0.3",
+    "@near-wallet-selector/near-wallet": "^7.0.3",
+    "@near-wallet-selector/sender": "^7.0.3",
+    "@pc/database": "*",
     "@radix-ui/react-accordion": "^1.0.0",
     "@radix-ui/react-dialog": "^1.0.0",
     "@radix-ui/react-dropdown-menu": "^1.0.0",
@@ -38,6 +40,7 @@
     "@radix-ui/react-visually-hidden": "^1.0.0",
     "@sentry/nextjs": "^7.11.1",
     "@stitches/react": "^1.2.8",
+    "@stoplight/elements": "^7.7.2",
     "analytics-node": "^6.1.0",
     "downshift": "^6.1.7",
     "firebase": "^9.6.10",
@@ -96,8 +99,5 @@
   },
   "optionalDependencies": {
     "fsevents": "^1.0.0"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint --cache --max-warnings 0"
   }
 }

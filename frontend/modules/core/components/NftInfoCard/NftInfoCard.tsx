@@ -16,11 +16,13 @@ import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { useSelectedProject } from '@/hooks/selected-project';
-import { useSettingsStoreForUser } from '@/stores/settings';
+import { useIdentity } from '@/hooks/user';
+import { useSettingsStore } from '@/stores/settings';
 import analytics from '@/utils/analytics';
 import type { ContractMetadata, NftData, Token } from '@/utils/chain-data';
 import { useContractInfo, useMetadata } from '@/utils/chain-data';
 import { returnContractAddressRegex } from '@/utils/helpers';
+import { StableId } from '@/utils/stable-ids';
 
 import * as S from './styles';
 
@@ -33,19 +35,21 @@ export function NftInfoCard() {
   const [isEditing, setIsEditing] = useState(true);
   const [savedContractAddress, setSavedContractAddress] = useState<string | null>(null);
   const [showQuickInfo, setShowQuickInfo] = useState(true);
-  const { environment } = useSelectedProject();
-  const { projectSettings, updateProjectSettings } = useSettingsStoreForUser();
+  const { environment, project } = useSelectedProject();
+  const identity = useIdentity();
+  const settings = useSettingsStore((store) => store.currentUser);
+  const updateProjectSettings = useSettingsStore((store) => store.updateProjectSettings);
   const contractAddressRegex = returnContractAddressRegex(environment);
 
   useEffect(() => {
-    const { nftContract } = projectSettings;
+    const projectSettings = settings?.projects[project?.slug || ''];
 
-    if (nftContract) {
-      setSavedContractAddress(nftContract || null);
-      setValue('contractAddress', nftContract);
+    if (projectSettings?.nftContract) {
+      setSavedContractAddress(projectSettings.nftContract);
+      setValue('contractAddress', projectSettings.nftContract);
       setIsEditing(false);
     }
-  }, [projectSettings, setValue]);
+  }, [project, settings, setValue]);
 
   // fetch basic account info for the NFT contract
   const { data: contractBasics, error: basicsError } = useContractInfo(savedContractAddress);
@@ -58,9 +62,10 @@ export function NftInfoCard() {
 
   // update the contract address for data fetching
   const saveAddressChange: SubmitHandler<NftInfoFormData> = async ({ contractAddress }) => {
+    if (!identity || !project) return;
     setSavedContractAddress(contractAddress);
     setIsEditing(false);
-    updateProjectSettings({
+    updateProjectSettings(identity.uid, project.slug, {
       nftContract: contractAddress,
     });
     analytics.track('DC Set NFT quick info card address');
@@ -110,7 +115,9 @@ export function NftInfoCard() {
                 />
                 <Form.Feedback>{formState.errors.contractAddress?.message}</Form.Feedback>
               </Form.Group>
-              <Button type="submit">Save</Button>
+              <Button stableId={StableId.NFT_INFO_CARD_SAVE_BUTTON} type="submit">
+                Save
+              </Button>
             </Flex>
           </Form.Root>
         ) : (
@@ -119,6 +126,7 @@ export function NftInfoCard() {
               {savedContractAddress}
             </Text>
             <Button
+              stableId={StableId.NFT_INFO_CARD_EDIT_BUTTON}
               color="neutral"
               size="s"
               onClick={() => {
@@ -234,7 +242,7 @@ function TokenList({ tokenJson, listCapped = false }: { tokenJson: Token[]; list
           }
           return (
             <Accordion.Item value={token.token_id} key={token.token_id}>
-              <Accordion.Trigger>
+              <Accordion.Trigger stableId={StableId.NFT_INFO_CARD_TOKEN_ACCORDION_TRIGGER}>
                 <TextOverflow>{token?.metadata?.title || `ID: ${token.token_id}`}</TextOverflow>
               </Accordion.Trigger>
 
@@ -259,7 +267,9 @@ function TokenList({ tokenJson, listCapped = false }: { tokenJson: Token[]; list
           There’s more where that came from! We can only show 30 tokens here at a time, but you can query the rest as
           shown in the{' '}
           <Link href="/tutorials/nfts/enumeration#nft-tokens" passHref>
-            <TextLink>{'Enumerating tokens > NFT tokens'}</TextLink>
+            <TextLink stableId={StableId.NFT_INFO_CARD_ENUMERATION_DOCS_LINK}>
+              {'Enumerating tokens > NFT tokens'}
+            </TextLink>
           </Link>{' '}
           section.
         </Text>

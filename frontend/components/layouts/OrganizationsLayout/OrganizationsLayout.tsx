@@ -7,6 +7,7 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H3 } from '@/components/lib/Heading';
 import { UserFullDropdown } from '@/components/lib/UserFullDropdown';
+import { StableId } from '@/utils/stable-ids';
 
 import { Footer } from '../Footer';
 import * as S from './styles';
@@ -29,7 +30,7 @@ export const OrganizationsLayout = ({ children }: { children: ReactElement }) =>
 
           <S.Controls>
             <Link href="/organizations/create" passHref>
-              <ButtonLink>New Organization</ButtonLink>
+              <ButtonLink stableId={StableId.ORGANIZATIONS_NEW_LINK}>New Organization</ButtonLink>
             </Link>
             <UserFullDropdown />
           </S.Controls>

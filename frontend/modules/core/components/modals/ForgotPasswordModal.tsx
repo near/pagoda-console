@@ -12,6 +12,7 @@ import { TextButton } from '@/components/lib/TextLink';
 import { resetPassword } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
+import { StableId } from '@/utils/stable-ids';
 
 interface ForgotPasswordFormData {
   email: string;
@@ -66,7 +67,9 @@ const ModalContent = ({ setShow }: Props) => {
             If an account is associated to this email, you will receive an email with a link to reset your password.
           </Text>
 
-          <Button onClick={() => setShow(false)}>Okay</Button>
+          <Button stableId={StableId.FORGOT_PASSWORD_MODAL_FINISH_BUTTON} onClick={() => setShow(false)}>
+            Okay
+          </Button>
         </Flex>
       ) : (
         <Flex stack>
@@ -83,8 +86,14 @@ const ModalContent = ({ setShow }: Props) => {
           </Form.Group>
 
           <Flex justify="spaceBetween" align="center">
-            <Button type="submit">Send</Button>
-            <TextButton color="neutral" onClick={() => setShow(false)}>
+            <Button stableId={StableId.FORGOT_PASSWORD_MODAL_SEND_RESET_EMAIL_BUTTON} type="submit">
+              Send
+            </Button>
+            <TextButton
+              stableId={StableId.FORGOT_PASSWORD_MODAL_CANCEL_BUTTON}
+              color="neutral"
+              onClick={() => setShow(false)}
+            >
               Cancel
             </TextButton>
           </Flex>

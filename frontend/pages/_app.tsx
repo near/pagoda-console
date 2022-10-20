@@ -2,9 +2,8 @@ import '@/styles/reset.css';
 import '@/styles/fonts.css';
 import '@/styles/variables.css';
 import '@/styles/global.css';
-import '@near-wallet-selector/modal-ui/styles.css';
 import '@/styles/enhanced-api.scss';
-import '@near-wallet-selector/modal-ui/styles.css';
+import '@/styles/near-wallet-selector.scss';
 
 import * as FullStory from '@fullstory/browser';
 import { initializeApp } from 'firebase/app';
@@ -23,9 +22,11 @@ import { SimpleLayout } from '@/components/layouts/SimpleLayout';
 import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
 import { Toaster } from '@/components/lib/Toast';
 import { usePageTracker } from '@/hooks/page-tracker';
-import { useAccount } from '@/hooks/user';
+import { useSelectedProjectRouteParamSync } from '@/hooks/selected-project';
+import { useAccount, useIdentity } from '@/hooks/user';
 import { DowntimeMode } from '@/modules/core/components/DowntimeMode';
 import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
+import { useSettingsStore } from '@/stores/settings';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
 import config from '@/utils/config';
@@ -40,6 +41,11 @@ type AppPropsWithLayout = AppProps & {
 initializeApp(config.firebaseConfig);
 analytics.init();
 
+if (typeof window !== 'undefined') {
+  FullStory.init({ orgId: 'o-1A5K4V-na1' });
+  if (config.gleapAuth) Gleap.initialize(config.gleapAuth);
+}
+
 const unauthedPaths = [
   '/',
   '/register',
@@ -50,14 +56,19 @@ const unauthedPaths = [
 ];
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  useSelectedProjectRouteParamSync();
   usePageTracker();
+  const identity = useIdentity();
   const router = useRouter();
   const { user } = useAccount();
   const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
+  const initializeCurrentUserSettings = useSettingsStore((store) => store.initializeCurrentUserSettings);
 
   useEffect(() => {
-    FullStory.init({ orgId: 'o-1A5K4V-na1' });
-  }, []);
+    if (identity?.uid) {
+      initializeCurrentUserSettings(identity.uid);
+    }
+  }, [initializeCurrentUserSettings, identity?.uid]);
 
   useEffect(() => {
     router.prefetch('/');
@@ -70,10 +81,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   useEffect(() => {
     initializeNaj();
   }, []);
-
-  useEffect(() => {
-    if (config.gleapAuth) Gleap.initialize(config.gleapAuth);
-  });
 
   useEffect(() => {
     const auth = getAuth();

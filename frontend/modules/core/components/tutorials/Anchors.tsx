@@ -3,6 +3,7 @@ import type { ReactElement } from 'react';
 
 import { H1, H2, H3 } from '@/components/lib/Heading';
 import { TextLink } from '@/components/lib/TextLink';
+import { StableId } from '@/utils/stable-ids';
 
 function getAnchor(el: ReactElement | string): string {
   if (typeof el === 'string') {
@@ -22,7 +23,7 @@ export function Anchor(props: any) {
   const isExternal = props.href.startsWith('http');
   if (isExternal) {
     return (
-      <TextLink href={props.href} target="_blank" rel="noreferrer">
+      <TextLink stableId={StableId.TUTORIAL_CONTENT_LINK} href={props.href} target="_blank" rel="noreferrer">
         {props.children}
       </TextLink>
     );
@@ -32,10 +33,14 @@ export function Anchor(props: any) {
 
   return (
     <>
-      {path.startsWith('#') && <TextLink href={path}>{props.children}</TextLink>}
+      {path.startsWith('#') && (
+        <TextLink stableId={StableId.TUTORIAL_CONTENT_LINK} href={path}>
+          {props.children}
+        </TextLink>
+      )}
       {!path.startsWith('#') && (
         <Link href={path} passHref>
-          <TextLink>{props.children}</TextLink>
+          <TextLink stableId={StableId.TUTORIAL_CONTENT_LINK}>{props.children}</TextLink>
         </Link>
       )}
     </>

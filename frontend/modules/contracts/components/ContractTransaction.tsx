@@ -11,12 +11,14 @@ import { Box } from '@/components/lib/Box';
 import { Button } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
 import { CodeBlock } from '@/components/lib/CodeBlock';
+import { CopyButton } from '@/components/lib/CopyButton';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H3, H5 } from '@/components/lib/Heading';
 import { List, ListItem } from '@/components/lib/List';
+import { Message } from '@/components/lib/Message';
 import { NearInput } from '@/components/lib/NearInput';
 import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Text } from '@/components/lib/Text';
@@ -32,6 +34,9 @@ import WalletIcon from '@/public/images/icons/wallet.svg';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
 import { convertNearToYocto } from '@/utils/convert-near';
+import { numberInputHandler } from '@/utils/input-handlers';
+import { sanitizeNumber } from '@/utils/sanitize-number';
+import { StableId } from '@/utils/stable-ids';
 import type { Contract } from '@/utils/types';
 import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
@@ -75,6 +80,29 @@ const FormWrapper = styled(Box, {
     },
   },
 });
+const UseMaxButton = styled(Button, {
+  textTransform: 'uppercase',
+  position: 'absolute',
+  right: 0,
+  top: 0,
+  color: 'var(--color-primary) !important',
+  fontSize: 'var(--font-size-body-small) !important',
+
+  '&:hover': {
+    background: 'transparent !important',
+  },
+  '&:focus': {
+    outline: 'none',
+  },
+
+  variants: {
+    hidden: {
+      true: {
+        visibility: 'hidden',
+      },
+    },
+  },
+});
 
 interface Props {
   contract: Contract;
@@ -110,6 +138,7 @@ export const ContractTransaction = ({ contract }: Props) => {
     modal?.show();
   }, [modal, selector]);
   const [txResult, setTxResult] = useState<any>(undefined);
+  const [txError, setTxError] = useState<any>(undefined);
   const transactionHashParam = useRouteParam('transactionHashes');
   const router = useRouter();
 
@@ -124,10 +153,12 @@ export const ContractTransaction = ({ contract }: Props) => {
   function onTxResult(result: any) {
     const hash = result?.transaction?.hash;
     setTxResult(hash ? { hash } : result);
+    setTxError(undefined);
   }
 
-  function onTxError() {
+  function onTxError(error: any) {
     setTxResult(undefined);
+    setTxError(error);
   }
 
   useEffect(() => {
@@ -149,9 +180,11 @@ export const ContractTransaction = ({ contract }: Props) => {
                   <Text weight="semibold" color="text1" css={{ minWidth: 0 }}>
                     <TextOverflow>{accountId}</TextOverflow>
                   </Text>
+                  <CopyButton value={accountId} stableId={StableId.WALLET_ACCOUNT_ID_COPY_BUTTON} />
                 </>
               ) : null}
               <Button
+                stableId={StableId.CONTRACT_TRANSACTION_CONNECT_WALLET_BUTTON}
                 color="primaryBorder"
                 size={!accountId ? 'm' : 's'}
                 onClick={handleWalletSelect}
@@ -174,8 +207,8 @@ export const ContractTransaction = ({ contract }: Props) => {
         </Flex>
       </ContractParams>
 
-      <Box css={{ width: '100%' }}>
-        <TxResultView result={txResult} />
+      <Box css={{ width: '100%', minWidth: '0' }}>
+        <TxResultView result={txResult} error={txError} />
       </Box>
     </Flex>
   );
@@ -186,7 +219,7 @@ interface ContractFormProps {
   contract: Contract;
   selector: WalletSelector | null;
   onTxResult: (result: any) => void;
-  onTxError: () => void;
+  onTxError: (error: any) => void;
 }
 
 interface ContractFormData {
@@ -205,6 +238,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
 
   const nearFormat = form.watch('nearFormat');
   const gasFormat = form.watch('gasFormat');
+  const gas = form.watch('gas');
   const abi = contractMethods?.abi;
   const functionItems = abi?.body.functions;
   const selectedFunctionName = form.watch('contractFunction');
@@ -311,6 +345,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
           title: 'Invalid Params',
           description: 'Please check your function parameters and try again.',
         });
+        return;
       }
     } else {
       call = contractFn();
@@ -349,12 +384,10 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
       });
     } catch (e: any) {
       console.error(e);
-      onTxError();
+      onTxError(e);
       openToast({
-        duration: Infinity,
         type: 'error',
         title: 'Failed to send transaction',
-        description: `${e}`,
       });
       analytics.track('DC Contract Interact', {
         status: 'failure',
@@ -448,7 +481,12 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
 
           {selectedFunction?.is_view && (
             <Flex stack gap="l">
-              <Button type="submit" loading={form.formState.isSubmitting} stretch>
+              <Button
+                stableId={StableId.CONTRACT_TRANSACTION_VIEW_CALL_BUTTON}
+                type="submit"
+                loading={form.formState.isSubmitting}
+                stretch
+              >
                 View Call
               </Button>
             </Flex>
@@ -465,23 +503,44 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                     label="Gas:"
                     isInvalid={!!form.formState.errors.gas}
                     defaultValue="10"
+                    onInput={(event) => {
+                      numberInputHandler(event, { allowComma: false, allowDecimal: false, allowNegative: false });
+                    }}
                     {...form.register(`gas`, {
+                      setValueAs: (value) => sanitizeNumber(value),
                       validate: {
                         minValue: (value: string) =>
                           JSBI.greaterThan(JSBI.BigInt(value), JSBI.BigInt(0)) ||
                           'Value must be greater than 0. Try using 10 Tgas',
                         maxValue: (value: string) =>
-                          JSBI.lessThan(convertGas(value), JSBI.BigInt(gasUtils.convertGasToTgas('300'))) ||
+                          JSBI.lessThan(convertGas(value), JSBI.BigInt(gasUtils.convertGasToTgas('301'))) ||
                           'You can attach a maximum of 300 Tgas to a transaction',
                       },
                     })}
                   />
 
                   <Form.Feedback>{form.formState.errors.gas?.message}</Form.Feedback>
+
+                  <UseMaxButton
+                    stableId={StableId.CONTRACT_TRANSACTION_MAX_GAS_BUTTON}
+                    color="transparent"
+                    onClick={() => {
+                      form.setValue('gas', '300');
+                      form.setValue('gasFormat', 'Tgas');
+                    }}
+                    hidden={Boolean(gas)}
+                  >
+                    Use Max
+                  </UseMaxButton>
                 </Form.Group>
 
                 <DropdownMenu.Root>
-                  <DropdownMenu.Button css={{ width: '9rem' }}>{gasFormat}</DropdownMenu.Button>
+                  <DropdownMenu.Button
+                    stableId={StableId.CONTRACT_TRANSACTION_GAS_FORMAT_DROPDOWN}
+                    css={{ width: '9rem' }}
+                  >
+                    {gasFormat}
+                  </DropdownMenu.Button>
                   <DropdownMenu.Content>
                     <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Tgas')}>Tgas</DropdownMenu.Item>
                     <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Ggas')}>Ggas</DropdownMenu.Item>
@@ -522,7 +581,12 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                 </Form.Group>
 
                 <DropdownMenu.Root>
-                  <DropdownMenu.Button css={{ width: '9rem' }}>{nearFormat}</DropdownMenu.Button>
+                  <DropdownMenu.Button
+                    stableId={StableId.CONTRACT_TRANSACTION_NEAR_FORMAT_DROPDOWN}
+                    css={{ width: '9rem' }}
+                  >
+                    {nearFormat}
+                  </DropdownMenu.Button>
                   <DropdownMenu.Content>
                     <DropdownMenu.Item onSelect={() => form.setValue('nearFormat', 'NEAR')}>NEAR</DropdownMenu.Item>
                     <DropdownMenu.Item onSelect={() => form.setValue('nearFormat', 'yoctoⓃ')}>yoctoⓃ</DropdownMenu.Item>
@@ -530,7 +594,12 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                 </DropdownMenu.Root>
               </Flex>
 
-              <Button type="submit" loading={form.formState.isSubmitting} stretch>
+              <Button
+                stableId={StableId.CONTRACT_TRANSACTION_SEND_BUTTON}
+                type="submit"
+                loading={form.formState.isSubmitting}
+                stretch
+              >
                 {selectedFunction && selectedFunction.is_view ? 'View Call' : 'Send Transaction'}
               </Button>
             </Flex>
@@ -541,9 +610,18 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   );
 };
 
-const TxResultView = ({ result }: { result: any }) => {
-  if (result === undefined) {
+const TxResultView = ({ result, error }: { result: any; error: any }) => {
+  if (!result && !error) {
     return <SendTransactionBanner />;
+  }
+
+  if (error) {
+    return (
+      <Flex stack>
+        <ResultTitle>Result</ResultTitle>
+        <Message type="error" content={error.toString()} />
+      </Flex>
+    );
   }
 
   if (result?.hash) {

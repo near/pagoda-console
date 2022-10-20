@@ -24,6 +24,7 @@ import { useSimpleLayout } from '@/hooks/layouts';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import { signInRedirectHandler } from '@/utils/helpers';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Register: NextPageWithLayout = () => {
@@ -190,14 +191,14 @@ export function RegisterForm() {
 
         <ErrorModal error={registerError} setError={setRegisterError} />
 
-        <Button stretch type="submit" loading={formState.isSubmitting}>
+        <Button stableId={StableId.REGISTER_SIGN_UP_BUTTON} stretch type="submit" loading={formState.isSubmitting}>
           Sign Up
         </Button>
 
         <HR />
 
         <Link href="/" passHref>
-          <TextLink color="neutral" css={{ margin: '0 auto' }}>
+          <TextLink stableId={StableId.REGISTER_SIGN_IN_LINK} color="neutral" css={{ margin: '0 auto' }}>
             I already have an account
           </TextLink>
         </Link>

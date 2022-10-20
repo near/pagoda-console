@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
@@ -8,6 +8,7 @@ import { Spinner } from '@/components/lib/Spinner';
 import { useOrganizationsLayout } from '@/hooks/layouts';
 import { useAcceptOrgInvite } from '@/hooks/organizations';
 import { useIdentity } from '@/hooks/user';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const AcceptOrgInvite: NextPageWithLayout = () => {
@@ -16,19 +17,24 @@ const AcceptOrgInvite: NextPageWithLayout = () => {
   const user = useIdentity();
   const queryToken = router.query.token;
   const token = Array.isArray(queryToken) ? queryToken[0] : queryToken;
+  const hasSentRequest = useRef(false);
+
   const acceptInvite = useCallback(() => {
     if (!token) {
       return;
     }
     acceptMutation.mutate({ token });
   }, [acceptMutation, token]);
+
   useEffect(() => {
-    if (user) {
+    if (user && !hasSentRequest.current) {
       acceptInvite();
+      hasSentRequest.current = true;
     } else if (token) {
       sessionStorage.setItem('signInRedirectUrl', router.asPath);
     }
   }, [router, user, acceptInvite, token]);
+
   const toProjects = useCallback(() => router.replace('/projects'), [router]);
 
   if (acceptMutation.status === 'error' || acceptMutation.status === 'success') {
@@ -39,7 +45,9 @@ const AcceptOrgInvite: NextPageWithLayout = () => {
         ) : (
           <Message type="success" content="Invite successfully accepted." css={{ width: 'initial' }} />
         )}
-        <Button onClick={toProjects}>Take me to projects</Button>
+        <Button stableId={StableId.ACCEPT_ORGANIZATION_INVITE_PROJECTS_BUTTON} onClick={toProjects}>
+          Take me to projects
+        </Button>
       </Flex>
     );
   }

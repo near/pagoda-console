@@ -1,6 +1,6 @@
 import { getAuth, sendEmailVerification } from 'firebase/auth';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
@@ -13,36 +13,18 @@ import analytics from '@/utils/analytics';
 import { logOut } from '@/utils/auth';
 import { signInRedirectHandler } from '@/utils/helpers';
 import { authenticatedPost } from '@/utils/http';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Verification: NextPageWithLayout = () => {
   const router = useRouter();
   const [hasResent, setHasResent] = useState(false);
   const existing = useRouteParam('existing') === 'true';
+  const hasCalledInitAccount = useRef(false);
+  const verificationCheckTimer = useRef<NodeJS.Timeout | undefined>();
 
-  useEffect(() => {
-    router.prefetch('/pick-project');
-  }, [router]);
-
-  // send off a trivial request to make sure this user is initialized in DB
-  useEffect(() => {
-    initAccount();
-  }, []);
-  async function initAccount() {
-    try {
-      await authenticatedPost('/users/getAccountDetails');
-    } catch (e) {
-      // silently fail
-    }
-  }
-
-  useEffect(() => {
-    queueVerificationCheck(); // only run once since it will re-queue itself
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function queueVerificationCheck() {
-    return setTimeout(async () => {
+  const queueVerificationCheck = useCallback(() => {
+    verificationCheckTimer.current = setTimeout(async () => {
       await getAuth().currentUser?.reload();
       if (getAuth().currentUser?.emailVerified) {
         await getAuth().currentUser?.getIdToken(true);
@@ -58,7 +40,34 @@ const Verification: NextPageWithLayout = () => {
         queueVerificationCheck();
       }
     }, 3000);
+  }, [router]);
+
+  useEffect(() => {
+    router.prefetch('/pick-project');
+  }, [router]);
+
+  // send off a trivial request to make sure this user is initialized in DB
+  useEffect(() => {
+    if (!hasCalledInitAccount.current) {
+      initAccount();
+      hasCalledInitAccount.current = true;
+    }
+  }, []);
+  async function initAccount() {
+    try {
+      await authenticatedPost('/users/getAccountDetails');
+    } catch (e) {
+      // silently fail
+    }
   }
+
+  useEffect(() => {
+    queueVerificationCheck(); // only run once since it will re-queue itself
+
+    return () => {
+      clearTimeout(verificationCheckTimer.current);
+    };
+  }, [queueVerificationCheck]);
 
   async function resendVerification() {
     try {
@@ -84,13 +93,18 @@ const Verification: NextPageWithLayout = () => {
         </Text>
 
         {!hasResent ? (
-          <Button stretch disabled={hasResent} onClick={resendVerification}>
+          <Button
+            stableId={StableId.ACCOUNT_VERIFICATION_SEND_AGAIN_BUTTON}
+            stretch
+            disabled={hasResent}
+            onClick={resendVerification}
+          >
             Send Again
           </Button>
         ) : (
           <Text color="primary">Sent!</Text>
         )}
-        <TextButton color="neutral" onClick={logOut}>
+        <TextButton stableId={StableId.ACCOUNT_VERIFICATION_LOG_OUT_BUTTON} color="neutral" onClick={logOut}>
           Log Out
         </TextButton>
       </Flex>

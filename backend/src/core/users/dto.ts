@@ -2,7 +2,7 @@
 // because class-validator was experiencing issues at the time of implementation
 // and had many unaddressed github issues
 
-import { OrgRole, OrgMember, User, Org } from '../../../generated/prisma/core';
+import { OrgRole, OrgMember, User, Org } from '@pc/database/clients/core';
 import * as Joi from 'joi';
 
 // Composable Response DTOs

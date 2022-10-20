@@ -21,6 +21,7 @@ import * as Combobox from '@/components/lib/Combobox';
 import { Container } from '@/components/lib/Container';
 import { CopyButton } from '@/components/lib/CopyButton';
 import * as Dialog from '@/components/lib/Dialog';
+import { DragAndDropLabel } from '@/components/lib/DragAndDrop';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
@@ -54,6 +55,7 @@ import { styled } from '@/styles/stitches';
 import config from '@/utils/config';
 import { formValidations } from '@/utils/constants';
 import { mergeInputProps } from '@/utils/merge-input-props';
+import { StableId } from '@/utils/stable-ids';
 import type { NetOption, NextPageWithLayout } from '@/utils/types';
 import { validateMaxNearDecimalLength, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
@@ -221,7 +223,7 @@ const WithNetDropdown: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <>
       <DropdownMenu.Root>
-        <DropdownMenu.Button>Network: {net}</DropdownMenu.Button>
+        <DropdownMenu.Button stableId={StableId.UI_DOCS_EXAMPLE}>Network: {net}</DropdownMenu.Button>
         <DropdownMenu.Content>
           {(['MAINNET', 'TESTNET'] as const).map((net) => (
             <DropdownMenu.Item key={net} onSelect={() => setNet(net)}>
@@ -248,7 +250,9 @@ const AccountActivitySection = () => {
           isInvalid={!!form.formState.errors.contractId}
           {...form.register('contractId', { required: true })}
         />
-        <Button onClick={() => setAddress(form.getValues('contractId'))}>Fetch data</Button>
+        <Button stableId={StableId.UI_DOCS_EXAMPLE} onClick={() => setAddress(form.getValues('contractId'))}>
+          Fetch data
+        </Button>
       </Flex>
       <AccountActivityView accountId={address} />
     </>
@@ -273,7 +277,9 @@ const TransactionSection = () => {
           isInvalid={!!form.formState.errors.transactionHash}
           {...form.register('transactionHash', { required: true })}
         />
-        <Button onClick={() => setHash(form.getValues('transactionHash'))}>Fetch data</Button>
+        <Button stableId={StableId.UI_DOCS_EXAMPLE} onClick={() => setHash(form.getValues('transactionHash'))}>
+          Fetch data
+        </Button>
       </Flex>
       <TransactionActions transactionHash={hash} />
     </>
@@ -314,17 +320,17 @@ const Settings: NextPageWithLayout = () => {
 
         <Accordion.Root type="multiple">
           <Accordion.Item value="item-1">
-            <Accordion.Trigger>Section One</Accordion.Trigger>
+            <Accordion.Trigger stableId={StableId.UI_DOCS_EXAMPLE}>Section One</Accordion.Trigger>
             <Accordion.Content>
               <Flex stack>
                 <Text>Here is a paragraph.</Text>
-                <Button>Click Me</Button>
+                <Button stableId={StableId.UI_DOCS_EXAMPLE}>Click Me</Button>
               </Flex>
             </Accordion.Content>
           </Accordion.Item>
 
           <Accordion.Item value="item-2">
-            <Accordion.Trigger>Section Two</Accordion.Trigger>
+            <Accordion.Trigger stableId={StableId.UI_DOCS_EXAMPLE}>Section Two</Accordion.Trigger>
             <Accordion.Content>
               <Flex stack>
                 <Text>Here is a paragraph.</Text>
@@ -333,7 +339,9 @@ const Settings: NextPageWithLayout = () => {
           </Accordion.Item>
 
           <Accordion.Item value="item-3">
-            <Accordion.Trigger disabled>Section 3 - Disabled</Accordion.Trigger>
+            <Accordion.Trigger stableId={StableId.UI_DOCS_EXAMPLE} disabled>
+              Section 3 - Disabled
+            </Accordion.Trigger>
             <Accordion.Content>
               <Flex stack>
                 <Text>This whole area is disabled.</Text>
@@ -346,7 +354,7 @@ const Settings: NextPageWithLayout = () => {
 
         <Accordion.Root type="multiple" noArrow>
           <Accordion.Item value="item-1">
-            <Accordion.Trigger>Section One</Accordion.Trigger>
+            <Accordion.Trigger stableId={StableId.UI_DOCS_EXAMPLE}>Section One</Accordion.Trigger>
             <Accordion.Content>
               <Flex stack>
                 <Text>Here is another paragraph.</Text>
@@ -355,7 +363,7 @@ const Settings: NextPageWithLayout = () => {
           </Accordion.Item>
 
           <Accordion.Item value="item-2">
-            <Accordion.Trigger>Section Two</Accordion.Trigger>
+            <Accordion.Trigger stableId={StableId.UI_DOCS_EXAMPLE}>Section Two</Accordion.Trigger>
             <Accordion.Content>
               <Flex stack>
                 <Text>Here is another paragraph.</Text>
@@ -368,7 +376,7 @@ const Settings: NextPageWithLayout = () => {
 
         <Accordion.Root type="multiple" inline>
           <Accordion.Item value="item-1">
-            <Accordion.Trigger>
+            <Accordion.Trigger stableId={StableId.UI_DOCS_EXAMPLE}>
               <FeatherIcon icon="zap" size="m" />
               <Text size="h4" color="current">
                 Section One
@@ -380,14 +388,14 @@ const Settings: NextPageWithLayout = () => {
                 <Text>Here is another paragraph.</Text>
 
                 <div>
-                  <Button>Click Me</Button>
+                  <Button stableId={StableId.UI_DOCS_EXAMPLE}>Click Me</Button>
                 </div>
               </Flex>
             </Accordion.Content>
           </Accordion.Item>
 
           <Accordion.Item value="item-2">
-            <Accordion.Trigger>
+            <Accordion.Trigger stableId={StableId.UI_DOCS_EXAMPLE}>
               <FeatherIcon icon="eye" size="m" />
               <Text size="h4" color="current">
                 Section Two
@@ -401,7 +409,7 @@ const Settings: NextPageWithLayout = () => {
           </Accordion.Item>
 
           <Accordion.Item value="item-3">
-            <Accordion.Trigger disabled>
+            <Accordion.Trigger stableId={StableId.UI_DOCS_EXAMPLE} disabled>
               <FeatherIcon icon="circle" size="m" />
               <Text size="h4" color="current">
                 Section Three - Disabled
@@ -449,27 +457,41 @@ const Settings: NextPageWithLayout = () => {
 
       <DocSection title="Button">
         <Flex wrap>
-          <Button>Primary</Button>
-          <Button>
+          <Button stableId={StableId.UI_DOCS_EXAMPLE}>Primary</Button>
+          <Button stableId={StableId.UI_DOCS_EXAMPLE}>
             <FeatherIcon icon="cpu" /> With Icon
           </Button>
-          <Button>
+          <Button stableId={StableId.UI_DOCS_EXAMPLE}>
             <FeatherIcon icon="eye" aria-label="Eye" />
           </Button>
-          <Button loading>Is Loading</Button>
-          <Button disabled>Disabled</Button>
-          <Button color="danger">Danger</Button>
-          <Button color="primaryBorder">Primary Border</Button>
-          <Button color="dangerBorder">Danger Border</Button>
-          <Button color="neutral">Neutral</Button>
-          <Button color="transparent">Transparent</Button>
+          <Button stableId={StableId.UI_DOCS_EXAMPLE} loading>
+            Is Loading
+          </Button>
+          <Button stableId={StableId.UI_DOCS_EXAMPLE} disabled>
+            Disabled
+          </Button>
+          <Button stableId={StableId.UI_DOCS_EXAMPLE} color="danger">
+            Danger
+          </Button>
+          <Button stableId={StableId.UI_DOCS_EXAMPLE} color="primaryBorder">
+            Primary Border
+          </Button>
+          <Button stableId={StableId.UI_DOCS_EXAMPLE} color="dangerBorder">
+            Danger Border
+          </Button>
+          <Button stableId={StableId.UI_DOCS_EXAMPLE} color="neutral">
+            Neutral
+          </Button>
+          <Button stableId={StableId.UI_DOCS_EXAMPLE} color="transparent">
+            Transparent
+          </Button>
         </Flex>
 
         <Flex wrap>
-          <Button color="neutral" size="s">
+          <Button stableId={StableId.UI_DOCS_EXAMPLE} color="neutral" size="s">
             Small
           </Button>
-          <Button color="neutral" size="s" loading>
+          <Button stableId={StableId.UI_DOCS_EXAMPLE} color="neutral" size="s" loading>
             Small
           </Button>
         </Flex>
@@ -477,13 +499,22 @@ const Settings: NextPageWithLayout = () => {
         <H4>ButtonLink</H4>
         <Flex wrap>
           <Link href="/foobar" passHref>
-            <ButtonLink>Link</ButtonLink>
+            <ButtonLink stableId={StableId.UI_DOCS_EXAMPLE}>Link</ButtonLink>
           </Link>
-          <ButtonLink href="https://github.com/near/developer-console-framework" external>
+          <ButtonLink
+            stableId={StableId.UI_DOCS_EXAMPLE}
+            href="https://github.com/near/developer-console-framework"
+            external
+          >
             External Link
           </ButtonLink>
 
-          <ButtonLink href="https://github.com/near/developer-console-framework" external size="s">
+          <ButtonLink
+            stableId={StableId.UI_DOCS_EXAMPLE}
+            href="https://github.com/near/developer-console-framework"
+            external
+            size="s"
+          >
             External Link - Small
           </ButtonLink>
         </Flex>
@@ -580,7 +611,7 @@ const Settings: NextPageWithLayout = () => {
 
         <Checkbox>
           I agree to the{' '}
-          <TextLink href="/" target="_blank">
+          <TextLink stableId={StableId.UI_DOCS_EXAMPLE} href="/" target="_blank">
             Terms & Conditions
           </TextLink>
         </Checkbox>
@@ -696,10 +727,10 @@ const Settings: NextPageWithLayout = () => {
 
       <DocSection title="Copy Button">
         <Flex wrap>
-          <CopyButton value="123" />
-          <CopyButton content="456" />
-          <CopyButton content="With Unique Content" value="789" />
-          <CopyButton content="Different Style" value="789" color="primary" />
+          <CopyButton stableId={StableId.UI_DOCS_EXAMPLE} value="123" />
+          <CopyButton stableId={StableId.UI_DOCS_EXAMPLE} content="456" />
+          <CopyButton stableId={StableId.UI_DOCS_EXAMPLE} content="With Unique Content" value="789" />
+          <CopyButton stableId={StableId.UI_DOCS_EXAMPLE} content="Different Style" value="789" color="primary" />
         </Flex>
       </DocSection>
 
@@ -708,13 +739,14 @@ const Settings: NextPageWithLayout = () => {
 
         <Dialog.Root>
           <Dialog.Trigger asChild>
-            <Button>Trigger</Button>
+            <Button stableId={StableId.UI_DOCS_EXAMPLE}>Trigger</Button>
           </Dialog.Trigger>
 
           <Dialog.Content title="Your Modal Title" size="s">
             <Flex stack>
               <H4>This is a small modal with a default title and close button.</H4>
               <Button
+                stableId={StableId.UI_DOCS_EXAMPLE}
                 onClick={() => {
                   setDialogIsOpen(true);
                 }}
@@ -732,6 +764,7 @@ const Settings: NextPageWithLayout = () => {
         <Text>Open/close via control:</Text>
 
         <Button
+          stableId={StableId.UI_DOCS_EXAMPLE}
           onClick={() => {
             setDialogIsOpen(true);
           }}
@@ -748,18 +781,29 @@ const Settings: NextPageWithLayout = () => {
                 button - this would allow you to render your own.
               </Text>
               <Dialog.Close asChild>
-                <Button>Close Me</Button>
+                <Button stableId={StableId.UI_DOCS_EXAMPLE}>Close Me</Button>
               </Dialog.Close>
             </Flex>
           </Dialog.Content>
         </Dialog.Root>
       </DocSection>
 
+      <DocSection title="Drag And Drop">
+        <DragAndDropLabel
+          onChange={(e) => console.log(e)}
+          stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_CHOOSE_FILE_BUTTON}
+        >
+          <FeatherIcon color="primary" size="s" icon="upload" />
+          Choose or drop a file
+          <Form.Input type="file" file tabIndex={-1} onChange={(e) => console.log(e)} />
+        </DragAndDropLabel>
+      </DocSection>
+
       <DocSection title="Dropdown Menu">
         <Flex wrap>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
-              <Button>Custom Trigger</Button>
+              <Button stableId={StableId.UI_DOCS_EXAMPLE}>Custom Trigger</Button>
             </DropdownMenu.Trigger>
 
             <DropdownMenu.Content>
@@ -807,7 +851,7 @@ const Settings: NextPageWithLayout = () => {
           </DropdownMenu.Root>
 
           <DropdownMenu.Root>
-            <DropdownMenu.Button>Standard</DropdownMenu.Button>
+            <DropdownMenu.Button stableId={StableId.UI_DOCS_EXAMPLE}>Standard</DropdownMenu.Button>
             <DropdownMenu.Content>
               <DropdownMenu.Item>New Tab</DropdownMenu.Item>
               <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
@@ -815,7 +859,7 @@ const Settings: NextPageWithLayout = () => {
           </DropdownMenu.Root>
 
           <DropdownMenu.Root>
-            <DropdownMenu.Button css={{ width: '20rem' }}>
+            <DropdownMenu.Button stableId={StableId.UI_DOCS_EXAMPLE} css={{ width: '20rem' }}>
               <TextOverflow>Size + Trucation - This Text Will Get Cut Off</TextOverflow>
             </DropdownMenu.Button>
             <DropdownMenu.Content>
@@ -825,7 +869,9 @@ const Settings: NextPageWithLayout = () => {
           </DropdownMenu.Root>
 
           <DropdownMenu.Root>
-            <DropdownMenu.Button size="s">Small</DropdownMenu.Button>
+            <DropdownMenu.Button stableId={StableId.UI_DOCS_EXAMPLE} size="s">
+              Small
+            </DropdownMenu.Button>
             <DropdownMenu.Content>
               <DropdownMenu.Item>New Tab</DropdownMenu.Item>
               <DropdownMenu.Item disabled>New Window</DropdownMenu.Item>
@@ -837,7 +883,7 @@ const Settings: NextPageWithLayout = () => {
       <DocSection title="Feather Icon">
         <Text>
           View all Feather Icons{' '}
-          <TextLink href="https://feathericons.com/" target="_blank">
+          <TextLink stableId={StableId.UI_DOCS_EXAMPLE} href="https://feathericons.com/" target="_blank">
             here
           </TextLink>
           .
@@ -1014,7 +1060,7 @@ const Settings: NextPageWithLayout = () => {
         <Flex wrap>
           <Popover.Root>
             <Popover.Trigger asChild>
-              <Button>Custom Trigger</Button>
+              <Button stableId={StableId.UI_DOCS_EXAMPLE}>Custom Trigger</Button>
             </Popover.Trigger>
 
             <Popover.Content>
@@ -1032,6 +1078,7 @@ const Settings: NextPageWithLayout = () => {
 
                 <Popover.Close asChild>
                   <Button
+                    stableId={StableId.UI_DOCS_EXAMPLE}
                     size="s"
                     color="danger"
                     onClick={() => {
@@ -1046,7 +1093,7 @@ const Settings: NextPageWithLayout = () => {
           </Popover.Root>
 
           <Popover.Root>
-            <Popover.Button>Standard</Popover.Button>
+            <Popover.Button stableId={StableId.UI_DOCS_EXAMPLE}>Standard</Popover.Button>
 
             <Popover.Content>
               <Text>
@@ -1057,7 +1104,9 @@ const Settings: NextPageWithLayout = () => {
           </Popover.Root>
 
           <Popover.Root>
-            <Popover.Button size="s">Small</Popover.Button>
+            <Popover.Button stableId={StableId.UI_DOCS_EXAMPLE} size="s">
+              Small
+            </Popover.Button>
 
             <Popover.Content>
               <Text>
@@ -1076,11 +1125,21 @@ const Settings: NextPageWithLayout = () => {
         </Flex>
 
         <Flex>
-          <Button color="neutral" onClick={() => setProgressValue(progressValue - 10)} disabled={progressValue <= 0}>
+          <Button
+            stableId={StableId.UI_DOCS_EXAMPLE}
+            color="neutral"
+            onClick={() => setProgressValue(progressValue - 10)}
+            disabled={progressValue <= 0}
+          >
             Decrease
           </Button>
 
-          <Button color="neutral" onClick={() => setProgressValue(progressValue + 10)} disabled={progressValue >= 100}>
+          <Button
+            stableId={StableId.UI_DOCS_EXAMPLE}
+            color="neutral"
+            onClick={() => setProgressValue(progressValue + 10)}
+            disabled={progressValue >= 100}
+          >
             Increase
           </Button>
         </Flex>
@@ -1216,10 +1275,10 @@ const Settings: NextPageWithLayout = () => {
                   </Table.Cell>
                   <Table.Cell css={{ width: '1px' }}>
                     <Flex>
-                      <Button size="s">
+                      <Button stableId={StableId.UI_DOCS_EXAMPLE} size="s">
                         <FeatherIcon icon="edit-2" size="xs" />
                       </Button>
-                      <Button size="s" color="neutral">
+                      <Button stableId={StableId.UI_DOCS_EXAMPLE} size="s" color="neutral">
                         <FeatherIcon icon="trash-2" size="xs" />
                       </Button>
                     </Flex>
@@ -1352,7 +1411,7 @@ const Settings: NextPageWithLayout = () => {
               <Flex align="center">
                 <FeatherIcon icon="sun" />
                 <H5>My Cool Table</H5>
-                <Button size="s" color="primaryBorder" css={{ marginLeft: 'auto' }}>
+                <Button stableId={StableId.UI_DOCS_EXAMPLE} size="s" color="primaryBorder" css={{ marginLeft: 'auto' }}>
                   <FeatherIcon icon="sliders" />
                   Filter
                 </Button>
@@ -1436,7 +1495,12 @@ const Settings: NextPageWithLayout = () => {
                 <Flex>
                   <Flex align="center">
                     <Text>My Cool Footer</Text>
-                    <Button size="s" color="primaryBorder" css={{ marginLeft: 'auto' }}>
+                    <Button
+                      stableId={StableId.UI_DOCS_EXAMPLE}
+                      size="s"
+                      color="primaryBorder"
+                      css={{ marginLeft: 'auto' }}
+                    >
                       <FeatherIcon icon="sliders" />
                       Filter
                     </Button>
@@ -1453,10 +1517,16 @@ const Settings: NextPageWithLayout = () => {
 
         <Tabs.Root defaultValue="tab-1">
           <Tabs.List>
-            <Tabs.Trigger value="tab-1">Tab 1</Tabs.Trigger>
-            <Tabs.Trigger value="tab-2">Tab 2</Tabs.Trigger>
-            <Tabs.Trigger value="tab-3">Tab 3 With a Long Name</Tabs.Trigger>
-            <Tabs.Trigger value="tab-4">
+            <Tabs.Trigger stableId={StableId.UI_DOCS_EXAMPLE} value="tab-1">
+              Tab 1
+            </Tabs.Trigger>
+            <Tabs.Trigger stableId={StableId.UI_DOCS_EXAMPLE} value="tab-2">
+              Tab 2
+            </Tabs.Trigger>
+            <Tabs.Trigger stableId={StableId.UI_DOCS_EXAMPLE} value="tab-3">
+              Tab 3 With a Long Name
+            </Tabs.Trigger>
+            <Tabs.Trigger stableId={StableId.UI_DOCS_EXAMPLE} value="tab-4">
               <FeatherIcon icon="home" />
               Tab 4 With Icon
             </Tabs.Trigger>
@@ -1485,9 +1555,13 @@ const Settings: NextPageWithLayout = () => {
 
         <Tabs.Root defaultValue="tab-1">
           <Tabs.List inline>
-            <Tabs.Trigger value="tab-1">Tab 1</Tabs.Trigger>
-            <Tabs.Trigger value="tab-2">Tab 2</Tabs.Trigger>
-            <Tabs.Trigger value="tab-4">
+            <Tabs.Trigger stableId={StableId.UI_DOCS_EXAMPLE} value="tab-1">
+              Tab 1
+            </Tabs.Trigger>
+            <Tabs.Trigger stableId={StableId.UI_DOCS_EXAMPLE} value="tab-2">
+              Tab 2
+            </Tabs.Trigger>
+            <Tabs.Trigger stableId={StableId.UI_DOCS_EXAMPLE} value="tab-4">
               <FeatherIcon icon="home" size="xs" />
               Tab 3 With Icon
             </Tabs.Trigger>
@@ -1583,24 +1657,32 @@ const Settings: NextPageWithLayout = () => {
       <DocSection title="Text Link">
         <Flex wrap>
           <Link href="/foobar" passHref>
-            <TextLink>Primary Link</TextLink>
+            <TextLink stableId={StableId.UI_DOCS_EXAMPLE}>Primary Link</TextLink>
           </Link>
           <Link href="/foobar" passHref>
-            <TextLink color="danger">Danger Link</TextLink>
+            <TextLink stableId={StableId.UI_DOCS_EXAMPLE} color="danger">
+              Danger Link
+            </TextLink>
           </Link>
           <Link href="/foobar" passHref>
-            <TextLink color="neutral">Neutral Link</TextLink>
+            <TextLink stableId={StableId.UI_DOCS_EXAMPLE} color="neutral">
+              Neutral Link
+            </TextLink>
           </Link>
           <Link href="/foobar" passHref>
-            <TextLink size="s" color="neutral">
+            <TextLink stableId={StableId.UI_DOCS_EXAMPLE} size="s" color="neutral">
               Small Link
             </TextLink>
           </Link>
         </Flex>
 
         <Flex wrap>
-          <TextLink external>External Link</TextLink>
-          <TextButton onClick={() => alert('Hi!')}>Button</TextButton>
+          <TextLink stableId={StableId.UI_DOCS_EXAMPLE} external>
+            External Link
+          </TextLink>
+          <TextButton stableId={StableId.UI_DOCS_EXAMPLE} onClick={() => alert('Hi!')}>
+            Button
+          </TextButton>
         </Flex>
       </DocSection>
 
@@ -1630,6 +1712,7 @@ const Settings: NextPageWithLayout = () => {
       <DocSection title="Toast">
         <Flex wrap>
           <Button
+            stableId={StableId.UI_DOCS_EXAMPLE}
             color="neutral"
             onClick={() =>
               openToast({
@@ -1642,6 +1725,7 @@ const Settings: NextPageWithLayout = () => {
           </Button>
 
           <Button
+            stableId={StableId.UI_DOCS_EXAMPLE}
             color="neutral"
             onClick={() =>
               openToast({
@@ -1659,6 +1743,7 @@ const Settings: NextPageWithLayout = () => {
           </Button>
 
           <Button
+            stableId={StableId.UI_DOCS_EXAMPLE}
             color="neutral"
             onClick={() =>
               openToast({
@@ -1672,6 +1757,7 @@ const Settings: NextPageWithLayout = () => {
           </Button>
 
           <Button
+            stableId={StableId.UI_DOCS_EXAMPLE}
             color="neutral"
             onClick={() =>
               openToast({
@@ -1683,6 +1769,7 @@ const Settings: NextPageWithLayout = () => {
           </Button>
 
           <Button
+            stableId={StableId.UI_DOCS_EXAMPLE}
             color="neutral"
             onClick={() =>
               openToast({
@@ -1695,6 +1782,7 @@ const Settings: NextPageWithLayout = () => {
           </Button>
 
           <Button
+            stableId={StableId.UI_DOCS_EXAMPLE}
             color="neutral"
             onClick={() =>
               openToast({
@@ -1707,6 +1795,7 @@ const Settings: NextPageWithLayout = () => {
           </Button>
 
           <Button
+            stableId={StableId.UI_DOCS_EXAMPLE}
             color="danger"
             onClick={() =>
               openToast({
@@ -1720,6 +1809,7 @@ const Settings: NextPageWithLayout = () => {
           </Button>
 
           <Button
+            stableId={StableId.UI_DOCS_EXAMPLE}
             onClick={() =>
               openToast({
                 title: 'Toast Title',
@@ -1736,7 +1826,7 @@ const Settings: NextPageWithLayout = () => {
       <DocSection title="Tooltip">
         <Flex align="center" wrap>
           <Tooltip content="I am the tooltip message.">
-            <Button>Curious Button</Button>
+            <Button stableId={StableId.UI_DOCS_EXAMPLE}>Curious Button</Button>
           </Tooltip>
 
           <Tooltip
@@ -2224,7 +2314,7 @@ function DocSectionForm() {
                       />
                     </DropdownMenu.Trigger>
 
-                    <DropdownMenu.Content align="start">
+                    <DropdownMenu.Content width="trigger">
                       <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
                         {favoriteWeatherOptions.map((option) => (
                           <DropdownMenu.RadioItem
@@ -2419,7 +2509,7 @@ function DocSectionForm() {
               })}
             >
               I agree to the{' '}
-              <TextLink href="/" target="_blank">
+              <TextLink stableId={StableId.UI_DOCS_EXAMPLE} href="/" target="_blank">
                 Terms & Conditions
               </TextLink>
             </Checkbox>
@@ -2427,7 +2517,9 @@ function DocSectionForm() {
             <Form.Feedback>{form.formState.errors.termsAccepted?.message}</Form.Feedback>
           </Form.Group>
 
-          <Button type="submit">Submit</Button>
+          <Button stableId={StableId.UI_DOCS_EXAMPLE} type="submit">
+            Submit
+          </Button>
         </Flex>
       </Form.Root>
 
@@ -2498,36 +2590,36 @@ function DocSectionSwitch() {
 
   return (
     <DocSection title="Switch">
-      <Switch aria-label="Turbo Mode" />
+      <Switch stableId={StableId.UI_DOCS_EXAMPLE} aria-label="Turbo Mode" />
 
       <HR />
 
       <Flex as="label" align="center">
-        <Switch />
+        <Switch stableId={StableId.UI_DOCS_EXAMPLE} />
         With a Label On Right
       </Flex>
 
       <Flex as="label" align="center">
         With a Label On Left
-        <Switch />
+        <Switch stableId={StableId.UI_DOCS_EXAMPLE} />
       </Flex>
 
       <Flex as="label" align="center">
-        <Switch disabled />
+        <Switch stableId={StableId.UI_DOCS_EXAMPLE} disabled />
         Disabled
       </Flex>
 
       <HR />
 
       <Flex as="label" align="center">
-        <Switch>
+        <Switch stableId={StableId.UI_DOCS_EXAMPLE}>
           <FeatherIcon icon="sun" size="xs" />
         </Switch>
         With an Icon
       </Flex>
 
       <Flex as="label" align="center">
-        <Switch>
+        <Switch stableId={StableId.UI_DOCS_EXAMPLE}>
           <FeatherIcon icon="sun" size="xs" data-on />
           <FeatherIcon icon="moon" size="xs" data-off />
         </Switch>
@@ -2537,7 +2629,7 @@ function DocSectionSwitch() {
       <HR />
 
       <Flex as="label" align="center">
-        <Switch size="s">
+        <Switch stableId={StableId.UI_DOCS_EXAMPLE} size="s">
           <FeatherIcon icon="sun" size="xs" data-on />
           <FeatherIcon icon="moon" size="xs" data-off />
         </Switch>
@@ -2547,12 +2639,12 @@ function DocSectionSwitch() {
       <HR />
 
       <Flex as="label" align="center">
-        <Switch debounce={true} onCheckedChange={onCheckedChange} />
+        <Switch stableId={StableId.UI_DOCS_EXAMPLE} debounce={true} onCheckedChange={onCheckedChange} />
         Default Debounce
       </Flex>
 
       <Flex as="label" align="center">
-        <Switch debounce={4000} onCheckedChange={onCheckedChange} />
+        <Switch stableId={StableId.UI_DOCS_EXAMPLE} debounce={4000} onCheckedChange={onCheckedChange} />
         Custom Debounce (4 Seconds)
       </Flex>
     </DocSection>
@@ -2609,7 +2701,7 @@ function DocSectionCharts() {
     <DocSection title="Charts">
       <Text>
         Many different types of charts can be rendered with the{' '}
-        <TextLink href="https://recharts.org/en-US/examples" external>
+        <TextLink stableId={StableId.UI_DOCS_EXAMPLE} href="https://recharts.org/en-US/examples" external>
           Recharts Library
         </TextLink>
       </Text>

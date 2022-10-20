@@ -14,7 +14,14 @@ const anonymousId = uniqueId();
 function init() {
   if (segment) return console.log('Segment Analytics has already been initialized');
   //flushAt=1 is useful for testing new events
-  const options = config.deployEnv === 'LOCAL' ? { flushAt: 1 } : {};
+  const proxySettings =
+    typeof window === 'undefined'
+      ? {}
+      : {
+          host: `${window.location.protocol}//${window.location.host}`,
+          path: '/api/segment',
+        };
+  const options = config.deployEnv === 'LOCAL' ? { flushAt: 1, ...proxySettings } : proxySettings;
   segment = new Analytics(config.segment, options);
 }
 
@@ -35,7 +42,8 @@ function track(eventLabel: string, properties?: Dict) {
   });
 }
 
-function identify(userId: string, traits: Record<string, any>) {
+function identify(id: string, traits: Record<string, any>) {
+  userId = id;
   segment.identify({
     traits,
     userId,
@@ -43,9 +51,9 @@ function identify(userId: string, traits: Record<string, any>) {
 }
 
 function pageView(name: string, properties?: Dict) {
+  const id = userId ? { userId } : { anonymousId };
   segment.page({
-    userId,
-    anonymousId,
+    ...id,
     name,
     properties,
   });

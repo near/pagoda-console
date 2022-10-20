@@ -1,3 +1,5 @@
+import { StableId } from '@/utils/stable-ids';
+
 import { Button } from '../Button';
 import { FeatherIcon } from '../FeatherIcon';
 import { Flex } from '../Flex';
@@ -43,6 +45,7 @@ export function Toaster() {
               {toast.action && (
                 <T.Action altText={toast.actionText!} asChild>
                   <Button
+                    stableId={StableId.TOOLTIP_ACTION_BUTTON}
                     size="s"
                     color="transparent"
                     onClick={toast.action}

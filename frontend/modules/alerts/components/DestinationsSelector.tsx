@@ -12,6 +12,7 @@ import { Text } from '@/components/lib/Text';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useDestinations } from '@/modules/alerts/hooks/destinations';
 import { destinationTypes } from '@/modules/alerts/utils/constants';
+import { StableId } from '@/utils/stable-ids';
 
 import type { Destination } from '../utils/types';
 import { EditDestinationModal } from './EditDestinationModal';
@@ -102,7 +103,12 @@ export function DestinationsSelector(props: Props) {
           );
         })}
 
-        <Button color="neutral" onClick={() => setShowNewDestinationModal(true)} stretch stableId="new-destination">
+        <Button
+          color="neutral"
+          onClick={() => setShowNewDestinationModal(true)}
+          stretch
+          stableId={StableId.DESTINATIONS_SELECTOR_OPEN_CREATE_MODAL_BUTTON}
+        >
           <FeatherIcon icon="plus" color="primary" /> New Destination
         </Button>
       </Flex>
@@ -155,6 +161,7 @@ function DestinationCard({
     <Card padding="m" borderRadius="m">
       <Flex align="center">
         <Switch
+          stableId={StableId.DESTINATIONS_SELECTOR_SELECTED_SWITCH}
           checked={isChecked}
           onCheckedChange={onCheckedChange}
           debounce={debounce}
@@ -185,7 +192,13 @@ function DestinationCard({
             Needs Action
           </Badge>
         )}
-        <Button size="s" color="transparent" onClick={() => openDestination(destination)}>
+        <Button
+          aria-label="Edit Destination"
+          stableId={StableId.DESTINATIONS_SELECTOR_OPEN_EDIT_MODAL_BUTTON}
+          size="s"
+          color="transparent"
+          onClick={() => openDestination(destination)}
+        >
           <FeatherIcon icon="edit-2" size="xs" color="primary" />
         </Button>
       </Flex>

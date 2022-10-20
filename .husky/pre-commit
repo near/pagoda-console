@@ -1,13 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-echo "Common:"
-npx lint-staged
-
-echo "\n\nFrontend:"
-cd frontend
-npx lint-staged
-
-echo "\n\nBackend:"
-cd ../backend
-npx lint-staged
+npx turbo run format:check lint:check

@@ -7,8 +7,9 @@ import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { useProjectGroups } from '@/hooks/projects';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
+import { StableId } from '@/utils/stable-ids';
 import type { Project } from '@/utils/types';
 
 interface Props {
@@ -16,7 +17,8 @@ interface Props {
 }
 
 export function ProjectSelector(props: Props) {
-  const { project, selectProject } = useSelectedProject();
+  const { project } = useSelectedProject({ enforceSelectedProject: false });
+  const { selectProject } = useProjectSelector();
   const { projectGroups } = useProjectGroups();
   const router = useRouter();
 
@@ -44,7 +46,7 @@ export function ProjectSelector(props: Props) {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button css={{ width: '22rem', height: 'auto' }}>
+      <DropdownMenu.Button stableId={StableId.PROJECT_SELECTOR_DROPDOWN} css={{ width: '22rem', height: 'auto' }}>
         <TextOverflow>{project?.name || '...'}</TextOverflow>
       </DropdownMenu.Button>
 

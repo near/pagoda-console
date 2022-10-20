@@ -14,6 +14,7 @@ import { Text } from '@/components/lib/Text';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useProjectGroups } from '@/hooks/projects';
 import DeleteProjectModal from '@/modules/core/components/modals/DeleteProjectModal';
+import { StableId } from '@/utils/stable-ids';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -33,10 +34,10 @@ const Projects: NextPageWithLayout = () => {
   }, [router]);
 
   useEffect(() => {
-    if (!error && projectGroups && projectGroups.length === 0 && !isValidating) {
+    if (!error && projectGroups && projectGroups.length === 0 && !isValidating && !showRedirectAlert) {
       router.push('/pick-project?onboarding=true');
     }
-  }, [router, error, projectGroups, isValidating]);
+  }, [router, error, projectGroups, isValidating, showRedirectAlert]);
 
   return (
     <Container size="s">
@@ -50,8 +51,12 @@ const Projects: NextPageWithLayout = () => {
             Projects
           </H1>
 
-          <Button onClick={() => router.push('/pick-project')}>Create</Button>
-          <Button onClick={() => setIsEditing(!isEditing)}>{!isEditing ? 'Edit' : 'Done'}</Button>
+          <Button stableId={StableId.PROJECTS_CREATE_PROJECT_LINK} onClick={() => router.push('/pick-project')}>
+            Create
+          </Button>
+          <Button stableId={StableId.PROJECTS_EDIT_TOGGLE_BUTTON} onClick={() => setIsEditing(!isEditing)}>
+            {!isEditing ? 'Edit' : 'Done'}
+          </Button>
         </Flex>
 
         {error && <Message type="error" content="An error occurred." />}
@@ -139,7 +144,12 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
       </Link>
 
       {props.showDelete && (
-        <Button size="s" color="danger" onClick={() => setShowModal(true)}>
+        <Button
+          stableId={StableId.PROJECTS_OPEN_DELETE_PROJECT_MODAL}
+          size="s"
+          color="danger"
+          onClick={() => setShowModal(true)}
+        >
           <FeatherIcon icon="trash-2" size="xs" />
         </Button>
       )}
