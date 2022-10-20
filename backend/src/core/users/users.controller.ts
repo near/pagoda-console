@@ -204,7 +204,7 @@ export class UsersController {
   @Post('resetPassword')
   @UsePipes(new JoiValidationPipe(ResetPasswordSchema))
   @HttpCode(204)
-  async resetPassword(@Body() { email }: ResetPasswordDto,) {
+  async resetPassword(@Body() { email }: ResetPasswordDto) {
     try {
       await this.usersService.resetPassword(email);
     } catch (e) {

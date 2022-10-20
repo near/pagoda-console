@@ -43,6 +43,7 @@ export interface AppConfig {
   indexerActivityDatabase: Partial<Record<Net, Database>>;
   firebase: {
     credentials: string;
+    clientConfig: string;
   };
   dev: {
     mock: {
@@ -160,6 +161,7 @@ const appConfigSchema = Joi.object({
   projectRefPrefix: Joi.string().optional().default(''),
   firebase: {
     credentials: Joi.string(),
+    clientConfig: Joi.string(),
   },
   dev: {
     mock: {
@@ -299,6 +301,7 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     projectRefPrefix: config.PROJECT_REF_PREFIX,
     firebase: {
       credentials: config.FIREBASE_CREDENTIALS,
+      clientConfig: config.FIREBASE_CLIENT_CONFIG,
     },
     dev: {
       mock: {
