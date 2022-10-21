@@ -37,10 +37,12 @@ function identify(id: string, traits: Record<string, any>) {
 }
 
 async function pageView(name: string, properties?: Dict) {
-  segment.page({
-    name,
-    properties,
-  });
+  try {
+    segment.page({
+      name,
+      properties,
+    });
+  } catch (e) {}
 }
 
 function reset() {
