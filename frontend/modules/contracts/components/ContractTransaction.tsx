@@ -69,16 +69,6 @@ const ContractParams = styled(Box, {
 });
 const FormWrapper = styled(Box, {
   width: '100%',
-
-  variants: {
-    disabled: {
-      true: {
-        [`& ${SectionTitle}`]: {
-          color: 'var(--color-text-3)',
-        },
-      },
-    },
-  },
 });
 const UseMaxButton = styled(Button, {
   textTransform: 'uppercase',
