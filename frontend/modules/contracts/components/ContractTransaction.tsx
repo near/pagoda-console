@@ -211,10 +211,18 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   const selectedFunctionName = form.watch('contractFunction');
   const selectedFunction = functionItems?.find((option) => option.name === selectedFunctionName);
 
-  const signedIn = (accountId: string | undefined, wallet: WalletSelector | null): boolean => {
-    // TODO determine if certain wallets leave the account id undefined when signed in.
-    return accountId != undefined && wallet != null;
-  };
+  const { modal } = useWalletSelector(contract.address);
+  const handleWalletSelect = useCallback(
+    async () => {
+      if (selector && selector.store.getState().selectedWalletId) {
+        const wallet = await selector.wallet();
+        await wallet.signOut();
+      }
+
+      modal?.show();
+    },
+    [modal, selector],
+  );
 
   const convertGas = (gas: string) => {
     switch (gasFormat) {
