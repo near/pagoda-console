@@ -1,15 +1,14 @@
 import type { User as FirebaseUser } from 'firebase/auth';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import useSWR from 'swr';
 
+import { useAuthenticationStore } from '@/stores/authentication';
 import analytics from '@/utils/analytics';
 import { authenticatedPost, unauthenticatedPost } from '@/utils/http';
 
-type UserAuthState = 'LOADING' | 'AUTHENTICATED' | 'UNAUTHENTICATED';
-
 export function useAccount() {
-  const { identity, userAuthState } = useIdentity();
+  const { identity, authenticationStatus } = useIdentity();
   const {
     data: user,
     error,
@@ -18,27 +17,32 @@ export function useAccount() {
     return authenticatedPost(key);
   });
 
-  return { user, userAuthState, error, mutate };
+  return { user, authenticationStatus, error, mutate };
 }
 
 export function useIdentity() {
-  const [identity, setIdentity] = useState<FirebaseUser | null>(null);
-  const [userAuthState, setUserAuthState] = useState<UserAuthState>('LOADING');
+  const authenticationStatus = useAuthenticationStore((store) => store.status);
+  const identity = useAuthenticationStore((store) => store.identity);
+
+  return {
+    authenticationStatus,
+    identity,
+  };
+}
+
+export function useIdentitySync() {
+  const setIdentity = useAuthenticationStore((store) => store.setIdentity);
+  const setStatus = useAuthenticationStore((store) => store.setStatus);
 
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (result: FirebaseUser | null) => {
       setIdentity(result);
-      setUserAuthState(result ? 'AUTHENTICATED' : 'UNAUTHENTICATED');
+      setStatus(result ? 'AUTHENTICATED' : 'UNAUTHENTICATED');
     });
 
     return () => unsubscribe();
-  }, []);
-
-  return {
-    identity,
-    userAuthState,
-  };
+  }, [setIdentity, setStatus]);
 }
 
 export async function deleteAccount(uid: string | undefined) {

@@ -1,0 +1,1 @@
+export { useAuthenticationStore } from './authentication';
