@@ -99,10 +99,9 @@ export function RegisterForm() {
       setRegisterError('');
       analytics.track('DC Submitted email registration form');
       const auth = getAuth();
-      const registerResult = await createUserWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, email, password);
 
       try {
-        analytics.alias(registerResult.user.uid);
         analytics.track('DC Signed up with email', {
           status: 'success',
         });
