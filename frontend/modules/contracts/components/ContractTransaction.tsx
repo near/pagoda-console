@@ -244,16 +244,12 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
 
   const initMethods = useCallback(async () => {
     try {
-      if (!signedIn(accountId, selector) || !contractAbi) {
-        return;
-      }
-
       const methods = await initContractMethods(contract.net.toLowerCase(), contract.address, contractAbi);
       setContractMethods(methods);
     } catch (error) {
       console.error(error);
     }
-  }, [accountId, selector, contract.address, contract.net, contractAbi]);
+  }, [contract.address, contract.net, contractAbi]);
 
   useEffect(() => {
     initMethods();
