@@ -171,32 +171,6 @@ export const ContractTransaction = ({ contract }: Props) => {
     <Flex gap="l" stack={{ '@laptop': true }}>
       <ContractParams>
         <Flex stack gap="l">
-          <Flex stack>
-            <SectionTitle>1. Account</SectionTitle>
-            <Flex inline align="center">
-              {accountId ? (
-                <>
-                  <FeatherIcon icon="user" size="s" />
-                  <Text weight="semibold" color="text1" css={{ minWidth: 0 }}>
-                    <TextOverflow>{accountId}</TextOverflow>
-                  </Text>
-                  <CopyButton value={accountId} stableId={StableId.WALLET_ACCOUNT_ID_COPY_BUTTON} />
-                </>
-              ) : null}
-              <Button
-                stableId={StableId.CONTRACT_TRANSACTION_CONNECT_WALLET_BUTTON}
-                color="primaryBorder"
-                size={!accountId ? 'm' : 's'}
-                onClick={handleWalletSelect}
-                stretch={!accountId}
-                css={{ marginLeft: 'auto' }}
-              >
-                <SvgIcon icon={WalletIcon} noFill size={!accountId ? 's' : 'xs'} />
-                {!accountId ? 'Connect A Wallet' : 'Change'}
-              </Button>
-            </Flex>
-          </Flex>
-
           <ContractTransactionForm
             accountId={accountId}
             contract={contract}
