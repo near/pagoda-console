@@ -11,7 +11,7 @@ import { Footer } from '../Footer';
 import * as S from './styles';
 
 export function SimpleLogoutLayout({ children }: { children: ReactElement }) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
 
   return (
     <S.Wrapper>

@@ -11,7 +11,8 @@ export function useApiKeys(
   project: string | undefined,
   swrOptions?: SWRConfiguration<ApiKeys, Api.Query.Error<'/projects/getKeys'>, Fetcher<ApiKeys>>,
 ) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
+
   const {
     data: keys,
     error,

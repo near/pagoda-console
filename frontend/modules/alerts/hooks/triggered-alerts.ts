@@ -20,7 +20,7 @@ export function useTriggeredAlerts(
 ) {
   const [triggeredAlertsCount, setTriggeredAlertsCount] = useState<number>();
 
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const take = pagination.state.pageSize;
   const skip = (pagination.state.currentPage - 1) * pagination.state.pageSize;
 
@@ -64,7 +64,7 @@ export function useTriggeredAlerts(
 }
 
 export function useTriggeredAlertDetails(slug: string) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const { data, error } = useSWR(
     identity ? ['/triggeredAlerts/getTriggeredAlertDetails' as const, slug] : null,
     (key) => {

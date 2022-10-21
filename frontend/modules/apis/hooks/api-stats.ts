@@ -125,7 +125,7 @@ export function useApiStats(
   timeRangeValue: RpcStats.TimeRangeValue,
   rangeEndTime: DateTime,
 ) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const [startDateTime, endDateTime] = timeRangeToDates(timeRangeValue, rangeEndTime); // convert timeRangeValue to params for use in the API call
   const dateTimeResolution = resolutionForTimeRange(timeRangeValue);
   const [dataByDate, setDataByDate] = useState<EndpointMetrics>();

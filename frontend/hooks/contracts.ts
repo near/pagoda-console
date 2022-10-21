@@ -32,7 +32,7 @@ export async function deleteContract(contract: Contract) {
 }
 
 export function useContracts(project: string | undefined, environment: number | undefined) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
 
   const {
     data: contracts,
@@ -52,7 +52,7 @@ export function useContracts(project: string | undefined, environment: number | 
 }
 
 export function useContract(slug: string | undefined) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
 
   const {
     data: contract,

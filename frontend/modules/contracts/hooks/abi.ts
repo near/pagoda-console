@@ -47,7 +47,7 @@ export const useEmbeddedAbi = (net: Net | undefined, address: string | undefined
 };
 
 export const useContractAbi = (contract: string | undefined) => {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const {
     data: contractAbi,
     error,

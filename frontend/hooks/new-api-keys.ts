@@ -8,7 +8,8 @@ import { authenticatedPost } from '@/utils/http';
 type Keys = Api.Query.Output<'/projects/getKeys'>;
 
 export function useApiKeys(project: string | undefined) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
+
   const {
     data: keys,
     error,

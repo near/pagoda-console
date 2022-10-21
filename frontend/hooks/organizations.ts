@@ -115,7 +115,7 @@ const getOrgMembersKey = (orgSlug: string | undefined) => ['/users/listOrgMember
 const getOrgsKey = () => ['/users/listOrgs'] as const;
 
 export const useOrgMembers = (slug: string) => {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const { data, error, mutate, isValidating } = useSWR(identity ? getOrgMembersKey(slug) : null, (path) =>
     authenticatedPost(path, { org: slug }),
   );
@@ -124,7 +124,7 @@ export const useOrgMembers = (slug: string) => {
 };
 
 export const useOrganizations = (filterPersonal: boolean) => {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const { data, error, mutate, isValidating } = useSWR(identity ? getOrgsKey() : null, (path) =>
     authenticatedPost(path),
   );
@@ -152,7 +152,7 @@ const mutateOrganizationMembers = (
 ) => mutate<OrgMembers>(getOrgMembersKey(orgSlug), data, opts);
 
 export const useOrgsWithOnlyAdmin = () => {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const { data, error, mutate, isValidating } = useSWR(
     identity ? ['/users/listOrgsWithOnlyAdmin' as const, identity.uid] : null,
     (key) => authenticatedPost<'/users/listOrgsWithOnlyAdmin'>(key),
@@ -297,7 +297,7 @@ const createLeaveOrgMutationOptions = (
 });
 
 export const useLeaveOrg = (orgSlug: string) => {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const selfUid = identity?.uid;
   return useMutation(useMemo(() => createLeaveOrgMutationOptions(orgSlug, selfUid), [orgSlug, selfUid]));
 };

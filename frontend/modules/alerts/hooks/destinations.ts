@@ -59,7 +59,7 @@ export async function updateDestination<K extends Alerts.Destination['type']>(
 }
 
 export function useDestinations(projectSlug: string | undefined) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
 
   const {
     data: destinations,

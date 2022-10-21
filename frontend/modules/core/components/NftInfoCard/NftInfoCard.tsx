@@ -36,7 +36,7 @@ export function NftInfoCard() {
   const [savedContractAddress, setSavedContractAddress] = useState<string | null>(null);
   const [showQuickInfo, setShowQuickInfo] = useState(true);
   const { environment, project } = useSelectedProject();
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const settings = useSettingsStore((store) => store.currentUser);
   const updateProjectSettings = useSettingsStore((store) => store.updateProjectSettings);
   const contractAddressRegex = returnContractAddressRegex(environment);

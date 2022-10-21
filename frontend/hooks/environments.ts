@@ -4,7 +4,7 @@ import { useIdentity } from '@/hooks/user';
 import { authenticatedPost } from '@/utils/http';
 
 export function useEnvironments(project: string | undefined) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
 
   const {
     data: environments,
