@@ -1,16 +1,19 @@
 import Analytics from 'analytics-node';
+import { uniqueId } from 'lodash-es';
 
 import config from './config';
 
-export interface Dict {
+interface Properties {
   [key: string]: any;
 }
 
 let segment: Analytics;
+let userId: string;
+const anonymousId = uniqueId();
 
 function init() {
   if (segment) return console.log('Segment Analytics has already been initialized');
-  //flushAt=1 is useful for testing new events
+
   const proxySettings =
     typeof window === 'undefined'
       ? {}
@@ -18,33 +21,39 @@ function init() {
           host: `${window.location.protocol}//${window.location.host}`,
           path: '/api/segment',
         };
-  const options = config.deployEnv === 'LOCAL' ? { flushAt: 1, ...proxySettings } : proxySettings;
+
+  const options = {
+    ...proxySettings,
+    flushAt: config.deployEnv === 'LOCAL' ? 1 : undefined, // flushAt=1 is useful for testing new events
+  };
+
   segment = new Analytics(config.segment, options);
 }
 
-function track(eventLabel: string, properties?: Dict) {
-  try {
-    segment.track({
-      event: eventLabel,
-      properties,
-    });
-  } catch (e) {}
-}
-
-function identify(id: string, traits: Record<string, any>) {
-  segment.identify({
-    traits,
-    userId: id,
+function track(eventLabel: string, properties?: Properties) {
+  const id = userId ? { userId } : { anonymousId };
+  segment.track({
+    ...id,
+    event: eventLabel,
+    properties,
   });
 }
 
-async function pageView(name: string, properties?: Dict) {
-  try {
-    segment.page({
-      name,
-      properties,
-    });
-  } catch (e) {}
+function identify(id: string, traits: Record<string, any>) {
+  userId = id;
+  segment.identify({
+    traits,
+    userId,
+  });
+}
+
+function pageView(name: string, properties?: Properties) {
+  const id = userId ? { userId } : { anonymousId };
+  segment.page({
+    ...id,
+    name,
+    properties,
+  });
 }
 
 function reset() {
