@@ -23,10 +23,12 @@ function init() {
 }
 
 function track(eventLabel: string, properties?: Dict) {
-  segment.track({
-    event: eventLabel,
-    properties,
-  });
+  try {
+    segment.track({
+      event: eventLabel,
+      properties,
+    });
+  } catch (e) {}
 }
 
 function identify(id: string, traits: Record<string, any>) {
