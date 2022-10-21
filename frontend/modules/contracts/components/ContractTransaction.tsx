@@ -400,7 +400,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
       <Form.Root disabled={!signedIn(accountId, selector)} onSubmit={form.handleSubmit(submitForm)}>
         <Flex stack gap="l">
           <Flex stack>
-            <SectionTitle>2. Function</SectionTitle>
+            <SectionTitle>Function</SectionTitle>
 
             <Controller
               name="contractFunction"
@@ -461,7 +461,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
 
           {selectedFunction && !selectedFunction.is_view && (
             <Flex stack>
-              <SectionTitle>3. Transaction Parameters</SectionTitle>
+              <SectionTitle>Transaction Parameters</SectionTitle>
 
               <Flex inline>
                 <Form.Group>
