@@ -396,8 +396,8 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   return (
     // TODO should this be disabled if the contract is null? Seems like there can be a race
     // TODO condition if submitted before the contract is loaded through the async fn?
-    <FormWrapper disabled={!signedIn(accountId, selector)}>
-      <Form.Root disabled={!signedIn(accountId, selector)} onSubmit={form.handleSubmit(submitForm)}>
+    <FormWrapper>
+      <Form.Root onSubmit={form.handleSubmit(submitForm)}>
         <Flex stack gap="l">
           <Flex stack>
             <SectionTitle>Function</SectionTitle>
