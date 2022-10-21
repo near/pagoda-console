@@ -58,7 +58,7 @@ const unauthedPaths = [
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   useSelectedProjectRouteParamSync();
   useAnalytics();
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const router = useRouter();
   const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
   const initializeCurrentUserSettings = useSettingsStore((store) => store.initializeCurrentUserSettings);

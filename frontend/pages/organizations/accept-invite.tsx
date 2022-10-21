@@ -14,7 +14,7 @@ import type { NextPageWithLayout } from '@/utils/types';
 const AcceptOrgInvite: NextPageWithLayout = () => {
   const router = useRouter();
   const acceptMutation = useAcceptOrgInvite();
-  const user = useIdentity();
+  const { identity } = useIdentity();
   const queryToken = router.query.token;
   const token = Array.isArray(queryToken) ? queryToken[0] : queryToken;
   const hasSentRequest = useRef(false);
@@ -27,13 +27,13 @@ const AcceptOrgInvite: NextPageWithLayout = () => {
   }, [acceptMutation, token]);
 
   useEffect(() => {
-    if (user && !hasSentRequest.current) {
+    if (identity && !hasSentRequest.current) {
       acceptInvite();
       hasSentRequest.current = true;
     } else if (token) {
       sessionStorage.setItem('signInRedirectUrl', router.asPath);
     }
-  }, [router, user, acceptInvite, token]);
+  }, [router, identity, acceptInvite, token]);
 
   const toProjects = useCallback(() => router.replace('/projects'), [router]);
 

@@ -6,7 +6,7 @@ import { authenticatedPost } from '@/utils/http';
 import type { ApiKey } from '@/utils/types';
 
 export function useApiKeys(project: string | undefined, swrOptions?: SWRConfiguration) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const {
     data: keys,
     error,

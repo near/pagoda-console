@@ -56,7 +56,7 @@ export async function deleteProject(userId: string | undefined, slug: string, na
 
 export function useProject(projectSlug: string | undefined) {
   const router = useRouter();
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const { selectProject } = useProjectSelector();
 
   const { data: project, error } = useSWR<Project>(
@@ -84,7 +84,7 @@ export function useProject(projectSlug: string | undefined) {
 }
 
 export function useProjects() {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const {
     data: projects,
     error,

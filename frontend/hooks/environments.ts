@@ -5,7 +5,7 @@ import { authenticatedPost } from '@/utils/http';
 import type { Environment } from '@/utils/types';
 
 export function useEnvironment(environmentId: number | undefined) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
 
   const {
     data: environment,
@@ -22,7 +22,7 @@ export function useEnvironment(environmentId: number | undefined) {
 }
 
 export function useEnvironments(project: string | undefined) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
 
   const {
     data: environments,

@@ -8,7 +8,7 @@ import { authenticatedPost } from '@/utils/http';
 import type { FinalityStatus, NetOption } from '@/utils/types';
 
 export function useRecentTransactions(contract: string | undefined, net: NetOption | undefined) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   // TODO (P2+) look into whether using contracts as part of the SWR key will cause a large
   // amount of unnecessary caching, since every modification to the contract set will be a
   // separate key

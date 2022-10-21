@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function DeleteProjectModal({ slug, name, show, setShow, onDelete }: Props) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const [errorText, setErrorText] = useState<string | undefined>();
   const [isDeleting, setIsDeleting] = useState(false);
 

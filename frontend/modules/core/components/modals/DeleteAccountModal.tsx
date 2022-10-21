@@ -19,7 +19,7 @@ export default function DeleteAccountModal({
   setShow: (show: boolean) => void;
   onDelete: () => void;
 }) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const [errorText, setErrorText] = useState<string | undefined>();
   const [isDeleting, setIsDeleting] = useState(false);
   const { organizations } = useOrgsWithOnlyAdmin();

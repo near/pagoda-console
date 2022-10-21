@@ -49,7 +49,7 @@ export const useEmbeddedAbi = (net: NetOption | undefined, address: string | und
 };
 
 export const useContractAbi = (contract: string | undefined) => {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const {
     data: contractAbi,
     error,

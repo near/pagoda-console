@@ -29,7 +29,7 @@ const Settings: NextPageWithLayout = () => {
   const { register, handleSubmit, formState, setValue } = useForm<SettingsFormData>();
   const [isEditing, setIsEditing] = useState(false);
   const { user, error, mutate } = useAccount();
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const [updateError, setUpdateError] = useState('');
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
 

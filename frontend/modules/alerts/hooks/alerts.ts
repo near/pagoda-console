@@ -81,7 +81,7 @@ export async function updateAlert(data: UpdateAlert) {
 }
 
 export function useAlert(alertId: number | undefined) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
 
   const {
     data: alert,
@@ -98,7 +98,7 @@ export function useAlert(alertId: number | undefined) {
 }
 
 export function useAlerts(projectSlug: string | undefined, environmentSubId: number | undefined) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const {
     data: alerts,
     error,

@@ -66,7 +66,7 @@ export function useSelectedProject(
 }
 
 export function useProjectSelector() {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const updateSettings = useSettingsStore((store) => store.updateSettings);
   const updateProjectSettings = useSettingsStore((store) => store.updateProjectSettings);
 

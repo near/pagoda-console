@@ -347,7 +347,7 @@ const OrganizationView: NextPageWithLayout = () => {
   const router = useRouter();
   const orgSlug = useRouteParam('slug', '/organizations', true) || '';
   const { members, error, mutate: refetchOrganization } = useOrgMembers(orgSlug);
-  const identity = useIdentity();
+  const { identity } = useIdentity();
   const self = members?.find((member) => member.user.uid === identity?.uid);
   const adminsQuantity = members?.filter((member) => member.role === 'ADMIN' && !member.isInvite).length ?? 0;
 

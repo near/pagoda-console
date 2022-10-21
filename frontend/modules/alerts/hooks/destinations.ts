@@ -56,7 +56,7 @@ export async function updateDestination(data: UpdateDestination) {
 }
 
 export function useDestinations(projectSlug: string | undefined) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
 
   const {
     data: destinations,

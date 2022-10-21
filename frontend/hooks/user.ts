@@ -7,8 +7,10 @@ import analytics from '@/utils/analytics';
 import { authenticatedPost, unauthenticatedPost } from '@/utils/http';
 import type { User } from '@/utils/types';
 
+type UserAuthState = 'LOADING' | 'AUTHENTICATED' | 'UNAUTHENTICATED';
+
 export function useAccount() {
-  const identity = useIdentity();
+  const { identity, userAuthState } = useIdentity();
   const {
     data: user,
     error,
@@ -17,22 +19,27 @@ export function useAccount() {
     return authenticatedPost(key);
   });
 
-  return { user, error, mutate };
+  return { user, userAuthState, error, mutate };
 }
 
-export function useIdentity(): FirebaseUser | null {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+export function useIdentity() {
+  const [identity, setIdentity] = useState<FirebaseUser | null>(null);
+  const [userAuthState, setUserAuthState] = useState<UserAuthState>('LOADING');
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user: FirebaseUser | null) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (result: FirebaseUser | null) => {
+      setIdentity(result);
+      setUserAuthState(result ? 'AUTHENTICATED' : 'UNAUTHENTICATED');
     });
 
     return () => unsubscribe();
   }, []);
 
-  return user;
+  return {
+    identity,
+    userAuthState,
+  };
 }
 
 export async function deleteAccount(uid: string | undefined) {

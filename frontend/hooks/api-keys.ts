@@ -8,7 +8,8 @@ import type { NetOption } from '@/utils/types';
 type ApiKeys = Partial<Record<NetOption, string>>;
 
 export function useApiKeys(project: string | undefined, swrOptions?: SWRConfiguration) {
-  const identity = useIdentity();
+  const { identity } = useIdentity();
+
   const {
     data: keys,
     error,
