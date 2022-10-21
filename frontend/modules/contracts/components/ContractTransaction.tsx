@@ -213,15 +213,18 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
 
   const { modal } = useWalletSelector(contract.address);
   const handleWalletSelect = useCallback(
-    async () => {
+    async (params: ContractFormData) => {
       if (selector && selector.store.getState().selectedWalletId) {
         const wallet = await selector.wallet();
         await wallet.signOut();
       }
 
+      // set form state in Session Storage
+      sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
+
       modal?.show();
     },
-    [modal, selector],
+    [modal, selector, contract.slug],
   );
 
   const convertGas = (gas: string) => {
