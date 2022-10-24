@@ -640,7 +640,6 @@ const SendTransactionBanner = () => (
       <Flex stack gap="l">
         <H3>Sending a Transaction</H3>
         <ListWrapper as="ol">
-          <ListItem>Connect Wallet</ListItem>
           <ListItem>Select Function</ListItem>
           <ListItem>Input function parameters</ListItem>
           <ListItem>Send transaction</ListItem>
