@@ -65,11 +65,13 @@ export class RpcStatsController {
       const keyPromises = [];
       projects.forEach((project) => {
         keyPromises.push(
-          this.projectsService.getKeys(req.user, project.slug).then((keys) => {
-            keys.forEach((k) =>
-              allApiKeyConsumerNames.push(k.kongConsumerName),
-            );
-          }),
+          this.projectsService
+            .getKeysWithKongConsumer(req.user, project.slug)
+            .then((keys) => {
+              keys.forEach((k) =>
+                allApiKeyConsumerNames.push(k.kongConsumerName),
+              );
+            }),
         );
       });
 
