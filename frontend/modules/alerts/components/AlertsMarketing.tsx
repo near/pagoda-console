@@ -19,7 +19,7 @@ export function AlertsMarketing() {
       <List>
         <ListItem>Configure alerts based on specific contract conditions.</ListItem>
         <ListItem>Set up email, webhook, and Telegram destinations.</ListItem>
-        <ListItem>Browse all alert activity in real time.</ListItem>
+        <ListItem>Browse alert activity in real time.</ListItem>
       </List>
     </Flex>
   );
