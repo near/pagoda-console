@@ -6,8 +6,8 @@ import { Message } from '@/components/lib/Message';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { deleteAccount, useAuth } from '@/hooks/auth';
 import { useOrgsWithOnlyAdmin } from '@/hooks/organizations';
-import { deleteAccount, useIdentity } from '@/hooks/user';
 import { StableId } from '@/utils/stable-ids';
 
 export default function DeleteAccountModal({
@@ -19,7 +19,7 @@ export default function DeleteAccountModal({
   setShow: (show: boolean) => void;
   onDelete: () => void;
 }) {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
   const [errorText, setErrorText] = useState<string | undefined>();
   const [isDeleting, setIsDeleting] = useState(false);
   const { organizations } = useOrgsWithOnlyAdmin();

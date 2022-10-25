@@ -3,12 +3,12 @@ import type { Net } from '@pc/database/clients/core';
 import JSBI from 'jsbi';
 import useSWR from 'swr';
 
-import { useIdentity } from '@/hooks/user';
+import { useAuth } from '@/hooks/auth';
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
 
 export function useRecentTransactions(contract: string | undefined, net: Net | undefined) {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
 
   // TODO (P2+) look into whether using contracts as part of the SWR key will cause a large
   // amount of unnecessary caching, since every modification to the contract set will be a

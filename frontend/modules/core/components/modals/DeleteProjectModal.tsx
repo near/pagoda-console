@@ -2,8 +2,8 @@ import { useState } from 'react';
 
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { useAuth } from '@/hooks/auth';
 import { deleteProject } from '@/hooks/projects';
-import { useIdentity } from '@/hooks/user';
 
 interface Props {
   slug: string;
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function DeleteProjectModal({ slug, name, show, setShow, onDelete }: Props) {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
   const [errorText, setErrorText] = useState<string | undefined>();
   const [isDeleting, setIsDeleting] = useState(false);
 

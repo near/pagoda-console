@@ -5,9 +5,9 @@ import type { MutatorCallback, MutatorOptions } from 'swr';
 import useSWR, { mutate } from 'swr';
 
 import { openToast } from '@/components/lib/Toast';
+import { useAccount, useAuth } from '@/hooks/auth';
 import type { MutationOptions } from '@/hooks/mutation';
 import { useMutation } from '@/hooks/mutation';
-import { useAccount, useIdentity } from '@/hooks/user';
 import { authenticatedPost } from '@/utils/http';
 
 type User = Api.Query.Output<'/users/getAccountDetails'>;
@@ -115,7 +115,7 @@ const getOrgMembersKey = (orgSlug: string | undefined) => ['/users/listOrgMember
 const getOrgsKey = () => ['/users/listOrgs'] as const;
 
 export const useOrgMembers = (slug: string) => {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
   const { data, error, mutate, isValidating } = useSWR(identity ? getOrgMembersKey(slug) : null, (path) =>
     authenticatedPost(path, { org: slug }),
   );
@@ -124,7 +124,7 @@ export const useOrgMembers = (slug: string) => {
 };
 
 export const useOrganizations = (filterPersonal: boolean) => {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
   const { data, error, mutate, isValidating } = useSWR(identity ? getOrgsKey() : null, (path) =>
     authenticatedPost(path),
   );
@@ -152,7 +152,7 @@ const mutateOrganizationMembers = (
 ) => mutate<OrgMembers>(getOrgMembersKey(orgSlug), data, opts);
 
 export const useOrgsWithOnlyAdmin = () => {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
   const { data, error, mutate, isValidating } = useSWR(
     identity ? ['/users/listOrgsWithOnlyAdmin' as const, identity.uid] : null,
     (key) => authenticatedPost<'/users/listOrgsWithOnlyAdmin'>(key),
@@ -297,7 +297,7 @@ const createLeaveOrgMutationOptions = (
 });
 
 export const useLeaveOrg = (orgSlug: string) => {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
   const selfUid = identity?.uid;
   return useMutation(useMemo(() => createLeaveOrgMutationOptions(orgSlug, selfUid), [orgSlug, selfUid]));
 };

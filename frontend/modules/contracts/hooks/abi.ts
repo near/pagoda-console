@@ -5,7 +5,7 @@ import { Contract as NearContract } from 'near-abi-client-js';
 import { connect, keyStores } from 'near-api-js';
 import useSWR from 'swr';
 
-import { useIdentity } from '@/hooks/user';
+import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
@@ -47,7 +47,7 @@ export const useEmbeddedAbi = (net: Net | undefined, address: string | undefined
 };
 
 export const useContractAbi = (contract: string | undefined) => {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
   const {
     data: contractAbi,
     error,

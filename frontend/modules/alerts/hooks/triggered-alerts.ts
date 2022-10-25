@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
+import { useAuth } from '@/hooks/auth';
 import type { Pagination } from '@/hooks/pagination';
-import { useIdentity } from '@/hooks/user';
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
 
@@ -20,7 +20,7 @@ export function useTriggeredAlerts(
 ) {
   const [triggeredAlertsCount, setTriggeredAlertsCount] = useState<number>();
 
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
   const take = pagination.state.pageSize;
   const skip = (pagination.state.currentPage - 1) * pagination.state.pageSize;
 
@@ -64,7 +64,8 @@ export function useTriggeredAlerts(
 }
 
 export function useTriggeredAlertDetails(slug: string) {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
+
   const { data, error } = useSWR(
     identity ? ['/triggeredAlerts/getTriggeredAlertDetails' as const, slug] : null,
     (key) => {

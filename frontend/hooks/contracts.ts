@@ -3,7 +3,7 @@ import type * as RPC from '@pc/common/types/rpc';
 import type { Net } from '@pc/database/clients/core';
 import useSWR from 'swr';
 
-import { useIdentity } from '@/hooks/user';
+import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
@@ -32,7 +32,7 @@ export async function deleteContract(contract: Contract) {
 }
 
 export function useContracts(project: string | undefined, environment: number | undefined) {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
 
   const {
     data: contracts,
@@ -52,7 +52,7 @@ export function useContracts(project: string | undefined, environment: number | 
 }
 
 export function useContract(slug: string | undefined) {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
 
   const {
     data: contract,

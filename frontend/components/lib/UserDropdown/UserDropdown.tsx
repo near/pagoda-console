@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Text } from '@/components/lib/Text';
-import { useAccount } from '@/hooks/user';
+import { useAccount } from '@/hooks/auth';
 import { StableId } from '@/utils/stable-ids';
 
 export const UserDropdown = ({ children }: { children: ReactNode }) => {

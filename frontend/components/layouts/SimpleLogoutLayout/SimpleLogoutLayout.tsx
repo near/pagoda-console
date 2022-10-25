@@ -3,15 +3,16 @@ import type { ReactElement } from 'react';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { UserDropdown } from '@/components/lib/UserDropdown';
-import { useIdentity } from '@/hooks/user';
+import { useLogOut } from '@/hooks/auth';
+import { useAuth } from '@/hooks/auth';
 import LogoSvg from '@/public/images/brand/pagoda-logo.svg';
-import { logOut } from '@/utils/auth';
 
 import { Footer } from '../Footer';
 import * as S from './styles';
 
 export function SimpleLogoutLayout({ children }: { children: ReactElement }) {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
+  const logOut = useLogOut();
 
   return (
     <S.Wrapper>

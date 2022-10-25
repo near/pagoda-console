@@ -15,8 +15,8 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { useAuth } from '@/hooks/auth';
 import { useSelectedProject } from '@/hooks/selected-project';
-import { useIdentity } from '@/hooks/user';
 import { useSettingsStore } from '@/stores/settings';
 import analytics from '@/utils/analytics';
 import type { ContractMetadata, NftData, Token } from '@/utils/chain-data';
@@ -36,7 +36,7 @@ export function NftInfoCard() {
   const [savedContractAddress, setSavedContractAddress] = useState<string | null>(null);
   const [showQuickInfo, setShowQuickInfo] = useState(true);
   const { environment, project } = useSelectedProject();
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
   const settings = useSettingsStore((store) => store.currentUser);
   const updateProjectSettings = useSettingsStore((store) => store.updateProjectSettings);
   const contractAddressRegex = returnContractAddressRegex(environment);

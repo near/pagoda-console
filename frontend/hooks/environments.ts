@@ -1,10 +1,10 @@
 import useSWR from 'swr';
 
-import { useIdentity } from '@/hooks/user';
+import { useAuth } from '@/hooks/auth';
 import { authenticatedPost } from '@/utils/http';
 
 export function useEnvironments(project: string | undefined) {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
 
   const {
     data: environments,

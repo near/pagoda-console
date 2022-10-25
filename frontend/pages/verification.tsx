@@ -6,12 +6,13 @@ import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
+import { Section } from '@/components/lib/Section';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
+import { useLogOut } from '@/hooks/auth';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
-import { logOut } from '@/utils/auth';
 import { signInRedirectHandler } from '@/utils/helpers';
 import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
@@ -23,6 +24,7 @@ const Verification: NextPageWithLayout = () => {
   const existing = useRouteParam('existing') === 'true';
   const hasCalledInitAccount = useRef(false);
   const verificationCheckTimer = useRef<NodeJS.Timeout | undefined>();
+  const logOut = useLogOut();
 
   const queueVerificationCheck = useCallback(() => {
     verificationCheckTimer.current = setTimeout(async () => {
@@ -86,32 +88,34 @@ const Verification: NextPageWithLayout = () => {
   }
 
   return (
-    <Container size="xs" css={{ textAlign: 'center' }}>
-      <Flex stack align="center">
-        <Text>
-          A verification message {existing ? 'was previously' : 'has been'} sent to your email address.{' '}
-          {existing && 'If it has expired, click below to send a new one:'}
-        </Text>
+    <Section>
+      <Container size="xs" css={{ textAlign: 'center' }}>
+        <Flex stack align="center">
+          <Text>
+            A verification message {existing ? 'was previously' : 'has been'} sent to your email address.{' '}
+            {existing && 'If it has expired, click below to send a new one:'}
+          </Text>
 
-        <Message type="info" content="If you can't find the email in your inbox, check your spam folder" />
+          <Message type="info" content="If you can't find the email in your inbox, check your spam folder" />
 
-        {!hasResent ? (
-          <Button
-            stableId={StableId.ACCOUNT_VERIFICATION_SEND_AGAIN_BUTTON}
-            stretch
-            disabled={hasResent}
-            onClick={resendVerification}
-          >
-            Send Again
-          </Button>
-        ) : (
-          <Text color="primary">Sent!</Text>
-        )}
-        <TextButton stableId={StableId.ACCOUNT_VERIFICATION_LOG_OUT_BUTTON} color="neutral" onClick={logOut}>
-          Log Out
-        </TextButton>
-      </Flex>
-    </Container>
+          {!hasResent ? (
+            <Button
+              stableId={StableId.ACCOUNT_VERIFICATION_SEND_AGAIN_BUTTON}
+              stretch
+              disabled={hasResent}
+              onClick={resendVerification}
+            >
+              Send Again
+            </Button>
+          ) : (
+            <Text color="primary">Sent!</Text>
+          )}
+          <TextButton stableId={StableId.ACCOUNT_VERIFICATION_LOG_OUT_BUTTON} color="neutral" onClick={logOut}>
+            Log Out
+          </TextButton>
+        </Flex>
+      </Container>
+    </Section>
   );
 };
 
