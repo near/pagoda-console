@@ -63,7 +63,7 @@ resource "google_cloud_run_service" "console_api" {
           value_from {
             secret_key_ref {
               name = "MIXPANEL_TOKEN"
-              key  = "1"
+              key  = var.mixpanel_token_version
             }
           }
         }
@@ -99,7 +99,7 @@ resource "google_cloud_run_service" "console_api" {
           value_from {
             secret_key_ref {
               name = "MAILGUN_API_KEY_${local.environment_upper}"
-              key  = "1"
+              key  = var.mailgun_api_key_version
             }
           }
         }
@@ -119,7 +119,7 @@ resource "google_cloud_run_service" "console_api" {
           value_from {
             secret_key_ref {
               name = "RPC_API_KEYS_API_KEY_${local.environment_upper}"
-              key  = "1"
+              key  = var.rpc_api_keys_api_key_version
             }
           }
         }

@@ -67,3 +67,21 @@ variable "api_service_account" {
   description = "Cloud run service account. Will be granted access to database secrets after creation."
   nullable    = false
 }
+
+variable "mixpanel_token_version" {
+  type     = string
+  nullable = false
+  default  = "1"
+}
+
+variable "mailgun_api_key_version" {
+  type     = string
+  nullable = false
+  default  = "1"
+}
+
+variable "rpc_api_keys_api_key_version" {
+  type     = string
+  nullable = false
+  default  = "1"
+}
