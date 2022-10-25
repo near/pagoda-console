@@ -1,12 +1,16 @@
 import type { ComponentProps } from '@stitches/react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
 
 import { ProjectSelector } from '@/components/layouts/DashboardLayout/ProjectSelector';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
 import { UserFullDropdown } from '@/components/lib/UserFullDropdown';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { useAuth } from '@/hooks/auth';
+import { StableId } from '@/utils/stable-ids';
 
 import { EnvironmentSelector } from '../EnvironmentSelector';
 import type { Redirect } from '../types';
@@ -17,6 +21,7 @@ type Props = ComponentProps<typeof S.Header> & {
 };
 
 export function Header({ redirect, ...props }: Props) {
+  const { authStatus } = useAuth();
   const router = useRouter();
   const [redirectMessage, setRedirectMessage] = useState('');
   const redirectOnConfirmRef = useRef<() => void>();
@@ -65,7 +70,15 @@ export function Header({ redirect, ...props }: Props) {
           />
         </Flex>
 
-        <UserFullDropdown />
+        {authStatus === 'AUTHENTICATED' && <UserFullDropdown />}
+
+        {authStatus === 'UNAUTHENTICATED' && (
+          <Link href="/">
+            <TextLink stableId={StableId.HEADER_SIGN_IN_LINK} css={{ marginRight: 'var(--space-m)' }}>
+              Sign In
+            </TextLink>
+          </Link>
+        )}
       </S.Header>
 
       <ConfirmModal

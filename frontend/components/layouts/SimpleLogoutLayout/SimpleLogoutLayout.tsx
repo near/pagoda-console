@@ -11,7 +11,7 @@ import { Footer } from '../Footer';
 import * as S from './styles';
 
 export function SimpleLogoutLayout({ children }: { children: ReactElement }) {
-  const { identity } = useAuth();
+  const { authStatus } = useAuth();
   const logOut = useLogOut();
 
   return (
@@ -19,7 +19,7 @@ export function SimpleLogoutLayout({ children }: { children: ReactElement }) {
       <S.Header>
         <LogoSvg style={{ height: '1.75rem', marginLeft: '0.35rem', alignSelf: 'center' }} />
 
-        {identity && (
+        {authStatus === 'AUTHENTICATED' && (
           <UserDropdown>
             <DropdownMenu.Item onSelect={logOut}>
               <FeatherIcon icon="log-out" />
