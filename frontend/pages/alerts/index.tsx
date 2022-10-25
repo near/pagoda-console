@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { AuthStatusRenderer } from '@/components/AuthStatusRenderer';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Section } from '@/components/lib/Section';
 import * as Tabs from '@/components/lib/Tabs';
@@ -7,12 +8,17 @@ import { useDashboardLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { Alerts } from '@/modules/alerts/components/Alerts';
+import { AlertsMarketing } from '@/modules/alerts/components/AlertsMarketing';
 import { Destinations } from '@/modules/alerts/components/Destinations';
 import { TriggeredAlerts } from '@/modules/alerts/components/TriggeredAlerts';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
-const ListAlerts: NextPageWithLayout = () => {
+const ListAlertsPage: NextPageWithLayout = () => {
+  return <AuthStatusRenderer authenticated={<ListAlerts />} unauthenticated={<AlertsMarketing />} />;
+};
+
+function ListAlerts() {
   const { environment, project } = useSelectedProject();
   const activeTab = useRouteParam('tab', '?tab=alerts', true);
 
@@ -53,8 +59,8 @@ const ListAlerts: NextPageWithLayout = () => {
       </Tabs.Root>
     </Section>
   );
-};
+}
 
-ListAlerts.getLayout = useDashboardLayout;
+ListAlertsPage.getLayout = useDashboardLayout;
 
-export default ListAlerts;
+export default ListAlertsPage;

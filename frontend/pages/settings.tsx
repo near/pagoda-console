@@ -13,10 +13,10 @@ import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
+import { useLogOut } from '@/hooks/auth';
+import { useAccount, useAuth } from '@/hooks/auth';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { useAccount, useIdentity } from '@/hooks/user';
 import DeleteAccountModal from '@/modules/core/components/modals/DeleteAccountModal';
-import { logOut } from '@/utils/auth';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -29,9 +29,10 @@ const Settings: NextPageWithLayout = () => {
   const { register, handleSubmit, formState, setValue } = useForm<SettingsFormData>();
   const [isEditing, setIsEditing] = useState(false);
   const { user, error, mutate } = useAccount();
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
   const [updateError, setUpdateError] = useState('');
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const logOut = useLogOut();
 
   function edit() {
     setValue('displayName', user!.name!);

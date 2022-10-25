@@ -5,6 +5,7 @@ import { Container } from '@/components/lib/Container';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H1 } from '@/components/lib/Heading';
+import { Section } from '@/components/lib/Section';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
@@ -39,33 +40,35 @@ const PickTutorial: NextPageWithLayout = () => {
   const router = useRouter();
 
   return (
-    <Container size="m">
-      <Flex stack gap="xl">
-        <Flex stack>
-          <Link href="/pick-project" passHref>
-            <TextLink stableId={StableId.TUTORIAL_TYPE_BACK_TO_PROJECT_TYPE_LINK}>
-              <FeatherIcon icon="arrow-left" /> Project Type
-            </TextLink>
-          </Link>
-          <H1>Select Tutorial</H1>
-          <Text>Choose from a variety of interactive tutorials. Each one ends with a production-ready project.</Text>
-        </Flex>
+    <Section>
+      <Container size="m">
+        <Flex stack gap="xl">
+          <Flex stack>
+            <Link href="/pick-project" passHref>
+              <TextLink stableId={StableId.TUTORIAL_TYPE_BACK_TO_PROJECT_TYPE_LINK}>
+                <FeatherIcon icon="arrow-left" /> Project Type
+              </TextLink>
+            </Link>
+            <H1>Select Tutorial</H1>
+            <Text>Choose from a variety of interactive tutorials. Each one ends with a production-ready project.</Text>
+          </Flex>
 
-        <Flex>
-          {projects.map((project) => (
-            <div key={project.id}>
-              <ProjectCard
-                id={project.id}
-                isComingSoon={!project.path}
-                title={project.title}
-                description={project.description}
-                onClick={() => project.path && router.push(project.path)}
-              />
-            </div>
-          ))}
+          <Flex>
+            {projects.map((project) => (
+              <div key={project.id}>
+                <ProjectCard
+                  id={project.id}
+                  isComingSoon={!project.path}
+                  title={project.title}
+                  description={project.description}
+                  onClick={() => project.path && router.push(project.path)}
+                />
+              </div>
+            ))}
+          </Flex>
         </Flex>
-      </Flex>
-    </Container>
+      </Container>
+    </Section>
   );
 };
 

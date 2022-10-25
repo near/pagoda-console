@@ -7,13 +7,14 @@ import { ContractTemplateDetails } from '@/components/contract-templates/Contrac
 import { Container } from '@/components/lib/Container';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
+import { Section } from '@/components/lib/Section';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { SignInModal } from '@/components/modals/SignInModal';
+import { useAccount } from '@/hooks/auth';
 import { useContractTemplate } from '@/hooks/contract-templates';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
-import { useAccount } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
 import { authenticatedPost } from '@/utils/http';
@@ -78,23 +79,25 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
   if (!template) return null;
 
   return (
-    <Container size="s">
-      <Flex stack gap="l">
-        <Link href={user ? '/pick-project-template' : '/'} passHref>
-          <TextLink stableId={StableId.PROJECT_TEMPLATE_BACK_TO_TEMPLATES_LINK}>
-            <FeatherIcon icon="arrow-left" /> Example Projects
-          </TextLink>
-        </Link>
+    <Section>
+      <Container size="s">
+        <Flex stack gap="l">
+          <Link href={user ? '/pick-project-template' : '/'} passHref>
+            <TextLink stableId={StableId.PROJECT_TEMPLATE_BACK_TO_TEMPLATES_LINK}>
+              <FeatherIcon icon="arrow-left" /> Example Projects
+            </TextLink>
+          </Link>
 
-        <ContractTemplateDetails template={template} onSelect={createProject} isDeploying={isDeploying} />
-      </Flex>
+          <ContractTemplateDetails template={template} onSelect={createProject} isDeploying={isDeploying} />
+        </Flex>
 
-      <SignInModal
-        description="You’ll need to sign in or create an account in order to deploy and explore your contract."
-        show={showSignInModal}
-        setShow={setShowSignInModal}
-      />
-    </Container>
+        <SignInModal
+          description="You’ll need to sign in or create an account in order to deploy and explore your contract."
+          show={showSignInModal}
+          setShow={setShowSignInModal}
+        />
+      </Container>
+    </Section>
   );
 };
 

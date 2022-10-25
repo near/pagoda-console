@@ -17,6 +17,7 @@ import { Spinner } from '@/components/lib/Spinner';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { useAuth } from '@/hooks/auth';
 import { useOrganizationsLayout } from '@/hooks/layouts';
 import {
   useChangeUserRoleInOrg,
@@ -30,7 +31,6 @@ import {
   useSelectedOrg,
 } from '@/hooks/organizations';
 import { useRouteParam } from '@/hooks/route';
-import { useIdentity } from '@/hooks/user';
 import { styled } from '@/styles/stitches';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
@@ -347,7 +347,7 @@ const OrganizationView: NextPageWithLayout = () => {
   const router = useRouter();
   const orgSlug = useRouteParam('slug', '/organizations', true) || '';
   const { members, error, mutate: refetchOrganization } = useOrgMembers(orgSlug);
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
   const self = members?.find((member) => member.user.uid === identity?.uid);
   const adminsQuantity = members?.filter((member) => member.role === 'ADMIN' && !member.isInvite).length ?? 0;
 

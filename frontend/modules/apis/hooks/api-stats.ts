@@ -2,7 +2,7 @@ import type { DateTime, DateTimeUnit } from 'luxon';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
-import { useIdentity } from '@/hooks/user';
+import { useAuth } from '@/hooks/auth';
 import { authenticatedPost } from '@/utils/http';
 import type { Environment, Project } from '@/utils/types';
 
@@ -138,7 +138,7 @@ export function useApiStats(
   timeRangeValue: TimeRangeValue,
   rangeEndTime: DateTime,
 ): ApiStatsData | undefined {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
   const [startDateTime, endDateTime] = timeRangeToDates(timeRangeValue, rangeEndTime); // convert timeRangeValue to params for use in the API call
   const dateTimeResolution = resolutionForTimeRange(timeRangeValue);
   const [dataByDate, setDataByDate] = useState<RpcStatsPagingResponse>();

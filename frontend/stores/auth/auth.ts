@@ -1,8 +1,8 @@
 import create from 'zustand';
 
-import type { AuthenticationStore } from './types';
+import type { AuthStore } from './types';
 
-export const useAuthenticationStore = create<AuthenticationStore>((set) => ({
+export const useAuthStore = create<AuthStore>((set) => ({
   identity: null,
   status: 'LOADING',
   setIdentity: (identity) => set({ identity }),

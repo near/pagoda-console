@@ -5,11 +5,11 @@ import { useSettingsStore } from '@/stores/settings';
 import config from '@/utils/config';
 import type { Environment, Project } from '@/utils/types';
 
+import { useAuth } from './auth';
 import { useEnvironments } from './environments';
 import { usePreviousValue } from './previous-value';
 import { useProject } from './projects';
 import { useRouteParam } from './route';
-import { useIdentity } from './user';
 
 interface Options {
   enforceSelectedProject?: boolean;
@@ -66,7 +66,7 @@ export function useSelectedProject(
 }
 
 export function useProjectSelector() {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
   const updateSettings = useSettingsStore((store) => store.updateSettings);
   const updateProjectSettings = useSettingsStore((store) => store.updateProjectSettings);
 

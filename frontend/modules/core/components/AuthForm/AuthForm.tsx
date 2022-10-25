@@ -58,7 +58,7 @@ const providers: Array<ProviderDetails> = [
   },
 ];
 
-export function AuthenticationForm({ onSignIn }: Props) {
+export function AuthForm({ onSignIn }: Props) {
   const router = useRouter();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authError, setAuthError] = useState('');
@@ -141,10 +141,6 @@ export function AuthenticationForm({ onSignIn }: Props) {
 
   return (
     <Flex gap="l" stack>
-      <EmailForm isAuthenticating={isAuthenticating} setIsAuthenticating={setIsAuthenticating} />
-
-      <HR />
-
       <Flex stack>
         {providers.map((provider) => (
           <ProviderButton
@@ -155,6 +151,10 @@ export function AuthenticationForm({ onSignIn }: Props) {
           />
         ))}
       </Flex>
+
+      <HR />
+
+      <EmailForm isAuthenticating={isAuthenticating} setIsAuthenticating={setIsAuthenticating} />
 
       <ErrorModal error={authError} setError={setAuthError} />
     </Flex>

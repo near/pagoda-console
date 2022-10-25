@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 
 import { openToast } from '@/components/lib/Toast';
-import { useIdentity } from '@/hooks/user';
+import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 
@@ -56,7 +56,7 @@ export async function updateDestination(data: UpdateDestination) {
 }
 
 export function useDestinations(projectSlug: string | undefined) {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
 
   const {
     data: destinations,

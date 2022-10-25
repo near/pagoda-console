@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 
-import { useIdentity } from '@/hooks/user';
+import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 
@@ -81,7 +81,7 @@ export async function updateAlert(data: UpdateAlert) {
 }
 
 export function useAlert(alertId: number | undefined) {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
 
   const {
     data: alert,
@@ -98,7 +98,7 @@ export function useAlert(alertId: number | undefined) {
 }
 
 export function useAlerts(projectSlug: string | undefined, environmentSubId: number | undefined) {
-  const { identity } = useIdentity();
+  const { identity } = useAuth();
   const {
     data: alerts,
     error,

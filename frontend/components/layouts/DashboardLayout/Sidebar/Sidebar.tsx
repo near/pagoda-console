@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { useLogOut } from '@/hooks/auth';
 import useFeatureFlag from '@/hooks/features';
 import { useSelectedProject } from '@/hooks/selected-project';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
@@ -15,7 +16,6 @@ import contractsEntries from '@/modules/contracts/sidebar-entries';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
 import type { SidebarEntry } from '@/shared/utils/types';
-import { logOut } from '@/utils/auth';
 import { StableId } from '@/utils/stable-ids';
 
 import { Logo } from './Logo';
@@ -70,6 +70,7 @@ export function Sidebar({ children, ...props }: Props) {
   const [sidebarHoverExpand, setSidebarHoverExpand] = useState(false);
   const [sidebarCollapseButtonHover, setSidebarCollapseButtonHover] = useState(false);
   const sidebarCollapseToggleLabel = sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
+  const logOut = useLogOut();
 
   useEffect(() => {
     if (sidebarCollapsed === undefined) {

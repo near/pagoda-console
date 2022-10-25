@@ -3,13 +3,14 @@ import { useEffect, useState } from 'react';
 
 import analytics from '@/utils/analytics';
 
-import { useAccount } from './user';
+import { useAccount, useAuth } from './auth';
 
 let lastTrackedPage = '';
 
 export function useAnalytics() {
   const router = useRouter();
-  const { authenticationStatus, user } = useAccount();
+  const { authStatus } = useAuth();
+  const { user } = useAccount();
   const [hasIdentified, setHasIdentified] = useState(false);
 
   useEffect(() => {
@@ -36,11 +37,7 @@ export function useAnalytics() {
 
     page = page.toUpperCase();
 
-    if (
-      page === lastTrackedPage ||
-      authenticationStatus === 'LOADING' ||
-      (authenticationStatus === 'AUTHENTICATED' && !hasIdentified)
-    )
+    if (page === lastTrackedPage || authStatus === 'LOADING' || (authStatus === 'AUTHENTICATED' && !hasIdentified))
       return;
 
     lastTrackedPage = page;
@@ -48,5 +45,5 @@ export function useAnalytics() {
     analytics.pageView(`DC View ${page} Page`, {
       path: router.pathname,
     });
-  }, [hasIdentified, authenticationStatus, router.pathname]);
+  }, [hasIdentified, authStatus, router.pathname]);
 }

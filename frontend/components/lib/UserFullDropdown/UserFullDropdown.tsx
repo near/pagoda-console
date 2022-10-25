@@ -4,11 +4,11 @@ import { useCallback } from 'react';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { UserDropdown } from '@/components/lib/UserDropdown';
-import { logOut } from '@/utils/auth';
+import { useLogOut } from '@/hooks/auth';
 
 export const UserFullDropdown = () => {
   const router = useRouter();
-
+  const logOut = useLogOut();
   const onSelectOrganizations = useCallback(() => router.push('/organizations'), [router]);
   const onSelectUserSettings = useCallback(() => router.push('/settings'), [router]);
 

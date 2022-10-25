@@ -7,6 +7,8 @@ interface PublicContract {
 export interface PublicStore extends PersistedStore {
   contracts: PublicContract[];
   publicModeIsActive: boolean;
+
+  activatePublicMode: () => void;
+  deactivatePublicMode: () => void;
   setContracts: (contracts: PublicContract[]) => void;
-  setPublicMode: (isActive: boolean) => void;
 }

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
+import { AuthStatusRenderer } from '@/components/AuthStatusRenderer';
 import { Badge } from '@/components/lib/Badge';
 import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
@@ -9,16 +10,22 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H1, H4 } from '@/components/lib/Heading';
 import { Message } from '@/components/lib/Message';
+import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useProjectGroups } from '@/hooks/projects';
 import DeleteProjectModal from '@/modules/core/components/modals/DeleteProjectModal';
+import { ProjectsMarketing } from '@/modules/projects/components/ProjectsMarketing';
 import { StableId } from '@/utils/stable-ids';
 import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
-const Projects: NextPageWithLayout = () => {
+const ProjectsPage: NextPageWithLayout = () => {
+  return <AuthStatusRenderer authenticated={<Projects />} unauthenticated={<ProjectsMarketing />} />;
+};
+
+function Projects() {
   const router = useRouter();
   const { projectGroups, error, isValidating, mutate: refetchProjects } = useProjectGroups();
   const [isEditing, setIsEditing] = useState(false);
@@ -40,61 +47,63 @@ const Projects: NextPageWithLayout = () => {
   }, [router, error, projectGroups, isValidating, showRedirectAlert]);
 
   return (
-    <Container size="s">
-      <Flex stack gap="l">
-        <Flex justify="spaceBetween">
-          <H1
-            css={{
-              marginRight: 'auto',
-            }}
-          >
-            Projects
-          </H1>
+    <Section>
+      <Container size="s">
+        <Flex stack gap="l">
+          <Flex justify="spaceBetween">
+            <H1
+              css={{
+                marginRight: 'auto',
+              }}
+            >
+              Projects
+            </H1>
 
-          <Button stableId={StableId.PROJECTS_CREATE_PROJECT_LINK} onClick={() => router.push('/pick-project')}>
-            Create
-          </Button>
-          <Button stableId={StableId.PROJECTS_EDIT_TOGGLE_BUTTON} onClick={() => setIsEditing(!isEditing)}>
-            {!isEditing ? 'Edit' : 'Done'}
-          </Button>
-        </Flex>
-
-        {error && <Message type="error" content="An error occurred." />}
-
-        {showRedirectAlert && (
-          <Message
-            content="That project does not exist or you don't have permission to access it."
-            color="danger"
-            dismiss={() => setShowRedirectAlert(false)}
-          />
-        )}
-
-        {projectGroups ? (
-          <Flex stack gap="none" align="stretch">
-            {projectGroups.map(([orgName, projects], i) => (
-              <div key={orgName}>
-                <Text css={{ padding: '12px 0', borderBottom: '1px solid var(--color-surface-5)' }}>{orgName}</Text>
-                <Flex stack css={{ paddingLeft: 12 }}>
-                  {projects.map((project) => (
-                    <ProjectRow
-                      key={project.id}
-                      project={project}
-                      showDelete={isEditing}
-                      isTop={i === 0}
-                      onDelete={() => refetchProjects()}
-                    />
-                  ))}
-                </Flex>
-              </div>
-            ))}
+            <Button stableId={StableId.PROJECTS_CREATE_PROJECT_LINK} onClick={() => router.push('/pick-project')}>
+              Create
+            </Button>
+            <Button stableId={StableId.PROJECTS_EDIT_TOGGLE_BUTTON} onClick={() => setIsEditing(!isEditing)}>
+              {!isEditing ? 'Edit' : 'Done'}
+            </Button>
           </Flex>
-        ) : (
-          <Spinner center />
-        )}
-      </Flex>
-    </Container>
+
+          {error && <Message type="error" content="An error occurred." />}
+
+          {showRedirectAlert && (
+            <Message
+              content="That project does not exist or you don't have permission to access it."
+              color="danger"
+              dismiss={() => setShowRedirectAlert(false)}
+            />
+          )}
+
+          {projectGroups ? (
+            <Flex stack gap="none" align="stretch">
+              {projectGroups.map(([orgName, projects], i) => (
+                <div key={orgName}>
+                  <Text css={{ padding: '12px 0', borderBottom: '1px solid var(--color-surface-5)' }}>{orgName}</Text>
+                  <Flex stack css={{ paddingLeft: 12 }}>
+                    {projects.map((project) => (
+                      <ProjectRow
+                        key={project.id}
+                        project={project}
+                        showDelete={isEditing}
+                        isTop={i === 0}
+                        onDelete={() => refetchProjects()}
+                      />
+                    ))}
+                  </Flex>
+                </div>
+              ))}
+            </Flex>
+          ) : (
+            <Spinner center />
+          )}
+        </Flex>
+      </Container>
+    </Section>
   );
-};
+}
 
 function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boolean; onDelete: () => void }) {
   const [showModal, setShowModal] = useState(false);
@@ -157,6 +166,6 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
   );
 }
 
-Projects.getLayout = useSimpleLogoutLayout;
+ProjectsPage.getLayout = useSimpleLogoutLayout;
 
-export default Projects;
+export default ProjectsPage;

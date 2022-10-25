@@ -18,6 +18,7 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H2 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
+import { Section } from '@/components/lib/Section';
 import { TextLink } from '@/components/lib/TextLink';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useSimpleLayout } from '@/hooks/layouts';
@@ -131,78 +132,80 @@ export function RegisterForm() {
   };
 
   return (
-    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(signUpWithEmail, handleInvalidSubmit)}>
-      <Flex stack gap="l">
-        <Flex stack>
-          <Form.Group>
-            <Form.Label htmlFor="email">Email address</Form.Label>
-            <Form.Input
-              id="email"
-              type="email"
-              isInvalid={!!formState.errors.email}
-              placeholder="name@example.com"
-              {...register('email', formValidations.email)}
-            />
-            <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
-          </Form.Group>
+    <Section>
+      <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(signUpWithEmail, handleInvalidSubmit)}>
+        <Flex stack gap="l">
+          <Flex stack>
+            <Form.Group>
+              <Form.Label htmlFor="email">Email address</Form.Label>
+              <Form.Input
+                id="email"
+                type="email"
+                isInvalid={!!formState.errors.email}
+                placeholder="name@example.com"
+                {...register('email', formValidations.email)}
+              />
+              <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
+            </Form.Group>
 
-          <Form.Group>
-            <Form.Label htmlFor="password">Password</Form.Label>
-            <Form.Input
-              id="password"
-              type="password"
-              isInvalid={!!formState.errors.password}
-              placeholder="6+ characters"
-              {...register('password', formValidations.password)}
-            />
-            <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
-          </Form.Group>
+            <Form.Group>
+              <Form.Label htmlFor="password">Password</Form.Label>
+              <Form.Input
+                id="password"
+                type="password"
+                isInvalid={!!formState.errors.password}
+                placeholder="6+ characters"
+                {...register('password', formValidations.password)}
+              />
+              <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
+            </Form.Group>
 
-          <Form.Group>
-            <Form.Label htmlFor="confirmPassword">Confirm Password</Form.Label>
-            <Form.Input
-              id="confirmPassword"
-              type="password"
-              isInvalid={!!formState.errors.passwordConfirm}
-              {...register('passwordConfirm', {
-                required: 'Please confirm your password',
-                validate: (value) => {
-                  if (watch('password') !== value) {
-                    return 'Passwords do not match';
-                  }
-                },
-              })}
-            />
-            <Form.Feedback>{formState.errors.passwordConfirm?.message}</Form.Feedback>
-          </Form.Group>
+            <Form.Group>
+              <Form.Label htmlFor="confirmPassword">Confirm Password</Form.Label>
+              <Form.Input
+                id="confirmPassword"
+                type="password"
+                isInvalid={!!formState.errors.passwordConfirm}
+                {...register('passwordConfirm', {
+                  required: 'Please confirm your password',
+                  validate: (value) => {
+                    if (watch('password') !== value) {
+                      return 'Passwords do not match';
+                    }
+                  },
+                })}
+              />
+              <Form.Feedback>{formState.errors.passwordConfirm?.message}</Form.Feedback>
+            </Form.Group>
 
-          <Form.Group>
-            <Form.Label htmlFor="displayName">Display Name</Form.Label>
-            <Form.Input
-              id="displayName"
-              isInvalid={!!formState.errors.displayName}
-              placeholder="John Nearian"
-              {...register('displayName', formValidations.displayName)}
-            />
-            <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
-          </Form.Group>
+            <Form.Group>
+              <Form.Label htmlFor="displayName">Display Name</Form.Label>
+              <Form.Input
+                id="displayName"
+                isInvalid={!!formState.errors.displayName}
+                placeholder="John Nearian"
+                {...register('displayName', formValidations.displayName)}
+              />
+              <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
+            </Form.Group>
+          </Flex>
+
+          <ErrorModal error={registerError} setError={setRegisterError} />
+
+          <Button stableId={StableId.REGISTER_SIGN_UP_BUTTON} stretch type="submit" loading={formState.isSubmitting}>
+            Sign Up
+          </Button>
+
+          <HR />
+
+          <Link href="/" passHref>
+            <TextLink stableId={StableId.REGISTER_SIGN_IN_LINK} color="neutral" css={{ margin: '0 auto' }}>
+              I already have an account
+            </TextLink>
+          </Link>
         </Flex>
-
-        <ErrorModal error={registerError} setError={setRegisterError} />
-
-        <Button stableId={StableId.REGISTER_SIGN_UP_BUTTON} stretch type="submit" loading={formState.isSubmitting}>
-          Sign Up
-        </Button>
-
-        <HR />
-
-        <Link href="/" passHref>
-          <TextLink stableId={StableId.REGISTER_SIGN_IN_LINK} color="neutral" css={{ margin: '0 auto' }}>
-            I already have an account
-          </TextLink>
-        </Link>
-      </Flex>
-    </Form.Root>
+      </Form.Root>
+    </Section>
   );
 }
 
