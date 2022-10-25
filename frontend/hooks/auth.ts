@@ -10,21 +10,6 @@ import analytics from '@/utils/analytics';
 import { authenticatedPost, unauthenticatedPost } from '@/utils/http';
 import type { User } from '@/utils/types';
 
-/*
-  TODO: Implement unauthed paths
-  
-  const unauthedPaths = [
-    '/',
-    '/register',
-    '/ui',
-    '/alerts/verify-email',
-    '/alerts/unsubscribe-from-email-alert',
-    '/pick-project-template/[templateSlug]',
-  ];
-*/
-
-// TODO: Implement authed paths (all other routes)
-
 export function useAccount() {
   const { identity } = useAuth();
   const {
