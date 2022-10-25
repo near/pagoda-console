@@ -79,8 +79,8 @@ jobs:
       - name: "Set namespace"
         run: echo "DEVELOP_NAMESPACE=develop" >> $GITHUB_ENV
       
-      # - name: "Allowing internal traffic only for the service"
-      #   run: gcloud run services update console-api-$DEVELOP_NAMESPACE --region us-east1 --platform managed --ingress internal
+      - name: "Allowing internal traffic only for the service"
+        run: gcloud run services update console-api-$DEVELOP_NAMESPACE --region us-east1 --platform managed --ingress internal
 
       - name: "Terraform init"
         run: terraform init -input=false
@@ -120,6 +120,9 @@ jobs:
         run: |
           terraform apply -input=false tfplan.out
           echo "API_BASE_URL=$(terraform output -raw api_public_url)" >> $GITHUB_ENV
+
+      - name: "Allowing all traffic for the service"
+        run: gcloud run services update console-api-$DEVELOP_NAMESPACE --region us-east1 --platform managed --ingress all
 
       - name: Vercel deploy with API URL
         run: |
