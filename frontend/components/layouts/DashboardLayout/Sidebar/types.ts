@@ -7,4 +7,5 @@ export interface SidebarEntry {
   routeMatchPattern?: string;
   badgeText?: string;
   stableId: StableId;
+  visibleForAuthPublicMode?: boolean;
 }

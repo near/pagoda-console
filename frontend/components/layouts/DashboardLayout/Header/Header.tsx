@@ -5,11 +5,13 @@ import { useRef, useState } from 'react';
 
 import { ProjectSelector } from '@/components/layouts/DashboardLayout/ProjectSelector';
 import { Flex } from '@/components/lib/Flex';
+import { SubnetIcon } from '@/components/lib/SubnetIcon';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { UserFullDropdown } from '@/components/lib/UserFullDropdown';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useAuth } from '@/hooks/auth';
+import { usePublicEnvironment, usePublicModeIsActive } from '@/hooks/public';
 import { StableId } from '@/utils/stable-ids';
 
 import { EnvironmentSelector } from '../EnvironmentSelector';
@@ -22,6 +24,8 @@ type Props = ComponentProps<typeof S.Header> & {
 
 export function Header({ redirect, ...props }: Props) {
   const { authStatus } = useAuth();
+  const { publicEnvironment } = usePublicEnvironment();
+  const { publicModeIsActive } = usePublicModeIsActive();
   const router = useRouter();
   const [redirectMessage, setRedirectMessage] = useState('');
   const redirectOnConfirmRef = useRef<() => void>();
@@ -42,33 +46,47 @@ export function Header({ redirect, ...props }: Props) {
   return (
     <>
       <S.Header {...props}>
-        <Flex align="stretch">
-          <ProjectSelector
-            onBeforeChange={
-              redirect?.projectChange
-                ? (change) => {
-                    openConfirmRedirectModal(
-                      'Changing projects will redirect you away from your current page. Would you like to change?',
-                      change,
-                    );
-                  }
-                : undefined
-            }
-          />
+        {publicModeIsActive ? (
+          <Flex align="center" gap="s">
+            <Text size="bodySmall" color="text3" css={{ whiteSpace: 'nowrap' }}>
+              Viewing contracts on:
+            </Text>
+            <Flex align="center" gap="xs">
+              <SubnetIcon net={publicEnvironment.net} size="xs" />
+              <Text family="code" color="text1" weight="semibold" size="bodySmall">
+                {publicEnvironment.name}
+              </Text>
+            </Flex>
+          </Flex>
+        ) : (
+          <Flex align="stretch">
+            <ProjectSelector
+              onBeforeChange={
+                redirect?.projectChange
+                  ? (change) => {
+                      openConfirmRedirectModal(
+                        'Changing projects will redirect you away from your current page. Would you like to change?',
+                        change,
+                      );
+                    }
+                  : undefined
+              }
+            />
 
-          <EnvironmentSelector
-            onBeforeChange={
-              redirect?.environmentChange
-                ? (change) => {
-                    openConfirmRedirectModal(
-                      'Changing environments will redirect you away from your current page. Would you like to change?',
-                      change,
-                    );
-                  }
-                : undefined
-            }
-          />
-        </Flex>
+            <EnvironmentSelector
+              onBeforeChange={
+                redirect?.environmentChange
+                  ? (change) => {
+                      openConfirmRedirectModal(
+                        'Changing environments will redirect you away from your current page. Would you like to change?',
+                        change,
+                      );
+                    }
+                  : undefined
+              }
+            />
+          </Flex>
+        )}
 
         {authStatus === 'AUTHENTICATED' && <UserFullDropdown />}
 
