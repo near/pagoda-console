@@ -8,6 +8,7 @@ on:
     # Otherwise, a preview environment will point to the dev backend.
     paths:
       - "backend/**"
+      - "database/**"
 defaults:
   run:
     working-directory: backend
