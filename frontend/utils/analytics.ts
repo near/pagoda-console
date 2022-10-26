@@ -1,5 +1,5 @@
 import Analytics from 'analytics-node';
-import { uniqueId } from 'lodash-es';
+import { nanoid } from 'nanoid';
 
 import config from './config';
 
@@ -9,7 +9,7 @@ interface Properties {
 
 let segment: Analytics;
 let userId: string;
-const anonymousId = uniqueId();
+let anonymousUserId: string;
 
 function init() {
   if (segment) return console.log('Segment Analytics has already been initialized');
@@ -31,7 +31,7 @@ function init() {
 }
 
 function track(eventLabel: string, properties?: Properties) {
-  const id = userId ? { userId } : { anonymousId };
+  const id = userId ? { userId } : { anonymousId: anonymousUserId };
   segment.track({
     ...id,
     event: eventLabel,
@@ -48,7 +48,7 @@ function identify(id: string, traits: Record<string, any>) {
 }
 
 function pageView(name: string, properties?: Properties) {
-  const id = userId ? { userId } : { anonymousId };
+  const id = userId ? { userId } : { anonymousId: anonymousUserId };
   segment.page({
     ...id,
     name,
@@ -61,11 +61,25 @@ function reset() {
   segment.flush();
 }
 
+function setAnonymousId() {
+  if (anonymousUserId) {
+    return;
+  }
+  const storageId: string | null = localStorage.getItem('anonymousUserId');
+  if (storageId) {
+    anonymousUserId = storageId;
+  } else {
+    anonymousUserId = nanoid();
+    localStorage.setItem('anonymousUserId', anonymousUserId);
+  }
+}
+
 const fns = {
   identify,
   init,
   pageView,
   reset,
+  setAnonymousId,
   track,
 };
 
