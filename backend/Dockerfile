@@ -1,40 +1,51 @@
-FROM node:16 as builder
+# NOTE: this Dockerfile requires a context of its parent directory in order to consume other packages in the monorep
+# i.e. as called from parent directory `docker build -t <tag> -f backend/Dockerfile .`
+
+# Implements some security tips found here: https://snyk.io/blog/10-best-practices-to-containerize-nodejs-web-applications-with-docker/
+FROM --platform=linux/amd64 node:16 as builder
+# Do not set NODE_ENV to production on this image, or dependencies used for building will not be installed
 
 # Create app directory
 WORKDIR /usr/src/app
 
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json ./
+COPY turbo.json ./
 
-RUN npm install -g prisma
+COPY ./database/package.json ./database/package.json
+COPY ./backend/package.json ./backend/package.json
+COPY ./frontend/package.json ./frontend/package.json
 
-# Install app dependencies
-RUN npm install
+# Ignore prepare script which will attempt to install husky: https://typicode.github.io/husky/#/?id=disable-husky-in-cidockerprod
+RUN npm set-script prepare ""
 
-COPY . ./
+# This is to get around the prisma client generation we currently do at postinstall. Once turbo is handling client generation
+# in dev and build, the postinstall script can be removed along with this
+RUN npm set-script postinstall ""
 
-# NOT IDEAL, WE SHOULD BE GENERATING ON THE DEPLOY IMAGE BELOW SO WE DONT
-# NEED TO FORCE COMPATIBILITY IN SCHEMA FILES
-RUN npm run prisma:generate
+RUN npm ci
 
-RUN npm run prebuild
-RUN npm run build
+COPY ./backend ./backend
+COPY ./database ./database
+
+# This will also build any other packages in the repo which backend depends on
+RUN npx turbo build --filter=backend
 
 FROM --platform=linux/amd64 node:16-alpine as runner
 
 EXPOSE 8080
-USER node
+ENV NODE_ENV=production
 
 # Create app directory
 WORKDIR /usr/src/app
 
-COPY --from=builder /usr/src/app/package*.json ./
-COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/generated ./generated
+# Order from least likely to change to most likely to change for best layer caching
+COPY --from=builder --chown=node:node /usr/src/app/package*.json ./
+COPY --from=builder --chown=node:node /usr/src/app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /usr/src/app/backend/package*.json ./backend/
+COPY --from=builder --chown=node:node /usr/src/app/turbo.json ./
+COPY --from=builder --chown=node:node /usr/src/app/database/clients ./database/clients
+COPY --from=builder --chown=node:node /usr/src/app/backend/dist ./backend/dist
 
-# Install optimized dependencies, running after having all files
-RUN npm ci
-
-ENV NODE_ENV=production
-
-CMD ["npm", "run", "start:prod"]
+USER node
+CMD ["npm", "run", "-w", "backend", "start:prod"]
