@@ -15,10 +15,10 @@ import { Button } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import { HR } from '@/components/lib/HorizontalRule';
 import { ErrorModal } from '@/components/modals/ErrorModal';
+import { useSignedInHandler } from '@/hooks/auth';
 import GithubIconSvg from '@/public/images/icons/github.svg';
 import GoogleIconSvg from '@/public/images/icons/google.svg';
 import analytics from '@/utils/analytics';
-import { signInRedirectHandler } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 
 import { EmailForm } from './EmailForm';
@@ -62,6 +62,7 @@ export function AuthForm({ onSignIn }: Props) {
   const router = useRouter();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authError, setAuthError] = useState('');
+  const signedInHandler = useSignedInHandler();
 
   useEffect(() => {
     router.prefetch('/projects');
@@ -81,12 +82,12 @@ export function AuthForm({ onSignIn }: Props) {
         if (onSignIn) {
           onSignIn();
         } else {
-          signInRedirectHandler(router, '/projects');
+          signedInHandler('/projects');
         }
       }
     });
     return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
-  }, [onSignIn, router]);
+  }, [onSignIn, router, signedInHandler]);
 
   async function socialSignIn(provider: AuthProvider) {
     setIsAuthenticating(true);

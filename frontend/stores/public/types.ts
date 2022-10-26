@@ -1,4 +1,8 @@
-import type { Contract, PersistedStore } from '@/utils/types';
+import type { Api } from '@pc/common/types/api';
+
+import type { PersistedStore } from '@/utils/types';
+
+type Contract = Api.Query.Output<'/projects/getContract'>;
 
 export interface PublicStore extends PersistedStore {
   contracts: Contract[];

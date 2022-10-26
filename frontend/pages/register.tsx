@@ -21,10 +21,10 @@ import { HR } from '@/components/lib/HorizontalRule';
 import { Section } from '@/components/lib/Section';
 import { TextLink } from '@/components/lib/TextLink';
 import { ErrorModal } from '@/components/modals/ErrorModal';
+import { useSignedInHandler } from '@/hooks/auth';
 import { useSimpleLayout } from '@/hooks/layouts';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
-import { signInRedirectHandler } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -54,6 +54,7 @@ export function RegisterForm() {
   const { getValues, register, handleSubmit, formState, watch } = useForm<RegisterFormData>();
   const [registerError, setRegisterError] = useState<string | null>();
   const router = useRouter();
+  const signedInHandler = useSignedInHandler();
 
   useEffect(() => {
     window.addEventListener('focus', onFocus);
@@ -83,11 +84,11 @@ export function RegisterForm() {
         }
       } else if (user) {
         // If the user is already verified and they go to /register, let's reroute them.
-        signInRedirectHandler(router, '/pick-project');
+        signedInHandler('/pick-project');
       }
     });
     return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
-  }, [getValues, router]);
+  }, [getValues, router, signedInHandler]);
 
   const handleInvalidSubmit: SubmitErrorHandler<RegisterFormData> = () => {
     analytics.track('DC Submitted email registration form');
