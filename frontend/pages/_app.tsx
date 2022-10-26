@@ -87,7 +87,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       if (!firebaseUser && !unauthedPaths.includes(router.pathname)) {
         analytics.reset();
         cache.clear();
-        router.push('/');
+        router.replace('/');
       }
     });
 
