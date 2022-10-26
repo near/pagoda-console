@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 
+import { usePublicStore } from '@/stores/public';
 import { useSettingsStore } from '@/stores/settings';
 import config from '@/utils/config';
 import type { Environment, Project } from '@/utils/types';
@@ -26,6 +27,8 @@ export function useSelectedProject(
   const { project } = useProject(settings?.selectedProjectSlug);
   const { environments } = useEnvironments(settings?.selectedProjectSlug);
   const [environment, setEnvironment] = useState<Environment>();
+  const publicModeIsActive = usePublicStore((store) => store.publicModeIsActive);
+  const publicModeHasHydrated = usePublicStore((store) => store.hasHydrated);
 
   // Compute the currently selected environment:
 
@@ -43,7 +46,14 @@ export function useSelectedProject(
   // Conditionally redirect to force user to select project:
 
   useEffect(() => {
-    if (!options.enforceSelectedProject || projectSlugRouteParam || !settings || settings.selectedProjectSlug) {
+    if (
+      !options.enforceSelectedProject ||
+      projectSlugRouteParam ||
+      !settings ||
+      settings.selectedProjectSlug ||
+      !publicModeHasHydrated ||
+      publicModeIsActive
+    ) {
       return;
     }
 
@@ -56,7 +66,7 @@ export function useSelectedProject(
     }
 
     router.replace('/projects');
-  }, [options, projectSlugRouteParam, router, settings]);
+  }, [options, projectSlugRouteParam, publicModeHasHydrated, publicModeIsActive, router, settings]);
 
   return {
     environment,

@@ -5,8 +5,10 @@ import type { ReactElement, ReactNode } from 'react';
 export type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode;
 };
-export type NetOption = 'MAINNET' | 'TESTNET';
 export type TutorialOption = 'NFT_MARKET' | 'CROSSWORD';
+
+export const netOptions = ['MAINNET', 'TESTNET'] as const;
+export type NetOption = typeof netOptions[number];
 
 export interface PersistedStore {
   hasHydrated?: boolean;
