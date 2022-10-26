@@ -141,6 +141,10 @@ export function AuthForm({ onSignIn }: Props) {
 
   return (
     <Flex gap="l" stack>
+      <EmailForm isAuthenticating={isAuthenticating} setIsAuthenticating={setIsAuthenticating} />
+
+      <HR />
+
       <Flex stack>
         {providers.map((provider) => (
           <ProviderButton
@@ -151,10 +155,6 @@ export function AuthForm({ onSignIn }: Props) {
           />
         ))}
       </Flex>
-
-      <HR />
-
-      <EmailForm isAuthenticating={isAuthenticating} setIsAuthenticating={setIsAuthenticating} />
 
       <ErrorModal error={authError} setError={setAuthError} />
     </Flex>

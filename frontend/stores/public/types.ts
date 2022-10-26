@@ -1,14 +1,10 @@
-import type { PersistedStore } from '@/utils/types';
-
-interface PublicContract {
-  address: string;
-}
+import type { Contract, PersistedStore } from '@/utils/types';
 
 export interface PublicStore extends PersistedStore {
-  contracts: PublicContract[];
+  contracts: Contract[];
   publicModeIsActive: boolean;
 
   activatePublicMode: () => void;
   deactivatePublicMode: () => void;
-  setContracts: (contracts: PublicContract[]) => void;
+  setContracts: (contracts: Contract[]) => void;
 }
