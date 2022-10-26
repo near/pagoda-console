@@ -6,7 +6,7 @@
 //
 // Available icons: https://feathericons.com/
 
-import type { SidebarEntry } from '@/shared/utils/types';
+import type { SidebarEntry } from '@/components/layouts/DashboardLayout/Sidebar';
 import { StableId } from '@/utils/stable-ids';
 
 const entries: SidebarEntry[] = [
