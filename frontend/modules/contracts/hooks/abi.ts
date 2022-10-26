@@ -4,6 +4,7 @@ import { connect, keyStores } from 'near-api-js';
 import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
+import { usePublicMode } from '@/hooks/public';
 import analytics from '@/utils/analytics';
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
@@ -20,8 +21,9 @@ interface AbiResponse {
 
 // Prefers an embedded ABI in the wasm, if there is one, else returns any manually uploaded ABI.
 export const useAnyAbi = (contract: Contract | undefined) => {
+  const { publicModeIsActive } = usePublicMode();
   const { embeddedAbi } = useEmbeddedAbi(contract?.net, contract?.address);
-  const { contractAbi, error } = useContractAbi(contract?.slug);
+  const { contractAbi, error } = useContractAbi(publicModeIsActive ? undefined : contract?.slug);
 
   // We haven't determined if there is an embedded ABI yet, so let's return nothing for now.
   if (embeddedAbi === undefined) {
@@ -31,6 +33,11 @@ export const useAnyAbi = (contract: Contract | undefined) => {
   // There is an embedded ABI in the wasm.
   if (embeddedAbi !== null) {
     return { contractAbi: embeddedAbi, embedded: true };
+  }
+
+  // There is no embedded ABI for public mode.
+  if (publicModeIsActive) {
+    return { error: new Error('ABI_NOT_FOUND') };
   }
 
   // There is no embedded ABI.

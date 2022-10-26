@@ -3,7 +3,7 @@ import type { ReactElement } from 'react';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { UserDropdown } from '@/components/lib/UserDropdown';
-import { useLogOut } from '@/hooks/auth';
+import { useSignOut } from '@/hooks/auth';
 import { useAuth } from '@/hooks/auth';
 import LogoSvg from '@/public/images/brand/pagoda-logo.svg';
 
@@ -12,7 +12,7 @@ import * as S from './styles';
 
 export function SimpleLogoutLayout({ children }: { children: ReactElement }) {
   const { authStatus } = useAuth();
-  const logOut = useLogOut();
+  const signOut = useSignOut();
 
   return (
     <S.Wrapper>
@@ -21,7 +21,7 @@ export function SimpleLogoutLayout({ children }: { children: ReactElement }) {
 
         {authStatus === 'AUTHENTICATED' && (
           <UserDropdown>
-            <DropdownMenu.Item onSelect={logOut}>
+            <DropdownMenu.Item onSelect={signOut}>
               <FeatherIcon icon="log-out" />
               Logout
             </DropdownMenu.Item>

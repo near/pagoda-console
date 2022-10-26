@@ -12,8 +12,9 @@ import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useContracts } from '@/hooks/contracts';
+import { usePublicOrPrivateContracts } from '@/hooks/contracts';
+import { useCurrentEnvironment } from '@/hooks/environments';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { usePublicOrPrivateContracts, usePublicOrPrivateEnvironment } from '@/hooks/public';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useTheme } from '@/hooks/theme';
 import config from '@/utils/config';
@@ -21,10 +22,10 @@ import { StableId } from '@/utils/stable-ids';
 import type { Contract, Environment, NextPageWithLayout } from '@/utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {
-  const { environment: privateEnvironment, project } = useSelectedProject();
-  const { contracts: privateContracts } = useContracts(project?.slug, privateEnvironment?.subId);
+  const { project } = useSelectedProject();
+  const { environment } = useCurrentEnvironment();
+  const { contracts: privateContracts } = useContracts(project?.slug, environment?.subId);
   const { contracts } = usePublicOrPrivateContracts(privateContracts);
-  const { environment } = usePublicOrPrivateEnvironment(privateEnvironment);
 
   if (!environment || !contracts) {
     return <Spinner center />;

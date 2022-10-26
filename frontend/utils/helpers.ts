@@ -1,5 +1,3 @@
-import type { NextRouter } from 'next/router';
-
 import type { Environment } from './types';
 
 export function assertUnreachable(x: never): never {
@@ -28,12 +26,6 @@ export function returnContractAddressRegex(environment?: Environment) {
   }
 
   return new RegExp(prefix + postfix);
-}
-
-export function signInRedirectHandler(router: NextRouter, defaultRedirectUrl: string) {
-  const redirectUrl = sessionStorage.getItem('signInRedirectUrl') || defaultRedirectUrl;
-  sessionStorage.removeItem('signInRedirectUrl');
-  router.push(redirectUrl);
 }
 
 export function sleep(ms: number) {

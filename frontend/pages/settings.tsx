@@ -13,7 +13,7 @@ import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
-import { useLogOut } from '@/hooks/auth';
+import { useSignOut } from '@/hooks/auth';
 import { useAccount, useAuth } from '@/hooks/auth';
 import { useDashboardLayout } from '@/hooks/layouts';
 import DeleteAccountModal from '@/modules/core/components/modals/DeleteAccountModal';
@@ -32,7 +32,7 @@ const Settings: NextPageWithLayout = () => {
   const { identity } = useAuth();
   const [updateError, setUpdateError] = useState('');
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
-  const logOut = useLogOut();
+  const signOut = useSignOut();
 
   function edit() {
     setValue('displayName', user!.name!);
@@ -66,7 +66,7 @@ const Settings: NextPageWithLayout = () => {
   };
 
   const onAccountDelete = async () => {
-    await logOut();
+    await signOut();
     openToast({
       type: 'success',
       title: 'Account Deleted',

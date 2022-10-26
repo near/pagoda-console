@@ -7,9 +7,9 @@ import { useState } from 'react';
 import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Tooltip } from '@/components/lib/Tooltip';
-import { useAuth, useLogOut } from '@/hooks/auth';
+import { useAuth, useSignOut } from '@/hooks/auth';
 import useFeatureFlag from '@/hooks/features';
-import { usePublicModeIsActive } from '@/hooks/public';
+import { usePublicMode } from '@/hooks/public';
 import { useSelectedProject } from '@/hooks/selected-project';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
 import apisEntries from '@/modules/apis/sidebar-entries';
@@ -25,7 +25,7 @@ import type { SidebarEntry } from './types';
 type Props = ComponentProps<typeof S.Root>;
 
 function useProjectPages(): SidebarEntry[] {
-  const { publicModeIsActive } = usePublicModeIsActive();
+  const { publicModeIsActive } = usePublicMode();
   const { authStatus } = useAuth();
   let pages: SidebarEntry[] = [];
   const alertsEnabled = useFeatureFlag('momentary-alerts-enabled');
@@ -85,7 +85,7 @@ export function Sidebar({ children, ...props }: Props) {
   const [sidebarHoverExpand, setSidebarHoverExpand] = useState(false);
   const [sidebarCollapseButtonHover, setSidebarCollapseButtonHover] = useState(false);
   const sidebarCollapseToggleLabel = sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
-  const logOut = useLogOut();
+  const signOut = useSignOut();
 
   useEffect(() => {
     if (sidebarCollapsed === undefined) {
@@ -167,7 +167,7 @@ export function Sidebar({ children, ...props }: Props) {
 
         <S.Nav>
           <S.NavItem>
-            <S.NavLink as="button" type="button" onClick={logOut}>
+            <S.NavLink as="button" type="button" onClick={signOut}>
               <FeatherIcon icon="log-out" />
               <S.NavLinkLabel>Logout</S.NavLinkLabel>
             </S.NavLink>

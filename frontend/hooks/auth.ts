@@ -1,5 +1,5 @@
 import type { User as FirebaseUser } from 'firebase/auth';
-import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect } from 'react';
 import { useSWRConfig } from 'swr';
@@ -9,6 +9,8 @@ import { useAuthStore } from '@/stores/auth';
 import analytics from '@/utils/analytics';
 import { authenticatedPost, unauthenticatedPost } from '@/utils/http';
 import type { User } from '@/utils/types';
+
+import { usePublicMode } from './public';
 
 export function useAccount() {
   const { identity } = useAuth();
@@ -52,24 +54,43 @@ export function useAuthSync() {
   }, [setIdentity, setStatus]);
 }
 
-export function useLogOut() {
+export function useSignedInHandler() {
+  const router = useRouter();
+  const { deactivatePublicMode } = usePublicMode();
+
+  const signedInHandler = useCallback(
+    (defaultRedirectUrl: string) => {
+      const redirectUrl = sessionStorage.getItem('signInRedirectUrl') || defaultRedirectUrl;
+      sessionStorage.removeItem('signInRedirectUrl');
+      deactivatePublicMode();
+      router.push(redirectUrl);
+    },
+    [deactivatePublicMode, router],
+  );
+
+  return signedInHandler;
+}
+
+export function useSignOut() {
   const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
   const router = useRouter();
+  const { deactivatePublicMode } = usePublicMode();
 
-  const logOut = useCallback(async () => {
+  const signOut = useCallback(async () => {
     try {
       const auth = getAuth();
-      await signOut(auth);
+      await firebaseSignOut(auth);
       analytics.track('DC Logout');
       analytics.reset();
       cache.clear();
+      deactivatePublicMode();
       router.push('/');
     } catch (e) {
       console.error(e);
     }
-  }, [cache, router]);
+  }, [deactivatePublicMode, cache, router]);
 
-  return logOut;
+  return signOut;
 }
 
 export async function deleteAccount(uid: string | undefined) {

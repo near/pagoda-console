@@ -15,8 +15,10 @@ import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { useContractMetrics, useContracts } from '@/hooks/contracts';
+import { usePublicOrPrivateContracts } from '@/hooks/contracts';
+import { useCurrentEnvironment } from '@/hooks/environments';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { usePublicModeIsActive, usePublicOrPrivateContracts, usePublicOrPrivateEnvironment } from '@/hooks/public';
+import { usePublicMode } from '@/hooks/public';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { AddContractForm } from '@/modules/contracts/components/AddContractForm';
 import { DeleteContractModal } from '@/modules/contracts/components/DeleteContractModal';
@@ -28,11 +30,11 @@ import type { Contract } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ListContracts: NextPageWithLayout = () => {
-  const { publicModeIsActive } = usePublicModeIsActive();
-  const { project, environment: privateEnvironment } = useSelectedProject();
-  const { contracts: privateContracts, mutate } = useContracts(project?.slug, privateEnvironment?.subId);
+  const { publicModeIsActive } = usePublicMode();
+  const { project } = useSelectedProject();
+  const { environment } = useCurrentEnvironment();
+  const { contracts: privateContracts, mutate } = useContracts(project?.slug, environment?.subId);
   const { contracts } = usePublicOrPrivateContracts(privateContracts);
-  const { environment } = usePublicOrPrivateEnvironment(privateEnvironment);
   const [addContractIsOpen, setAddContractIsOpen] = useState(false);
 
   function onContractAdd(contract: Contract) {

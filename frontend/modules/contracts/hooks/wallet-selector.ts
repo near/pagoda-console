@@ -12,7 +12,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { distinctUntilChanged, map } from 'rxjs';
 
 import { openToast } from '@/components/lib/Toast';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useCurrentEnvironment } from '@/hooks/environments';
 import type { NetOption } from '@/utils/types';
 
 // Cache in module to ensure we don't re-init
@@ -24,7 +24,7 @@ let modal: WalletSelectorModal | null = null;
 // coupled to being called once in ContractTransaction.tsx and serious side-effects may occur if this is changed.
 export const useWalletSelector = (contractId: string | undefined) => {
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
-  const { environment } = useSelectedProject();
+  const { environment } = useCurrentEnvironment();
   const [prevNet, setPrevNet] = useState<NetOption | undefined>();
 
   const init = useCallback(async () => {

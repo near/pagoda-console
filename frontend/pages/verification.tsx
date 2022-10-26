@@ -8,11 +8,10 @@ import { Flex } from '@/components/lib/Flex';
 import { Section } from '@/components/lib/Section';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
-import { useLogOut } from '@/hooks/auth';
+import { useSignedInHandler, useSignOut } from '@/hooks/auth';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
-import { signInRedirectHandler } from '@/utils/helpers';
 import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -23,7 +22,8 @@ const Verification: NextPageWithLayout = () => {
   const existing = useRouteParam('existing') === 'true';
   const hasCalledInitAccount = useRef(false);
   const verificationCheckTimer = useRef<NodeJS.Timeout | undefined>();
-  const logOut = useLogOut();
+  const signOut = useSignOut();
+  const signedInHandler = useSignedInHandler();
 
   const queueVerificationCheck = useCallback(() => {
     verificationCheckTimer.current = setTimeout(async () => {
@@ -37,12 +37,12 @@ const Verification: NextPageWithLayout = () => {
           reload() call above would be enough, but it isn't.
         */
         analytics.track('DC Verify Account');
-        signInRedirectHandler(router, '/pick-project?onboarding=true');
+        signedInHandler('/pick-project?onboarding=true');
       } else {
         queueVerificationCheck();
       }
     }, 3000);
-  }, [router]);
+  }, [signedInHandler]);
 
   useEffect(() => {
     router.prefetch('/pick-project');
@@ -107,7 +107,7 @@ const Verification: NextPageWithLayout = () => {
           ) : (
             <Text color="primary">Sent!</Text>
           )}
-          <TextButton stableId={StableId.ACCOUNT_VERIFICATION_LOG_OUT_BUTTON} color="neutral" onClick={logOut}>
+          <TextButton stableId={StableId.ACCOUNT_VERIFICATION_LOG_OUT_BUTTON} color="neutral" onClick={signOut}>
             Log Out
           </TextButton>
         </Flex>

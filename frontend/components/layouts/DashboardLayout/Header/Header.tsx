@@ -11,7 +11,8 @@ import { TextLink } from '@/components/lib/TextLink';
 import { UserFullDropdown } from '@/components/lib/UserFullDropdown';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useAuth } from '@/hooks/auth';
-import { usePublicEnvironment, usePublicModeIsActive } from '@/hooks/public';
+import { useCurrentEnvironment } from '@/hooks/environments';
+import { usePublicMode } from '@/hooks/public';
 import { StableId } from '@/utils/stable-ids';
 
 import { EnvironmentSelector } from '../EnvironmentSelector';
@@ -24,8 +25,8 @@ type Props = ComponentProps<typeof S.Header> & {
 
 export function Header({ redirect, ...props }: Props) {
   const { authStatus } = useAuth();
-  const { publicEnvironment } = usePublicEnvironment();
-  const { publicModeIsActive } = usePublicModeIsActive();
+  const { environment } = useCurrentEnvironment();
+  const { publicModeIsActive } = usePublicMode();
   const router = useRouter();
   const [redirectMessage, setRedirectMessage] = useState('');
   const redirectOnConfirmRef = useRef<() => void>();
@@ -47,17 +48,19 @@ export function Header({ redirect, ...props }: Props) {
     <>
       <S.Header {...props}>
         {publicModeIsActive ? (
-          <Flex align="center" gap="s">
-            <Text size="bodySmall" color="text3" css={{ whiteSpace: 'nowrap' }}>
-              Viewing contracts on:
-            </Text>
-            <Flex align="center" gap="xs">
-              <SubnetIcon net={publicEnvironment.net} size="xs" />
-              <Text family="code" color="text1" weight="semibold" size="bodySmall">
-                {publicEnvironment.name}
+          environment && (
+            <Flex align="center" gap="s">
+              <Text size="bodySmall" color="text3" css={{ whiteSpace: 'nowrap' }}>
+                Viewing contracts on:
               </Text>
+              <Flex align="center" gap="xs">
+                <SubnetIcon net={environment.net} size="xs" />
+                <Text family="code" color="text1" weight="semibold" size="bodySmall">
+                  {environment.name}
+                </Text>
+              </Flex>
             </Flex>
-          </Flex>
+          )
         ) : (
           <Flex align="stretch">
             <ProjectSelector

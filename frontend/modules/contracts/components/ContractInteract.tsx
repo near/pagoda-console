@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react';
 
+import { Card } from '@/components/lib/Card';
 import { Container } from '@/components/lib/Container';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { Spinner } from '@/components/lib/Spinner';
+import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
+import { usePublicMode } from '@/hooks/public';
 import { ContractTransaction } from '@/modules/contracts/components/ContractTransaction';
 import { UploadContractAbi } from '@/modules/contracts/components/UploadContractAbi';
 import { useAnyAbi } from '@/modules/contracts/hooks/abi';
+import { StableId } from '@/utils/stable-ids';
 import type { Contract } from '@/utils/types';
 
 interface Props {
@@ -14,6 +20,7 @@ interface Props {
 }
 
 export const ContractInteract = ({ contract }: Props) => {
+  const { publicModeIsActive } = usePublicMode();
   const [abiUploaded, setAbiUploaded] = useState<boolean | undefined>(undefined);
   const { contractAbi, error } = useAnyAbi(contract);
 
@@ -34,7 +41,7 @@ export const ContractInteract = ({ contract }: Props) => {
     });
   }
 
-  if (!contract?.slug || abiUploaded === undefined) {
+  if (!contract || abiUploaded === undefined) {
     return (
       <Container size="s">
         <Flex stack align="center">
@@ -46,10 +53,28 @@ export const ContractInteract = ({ contract }: Props) => {
 
   return (
     <>
-      {!abiUploaded ? (
-        <UploadContractAbi contractSlug={contract.slug} setAbiUploaded={setAbiUploaded} />
-      ) : (
+      {abiUploaded ? (
         <ContractTransaction contract={contract} />
+      ) : publicModeIsActive ? (
+        <Card>
+          <Flex align="center" gap="l">
+            <FeatherIcon icon="alert-circle" size="m" color="warning" />
+
+            <Text>
+              This contract doesn&apos;t appear to have an{' '}
+              <TextLink
+                stableId={StableId.CONTRACT_INTERACT_NEAR_ABI_DOCS_LINK}
+                href="https://github.com/near/abi"
+                external
+              >
+                embedded ABI
+              </TextLink>
+              . To interact with this contract, ask the owner of this contract to deploy an embedded ABI.
+            </Text>
+          </Flex>
+        </Card>
+      ) : (
+        <UploadContractAbi contractSlug={contract.slug} setAbiUploaded={setAbiUploaded} />
       )}
     </>
   );
