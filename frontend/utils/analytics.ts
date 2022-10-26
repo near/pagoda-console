@@ -1,11 +1,13 @@
 import Analytics from 'analytics-node';
-import { v4 as uuid } from 'uuid';
+import { customAlphabet } from 'nanoid';
 
 import config from './config';
 
 interface Properties {
   [key: string]: any;
 }
+
+const newAnonymousUserId = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 20);
 
 let segment: Analytics;
 let userId: string;
@@ -69,7 +71,7 @@ function setAnonymousId() {
   if (storageId) {
     anonymousUserId = storageId;
   } else {
-    anonymousUserId = uuid();
+    anonymousUserId = newAnonymousUserId();
     localStorage.setItem('anonymousUserId', anonymousUserId);
   }
 }
