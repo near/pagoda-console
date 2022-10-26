@@ -17,6 +17,7 @@ import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { useContractMetrics, useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
+import { usePublicModeIsActive, usePublicOrPrivateContracts, usePublicOrPrivateEnvironment } from '@/hooks/public';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { AddContractForm } from '@/modules/contracts/components/AddContractForm';
 import { DeleteContractModal } from '@/modules/contracts/components/DeleteContractModal';
@@ -29,8 +30,11 @@ import type { NextPageWithLayout } from '@/utils/types';
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
 const ListContracts: NextPageWithLayout = () => {
-  const { project, environment } = useSelectedProject();
-  const { contracts, mutate } = useContracts(project?.slug, environment?.subId);
+  const { publicModeIsActive } = usePublicModeIsActive();
+  const { project, environment: privateEnvironment } = useSelectedProject();
+  const { contracts: privateContracts, mutate } = useContracts(project?.slug, privateEnvironment?.subId);
+  const { contracts } = usePublicOrPrivateContracts(privateContracts);
+  const { environment } = usePublicOrPrivateEnvironment(privateEnvironment);
   const [addContractIsOpen, setAddContractIsOpen] = useState(false);
 
   function onContractAdd(contract: Contract) {
@@ -56,19 +60,22 @@ const ListContracts: NextPageWithLayout = () => {
               <FeatherIcon icon="zap" size="l" />
               <H1>Contracts</H1>
             </Flex>
-            <Button
-              stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON}
-              onClick={() => setAddContractIsOpen(true)}
-            >
-              <FeatherIcon icon="plus" /> Add Contract
-            </Button>
+
+            {!publicModeIsActive && (
+              <Button
+                stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON}
+                onClick={() => setAddContractIsOpen(true)}
+              >
+                <FeatherIcon icon="plus" /> Add Contract
+              </Button>
+            )}
           </Flex>
         </Flex>
       </Section>
 
       <ContractsTable contracts={contracts} onDelete={onContractDelete} setAddContractIsOpen={setAddContractIsOpen} />
 
-      {project && environment && (
+      {!publicModeIsActive && project && environment && (
         <>
           <Dialog.Root open={addContractIsOpen} onOpenChange={setAddContractIsOpen}>
             <Dialog.Content title="Add Contract" size="s">
