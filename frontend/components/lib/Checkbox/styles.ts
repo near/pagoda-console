@@ -36,6 +36,14 @@ export const Indicator = styled('span', {
   },
 });
 
+export const Description = styled('span', {
+  display: 'block',
+  color: 'var(--color-text-1)',
+  fontFamily: 'var(--font-body)',
+  lineHeight: 'var(--line-height-body)',
+  flexGrow: 1,
+});
+
 export const Label = styled('label', {
   display: 'flex',
   gap: 'var(--space-s)',
@@ -46,6 +54,18 @@ export const Label = styled('label', {
   '&:hover': {
     [`${Indicator}`]: {
       background: 'var(--color-surface-3)',
+    },
+  },
+
+  variants: {
+    disabled: {
+      true: {
+        pointerEvents: 'none',
+
+        [`${Indicator}, ${Description}`]: {
+          opacity: 0.5,
+        },
+      },
     },
   },
 });
@@ -65,13 +85,6 @@ export const Group = styled('div', {
   },
 });
 
-export const Description = styled('span', {
-  display: 'block',
-  color: 'var(--color-text-1)',
-  fontFamily: 'var(--font-body)',
-  lineHeight: 'var(--line-height-body)',
-});
-
 export const Input = styled('input', {
   opacity: 0,
   position: 'absolute',
@@ -82,13 +95,6 @@ export const Input = styled('input', {
         opacity: 1,
         transform: 'scale(1, 1)',
       },
-    },
-  },
-
-  '&:disabled +': {
-    [`${Indicator}`]: {
-      opacity: 0.5,
-      pointerEvents: 'none',
     },
   },
 
