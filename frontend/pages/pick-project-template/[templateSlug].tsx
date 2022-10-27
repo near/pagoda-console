@@ -10,8 +10,7 @@ import { Flex } from '@/components/lib/Flex';
 import { Section } from '@/components/lib/Section';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
-import { SignInModal } from '@/components/modals/SignInModal';
-import { useAccount } from '@/hooks/auth';
+import { useAuth } from '@/hooks/auth';
 import { useContractTemplate } from '@/hooks/contract-templates';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
@@ -19,25 +18,18 @@ import analytics from '@/utils/analytics';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
 import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
-import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
+import type { Contract, Project } from '@/utils/types';
 
 const ViewProjectTemplate: NextPageWithLayout = () => {
   const router = useRouter();
   const slug = useRouteParam('templateSlug');
   const template = useContractTemplate(slug);
-  const { user } = useAccount();
+  const { authStatus } = useAuth();
   const [isDeploying, setIsDeploying] = useState(false);
-  const [showSignInModal, setShowSignInModal] = useState(false);
 
   async function createProject() {
     if (!template) return;
-
-    if (!user) {
-      setShowSignInModal(true);
-      sessionStorage.setItem('signInRedirectUrl', router.asPath);
-      return;
-    }
 
     const date = DateTime.now().toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
     const projectName = `${template.title}, ${date}`;
@@ -45,19 +37,34 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
     try {
       setIsDeploying(true);
 
-      const project = await authenticatedPost<Project>('/projects/create', {
-        name: projectName,
-      });
+      const deployResult = await deployContractTemplate(template);
 
-      await deployContractTemplate(project, template);
+      if (authStatus === 'AUTHENTICATED') {
+        const project = await authenticatedPost<Project>('/projects/create', {
+          name: projectName,
+        });
 
-      analytics.track('DC Create New Example Project', {
-        status: 'success',
-        name: projectName,
-        slug: template.slug,
-      });
+        await authenticatedPost<Contract>('/projects/addContract', {
+          project: project.slug,
+          environment: deployResult.subId,
+          address: deployResult.address,
+        });
 
-      await router.push(`/contracts?project=${project.slug}&environment=1`);
+        analytics.track('DC Create New Example Project', {
+          status: 'success',
+          name: projectName,
+          slug: template.slug,
+        });
+
+        await router.push(`/contracts?project=${project.slug}&environment=1`);
+      } else {
+        analytics.track('DC Create New Example Project (Guest)', {
+          status: 'success',
+          slug: template.slug,
+        });
+
+        await router.push(`/public/contracts?addresses=${deployResult.address}&net=TESTNET`);
+      }
     } catch (e: any) {
       setIsDeploying(false);
 
@@ -82,7 +89,7 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
     <Section>
       <Container size="s">
         <Flex stack gap="l">
-          <Link href={user ? '/pick-project-template' : '/'} passHref>
+          <Link href={authStatus === 'AUTHENTICATED' ? '/pick-project-template' : '/'} passHref>
             <TextLink stableId={StableId.PROJECT_TEMPLATE_BACK_TO_TEMPLATES_LINK}>
               <FeatherIcon icon="arrow-left" /> Example Projects
             </TextLink>
@@ -90,12 +97,6 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
 
           <ContractTemplateDetails template={template} onSelect={createProject} isDeploying={isDeploying} />
         </Flex>
-
-        <SignInModal
-          description="You’ll need to sign in or create an account in order to deploy and explore your contract."
-          show={showSignInModal}
-          setShow={setShowSignInModal}
-        />
       </Container>
     </Section>
   );

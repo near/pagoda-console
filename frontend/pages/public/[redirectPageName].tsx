@@ -35,22 +35,24 @@ const Public: NextPageWithLayout = () => {
     }
   }, [addressesAreValid, netIsValid, router, routeNameIsValid]);
 
-  if (isValidUrl && !hasRedirected.current) {
-    hasRedirected.current = true;
+  useEffect(() => {
+    if (isValidUrl && !hasRedirected.current) {
+      hasRedirected.current = true;
 
-    const contracts: Contract[] = addresses.map((address) => {
-      return {
-        address,
-        slug: address,
-        net: netParam,
-      };
-    });
+      const contracts: Contract[] = addresses.map((address) => {
+        return {
+          address,
+          slug: address,
+          net: netParam,
+        };
+      });
 
-    setContracts(contracts);
-    activatePublicMode();
+      setContracts(contracts);
+      activatePublicMode();
 
-    router.replace(`/${redirectPageNameParam}`);
-  }
+      router.replace(`/${redirectPageNameParam}`);
+    }
+  });
 
   return (
     <Section>

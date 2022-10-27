@@ -22,6 +22,7 @@ import { usePublicMode } from '@/hooks/public';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { AddContractForm } from '@/modules/contracts/components/AddContractForm';
 import { DeleteContractModal } from '@/modules/contracts/components/DeleteContractModal';
+import { ShareContracts } from '@/modules/contracts/components/ShareContracts';
 import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatBytes } from '@/utils/format-bytes';
@@ -36,6 +37,7 @@ const ListContracts: NextPageWithLayout = () => {
   const { contracts: privateContracts, mutate } = useContracts(project?.slug, environment?.subId);
   const { contracts } = usePublicOrPrivateContracts(privateContracts);
   const [addContractIsOpen, setAddContractIsOpen] = useState(false);
+  const [shareContractsIsOpen, setShareContractsIsOpen] = useState(false);
 
   function onContractAdd(contract: Contract) {
     setAddContractIsOpen(false);
@@ -61,6 +63,16 @@ const ListContracts: NextPageWithLayout = () => {
               <H1>Contracts</H1>
             </Flex>
 
+            {contracts && contracts.length > 0 && (
+              <Button
+                color="neutral"
+                stableId={StableId.CONTRACTS_OPEN_SHARE_CONTRACTS_MODAL_BUTTON}
+                onClick={() => setShareContractsIsOpen(true)}
+              >
+                <FeatherIcon icon="share" /> Share
+              </Button>
+            )}
+
             {!publicModeIsActive && (
               <Button
                 stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON}
@@ -76,13 +88,19 @@ const ListContracts: NextPageWithLayout = () => {
       <ContractsTable contracts={contracts} onDelete={onContractDelete} setAddContractIsOpen={setAddContractIsOpen} />
 
       {!publicModeIsActive && project && environment && (
-        <>
-          <Dialog.Root open={addContractIsOpen} onOpenChange={setAddContractIsOpen}>
-            <Dialog.Content title="Add Contract" size="s">
-              <AddContractForm project={project} environment={environment} onAdd={onContractAdd} />
-            </Dialog.Content>
-          </Dialog.Root>
-        </>
+        <Dialog.Root open={addContractIsOpen} onOpenChange={setAddContractIsOpen}>
+          <Dialog.Content title="Add Contract" size="s">
+            <AddContractForm project={project} environment={environment} onAdd={onContractAdd} />
+          </Dialog.Content>
+        </Dialog.Root>
+      )}
+
+      {contracts && environment && (
+        <Dialog.Root open={shareContractsIsOpen} onOpenChange={setShareContractsIsOpen}>
+          <Dialog.Content title="Share Contracts" size="s">
+            <ShareContracts contracts={contracts} environment={environment} />
+          </Dialog.Content>
+        </Dialog.Root>
       )}
     </>
   );
