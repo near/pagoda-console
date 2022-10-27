@@ -173,6 +173,7 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { contractAbi } = useAnyAbi(contract);
+  const { publicModeIsActive } = usePublicMode();
 
   function ContractTableCellData({ children }: { children: ReactNode }) {
     if (metrics)
@@ -235,11 +236,13 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
               </DropdownMenu.Item>
             )}
 
-            <DropdownMenu.Item onClick={() => setShowDeleteModal(true)}>
-              <Flex align="center">
-                <FeatherIcon icon="trash-2" color="danger" /> Remove
-              </Flex>
-            </DropdownMenu.Item>
+            {!publicModeIsActive && (
+              <DropdownMenu.Item onClick={() => setShowDeleteModal(true)}>
+                <Flex align="center">
+                  <FeatherIcon icon="trash-2" color="danger" /> Remove
+                </Flex>
+              </DropdownMenu.Item>
+            )}
           </DropdownMenu.Content>
         </DropdownMenu.Root>
       </Table.Row>
