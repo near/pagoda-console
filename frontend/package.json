@@ -11,6 +11,7 @@
     "lint:check": "eslint --cache --max-warnings 0 .",
     "lint:fix": "eslint --cache --fix .",
     "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
     "test:snapshot": "playwright test tests/playwright/snapshot/",
     "test:e2e": "playwright test tests/playwright/e2e/",
     "test": "jest",
