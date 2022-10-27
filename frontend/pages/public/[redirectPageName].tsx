@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { ButtonLink } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
@@ -19,15 +19,21 @@ const Public: NextPageWithLayout = () => {
   const activatePublicMode = usePublicStore((store) => store.activatePublicMode);
   const setContracts = usePublicStore((store) => store.setContracts);
   const router = useRouter();
-  const routeNameParam = router.query.routeName as string;
+  const redirectPageNameParam = router.query.redirectPageName as string;
   const addressesParam = router.query.addresses as string;
   const netParam = router.query.net as NetOption;
   const addresses = addressesParam ? addressesParam.split(',') : [];
   const addressesAreValid = addresses.length > 0;
   const netIsValid = netOptions.includes(netParam);
-  const routeNameIsValid = ['analytics', 'contracts'].includes(routeNameParam);
-  const isValidUrl = addressesAreValid && netIsValid && routeNameIsValid;
+  const routeNameIsValid = ['analytics', 'contracts'].includes(redirectPageNameParam);
   const hasRedirected = useRef(false);
+  const [isValidUrl, setIsValidUrl] = useState<boolean>();
+
+  useEffect(() => {
+    if (router.isReady) {
+      setIsValidUrl(addressesAreValid && netIsValid && routeNameIsValid);
+    }
+  }, [addressesAreValid, netIsValid, router, routeNameIsValid]);
 
   if (isValidUrl && !hasRedirected.current) {
     hasRedirected.current = true;
@@ -43,17 +49,17 @@ const Public: NextPageWithLayout = () => {
     setContracts(contracts);
     activatePublicMode();
 
-    router.replace(`/${routeNameParam}`);
+    router.replace(`/${redirectPageNameParam}`);
   }
 
   return (
     <Section>
-      <Container size="xs">
-        {isValidUrl ? (
-          <Spinner center />
-        ) : (
+      <Container size="s">
+        {isValidUrl === false ? (
           <Flex stack align="center" gap="l">
-            <Message type="error">Oops! This public URL is invalid.</Message>
+            <Message icon="link" type="error" css={{ width: 'auto' }}>
+              Oops! This public URL is invalid.
+            </Message>
             <Link href="/">
               <ButtonLink stableId={StableId.PUBLIC_INVALID_URL_HOME_LINK}>
                 <FeatherIcon icon="arrow-left" />
@@ -61,6 +67,8 @@ const Public: NextPageWithLayout = () => {
               </ButtonLink>
             </Link>
           </Flex>
+        ) : (
+          <Spinner center />
         )}
       </Container>
     </Section>
