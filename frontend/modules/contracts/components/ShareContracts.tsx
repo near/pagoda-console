@@ -7,10 +7,14 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H5 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
+import { Tooltip } from '@/components/lib/Tooltip';
 import analytics from '@/utils/analytics';
 import { StableId } from '@/utils/stable-ids';
 import type { Contract, Environment } from '@/utils/types';
+
+import { useEmbeddedAbi } from '../hooks/abi';
 
 interface Props {
   contracts: Contract[];
@@ -74,21 +78,20 @@ export function ShareContracts({ contracts, environment }: Props) {
 
   return (
     <Flex stack gap="l">
-      <Text>Sharing will allow users to view analytics and interact with the selected contracts.</Text>
+      <Text>
+        Sharing will allow users to view analytics and interact with the selected contracts. A shared contract can only
+        be interacted with if it has an{' '}
+        <TextLink stableId={StableId.SHARE_CONTRACTS_NEAR_ABI_DOCS_LINK} href="https://github.com/near/abi" external>
+          embedded ABI
+        </TextLink>
+      </Text>
 
       <Flex stack>
         <H5>1. Select {environment.name} Contracts</H5>
 
         <CheckboxGroup aria-label="Select contracts to share" css={{ width: '100%' }}>
           {contracts.map((c) => (
-            <Checkbox
-              key={c.address}
-              value={c.address}
-              name={`sharedContracts-${c.address}`}
-              onChange={onCheckboxChange}
-            >
-              {c.address}
-            </Checkbox>
+            <ContractCheckbox key={c.address} contract={c} environment={environment} onChange={onCheckboxChange} />
           ))}
         </CheckboxGroup>
       </Flex>
@@ -98,9 +101,9 @@ export function ShareContracts({ contracts, environment }: Props) {
 
         <Flex align="center">
           <Button
+            color="neutral"
             disabled={selectedAddresses.length === 0}
             stableId={StableId.SHARE_CONTRACTS_COPY_LINK_BUTTON}
-            color="neutral"
             css={{ flexGrow: 1 }}
             onClick={copyLink}
           >
@@ -108,23 +111,59 @@ export function ShareContracts({ contracts, environment }: Props) {
           </Button>
 
           {deviceSupportsSharing && (
-            <>
-              <Text color="text3" size="bodySmall">
-                or
-              </Text>
-
-              <Button
-                disabled={selectedAddresses.length === 0}
-                stableId={StableId.SHARE_CONTRACTS_SEND_LINK_BUTTON}
-                css={{ flexGrow: 1 }}
-                onClick={shareLink}
-              >
-                <FeatherIcon icon="share-2" /> Share Link
-              </Button>
-            </>
+            <Button
+              color="neutral"
+              aria-label="Share Link"
+              disabled={selectedAddresses.length === 0}
+              stableId={StableId.SHARE_CONTRACTS_SEND_LINK_BUTTON}
+              onClick={shareLink}
+            >
+              <FeatherIcon icon="share-2" color="primary" />
+            </Button>
           )}
         </Flex>
       </Flex>
     </Flex>
+  );
+}
+
+function ContractCheckbox({
+  contract,
+  environment,
+  onChange,
+}: {
+  contract: Contract;
+  environment: Environment;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}) {
+  const { embeddedAbi } = useEmbeddedAbi(environment.net, contract.address);
+
+  return (
+    <Checkbox
+      key={contract.address}
+      value={contract.address}
+      name={`sharedContracts-${contract.address}`}
+      onChange={onChange}
+    >
+      <Flex as="span" align="center">
+        <Text css={{ marginRight: 'auto' }}>{contract.address}</Text>
+
+        {embeddedAbi && (
+          <Tooltip content="Embedded ABI">
+            <span>
+              <FeatherIcon icon="file-text" color="primary" />
+            </span>
+          </Tooltip>
+        )}
+
+        {embeddedAbi === null && (
+          <Tooltip content="No embedded ABI">
+            <span>
+              <FeatherIcon icon="alert-circle" color="warning" />
+            </span>
+          </Tooltip>
+        )}
+      </Flex>
+    </Checkbox>
   );
 }
