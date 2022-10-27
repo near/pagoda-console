@@ -51,7 +51,13 @@ export function AddContractForm(props: Props) {
     try {
       setIsDeployingContract(true);
 
-      const contract = await deployContractTemplate(props.project, template);
+      const deployResult = await deployContractTemplate(template);
+
+      const contract = await authenticatedPost<Contract>('/projects/addContract', {
+        project: props.project.slug,
+        environment: deployResult.subId,
+        address: deployResult.address,
+      });
 
       analytics.track('DC Deploy Contract Template', {
         status: 'success',

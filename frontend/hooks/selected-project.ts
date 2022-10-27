@@ -10,6 +10,7 @@ import { useAuth } from './auth';
 import { useEnvironments } from './environments';
 import { usePreviousValue } from './previous-value';
 import { useProject } from './projects';
+import { usePublicMode } from './public';
 import { useRouteParam } from './route';
 
 type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
@@ -160,6 +161,7 @@ export function useSelectedProjectSync(
 }
 
 export function useSelectedProjectRouteParamSync() {
+  const { deactivatePublicMode } = usePublicMode();
   const hasInitialized = useSettingsStore((store) => store.hasInitialized);
   const { selectEnvironment, selectProject } = useProjectSelector();
   const projectSlugRouteParam = useRouteParam('project');
@@ -172,6 +174,7 @@ export function useSelectedProjectRouteParamSync() {
     if (!hasInitialized) return;
 
     if (projectSlugRouteParam) {
+      deactivatePublicMode();
       selectProject(projectSlugRouteParam);
 
       if (environmentSubIdRouteParam) {
@@ -184,5 +187,13 @@ export function useSelectedProjectRouteParamSync() {
         shallow: true,
       });
     }
-  }, [environmentSubIdRouteParam, hasInitialized, projectSlugRouteParam, router, selectEnvironment, selectProject]);
+  }, [
+    deactivatePublicMode,
+    environmentSubIdRouteParam,
+    hasInitialized,
+    projectSlugRouteParam,
+    router,
+    selectEnvironment,
+    selectProject,
+  ]);
 }
