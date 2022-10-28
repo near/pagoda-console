@@ -11,6 +11,23 @@ let segment: Analytics;
 let userId: string;
 let anonymousUserId: string;
 
+function getAnonymousId() {
+  if (anonymousUserId) {
+    return anonymousUserId;
+  }
+
+  const storageId: string | null = localStorage.getItem('anonymousUserId');
+
+  if (storageId) {
+    anonymousUserId = storageId;
+  } else {
+    anonymousUserId = nanoid();
+    localStorage.setItem('anonymousUserId', anonymousUserId);
+  }
+
+  return anonymousUserId;
+}
+
 function init() {
   if (segment) return console.log('Segment Analytics has already been initialized');
 
@@ -31,46 +48,49 @@ function init() {
 }
 
 function track(eventLabel: string, properties?: Properties) {
-  const id = userId ? { userId } : { anonymousId: anonymousUserId };
-  segment.track({
-    ...id,
-    event: eventLabel,
-    properties,
-  });
+  try {
+    const id = userId ? { userId } : { anonymousId: getAnonymousId() };
+    segment.track({
+      ...id,
+      event: eventLabel,
+      properties,
+    });
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function identify(id: string, traits: Record<string, any>) {
-  userId = id;
-  segment.identify({
-    traits,
-    userId,
-  });
+  try {
+    userId = id;
+    segment.identify({
+      traits,
+      userId,
+    });
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function pageView(name: string, properties?: Properties) {
-  const id = userId ? { userId } : { anonymousId: anonymousUserId };
-  segment.page({
-    ...id,
-    name,
-    properties,
-  });
+  try {
+    const id = userId ? { userId } : { anonymousId: getAnonymousId() };
+    segment.page({
+      ...id,
+      name,
+      properties,
+    });
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function reset() {
-  track('Logout');
-  segment.flush();
-}
-
-function setAnonymousId() {
-  if (anonymousUserId) {
-    return;
-  }
-  const storageId: string | null = localStorage.getItem('anonymousUserId');
-  if (storageId) {
-    anonymousUserId = storageId;
-  } else {
-    anonymousUserId = nanoid();
-    localStorage.setItem('anonymousUserId', anonymousUserId);
+  try {
+    track('Logout');
+    segment.flush();
+  } catch (e) {
+    console.error(e);
   }
 }
 
@@ -79,7 +99,6 @@ const fns = {
   init,
   pageView,
   reset,
-  setAnonymousId,
   track,
 };
 

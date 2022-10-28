@@ -24,7 +24,7 @@ export function useAnalytics() {
     if (page === lastTrackedPage) return;
 
     lastTrackedPage = page;
-    analytics.setAnonymousId();
+
     analytics.pageView(`DC View ${page} Page`, {
       path: router.pathname,
     });
