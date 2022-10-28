@@ -80,6 +80,7 @@ export function Sidebar({ children, ...props }: Props) {
   const [sidebarCollapseButtonHover, setSidebarCollapseButtonHover] = useState(false);
   const sidebarCollapseToggleLabel = sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
   const signOut = useSignOut();
+  const { authStatus } = useAuth();
 
   useEffect(() => {
     if (sidebarCollapsed === undefined) {
@@ -160,12 +161,15 @@ export function Sidebar({ children, ...props }: Props) {
         </S.Nav>
 
         <S.Nav>
-          <S.NavItem>
-            <S.NavLink as="button" type="button" onClick={signOut}>
-              <FeatherIcon icon="log-out" />
-              <S.NavLinkLabel>Logout</S.NavLinkLabel>
-            </S.NavLink>
-          </S.NavItem>
+          {authStatus === 'AUTHENTICATED' && (
+            <S.NavItem>
+              <S.NavLink as="button" type="button" onClick={signOut}>
+                <FeatherIcon icon="log-out" />
+                <S.NavLinkLabel>Logout</S.NavLinkLabel>
+              </S.NavLink>
+            </S.NavItem>
+          )}
+
           <S.NavItem>
             <ThemeToggle collapsed={sidebarCollapsed && !sidebarHoverExpand} />
           </S.NavItem>
