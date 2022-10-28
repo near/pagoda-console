@@ -11,6 +11,7 @@ import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { usePublicStore } from '@/stores/public';
+import analytics from '@/utils/analytics';
 import { StableId } from '@/utils/stable-ids';
 import type { Contract, NetOption, NextPageWithLayout } from '@/utils/types';
 import { netOptions } from '@/utils/types';
@@ -49,6 +50,10 @@ const Public: NextPageWithLayout = () => {
 
       setContracts(contracts);
       activatePublicMode();
+
+      analytics.track('DC Public Mode Activated', {
+        url: window.location.pathname + window.location.search,
+      });
 
       router.replace(`/${redirectPageNameParam}`);
     }
