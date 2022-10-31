@@ -5,6 +5,7 @@
   "scripts": {
     "migrate:deploy": "./scripts/prisma.sh migrate deploy",
     "migrate:reset": "./scripts/prisma.sh migrate reset --force",
+    "migrate:dev": "./scripts/prisma.sh migrate dev",
     "build": "./scripts/prisma.sh generate",
     "lint:check": "npx lint-staged"
   },
