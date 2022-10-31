@@ -22,6 +22,16 @@ type Props = {
   transactionHash: string | null;
 };
 
+type ToogleReceipt = {
+  id: string;
+  active: boolean;
+};
+
+type TransactionReceiptContext = {
+  selectedReceipts: ToogleReceipt[];
+  toggleReceipts: (id: string) => void;
+};
+
 const Wrapper = styled('div', {
   display: 'flex',
   flexDirection: 'column',
@@ -118,9 +128,41 @@ const toHuman = (dur: Duration, smallestUnit: keyof DurationLikeObject = 'second
   return dur2.toHuman();
 };
 
+export const TransactionReceiptContext = React.createContext<TransactionReceiptContext>({
+  selectedReceipts: [],
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  toggleReceipts: () => {},
+});
+
 const TransactionActionsList: React.FC<ListProps> = React.memo(({ transaction }) => {
-  const [expanded, setExpanded] = React.useState(false);
-  const expandAllReceipts = React.useCallback(() => setExpanded((x) => !x), [setExpanded]);
+  const preCollectedReceipts = React.useMemo(() => {
+    const receipts = [] as ToogleReceipt[];
+    const collectReceiptHashes: any = (receipt: Transaction['receipt']) => {
+      const id = receipt.id;
+      receipts.push({ id, active: false });
+      return receipt.outcome.nestedReceipts
+        .filter((receipt) => receipt.predecessorId !== 'system')
+        .map(collectReceiptHashes);
+    };
+    collectReceiptHashes(transaction.receipt);
+    return receipts;
+  }, [transaction.receipt]);
+
+  const [activeReceipts, setActiveReceipts] = React.useState(preCollectedReceipts);
+
+  const [toggleType, setToggleType] = React.useState<'toggle' | 'collapse'>('collapse');
+  const toggleAllReceipts = React.useCallback(() => {
+    setToggleType((prevType) => (prevType === 'collapse' ? 'toggle' : 'collapse'));
+    const receipts = activeReceipts.map((i) => {
+      switch (toggleType) {
+        case 'collapse':
+          return { id: i.id, active: true };
+        case 'toggle':
+          return { id: i.id, active: false };
+      }
+    });
+    setActiveReceipts(receipts);
+  }, [activeReceipts, toggleType]);
 
   const nestedReceipts = transaction.receipt.outcome.nestedReceipts;
   const pending = React.useMemo(() => {
@@ -131,25 +173,49 @@ const TransactionActionsList: React.FC<ListProps> = React.memo(({ transaction })
     return toHuman(Interval.fromDateTimes(new Date(transaction.timestamp), new Date(completedTimestamp)).toDuration());
   }, [transaction.timestamp, nestedReceipts]);
 
+  const toggleReceipts = (id: string) => {
+    setActiveReceipts((prevState) => {
+      const index = prevState.findIndex((i) => i.id === id);
+      if (index >= 0) {
+        const newObj = { id, active: !prevState[index].active };
+        const rest = prevState.filter((i) => i.id !== id);
+        const updatedObj = [...rest, newObj];
+
+        const allExpanded = activeReceipts.every((i) => i.active === true);
+        const allCollapsed = activeReceipts.every((i) => i.active === false);
+
+        if (allCollapsed) {
+          setToggleType('toggle');
+        } else if (allExpanded) {
+          setToggleType('collapse');
+        }
+        return updatedObj;
+      } else {
+        return [...prevState, { id, active: true }];
+      }
+    });
+  };
+
   return (
-    <Wrapper>
-      <TitleWrapper>
-        <div>
-          <H4>Execution Plan</H4>
-          <span>Processed in {pending}</span>
-        </div>
-        <Button stableId={StableId.TRANSACTION_ACTIONS_RESPONSE_EXPAND_BUTTON} size="s" onClick={expandAllReceipts}>
-          {expanded ? 'Collapse all -' : 'Expand All + '}
-        </Button>
-      </TitleWrapper>
-      <TransactionReceipt
-        receipt={transaction.receipt}
-        fellowOutgoingReceipts={[]}
-        className=""
-        convertionReceipt={true}
-        expandAll={expanded}
-      />
-    </Wrapper>
+    <TransactionReceiptContext.Provider value={{ selectedReceipts: activeReceipts, toggleReceipts }}>
+      <Wrapper>
+        <TitleWrapper>
+          <div>
+            <H4>Execution Plan</H4>
+            <span>Processed in {pending}</span>
+          </div>
+          <Button stableId={StableId.TRANSACTION_ACTIONS_RESPONSE_EXPAND_BUTTON} size="s" onClick={toggleAllReceipts}>
+            {toggleType === 'toggle' ? 'Collapse all -' : 'Expand All + '}
+          </Button>
+        </TitleWrapper>
+        <TransactionReceipt
+          receipt={transaction.receipt}
+          fellowOutgoingReceipts={[]}
+          className=""
+          convertionReceipt={true}
+        />
+      </Wrapper>
+    </TransactionReceiptContext.Provider>
   );
 });
 
