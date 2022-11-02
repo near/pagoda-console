@@ -76,6 +76,7 @@ jobs:
           #echo "DEV_DB_URL=localhost" >> $GITHUB_ENV
           #echo "DEV_DB_URL=%2Fcloudsql%2Fnear-dev-platform%3Aus-east1%3Aapi-developer-console-test" >> $GITHUB_ENV
           echo "DEV_DB_URL=35.185.74.37" >> $GITHUB_ENV
+          echo "DEV_IMAGE_URL=gcr.io/near-dev-platform/developer-console-api:dev" >> $GITHUB_ENV
 
 
       - name: "Allowing internal traffic only for the service"
@@ -98,7 +99,7 @@ jobs:
           cd .. && npm ci && npm run -w database migrate:deploy
 
       - name: "Deploy image"
-        run: gcloud run deploy $DEV_SERVICE_NAME --namespace=$DEV_NAMESPACE --image $API_IMAGE
+        run: gcloud run deploy $DEV_SERVICE_NAME --image=$DEV_IMAGE_URL --region $DEV_REGION 
       
       - name: "Allowing all traffic for the service"
         run: gcloud run services update $DEV_SERVICE_NAME --region $DEV_REGION --platform managed --ingress all
