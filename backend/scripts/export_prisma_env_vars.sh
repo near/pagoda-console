@@ -22,7 +22,13 @@ fi;
 
 # TODO update new module script to append to this file
 # Sets env vars to connect to each Prisma database.
-export DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/devconsole?host=near-dev-platform:us-east1:api-developer-console-test
-export ALERTS_DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/alerts?host=near-dev-platform:us-east1:api-developer-console-test
-export ABI_DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/abi?host=near-dev-platform:us-east1:api-developer-console-test
-export RPCSTATS_DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/rpcstats?host=near-dev-platform:us-east1:api-developer-console-test
+# export DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/devconsole?host=/cloudsql/near-dev-platform:us-east1:api-developer-console-test
+# export ALERTS_DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/alerts?host=/cloudsql/near-dev-platform:us-east1:api-developer-console-test
+# export ABI_DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/abi?host=/cloudsql/near-dev-platform:us-east1:api-developer-console-test
+# export RPCSTATS_DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/rpcstats?host=/cloudsql/near-dev-platform:us-east1:api-developer-console-test
+
+
+export DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/devconsole
+export ALERTS_DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/alerts
+export ABI_DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/abi
+export RPCSTATS_DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/rpcstats
