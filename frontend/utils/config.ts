@@ -92,6 +92,7 @@ interface AppConfig {
   analyticsIframeUrl: RpcNets;
   launchDarklyEnv: string;
   gleapAuth?: string;
+  googleTagManagerId?: string;
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
@@ -143,6 +144,7 @@ const config: AppConfig = {
   },
   launchDarklyEnv: process.env.NEXT_PUBLIC_LAUNCHDARKLY_SDK_ENV,
   gleapAuth: process.env.NEXT_PUBLIC_GLEAP_AUTH_KEY,
+  googleTagManagerId: process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID,
 };
 
 export default config;

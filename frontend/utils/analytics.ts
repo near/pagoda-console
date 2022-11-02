@@ -1,19 +1,19 @@
 import Analytics from 'analytics-node';
-import { uniqueId } from 'lodash-es';
+import { nanoid } from 'nanoid';
 
 import config from './config';
 
-export interface Dict {
+interface Properties {
   [key: string]: any;
 }
 
 let segment: Analytics;
 let userId: string;
-const anonymousId = uniqueId();
+let anonymousUserId: string;
 
 function init() {
   if (segment) return console.log('Segment Analytics has already been initialized');
-  //flushAt=1 is useful for testing new events
+
   const proxySettings =
     typeof window === 'undefined'
       ? {}
@@ -21,20 +21,17 @@ function init() {
           host: `${window.location.protocol}//${window.location.host}`,
           path: '/api/segment',
         };
-  const options = config.deployEnv === 'LOCAL' ? { flushAt: 1, ...proxySettings } : proxySettings;
+
+  const options = {
+    ...proxySettings,
+    flushAt: config.deployEnv === 'LOCAL' ? 1 : undefined, // flushAt=1 is useful for testing new events
+  };
+
   segment = new Analytics(config.segment, options);
 }
 
-function alias(id: string) {
-  userId = id;
-  segment.alias({
-    previousId: userId || anonymousId,
-    userId,
-  });
-}
-
-function track(eventLabel: string, properties?: Dict) {
-  const id = userId ? { userId } : { anonymousId };
+function track(eventLabel: string, properties?: Properties) {
+  const id = userId ? { userId } : { anonymousId: anonymousUserId };
   segment.track({
     ...id,
     event: eventLabel,
@@ -50,8 +47,8 @@ function identify(id: string, traits: Record<string, any>) {
   });
 }
 
-function pageView(name: string, properties?: Dict) {
-  const id = userId ? { userId } : { anonymousId };
+function pageView(name: string, properties?: Properties) {
+  const id = userId ? { userId } : { anonymousId: anonymousUserId };
   segment.page({
     ...id,
     name,
@@ -60,16 +57,29 @@ function pageView(name: string, properties?: Dict) {
 }
 
 function reset() {
-  segment.flush();
   track('Logout');
+  segment.flush();
+}
+
+function setAnonymousId() {
+  if (anonymousUserId) {
+    return;
+  }
+  const storageId: string | null = localStorage.getItem('anonymousUserId');
+  if (storageId) {
+    anonymousUserId = storageId;
+  } else {
+    anonymousUserId = nanoid();
+    localStorage.setItem('anonymousUserId', anonymousUserId);
+  }
 }
 
 const fns = {
-  alias,
   identify,
   init,
   pageView,
   reset,
+  setAnonymousId,
   track,
 };
 

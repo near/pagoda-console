@@ -115,6 +115,11 @@ resource "google_cloud_run_service" "console_api" {
         }
 
         env {
+          name  = "FIREBASE_CLIENT_CONFIG"
+          value = var.firebase_client_config
+        }
+
+        env {
           name = "RPC_API_KEYS_API_KEY"
           value_from {
             secret_key_ref {

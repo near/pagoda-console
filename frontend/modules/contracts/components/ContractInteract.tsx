@@ -27,7 +27,7 @@ export const ContractInteract = ({ contract }: Props) => {
     }
   }, [contract, contractAbi, error]);
 
-  if (error && error?.message !== 'ABI_NOT_FOUND') {
+  if (error && error.message && ['Failed to fetch', 'ABI_NOT_FOUND'].indexOf(error.message) < 0) {
     openToast({
       type: 'error',
       title: 'Failed to retrieve ABI.',

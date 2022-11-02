@@ -7,3 +7,5 @@ ems_provisioning_service_url = "http://ems-provisioning.dev.gcp.pagoda.co"
 
 # Since preview environments are short-lived, it's a hassle having deletion protection.
 deletion_protection = false
+
+firebase_client_config = "{\"apiKey\":\"AIzaSyDe_OW8pBVbGXsnt1Azvuhe8dimAWL_L7I\",\"authDomain\":\"developer-platform-dev.firebaseapp.com\",\"projectId\":\"developer-platform-dev\",\"storageBucket\":\"developer-platform-dev.appspot.com\",\"messagingSenderId\":\"766023840763\",\"appId\":\"1:766023840763:web:79d849ea5efeed51e1915e\",\"measurementId\":\"G-N4KF80KNL3\"}"

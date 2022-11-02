@@ -28,12 +28,12 @@ jobs:
         run: npm install prisma-dbml-generator
 
       - name: add generator to Prisma's schema
-        run: printf '\ngenerator dbml {\n  provider = "prisma-dbml-generator"\n}' >> ./backend/src/core/prisma/schema.prisma
+        run: printf '\ngenerator dbml {\n  provider = "prisma-dbml-generator"\n}' >> ./database/schemas/core/schema.prisma
 
       - name: Generate DB Docs schema file
-        run: npx prisma generate --schema ./backend/src/core/prisma/schema.prisma
+        run: npx prisma generate --schema ./database/schemas/core/schema.prisma
 
       - name: Upload DB Docs schema file
         env:
           DBDOCS_TOKEN: ${{ secrets.DBDOCS_TOKEN }}
-        run: dbdocs build ./backend/src/core/prisma/dbml/schema.dbml --password ${{ secrets.DBDOCS_PROJECT_PASSWORD }} --project "Pagoda Developer Console Dev"
+        run: dbdocs build ./database/schemas/core/dbml/schema.dbml --password ${{ secrets.DBDOCS_PROJECT_PASSWORD }} --project "Pagoda Developer Console Dev"

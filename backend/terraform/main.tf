@@ -118,6 +118,7 @@ module "api" {
   api_name                     = "console-api-${local.instance_name_suffix}"
   api_image                    = var.api_image
   frontend_base_url            = var.frontend_base_url
+  firebase_client_config       = var.firebase_client_config
   database_connection_name     = module.postgres.database_connection_name
   ems_vpc_access_connector     = var.ems_vpc_access_connector
   ems_provisioning_service_url = var.ems_provisioning_service_url

@@ -36,6 +36,12 @@ variable "frontend_base_url" {
   nullable    = false
 }
 
+variable "firebase_client_config" {
+  type        = string
+  description = "Firebase client sdk credentials config"
+  nullable    = false
+}
+
 variable "database_connection_name" {
   type     = string
   nullable = false

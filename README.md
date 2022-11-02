@@ -2,6 +2,9 @@
 
 This monorepo uses [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces) and [turborepo](https://turborepo.org/)
 
+**Prod**: [console.pagoda.co](https://console.pagoda.co)  
+**Dev**: [core.dev.console.pagoda.co](https://core.dev.console.pagoda.co)
+
 ## Quickstart
 
 ### Configure Environment Variables
@@ -27,7 +30,7 @@ This will create a set of Docker containers with all required dependencies preco
 4. Wait for the build process to complete. You will now have two connected Docker containers running. One is your Node+Typescript development environment and one is a Postgres instance. Your files are mounted into the Node+Typescript container, so edits made through VS Code apply to the files on your local filesystem
 5. Open an in-editor terminal by selecting `Terminal > New Terminal` from the Menu Bar
 6. Run `npm install` to install dependencies
-7. Run `npm -w database migrate:reset` to initialize the database
+7. Run `npm -w database run migrate:reset` to initialize the database
 8. Choose `Run > Start Debugging` or hit F5 to run both the frontend and backend live-reload mode
 9. The frontend is available at `localhost:3000` and the backend is available at `localhost:3001`. VS Code will automatically expose the port from the Dev Container to the rest of your machine
 
