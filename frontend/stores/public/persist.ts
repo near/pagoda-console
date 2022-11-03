@@ -6,11 +6,11 @@ import type { PublicStore } from './types';
 const key = 'public';
 
 usePublicStore.subscribe((store) => {
-  storage.hybrid.setItem<PublicStore>(key, store);
+  storage.session.setItem<PublicStore>(key, store);
 });
 
 export function hydrate() {
-  const value = storage.hybrid.getItem<PublicStore>(key);
+  const value = storage.session.getItem<PublicStore>(key);
 
   usePublicStore.setState({
     ...value,
