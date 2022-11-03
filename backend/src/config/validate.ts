@@ -371,7 +371,7 @@ export default function validate(config: Record<string, unknown>): AppConfig {
       },
     );
     return validatedConfig;
-  } catch (e) {
+  } catch (e: any) {
     if (e.details) {
       // very simplistic error formatic since we are replacing Joi soon anyways
       throw new Error(JSON.stringify(e.details));

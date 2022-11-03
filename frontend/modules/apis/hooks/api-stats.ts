@@ -7,10 +7,9 @@ import { authenticatedPost } from '@/utils/http';
 import type { Environment, Project } from '@/utils/types';
 
 import type {
-  ApikeyEndpointMetricsPerBaseWindow,
   ApiStatsData,
   EndpointMetric,
-  Metric,
+  EndpointMetricsDetailsResponseDto,
   RpcStatsPagingResponse,
   TimeRangeValue,
 } from '../utils/types';
@@ -30,7 +29,7 @@ function timeRangeToDates(timeRangeValue: TimeRangeValue, endTime: DateTime): [D
   }
 }
 
-function totalMetrics(endpointMetrics: Metric[]): {
+function totalMetrics(endpointMetrics: EndpointMetricsDetailsResponseDto[]): {
   successCount: number;
   errorCount: number;
   weightedTotalLatency: number;
@@ -47,7 +46,7 @@ function totalMetrics(endpointMetrics: Metric[]): {
   return { successCount, errorCount, weightedTotalLatency };
 }
 
-function endpointTotals(endpointMetrics: ApikeyEndpointMetricsPerBaseWindow[]): EndpointMetric[] {
+function endpointTotals(endpointMetrics: EndpointMetricsDetailsResponseDto[]): EndpointMetric[] {
   return endpointMetrics.map((endpointMetric) => {
     return {
       endpointMethod: endpointMetric.endpointMethod,
@@ -99,12 +98,13 @@ function toLuxonDateTimeResolution(dateTimeResolution: DateTimeResolution) {
 }
 
 function fillEmptyDateValues(
-  dateValues: Array<any>,
+  dateValues: Array<EndpointMetricsDetailsResponseDto>,
   startDateTime: DateTime,
   endDateTime: DateTime,
   dateTimeResolution: DateTimeResolution,
 ) {
-  const filledDateValues = [];
+  const filledDateValues: Omit<EndpointMetricsDetailsResponseDto, 'apiKeyIdentifier' | 'endpointMethod' | 'network'>[] =
+    [];
   const luxonDateTimeResolution = toLuxonDateTimeResolution(dateTimeResolution);
   // set currentDateTime to start of next dateTimeResolution
   let currentDateTime = startDateTime

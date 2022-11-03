@@ -20,7 +20,7 @@ export class EmailVerificationService {
 
     this.from = this.config.get('email.alerts.noReply', {
       infer: true,
-    });
+    })!;
   }
 
   async sendVerificationEmail(recipient: string, token: string) {

@@ -20,7 +20,7 @@ export class OrgInviteEmailService {
 
     this.from = this.config.get('email.noReply', {
       infer: true,
-    });
+    })!;
   }
 
   async sendInvite(orgName: string, recipient: string, token: string) {

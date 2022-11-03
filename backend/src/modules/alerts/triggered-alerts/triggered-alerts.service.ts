@@ -105,7 +105,7 @@ export class TriggeredAlertsService {
     pagingDateTime: Date,
     projectSlug: string,
     environmentSubId: number,
-    alertId: number,
+    alertId?: number,
   ): Prisma.TriggeredAlertWhereInput {
     const listWhere: Prisma.TriggeredAlertWhereInput = {
       alert: {
@@ -119,7 +119,7 @@ export class TriggeredAlertsService {
       };
     }
     if (alertId) {
-      listWhere.alert.id = alertId;
+      listWhere.alert!.id = alertId;
     }
     return listWhere;
   }
@@ -155,14 +155,14 @@ export class TriggeredAlertsService {
     slug: TriggeredAlert['slug'],
   ): Promise<TriggeredAlertWithAlert> {
     const triggeredAlert: TriggeredAlertWithAlert =
-      await this.prisma.triggeredAlert.findFirst({
+      (await this.prisma.triggeredAlert.findFirst({
         where: {
           slug,
         },
         include: {
           alert: true,
         },
-      });
+      }))!;
 
     return triggeredAlert;
   }

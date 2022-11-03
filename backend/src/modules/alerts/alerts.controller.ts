@@ -17,18 +17,20 @@ import { AppConfig } from 'src/config/validate';
 import { assertUnreachable } from 'src/helpers';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 import { VError } from 'verror';
-import { AlertsService } from './alerts.service';
 import {
-  CreateAcctBalAlertDto,
+  AlertsService,
+  CreateAcctBalAlertSchema,
+  CreateEventAlertSchema,
+  CreateFnCallAlertSchema,
+  CreateTxAlertSchema,
+} from './alerts.service';
+import {
   CreateAlertDto,
   CreateAlertSchema,
-  CreateEventAlertDto,
-  CreateTxAlertDto,
   DeleteAlertDto,
   DeleteAlertSchema,
   ListAlertDto,
   ListAlertSchema,
-  CreateFnCallAlertDto,
   UpdateAlertSchema,
   UpdateAlertDto,
   GetAlertDetailsSchema,
@@ -68,10 +70,10 @@ export class AlertsController {
     private readonly alertsService: AlertsService,
     private readonly telegramService: TelegramService,
   ) {
-    this.tgSecret = this.config.get('alerts.telegram.secret', { infer: true });
+    this.tgSecret = this.config.get('alerts.telegram.secret', { infer: true })!;
     this.tgEnableWebhook = this.config.get('alerts.telegram.enableWebhook', {
       infer: true,
-    });
+    })!;
   }
 
   @Post('createAlert')
@@ -87,33 +89,33 @@ export class AlertsController {
         case 'TX_SUCCESS':
           return await this.alertsService.createTxSuccessAlert(
             req.user,
-            dto as CreateTxAlertDto,
+            dto as CreateTxAlertSchema,
           );
         case 'TX_FAILURE':
           return await this.alertsService.createTxFailureAlert(
             req.user,
-            dto as CreateTxAlertDto,
+            dto as CreateTxAlertSchema,
           );
         case 'FN_CALL':
           return await this.alertsService.createFnCallAlert(
             req.user,
-            dto as CreateFnCallAlertDto,
+            dto as CreateFnCallAlertSchema,
           );
         case 'EVENT':
           return await this.alertsService.createEventAlert(
             req.user,
-            dto as CreateEventAlertDto,
+            dto as CreateEventAlertSchema,
           );
         case 'ACCT_BAL_NUM':
         case 'ACCT_BAL_PCT':
           return await this.alertsService.createAcctBalAlert(
             req.user,
-            dto as CreateAcctBalAlertDto,
+            dto as CreateAcctBalAlertSchema,
           );
         default:
           assertUnreachable(ruleType);
       }
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -127,7 +129,7 @@ export class AlertsController {
   ): Promise<AlertDetailsResponseDto> {
     try {
       return await this.alertsService.updateAlert(req.user, id, name, isPaused);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -145,7 +147,7 @@ export class AlertsController {
         projectSlug,
         environmentSubId,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -157,7 +159,7 @@ export class AlertsController {
   async deleteAlert(@Request() req, @Body() { id }: DeleteAlertDto) {
     try {
       return await this.alertsService.deleteAlert(req.user, id);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -171,7 +173,7 @@ export class AlertsController {
   ): Promise<AlertDetailsResponseDto> {
     try {
       return await this.alertsService.getAlertDetails(req.user, id);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -198,7 +200,7 @@ export class AlertsController {
         default:
           assertUnreachable(type);
       }
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -213,7 +215,7 @@ export class AlertsController {
   ) {
     try {
       return await this.alertsService.deleteDestination(req.user, id);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -227,7 +229,7 @@ export class AlertsController {
   ) {
     try {
       return await this.alertsService.listDestinations(req.user, projectSlug);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -246,7 +248,7 @@ export class AlertsController {
         alert,
         destination,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -265,7 +267,7 @@ export class AlertsController {
         alert,
         destination,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -292,7 +294,7 @@ export class AlertsController {
         default:
           assertUnreachable(type);
       }
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -303,7 +305,7 @@ export class AlertsController {
   async verifyEmailDestination(@Body() { token }: VerifyEmailDto) {
     try {
       await this.alertsService.verifyEmailDestination(token);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -329,7 +331,7 @@ export class AlertsController {
         if (startToken) {
           try {
             await this.telegramService.start(startToken, message.chat);
-          } catch (e) {
+          } catch (e: any) {
             // TODO convert this when logging lib is merged
             console.error(e); // intentionally leaving this in until better logging is implemented
             switch (VError.info(e)?.code) {
@@ -361,13 +363,13 @@ export class AlertsController {
           );
         } else {
           await this.telegramService.sendMessage(
-            body.message.chat.id,
+            message.chat.id,
             `Please provide your setup token as follows:\n<pre>/start &lt;token&gt;</pre>`,
           );
         }
       } else {
         await this.telegramService.sendMessage(
-          body.message.chat.id,
+          message.chat.id,
           'You can receive alerts here by setting up a Telegram destination in Pagoda. If you are trying to provide your setup token, please enter it as follows:\n<pre>/start &lt;token&gt;</pre>',
         );
       }
@@ -384,7 +386,7 @@ export class AlertsController {
   ) {
     try {
       await this.alertsService.resendEmailVerification(req.user, destinationId);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -397,7 +399,7 @@ export class AlertsController {
   ) {
     try {
       await this.alertsService.unsubscribeFromEmailAlert(token);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -415,7 +417,7 @@ export class AlertsController {
         req.user,
         destinationId,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }

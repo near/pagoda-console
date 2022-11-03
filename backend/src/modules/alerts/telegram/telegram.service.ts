@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
-import { TelegramDestination } from '@pc/database/clients/alerts';
 import { DateTime } from 'luxon';
 import { AppConfig } from 'src/config/validate';
 import { VError } from 'verror';
@@ -25,7 +24,7 @@ export class TelegramService {
     });
   }
 
-  async start(startToken: TelegramDestination['startToken'], chat: TgChat) {
+  async start(startToken: string | undefined, chat: TgChat) {
     const tgDestination = await this.prisma.telegramDestination.findUnique({
       where: {
         startToken,
@@ -45,7 +44,7 @@ export class TelegramService {
     }
 
     //check token expiry
-    if (DateTime.now() > DateTime.fromJSDate(tgDestination.tokenExpiresAt)) {
+    if (DateTime.now() > DateTime.fromJSDate(tgDestination.tokenExpiresAt!)) {
       throw new VError(
         { info: { code: 'BAD_TELEGRAM_TOKEN_EXPIRED' } },
         'Telegram start token expired',

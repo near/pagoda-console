@@ -103,7 +103,7 @@ export class RpcStatsService {
     } = dateTimeParts;
     switch (dateTimeResolution) {
       case DateTimeResolution.FIFTEEN_SECONDS:
-        const secondsInQuarterMinute = quarterMinute * 15;
+        const secondsInQuarterMinute = quarterMinute! * 15;
         return DateTime.fromObject(
           {
             year,

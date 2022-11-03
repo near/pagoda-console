@@ -188,14 +188,14 @@ interface WebhookDestinationResponseDto {
 export interface AlertDetailsResponseDto {
   id: number;
   type: RuleType;
-  name: string;
+  name: string | null;
   isPaused: boolean;
   projectSlug: string;
   environmentSubId: number;
   rule: TxRuleDto | FnCallRuleDto | EventRuleDto | AcctBalRuleDto;
   enabledDestinations: Array<{
     id: number;
-    name: string;
+    name: string | null;
     type: DestinationType;
     config: WebhookDestinationResponseDto;
   }>;
@@ -359,8 +359,8 @@ export interface TriggeredAlertDetailsResponseDto {
   name: string;
   type: RuleType;
   triggeredInBlockHash: string;
-  triggeredInTransactionHash: string;
-  triggeredInReceiptId: string;
+  triggeredInTransactionHash: string | null;
+  triggeredInReceiptId: string | null;
   triggeredAt: Date;
   extraData?: Record<string, unknown>;
 }

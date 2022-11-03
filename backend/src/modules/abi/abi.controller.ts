@@ -32,7 +32,7 @@ export class AbiController {
   ) {
     try {
       return await this.abi.addContractAbi(req.user, contract, abi);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -46,7 +46,7 @@ export class AbiController {
   ) {
     try {
       return await this.abi.getContractAbi(req.user, contract);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }

@@ -17,8 +17,7 @@ const express = require('express');
 export class PromethusInterceptor implements NestInterceptor {
   static server;
   config: ConfigService<AppConfig>;
-  port: number;
-  logger: {
+  logger!: {
     onRequest: ({ method, path }: { method: string; path: string }) => void;
     onResponse: ({
       method,

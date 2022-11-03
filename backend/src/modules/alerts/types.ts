@@ -21,7 +21,7 @@ export type PremapDestination = Pick<
   Destination,
   'id' | 'name' | 'projectSlug' | 'type' | 'isValid'
 > & {
-  webhookDestination?: Partial<WebhookDestination>;
-  emailDestination?: Partial<EmailDestination>;
-  telegramDestination?: Partial<TelegramDestination>;
+  webhookDestination?: Partial<WebhookDestination> | null;
+  emailDestination?: Partial<EmailDestination> | null;
+  telegramDestination?: Partial<TelegramDestination> | null;
 };

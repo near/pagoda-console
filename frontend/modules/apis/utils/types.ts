@@ -23,10 +23,10 @@ export interface ApiStatsData {
   requestSuccessRatePercentage: number;
   totalInvalidRequests: number;
   totalRequestVolume: number;
-  requestStatusPerMethod: ApikeyEndpointMetricsPerBaseWindow[];
+  requestStatusPerMethod: EndpointMetricsDetailsResponseDto[];
 
   charts: {
-    totalRequestVolume: ApikeyMetricsPerBaseWindow[];
+    totalRequestVolume: Omit<EndpointMetricsDetailsResponseDto, 'apiKeyIdentifier' | 'endpointMethod' | 'network'>[];
     totalRequestsPerMethod: EndpointMetric[];
     totalRequestsPerStatus: ApiDataPoint[];
   };
@@ -37,45 +37,21 @@ export interface Net {
   TESTNET: 'TESTNET';
 }
 
-export interface ApikeyMetricsPerBaseWindow {
-  successCount: number;
-  errorCount: number;
-  network: Net;
-  minLatency: number;
-  maxLatency: number;
-  meanLatency: number;
-  windowStart: Date;
-  windowEnd: Date;
-}
-export interface ApikeyEndpointMetricsPerBaseWindow {
-  successCount: number;
-  errorCount: number;
-  network: Net;
-  minLatency: number;
-  maxLatency: number;
-  meanLatency: number;
-  windowStart: Date;
-  windowEnd: Date;
-  endpointGroup: string;
+export interface EndpointMetricsDetailsResponseDto {
+  apiKeyIdentifier: string;
+  endpointGroup?: string;
   endpointMethod: string;
-}
-export interface ApikeyGeographyMetricsPerBaseWindow {
+  network: Net;
+  windowStart?: string;
+  windowEnd?: string;
   successCount: number;
   errorCount: number;
-  network: Net;
   minLatency: number;
   maxLatency: number;
   meanLatency: number;
-  windowStart: Date;
-  windowEnd: Date;
-  country: string;
-  state: string;
 }
-export type Metric =
-  | ApikeyMetricsPerBaseWindow
-  | ApikeyEndpointMetricsPerBaseWindow
-  | ApikeyGeographyMetricsPerBaseWindow;
+
 export interface RpcStatsPagingResponse {
   count: number;
-  page: Array<any>;
+  page: Array<EndpointMetricsDetailsResponseDto>;
 }

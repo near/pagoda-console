@@ -31,6 +31,17 @@ const DS_INDEXER_TESTNET = 'DS_INDEXER_TESTNET';
 import { Sequelize, QueryTypes } from 'sequelize';
 import { Net } from '@pc/database/clients/core';
 import { AppConfig } from '../config/validate';
+import { Action } from './explorer/actions';
+
+type OldTransaction = {
+  hash: string;
+  signerId: string;
+  receiverId: string;
+  blockHash: string;
+  blockTimestamp: number;
+  transactionIndex: number;
+  actions: Action[];
+};
 
 @Injectable()
 export class IndexerService {
@@ -166,7 +177,10 @@ export class IndexerService {
 
   // helper function to init transactions list
   // as we use the same structure but different queries for account, block, txInfo and list
-  async createTransactionsList(transactionsArray, net: Net) {
+  async createTransactionsList(
+    transactionsArray,
+    net: Net,
+  ): Promise<OldTransaction[]> {
     const transactionsHashes = transactionsArray.map(({ hash }) => hash);
     const transactionsActionsList = await this.getTransactionsActionsList(
       transactionsHashes,
@@ -230,7 +244,7 @@ export class IndexerService {
   }
 
   async fetchRecentTransactions(accounts: string[], net: Net) {
-    const promises = [];
+    const promises: Promise<OldTransaction[] | undefined>[] = [];
 
     for (const account of accounts) {
       const paginationIndexer = {
@@ -250,7 +264,8 @@ export class IndexerService {
     }
     const results = await Promise.allSettled(promises);
     // console.log(results);
-    let mergedTransactions = [];
+    let mergedTransactions: (OldTransaction & { sourceContract: string })[] =
+      [];
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
       if (result.status === 'fulfilled' && result.value?.length) {
@@ -280,7 +295,7 @@ export class IndexerService {
   }
 }
 
-function sortBigInts(a: string, b: string) {
+function sortBigInts(a: number, b: number) {
   const aBigInt = BigInt(a);
   const bBigInt = BigInt(b);
   return bBigInt > aBigInt ? 1 : aBigInt > bBigInt ? -1 : 0;

@@ -32,7 +32,7 @@ export class AbiService {
           createdBy: user.id,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while creating abi');
     }
 
@@ -59,7 +59,7 @@ export class AbiService {
           id: 'desc',
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while getting ABI');
     }
 

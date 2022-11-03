@@ -21,17 +21,17 @@ async function bootstrap() {
 
   // initialize Firebase admin
   const sa = JSON.parse(
-    configService.get('firebase.credentials', { infer: true }),
+    configService.get('firebase.credentials', { infer: true })!,
   ) as ServiceAccount;
   initializeApp({
     credential: credential.cert(sa),
   });
   // initialize Firebase client
   const firebaseClientConfig = JSON.parse(
-    configService.get('firebase.clientConfig', { infer: true }),
+    configService.get('firebase.clientConfig', { infer: true })!,
   ) as FirebaseOptions;
   clientInitializeApp(firebaseClientConfig);
 
-  await app.listen(configService.get('port', { infer: true }), '0.0.0.0');
+  await app.listen(configService.get('port', { infer: true })!, '0.0.0.0');
 }
 bootstrap();

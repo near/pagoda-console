@@ -37,7 +37,7 @@ const DEFAULT_TEAM_NAME = 'default';
 @Injectable()
 export class UsersService implements OnModuleInit {
   private orgInviteExpiryMinutes: number;
-  private projectsService: ProjectsService;
+  private projectsService!: ProjectsService;
   constructor(
     private prisma: PrismaService,
     private config: ConfigService<AppConfig>,
@@ -50,7 +50,7 @@ export class UsersService implements OnModuleInit {
       {
         infer: true,
       },
-    );
+    )!;
   }
 
   // * ProjectsService is being resolved this way in order to not have a direct link to the ProjectsModule.
@@ -81,7 +81,7 @@ export class UsersService implements OnModuleInit {
     const emsId = newEmsId();
     try {
       await this.apiKeysService.createOrganization(emsId, orgSlug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         { info: { code: UserError.SERVER_ERROR } },
         'Creating a kong consumer for an org failed.',
@@ -157,7 +157,7 @@ export class UsersService implements OnModuleInit {
 
     await firebaseAdmin.auth().deleteUser(uid);
 
-    const user = await this.findActive({ uid });
+    const user = (await this.findActive({ uid }))!;
 
     await this.projectsService.deleteApiKeysByUser(user);
 
@@ -256,7 +256,7 @@ export class UsersService implements OnModuleInit {
           },
         }),
       ]);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while deactivating user in database');
     }
   }
@@ -289,7 +289,7 @@ export class UsersService implements OnModuleInit {
     const emsId = newEmsId();
     try {
       await this.apiKeysService.createOrganization(emsId, slug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         { info: { code: UserError.SERVER_ERROR } },
         'Creating a kong consumer for an org failed.',
@@ -374,7 +374,7 @@ export class UsersService implements OnModuleInit {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         'Failed to determine if user is an existing member of the org',
@@ -402,7 +402,7 @@ export class UsersService implements OnModuleInit {
           ...this.creationMetadata(callingUser),
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         // The .code property can be accessed in a type-safe manner
         if (e.code === 'P2002') {
@@ -417,14 +417,14 @@ export class UsersService implements OnModuleInit {
 
     try {
       await this.orgInviteEmail.sendInvite(orgName, recipient, token);
-    } catch (e) {
+    } catch (e: any) {
       try {
         await this.prisma.orgInvite.delete({
           where: {
             id: res.id,
           },
         });
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed while rolling back org invite creation', e);
       }
 
@@ -466,7 +466,7 @@ export class UsersService implements OnModuleInit {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         // The .code property can be accessed in a type-safe manner
         if (e.code === 'P2025') {
@@ -486,7 +486,7 @@ export class UsersService implements OnModuleInit {
       'email' | 'tokenExpiresAt' | 'orgSlug' | 'role'
     > & { org: Pick<Org, 'name' | 'slug' | 'active'> };
     try {
-      invite = await this.prisma.orgInvite.findUnique({
+      invite = (await this.prisma.orgInvite.findUnique({
         where: {
           token,
         },
@@ -503,8 +503,8 @@ export class UsersService implements OnModuleInit {
             },
           },
         },
-      });
-    } catch (e) {
+      }))!;
+    } catch (e: any) {
       throw new VError(e, 'Failed while looking up org invite');
     }
 
@@ -553,15 +553,15 @@ export class UsersService implements OnModuleInit {
     // fetch default team ahead of time because nested connect is throwing type errors
     let defaultTeam: { id: number };
     try {
-      defaultTeam = await this.prisma.team.findUnique({
+      defaultTeam = (await this.prisma.team.findUnique({
         where: {
           orgSlug_name: {
             orgSlug: invite.orgSlug,
             name: DEFAULT_TEAM_NAME,
           },
         },
-      });
-    } catch (e) {
+      }))!;
+    } catch (e: any) {
       throw new VError(e, 'Failed while fetching default team');
     }
 
@@ -588,7 +588,7 @@ export class UsersService implements OnModuleInit {
           },
         }),
       ]);
-    } catch (e) {
+    } catch (e: any) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         // The .code property can be accessed in a type-safe manner
         if (e.code === 'P2002') {
@@ -641,7 +641,7 @@ export class UsersService implements OnModuleInit {
       );
     }
 
-    const { id: userId } = await this.findActive({ uid: targetUser });
+    const { id: userId } = (await this.findActive({ uid: targetUser }))!;
 
     try {
       await this.prisma.$transaction([
@@ -662,7 +662,7 @@ export class UsersService implements OnModuleInit {
           },
         }),
       ]);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to remove user from org');
     }
   }
@@ -706,8 +706,22 @@ export class UsersService implements OnModuleInit {
 
     // I'm not sure this is what we want but this ensures the latest invites are at the top
     // of the list, followed by accepted members of the org.
-    return members
+    return (
+      [] as (
+        | typeof members[number]
+        | {
+            isInvite: true;
+            orgSlug: string;
+            role: OrgRole;
+            user: {
+              uid: null;
+              email: string;
+            };
+          }
+      )[]
+    )
       .concat(
+        members,
         invites.map((i) => ({
           isInvite: true,
           orgSlug: i.orgSlug,
@@ -878,7 +892,7 @@ export class UsersService implements OnModuleInit {
 
     try {
       // find user reference and make sure they are in org
-      targetMembership = await this.prisma.orgMember.findFirst({
+      targetMembership = (await this.prisma.orgMember.findFirst({
         where: {
           user: {
             uid: targetUser,
@@ -889,8 +903,8 @@ export class UsersService implements OnModuleInit {
           userId: true,
           role: true,
         },
-      });
-    } catch (e) {
+      }))!;
+    } catch (e: any) {
       throw new VError(e, 'Failed while looking up target user membership');
     }
 
@@ -910,7 +924,7 @@ export class UsersService implements OnModuleInit {
           'Cannot change role of only admin',
         );
       }
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while checking that there are other admins');
     }
 
