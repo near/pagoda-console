@@ -2,7 +2,7 @@
 name: Deploy a develop environment
 on:
   push:
-    branches: [develop, feat/dev-deployments]
+    branches: [develop]
     paths:
       - "backend/**"
       - ".github/**"
