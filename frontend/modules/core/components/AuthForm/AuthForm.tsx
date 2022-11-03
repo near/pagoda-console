@@ -16,6 +16,7 @@ import { Flex } from '@/components/lib/Flex';
 import { HR } from '@/components/lib/HorizontalRule';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useSignedInHandler } from '@/hooks/auth';
+import { usePublicMode } from '@/hooks/public';
 import GithubIconSvg from '@/public/images/icons/github.svg';
 import GoogleIconSvg from '@/public/images/icons/google.svg';
 import analytics from '@/utils/analytics';
@@ -63,6 +64,7 @@ export function AuthForm({ onSignIn }: Props) {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authError, setAuthError] = useState('');
   const signedInHandler = useSignedInHandler();
+  const { publicModeIsActive } = usePublicMode();
 
   useEffect(() => {
     router.prefetch('/projects');
@@ -80,6 +82,7 @@ export function AuthForm({ onSignIn }: Props) {
         router.push('/verification?existing=true');
       } else if (user) {
         if (onSignIn) {
+          signedInHandler(false);
           onSignIn();
         } else {
           signedInHandler('/projects');
@@ -90,6 +93,7 @@ export function AuthForm({ onSignIn }: Props) {
   }, [onSignIn, router, signedInHandler]);
 
   async function socialSignIn(provider: AuthProvider) {
+    const cachedPublicModeIsActive = publicModeIsActive;
     setIsAuthenticating(true);
     const auth = getAuth();
 
@@ -100,6 +104,10 @@ export function AuthForm({ onSignIn }: Props) {
       try {
         if (additional?.isNewUser) {
           analytics.track(`DC Signed up with ${provider.providerId.split('.')[0].toUpperCase()}`);
+
+          if (cachedPublicModeIsActive) {
+            analytics.track(`DC Public Mode Sign Up`);
+          }
         } else {
           analytics.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);
         }

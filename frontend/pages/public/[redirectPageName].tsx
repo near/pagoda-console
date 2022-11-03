@@ -9,6 +9,7 @@ import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
+import { useAuth } from '@/hooks/auth';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { usePublicStore } from '@/stores/public';
 import analytics from '@/utils/analytics';
@@ -17,11 +18,13 @@ import type { Contract, NetOption, NextPageWithLayout } from '@/utils/types';
 import { netOptions } from '@/utils/types';
 
 const Public: NextPageWithLayout = () => {
+  const { authStatus } = useAuth();
   const activatePublicMode = usePublicStore((store) => store.activatePublicMode);
   const setContracts = usePublicStore((store) => store.setContracts);
   const router = useRouter();
   const redirectPageNameParam = router.query.redirectPageName as string;
   const addressesParam = router.query.addresses as string;
+  const sharedParam = router.query.shared as string;
   const netParam = router.query.net as NetOption;
   const addresses = addressesParam ? addressesParam.split(',') : [];
   const addressesAreValid = addresses.length > 0;
@@ -37,26 +40,30 @@ const Public: NextPageWithLayout = () => {
   }, [addressesAreValid, netIsValid, router, routeNameIsValid]);
 
   useEffect(() => {
-    if (isValidUrl && !hasRedirected.current) {
-      hasRedirected.current = true;
+    if (hasRedirected.current) return;
+    if (!isValidUrl) return;
+    if (authStatus === 'LOADING') return;
 
-      const contracts: Contract[] = addresses.map((address) => {
-        return {
-          address,
-          slug: address,
-          net: netParam,
-        };
-      });
+    hasRedirected.current = true;
 
-      setContracts(contracts);
-      activatePublicMode();
+    const contracts: Contract[] = addresses.map((address) => {
+      return {
+        address,
+        slug: address,
+        net: netParam,
+      };
+    });
 
-      analytics.track('DC Public Mode Activated', {
-        url: window.location.pathname + window.location.search,
-      });
+    setContracts(contracts);
+    activatePublicMode();
 
-      router.replace(`/${redirectPageNameParam}`);
-    }
+    analytics.track('DC Public Mode Activated', {
+      existingUser: authStatus === 'AUTHENTICATED',
+      shared: sharedParam === 'true',
+      url: window.location.pathname + window.location.search,
+    });
+
+    router.replace(`/${redirectPageNameParam}`);
   });
 
   return (

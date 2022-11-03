@@ -58,10 +58,13 @@ export function useSignedInHandler() {
   const { deactivatePublicMode } = usePublicMode();
 
   const signedInHandler = useCallback(
-    (defaultRedirectUrl: string) => {
+    (defaultRedirectUrl: string | false) => {
+      deactivatePublicMode();
+
+      if (defaultRedirectUrl === false) return;
+
       const redirectUrl = sessionStorage.getItem('signInRedirectUrl') || defaultRedirectUrl;
       sessionStorage.removeItem('signInRedirectUrl');
-      deactivatePublicMode();
       router.push(redirectUrl);
     },
     [deactivatePublicMode, router],

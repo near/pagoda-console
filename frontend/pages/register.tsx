@@ -23,6 +23,7 @@ import { TextLink } from '@/components/lib/TextLink';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useSignedInHandler } from '@/hooks/auth';
 import { useSimpleLayout } from '@/hooks/layouts';
+import { usePublicMode } from '@/hooks/public';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
@@ -55,6 +56,7 @@ export function RegisterForm() {
   const [registerError, setRegisterError] = useState<string | null>();
   const router = useRouter();
   const signedInHandler = useSignedInHandler();
+  const { publicModeIsActive } = usePublicMode();
 
   useEffect(() => {
     window.addEventListener('focus', onFocus);
@@ -98,6 +100,7 @@ export function RegisterForm() {
 
   const signUpWithEmail: SubmitHandler<RegisterFormData> = async ({ email, password }) => {
     try {
+      const cachedPublicModeIsActive = publicModeIsActive;
       setRegisterError('');
       analytics.track('DC Submitted email registration form');
       const auth = getAuth();
@@ -107,6 +110,10 @@ export function RegisterForm() {
         analytics.track('DC Signed up with email', {
           status: 'success',
         });
+
+        if (cachedPublicModeIsActive) {
+          analytics.track(`DC Public Mode Sign Up`);
+        }
       } catch (e) {
         // silently fail
       }

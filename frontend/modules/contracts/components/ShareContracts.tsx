@@ -35,8 +35,8 @@ export function ShareContracts({ contracts, environment }: Props) {
       title: 'Link copied to clipboard.',
     });
 
-    analytics.track('DC Shared Contracts URL', {
-      action: 'copied',
+    analytics.track('DC Share Contracts: Copied URL', {
+      addresses: selectedAddresses.join(','),
       url,
     });
   }
@@ -52,8 +52,8 @@ export function ShareContracts({ contracts, environment }: Props) {
       console.log(e);
     }
 
-    analytics.track('DC Shared Contracts URL', {
-      action: 'native-share',
+    analytics.track('DC Share Contracts: Shared URL', {
+      addresses: selectedAddresses.join(','),
       url,
     });
   }
@@ -63,16 +63,24 @@ export function ShareContracts({ contracts, environment }: Props) {
       setSelectedAddresses((addresses) => {
         return [...addresses, e.target.value];
       });
+
+      analytics.track('DC Share Contracts: Contract Selected', {
+        address: e.target.value,
+      });
     } else {
       setSelectedAddresses((addresses) => {
         return addresses.filter((a) => a !== e.target.value);
+      });
+
+      analytics.track('DC Share Contracts: Contract Deselected', {
+        address: e.target.value,
       });
     }
   }
 
   function returnUrl() {
     const host = `${window.location.protocol}//${window.location.host}`;
-    const url = `${host}/public/contracts?net=${environment.net}&addresses=${selectedAddresses.join(',')}`;
+    const url = `${host}/public/contracts?net=${environment.net}&addresses=${selectedAddresses.join(',')}&shared=true`;
     return url;
   }
 
@@ -138,6 +146,13 @@ function ContractCheckbox({
 }) {
   const { embeddedAbi } = useEmbeddedAbi(environment.net, contract.address);
 
+  function abiIconHover() {
+    analytics.track('DC Share Contracts: ABI Icon Hover', {
+      address: contract.address,
+      hasEmbeddedAbi: !!embeddedAbi,
+    });
+  }
+
   return (
     <Checkbox
       key={contract.address}
@@ -151,7 +166,7 @@ function ContractCheckbox({
         {embeddedAbi && (
           <Tooltip content="Embedded ABI">
             <span>
-              <FeatherIcon icon="file-text" color="primary" />
+              <FeatherIcon icon="file-text" color="primary" onMouseEnter={abiIconHover} />
             </span>
           </Tooltip>
         )}
@@ -159,7 +174,7 @@ function ContractCheckbox({
         {embeddedAbi === null && (
           <Tooltip content="No embedded ABI">
             <span>
-              <FeatherIcon icon="alert-circle" color="warning" />
+              <FeatherIcon icon="alert-circle" color="warning" onMouseEnter={abiIconHover} />
             </span>
           </Tooltip>
         )}
