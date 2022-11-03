@@ -38,8 +38,9 @@ export function useAnalytics() {
 
     page = page.toUpperCase();
 
-    if (page === lastTrackedPage || authStatus === 'LOADING' || (authStatus === 'AUTHENTICATED' && !hasIdentified))
+    if (page === lastTrackedPage || authStatus === 'LOADING' || (authStatus === 'AUTHENTICATED' && !hasIdentified)) {
       return;
+    }
 
     lastTrackedPage = page;
 
