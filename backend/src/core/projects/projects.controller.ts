@@ -69,7 +69,7 @@ export class ProjectsController {
         org,
         tutorial,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -84,7 +84,7 @@ export class ProjectsController {
   ) {
     try {
       return await this.projectsService.ejectTutorial(req.user, { slug });
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -96,7 +96,7 @@ export class ProjectsController {
   async delete(@Request() req, @Body() { slug }: DeleteProjectDto) {
     try {
       return await this.projectsService.delete(req.user, { slug });
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -107,7 +107,7 @@ export class ProjectsController {
   async getDetails(@Request() req, @Body() { slug }: GetProjectDetailsDto) {
     try {
       return await this.projectsService.getProjectDetails(req.user, { slug });
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -126,7 +126,7 @@ export class ProjectsController {
         environment,
         address,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -140,7 +140,7 @@ export class ProjectsController {
       return await this.projectsService.removeContract(req.user, {
         slug,
       });
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -158,7 +158,7 @@ export class ProjectsController {
         project,
         environment,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -169,7 +169,7 @@ export class ProjectsController {
   async getContract(@Request() req, @Body() { slug }: GetContractDto) {
     try {
       return await this.projectsService.getContract(req.user, slug);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -191,7 +191,7 @@ export class ProjectsController {
       return await this.projectsService.getEnvironments(req.user, {
         slug: project,
       });
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -209,7 +209,7 @@ export class ProjectsController {
         project,
         environment,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -220,7 +220,7 @@ export class ProjectsController {
   async getKeys(@Request() req, @Body() { project }: GetKeysDto) {
     try {
       return await this.projectsService.getKeys(req.user, project);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -231,7 +231,7 @@ export class ProjectsController {
   async rotateKey(@Request() req, @Body() { slug }: RotateKeyDto) {
     try {
       return await this.projectsService.rotateKey(req.user, slug);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -249,7 +249,7 @@ export class ProjectsController {
         project,
         description,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -261,7 +261,7 @@ export class ProjectsController {
   async deleteKey(@Request() req, @Body() { slug }: DeleteKeyDto) {
     try {
       return await this.projectsService.deleteKey(req.user, slug);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }

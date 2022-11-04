@@ -300,7 +300,7 @@ export const ConsumerApiAxiosParamCreator = function (
       };
       const needsSerialization =
         typeof body !== 'string' ||
-        localVarRequestOptions.headers['Content-Type'] === 'application/json';
+        localVarRequestOptions.headers!['Content-Type'] === 'application/json';
       localVarRequestOptions.data = needsSerialization
         ? JSON.stringify(body !== undefined ? body : {})
         : body || '';

@@ -60,7 +60,7 @@ export class UsersController {
   async listOrgsWithOnlyAdmin(@Request() req) {
     try {
       return await this.usersService.listOrgsWithOnlyAdmin(req.user.uid);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -72,7 +72,7 @@ export class UsersController {
     const { uid } = req.user;
     try {
       await this.usersService.deactivateUser(uid);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -86,7 +86,7 @@ export class UsersController {
   ): Promise<OrgData> {
     try {
       return await this.usersService.createOrg(req.user, name.trim());
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -101,7 +101,7 @@ export class UsersController {
   ): Promise<void> {
     try {
       return await this.usersService.inviteToOrg(req.user, org, email, role);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -115,7 +115,7 @@ export class UsersController {
   ): Promise<{ org: Pick<Org, 'name' | 'slug'> }> {
     try {
       return await this.usersService.acceptOrgInvite(req.user, token);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -129,7 +129,7 @@ export class UsersController {
   ): Promise<OrgMemberData[]> {
     try {
       return await this.usersService.listOrgMembers(req.user, org);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -139,7 +139,7 @@ export class UsersController {
   async listOrgs(@Request() req): Promise<OrgData[]> {
     try {
       return await this.usersService.listOrgs(req.user);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -154,7 +154,7 @@ export class UsersController {
   ): Promise<void> {
     try {
       return await this.usersService.deleteOrg(req.user, org);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -168,7 +168,7 @@ export class UsersController {
   ): Promise<OrgMemberData> {
     try {
       return await this.usersService.changeOrgRole(req.user, org, user, role);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -182,7 +182,7 @@ export class UsersController {
   ): Promise<void> {
     try {
       return await this.usersService.removeFromOrg(req.user, org, user);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -196,7 +196,7 @@ export class UsersController {
   ): Promise<void> {
     try {
       return await this.usersService.removeOrgInvite(req.user, org, email);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -207,7 +207,7 @@ export class UsersController {
   async resetPassword(@Body() { email }: ResetPasswordDto) {
     try {
       await this.usersService.resetPassword(email);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }

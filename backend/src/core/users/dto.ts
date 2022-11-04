@@ -8,7 +8,7 @@ import * as Joi from 'joi';
 // Composable Response DTOs
 
 export type OrgMemberData = Pick<OrgMember, 'orgSlug' | 'role'> & {
-  user: Pick<User, 'uid' | 'email'>;
+  user: Pick<User, 'uid' | 'email'> | { uid: null; email: string };
 };
 
 export type OrgData = Pick<Org, 'slug' | 'name'> & { isPersonal: boolean };

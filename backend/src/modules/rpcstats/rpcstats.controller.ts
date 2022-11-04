@@ -60,9 +60,9 @@ export class RpcStatsController {
         environmentSubId,
       );
 
-      const allApiKeyConsumerNames = [];
+      const allApiKeyConsumerNames: string[] = [];
       const projects = await this.projectsService.list(req.user);
-      const keyPromises = [];
+      const keyPromises: Promise<void>[] = [];
       projects.forEach((project) => {
         keyPromises.push(
           this.projectsService
@@ -83,9 +83,9 @@ export class RpcStatsController {
         DateTime.fromISO(startDateTime),
         DateTime.fromISO(endDateTime),
         dateTimeResolution,
-        grouping,
+        grouping!,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }

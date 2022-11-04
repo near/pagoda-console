@@ -281,7 +281,7 @@ type AccountActivityElement = {
 
 export type AccountActivity = {
   items: AccountActivityElement[];
-  cursor: {
+  cursor?: {
     blockTimestamp: string;
     shardId: number;
     indexInChunk: number;
@@ -415,19 +415,19 @@ export class ExplorerService {
   ) {
     const indexerDatabaseConfig = this.config.get('indexerDatabase', {
       infer: true,
-    });
+    })!;
     const indexerActivityDatabaseConfig = this.config.get(
       'indexerActivityDatabase',
       { infer: true },
-    );
+    )!;
     this.indexerDatabase = {
       MAINNET: getKysely<Indexer.ModelTypeMap>(indexerDatabaseConfig.MAINNET),
       TESTNET: getKysely<Indexer.ModelTypeMap>(indexerDatabaseConfig.TESTNET),
     };
     this.indexerActivityDatabase = {
-      MAINNET: getKysely<Indexer.ModelTypeMap>(
-        indexerActivityDatabaseConfig.MAINNET,
-      ),
+      MAINNET: indexerActivityDatabaseConfig.MAINNET
+        ? getKysely<Indexer.ModelTypeMap>(indexerActivityDatabaseConfig.MAINNET)
+        : undefined,
       TESTNET: indexerActivityDatabaseConfig.TESTNET
         ? getKysely<Indexer.ModelTypeMap>(indexerActivityDatabaseConfig.TESTNET)
         : undefined,
@@ -769,12 +769,12 @@ export class ExplorerService {
             }
           : undefined,
       };
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to fetch activity');
     }
   }
 
-  async fetchTransaction(net: Net, hash: string): Promise<Transaction> {
+  async fetchTransaction(net: Net, hash: string): Promise<Transaction | null> {
     try {
       const indexerDatabase = this.indexerDatabase[net];
       const databaseTransaction = await indexerDatabase
@@ -855,7 +855,7 @@ export class ExplorerService {
           receiptsMap,
         ),
       };
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to fetch transaction');
     }
   }
@@ -888,7 +888,7 @@ export class ExplorerService {
           balanceChanges.find((change) => change.accountId === accountId)
             ?.absoluteNonStakedAmount,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to fetch transaction');
     }
   }

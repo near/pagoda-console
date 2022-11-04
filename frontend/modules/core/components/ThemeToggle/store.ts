@@ -22,7 +22,7 @@ interface ThemeColors {
   warning: string;
 }
 
-interface ThemeStore {
+export interface ThemeStore {
   activeTheme: Theme;
   colors: ThemeColors;
   setActiveTheme: (theme: Theme) => void;

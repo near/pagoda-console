@@ -42,11 +42,11 @@ export class ProjectsService {
   ) {
     this.projectRefPrefix = this.config.get('projectRefPrefix', {
       infer: true,
-    });
+    })!;
     this.contractAddressValidationEnabled = this.config.get(
       'featureEnabled.core.contractAddressValidation',
       { infer: true },
-    );
+    )!;
   }
 
   async create(
@@ -59,7 +59,7 @@ export class ProjectsService {
       try {
         const { slug } = await this.users.getPersonalOrg(user);
         orgSlug = slug;
-      } catch (e) {
+      } catch (e: any) {
         throw new VError(e, 'Failed to find personal org for user');
       }
     }
@@ -70,7 +70,7 @@ export class ProjectsService {
     try {
       const team = await this.users.getDefaultTeam(orgSlug);
       teamId = team.id;
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to find team');
     }
 
@@ -166,14 +166,14 @@ export class ProjectsService {
           id: true,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while executing project creation query');
     }
 
     // generate RPC keys
     try {
       await this.apiKeys.generateKey(user.id, orgSlug, projectSlug);
-    } catch (e) {
+    } catch (e: any) {
       // Attempt to delete the project, since API keys failed to generate.
       try {
         const deleteTeamProject = this.prisma.teamProject.deleteMany({
@@ -196,7 +196,7 @@ export class ProjectsService {
           deleteEnv,
           deleteProject,
         ]);
-      } catch (e) {
+      } catch (e: any) {
         console.error(
           'Failed to delete project after API keys failed to generate',
           e,
@@ -215,7 +215,7 @@ export class ProjectsService {
           active: true,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while setting project to active');
     }
 
@@ -264,7 +264,7 @@ export class ProjectsService {
           'Project not a tutorial',
         );
       }
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         'Failed while determining project eligibility for ejection',
@@ -294,7 +294,7 @@ export class ProjectsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while ejecting tutorial project');
     }
   }
@@ -321,7 +321,7 @@ export class ProjectsService {
           'Project not found or project already inactive',
         );
       }
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         'Failed while determining project eligibility for deletion',
@@ -350,7 +350,7 @@ export class ProjectsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while soft deleting project');
     }
   }
@@ -413,7 +413,7 @@ export class ProjectsService {
       const environment = await this.getActiveEnvironment(project, subId);
       net = environment.net;
       environmentId = environment.id;
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         'Failed while checking validity of adding contract to environment',
@@ -472,7 +472,7 @@ export class ProjectsService {
           net: true,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while creating contract');
     }
   }
@@ -551,7 +551,7 @@ export class ProjectsService {
           id: contract.environmentId,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         'Failed while checking validity of deleting contract',
@@ -571,7 +571,7 @@ export class ProjectsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while soft deleting contract');
     }
   }
@@ -601,7 +601,7 @@ export class ProjectsService {
           address: true,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while getting list of contracts');
     }
   }
@@ -753,7 +753,7 @@ export class ProjectsService {
     let project;
     try {
       project = await this.getActiveProject(projectWhereUnique);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         'Failed while checking validity of project for listing environments',
@@ -860,7 +860,7 @@ export class ProjectsService {
         tutorial: project.tutorial,
         org: project.org,
       };
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while fetching project details');
     }
   }
@@ -878,7 +878,7 @@ export class ProjectsService {
         },
       });
       return !p;
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to guarantee project uniqueness');
     }
   }
@@ -899,13 +899,13 @@ export class ProjectsService {
     let project: Project;
     try {
       project = await this.getActiveProject(projectWhereUnique);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while checking that project is active');
     }
 
     try {
       return await this.apiKeys.getKeys(project.slug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to fetch keys from API keys service');
     }
   }
@@ -920,7 +920,7 @@ export class ProjectsService {
     let keyRelatedSlugs;
     try {
       keyRelatedSlugs = await this.apiKeys.getKeyDetails(keySlug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         `Failed to get api key details for keySlug ${keySlug}`,
@@ -943,7 +943,7 @@ export class ProjectsService {
     let project: Project;
     try {
       project = await this.getActiveProject(projectWhereUnique);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while checking that project is active');
     }
 
@@ -953,7 +953,7 @@ export class ProjectsService {
 
     try {
       return await this.apiKeys.rotateKey(callingUser.id, keySlug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, `Failed to rotate key ${keySlug}`);
     }
   }
@@ -975,7 +975,7 @@ export class ProjectsService {
     let project: Project;
     try {
       project = await this.getActiveProject(projectWhereUnique);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while checking that project is active');
     }
 
@@ -990,7 +990,7 @@ export class ProjectsService {
         projectSlug,
         description,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, `Failed to generate key for project ${projectSlug}`);
     }
   }
@@ -999,7 +999,7 @@ export class ProjectsService {
     let keyRelatedSlugs;
     try {
       keyRelatedSlugs = await this.apiKeys.getKeyDetails(keySlug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         `Failed to get api key details for keySlug ${keySlug}`,
@@ -1022,7 +1022,7 @@ export class ProjectsService {
     let project: Project;
     try {
       project = await this.getActiveProject(projectWhereUnique);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while checking that project is active');
     }
 
@@ -1036,7 +1036,7 @@ export class ProjectsService {
         keyRelatedSlugs.orgSlug,
         keySlug,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, `Failed to rotate key ${keySlug}`);
     }
   }
@@ -1044,16 +1044,16 @@ export class ProjectsService {
   // Deletes api keys associated with a user's personal org.
   async deleteApiKeysByUser(user: User) {
     try {
-      const orgDetails = await this.prisma.org.findUnique({
+      const orgDetails = (await this.prisma.org.findUnique({
         where: {
           personalForUserId: user.id,
         },
         select: {
           slug: true,
         },
-      });
+      }))!;
       await this.apiKeys.deleteOrg(user.id, orgDetails.slug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, `Failed to delete API keys for user's personal org`);
     }
   }
@@ -1062,7 +1062,7 @@ export class ProjectsService {
   async deleteApiKeysByOrg(user: User, orgSlug: Org['slug']) {
     try {
       await this.apiKeys.deleteOrg(user.id, orgSlug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, `Failed to delete API keys for org`);
     }
   }

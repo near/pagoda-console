@@ -51,10 +51,10 @@ export class TriggeredAlertsController {
         environmentSubId,
         skip || 0,
         take || 100,
-        pagingDateTime,
+        pagingDateTime!,
         alertId,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -71,7 +71,7 @@ export class TriggeredAlertsController {
         req.user,
         slug,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }

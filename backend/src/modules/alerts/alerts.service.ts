@@ -68,7 +68,7 @@ type AcctBalRuleSchema = {
 };
 
 type CreateAlertBaseSchema = {
-  name?: Alert['name'];
+  name: Alert['name'];
   type: RuleType;
   projectSlug: Alert['projectSlug'];
   environmentSubId: Alert['environmentSubId'];
@@ -79,10 +79,11 @@ type RuleWithContractSchema = {
     contract: string;
   };
 };
-type CreateTxAlertSchema = CreateAlertBaseSchema & TxRuleSchema;
-type CreateFnCallAlertSchema = CreateAlertBaseSchema & FnCallRuleSchema;
-type CreateEventAlertSchema = CreateAlertBaseSchema & EventRuleSchema;
-type CreateAcctBalAlertSchema = CreateAlertBaseSchema & AcctBalRuleSchema;
+export type CreateTxAlertSchema = CreateAlertBaseSchema & TxRuleSchema;
+export type CreateFnCallAlertSchema = CreateAlertBaseSchema & FnCallRuleSchema;
+export type CreateEventAlertSchema = CreateAlertBaseSchema & EventRuleSchema;
+export type CreateAcctBalAlertSchema = CreateAlertBaseSchema &
+  AcctBalRuleSchema;
 
 type CreateWebhookDestinationSchema = {
   name?: Destination['name'];
@@ -172,16 +173,16 @@ type AlertWithDestinations = Alert & {
       id: Destination['id'];
       name: Destination['name'];
       type: Destination['type'];
-      webhookDestination?: {
+      webhookDestination: {
         url: WebhookDestination['url'];
-      };
-      emailDestination?: {
+      } | null;
+      emailDestination: {
         email: EmailDestination['email'];
-      };
-      telegramDestination?: Pick<
+      } | null;
+      telegramDestination: Pick<
         TelegramDestination,
         'startToken' | 'chatTitle'
-      >;
+      > | null;
     };
   }>;
 };
@@ -204,23 +205,23 @@ export class AlertsService {
   ) {
     this.emailTokenExpiryMin = this.config.get('alerts.email.tokenExpiryMin', {
       infer: true,
-    });
+    })!;
     this.telegramTokenExpiryMin = this.config.get(
       'alerts.telegram.tokenExpiryMin',
       {
         infer: true,
       },
-    );
+    )!;
     this.contractAddressValidationEnabled = this.config.get(
       'featureEnabled.alerts.contractAddressValidation',
       { infer: true },
-    );
+    )!;
     this.resendVerficationRateLimitMillis = this.config.get(
       'alerts.email.resendVerificationRatelimitMillis',
       {
         infer: true,
       },
-    );
+    )!;
   }
 
   async createTxSuccessAlert(user: User, alert: CreateTxAlertSchema) {
@@ -409,7 +410,7 @@ export class AlertsService {
       });
 
       return this.toAlertDto(alert);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while executing alert creation query');
     }
   }
@@ -463,7 +464,7 @@ export class AlertsService {
         },
       });
       return this.toAlertDto(alert);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while executing alert update query');
     }
   }
@@ -523,7 +524,7 @@ export class AlertsService {
     try {
       await this.checkUserAlertPermission(callingUser.id, id);
 
-      const alert = await this.prisma.alert.findUnique({
+      const alert = (await this.prisma.alert.findUnique({
         where: {
           id,
         },
@@ -556,10 +557,10 @@ export class AlertsService {
             },
           },
         },
-      });
+      }))!;
 
       return this.toAlertDto(alert);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to get alert rule details');
     }
   }
@@ -665,7 +666,7 @@ export class AlertsService {
           updatedBy: callingUser.id,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while soft deleting alert');
     }
   }
@@ -717,7 +718,7 @@ export class AlertsService {
       });
 
       return this.transformDestinationRes(res);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to create webhook destination');
     }
   }
@@ -776,7 +777,7 @@ export class AlertsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to create email destination');
     }
 
@@ -785,7 +786,7 @@ export class AlertsService {
         email,
         res.emailDestination.token,
       );
-    } catch (e) {
+    } catch (e: any) {
       try {
         await this.prisma.$transaction([
           this.prisma.emailDestination.delete({
@@ -799,7 +800,7 @@ export class AlertsService {
             },
           }),
         ]);
-      } catch (e) {
+      } catch (e: any) {
         console.error(
           'Failed while rolling back email destination creation',
           e,
@@ -857,7 +858,7 @@ export class AlertsService {
       });
 
       return this.transformDestinationRes(res);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to create telegram destination');
     }
   }
@@ -878,7 +879,7 @@ export class AlertsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while soft deleting alert');
     }
   }
@@ -958,7 +959,7 @@ export class AlertsService {
           updatedBy: callingUser.id,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while creating enabled destination');
     }
   }
@@ -993,7 +994,7 @@ export class AlertsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while deleting enabled destination');
     }
   }
@@ -1035,7 +1036,7 @@ export class AlertsService {
         },
       });
       return this.transformDestinationRes(res);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while updating webhook destination');
     }
   }
@@ -1070,7 +1071,7 @@ export class AlertsService {
         },
       });
       return this.transformDestinationRes(res);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while updating email destination');
     }
   }
@@ -1106,12 +1107,12 @@ export class AlertsService {
         },
       });
       return this.transformDestinationRes(res);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while updating telegram destination');
     }
   }
 
-  async verifyEmailDestination(token: EmailDestination['token']) {
+  async verifyEmailDestination(token?: string) {
     try {
       const emailDestination = await this.prisma.emailDestination.findUnique({
         where: {
@@ -1171,7 +1172,7 @@ export class AlertsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while verifying email destination');
     }
   }
@@ -1180,7 +1181,7 @@ export class AlertsService {
     await this.checkUserDestinationPermission(callingUser.id, id);
 
     try {
-      const targetDestination = await this.prisma.destination.findUnique({
+      const targetDestination = (await this.prisma.destination.findUnique({
         where: {
           id,
         },
@@ -1190,7 +1191,7 @@ export class AlertsService {
           isValid: true,
           emailDestination: true,
         },
-      });
+      }))!;
 
       if (targetDestination.type != 'EMAIL') {
         throw new VError(
@@ -1216,7 +1217,7 @@ export class AlertsService {
 
       if (
         this.shouldBeRateLimited(
-          targetDestination.emailDestination.tokenCreatedAt,
+          targetDestination.emailDestination!.tokenCreatedAt!,
           this.resendVerficationRateLimitMillis,
         )
       ) {
@@ -1253,15 +1254,15 @@ export class AlertsService {
         },
       });
       await this.emailVerification.sendVerificationEmail(
-        res.emailDestination.email,
-        res.emailDestination.token,
+        res.emailDestination!.email,
+        res.emailDestination!.token!,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while resending email verification');
     }
   }
 
-  async unsubscribeFromEmailAlert(token: EmailDestination['unsubscribeToken']) {
+  async unsubscribeFromEmailAlert(token?: string) {
     try {
       await this.prisma.emailDestination.update({
         where: {
@@ -1276,7 +1277,7 @@ export class AlertsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while unsubscribing from email alerts');
     }
   }
@@ -1288,7 +1289,7 @@ export class AlertsService {
     await this.checkUserDestinationPermission(callingUser.id, id);
 
     try {
-      const targetDestination = await this.prisma.destination.findUnique({
+      const targetDestination = (await this.prisma.destination.findUnique({
         where: {
           id,
         },
@@ -1297,7 +1298,7 @@ export class AlertsService {
           active: true,
           webhookDestination: true,
         },
-      });
+      }))!;
 
       if (targetDestination.type !== 'WEBHOOK') {
         throw new VError(
@@ -1341,7 +1342,7 @@ export class AlertsService {
       });
 
       return this.transformDestinationRes(result);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while rotating webhook destination secret');
     }
   }
