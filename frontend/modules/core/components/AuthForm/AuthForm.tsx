@@ -18,6 +18,7 @@ import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useSignedInHandler } from '@/hooks/auth';
 import GithubIconSvg from '@/public/images/icons/github.svg';
 import GoogleIconSvg from '@/public/images/icons/google.svg';
+import { useAuthStore } from '@/stores/auth';
 import analytics from '@/utils/analytics';
 import { StableId } from '@/utils/stable-ids';
 
@@ -43,7 +44,7 @@ const providers: Array<ProviderDetails> = [
     color: '#ffffff',
     backgroundColor: '#000000',
     backgroundColorHover: '#222222',
-    providerInstance: new GithubAuthProvider(),
+    providerInstance: new GithubAuthProvider().addScope('public_repo'),
     icon: GithubIconSvg,
     stableId: StableId.AUTHENTICATION_FORM_SIGN_IN_WITH_GITHUB_BUTTON,
   },
@@ -63,6 +64,7 @@ export function AuthForm({ onSignIn }: Props) {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authError, setAuthError] = useState('');
   const signedInHandler = useSignedInHandler();
+  const setGithubToken = useAuthStore((store) => store.setGithubToken);
 
   useEffect(() => {
     router.prefetch('/projects');
@@ -96,6 +98,10 @@ export function AuthForm({ onSignIn }: Props) {
     try {
       const socialResult = await signInWithPopup(auth, provider);
       const additional = getAdditionalUserInfo(socialResult);
+
+      const credential = GithubAuthProvider.credentialFromResult(socialResult);
+      const ghToken = credential?.accessToken;
+      setGithubToken(ghToken);
 
       try {
         if (additional?.isNewUser) {

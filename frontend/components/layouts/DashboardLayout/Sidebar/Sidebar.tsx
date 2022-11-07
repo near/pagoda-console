@@ -75,6 +75,14 @@ function useProjectPages(): SidebarEntry[] {
     pages = pages.filter((page) => page.visibleForAuthPublicMode);
   }
 
+  // ! TODO temp
+  pages.push({
+    display: 'Template',
+    route: '/new-template',
+    icon: 'settings',
+    stableId: StableId.CREATE_TEMPLATE_SIDEBAR,
+  });
+
   return pages;
 }
 
