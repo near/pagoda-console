@@ -116,7 +116,7 @@ const resolveDefinition = (abi: AbiRoot, def: any) => {
 };
 
 export const ContractTransaction = ({ contract }: Props) => {
-  const { accountId, selector } = useWalletSelector(contract.address);
+  const { accountId, selector, signOut } = useWalletSelector(contract.address);
   const [txResult, setTxResult] = useState<any>(undefined);
   const [txError, setTxError] = useState<any>(undefined);
   const transactionHashParam = useRouteParam('transactionHashes');
@@ -157,6 +157,7 @@ export const ContractTransaction = ({ contract }: Props) => {
             selector={selector}
             onTxResult={onTxResult}
             onTxError={onTxError}
+            signOut={signOut}
           />
         </Flex>
       </ContractParams>
@@ -174,6 +175,7 @@ interface ContractFormProps {
   selector: WalletSelector | null;
   onTxResult: (result: any) => void;
   onTxError: (error: any) => void;
+  signOut: (contractId: string) => Promise<false | undefined>;
 }
 
 interface ContractFormData {
@@ -185,7 +187,14 @@ interface ContractFormData {
   [param: string]: any;
 }
 
-const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, onTxError }: ContractFormProps) => {
+const ContractTransactionForm = ({
+  accountId,
+  contract,
+  selector,
+  onTxResult,
+  onTxError,
+  signOut,
+}: ContractFormProps) => {
   const [contractMethods, setContractMethods] = useState<AbiContract | null>(null);
   const form = useForm<ContractFormData>();
   const { contractAbi } = useAnyAbi(contract);
@@ -202,16 +211,13 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   const handleWalletSelect = useCallback(
     async (params: ContractFormData) => {
       if (selector && selector.store.getState().selectedWalletId) {
-        const wallet = await selector.wallet();
-        await wallet.signOut();
+        await signOut(contract.address);
       }
-
       // set form state in Session Storage
       sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
-
       modal?.show();
     },
-    [modal, selector, contract.slug],
+    [modal, selector, signOut, contract.slug, contract.address],
   );
 
   const convertGas = (gas: string) => {
