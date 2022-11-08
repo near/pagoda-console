@@ -32,6 +32,7 @@ export const useWalletSelector = (contractId: string | undefined) => {
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
   const { environment } = useSelectedProject();
   const [prevNet, setPrevNet] = useState<NetOption | undefined>();
+  const network = environment?.net.toLowerCase();
 
   const init = useCallback(async () => {
     if (!contractId || !environment) {
@@ -50,7 +51,7 @@ export const useWalletSelector = (contractId: string | undefined) => {
     //* and wallet selector to allow switching contract.
     //* See: https://github.com/near/wallet-selector/issues/403
     const prevSelection = localStorage.getItem(SELECTED_CONTRACT);
-    const currSelection = `${environment.net.toLowerCase()}:${contractId}`;
+    const currSelection = `${network}:${contractId}`;
 
     if (prevSelection && prevSelection !== currSelection) {
       const multiLoginStorage = storage.local.getItem(MULTI_LOGIN_STORAGE_KEY) || {};
@@ -75,7 +76,7 @@ export const useWalletSelector = (contractId: string | undefined) => {
     }
 
     selector = await setupWalletSelector({
-      network: environment.net.toLowerCase() as NetworkId,
+      network: network as NetworkId,
       modules: [
         setupMyNearWallet({ iconUrl: myNearWalletIconUrl.src }),
         setupSender({ iconUrl: senderIconUrl.src }),
@@ -85,28 +86,14 @@ export const useWalletSelector = (contractId: string | undefined) => {
         getItem: async (key: string) => {
           return new Promise((resolve) => {
             const value = localStorage.getItem(key);
+            setMultiLoginStorage(network, contractId, key, value);
             resolve(value);
           });
         },
         setItem: async (key: string, value: string): Promise<void> => {
           return new Promise((resolve) => {
             localStorage.setItem(key, value);
-
-            const accountId = storage.local.getItem(WALLET_AUTH_KEY)?.accountId;
-            const keystoreKey = `${NAJ_KEY_PREFIX}${accountId}:${environment.net.toLowerCase()}`;
-            const keystoreValue = localStorage.getItem(keystoreKey);
-            const multiLoginStorage = storage.local.getItem(MULTI_LOGIN_STORAGE_KEY) || {};
-
-            storage.local.setItem(MULTI_LOGIN_STORAGE_KEY, {
-              ...multiLoginStorage,
-              [contractId]: {
-                ...multiLoginStorage[contractId],
-                [key]: value,
-                [WALLET_AUTH_KEY]: localStorage.getItem(WALLET_AUTH_KEY),
-                [keystoreKey]: keystoreValue,
-              },
-            });
-
+            setMultiLoginStorage(network, contractId, key, value);
             resolve();
           });
         },
@@ -138,7 +125,7 @@ export const useWalletSelector = (contractId: string | undefined) => {
       });
 
     return () => subscription.unsubscribe();
-  }, [contractId, environment, prevNet]);
+  }, [contractId, environment, prevNet, network]);
 
   useEffect(() => {
     init().catch((err) => {
@@ -172,4 +159,21 @@ export const useWalletSelector = (contractId: string | undefined) => {
     accountId,
     signOut,
   };
+};
+
+const setMultiLoginStorage = (network: string | undefined, contractId: string, key: string, value: string | null) => {
+  const accountId = storage.local.getItem(WALLET_AUTH_KEY)?.accountId;
+  const keystoreKey = `${NAJ_KEY_PREFIX}${accountId}:${network}`;
+  const keystoreValue = localStorage.getItem(keystoreKey);
+  const multiLoginStorage = storage.local.getItem(MULTI_LOGIN_STORAGE_KEY) || {};
+
+  storage.local.setItem(MULTI_LOGIN_STORAGE_KEY, {
+    ...multiLoginStorage,
+    [contractId]: {
+      ...multiLoginStorage[contractId],
+      [key]: value,
+      [WALLET_AUTH_KEY]: localStorage.getItem(WALLET_AUTH_KEY),
+      [keystoreKey]: keystoreValue,
+    },
+  });
 };
