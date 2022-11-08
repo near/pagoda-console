@@ -11,9 +11,7 @@ import { Box } from '@/components/lib/Box';
 import { Button } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
 import { CodeBlock } from '@/components/lib/CodeBlock';
-import { CopyButton } from '@/components/lib/CopyButton';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
-import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H3, H5 } from '@/components/lib/Heading';
@@ -22,7 +20,6 @@ import { Message } from '@/components/lib/Message';
 import { NearInput } from '@/components/lib/NearInput';
 import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Text } from '@/components/lib/Text';
-import { TextOverflow } from '@/components/lib/TextOverflow';
 import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { useRouteParam } from '@/hooks/route';
@@ -31,7 +28,6 @@ import { initContractMethods, useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import * as gasUtils from '@/modules/contracts/utils/convert-gas';
 import TxList from '@/public/contracts/images/TxList.svg';
-import WalletIcon from '@/public/images/icons/wallet.svg';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
 import { convertNearToYocto } from '@/utils/convert-near';
@@ -40,6 +36,8 @@ import { sanitizeNumber } from '@/utils/sanitize-number';
 import { StableId } from '@/utils/stable-ids';
 import type { Contract } from '@/utils/types';
 import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
+
+import WalletLogin from './WalletLogin';
 
 const TextItalic = styled(Text, {
   fontStyle: 'italic',
@@ -117,7 +115,7 @@ const resolveDefinition = (abi: AbiRoot, def: any) => {
 };
 
 export const ContractTransaction = ({ contract }: Props) => {
-  const { accountId, selector } = useWalletSelector(contract.address);
+  const { accountId, selector, signOut } = useWalletSelector(contract.address);
   const [txResult, setTxResult] = useState<any>(undefined);
   const [txError, setTxError] = useState<any>(undefined);
   const transactionHashParam = useRouteParam('transactionHashes');
@@ -158,6 +156,7 @@ export const ContractTransaction = ({ contract }: Props) => {
             selector={selector}
             onTxResult={onTxResult}
             onTxError={onTxError}
+            signOut={signOut}
           />
         </Flex>
       </ContractParams>
@@ -175,6 +174,7 @@ interface ContractFormProps {
   selector: WalletSelector | null;
   onTxResult: (result: any) => void;
   onTxError: (error: any) => void;
+  signOut: (contractId: string) => Promise<false | undefined>;
 }
 
 interface ContractFormData {
@@ -206,21 +206,8 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   const selectedFunctionName = form.watch('contractFunction');
   const selectedFunction = functionItems?.find((option) => option.name === selectedFunctionName);
 
-  const { modal } = useWalletSelector(contract.address);
-  const handleWalletSelect = useCallback(
-    async (params: ContractFormData) => {
-      if (selector && selector.store.getState().selectedWalletId) {
-        const wallet = await selector.wallet();
-        await wallet.signOut();
-      }
-
-      // set form state in Session Storage
-      sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
-
-      modal?.show();
-    },
-    [modal, selector, contract.slug],
-  );
+  const setContractInteractForm = (params: ContractFormData = form.getValues()) =>
+    sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
 
   const convertGas = (gas: string) => {
     switch (gasFormat) {
@@ -292,7 +279,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
     const contractFn = contractMethods![selectedFunction!.name];
     let call;
 
-    sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
+    setContractInteractForm(params);
 
     if (selectedFunction?.params) {
       try {
@@ -467,28 +454,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
             <SectionTitle>Transaction Parameters</SectionTitle>
 
             <Flex stack>
-              <Flex inline align="center">
-                {accountId ? (
-                  <>
-                    <FeatherIcon icon="user" size="s" />
-                    <Text weight="semibold" color="text1" css={{ minWidth: 0 }}>
-                      <TextOverflow>{accountId}</TextOverflow>
-                    </Text>
-                    <CopyButton value={accountId} stableId={StableId.WALLET_ACCOUNT_ID_COPY_BUTTON} />
-                  </>
-                ) : null}
-                <Button
-                  stableId={StableId.CONTRACT_TRANSACTION_CONNECT_WALLET_BUTTON}
-                  color="primaryBorder"
-                  size={!accountId ? 'm' : 's'}
-                  onClick={() => handleWalletSelect(form.getValues())}
-                  stretch={!accountId}
-                  css={{ marginLeft: 'auto' }}
-                >
-                  <SvgIcon icon={WalletIcon} noFill size={!accountId ? 's' : 'xs'} />
-                  {!accountId ? 'Connect A Wallet' : 'Change'}
-                </Button>
-              </Flex>
+              <WalletLogin onBeforeLogIn={setContractInteractForm} />
             </Flex>
 
             <Flex inline>
