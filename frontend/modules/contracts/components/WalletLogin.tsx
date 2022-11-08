@@ -17,7 +17,7 @@ const ButtonWallet = styled(Button, {
   marginLeft: 'auto',
 });
 
-const WalletLogin = ({ setContractInteractForm }: { setContractInteractForm: () => void }) => {
+const WalletLogin = ({ onBeforeLogIn }: { onBeforeLogIn: () => void }) => {
   const contractSlug = useRouteParam('slug', '/contracts', true) || undefined;
   const { contract: { address: contractId } = {} } = useContract(contractSlug);
   const { accountId, signOut, modal } = useWalletSelector(contractId);
@@ -25,7 +25,7 @@ const WalletLogin = ({ setContractInteractForm }: { setContractInteractForm: () 
   const walletSignOut = async () => await signOut(contractId);
 
   const walletLogIn = () => {
-    setContractInteractForm();
+    onBeforeLogIn();
     modal?.show();
   };
 

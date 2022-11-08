@@ -448,7 +448,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
             <SectionTitle>Transaction Parameters</SectionTitle>
 
             <Flex stack>
-              <WalletLogin setContractInteractForm={setContractInteractForm} />
+              <WalletLogin onBeforeLogIn={setContractInteractForm} />
             </Flex>
 
             <Flex inline>
