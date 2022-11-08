@@ -24,6 +24,7 @@ import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { openToast } from '@/components/lib/Toast';
+import { Tooltip } from '@/components/lib/Tooltip';
 import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { initContractMethods, useAnyAbi } from '@/modules/contracts/hooks/abi';
@@ -487,26 +488,28 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
 
             <Flex inline>
               <Form.Group>
-                <Form.FloatingLabelInput
-                  type="string"
-                  label="Gas:"
-                  isInvalid={!!form.formState.errors.gas}
-                  defaultValue="10"
-                  onInput={(event) => {
-                    numberInputHandler(event, { allowComma: false, allowDecimal: false, allowNegative: false });
-                  }}
-                  {...form.register(`gas`, {
-                    setValueAs: (value) => sanitizeNumber(value),
-                    validate: {
-                      minValue: (value: string) =>
-                        JSBI.greaterThan(JSBI.BigInt(value), JSBI.BigInt(0)) ||
-                        'Value must be greater than 0. Try using 10 Tgas',
-                      maxValue: (value: string) =>
-                        JSBI.lessThan(convertGas(value), JSBI.BigInt(gasUtils.convertGasToTgas('301'))) ||
-                        'You can attach a maximum of 300 Tgas to a transaction',
-                    },
-                  })}
-                />
+                <Tooltip content="On NEAR, all unused gas will be refunded after the transaction.">
+                  <Form.FloatingLabelInput
+                    type="string"
+                    label="Gas:"
+                    isInvalid={!!form.formState.errors.gas}
+                    defaultValue="300"
+                    onInput={(event) => {
+                      numberInputHandler(event, { allowComma: false, allowDecimal: false, allowNegative: false });
+                    }}
+                    {...form.register(`gas`, {
+                      setValueAs: (value) => sanitizeNumber(value),
+                      validate: {
+                        minValue: (value: string) =>
+                          JSBI.greaterThan(JSBI.BigInt(value), JSBI.BigInt(0)) ||
+                          'Value must be greater than 0. Try using 10 Tgas',
+                        maxValue: (value: string) =>
+                          JSBI.lessThan(convertGas(value), JSBI.BigInt(gasUtils.convertGasToTgas('301'))) ||
+                          'You can attach a maximum of 300 Tgas to a transaction',
+                      },
+                    })}
+                  />
+                </Tooltip>
 
                 <Form.Feedback>{form.formState.errors.gas?.message}</Form.Feedback>
 
