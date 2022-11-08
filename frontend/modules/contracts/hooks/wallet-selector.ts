@@ -152,8 +152,8 @@ export const useWalletSelector = (contractId: string | undefined) => {
 
   const accountId = accounts.find((account) => account.active)?.accountId;
 
-  const signOut = async (contractId: string) => {
-    if (!selector) {
+  const signOut = async (contractId: string | undefined) => {
+    if (!selector || !contractId) {
       return false;
     }
 
