@@ -8,11 +8,9 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { Section } from '@/components/lib/Section';
 import * as Tabs from '@/components/lib/Tabs';
-import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
-import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useContract, useContracts } from '@/hooks/contracts';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
@@ -34,8 +32,6 @@ const ViewContract: NextPageWithLayout = () => {
   const { contract } = useContract(contractSlug);
   const activeTab = useRouteParam('tab', `/contracts/${contractSlug}?tab=details`, true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedContractSlug, setSelectedContractSlug] = useState<string | null>(null);
-  const [walletNotice, setWalletNotice] = useState(false);
   const { contractAbi } = useAnyAbi(contract);
 
   // TODO: Pull in useSelectedProjectSync() to match [triggeredAlertId].tsx logic to sync env/proj to loaded contract.
@@ -49,13 +45,7 @@ const ViewContract: NextPageWithLayout = () => {
   }
 
   function onSelectedContractChange(slug: string) {
-    setSelectedContractSlug(slug);
-    setWalletNotice(true);
-  }
-
-  async function onWalletLogoutConfirm() {
-    setWalletNotice(false);
-    router.push(`/contracts/${selectedContractSlug}?tab=${activeTab}`);
+    router.push(`/contracts/${slug}?tab=${activeTab}`);
   }
 
   return (
@@ -163,17 +153,6 @@ const ViewContract: NextPageWithLayout = () => {
           onDelete={onDelete}
         />
       )}
-
-      {
-        <ConfirmModal
-          onConfirm={onWalletLogoutConfirm}
-          setShow={setWalletNotice}
-          show={walletNotice}
-          title="Connect Wallet Notice"
-        >
-          <Text>Changing contracts will log out you away from your wallet account. Would you like to change?</Text>
-        </ConfirmModal>
-      }
     </>
   );
 };

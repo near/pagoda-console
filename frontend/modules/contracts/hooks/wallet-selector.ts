@@ -50,8 +50,8 @@ export const useWalletSelector = (contractId: string | undefined) => {
     //* and wallet selector to allow switching contract.
     //* See: https://github.com/near/wallet-selector/issues/403
     const prevSelection = localStorage.getItem(SELECTED_CONTRACT);
-
     const currSelection = `${environment.net.toLowerCase()}:${contractId}`;
+
     if (prevSelection && prevSelection !== currSelection) {
       const multiLoginStorage = storage.local.getItem(MULTI_LOGIN_STORAGE_KEY) || {};
       const prevContractId = prevSelection.split(':')[1];
