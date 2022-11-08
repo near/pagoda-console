@@ -188,7 +188,14 @@ interface ContractFormData {
 
 const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, onTxError }: ContractFormProps) => {
   const [contractMethods, setContractMethods] = useState<AbiContract | null>(null);
-  const form = useForm<ContractFormData>();
+  const form = useForm<ContractFormData>({
+    defaultValues: {
+      gas: '300',
+      gasFormat: 'Tgas',
+      deposit: '0',
+      nearFormat: 'yoctoⓃ',
+    },
+  });
   const { contractAbi } = useAnyAbi(contract);
 
   const nearFormat = form.watch('nearFormat');
@@ -277,8 +284,6 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   }, [contract.slug, form]);
 
   useEffect(() => {
-    if (!form.getValues('nearFormat')) form.setValue('nearFormat', 'yoctoⓃ');
-    if (!form.getValues('gasFormat')) form.setValue('gasFormat', 'Tgas');
     form.clearErrors();
   }, [nearFormat, gasFormat, form]);
 
@@ -493,7 +498,6 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                     type="string"
                     label="Gas:"
                     isInvalid={!!form.formState.errors.gas}
-                    defaultValue="300"
                     onInput={(event) => {
                       numberInputHandler(event, { allowComma: false, allowDecimal: false, allowNegative: false });
                     }}
@@ -558,7 +562,6 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                             maxValue: validateMaxNearU128,
                           },
                   }}
-                  defaultValue="0"
                   render={({ field }) => (
                     <NearInput
                       yocto={nearFormat === 'yoctoⓃ'}
