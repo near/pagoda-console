@@ -198,9 +198,8 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   const selectedFunctionName = form.watch('contractFunction');
   const selectedFunction = functionItems?.find((option) => option.name === selectedFunctionName);
 
-  const setContractInteractForm = () => {
-    sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(form.getValues()));
-  };
+  const setContractInteractForm = (params: ContractFormData = form.getValues()) =>
+    sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
 
   const convertGas = (gas: string) => {
     switch (gasFormat) {
@@ -274,7 +273,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
     const contractFn = contractMethods![selectedFunction!.name];
     let call;
 
-    sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
+    setContractInteractForm(params);
 
     if (selectedFunction?.params) {
       try {
