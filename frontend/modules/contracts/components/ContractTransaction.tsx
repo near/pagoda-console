@@ -115,7 +115,7 @@ const resolveDefinition = (abi: AbiRoot, def: any) => {
 };
 
 export const ContractTransaction = ({ contract }: Props) => {
-  const { accountId, selector, signOut } = useWalletSelector(contract.address);
+  const { accountId, selector } = useWalletSelector(contract.address);
   const [txResult, setTxResult] = useState<any>(undefined);
   const [txError, setTxError] = useState<any>(undefined);
   const transactionHashParam = useRouteParam('transactionHashes');
@@ -156,7 +156,6 @@ export const ContractTransaction = ({ contract }: Props) => {
             selector={selector}
             onTxResult={onTxResult}
             onTxError={onTxError}
-            signOut={signOut}
           />
         </Flex>
       </ContractParams>
@@ -174,7 +173,6 @@ interface ContractFormProps {
   selector: WalletSelector | null;
   onTxResult: (result: any) => void;
   onTxError: (error: any) => void;
-  signOut: (contractId: string) => Promise<false | undefined>;
 }
 
 interface ContractFormData {
