@@ -21,6 +21,7 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 */
 
 import { promises as fsPromises } from 'fs';
+import { resolve } from 'path';
 
 const DENY_SQL_CODE = [
   // Audit table is created and maintained outside of Prisma. Prisma will attempt to delete it.
@@ -32,11 +33,20 @@ const DENY_SQL_CODE = [
   'CREATE UNIQUE INDEX "Team_orgSlug_name_key" ON "Team"("orgSlug", "name");',
 ];
 
+async function getMigrationFiles(dir: string): Promise<string[]> {
+  const dirents = await fsPromises.readdir(dir, { withFileTypes: true });
+  const files = await Promise.all(dirents.map((dirent) => {
+    const res = resolve(dir, dirent.name);
+    return dirent.isDirectory() ? getMigrationFiles(res) : res;
+  }));
+  return Array.prototype.concat(...files).filter((file) => file.includes('.sql'));
+}
+
 async function checkMigrationsAsync() {
-  const [_n, _s, ...paths] = process.argv;
+  const migrationPaths = await getMigrationFiles('./schemas');
 
   await Promise.all(
-    paths.map(async (path) => {
+    migrationPaths.map(async (path) => {
       const contents = await fsPromises.readFile(path, 'utf-8');
 
       for (const bl of DENY_SQL_CODE) {
