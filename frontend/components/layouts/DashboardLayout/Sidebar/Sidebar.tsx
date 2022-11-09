@@ -7,7 +7,6 @@ import { useState } from 'react';
 import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Tooltip } from '@/components/lib/Tooltip';
-import useFeatureFlag from '@/hooks/features';
 import { useSelectedProject } from '@/hooks/selected-project';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
 import apisEntries from '@/modules/apis/sidebar-entries';
@@ -42,9 +41,7 @@ function useProjectPages(): SidebarEntry[] {
 
   // pushed individually so that module pages can be placed at any point
   pages.push(...apisEntries);
-  if (useFeatureFlag('momentary-alerts-enabled')) {
-    pages.push(...alertsEntries);
-  }
+  pages.push(...alertsEntries);
   pages.push(...contractsEntries);
   pages.push({
     display: 'Analytics',
