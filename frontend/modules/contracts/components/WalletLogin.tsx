@@ -44,7 +44,7 @@ const WalletLogin = ({ onBeforeLogIn }: { onBeforeLogIn: () => void }) => {
         onClick={walletSignOut}
       >
         <SvgIcon icon={WalletIcon} noFill size="xs" />
-        Change
+        Log out
       </ButtonWallet>
     </Flex>
   );
