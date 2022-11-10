@@ -11,7 +11,7 @@ import WalletIcon from '@/public/images/icons/wallet.svg';
 import { styled } from '@/styles/stitches';
 import { StableId } from '@/utils/stable-ids';
 
-import { useWalletSelector } from '../hooks/wallet-selector';
+import { useWalletSelector } from '../../hooks/wallet-selector';
 
 const ButtonWallet = styled(Button, {
   marginLeft: 'auto',
