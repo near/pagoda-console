@@ -25,12 +25,28 @@ import { resolve } from 'path';
 
 const DENY_SQL_CODE = [
   // Audit table is created and maintained outside of Prisma. Prisma will attempt to delete it.
-  'ALTER TABLE "Audit" DROP CONSTRAINT "Audit_userId_fkey";',
-  'DROP TABLE "Audit";',
+  {
+    sqlCode: 'ALTER TABLE "Audit" DROP CONSTRAINT "Audit_userId_fkey";',
+    allowInMigration: []
+  },
+  {
+    sqlCode: 'DROP TABLE "Audit";',
+    allowInMigration: []
+  },
   // We have a custom conditional index on this table under the same name
-  'CREATE UNIQUE INDEX "User_email_key" ON "User"("email");',
-  'CREATE UNIQUE INDEX "Project_name_orgSlug_key" ON "Project"("name", "orgSlug");',
-  'CREATE UNIQUE INDEX "Team_orgSlug_name_key" ON "Team"("orgSlug", "name");',
+  {
+    sqlCode: 'CREATE UNIQUE INDEX "User_email_key" ON "User"("email");',
+  // For some migration files it's fine to include one of these codes because at least for one migration it's valid
+    allowInMigration: ['core/migrations/20211216195054_v1']
+  },
+  {
+    sqlCode: 'CREATE UNIQUE INDEX "Project_name_orgSlug_key" ON "Project"("name", "orgSlug");',
+    allowInMigration: []
+  },
+  {
+    sqlCode: 'CREATE UNIQUE INDEX "Team_orgSlug_name_key" ON "Team"("orgSlug", "name");',
+    allowInMigration: []
+  },
 ];
 
 async function getMigrationFiles(dir: string): Promise<string[]> {
@@ -39,7 +55,7 @@ async function getMigrationFiles(dir: string): Promise<string[]> {
     const res = resolve(dir, dirent.name);
     return dirent.isDirectory() ? getMigrationFiles(res) : res;
   }));
-  return Array.prototype.concat(...files).filter((file) => file.includes('.sql'));
+  return Array.prototype.concat(...files).filter((file) => file.endsWith('.sql'));
 }
 
 async function checkMigrationsAsync() {
@@ -50,8 +66,8 @@ async function checkMigrationsAsync() {
       const contents = await fsPromises.readFile(path, 'utf-8');
 
       for (const bl of DENY_SQL_CODE) {
-        if (contents.includes(bl)) {
-          throw `Please remove the following code from the file at ${path}: ${bl}`;
+        if (contents.includes(bl.sqlCode) && bl.allowInMigration.some((code) => !path.includes(code))) {
+          throw `Please remove the following code from the file at ${path}: ${bl.sqlCode}`;
         }
       }
     }),
