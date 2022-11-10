@@ -9,11 +9,14 @@ import { UserFullDropdown } from '@/components/lib/UserFullDropdown';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 
 import { EnvironmentSelector } from '../EnvironmentSelector';
-import type { Redirect } from '../types';
 import * as S from './styles';
 
 type Props = ComponentProps<typeof S.Header> & {
-  redirect?: Redirect;
+  redirect?: {
+    environmentChange?: boolean;
+    projectChange?: boolean;
+    url: string;
+  };
 };
 
 export function Header({ redirect, ...props }: Props) {

@@ -1,5 +1,4 @@
+import type { Net } from '@pc/database/clients/core';
 import React from 'react';
 
-import type { NetOption } from '@/utils/types';
-
-export const NetContext = React.createContext<NetOption | null>(null);
+export const NetContext = React.createContext<Net | null>(null);

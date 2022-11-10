@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -15,7 +16,6 @@ import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useProjectGroups } from '@/hooks/projects';
 import DeleteProjectModal from '@/modules/core/components/modals/DeleteProjectModal';
 import { StableId } from '@/utils/stable-ids';
-import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Projects: NextPageWithLayout = () => {
@@ -95,6 +95,8 @@ const Projects: NextPageWithLayout = () => {
     </Container>
   );
 };
+
+type Project = Api.Query.Output<'/projects/list'>[number];
 
 function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boolean; onDelete: () => void }) {
   const [showModal, setShowModal] = useState(false);

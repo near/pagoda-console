@@ -1,15 +1,17 @@
+import type { Api } from '@pc/common/types/api';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useSettingsStore } from '@/stores/settings';
 import config from '@/utils/config';
-import type { Environment, Project } from '@/utils/types';
 
 import { useEnvironments } from './environments';
 import { usePreviousValue } from './previous-value';
 import { useProject } from './projects';
 import { useRouteParam } from './route';
 import { useIdentity } from './user';
+
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 
 interface Options {
   enforceSelectedProject?: boolean;
@@ -115,7 +117,7 @@ export function useOnSelectedProjectChange(onChange: () => void) {
 
 export function useSelectedProjectSync(
   selectedEnvironmentSubId: Environment['subId'] | undefined,
-  selectedProjectSlug: Project['slug'] | undefined,
+  selectedProjectSlug: string | undefined,
 ) {
   const settings = useSettingsStore((store) => store.currentUser);
   const { environment, project } = useSelectedProject();

@@ -1,10 +1,9 @@
+import type { Net } from '@pc/database/clients/core';
 import type { FirebaseOptions } from 'firebase/app';
 
-import type { NetOption } from './types';
-
-type ExplorerNets = Record<NetOption, string>;
-type RpcNets = Record<NetOption, string>;
-type EapiNets = Record<NetOption, string>;
+type ExplorerNets = Record<Net, string>;
+type RpcNets = Record<Net, string>;
+type EapiNets = Record<Net, string>;
 type DeployEnvironment = 'LOCAL' | 'DEVELOPMENT' | 'PRODUCTION';
 
 // * NOTE: This is ugly, but we are limited in how we can

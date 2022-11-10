@@ -1,4 +1,6 @@
 // import { useApiKeys } from '@/hooks/api-keys';
+import type { Api } from '@pc/common/types/api';
+import type { RpcStats } from '@pc/common/types/rpcstats';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
 import * as Charts from 'recharts';
@@ -17,11 +19,13 @@ import { Tooltip } from '@/components/lib/Tooltip';
 import config from '@/utils/config';
 import { formatNumber } from '@/utils/format-number';
 import { StableId } from '@/utils/stable-ids';
-import type { Environment, Project } from '@/utils/types';
 
 import { useApiStats } from '../hooks/api-stats';
 import { timeRanges } from '../utils/constants';
-import type { ApiStatsData, TimeRangeValue } from '../utils/types';
+
+type Project = Api.Query.Output<'/projects/getDetails'>;
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
+type ApiStatsData = ReturnType<typeof useApiStats>;
 
 interface Props {
   environment?: Environment;
@@ -30,7 +34,7 @@ interface Props {
 
 export function ApiStats({ environment, project }: Props) {
   // const { keys } = useApiKeys(project?.slug);  // for filtering
-  const [selectedTimeRangeValue, setSelectedTimeRangeValue] = useState<TimeRangeValue>('30_DAYS');
+  const [selectedTimeRangeValue, setSelectedTimeRangeValue] = useState<RpcStats.TimeRangeValue>('30_DAYS');
   const [liveRefreshEnabled, setLiveRefreshEnabled] = useState(true);
   const selectedTimeRange = timeRanges.find((t) => t.value === selectedTimeRangeValue);
   const [rangeEndTime, setRangeEndTime] = useState(DateTime.now());
@@ -89,7 +93,7 @@ export function ApiStats({ environment, project }: Props) {
             <DropdownMenu.Content width="trigger">
               <DropdownMenu.RadioGroup
                 value={selectedTimeRangeValue}
-                onValueChange={(value) => setSelectedTimeRangeValue(value as TimeRangeValue)}
+                onValueChange={(value) => setSelectedTimeRangeValue(value as RpcStats.TimeRangeValue)}
               >
                 {timeRanges?.map((range) => {
                   return (

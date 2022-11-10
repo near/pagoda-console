@@ -6,8 +6,6 @@ import { useIdentity } from '@/hooks/user';
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
 
-import type { TriggeredAlert, TriggeredAlertsPagingResponse } from '../utils/types';
-
 interface TriggeredAlertFilters {
   alertId?: number;
 }
@@ -26,10 +24,10 @@ export function useTriggeredAlerts(
   const take = pagination.state.pageSize;
   const skip = (pagination.state.currentPage - 1) * pagination.state.pageSize;
 
-  const { data, error } = useSWR<TriggeredAlertsPagingResponse>(
+  const { data, error } = useSWR(
     identity && projectSlug && environmentSubId
       ? [
-          '/triggeredAlerts/listTriggeredAlerts',
+          '/triggeredAlerts/listTriggeredAlerts' as const,
           projectSlug,
           environmentSubId,
           identity.uid,
@@ -41,8 +39,8 @@ export function useTriggeredAlerts(
       : null,
     (key) => {
       return authenticatedPost(key, {
-        environmentSubId,
-        projectSlug,
+        environmentSubId: environmentSubId!,
+        projectSlug: projectSlug!,
         take,
         skip,
         pagingDateTime: pagination.state.pagingDateTime,
@@ -67,8 +65,8 @@ export function useTriggeredAlerts(
 
 export function useTriggeredAlertDetails(slug: string) {
   const identity = useIdentity();
-  const { data, error } = useSWR<TriggeredAlert>(
-    identity ? ['/triggeredAlerts/getTriggeredAlertDetails', slug] : null,
+  const { data, error } = useSWR(
+    identity ? ['/triggeredAlerts/getTriggeredAlertDetails' as const, slug] : null,
     (key) => {
       return authenticatedPost(key, {
         slug,

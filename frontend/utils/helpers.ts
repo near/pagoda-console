@@ -1,10 +1,11 @@
+import type { Api } from '@pc/common/types/api';
 import type { NextRouter } from 'next/router';
-
-import type { Environment } from './types';
 
 export function assertUnreachable(x: never): never {
   throw new Error(`Unreachable Case: ${x}`);
 }
+
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 
 export function returnContractAddressRegex(environment?: Environment) {
   // https://docs.near.org/docs/concepts/account#account-id-rules

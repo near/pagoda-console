@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
@@ -10,7 +11,8 @@ import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { StableId } from '@/utils/stable-ids';
 
 import { rotateWebhookDestinationSecret } from '../hooks/destinations';
-import type { Destination } from '../utils/types';
+
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 interface Props {
   destination: Destination;
@@ -36,13 +38,7 @@ export function WebhookDestinationSecret({ destination, onRotate }: Props) {
       setIsSending(true);
       const res = await rotateWebhookDestinationSecret(destination.id);
       if (res.type !== 'WEBHOOK') return;
-
-      const updated = {
-        ...destination,
-      };
-      updated.config.secret = res.config.secret;
-
-      onRotate(updated);
+      onRotate(res);
     } catch (e) {
       console.error('Failed to rotate webhook secret.', e);
       openToast({

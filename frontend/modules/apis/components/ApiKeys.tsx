@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { Root as VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useRef, useState } from 'react';
 
@@ -17,7 +18,9 @@ import StarterGuide from '@/modules/core/components/StarterGuide';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
-import type { ApiKey, Project } from '@/utils/types';
+
+type Project = Api.Query.Output<'/projects/getDetails'>;
+type ApiKey = Api.Query.Output<'/projects/getKeys'>[number];
 
 const ROTATION_WARNING =
   'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';
@@ -31,7 +34,11 @@ export function ApiKeys({ project }: Props) {
   const [showRotationModal, setShowRotationModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const [keyToRotate, setKeyToRotate] = useState<ApiKey>({ keySlug: '', description: '', key: '' });
+  const [keyToRotate, setKeyToRotate] = useState<ApiKey>({
+    keySlug: '',
+    description: '',
+    key: '',
+  });
 
   async function rotateKey(keySlug: string) {
     showRotationModal && setShowRotationModal(false);
@@ -46,10 +53,10 @@ export function ApiKeys({ project }: Props) {
         });
       });
       await mutateKeys(async (cachedKeys) => {
-        const { keySlug: newKeySlug, key: newKey }: { keySlug: string; key: string } = await authenticatedPost(
-          '/projects/rotateKey',
-          { slug: keySlug },
-        );
+        const { keySlug: newKeySlug, key: newKey } = await authenticatedPost('/projects/rotateKey' as const, {
+          slug: keySlug,
+        });
+
         analytics.track('DC Rotate API Key', {
           status: 'success',
           description: keyToRotate.description,

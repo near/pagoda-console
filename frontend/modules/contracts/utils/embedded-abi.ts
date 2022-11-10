@@ -1,15 +1,15 @@
+import type { Net } from '@pc/database/clients/core';
 import * as fzstd from 'fzstd';
 import type { AbiRoot } from 'near-abi-client-js';
 import * as nearApi from 'near-api-js';
 
 import config from '@/utils/config';
 import { assertUnreachable } from '@/utils/helpers';
-import type { NetOption } from '@/utils/types';
 
 // This version of NAJ needs a keyStore. We are only making view calls so we shouldn't need this. If we upgrade to v1.0.0, the keyStore should be removed.
 const myKeyStore = new nearApi.keyStores.InMemoryKeyStore();
 
-export async function inspectContract(net: NetOption, contract: string) {
+export async function inspectContract(net: Net, contract: string) {
   let nodeUrl;
   switch (net) {
     case 'MAINNET':

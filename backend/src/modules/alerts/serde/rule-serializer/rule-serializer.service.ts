@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Alerts } from '@pc/common/types/alerts';
 import { VError } from 'verror';
 import {
   AcctBalMatchingRule,
@@ -7,16 +8,10 @@ import {
   FnCallMatchingRule,
   TxMatchingRule,
 } from '../db.types';
-import {
-  AcctBalRuleDto,
-  EventRuleDto,
-  FnCallRuleDto,
-  TxRuleDto,
-} from '../dto.types';
 
 @Injectable()
 export class RuleSerializerService {
-  toTxSuccessJson(rule: TxRuleDto): TxMatchingRule {
+  toTxSuccessJson(rule: Alerts.TransactionRule): TxMatchingRule {
     return {
       rule: 'ACTION_ANY',
       affected_account_id: rule.contract,
@@ -24,7 +19,7 @@ export class RuleSerializerService {
     };
   }
 
-  toTxFailureJson(rule: TxRuleDto): TxMatchingRule {
+  toTxFailureJson(rule: Alerts.TransactionRule): TxMatchingRule {
     return {
       rule: 'ACTION_ANY',
       affected_account_id: rule.contract,
@@ -32,7 +27,7 @@ export class RuleSerializerService {
     };
   }
 
-  toFnCallJson(rule: FnCallRuleDto): FnCallMatchingRule {
+  toFnCallJson(rule: Alerts.FunctionCallRule): FnCallMatchingRule {
     return {
       rule: 'ACTION_FUNCTION_CALL',
       affected_account_id: rule.contract,
@@ -41,7 +36,7 @@ export class RuleSerializerService {
     };
   }
 
-  toEventJson(rule: EventRuleDto): EventMatchingRule {
+  toEventJson(rule: Alerts.EventRule): EventMatchingRule {
     return {
       rule: 'EVENT',
       contract_account_id: rule.contract,
@@ -52,8 +47,7 @@ export class RuleSerializerService {
   }
 
   toAcctBalJson(
-    rule: AcctBalRuleDto,
-    ruleType: 'ACCT_BAL_NUM' | 'ACCT_BAL_PCT',
+    rule: Alerts.AcctBalPctRule | Alerts.AcctBalNumRule,
   ): AcctBalMatchingRule {
     if (!rule.from && !rule.to) {
       throw new VError('Invalid range');
@@ -66,7 +60,7 @@ export class RuleSerializerService {
     return {
       rule: 'STATE_CHANGE_ACCOUNT_BALANCE',
       affected_account_id: rule.contract,
-      comparator_kind: this.ruleTypeToComparatorKind(ruleType),
+      comparator_kind: this.ruleTypeToComparatorKind(rule.type),
       comparator_range: {
         from: rule.from,
         to: rule.to,

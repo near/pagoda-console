@@ -6,6 +6,7 @@ import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
 import { Spinner } from '@/components/lib/Spinner';
 import { useOrganizationsLayout } from '@/hooks/layouts';
+import type { ParsedError } from '@/hooks/organizations';
 import { useAcceptOrgInvite } from '@/hooks/organizations';
 import { useIdentity } from '@/hooks/user';
 import { StableId } from '@/utils/stable-ids';
@@ -41,7 +42,7 @@ const AcceptOrgInvite: NextPageWithLayout = () => {
     return (
       <Flex align="center" justify="center" stack css={{ height: '100%' }}>
         {acceptMutation.status === 'error' ? (
-          <Message type="error" content={acceptMutation.error.message} css={{ width: 'initial' }} />
+          <Message type="error" content={(acceptMutation.error as ParsedError).message} css={{ width: 'initial' }} />
         ) : (
           <Message type="success" content="Invite successfully accepted." css={{ width: 'initial' }} />
         )}

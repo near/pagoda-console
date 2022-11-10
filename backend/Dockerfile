@@ -14,6 +14,7 @@ COPY turbo.json ./
 COPY tsconfig.json ./
 
 COPY ./database/package.json ./database/package.json
+COPY ./common/package.json ./common/package.json
 COPY ./backend/package.json ./backend/package.json
 COPY ./frontend/package.json ./frontend/package.json
 
@@ -27,6 +28,7 @@ RUN npm set-script postinstall ""
 RUN npm ci
 
 COPY ./backend ./backend
+COPY ./common ./common
 COPY ./database ./database
 
 # This will also build any other packages in the repo which backend depends on
@@ -41,6 +43,7 @@ ENV NODE_ENV=production
 WORKDIR /usr/src/app
 
 # Order from least likely to change to most likely to change for best layer caching
+COPY --from=builder --chown=node:node /usr/src/app/backend/tsconfig.json ./backend/
 COPY --from=builder --chown=node:node /usr/src/app/package*.json ./
 COPY --from=builder --chown=node:node /usr/src/app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /usr/src/app/backend/package*.json ./backend/
@@ -49,4 +52,4 @@ COPY --from=builder --chown=node:node /usr/src/app/database/clients ./database/c
 COPY --from=builder --chown=node:node /usr/src/app/backend/dist ./backend/dist
 
 USER node
-CMD ["npm", "run", "-w", "backend", "start:prod"]
+CMD ["npm", "run", "-w", "backend", "start"]

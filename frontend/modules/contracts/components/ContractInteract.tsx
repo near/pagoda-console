@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useEffect, useState } from 'react';
 
 import { Container } from '@/components/lib/Container';
@@ -7,7 +8,8 @@ import { openToast } from '@/components/lib/Toast';
 import { ContractTransaction } from '@/modules/contracts/components/ContractTransaction';
 import { UploadContractAbi } from '@/modules/contracts/components/UploadContractAbi';
 import { useAnyAbi } from '@/modules/contracts/hooks/abi';
-import type { Contract } from '@/utils/types';
+
+type Contract = Api.Query.Output<'/projects/getContract'>;
 
 interface Props {
   contract?: Contract;

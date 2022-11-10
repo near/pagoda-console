@@ -235,7 +235,11 @@ export class ApiKeysService {
 
     try {
       const key = await this.provisioningService.fetch(slug);
-      return { keySlug: slug, description: keyDetails.description, key };
+      return {
+        keySlug: slug,
+        description: keyDetails.description,
+        key,
+      };
     } catch (e: any) {
       throw new VError(e, 'Failed while getting a key');
     }
