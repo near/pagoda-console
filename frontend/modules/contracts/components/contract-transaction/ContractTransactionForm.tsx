@@ -92,21 +92,6 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   const setContractInteractForm = (params: ContractFormData = form.getValues()) =>
     sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
 
-  const convertGas = (gas: string) => {
-    switch (gasFormat) {
-      case 'Tgas':
-        return JSBI.BigInt(gasUtils.convertGasToTgas(gas));
-      case 'Ggas':
-        return JSBI.BigInt(gasUtils.convertGasToGgas(gas));
-      case 'Mgas':
-        return JSBI.BigInt(gasUtils.convertGasToMgas(gas));
-      case 'gas':
-        return JSBI.BigInt(gas);
-      default:
-        return JSBI.BigInt(gasUtils.convertGasToTgas(gas));
-    }
-  };
-
   const convertNearDeposit = (deposit: string) => {
     switch (nearFormat) {
       case 'NEAR':
@@ -199,7 +184,9 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
         // Pull gas/deposit from fields or default. This default will be done by the abi client
         // library, but doing it here to have more control and ensure no hidden bugs.
 
-        const gas = params.gas ? convertGas(params.gas).toString() : JSBI.BigInt(10_000_000_000_000).toString();
+        const gas = params.gas
+          ? gasUtils.convertGasByFormat(params.gas, gasFormat).toString()
+          : JSBI.BigInt(10_000_000_000_000).toString();
         const attachedDeposit = params.deposit ? convertNearDeposit(params.deposit).toString() : '0';
 
         res = await call.callFrom(await selector?.wallet(), {
@@ -357,8 +344,10 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                           JSBI.greaterThan(JSBI.BigInt(value), JSBI.BigInt(0)) ||
                           'Value must be greater than 0. Try using 10 Tgas',
                         maxValue: (value: string) =>
-                          JSBI.lessThan(convertGas(value), JSBI.BigInt(gasUtils.convertGasToTgas('301'))) ||
-                          'You can attach a maximum of 300 Tgas to a transaction',
+                          JSBI.lessThan(
+                            gasUtils.convertGasByFormat(value, gasFormat),
+                            JSBI.BigInt(gasUtils.convertGasToTgas('301')),
+                          ) || 'You can attach a maximum of 300 Tgas to a transaction',
                       },
                     })}
                   />

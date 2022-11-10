@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -18,9 +19,10 @@ import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import TxList from '@/public/contracts/images/TxList.svg';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
-import type { Contract } from '@/utils/types';
 
 import ContractTransactionForm from './ContractTransactionForm';
+
+type Contract = Api.Query.Output<'/projects/getContract'>;
 
 const TextItalic = styled(Text, {
   fontStyle: 'italic',
