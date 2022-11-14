@@ -71,7 +71,7 @@ interface ContractFormData {
   [param: string]: any;
 }
 
-const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, onTxError }: ContractFormProps) => {
+const TxForm = ({ accountId, contract, selector, onTxResult, onTxError }: ContractFormProps) => {
   const [contractMethods, setContractMethods] = useState<AbiContract | null>(null);
   const form = useForm<ContractFormData>({
     defaultValues: {
@@ -444,4 +444,4 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   );
 };
 
-export default ContractTransactionForm;
+export default TxForm;

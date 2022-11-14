@@ -9,7 +9,7 @@ import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
 
-import ContractTransactionForm from './ContractTransactionForm';
+import TxForm from './TxForm';
 import TxResult from './TxResult';
 
 type Contract = Api.Query.Output<'/projects/getContract'>;
@@ -64,7 +64,7 @@ const ContractTransaction = ({ contract }: Props) => {
     <Flex gap="l" stack={{ '@laptop': true }}>
       <ContractParams>
         <Flex stack gap="l">
-          <ContractTransactionForm
+          <TxForm
             accountId={accountId}
             contract={contract}
             selector={selector}
