@@ -17,7 +17,7 @@ const ButtonWallet = styled(Button, {
   marginLeft: 'auto',
 });
 
-const WalletLogin = ({ onBeforeLogIn }: { onBeforeLogIn: () => void }) => {
+const TxFormWalletLogin = ({ onBeforeLogIn }: { onBeforeLogIn: () => void }) => {
   const contractSlug = useRouteParam('slug', '/contracts', true) || undefined;
   const { contract: { address: contractId } = {} } = useContract(contractSlug);
   const { accountId, signOut, modal } = useWalletSelector(contractId);
@@ -67,4 +67,4 @@ const WalletLogin = ({ onBeforeLogIn }: { onBeforeLogIn: () => void }) => {
   return accountId ? logedIn : logedOut;
 };
 
-export default WalletLogin;
+export default TxFormWalletLogin;

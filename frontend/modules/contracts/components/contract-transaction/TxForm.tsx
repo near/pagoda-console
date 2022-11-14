@@ -23,8 +23,8 @@ import { StableId } from '@/utils/stable-ids';
 import type { Contract } from '@/utils/types';
 import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
-import resolveDefinition from '../utils/resolveDefinition';
-import WalletLogin from './WalletLogin';
+import resolveAbiDefinition from '../utils/resolveAbiDefinition';
+import TxFormWalletLogin from './TxFormWalletLogin';
 
 const SectionTitle = styled(H5, {
   userSelect: 'none',
@@ -155,7 +155,7 @@ const TxForm = ({ accountId, contract, selector, onTxResult, onTxError }: Contra
       try {
         const fieldParams = selectedFunction.params.map((p) => {
           const value = params[p.name];
-          const schema_ty = resolveDefinition(abi!, p.type_schema);
+          const schema_ty = resolveAbiDefinition(abi!, p.type_schema);
           if (schema_ty === 'integer') {
             return parseInt(value);
           } else if (schema_ty === 'string') {
@@ -231,7 +231,7 @@ const TxForm = ({ accountId, contract, selector, onTxResult, onTxError }: Contra
   };
 
   const ParamInput = ({ param }: { param: AbiParameter }) => {
-    const resolved = resolveDefinition(abi!, param.type_schema);
+    const resolved = resolveAbiDefinition(abi!, param.type_schema);
     let fieldType;
     let inputTy;
     if (resolved === 'integer') {
@@ -326,7 +326,7 @@ const TxForm = ({ accountId, contract, selector, onTxResult, onTxError }: Contra
             <SectionTitle>Transaction Parameters</SectionTitle>
 
             <Flex stack>
-              <WalletLogin onBeforeLogIn={setContractInteractForm} />
+              <TxFormWalletLogin onBeforeLogIn={setContractInteractForm} />
             </Flex>
 
             <Flex inline>
