@@ -1,6 +1,6 @@
 import { useFlags } from 'launchdarkly-react-client-sdk';
 
-type Feature = 'momentary-alerts-enabled' | 'apis-beta-module';
+type Feature = string;
 
 export default function useFeatureFlag(key: Feature) {
   const flags = useFlags();
