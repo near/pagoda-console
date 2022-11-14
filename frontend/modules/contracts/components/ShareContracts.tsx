@@ -161,7 +161,9 @@ function ContractCheckbox({
       onChange={onChange}
     >
       <Flex as="span" align="center">
-        <Text css={{ marginRight: 'auto' }}>{contract.address}</Text>
+        <Text color="text1" css={{ marginRight: 'auto' }}>
+          {contract.address}
+        </Text>
 
         {embeddedAbi && (
           <Tooltip content="Embedded ABI">
