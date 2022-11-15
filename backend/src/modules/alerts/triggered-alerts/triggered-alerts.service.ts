@@ -26,7 +26,7 @@ export class TriggeredAlertsService {
     environmentSubId: Alert['environmentSubId'],
     skip: number,
     take: number,
-    pagingDateTime: Date,
+    pagingDateTime: Date | undefined,
     alertId?: number,
   ) {
     await this.projectPermissions.checkUserProjectEnvPermission(
@@ -106,7 +106,7 @@ export class TriggeredAlertsService {
   }
 
   private determineWhereClause(
-    pagingDateTime: Date,
+    pagingDateTime: Date | undefined,
     projectSlug: string,
     environmentSubId: number,
     alertId?: number,
