@@ -48,7 +48,7 @@ export class TriggeredAlertsController {
         environmentSubId,
         skip || 0,
         take || 100,
-        pagingDateTime!,
+        pagingDateTime ? new Date(pagingDateTime) : undefined,
         alertId,
       );
     } catch (e: any) {

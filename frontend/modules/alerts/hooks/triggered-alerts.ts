@@ -43,7 +43,7 @@ export function useTriggeredAlerts(
         projectSlug: projectSlug!,
         take,
         skip,
-        pagingDateTime: pagination.state.pagingDateTime,
+        pagingDateTime: pagination.state.pagingDateTime?.toISOString(),
         alertId: filters?.alertId,
       });
     },

@@ -24,7 +24,7 @@ export namespace Query {
       environmentSubId: number;
       skip?: number;
       take?: number;
-      pagingDateTime?: Date;
+      pagingDateTime?: string;
       alertId?: number;
     };
     export type GetTriggeredAlertDetails = { slug: string };
