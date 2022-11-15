@@ -1,4 +1,3 @@
-import type { WalletSelector } from '@near-wallet-selector/core';
 import JSBI from 'jsbi';
 import type { AbiParameter, AnyContract as AbiContract } from 'near-abi-client-js';
 import { useCallback, useEffect, useState } from 'react';
@@ -13,6 +12,7 @@ import { NearInput } from '@/components/lib/NearInput';
 import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { initContractMethods, useAnyAbi } from '@/modules/contracts/hooks/abi';
+import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import * as gasUtils from '@/modules/contracts/utils/convert-gas';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
@@ -55,9 +55,7 @@ const UseMaxButton = styled(Button, {
 });
 
 interface ContractFormProps {
-  accountId?: string;
   contract: Contract;
-  selector: WalletSelector | null;
   onTxResult: (result: any) => void;
   onTxError: (error: any) => void;
 }
@@ -71,7 +69,8 @@ interface ContractFormData {
   [param: string]: any;
 }
 
-const TxForm = ({ accountId, contract, selector, onTxResult, onTxError }: ContractFormProps) => {
+const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
+  const { accountId, selector } = useWalletSelector(contract.address);
   const [contractMethods, setContractMethods] = useState<AbiContract | null>(null);
   const form = useForm<ContractFormData>({
     defaultValues: {
@@ -82,6 +81,12 @@ const TxForm = ({ accountId, contract, selector, onTxResult, onTxError }: Contra
     },
   });
   const { contractAbi } = useAnyAbi(contract);
+
+  useEffect(() => {
+    if (accountId) {
+      analytics.track('DC Contract Connect Wallet', { status: 'success', accountId, contract: contract.address });
+    }
+  }, [accountId, contract.address]);
 
   const nearFormat = form.watch('nearFormat');
   const gasFormat = form.watch('gasFormat');

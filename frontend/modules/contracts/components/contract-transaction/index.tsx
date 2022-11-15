@@ -5,9 +5,7 @@ import { useEffect, useState } from 'react';
 import { Box } from '@/components/lib/Box';
 import { Flex } from '@/components/lib/Flex';
 import { useRouteParam } from '@/hooks/route';
-import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import { styled } from '@/styles/stitches';
-import analytics from '@/utils/analytics';
 
 import TxForm from './TxForm';
 import TxResult from './TxResult';
@@ -29,7 +27,7 @@ interface Props {
 }
 
 const ContractTransaction = ({ contract }: Props) => {
-  const { accountId, selector } = useWalletSelector(contract.address);
+  // const { accountId, selector } = useWalletSelector(contract.address);
   const [txResult, setTxResult] = useState<any>(undefined);
   const [txError, setTxError] = useState<any>(undefined);
   const transactionHashParam = useRouteParam('transactionHashes');
@@ -54,20 +52,20 @@ const ContractTransaction = ({ contract }: Props) => {
     setTxError(error);
   }
 
-  useEffect(() => {
-    if (accountId) {
-      analytics.track('DC Contract Connect Wallet', { status: 'success', accountId, contract: contract.address });
-    }
-  }, [accountId, contract.address]);
+  // useEffect(() => {
+  //   if (accountId) {
+  //     analytics.track('DC Contract Connect Wallet', { status: 'success', accountId, contract: contract.address });
+  //   }
+  // }, [accountId, contract.address]);
 
   return (
     <Flex gap="l" stack={{ '@laptop': true }}>
       <ContractParams>
         <Flex stack gap="l">
           <TxForm
-            accountId={accountId}
+            // accountId={accountId}
             contract={contract}
-            selector={selector}
+            // selector={selector}
             onTxResult={onTxResult}
             onTxError={onTxError}
           />
