@@ -18,6 +18,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Format and lint check
+        run: npx turbo run format:check lint:check
+
       - name: Test building a project
         run: npm -w backend run build
 
