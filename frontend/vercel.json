@@ -1,4 +1,1 @@
-{
-  "installCommand": "cd .. && npm install",
-  "buildCommand": "cd .. && npx turbo run build --filter=frontend"
-}
+{}
