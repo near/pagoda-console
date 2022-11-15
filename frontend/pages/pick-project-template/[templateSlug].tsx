@@ -18,7 +18,6 @@ import analytics from '@/utils/analytics';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
 import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
-import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ViewProjectTemplate: NextPageWithLayout = () => {
@@ -44,7 +43,7 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
     try {
       setIsDeploying(true);
 
-      const project = await authenticatedPost<Project>('/projects/create', {
+      const project = await authenticatedPost('/projects/create', {
         name: projectName,
       });
 

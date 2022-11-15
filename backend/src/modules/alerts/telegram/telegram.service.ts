@@ -5,7 +5,7 @@ import { DateTime } from 'luxon';
 import { AppConfig } from 'src/config/validate';
 import { VError } from 'verror';
 import { PrismaService } from '../prisma.service';
-import { TgChat } from './types';
+import { Alerts } from '@pc/common/types/alerts';
 
 @Injectable()
 export class TelegramService {
@@ -24,7 +24,7 @@ export class TelegramService {
     });
   }
 
-  async start(startToken: string | undefined, chat: TgChat) {
+  async start(startToken: string | undefined, chat: Alerts.TgChat) {
     const tgDestination = await this.prisma.telegramDestination.findUnique({
       where: {
         startToken,

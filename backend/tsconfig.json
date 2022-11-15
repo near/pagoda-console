@@ -3,10 +3,14 @@
   "compilerOptions": {
     "outDir": "./dist",
     "baseUrl": "./",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "paths": {
       "@/*": ["./*"],
-      "@generated/*": ["./generated/*"]
+      "@generated/*": ["./generated/*"],
+      "@pc/common/*": ["../common/*"]
     }
   },
+  "include": ["**/*", "../common/**/*"],
   "exclude": ["modules/template/**/*"]
 }

@@ -20,7 +20,6 @@ import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
-import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const PERSONAL_ORGANIZATION_NAME = 'Personal organization';
@@ -47,7 +46,7 @@ const NewProject: NextPageWithLayout = () => {
   const createProject: SubmitHandler<NewProjectFormData> = async ({ projectName, projectOrg }) => {
     try {
       router.prefetch('/apis?tab=keys');
-      const project = await authenticatedPost<Project>('/projects/create', { name: projectName, org: projectOrg });
+      const project = await authenticatedPost('/projects/create', { name: projectName, org: projectOrg });
       analytics.track('DC Create New Project', {
         status: 'success',
         name: projectName,

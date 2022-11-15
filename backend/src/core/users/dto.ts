@@ -2,101 +2,85 @@
 // because class-validator was experiencing issues at the time of implementation
 // and had many unaddressed github issues
 
-import { OrgRole, OrgMember, User, Org } from '@pc/database/clients/core';
+import { Api } from '@pc/common/types/api';
 import * as Joi from 'joi';
 
-// Composable Response DTOs
-
-export type OrgMemberData = Pick<OrgMember, 'orgSlug' | 'role'> & {
-  user: Pick<User, 'uid' | 'email'> | { uid: null; email: string };
-};
-
-export type OrgData = Pick<Org, 'slug' | 'name'> & { isPersonal: boolean };
-
-// Request DTOs
-
-const OrgRoleSchema = Joi.string().valid('ADMIN', 'COLLABORATOR');
+const OrgRoleSchema = Joi.alternatives('ADMIN', 'COLLABORATOR');
 
 // create org
-export interface CreateOrgDto {
-  name: string;
-}
-export const CreateOrgSchema = Joi.object({
+export const CreateOrgSchema = Joi.object<
+  Api.Mutation.Input<'/users/createOrg'>,
+  true
+>({
   name: Joi.string(),
 });
 
 // invite to org
-export interface InviteToOrgDto {
-  org: Org['slug'];
-  email: string;
-  role: OrgRole;
-}
-export const InviteToOrgSchema = Joi.object({
+export const InviteToOrgSchema = Joi.object<
+  Api.Mutation.Input<'/users/inviteToOrg'>,
+  true
+>({
   org: Joi.string(),
   email: Joi.string().email(),
   role: OrgRoleSchema,
 });
 
 // accept org invite
-export interface AcceptOrgInviteDto {
-  token: string;
-}
-export const AcceptOrgInviteSchema = Joi.object({
+export const AcceptOrgInviteSchema = Joi.object<
+  Api.Mutation.Input<'/users/acceptOrgInvite'>,
+  true
+>({
   token: Joi.string(),
 });
 
 // remove org invite
-export interface RemoveOrgInviteDto {
-  org: Org['slug'];
-  email: string;
-}
-export const RemoveOrgInviteSchema = Joi.object({
+export const RemoveOrgInviteSchema = Joi.object<
+  Api.Mutation.Input<'/users/removeOrgInvite'>,
+  true
+>({
   org: Joi.string(),
   email: Joi.string().email(),
 });
 
 // remove from org
-export interface RemoveFromOrgDto {
-  org: Org['slug'];
-  user: User['uid'];
-}
-export const RemoveFromOrgSchema = Joi.object({
+export const RemoveFromOrgSchema = Joi.object<
+  Api.Mutation.Input<'/users/removeFromOrg'>,
+  true
+>({
   org: Joi.string(),
   user: Joi.string(),
 });
 
 // list org members
-export interface ListOrgMembersDto {
-  org: Org['slug'];
-}
-export const ListOrgMembersSchema = Joi.object({
+export const ListOrgMembersSchema = Joi.object<
+  Api.Query.Input<'/users/listOrgMembers'>,
+  true
+>({
   org: Joi.string(),
 });
 
 // delete org
-export interface DeleteOrgDto {
-  org: Org['slug'];
-}
-export const DeleteOrgSchema = Joi.object({
+export const DeleteOrgSchema = Joi.object<
+  Api.Mutation.Input<'/users/deleteOrg'>,
+  true
+>({
   org: Joi.string(),
 });
 
 // change org role
-export interface ChangeOrgRoleDto {
-  org: Org['slug'];
-  role: OrgRole;
-  user: User['uid'];
-}
-export const ChangeOrgRoleSchema = Joi.object({
+export const ChangeOrgRoleSchema = Joi.object<
+  Api.Mutation.Input<'/users/changeOrgRole'>,
+  true
+>({
   org: Joi.string(),
   role: OrgRoleSchema,
   user: Joi.string(),
 });
 
 // reset password
-export interface ResetPasswordDto {
-  email: string;
-}
-export const ResetPasswordSchema = Joi.object({
+export const ResetPasswordSchema = Joi.object<
+  Api.Mutation.Input<'/users/resetPassword'>,
+  true
+>({
   email: Joi.string().required(),
 });

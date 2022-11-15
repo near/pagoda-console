@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -22,7 +23,8 @@ import { DeleteContractModal } from '@/modules/contracts/components/DeleteContra
 import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
-import type { Contract } from '@/utils/types';
+
+type Contract = Api.Query.Output<'/projects/getContract'>;
 
 const ViewContract: NextPageWithLayout = () => {
   const router = useRouter();

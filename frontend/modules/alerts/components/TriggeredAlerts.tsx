@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -20,12 +21,14 @@ import { useRouteParam } from '@/hooks/route';
 import { useOnSelectedProjectChange } from '@/hooks/selected-project';
 import { StableId } from '@/utils/stable-ids';
 import { truncateMiddle } from '@/utils/truncate-middle';
-import type { Environment, Project } from '@/utils/types';
 
 import { useAlerts } from '../hooks/alerts';
 import { useTriggeredAlerts } from '../hooks/triggered-alerts';
 import { alertTypes } from '../utils/constants';
-import type { TriggeredAlert } from '../utils/types';
+
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
+type Project = Api.Query.Output<'/projects/getDetails'>;
+type TriggeredAlert = Api.Query.Output<'/triggeredAlerts/listTriggeredAlerts'>['page'][number];
 
 export function TriggeredAlerts({ environment, project }: { environment?: Environment; project?: Project }) {
   const queryParamAlertFilter = useRouteParam('alertId');
@@ -121,7 +124,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
                           onValueChange={onSelectAlertFilter}
                         >
                           {alerts?.map((a) => {
-                            const alertTypeOption = alertTypes[a.type];
+                            const alertTypeOption = alertTypes[a.rule.type];
                             return (
                               <DropdownMenu.RadioItem
                                 key={a.id}
@@ -194,7 +197,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
                 </Table.Cell>
                 <Table.Cell href={url}>
                   <Text family="number" color="text3" size="current">
-                    {truncateMiddle(row.triggeredInTransactionHash)}
+                    {row.triggeredInTransactionHash ? truncateMiddle(row.triggeredInTransactionHash) : null}
                   </Text>
                 </Table.Cell>
                 <Table.Cell href={url}>

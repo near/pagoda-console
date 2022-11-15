@@ -1,3 +1,4 @@
+import type { Explorer } from '@pc/common/types/core';
 import JSBI from 'jsbi';
 import { DateTime } from 'luxon';
 import * as React from 'react';
@@ -27,10 +28,9 @@ import {
   TableRow,
   TableWrapper,
 } from './styles';
-import type { AccountActivityAction, AccountActivityElement, ActivityConnectionActions } from './types';
 
 type RowProps = {
-  item: AccountActivityElement;
+  item: Explorer.ActivityActionItem;
 };
 
 const ActivityItemActionWrapper = styled('div', {
@@ -48,7 +48,7 @@ const ActivityItemTitle = styled('span', {
 });
 
 const ActivityItemAction: React.FC<{
-  action: NonNullable<ActivityConnectionActions['parentAction']> | AccountActivityAction;
+  action: Explorer.AccountActivityWithConnection | Explorer.AccountActivityAction;
 }> = ({ action }) => {
   const badge = (
     <>
@@ -209,9 +209,11 @@ type Props = {
 
 const AccountActivityView: React.FC<Props> = ({ accountId }) => {
   const net = useNet();
-  const query = useSWR<{ items: AccountActivityElement[] }>(
-    accountId ? ['explorer/activity', accountId, net] : null,
-    () => unauthenticatedPost(`/explorer/activity/`, { contractId: accountId, net }),
+  const query = useSWR(accountId ? ['explorer/activity', accountId, net] : null, () =>
+    unauthenticatedPost('/explorer/activity', {
+      contractId: accountId,
+      net,
+    }),
   );
 
   if (!accountId) {

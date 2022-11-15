@@ -1,9 +1,10 @@
+import type { Api } from '@pc/common/types/api';
 import { useCallback, useEffect } from 'react';
 import type { KeyedMutator } from 'swr';
 
 import { openToast } from '@/components/lib/Toast';
 
-import type { Destination } from '../utils/types';
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 export function useVerifyDestinationInterval(
   destination: Destination | undefined,

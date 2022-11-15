@@ -1,3 +1,5 @@
+import type { Api } from '@pc/common/types/api';
+import type { DestinationType } from '@pc/database/clients/alerts';
 import { useState } from 'react';
 import type { FieldValues } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
@@ -19,10 +21,11 @@ import { StableId } from '@/utils/stable-ids';
 import { createDestination, useDestinations } from '../hooks/destinations';
 import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
 import { destinationTypeOptions } from '../utils/constants';
-import type { Destination, DestinationType, NewDestination } from '../utils/types';
 import { EmailDestinationVerification } from './EmailDestinationVerification';
 import { TelegramDestinationVerification } from './TelegramDestinationVerification';
 import { WebhookDestinationSecret } from './WebhookDestinationSecret';
+
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 interface Props {
   onCreate?: (destination: Destination) => void;
@@ -43,7 +46,7 @@ function useNewDestinationForm<T extends FieldValues>(props: FormProps) {
 
   useVerifyDestinationInterval(destination, mutate, props.setShow, props.onVerify);
 
-  async function create(data: NewDestination) {
+  async function create(data: Api.Mutation.Input<'/alerts/createDestination'>) {
     try {
       const destination = await createDestination(data);
 

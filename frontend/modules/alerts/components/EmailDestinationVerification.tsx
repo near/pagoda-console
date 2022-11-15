@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
@@ -6,7 +7,8 @@ import { Text } from '@/components/lib/Text';
 import { StableId } from '@/utils/stable-ids';
 
 import { resendEmailVerification } from '../hooks/destinations';
-import type { Destination } from '../utils/types';
+
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 interface Props {
   destination: Destination;

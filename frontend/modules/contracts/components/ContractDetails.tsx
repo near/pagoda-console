@@ -1,3 +1,6 @@
+import type { Api } from '@pc/common/types/api';
+import type { Net } from '@pc/database/clients/core';
+
 import TransactionAction from '@/components/explorer/transactions/TransactionAction';
 import { NetContext } from '@/components/explorer/utils/NetContext';
 import { Box } from '@/components/lib/Box';
@@ -10,10 +13,12 @@ import { Text } from '@/components/lib/Text';
 import { useContractMetrics } from '@/hooks/contracts';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatBytes } from '@/utils/format-bytes';
-import type { Environment, NetOption } from '@/utils/types';
-import type { Contract } from '@/utils/types';
 
 import { useFinalityStatus, useRecentTransactions } from '../hooks/recent-transactions';
+
+type Contract = Api.Query.Output<'/projects/getContract'>;
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
+
 interface Props {
   contract?: Contract;
   environment?: Environment;
@@ -61,7 +66,7 @@ export function ContractDetails({ contract, environment }: Props) {
   );
 }
 
-function RecentTransactionList({ contract, net }: { contract?: Contract; net?: NetOption }) {
+function RecentTransactionList({ contract, net }: { contract?: Contract; net?: Net }) {
   // NOTE: This component and following code is legacy and will soon be replaced by new explorer components.
 
   const { finalityStatus } = useFinalityStatus(net);

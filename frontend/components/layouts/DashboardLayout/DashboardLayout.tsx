@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
 import { NftInfoCard } from '@/modules/core/components/NftInfoCard';
 
@@ -7,11 +7,10 @@ import { Footer } from '../Footer';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import * as S from './styles';
-import type { Redirect } from './types';
 
 interface Props {
   children: ReactNode;
-  redirect?: Redirect;
+  redirect?: ComponentProps<typeof Header>['redirect'];
 }
 
 export function DashboardLayout({ children, redirect }: Props) {

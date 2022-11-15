@@ -1,44 +1,36 @@
+import type { Explorer } from '@pc/common/types/core';
+import type * as RPC from '@pc/common/types/rpc';
+
 import AccountLink from '../utils/AccountLink';
 import Balance from '../utils/Balance';
 import CodeArgs from '../utils/CodeArgs';
-import type * as T from './types';
 
-export interface Props<A> {
-  actionKind: keyof TransactionMessageRenderers;
-  actionArgs: A;
+export interface Props<A extends RPC.ActionView> {
+  actionKind: Explorer.Old.Action<A>['kind'];
+  actionArgs: Explorer.Old.ActionArgs<A>;
   receiverId: string;
   showDetails?: boolean;
 }
 
-type AnyAction =
-  | T.CreateAccount
-  | T.DeleteAccount
-  | T.DeployContract
-  | T.FunctionCall
-  | T.Transfer
-  | T.Stake
-  | T.AddKey
-  | T.DeleteKey;
-
 interface TransactionMessageRenderers {
-  CreateAccount: React.FC<Props<T.CreateAccount>>;
-  DeleteAccount: React.FC<Props<T.DeleteAccount>>;
-  DeployContract: React.FC<Props<T.DeployContract>>;
-  FunctionCall: React.FC<Props<T.FunctionCall>>;
-  Transfer: React.FC<Props<T.Transfer>>;
-  Stake: React.FC<Props<T.Stake>>;
-  AddKey: React.FC<Props<T.AddKey>>;
-  DeleteKey: React.FC<Props<T.DeleteKey>>;
+  CreateAccount: React.FC<Props<'CreateAccount'>>;
+  DeleteAccount: React.FC<Props<RPC.DeleteAccountActionView>>;
+  DeployContract: React.FC<Props<RPC.DeployContractActionView>>;
+  FunctionCall: React.FC<Props<RPC.FunctionCallActionView>>;
+  Transfer: React.FC<Props<RPC.TransferActionView>>;
+  Stake: React.FC<Props<RPC.StakeActionView>>;
+  AddKey: React.FC<Props<RPC.AddKeyActionView>>;
+  DeleteKey: React.FC<Props<RPC.DeleteKeyActionView>>;
 }
 
 const transactionMessageRenderers: TransactionMessageRenderers = {
-  CreateAccount: ({ receiverId }: Props<T.CreateAccount>) => (
+  CreateAccount: ({ receiverId }: Props<'CreateAccount'>) => (
     <>
       <>New account created: </>
       <AccountLink accountId={receiverId} />
     </>
   ),
-  DeleteAccount: ({ receiverId, actionArgs }: Props<T.DeleteAccount>) => (
+  DeleteAccount: ({ receiverId, actionArgs }: Props<RPC.DeleteAccountActionView>) => (
     <>
       <>Delete account </>
       <AccountLink accountId={receiverId} />
@@ -46,13 +38,13 @@ const transactionMessageRenderers: TransactionMessageRenderers = {
       <AccountLink accountId={actionArgs.beneficiary_id} />
     </>
   ),
-  DeployContract: ({ receiverId }: Props<T.DeployContract>) => (
+  DeployContract: ({ receiverId }: Props<RPC.DeployContractActionView>) => (
     <>
       <>Contract deployed: </>
       <AccountLink accountId={receiverId} />
     </>
   ),
-  FunctionCall: ({ receiverId, actionArgs, showDetails }: Props<T.FunctionCall>) => {
+  FunctionCall: ({ receiverId, actionArgs, showDetails }: Props<RPC.FunctionCallActionView>) => {
     let args;
     if (showDetails) {
       if (typeof actionArgs.args === 'undefined') {
@@ -78,7 +70,7 @@ const transactionMessageRenderers: TransactionMessageRenderers = {
       </>
     );
   },
-  Transfer: ({ receiverId, actionArgs: { deposit } }: Props<T.Transfer>) => (
+  Transfer: ({ receiverId, actionArgs: { deposit } }: Props<RPC.TransferActionView>) => (
     <>
       <>Transferred </>
       <Balance amount={deposit} />
@@ -86,38 +78,27 @@ const transactionMessageRenderers: TransactionMessageRenderers = {
       <AccountLink accountId={receiverId} />
     </>
   ),
-  Stake: ({ actionArgs: { stake, public_key } }: Props<T.Stake>) => (
+  Stake: ({ actionArgs: { stake, public_key } }: Props<RPC.StakeActionView>) => (
     <>
       <>Staked: </>
       <Balance amount={stake} /> <>with ${public_key.substring(0, 15)}...</>
     </>
   ),
-  AddKey: ({ receiverId, actionArgs }: Props<T.AddKey>) => (
+  AddKey: ({ receiverId, actionArgs }: Props<RPC.AddKeyActionView>) => (
     <>
       {typeof actionArgs.access_key.permission === 'object' ? (
-        actionArgs.access_key.permission.permission_kind ? (
-          <>
-            <>New key added for </>
-            <AccountLink accountId={receiverId} />
-            {`: ${actionArgs.public_key.substring(0, 15)}...`}
-            <p>
-              <>{`with permission ${actionArgs.access_key.permission.permission_kind}`}</>
-            </p>
-          </>
-        ) : (
-          <>
-            <>Access key added for contract </>
-            <AccountLink accountId={actionArgs.access_key.permission.FunctionCall.receiver_id} />
-            {`: ${actionArgs.public_key.substring(0, 15)}...`}
-            <p>
-              {`with permission to call ${
-                actionArgs.access_key.permission.FunctionCall.method_names.length > 0
-                  ? `(${actionArgs.access_key.permission.FunctionCall.method_names.join(', ')})`
-                  : 'any'
-              } methods`}
-            </p>
-          </>
-        )
+        <>
+          <>Access key added for contract </>
+          <AccountLink accountId={actionArgs.access_key.permission.FunctionCall.receiver_id} />
+          {`: ${actionArgs.public_key.substring(0, 15)}...`}
+          <p>
+            {`with permission to call ${
+              actionArgs.access_key.permission.FunctionCall.method_names.length > 0
+                ? `(${actionArgs.access_key.permission.FunctionCall.method_names.join(', ')})`
+                : 'any'
+            } methods`}
+          </p>
+        </>
       ) : (
         <>
           <>New key added for </>
@@ -130,12 +111,12 @@ const transactionMessageRenderers: TransactionMessageRenderers = {
       )}
     </>
   ),
-  DeleteKey: ({ actionArgs: { public_key } }: Props<T.DeleteKey>) => (
+  DeleteKey: ({ actionArgs: { public_key } }: Props<RPC.DeleteKeyActionView>) => (
     <>{`Key deleted: ${public_key.substring(0, 15)}...`}</>
   ),
 };
 
-const ActionMessage = (props: Props<AnyAction>) => {
+const ActionMessage = (props: Props<RPC.ActionView>) => {
   const MessageRenderer = transactionMessageRenderers[props.actionKind];
   if (MessageRenderer === undefined) {
     return (
