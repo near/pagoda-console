@@ -1,20 +1,16 @@
+import type { Api } from '@pc/common/types/api';
+import { RpcStats } from '@pc/common/types/rpcstats';
 import type { DateTime, DateTimeUnit } from 'luxon';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
 import { useIdentity } from '@/hooks/user';
 import { authenticatedPost } from '@/utils/http';
-import type { Environment, Project } from '@/utils/types';
 
-import type {
-  ApiStatsData,
-  EndpointMetric,
-  EndpointMetricsDetailsResponseDto,
-  RpcStatsPagingResponse,
-  TimeRangeValue,
-} from '../utils/types';
+type Project = Api.Query.Output<'/projects/getDetails'>;
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 
-function timeRangeToDates(timeRangeValue: TimeRangeValue, endTime: DateTime): [DateTime, DateTime] {
+function timeRangeToDates(timeRangeValue: RpcStats.TimeRangeValue, endTime: DateTime): [DateTime, DateTime] {
   switch (timeRangeValue) {
     case '30_DAYS':
       return [endTime.minus({ days: 30 }), endTime];
@@ -29,7 +25,7 @@ function timeRangeToDates(timeRangeValue: TimeRangeValue, endTime: DateTime): [D
   }
 }
 
-function totalMetrics(endpointMetrics: EndpointMetricsDetailsResponseDto[]): {
+function totalMetrics(endpointMetrics: RpcStats.Metrics[]): {
   successCount: number;
   errorCount: number;
   weightedTotalLatency: number;
@@ -46,7 +42,9 @@ function totalMetrics(endpointMetrics: EndpointMetricsDetailsResponseDto[]): {
   return { successCount, errorCount, weightedTotalLatency };
 }
 
-function endpointTotals(endpointMetrics: EndpointMetricsDetailsResponseDto[]): EndpointMetric[] {
+function endpointTotals(
+  endpointMetrics: RpcStats.Metrics[],
+): (Pick<RpcStats.Metrics, 'endpointMethod' | 'successCount' | 'errorCount'> & { totalCount: number })[] {
   return endpointMetrics.map((endpointMetric) => {
     return {
       endpointMethod: endpointMetric.endpointMethod,
@@ -64,7 +62,7 @@ export enum DateTimeResolution {
   ONE_DAY = 'ONE_DAY',
 }
 
-function resolutionForTimeRange(timeRangeValue: TimeRangeValue): DateTimeResolution {
+function resolutionForTimeRange(timeRangeValue: RpcStats.TimeRangeValue): RpcStats.DateTimeResolution {
   switch (timeRangeValue) {
     case '30_DAYS':
       return DateTimeResolution.ONE_HOUR;
@@ -77,11 +75,6 @@ function resolutionForTimeRange(timeRangeValue: TimeRangeValue): DateTimeResolut
     case '15_MINS':
       return DateTimeResolution.FIFTEEN_SECONDS;
   }
-}
-
-export enum GroupBy {
-  date = 'date',
-  endpoint = 'endpoint',
 }
 
 function toLuxonDateTimeResolution(dateTimeResolution: DateTimeResolution) {
@@ -98,13 +91,12 @@ function toLuxonDateTimeResolution(dateTimeResolution: DateTimeResolution) {
 }
 
 function fillEmptyDateValues(
-  dateValues: Array<EndpointMetricsDetailsResponseDto>,
+  dateValues: RpcStats.Metrics[],
   startDateTime: DateTime,
   endDateTime: DateTime,
   dateTimeResolution: DateTimeResolution,
 ) {
-  const filledDateValues: Omit<EndpointMetricsDetailsResponseDto, 'apiKeyIdentifier' | 'endpointMethod' | 'network'>[] =
-    [];
+  const filledDateValues: Omit<RpcStats.Metrics, 'apiKeyIdentifier' | 'endpointMethod' | 'network'>[] = [];
   const luxonDateTimeResolution = toLuxonDateTimeResolution(dateTimeResolution);
   // set currentDateTime to start of next dateTimeResolution
   let currentDateTime = startDateTime
@@ -132,22 +124,24 @@ function fillEmptyDateValues(
   return filledDateValues;
 }
 
+type EndpointMetrics = Api.Query.Output<'/rpcstats/endpointMetrics'>;
+
 export function useApiStats(
   environment: Environment | undefined,
   project: Project | undefined,
-  timeRangeValue: TimeRangeValue,
+  timeRangeValue: RpcStats.TimeRangeValue,
   rangeEndTime: DateTime,
-): ApiStatsData | undefined {
+) {
   const identity = useIdentity();
   const [startDateTime, endDateTime] = timeRangeToDates(timeRangeValue, rangeEndTime); // convert timeRangeValue to params for use in the API call
   const dateTimeResolution = resolutionForTimeRange(timeRangeValue);
-  const [dataByDate, setDataByDate] = useState<RpcStatsPagingResponse>();
-  const [dataByEndpoint, setDataByEndpoint] = useState<RpcStatsPagingResponse>();
+  const [dataByDate, setDataByDate] = useState<EndpointMetrics>();
+  const [dataByEndpoint, setDataByEndpoint] = useState<EndpointMetrics>();
 
-  const { data: dataByDateResponse } = useSWR<RpcStatsPagingResponse>(
+  const { data: dataByDateResponse } = useSWR(
     identity && environment && project && startDateTime && endDateTime
       ? [
-          '/rpcstats/endpointMetrics',
+          '/rpcstats/endpointMetrics' as const,
           'date',
           environment.subId,
           identity.uid,
@@ -157,20 +151,22 @@ export function useApiStats(
       : null,
     (key) => {
       return authenticatedPost(key, {
-        environmentSubId: environment?.subId,
-        projectSlug: project?.slug,
-        startDateTime,
-        endDateTime,
-        dateTimeResolution,
-        grouping: [GroupBy.date],
+        environmentSubId: environment!.subId,
+        projectSlug: project!.slug,
+        startDateTime: startDateTime.toString(),
+        endDateTime: endDateTime.toString(),
+        filter: {
+          type: RpcStats.MetricGroupBy.DATE,
+          dateTimeResolution,
+        },
       });
     },
   );
 
-  const { data: dataByEndpointResponse } = useSWR<RpcStatsPagingResponse>(
+  const { data: dataByEndpointResponse } = useSWR(
     identity && environment && project && startDateTime && endDateTime
       ? [
-          '/rpcstats/endpointMetrics',
+          '/rpcstats/endpointMetrics' as const,
           'endpoint',
           environment.subId,
           identity.uid,
@@ -180,11 +176,11 @@ export function useApiStats(
       : null,
     (key) => {
       return authenticatedPost(key, {
-        environmentSubId: environment?.subId,
-        projectSlug: project?.slug,
-        startDateTime,
-        endDateTime,
-        grouping: [GroupBy.endpoint],
+        environmentSubId: environment!.subId,
+        projectSlug: project!.slug,
+        startDateTime: startDateTime.toString(),
+        endDateTime: endDateTime.toString(),
+        filter: { type: RpcStats.MetricGroupBy.ENDPOINT },
       });
     },
   );

@@ -331,7 +331,7 @@ export class UsersService implements OnModuleInit {
 
     return {
       ...created,
-      isPersonal: false,
+      isPersonal: false as const,
     };
   }
 
@@ -605,9 +605,7 @@ export class UsersService implements OnModuleInit {
       );
     }
 
-    return {
-      org,
-    };
+    return org;
   }
 
   async removeFromOrg(
@@ -706,32 +704,26 @@ export class UsersService implements OnModuleInit {
 
     // I'm not sure this is what we want but this ensures the latest invites are at the top
     // of the list, followed by accepted members of the org.
+    const existingMembers = members.map((member) => ({
+      isInvite: false as const,
+      ...member,
+    }));
+    const nonExistingMembers = invites.map((i) => ({
+      isInvite: true as const,
+      orgSlug: i.orgSlug,
+      role: i.role,
+      user: {
+        uid: null,
+        email: i.email,
+      },
+    }));
     return (
       [] as (
-        | typeof members[number]
-        | {
-            isInvite: true;
-            orgSlug: string;
-            role: OrgRole;
-            user: {
-              uid: null;
-              email: string;
-            };
-          }
+        | typeof existingMembers[number]
+        | typeof nonExistingMembers[number]
       )[]
     )
-      .concat(
-        members,
-        invites.map((i) => ({
-          isInvite: true,
-          orgSlug: i.orgSlug,
-          role: i.role,
-          user: {
-            uid: null,
-            email: i.email,
-          },
-        })),
-      )
+      .concat(existingMembers, nonExistingMembers)
       .reverse();
   }
 

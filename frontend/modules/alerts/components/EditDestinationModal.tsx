@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -17,11 +18,12 @@ import { StableId } from '@/utils/stable-ids';
 import { updateDestination, useDestinations } from '../hooks/destinations';
 import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
 import { destinationTypes } from '../utils/constants';
-import type { Destination } from '../utils/types';
 import { DeleteDestinationModal } from './DeleteDestinationModal';
 import { EmailDestinationVerification } from './EmailDestinationVerification';
 import { TelegramDestinationVerification } from './TelegramDestinationVerification';
 import { WebhookDestinationSecret } from './WebhookDestinationSecret';
+
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 interface Props {
   destination: Destination;
@@ -162,14 +164,16 @@ function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps) 
   const { formState, setValue, register, handleSubmit } = useForm<TelegramFormData>();
 
   useEffect(() => {
-    setValue('name', destination.name);
+    if (destination.name) {
+      setValue('name', destination.name);
+    }
   }, [setValue, destination]);
 
   async function submitForm(data: TelegramFormData) {
     try {
       const updated = await updateDestination({
         id: destination.id,
-        type: destination.type,
+        type: 'TELEGRAM',
         name: data.name,
       });
 
@@ -244,7 +248,9 @@ function WebhookDestinationForm({ destination, onUpdate, setShow, onSecretRotate
   const { formState, setValue, register, handleSubmit } = useForm<WebhookFormData>();
 
   useEffect(() => {
-    setValue('name', destination.name);
+    if (destination.name) {
+      setValue('name', destination.name);
+    }
     setValue('url', destination.config.url);
   }, [setValue, destination]);
 
@@ -336,14 +342,16 @@ function EmailDestinationForm({ destination, onUpdate, setShow }: FormProps) {
   const { formState, setValue, register, handleSubmit } = useForm<EmailFormData>();
 
   useEffect(() => {
-    setValue('name', destination.name);
+    if (destination.name) {
+      setValue('name', destination.name);
+    }
   }, [setValue, destination]);
 
   async function submitForm(data: EmailFormData) {
     try {
       const updated = await updateDestination({
         id: destination.id,
-        type: destination.type,
+        type: 'EMAIL',
         name: data.name,
       });
 

@@ -1,12 +1,17 @@
+import type { Api } from '@pc/common/types/api';
 import { getAuth, getIdToken } from 'firebase/auth';
 
 import config from '@/utils/config';
 
-export const unauthenticatedPost = async <R = unknown>(
-  endpoint: string,
-  body?: Record<string, any>,
-  headers?: HeadersInit,
-): Promise<R> => {
+export const unauthenticatedPost = async <K extends Api.Mutation.Key | Api.Query.Key>(
+  ...[endpoint, body, headers]: [
+    K,
+    K extends Api.Mutation.Key ? Api.Mutation.Input<K> : K extends Api.Query.Key ? Api.Query.Input<K> : never,
+    HeadersInit?,
+  ]
+): Promise<
+  K extends Api.Mutation.Key ? Api.Mutation.Output<K> : K extends Api.Query.Key ? Api.Query.Output<K> : never
+> => {
   const res = await fetch(`${config.url.api}${endpoint}`, {
     method: 'POST',
     headers: {
@@ -41,11 +46,27 @@ async function parseFetchResponse<R = unknown>(res: Response): Promise<R> {
   return resJson;
 }
 
-export const authenticatedPost = async <R = unknown>(endpoint: string, body?: Record<string, any>): Promise<R> => {
+export const authenticatedPost = async <K extends Api.Mutation.Key | Api.Query.Key>(
+  ...[endpoint, body]: K extends Api.Mutation.Key
+    ? Api.Mutation.Input<K> extends void
+      ? [K]
+      : [K, Api.Mutation.Input<K>]
+    : K extends Api.Query.Key
+    ? Api.Query.Input<K> extends void
+      ? [K]
+      : [K, Api.Query.Input<K>]
+    : never
+): Promise<
+  K extends Api.Mutation.Key ? Api.Mutation.Output<K> : K extends Api.Query.Key ? Api.Query.Output<K> : never
+> => {
   const user = getAuth().currentUser;
   if (!user) throw new Error('No authenticated user');
   const headers = {
     Authorization: `Bearer ${await getIdToken(user)}`,
   };
-  return unauthenticatedPost(endpoint, body, headers);
+  return unauthenticatedPost<K>(
+    endpoint as K,
+    body as K extends Api.Mutation.Key ? Api.Mutation.Input<K> : K extends Api.Query.Key ? Api.Query.Input<K> : never,
+    headers,
+  );
 };

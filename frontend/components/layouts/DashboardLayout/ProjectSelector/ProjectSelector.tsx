@@ -10,7 +10,6 @@ import { useProjectGroups } from '@/hooks/projects';
 import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
 import { StableId } from '@/utils/stable-ids';
-import type { Project } from '@/utils/types';
 
 interface Props {
   onBeforeChange?: (change: () => void) => void;
@@ -22,7 +21,7 @@ export function ProjectSelector(props: Props) {
   const { projectGroups } = useProjectGroups();
   const router = useRouter();
 
-  function onSelectProject(project: Project) {
+  function onSelectProject(project: NonNullable<typeof projectGroups>[number][1][number]) {
     if (props.onBeforeChange) {
       props.onBeforeChange(() => {
         selectProject(project.slug);

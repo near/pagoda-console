@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import useSWR from 'swr';
 
 import { openToast } from '@/components/lib/Toast';
@@ -5,10 +6,8 @@ import { useIdentity } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 
-import type { Destination, NewDestination, UpdateDestination } from '../utils/types';
-
-export async function createDestination(data: NewDestination) {
-  const destination: Destination = await authenticatedPost('/alerts/createDestination', {
+export async function createDestination(data: Api.Mutation.Input<'/alerts/createDestination'>) {
+  const destination = await authenticatedPost('/alerts/createDestination', {
     ...data,
   });
 
@@ -21,7 +20,7 @@ export async function createDestination(data: NewDestination) {
   return destination;
 }
 
-export async function deleteDestination(destination: Destination) {
+export async function deleteDestination(destination: Api.Mutation.Input<'/alerts/deleteDestination'>) {
   try {
     await authenticatedPost('/alerts/deleteDestination', { id: destination.id });
     analytics.track('DC Remove Destination', {
@@ -41,8 +40,8 @@ export async function deleteDestination(destination: Destination) {
   return false;
 }
 
-export async function updateDestination(data: UpdateDestination) {
-  const destination: Destination = await authenticatedPost('/alerts/updateDestination', {
+export async function updateDestination(data: Api.Mutation.Input<'/alerts/updateDestination'>) {
+  const destination = await authenticatedPost('/alerts/updateDestination', {
     ...data,
   });
 
@@ -63,10 +62,10 @@ export function useDestinations(projectSlug: string | undefined) {
     error,
     mutate,
     isValidating,
-  } = useSWR<Destination[]>(
-    identity && projectSlug ? ['/alerts/listDestinations', projectSlug, identity.uid] : null,
+  } = useSWR(
+    identity && projectSlug ? ['/alerts/listDestinations' as const, projectSlug, identity.uid] : null,
     (key) => {
-      return authenticatedPost(key, { projectSlug });
+      return authenticatedPost(key, { projectSlug: projectSlug! });
     },
   );
 
@@ -106,7 +105,7 @@ export async function resendEmailVerification(destinationId: number) {
 }
 
 export async function rotateWebhookDestinationSecret(destinationId: number) {
-  const destination: Destination = await authenticatedPost('/alerts/rotateWebhookDestinationSecret', {
+  const destination = await authenticatedPost('/alerts/rotateWebhookDestinationSecret', {
     destinationId,
   });
 

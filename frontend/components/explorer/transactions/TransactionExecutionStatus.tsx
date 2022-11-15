@@ -1,7 +1,7 @@
-import type { ExecutionStatus } from './types';
+import type * as RPC from '@pc/common/types/rpc';
 
 export interface Props {
-  status: ExecutionStatus;
+  status: keyof RPC.FinalExecutionStatus;
 }
 const TransactionExecutionStatusComponent = ({ status }: Props) => {
   let statusText;

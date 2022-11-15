@@ -1,12 +1,12 @@
+import type { Explorer } from '@pc/common/types/core';
 import { PureComponent } from 'react';
 
 import ActionRow from './ActionRow';
 import type { DetalizationMode, ViewMode } from './ActionRowBlock';
 // import * as T from "../../libraries/explorer-wamp/transactions";
-import type * as T from './types';
 
 export interface Props {
-  actions: T.Action[];
+  actions: Explorer.Old.Action[];
   blockTimestamp: number;
   detailsLink?: React.ReactNode;
   detalizationMode?: DetalizationMode;

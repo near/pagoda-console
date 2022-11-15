@@ -1,3 +1,4 @@
+import type { Explorer } from '@pc/common/types/core';
 import * as React from 'react';
 
 import * as Tabs from '@/components/lib/Tabs';
@@ -5,10 +6,9 @@ import { StableId } from '@/utils/stable-ids';
 
 import InspectReceipt from './InspectReceipt';
 import ReceiptDetails from './ReceiptDetails';
-import type { NestedReceiptWithOutcome } from './types';
 
 type Props = {
-  receipt: NestedReceiptWithOutcome;
+  receipt: Explorer.NestedReceiptWithOutcome;
 };
 
 const ReceiptInfo: React.FC<Props> = React.memo(({ receipt }) => {

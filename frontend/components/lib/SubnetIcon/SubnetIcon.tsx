@@ -1,9 +1,10 @@
+import type { Net } from '@pc/database/clients/core';
+
 import { assertUnreachable } from '@/utils/helpers';
-import type { NetOption } from '@/utils/types';
 
 import { FeatherIcon } from '../FeatherIcon';
 
-export function SubnetIcon({ net }: { net?: NetOption }) {
+export function SubnetIcon({ net }: { net?: Net }) {
   if (!net) return null;
 
   switch (net) {

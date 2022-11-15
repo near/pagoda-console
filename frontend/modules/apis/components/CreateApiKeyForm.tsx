@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
@@ -9,10 +10,11 @@ import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
-import type { ApiKey, Project } from '@/utils/types';
+
+type Project = Api.Query.Output<'/projects/getDetails'>;
 
 interface NewKeyFormData {
-  description: ApiKey['description'];
+  description: string;
 }
 
 interface Props {
@@ -30,12 +32,15 @@ export const CreateApiKeyForm = ({ show, setShow, project }: Props) => {
   const { register, handleSubmit, formState } = useForm<NewKeyFormData>();
 
   async function createKey(description: string) {
+    if (!project) {
+      return;
+    }
     show && setShow(false);
     try {
       await mutateKeys(async (cachedKeys) => {
-        const newKey = await authenticatedPost<ApiKey>('/projects/generateKey', {
+        const newKey = await authenticatedPost('/projects/generateKey', {
           description,
-          project: project?.slug,
+          project: project.slug,
         });
         analytics.track('DC Create API Key', {
           status: 'success',

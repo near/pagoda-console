@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useState } from 'react';
 
 import { Flex } from '@/components/lib/Flex';
@@ -6,7 +7,8 @@ import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { deleteContract } from '@/hooks/contracts';
-import type { Contract } from '@/utils/types';
+
+type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
 interface Props {
   contract: Contract;

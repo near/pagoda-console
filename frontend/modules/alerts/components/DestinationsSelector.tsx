@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import type { Dispatch, SetStateAction } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -14,9 +15,10 @@ import { useDestinations } from '@/modules/alerts/hooks/destinations';
 import { destinationTypes } from '@/modules/alerts/utils/constants';
 import { StableId } from '@/utils/stable-ids';
 
-import type { Destination } from '../utils/types';
 import { EditDestinationModal } from './EditDestinationModal';
 import { NewDestinationModal } from './NewDestinationModal';
+
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 export interface OnDestinationSelectionChangeEvent {
   destination: Destination;
