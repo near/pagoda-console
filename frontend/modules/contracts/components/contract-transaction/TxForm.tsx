@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
-import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H5 } from '@/components/lib/Heading';
@@ -20,6 +19,7 @@ import type { Contract } from '@/utils/types';
 import convertNearDeposit from '../utils/convertNearDeposit';
 import resolveAbiDefinition from '../utils/resolveAbiDefinition';
 import TxFormDeposit from './TxFormDeposit';
+import TxFormDepositFormat from './TxFormDepositFormat';
 import TxFormSelectFunction from './TxFormFunction';
 import TxFormGas from './TxFormGas';
 import TxFormGasFormat from './TxFormGasFormat';
@@ -236,18 +236,7 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
             <Flex inline>
               <TxFormDeposit form={form} nearFormat={nearFormat} />
 
-              <DropdownMenu.Root>
-                <DropdownMenu.Button
-                  stableId={StableId.CONTRACT_TRANSACTION_NEAR_FORMAT_DROPDOWN}
-                  css={{ width: '9rem' }}
-                >
-                  {nearFormat}
-                </DropdownMenu.Button>
-                <DropdownMenu.Content>
-                  <DropdownMenu.Item onSelect={() => form.setValue('nearFormat', 'NEAR')}>NEAR</DropdownMenu.Item>
-                  <DropdownMenu.Item onSelect={() => form.setValue('nearFormat', 'yoctoⓃ')}>yoctoⓃ</DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu.Root>
+              <TxFormDepositFormat nearFormat={nearFormat} form={form} />
             </Flex>
 
             <Button
