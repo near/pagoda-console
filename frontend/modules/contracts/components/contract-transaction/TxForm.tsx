@@ -1,5 +1,5 @@
 import JSBI from 'jsbi';
-import type { AbiParameter, AnyContract as AbiContract } from 'near-abi-client-js';
+import type { AnyContract as AbiContract } from 'near-abi-client-js';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -24,7 +24,7 @@ import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/ut
 
 import convertNearDeposit from '../utils/convertNearDeposit';
 import resolveAbiDefinition from '../utils/resolveAbiDefinition';
-import TxFormSelectFunction from './TxFormSelectFunction';
+import TxFormSelectFunction from './TxFormFunction';
 import TxFormWalletLogin from './TxFormWalletLogin';
 
 const SectionTitle = styled(H5, {
@@ -225,46 +225,12 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
     return null;
   };
 
-  const ParamInput = ({ param }: { param: AbiParameter }) => {
-    const resolved = resolveAbiDefinition(abi!, param.type_schema);
-    let fieldType;
-    let inputTy;
-    if (resolved === 'integer') {
-      fieldType = 'number';
-      inputTy = 'integer';
-    } else if (resolved === 'string') {
-      fieldType = 'string';
-      inputTy = 'string';
-    } else {
-      fieldType = 'text';
-      inputTy = 'JSON';
-    }
-
-    return (
-      <Form.Group key={param.name}>
-        <Form.FloatingLabelInput
-          type={fieldType}
-          label={`${param.name}: ${inputTy}`}
-          {...form.register(`${param.name}`)}
-        />
-      </Form.Group>
-    );
-  };
-
   return (
     // TODO should this be disabled if the contract is null? Seems like there can be a race
     // TODO condition if submitted before the contract is loaded through the async fn?
     <Form.Root onSubmit={form.handleSubmit(submitForm)}>
       <Flex stack gap="l">
-        <Flex stack>
-          <SectionTitle>Function</SectionTitle>
-
-          <TxFormSelectFunction form={form} functionItems={functionItems} />
-
-          {selectedFunction?.params
-            ? selectedFunction?.params.map((param) => <ParamInput key={param.name} param={param} />)
-            : null}
-        </Flex>
+        <TxFormSelectFunction form={form} functionItems={functionItems} selectedFunction={selectedFunction} abi={abi} />
 
         {selectedFunction?.is_view && (
           <Flex stack gap="l">
