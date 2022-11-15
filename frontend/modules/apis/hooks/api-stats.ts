@@ -1,5 +1,5 @@
 import type { Api } from '@pc/common/types/api';
-import { RpcStats } from '@pc/common/types/rpcstats';
+import type { RpcStats } from '@pc/common/types/rpcstats';
 import type { DateTime, DateTimeUnit } from 'luxon';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
@@ -55,37 +55,30 @@ function endpointTotals(
   });
 }
 
-export enum DateTimeResolution {
-  FIFTEEN_SECONDS = 'FIFTEEN_SECONDS',
-  ONE_MINUTE = 'ONE_MINUTE',
-  ONE_HOUR = 'ONE_HOUR',
-  ONE_DAY = 'ONE_DAY',
-}
-
 function resolutionForTimeRange(timeRangeValue: RpcStats.TimeRangeValue): RpcStats.DateTimeResolution {
   switch (timeRangeValue) {
     case '30_DAYS':
-      return DateTimeResolution.ONE_HOUR;
+      return 'ONE_HOUR';
     case '7_DAYS':
-      return DateTimeResolution.ONE_HOUR;
+      return 'ONE_HOUR';
     case '24_HRS':
-      return DateTimeResolution.ONE_HOUR;
+      return 'ONE_HOUR';
     case '1_HRS':
-      return DateTimeResolution.ONE_MINUTE;
+      return 'ONE_MINUTE';
     case '15_MINS':
-      return DateTimeResolution.FIFTEEN_SECONDS;
+      return 'FIFTEEN_SECONDS';
   }
 }
 
-function toLuxonDateTimeResolution(dateTimeResolution: DateTimeResolution) {
+function toLuxonDateTimeResolution(dateTimeResolution: RpcStats.DateTimeResolution) {
   switch (dateTimeResolution) {
-    case DateTimeResolution.FIFTEEN_SECONDS:
+    case 'FIFTEEN_SECONDS':
       return 'minutes'; // for boundary calculation, addition is handled separately
-    case DateTimeResolution.ONE_MINUTE:
+    case 'ONE_MINUTE':
       return 'minutes';
-    case DateTimeResolution.ONE_HOUR:
+    case 'ONE_HOUR':
       return 'hours';
-    case DateTimeResolution.ONE_DAY:
+    case 'ONE_DAY':
       return 'days';
   }
 }
@@ -94,7 +87,7 @@ function fillEmptyDateValues(
   dateValues: RpcStats.Metrics[],
   startDateTime: DateTime,
   endDateTime: DateTime,
-  dateTimeResolution: DateTimeResolution,
+  dateTimeResolution: RpcStats.DateTimeResolution,
 ) {
   const filledDateValues: Omit<RpcStats.Metrics, 'apiKeyIdentifier' | 'endpointMethod' | 'network'>[] = [];
   const luxonDateTimeResolution = toLuxonDateTimeResolution(dateTimeResolution);
@@ -117,7 +110,7 @@ function fillEmptyDateValues(
       });
     }
     currentDateTime =
-      dateTimeResolution === DateTimeResolution.FIFTEEN_SECONDS
+      dateTimeResolution === 'FIFTEEN_SECONDS'
         ? currentDateTime.plus({ ['seconds']: 15 })
         : currentDateTime.plus({ [luxonDateTimeResolution]: 1 });
   }
@@ -156,7 +149,7 @@ export function useApiStats(
         startDateTime: startDateTime.toString(),
         endDateTime: endDateTime.toString(),
         filter: {
-          type: RpcStats.MetricGroupBy.DATE,
+          type: 'date',
           dateTimeResolution,
         },
       });
@@ -180,7 +173,7 @@ export function useApiStats(
         projectSlug: project!.slug,
         startDateTime: startDateTime.toString(),
         endDateTime: endDateTime.toString(),
-        filter: { type: RpcStats.MetricGroupBy.ENDPOINT },
+        filter: { type: 'endpoint' },
       });
     },
   );

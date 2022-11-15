@@ -25,24 +25,19 @@ export class RpcStatsService {
 
     const groupBy: any = [];
     const orderBy: any = [];
-    if (filter.type === RpcStats.MetricGroupBy.ENDPOINT) {
+    if (filter.type === 'endpoint') {
       groupBy.push('endpointMethod');
       orderBy.push({ endpointMethod: 'asc' });
     } else {
       groupBy.push('year', 'month', 'day');
       orderBy.push({ year: 'asc' }, { month: 'asc' }, { day: 'asc' });
-      if (filter.dateTimeResolution === RpcStats.DateTimeResolution.ONE_HOUR) {
+      if (filter.dateTimeResolution === 'ONE_HOUR') {
         groupBy.push('hour24');
         orderBy.push({ hour24: 'asc' });
-      } else if (
-        filter.dateTimeResolution === RpcStats.DateTimeResolution.ONE_MINUTE
-      ) {
+      } else if (filter.dateTimeResolution === 'ONE_MINUTE') {
         groupBy.push('hour24', 'minute');
         orderBy.push({ hour24: 'asc' }, { minute: 'asc' });
-      } else if (
-        filter.dateTimeResolution ===
-        RpcStats.DateTimeResolution.FIFTEEN_SECONDS
-      ) {
+      } else if (filter.dateTimeResolution === 'FIFTEEN_SECONDS') {
         groupBy.push('hour24', 'minute', 'quarterMinute');
         orderBy.push(
           { hour24: 'asc' },
@@ -78,9 +73,7 @@ export class RpcStatsService {
     const page = metrics.map((m) =>
       this.toDto(
         m,
-        filter.type === RpcStats.MetricGroupBy.DATE
-          ? filter.dateTimeResolution
-          : undefined,
+        filter.type === 'date' ? filter.dateTimeResolution : undefined,
       ),
     );
     return {
@@ -109,7 +102,7 @@ export class RpcStatsService {
       quarterMinute,
     } = dateTimeParts;
     switch (dateTimeResolution) {
-      case RpcStats.DateTimeResolution.FIFTEEN_SECONDS:
+      case 'FIFTEEN_SECONDS':
         const secondsInQuarterMinute = quarterMinute! * 15;
         return DateTime.fromObject(
           {
@@ -123,16 +116,16 @@ export class RpcStatsService {
           { zone: 'UTC' },
         );
         break;
-      case RpcStats.DateTimeResolution.ONE_MINUTE:
+      case 'ONE_MINUTE':
         return DateTime.fromObject(
           { year, month, day, hour, minute },
           { zone: 'UTC' },
         );
         break;
-      case RpcStats.DateTimeResolution.ONE_HOUR:
+      case 'ONE_HOUR':
         return DateTime.fromObject({ year, month, day, hour }, { zone: 'UTC' });
         break;
-      case RpcStats.DateTimeResolution.ONE_DAY:
+      case 'ONE_DAY':
         return DateTime.fromObject({ year, month, day }, { zone: 'UTC' });
         break;
       default:

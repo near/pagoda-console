@@ -1,3 +1,4 @@
+import { ProjectTutorial } from '@pc/database/clients/core';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -12,16 +13,11 @@ import { ProjectCard } from '@/modules/core/components/ProjectCard';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
-enum Tutorial {
-  NftMarket = 'NFT_MARKET',
-  Crossword = 'CROSSWORD',
-}
-
 // Not including a path attribute will grey-out the tile and it will not be clickable.
 const projects = [
   {
     id: 'nft-market',
-    tutorial: Tutorial.NftMarket,
+    tutorial: ProjectTutorial.NFT_MARKET,
     title: 'NFT Market',
     path: '/new-nft-tutorial',
     description:
@@ -29,7 +25,7 @@ const projects = [
   },
   {
     id: 'crossword',
-    tutorial: Tutorial.Crossword,
+    tutorial: ProjectTutorial.CROSSWORD,
     title: 'Crossword',
     description: 'Learn about access keys by building a crossword puzzle that pays out the daily winner.',
   },

@@ -1,11 +1,10 @@
 import { Net } from '@pc/database/clients/core';
 
-export enum DateTimeResolution {
-  FIFTEEN_SECONDS = 'FIFTEEN_SECONDS',
-  ONE_MINUTE = 'ONE_MINUTE',
-  ONE_HOUR = 'ONE_HOUR',
-  ONE_DAY = 'ONE_DAY',
-}
+export type DateTimeResolution =
+  | 'FIFTEEN_SECONDS'
+  | 'ONE_MINUTE'
+  | 'ONE_HOUR'
+  | 'ONE_DAY';
 
 export type TimeRangeValue =
   | '15_MINS'
@@ -14,10 +13,7 @@ export type TimeRangeValue =
   | '7_DAYS'
   | '30_DAYS';
 
-export enum MetricGroupBy {
-  DATE = 'date',
-  ENDPOINT = 'endpoint',
-}
+export type MetricGroupBy = 'date' | 'endpoint';
 
 export type BaseEndpointMetric = {
   endpointMethod: string;
@@ -57,11 +53,11 @@ export namespace Query {
       pagingDateTime?: Date;
       filter:
         | {
-            type: MetricGroupBy.DATE;
+            type: 'date';
             dateTimeResolution: DateTimeResolution;
           }
         | {
-            type: MetricGroupBy.ENDPOINT;
+            type: 'endpoint';
           };
     };
   }
