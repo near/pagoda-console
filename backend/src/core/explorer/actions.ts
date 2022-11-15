@@ -1,68 +1,5 @@
-import * as RPC from '../near-rpc/types';
-
-export type Action =
-  | {
-      kind: 'createAccount';
-      args: Record<string, never>;
-    }
-  | {
-      kind: 'deployContract';
-      args: {
-        code: string;
-      };
-    }
-  | {
-      kind: 'functionCall';
-      args: {
-        methodName: string;
-        args: string;
-        gas: number;
-        deposit: string;
-      };
-    }
-  | {
-      kind: 'transfer';
-      args: {
-        deposit: string;
-      };
-    }
-  | {
-      kind: 'stake';
-      args: {
-        stake: string;
-        publicKey: string;
-      };
-    }
-  | {
-      kind: 'addKey';
-      args: {
-        publicKey: string;
-        accessKey: {
-          nonce: number;
-          permission:
-            | {
-                type: 'fullAccess';
-              }
-            | {
-                type: 'functionCall';
-                contractId: string;
-                methodNames: string[];
-              };
-        };
-      };
-    }
-  | {
-      kind: 'deleteKey';
-      args: {
-        publicKey: string;
-      };
-    }
-  | {
-      kind: 'deleteAccount';
-      args: {
-        beneficiaryId: string;
-      };
-    };
+import { Explorer } from '@pc/common/types/core';
+import * as RPC from '@pc/common/types/rpc';
 
 type DatabaseAddKey = {
   kind: 'ADD_KEY';
@@ -151,7 +88,9 @@ export type DatabaseAction = {
   | DatabaseTransfer
 );
 
-export const mapDatabaseActionToAction = (action: DatabaseAction): Action => {
+export const mapDatabaseActionToAction = (
+  action: DatabaseAction,
+): Explorer.Action => {
   switch (action.kind) {
     case 'ADD_KEY': {
       if (action.args.access_key.permission.permission_kind === 'FULL_ACCESS') {
@@ -239,7 +178,9 @@ export const mapDatabaseActionToAction = (action: DatabaseAction): Action => {
   }
 };
 
-export const mapRpcActionToAction = (rpcAction: RPC.ActionView): Action => {
+export const mapRpcActionToAction = (
+  rpcAction: RPC.ActionView,
+): Explorer.Action => {
   if (rpcAction === 'CreateAccount') {
     return {
       kind: 'createAccount',

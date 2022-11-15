@@ -12,13 +12,10 @@ const apiKeysFactory = {
   useFactory: (
     configService: ConfigService<AppConfig>,
   ): ApiKeysProvisioningServiceInterface => {
-    const useKeysServiceMock = configService.get(
-      'dev.mock.rpcProvisioningService',
-      {
-        infer: true,
-      },
-    );
-    if (useKeysServiceMock) {
+    const rpcProvisioningService = configService.get('rpcProvisioningService', {
+      infer: true,
+    })!;
+    if (rpcProvisioningService.mock) {
       console.log('MOCKING KEYS SERVICE');
       return new ApiKeysMockProvisioningService();
     }

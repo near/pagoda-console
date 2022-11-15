@@ -1,0 +1,123 @@
+# Frontend changes will automatically deploy via the vercel git integration.
+name: Deploy a preview environment
+on:
+  #* This workflow expects to be ran on pull requests only. Push and other triggers may not result in a successful run.
+  pull_request:
+    branches: [develop]
+    # We only need to deploy a custom preview backend if there are backend changes.
+    # Otherwise, a preview environment will point to the dev backend.
+    paths:
+      - "backend/**"
+      - "database/**"
+defaults:
+  run:
+    working-directory: backend
+jobs:
+  docker-build-and-push:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - uses: actions/checkout@v2
+
+      # Setup auth: https://github.com/google-github-actions/setup-gcloud#service-account-key-json
+      - id: "auth"
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v0"
+
+      - name: "Use gcloud CLI"
+        run: gcloud auth configure-docker -q
+
+      - name: "Set namespace"
+        run: echo "PREVIEW_NAMESPACE=$(./scripts/preview_namespace.sh)" >> $GITHUB_ENV
+
+      # Last line of this script is the docker image url with the sha256 hash that
+      # was uploaded. This should be used in terraform so that we can deploy a new
+      # cloud run instance if the docker image has changed.
+      - name: Build docker image and push
+        run: ./scripts/docker_build_and_push.sh ${PREVIEW_NAMESPACE} developer-platform-dev
+
+      - id: image
+        name: "Outputs docker image with registry's sha256"
+        run: |
+          export API_IMAGE=$(docker inspect --format='{{index .RepoDigests 0}}' gcr.io/developer-platform-dev/developer-console-api:$PREVIEW_NAMESPACE)
+          echo "::set-output name=image::$API_IMAGE"
+
+  terraform-preview-environment:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    needs: [docker-build-and-push]
+    defaults:
+      run:
+        working-directory: backend/terraform
+    env:
+      VERCEL_PROJECT_NAME: developer-console-framework-prod
+      VERCEL_ORG: near
+      VERCEL_TEAM_ID: team_0XCkE3xOywBTMmd6s7bqJQot
+      GIT_REPO: pagoda-console
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          #* This allows us to use terraform output as one would expect to run it on their local machine.
+          # https://github.com/hashicorp/setup-terraform/issues/20#issuecomment-679424701
+          # We can re-enable it if needed in the future but `terraform output` commands will need to be reworked.
+          terraform_wrapper: false
+
+      # Setup auth: https://github.com/google-github-actions/setup-gcloud#service-account-key-json
+      - id: "auth"
+        uses: "google-github-actions/auth@v0"
+        with:
+          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v0"
+
+      - name: "Set namespace"
+        run: echo "PREVIEW_NAMESPACE=$(../scripts/preview_namespace.sh)" >> $GITHUB_ENV
+
+      - name: "Terraform init"
+        run: terraform init -input=false
+
+      - name: "Set Terraform workspace"
+        run: |
+          terraform workspace new preview-$PREVIEW_NAMESPACE || true
+          terraform workspace select preview-$PREVIEW_NAMESPACE
+          terraform init -input=false
+
+      - name: "Set Vercel env"
+        run: |
+          echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
+          echo "VERCEL_AUTH_TOKEN=${{ secrets.VERCEL_AUTH_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Terraform Plan
+        run: |
+          # We could move this redeploy and fetch FE url to the beginning and set DOWNTIME_MODE=maintenance so it's clear that the preview env is being updated with a new backend and db.
+          # Performing a redeploy isn't necessary here but it's a quick and dirty way for us to get the branch preview url without building it ourselves: https://vercel.com/docs/concepts/deployments/generated-urls#url-with-git-branch
+          export FRONTEND_BASE_URL=https://$(../scripts/vercel_redeploy.sh)
+
+          terraform plan -input=false -out=tfplan.out -var-file ./env/preview.tfvars \
+            -var "namespace=${PREVIEW_NAMESPACE}" \
+            -var "database_password=${{secrets.DATABASE_PASSWORD_PREVIEW}}" \
+            -var "api_image=${{needs.docker-build-and-push.outputs.image}}" \
+            -var "frontend_base_url=${FRONTEND_BASE_URL}" \
+            -var "api_service_account=${{secrets.API_SERVICE_ACCOUNT_PREVIEW}}"
+
+      - name: Terraform Apply
+        run: |
+          terraform apply -input=false tfplan.out
+          echo "API_BASE_URL=$(terraform output -raw api_public_url)" >> $GITHUB_ENV
+
+      - name: Vercel deploy with API URL
+        run: |
+          # Set an env var for this branch's preview environment
+          ../scripts/vercel_upsert_env_var.sh NEXT_PUBLIC_API_BASE_URL ${API_BASE_URL}
+
+          ../scripts/vercel_redeploy.sh

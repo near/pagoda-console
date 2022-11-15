@@ -1,3 +1,4 @@
+import type { Explorer } from '@pc/common/types/core';
 import * as React from 'react';
 
 import { styled } from '@/styles/stitches';
@@ -5,15 +6,14 @@ import { styled } from '@/styles/stitches';
 import AccountLink from '../utils/AccountLink';
 import ReceiptInfo from './ReceiptInfo';
 import ReceiptKind from './ReceiptKind';
-import type { NestedReceiptWithOutcome } from './types';
+import { TransactionReceiptContext } from './TransactionActions';
 
 type Props = {
-  receipt: NestedReceiptWithOutcome;
+  receipt: Explorer.NestedReceiptWithOutcome;
   convertionReceipt: boolean;
-  fellowOutgoingReceipts: NestedReceiptWithOutcome[];
+  fellowOutgoingReceipts: Explorer.NestedReceiptWithOutcome[];
   className: string;
   customCss?: React.CSSProperties;
-  expandAll: boolean;
 };
 
 const Author = styled('div', {
@@ -101,11 +101,15 @@ const ReceiptInfoWrapper = styled('div', {
 });
 
 const TransactionReceiptView: React.FC<Props> = React.memo(
-  ({ receipt, convertionReceipt, fellowOutgoingReceipts, className, expandAll }) => {
-    const [isTxTypeActive, setTxTypeActive] = React.useState(false);
-    const switchActiveTxType = React.useCallback(() => setTxTypeActive((x) => !x), [setTxTypeActive]);
+  ({ receipt, convertionReceipt, fellowOutgoingReceipts, className }) => {
+    const receiptContext = React.useContext(TransactionReceiptContext);
 
-    React.useEffect(() => switchActiveTxType, [expandAll, switchActiveTxType]);
+    const switchActiveTxType = React.useCallback(
+      (id: string) => () => {
+        receiptContext.toggleReceipts(id);
+      },
+      [receiptContext],
+    );
 
     const remainingFellowOutgoingReceipts = fellowOutgoingReceipts.slice(0, -1);
     const lastFellowOutgoingReceipt = fellowOutgoingReceipts.at(-1);
@@ -115,6 +119,10 @@ const TransactionReceiptView: React.FC<Props> = React.memo(
     const nonRefundNestedReceipts = filterRefundNestedReceipts.slice(0, -1);
     const lastNonRefundNestedReceipt = filterRefundNestedReceipts.at(-1);
 
+    const isTxTypeActive = React.useMemo(() => {
+      const index = receiptContext.selectedReceipts.findIndex((i) => i.id === receipt.id);
+      return receiptContext.selectedReceipts[index]?.active ?? false;
+    }, [receipt.id, receiptContext.selectedReceipts]);
     return (
       <>
         <ReceiptWrapper convertionReceipt={convertionReceipt} className={className}>
@@ -131,7 +139,6 @@ const TransactionReceiptView: React.FC<Props> = React.memo(
               convertionReceipt={false}
               fellowOutgoingReceipts={remainingFellowOutgoingReceipts}
               className="lastFellowReceipt"
-              expandAll={expandAll}
             />
           ) : null}
           <ActionItems>
@@ -139,7 +146,7 @@ const TransactionReceiptView: React.FC<Props> = React.memo(
               <ReceiptKind
                 key={`${action.kind}_${index}`}
                 action={action}
-                onClick={switchActiveTxType}
+                onClick={switchActiveTxType(receipt.id)}
                 isTxTypeActive={isTxTypeActive}
               />
             ))}
@@ -161,7 +168,6 @@ const TransactionReceiptView: React.FC<Props> = React.memo(
             convertionReceipt={false}
             fellowOutgoingReceipts={nonRefundNestedReceipts}
             className="lastNonRefundReceipt"
-            expandAll={expandAll}
           />
         ) : null}
       </>

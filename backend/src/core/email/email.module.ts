@@ -10,7 +10,7 @@ const emailFactory = {
   useFactory: (
     configService: ConfigService<AppConfig>,
   ): EmailServiceInterface => {
-    const useMock = configService.get('dev.mock.email', {
+    const useMock = configService.get('email.mock', {
       infer: true,
     });
     if (useMock) {

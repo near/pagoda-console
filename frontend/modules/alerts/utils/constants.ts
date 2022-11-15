@@ -1,13 +1,14 @@
-import type { AlertType, AmountComparator, DestinationType } from './types';
+import type { Alerts } from '@pc/common/types/alerts';
+import type { DestinationType } from '@pc/database/clients/alerts';
 
 interface AlertTypeOption {
   description: string;
   icon: string;
   name: string;
-  value: AlertType;
+  value: Alerts.RuleType;
 }
 
-export const alertTypes: Record<AlertType, AlertTypeOption> = {
+export const alertTypes: Record<Alerts.RuleType, AlertTypeOption> = {
   TX_SUCCESS: {
     description: 'Triggers whenever a successful action occurs.',
     icon: 'check-circle',
@@ -58,10 +59,10 @@ export const alertTypeOptions = [
 interface AmountComparatorOption {
   icon: string;
   name: string;
-  value: AmountComparator;
+  value: Alerts.Comparator;
 }
 
-export const amountComparators: Record<AmountComparator, AmountComparatorOption> = {
+export const amountComparators: Record<Alerts.Comparator, AmountComparatorOption> = {
   EQ: {
     icon: '==',
     name: 'Equal To',

@@ -22,9 +22,17 @@ export class ApiKeysProvisioningService
   private secretClient: SecretApi;
 
   constructor(private config: ConfigService<AppConfig>) {
+    const rpcProvisioningService = this.config.get('rpcProvisioningService', {
+      infer: true,
+    })!;
+    if (rpcProvisioningService.mock) {
+      throw new Error(
+        'Unexpected mock rpcProvisioningService in an actual service!',
+      );
+    }
     const configuration: Configuration = {
-      apiKey: this.config.get('rpcProvisioningService.apiKey', { infer: true }),
-      basePath: this.config.get('rpcProvisioningService.url', { infer: true }),
+      apiKey: rpcProvisioningService.apiKey,
+      basePath: rpcProvisioningService.url,
     };
 
     this.consumerClient = new ConsumerApi(configuration);
@@ -34,7 +42,7 @@ export class ApiKeysProvisioningService
   async createOrganization(kongConsumer: string, orgSlug: string) {
     try {
       await this.createConsumer(kongConsumer, orgSlug);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
       throw new VError(e, 'Failed while creating org');
     }
@@ -51,7 +59,7 @@ export class ApiKeysProvisioningService
         body,
         this.getConsumerName(kongConsumer),
       );
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while generating key');
     }
   }
@@ -60,7 +68,7 @@ export class ApiKeysProvisioningService
     try {
       await this.delete(kongConsumer, keySlug);
       await this.generate(kongConsumer, keySlug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while rotating key');
     }
   }
@@ -71,7 +79,7 @@ export class ApiKeysProvisioningService
         this.getConsumerName(kongConsumer),
         this.getKeyName(keySlug),
       );
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while deleting key');
     }
   }
@@ -81,7 +89,7 @@ export class ApiKeysProvisioningService
       await this.consumerClient.deleteConsumer(
         this.getConsumerName(kongConsumer),
       );
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while deleting org');
     }
   }
@@ -90,27 +98,27 @@ export class ApiKeysProvisioningService
     try {
       const keyName = this.getKeyName(keySlug);
       return (await this.secretClient.getSecret(keyName)).data.api_token;
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while fetching a key');
     }
   }
 
-  async fetchAll(kongConsumer: string): Promise<string[]> {
+  async fetchAll(kongConsumer: string): Promise<string[] | undefined> {
     try {
       const res = await this.secretClient.getConsumerSecrets(
         this.getConsumerName(kongConsumer),
       );
-      return res.data.keys.map((el) => el.api_token);
-    } catch (e) {
+      return res.data.keys?.map((el) => el.api_token);
+    } catch (e: any) {
       throw new VError(e, 'Failed while fetching keys');
     }
   }
 
-  async getOrganization(kongConsumer: string): Promise<Consumer> {
+  async getOrganization(kongConsumer: string): Promise<Consumer | null> {
     try {
       const res = await this.consumerClient.getConsumer(kongConsumer);
       return res.data;
-    } catch (e) {
+    } catch (e: any) {
       if (e.response.status === 404) return null;
       else throw new VError(e, 'Failed while getting organization');
     }
@@ -126,7 +134,7 @@ export class ApiKeysProvisioningService
     };
     try {
       await this.consumerClient.upsertConsumer(consumer, username);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while creating kong consumer');
     }
   }

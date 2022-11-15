@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
@@ -11,8 +12,9 @@ import { Tooltip } from '@/components/lib/Tooltip';
 import { StableId } from '@/utils/stable-ids';
 
 import { destinationTypes } from '../utils/constants';
-import type { Destination } from '../utils/types';
 import { DeleteDestinationModal } from './DeleteDestinationModal';
+
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 export function DestinationTableRow({
   destination,

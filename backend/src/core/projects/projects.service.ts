@@ -42,11 +42,11 @@ export class ProjectsService {
   ) {
     this.projectRefPrefix = this.config.get('projectRefPrefix', {
       infer: true,
-    });
+    })!;
     this.contractAddressValidationEnabled = this.config.get(
       'featureEnabled.core.contractAddressValidation',
       { infer: true },
-    );
+    )!;
   }
 
   async create(
@@ -59,7 +59,7 @@ export class ProjectsService {
       try {
         const { slug } = await this.users.getPersonalOrg(user);
         orgSlug = slug;
-      } catch (e) {
+      } catch (e: any) {
         throw new VError(e, 'Failed to find personal org for user');
       }
     }
@@ -70,7 +70,7 @@ export class ProjectsService {
     try {
       const team = await this.users.getDefaultTeam(orgSlug);
       teamId = team.id;
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to find team');
     }
 
@@ -166,14 +166,14 @@ export class ProjectsService {
           id: true,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while executing project creation query');
     }
 
     // generate RPC keys
     try {
       await this.apiKeys.generateKey(user.id, orgSlug, projectSlug);
-    } catch (e) {
+    } catch (e: any) {
       // Attempt to delete the project, since API keys failed to generate.
       try {
         const deleteTeamProject = this.prisma.teamProject.deleteMany({
@@ -196,7 +196,7 @@ export class ProjectsService {
           deleteEnv,
           deleteProject,
         ]);
-      } catch (e) {
+      } catch (e: any) {
         console.error(
           'Failed to delete project after API keys failed to generate',
           e,
@@ -215,7 +215,7 @@ export class ProjectsService {
           active: true,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while setting project to active');
     }
 
@@ -264,7 +264,7 @@ export class ProjectsService {
           'Project not a tutorial',
         );
       }
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         'Failed while determining project eligibility for ejection',
@@ -294,7 +294,7 @@ export class ProjectsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while ejecting tutorial project');
     }
   }
@@ -321,7 +321,7 @@ export class ProjectsService {
           'Project not found or project already inactive',
         );
       }
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         'Failed while determining project eligibility for deletion',
@@ -350,7 +350,7 @@ export class ProjectsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while soft deleting project');
     }
   }
@@ -413,7 +413,7 @@ export class ProjectsService {
       const environment = await this.getActiveEnvironment(project, subId);
       net = environment.net;
       environmentId = environment.id;
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         'Failed while checking validity of adding contract to environment',
@@ -472,7 +472,7 @@ export class ProjectsService {
           net: true,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while creating contract');
     }
   }
@@ -551,7 +551,7 @@ export class ProjectsService {
           id: contract.environmentId,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         'Failed while checking validity of deleting contract',
@@ -571,7 +571,7 @@ export class ProjectsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while soft deleting contract');
     }
   }
@@ -581,7 +581,7 @@ export class ProjectsService {
     project: Project['slug'],
     subId: Environment['subId'],
   ) {
-    const environment = await this.getActiveEnvironment(project, subId, true);
+    const environment = await this.getActiveEnvironmentAssert(project, subId);
 
     // throw an error if the user doesn't have permission to perform this action
     await this.checkUserPermission({
@@ -601,7 +601,7 @@ export class ProjectsService {
           address: true,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while getting list of contracts');
     }
   }
@@ -639,43 +639,57 @@ export class ProjectsService {
     return project;
   }
 
-  /**
-   *
-   * @param environmentWhereUnique
-   * @param assert Should be set to true when this function is being called
-   *               for an assertion and the full project info does not need
-   *               to be returned
-   * @returns full Prisma.Project is assert is false
-   */
+  async getActiveEnvironmentAssert(
+    projectSlug: Project['slug'],
+    subId: Environment['subId'],
+  ) {
+    // check that project is active
+    // quick check, only return minimal info
+    const environment = await this.prisma.environment.findFirst({
+      where: {
+        subId,
+        project: {
+          slug: projectSlug,
+        },
+      },
+      select: { id: true, active: true, project: true },
+    });
+    if (!environment) {
+      throw new VError(
+        { info: { code: 'BAD_ENVIRONMENT' } },
+        'Environment not found',
+      );
+    }
+    if (!environment.active) {
+      throw new VError(
+        { info: { code: 'BAD_ENVIRONMENT' } },
+        'Environment not active',
+      );
+    }
+    if (!environment.project.active) {
+      throw new VError(
+        { info: { code: 'BAD_ENVIRONMENT' } },
+        'Project not active',
+      );
+    }
+
+    return environment;
+  }
+
   async getActiveEnvironment(
     projectSlug: Project['slug'],
     subId: Environment['subId'],
-    assert = false,
   ) {
     // check that project is active
-    let environment;
-    if (assert) {
-      // quick check, only return minimal info
-      environment = await this.prisma.environment.findFirst({
-        where: {
-          subId,
-          project: {
-            slug: projectSlug,
-          },
+    const environment = await this.prisma.environment.findFirst({
+      where: {
+        subId,
+        project: {
+          slug: projectSlug,
         },
-        select: { id: true, active: true, project: true },
-      });
-    } else {
-      environment = await this.prisma.environment.findFirst({
-        where: {
-          subId,
-          project: {
-            slug: projectSlug,
-          },
-        },
-        include: { project: true },
-      });
-    }
+      },
+      include: { project: true },
+    });
     if (!environment) {
       throw new VError(
         { info: { code: 'BAD_ENVIRONMENT' } },
@@ -732,17 +746,15 @@ export class ProjectsService {
       },
     });
 
-    return projects.map((p) => {
-      const isPersonal = !!p.org.personalForUserId;
-      return {
-        ...p,
+    return projects.map(
+      ({ org: { personalForUserId, ...org }, ...project }) => ({
+        ...project,
         org: {
-          name: isPersonal ? undefined : p.org.name,
-          slug: p.org.slug,
-          isPersonal,
+          ...org,
+          isPersonal: !!personalForUserId,
         },
-      };
-    });
+      }),
+    );
   }
 
   async getEnvironments(
@@ -753,7 +765,7 @@ export class ProjectsService {
     let project;
     try {
       project = await this.getActiveProject(projectWhereUnique);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         'Failed while checking validity of project for listing environments',
@@ -860,7 +872,7 @@ export class ProjectsService {
         tutorial: project.tutorial,
         org: project.org,
       };
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while fetching project details');
     }
   }
@@ -878,12 +890,15 @@ export class ProjectsService {
         },
       });
       return !p;
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to guarantee project uniqueness');
     }
   }
 
-  async getKeys(callingUser: User, projectSlug: Project['slug']) {
+  async getKeysWithKongConsumer(
+    callingUser: User,
+    projectSlug: Project['slug'],
+  ) {
     const projectWhereUnique = {
       slug: projectSlug,
     };
@@ -896,22 +911,28 @@ export class ProjectsService {
     let project: Project;
     try {
       project = await this.getActiveProject(projectWhereUnique);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while checking that project is active');
     }
 
     try {
       return await this.apiKeys.getKeys(project.slug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to fetch keys from API keys service');
     }
+  }
+
+  async getKeys(callingUser: User, projectSlug: Project['slug']) {
+    return (await this.getKeysWithKongConsumer(callingUser, projectSlug)).map(
+      ({ kongConsumerName: _kongConsumerName, ...el }) => el,
+    );
   }
 
   async rotateKey(callingUser: User, keySlug: ApiKey['slug']) {
     let keyRelatedSlugs;
     try {
       keyRelatedSlugs = await this.apiKeys.getKeyDetails(keySlug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         `Failed to get api key details for keySlug ${keySlug}`,
@@ -934,7 +955,7 @@ export class ProjectsService {
     let project: Project;
     try {
       project = await this.getActiveProject(projectWhereUnique);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while checking that project is active');
     }
 
@@ -944,7 +965,7 @@ export class ProjectsService {
 
     try {
       return await this.apiKeys.rotateKey(callingUser.id, keySlug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, `Failed to rotate key ${keySlug}`);
     }
   }
@@ -966,7 +987,7 @@ export class ProjectsService {
     let project: Project;
     try {
       project = await this.getActiveProject(projectWhereUnique);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while checking that project is active');
     }
 
@@ -981,7 +1002,7 @@ export class ProjectsService {
         projectSlug,
         description,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, `Failed to generate key for project ${projectSlug}`);
     }
   }
@@ -990,7 +1011,7 @@ export class ProjectsService {
     let keyRelatedSlugs;
     try {
       keyRelatedSlugs = await this.apiKeys.getKeyDetails(keySlug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(
         e,
         `Failed to get api key details for keySlug ${keySlug}`,
@@ -1013,7 +1034,7 @@ export class ProjectsService {
     let project: Project;
     try {
       project = await this.getActiveProject(projectWhereUnique);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while checking that project is active');
     }
 
@@ -1027,7 +1048,7 @@ export class ProjectsService {
         keyRelatedSlugs.orgSlug,
         keySlug,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, `Failed to rotate key ${keySlug}`);
     }
   }
@@ -1035,16 +1056,16 @@ export class ProjectsService {
   // Deletes api keys associated with a user's personal org.
   async deleteApiKeysByUser(user: User) {
     try {
-      const orgDetails = await this.prisma.org.findUnique({
+      const orgDetails = (await this.prisma.org.findUnique({
         where: {
           personalForUserId: user.id,
         },
         select: {
           slug: true,
         },
-      });
+      }))!;
       await this.apiKeys.deleteOrg(user.id, orgDetails.slug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, `Failed to delete API keys for user's personal org`);
     }
   }
@@ -1053,7 +1074,7 @@ export class ProjectsService {
   async deleteApiKeysByOrg(user: User, orgSlug: Org['slug']) {
     try {
       await this.apiKeys.deleteOrg(user.id, orgSlug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, `Failed to delete API keys for org`);
     }
   }

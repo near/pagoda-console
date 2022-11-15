@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useEffect, useState } from 'react';
 
 import { Card } from '@/components/lib/Card';
@@ -11,7 +12,9 @@ import { useSelectedProject } from '@/hooks/selected-project';
 
 import { useAlerts } from '../hooks/alerts';
 import { deleteDestination } from '../hooks/destinations';
-import type { Alert, Destination } from '../utils/types';
+
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
+type Alerts = Api.Query.Output<'/alerts/listAlerts'>;
 
 interface Props {
   destination: Destination;
@@ -25,7 +28,7 @@ export function DeleteDestinationModal({ destination, show, setShow, onDelete }:
   const [isDeleting, setIsDeleting] = useState(false);
   const { environment, project } = useSelectedProject();
   const { alerts } = useAlerts(project?.slug, environment?.subId);
-  const [enabledAlerts, setEnabledAlerts] = useState<Alert[]>([]);
+  const [enabledAlerts, setEnabledAlerts] = useState<Alerts>([]);
 
   useEffect(() => {
     const result = alerts?.filter((alert) => {

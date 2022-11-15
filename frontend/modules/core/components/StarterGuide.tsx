@@ -1,3 +1,4 @@
+import type { Net } from '@pc/database/clients/core';
 import { useEffect, useState } from 'react';
 
 import * as Accordion from '@/components/lib/Accordion';
@@ -11,7 +12,6 @@ import { TextLink } from '@/components/lib/TextLink';
 import { useSelectedProject } from '@/hooks/selected-project';
 import config from '@/utils/config';
 import { StableId } from '@/utils/stable-ids';
-import type { NetOption } from '@/utils/types';
 
 const NAJ_STARTER_TEMPLATE = `const { connect, keyStores } = require("near-api-js");
 
@@ -77,7 +77,7 @@ export default function StarterGuide() {
 
   // TODO (P2+) determine net by other means than subId
   useEffect(() => {
-    const net: NetOption = environment?.subId === 2 ? 'MAINNET' : 'TESTNET';
+    const net: Net = environment?.subId === 2 ? 'MAINNET' : 'TESTNET';
 
     if (!environment?.subId) {
       return;
@@ -159,7 +159,7 @@ export default function StarterGuide() {
           Refer to the{' '}
           <TextLink
             stableId={StableId.STARTER_GUIDE_NEAR_API_DOCS_LINK}
-            href="https://docs.near.org/api/overview"
+            href="https://docs.near.org/api/rpc/introduction"
             external
           >
             NEAR API Documentation

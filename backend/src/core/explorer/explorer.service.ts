@@ -5,7 +5,6 @@ import { VError } from 'verror';
 import { ExpressionBuilder, Kysely, PostgresDialect, sql } from 'kysely';
 import { Pool, PoolConfig } from 'pg';
 import {
-  Action,
   DatabaseAction,
   mapDatabaseActionToAction,
   mapRpcActionToAction,
@@ -13,7 +12,6 @@ import {
 import {
   mapDatabaseTransactionStatus,
   mapRpcTransactionStatus,
-  TransactionStatus,
 } from './transaction-status';
 import * as Indexer from './models/readOnlyIndexer';
 import * as IndexerActivity from './models/readOnlyIndexerActivity';
@@ -22,46 +20,20 @@ import { StringReference } from 'kysely/dist/cjs/parser/reference-parser';
 import { ExtractColumnType } from 'kysely/dist/cjs/util/type-utils';
 import { AppConfig } from '../../config/validate';
 import { NearRpcService } from '../near-rpc/near-rpc.service';
-import * as RPC from '../near-rpc/types';
-import { mapRpcReceiptStatus, ReceiptExecutionStatus } from './receipt-status';
-
-type ActivityConnectionActions = {
-  parentAction?: AccountActivityAction & ActivityConnection;
-  childrenActions?: (AccountActivityAction & ActivityConnection)[];
-};
-
-type ActivityConnection = {
-  transactionHash: string;
-  receiptId?: string;
-  sender: string;
-  receiver: string;
-};
-
-type AccountBatchAction = {
-  kind: 'batch';
-  actions: AccountActivityAction[];
-};
-
-type AccountValidatorRewardAction = {
-  kind: 'validatorReward';
-  blockHash: string;
-};
-
-type AccountActivityAction =
-  | Action
-  | AccountValidatorRewardAction
-  | AccountBatchAction;
+import * as RPC from '@pc/common/types/rpc';
+import { mapRpcReceiptStatus } from './receipt-status';
+import { Explorer } from '@pc/common/types/core';
 
 type BasePreview = {
   signerId: string;
   receiverId: string;
-  actions: Action[];
+  actions: Explorer.Action[];
 };
 
 type TransactionPreview = BasePreview & {
   type: 'transaction';
   hash: string;
-  status: TransactionStatus;
+  status: Explorer.TransactionStatus;
 };
 
 type ReceiptPreview = BasePreview & {
@@ -222,7 +194,9 @@ const getIdsFromAccountChanges = (
   );
 };
 
-const getActivityAction = (actions: Action[]): AccountActivityAction => {
+const getActivityAction = (
+  actions: Explorer.Action[],
+): Explorer.AccountActivityAction => {
   if (actions.length === 0) {
     throw new Error('Unexpected zero-length array of actions');
   }
@@ -238,7 +212,7 @@ const getActivityAction = (actions: Action[]): AccountActivityAction => {
 const withActivityConnection = <T>(
   input: T,
   source?: TransactionPreview | ReceiptPreview,
-): T & Pick<ActivityConnection, 'transactionHash' | 'receiptId'> => {
+): T & Pick<Explorer.ActivityConnection, 'transactionHash' | 'receiptId'> => {
   if (!source) {
     return {
       ...input,
@@ -261,7 +235,7 @@ const withActivityConnection = <T>(
 const withConnections = <T>(
   input: T,
   source: ReceiptPreview | TransactionPreview,
-): T & Pick<ActivityConnection, 'sender' | 'receiver'> => {
+): T & Pick<Explorer.ActivityConnection, 'sender' | 'receiver'> => {
   return {
     ...input,
     sender: source.signerId,
@@ -269,26 +243,7 @@ const withConnections = <T>(
   };
 };
 
-type AccountActivityElement = {
-  involvedAccountId: string | null;
-  timestamp: number;
-  direction: 'inbound' | 'outbound';
-  deltaAmount: string;
-  action: AccountActivityAction &
-    ActivityConnectionActions &
-    Omit<ActivityConnection, 'sender' | 'receiver'>;
-};
-
-export type AccountActivity = {
-  items: AccountActivityElement[];
-  cursor: {
-    blockTimestamp: string;
-    shardId: number;
-    indexInChunk: number;
-  };
-};
-
-const getDeposit = (actions: Action[]) =>
+const getDeposit = (actions: Explorer.Action[]) =>
   actions
     .map((action) =>
       'deposit' in action.args ? BigInt(action.args.deposit) : 0n,
@@ -306,27 +261,11 @@ const getTransactionFee = (
       BigInt(transactionOutcome.outcome.tokens_burnt),
     );
 
-type NestedReceiptWithOutcome = {
-  id: string;
-  predecessorId: string;
-  receiverId: string;
-  actions: Action[];
-  outcome: {
-    block: {
-      hash: string;
-      height: number;
-      timestamp: number;
-    };
-    tokensBurnt: string;
-    gasBurnt: number;
-    status: ReceiptExecutionStatus;
-    logs: string[];
-    nestedReceipts: NestedReceiptWithOutcome[];
-  };
-};
-
-type ParsedReceipt = Omit<NestedReceiptWithOutcome, 'outcome'> & {
-  outcome: Omit<NestedReceiptWithOutcome['outcome'], 'nestedReceipts'> & {
+type ParsedReceipt = Omit<Explorer.NestedReceiptWithOutcome, 'outcome'> & {
+  outcome: Omit<
+    Explorer.NestedReceiptWithOutcome['outcome'],
+    'nestedReceipts'
+  > & {
     receiptIds: string[];
   };
 };
@@ -378,7 +317,7 @@ const parseOutcome = (
 const collectNestedReceiptWithOutcome = (
   idOrHash: string,
   parsedMap: Map<string, ParsedReceipt>,
-): NestedReceiptWithOutcome => {
+): Explorer.NestedReceiptWithOutcome => {
   const parsedElement = parsedMap.get(idOrHash)!;
   const { receiptIds, ...restOutcome } = parsedElement.outcome;
   return {
@@ -390,17 +329,6 @@ const collectNestedReceiptWithOutcome = (
       ),
     },
   };
-};
-
-export type Transaction = {
-  hash: string;
-  timestamp: number;
-  signerId: string;
-  receiverId: string;
-  fee: string;
-  amount: string;
-  status: TransactionStatus;
-  receipt: NestedReceiptWithOutcome;
 };
 
 @Injectable()
@@ -415,19 +343,19 @@ export class ExplorerService {
   ) {
     const indexerDatabaseConfig = this.config.get('indexerDatabase', {
       infer: true,
-    });
+    })!;
     const indexerActivityDatabaseConfig = this.config.get(
       'indexerActivityDatabase',
       { infer: true },
-    );
+    )!;
     this.indexerDatabase = {
       MAINNET: getKysely<Indexer.ModelTypeMap>(indexerDatabaseConfig.MAINNET),
       TESTNET: getKysely<Indexer.ModelTypeMap>(indexerDatabaseConfig.TESTNET),
     };
     this.indexerActivityDatabase = {
-      MAINNET: getKysely<Indexer.ModelTypeMap>(
-        indexerActivityDatabaseConfig.MAINNET,
-      ),
+      MAINNET: indexerActivityDatabaseConfig.MAINNET
+        ? getKysely<Indexer.ModelTypeMap>(indexerActivityDatabaseConfig.MAINNET)
+        : undefined,
       TESTNET: indexerActivityDatabaseConfig.TESTNET
         ? getKysely<Indexer.ModelTypeMap>(indexerActivityDatabaseConfig.TESTNET)
         : undefined,
@@ -443,7 +371,7 @@ export class ExplorerService {
       string,
       { parentReceiptId: string | null; childrenReceiptIds: string[] }
     >,
-  ): AccountActivityElement['action'] | null {
+  ): Explorer.ActivityActionItemAction | null {
     switch (change.cause) {
       case 'RECEIPT': {
         const connectedReceipt = receiptsMapping.get(change.receiptId!)!;
@@ -681,7 +609,7 @@ export class ExplorerService {
           ...(mapping.get(action.hash) || []),
           mapDatabaseActionToAction(action as DatabaseAction),
         ]),
-      new Map<string, Action[]>(),
+      new Map<string, Explorer.Action[]>(),
     );
     return transactionRows.reduce((acc, transaction) => {
       acc.set(transaction.hash, {
@@ -714,7 +642,7 @@ export class ExplorerService {
     accountId: string,
     limit: number,
     cursor?: AccountActivityCursor,
-  ): Promise<AccountActivity> {
+  ): Promise<Explorer.AccountActivity> {
     try {
       const changes = await this.queryBalanceChanges(
         net,
@@ -769,12 +697,15 @@ export class ExplorerService {
             }
           : undefined,
       };
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to fetch activity');
     }
   }
 
-  async fetchTransaction(net: Net, hash: string): Promise<Transaction> {
+  async fetchTransaction(
+    net: Net,
+    hash: string,
+  ): Promise<Explorer.Transaction | null> {
     try {
       const indexerDatabase = this.indexerDatabase[net];
       const databaseTransaction = await indexerDatabase
@@ -855,7 +786,7 @@ export class ExplorerService {
           receiptsMap,
         ),
       };
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to fetch transaction');
     }
   }
@@ -864,11 +795,11 @@ export class ExplorerService {
     net: Net,
     receiptId: string,
     accountIds: string[],
-  ): Promise<(string | undefined)[]> {
+  ): Promise<(string | null)[]> {
     try {
       const activityDatabase = this.indexerActivityDatabase[net];
       if (!activityDatabase) {
-        return accountIds.map(() => undefined);
+        return accountIds.map(() => null);
       }
       const balanceChanges = await activityDatabase
         .selectFrom('balance_changes')
@@ -881,14 +812,14 @@ export class ExplorerService {
         .orderBy('index_in_chunk', 'desc')
         .execute();
       if (!balanceChanges) {
-        return accountIds.map(() => undefined);
+        return accountIds.map(() => null);
       }
       return accountIds.map(
         (accountId) =>
           balanceChanges.find((change) => change.accountId === accountId)
-            ?.absoluteNonStakedAmount,
+            ?.absoluteNonStakedAmount ?? null,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to fetch transaction');
     }
   }

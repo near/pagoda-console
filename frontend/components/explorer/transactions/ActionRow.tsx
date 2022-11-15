@@ -1,3 +1,4 @@
+import type { Explorer } from '@pc/common/types/core';
 import { PureComponent } from 'react';
 
 import actionIcons from './ActionIcons';
@@ -5,10 +6,9 @@ import ActionMessage from './ActionMessage';
 import type { DetalizationMode, ViewMode } from './ActionRowBlock';
 import ActionRowBlock from './ActionRowBlock';
 // import * as T from "../../libraries/explorer-wamp/transactions";
-import type * as T from './types';
 
 export interface Props {
-  action: T.Action;
+  action: Explorer.Old.Action;
   blockTimestamp?: number;
   className: string;
   detailsLink?: React.ReactNode;
@@ -53,14 +53,7 @@ class ActionRow extends PureComponent<Props> {
         blockTimestamp={blockTimestamp}
         detailsLink={detailsLink}
         icon={ActionIcon && <ActionIcon />}
-        title={
-          <ActionMessage
-            receiverId={receiverId}
-            actionKind={action.kind}
-            actionArgs={action.args}
-            showDetails={showDetails}
-          />
-        }
+        title={<ActionMessage receiverId={receiverId} action={action} showDetails={showDetails} />}
         status={status}
         isFinal={isFinal}
       />

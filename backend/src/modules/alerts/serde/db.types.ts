@@ -2,28 +2,20 @@ export type ComparatorKind =
   | 'RELATIVE_YOCTONEAR_AMOUNT'
   | 'RELATIVE_PERCENTAGE_AMOUNT';
 
-export interface MatchingRule {
-  rule:
-    | 'ACTION_ANY'
-    | 'ACTION_FUNCTION_CALL'
-    | 'EVENT'
-    | 'STATE_CHANGE_ACCOUNT_BALANCE';
-}
-
-export interface TxMatchingRule extends MatchingRule {
+export interface TxMatchingRule {
   rule: 'ACTION_ANY';
   status: 'SUCCESS' | 'FAIL' | 'ANY';
   affected_account_id: string;
 }
 
-export interface FnCallMatchingRule extends MatchingRule {
+export interface FnCallMatchingRule {
   rule: 'ACTION_FUNCTION_CALL';
   affected_account_id: string;
   status: 'ANY';
   function: string;
 }
 
-export interface EventMatchingRule extends MatchingRule {
+export interface EventMatchingRule {
   rule: 'EVENT';
   contract_account_id: string;
   standard: string;
@@ -31,7 +23,7 @@ export interface EventMatchingRule extends MatchingRule {
   event: string;
 }
 
-export interface AcctBalMatchingRule extends MatchingRule {
+export interface AcctBalMatchingRule {
   rule: 'STATE_CHANGE_ACCOUNT_BALANCE';
   affected_account_id: string;
   comparator_kind: ComparatorKind;
@@ -40,3 +32,9 @@ export interface AcctBalMatchingRule extends MatchingRule {
     to: string | null; // yoctoNEAR
   };
 }
+
+export type MatchingRule =
+  | TxMatchingRule
+  | FnCallMatchingRule
+  | EventMatchingRule
+  | AcctBalMatchingRule;

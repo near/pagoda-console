@@ -1,3 +1,4 @@
+import type { Explorer } from '@pc/common/types/core';
 import * as React from 'react';
 
 import { styled } from '@/styles/stitches';
@@ -6,10 +7,9 @@ import { StableId } from '@/utils/stable-ids';
 import { Button } from '../../lib/Button';
 import CodeArgs from '../utils/CodeArgs';
 import { NearAmount } from '../utils/NearAmount';
-import type { Action } from './types';
 
 interface Props {
-  action: Action;
+  action: Explorer.Action;
   onClick: React.MouseEventHandler;
   isTxTypeActive: boolean;
 }

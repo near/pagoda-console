@@ -10,11 +10,12 @@
     "./frontend",
     "./backend",
     "database",
+    "common",
     "eslint-rules"
   ],
   "scripts": {
     "prepare": "husky install",
-    "postinstall": "npm run -w database build",
+    "postinstall": "npm install turbo -D && npm run -w database build",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start"
@@ -32,6 +33,6 @@
     "husky": "^8.0.0",
     "eslint-plugin-custom-rules": "./eslint-rules",
     "prettier": "^2.7.1",
-    "turbo": "^1.5.5"
+    "turbo": "^1.6.3"
   }
 }
