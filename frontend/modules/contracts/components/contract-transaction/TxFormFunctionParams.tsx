@@ -4,38 +4,40 @@ import * as Form from '@/components/lib/Form';
 
 import resolveAbiDefinition from '../utils/resolveAbiDefinition';
 
+interface paramInputs extends AbiParameter {
+  type: string;
+  label: string;
+}
+
 const TxFormFunctionParams = ({ selectedFunction, form, abi }) => {
-  const ParamInput = ({ param }: { param: AbiParameter }) => {
+  const params = selectedFunction?.params || [];
+  const paramsInputs = params.map((param: AbiParameter) => {
     const resolved = resolveAbiDefinition(abi!, param.type_schema);
-    let fieldType;
+    let type;
     let inputTy;
     if (resolved === 'integer') {
-      fieldType = 'number';
+      type = 'number';
       inputTy = 'integer';
     } else if (resolved === 'string') {
-      fieldType = 'string';
+      type = 'string';
       inputTy = 'string';
     } else {
-      fieldType = 'text';
+      type = 'text';
       inputTy = 'JSON';
     }
 
-    return (
-      <Form.Group key={param.name}>
-        <Form.FloatingLabelInput
-          type={fieldType}
-          label={`${param.name}: ${inputTy}`}
-          {...form.register(`${param.name}`)}
-        />
-      </Form.Group>
-    );
-  };
+    return {
+      ...param,
+      type,
+      label: `${param.name}: ${inputTy}`,
+    };
+  });
 
-  return selectedFunction?.params ? (
-    selectedFunction?.params.map((param) => <ParamInput key={param.name} param={param} />)
-  ) : (
-    <></>
-  );
+  return paramsInputs.map((param: paramInputs) => (
+    <Form.Group key={param.name}>
+      <Form.FloatingLabelInput type={param.type} label={param.label} {...form.register(param.name)} />
+    </Form.Group>
+  ));
 };
 
 export default TxFormFunctionParams;
