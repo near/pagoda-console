@@ -30,37 +30,41 @@ const TxFormWalletLogin = ({ onBeforeLogIn }: { onBeforeLogIn: () => void }) => 
   };
 
   const logedIn = (
-    <Flex inline align="center">
-      <FeatherIcon icon="user" size="s" />
-      <Text weight="semibold" color="text1" css={{ minWidth: 0 }}>
-        <TextOverflow>{accountId}</TextOverflow>
-      </Text>
-      <CopyButton value={accountId} stableId={StableId.WALLET_ACCOUNT_ID_COPY_BUTTON} />
+    <Flex stack>
+      <Flex inline align="center">
+        <FeatherIcon icon="user" size="s" />
+        <Text weight="semibold" color="text1" css={{ minWidth: 0 }}>
+          <TextOverflow>{accountId}</TextOverflow>
+        </Text>
+        <CopyButton value={accountId} stableId={StableId.WALLET_ACCOUNT_ID_COPY_BUTTON} />
 
-      <ButtonWallet
-        stableId={StableId.CONTRACT_TRANSACTION_CONNECT_WALLET_BUTTON}
-        color="primaryBorder"
-        size="s"
-        onClick={walletSignOut}
-      >
-        <SvgIcon icon={WalletIcon} noFill size="xs" />
-        Log out
-      </ButtonWallet>
+        <ButtonWallet
+          stableId={StableId.CONTRACT_TRANSACTION_CONNECT_WALLET_BUTTON}
+          color="primaryBorder"
+          size="s"
+          onClick={walletSignOut}
+        >
+          <SvgIcon icon={WalletIcon} noFill size="xs" />
+          Log out
+        </ButtonWallet>
+      </Flex>
     </Flex>
   );
 
   const logedOut = (
-    <Flex inline align="center">
-      <ButtonWallet
-        stableId={StableId.CONTRACT_TRANSACTION_CONNECT_WALLET_BUTTON}
-        color="primaryBorder"
-        size="m"
-        onClick={walletLogIn}
-        stretch={true}
-      >
-        <SvgIcon icon={WalletIcon} noFill size="s" />
-        Connect A Wallet
-      </ButtonWallet>
+    <Flex stack>
+      <Flex inline align="center">
+        <ButtonWallet
+          stableId={StableId.CONTRACT_TRANSACTION_CONNECT_WALLET_BUTTON}
+          color="primaryBorder"
+          size="m"
+          onClick={walletLogIn}
+          stretch={true}
+        >
+          <SvgIcon icon={WalletIcon} noFill size="s" />
+          Connect A Wallet
+        </ButtonWallet>
+      </Flex>
     </Flex>
   );
 

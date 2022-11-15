@@ -221,19 +221,15 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
           <Flex stack>
             <SectionTitle>Transaction Parameters</SectionTitle>
 
-            <Flex stack>
-              <TxFormWalletLogin onBeforeLogIn={setContractInteractForm} />
-            </Flex>
+            <TxFormWalletLogin onBeforeLogIn={setContractInteractForm} />
 
             <Flex inline>
               <TxFormGas form={form} gasFormat={gasFormat} gas={gas} />
-
               <TxFormGasFormat gasFormat={gasFormat} form={form} />
             </Flex>
 
             <Flex inline>
               <TxFormDeposit form={form} nearFormat={nearFormat} />
-
               <TxFormDepositFormat nearFormat={nearFormat} form={form} />
             </Flex>
           </Flex>
