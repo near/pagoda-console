@@ -9,14 +9,18 @@ import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { StableId } from '@/utils/stable-ids';
+import type { MapDiscriminatedUnion } from '@/utils/types';
 
 import { rotateWebhookDestinationSecret } from '../hooks/destinations';
 
-type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
+type WebhookDestination = MapDiscriminatedUnion<
+  Api.Query.Output<'/alerts/listDestinations'>[number],
+  'type'
+>['WEBHOOK'];
 
 interface Props {
-  destination: Destination;
-  onRotate?: (d: Destination) => void;
+  destination: WebhookDestination;
+  onRotate?: (d: WebhookDestination) => void;
 }
 
 const ROTATION_WARNING =

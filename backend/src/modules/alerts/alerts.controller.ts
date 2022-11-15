@@ -177,22 +177,33 @@ export class AlertsController {
     @Body() dto: Api.Mutation.Input<'/alerts/createDestination'>,
   ): Promise<Api.Mutation.Output<'/alerts/createDestination'>> {
     try {
-      const type = dto.type;
-      switch (type) {
+      const { config, ...rest } = dto;
+      switch (config.type) {
         case 'WEBHOOK':
           return await this.alertsService.createWebhookDestination(
             req.user,
-            dto,
+            rest,
+            config,
           );
         case 'EMAIL':
-          return await this.alertsService.createEmailDestination(req.user, dto);
+          return await this.alertsService.createEmailDestination(
+            req.user,
+            rest,
+            config,
+          );
         case 'TELEGRAM':
           return await this.alertsService.createTelegramDestination(
             req.user,
-            dto,
+            rest,
           );
         default:
-          assertUnreachable(type);
+          assertUnreachable(
+            config,
+            (config) =>
+              (
+                config as Api.Mutation.Input<'/alerts/createDestination'>['config']
+              ).type,
+          );
       }
     } catch (e: any) {
       throw mapError(e);
@@ -276,22 +287,32 @@ export class AlertsController {
     @Body() dto: Api.Mutation.Input<'/alerts/updateDestination'>,
   ): Promise<Api.Mutation.Output<'/alerts/updateDestination'>> {
     try {
-      const type = dto.type;
-      switch (type) {
+      const { config, ...rest } = dto;
+      switch (config.type) {
         case 'WEBHOOK':
           return await this.alertsService.updateWebhookDestination(
             req.user,
-            dto,
+            rest,
+            config,
           );
         case 'EMAIL':
-          return await this.alertsService.updateEmailDestination(req.user, dto);
+          return await this.alertsService.updateEmailDestination(
+            req.user,
+            rest,
+          );
         case 'TELEGRAM':
           return await this.alertsService.updateTelegramDestination(
             req.user,
-            dto,
+            rest,
           );
         default:
-          assertUnreachable(type);
+          assertUnreachable(
+            config,
+            (config) =>
+              (
+                config as Api.Mutation.Input<'/alerts/updateDestination'>['config']
+              ).type,
+          );
       }
     } catch (e: any) {
       throw mapError(e);

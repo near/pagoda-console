@@ -564,9 +564,9 @@ export class AlertsService {
     user: User,
     {
       name = 'Webhook Destination',
-      config: { url },
       projectSlug,
-    }: Alerts.CreateWebhookDestinationInput,
+    }: Alerts.CreateBaseDestinationInput,
+    { url }: Alerts.CreateWebhookDestinationConfig,
   ) {
     await this.projectPermissions.checkUserProjectPermission(
       user.id,
@@ -620,9 +620,9 @@ export class AlertsService {
     user: User,
     {
       name = 'Email Destination',
-      config: { email },
       projectSlug,
-    }: Alerts.CreateEmailDestinationInput,
+    }: Alerts.CreateBaseDestinationInput,
+    { email }: Alerts.CreateEmailDestinationConfig,
   ) {
     await this.projectPermissions.checkUserProjectPermission(
       user.id,
@@ -710,7 +710,7 @@ export class AlertsService {
     {
       name = 'Telegram Destination',
       projectSlug,
-    }: Alerts.CreateTelegramDestinationInput,
+    }: Alerts.CreateBaseDestinationInput,
   ) {
     await this.projectPermissions.checkUserProjectPermission(
       user.id,
@@ -916,9 +916,10 @@ export class AlertsService {
 
   async updateWebhookDestination(
     callingUser: User,
-    dto: Alerts.UpdateWebhookDestinationInput,
+    dto: Alerts.UpdateDestinationBaseInput,
+    config: Alerts.UpdateWebhookDestinationConfig,
   ) {
-    const { id, name, config } = dto;
+    const { id, name } = dto;
     await this.checkUserDestinationPermission(callingUser.id, id);
 
     try {
@@ -962,7 +963,7 @@ export class AlertsService {
 
   async updateEmailDestination(
     callingUser: User,
-    dto: Alerts.UpdateEmailDestinationInput,
+    dto: Alerts.UpdateDestinationBaseInput,
   ) {
     const { id, name } = dto;
     await this.checkUserDestinationPermission(callingUser.id, id);
@@ -1001,7 +1002,7 @@ export class AlertsService {
 
   async updateTelegramDestination(
     callingUser: User,
-    dto: Alerts.UpdateTelegramDestinationInput,
+    dto: Alerts.UpdateDestinationBaseInput,
   ) {
     const { id, name } = dto;
     await this.checkUserDestinationPermission(callingUser.id, id);
