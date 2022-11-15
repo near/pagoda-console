@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import type { ChangeEvent } from 'react';
 import { useState } from 'react';
 
@@ -12,7 +13,9 @@ import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
 import analytics from '@/utils/analytics';
 import { StableId } from '@/utils/stable-ids';
-import type { Contract, Environment } from '@/utils/types';
+
+type Contract = Api.Query.Output<'/projects/getContract'>;
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 
 import { useEmbeddedAbi } from '../hooks/abi';
 

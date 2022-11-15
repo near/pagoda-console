@@ -15,7 +15,7 @@ export function useAnalytics() {
   const [hasIdentified, setHasIdentified] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user?.uid) {
       // https://segment.com/docs/connections/spec/best-practices-identify/
 
       analytics.identify(user.uid, {

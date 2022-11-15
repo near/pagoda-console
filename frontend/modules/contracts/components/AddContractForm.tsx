@@ -53,7 +53,7 @@ export function AddContractForm(props: Props) {
 
       const deployResult = await deployContractTemplate(template);
 
-      const contract = await authenticatedPost<Contract>('/projects/addContract', {
+      const contract = await authenticatedPost('/projects/addContract', {
         project: props.project.slug,
         environment: deployResult.subId,
         address: deployResult.address,

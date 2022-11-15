@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
@@ -14,8 +15,10 @@ import { useSimpleLayout } from '@/hooks/layouts';
 import { usePublicStore } from '@/stores/public';
 import analytics from '@/utils/analytics';
 import { StableId } from '@/utils/stable-ids';
-import type { Contract, NetOption, NextPageWithLayout } from '@/utils/types';
+import type { NetOption, NextPageWithLayout } from '@/utils/types';
 import { netOptions } from '@/utils/types';
+
+type Contract = Api.Query.Output<'/projects/getContract'>;
 
 const Public: NextPageWithLayout = () => {
   const { authStatus } = useAuth();
