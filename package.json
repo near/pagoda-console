@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "prepare": "husky install",
-    "postinstall": "npm i turbo -D && turbo run build --filter=database --filter=eslint-rules",
+    "postinstall": "turbo run build --filter=database --filter=eslint-rules",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start"
