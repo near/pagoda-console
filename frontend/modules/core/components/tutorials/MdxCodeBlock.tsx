@@ -50,6 +50,7 @@ export default function MdxCodeBlock(props: any) {
             target="_blank"
             rel="noreferrer"
             css={{ fontWeight: 400 }}
+            href={props.children}
           >
             See full example on Github
           </TextLink>
