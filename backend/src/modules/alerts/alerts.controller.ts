@@ -41,17 +41,16 @@ import { Api } from '@pc/common/types/api';
 
 @Controller('alerts')
 export class AlertsController {
-  private tgSecret: string;
-  private tgEnableWebhook: boolean;
+  private tgSecret?: string;
   constructor(
     private config: ConfigService<AppConfig>,
     private readonly alertsService: AlertsService,
     private readonly telegramService: TelegramService,
   ) {
-    this.tgSecret = this.config.get('alerts.telegram.secret', { infer: true })!;
-    this.tgEnableWebhook = this.config.get('alerts.telegram.enableWebhook', {
+    const telegramOptions = this.config.get('alerts.telegram', {
       infer: true,
-    })!;
+    });
+    this.tgSecret = telegramOptions?.secret;
   }
 
   @Post('createAlert')
@@ -339,7 +338,7 @@ export class AlertsController {
     @Headers('X-Telegram-Bot-Api-Secret-Token') secret: string,
     @Body() body: Api.Mutation.Input<'/alerts/telegramWebhook'>,
   ): Promise<Api.Mutation.Output<'/alerts/telegramWebhook'>> {
-    if (!this.tgEnableWebhook) {
+    if (!this.tgSecret) {
       throw new ForbiddenException();
     }
 

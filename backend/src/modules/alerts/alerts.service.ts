@@ -79,12 +79,8 @@ export class AlertsService {
     this.emailTokenExpiryMin = this.config.get('alerts.email.tokenExpiryMin', {
       infer: true,
     })!;
-    this.telegramTokenExpiryMin = this.config.get(
-      'alerts.telegram.tokenExpiryMin',
-      {
-        infer: true,
-      },
-    )!;
+    const telegram = this.config.get('alerts.telegram', { infer: true })!;
+    this.telegramTokenExpiryMin = telegram?.tokenExpiryMin || 0;
     this.contractAddressValidationEnabled = this.config.get(
       'featureEnabled.alerts.contractAddressValidation',
       { infer: true },

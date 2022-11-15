@@ -15,9 +15,10 @@ export class TelegramService {
     private config: ConfigService<AppConfig>,
     private prisma: PrismaService,
   ) {
-    const botToken = this.config.get('alerts.telegram.botToken', {
+    const telegram = this.config.get('alerts.telegram', {
       infer: true,
     });
+    const botToken = telegram?.botToken ?? '';
 
     this.botApi = axios.create({
       baseURL: `https://api.telegram.org/bot${botToken}`,

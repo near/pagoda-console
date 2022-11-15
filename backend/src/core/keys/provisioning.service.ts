@@ -22,9 +22,17 @@ export class ApiKeysProvisioningService
   private secretClient: SecretApi;
 
   constructor(private config: ConfigService<AppConfig>) {
+    const rpcProvisioningService = this.config.get('rpcProvisioningService', {
+      infer: true,
+    })!;
+    if (rpcProvisioningService.mock) {
+      throw new Error(
+        'Unexpected mock rpcProvisioningService in an actual service!',
+      );
+    }
     const configuration: Configuration = {
-      apiKey: this.config.get('rpcProvisioningService.apiKey', { infer: true }),
-      basePath: this.config.get('rpcProvisioningService.url', { infer: true }),
+      apiKey: rpcProvisioningService.apiKey,
+      basePath: rpcProvisioningService.url,
     };
 
     this.consumerClient = new ConsumerApi(configuration);
