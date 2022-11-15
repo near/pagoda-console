@@ -53,14 +53,7 @@ class ActionRow extends PureComponent<Props> {
         blockTimestamp={blockTimestamp}
         detailsLink={detailsLink}
         icon={ActionIcon && <ActionIcon />}
-        title={
-          <ActionMessage
-            receiverId={receiverId}
-            actionKind={action.kind}
-            actionArgs={action.args}
-            showDetails={showDetails}
-          />
-        }
+        title={<ActionMessage receiverId={receiverId} action={action} showDetails={showDetails} />}
         status={status}
         isFinal={isFinal}
       />
