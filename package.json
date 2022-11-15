@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "prepare": "husky install",
-    "postinstall": "node ./scripts/skip_postinstall.js || turbo run build --filter=database --filter=eslint-rules",
+    "postinstall": "turbo run build --filter=database --filter=eslint-rules",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start"
