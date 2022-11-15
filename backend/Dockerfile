@@ -52,4 +52,4 @@ COPY --from=builder --chown=node:node /usr/src/app/database/clients ./database/c
 COPY --from=builder --chown=node:node /usr/src/app/backend/dist ./backend/dist
 
 USER node
-CMD ["npm", "run", "-w", "backend", "start:prod"]
+CMD ["npm", "run", "-w", "backend", "start"]
