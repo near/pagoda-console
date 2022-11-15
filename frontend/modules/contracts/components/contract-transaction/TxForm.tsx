@@ -20,9 +20,10 @@ import convertNearDeposit from '../utils/convertNearDeposit';
 import resolveAbiDefinition from '../utils/resolveAbiDefinition';
 import TxFormDeposit from './TxFormDeposit';
 import TxFormDepositFormat from './TxFormDepositFormat';
-import TxFormFunction from './TxFormFunction';
+import TxFormFunctionParams from './TxFormFunctionParams';
 import TxFormGas from './TxFormGas';
 import TxFormGasFormat from './TxFormGasFormat';
+import TxFormSelectFunction from './TxFormSelectFunction';
 import TxFormWalletLogin from './TxFormWalletLogin';
 
 const SectionTitle = styled(H5, {
@@ -199,6 +200,7 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
     return null;
   };
 
+  const functionIsSelected = selectedFunction;
   const functionIsView = selectedFunction?.is_view;
   const functionIsTx = selectedFunction && !selectedFunction.is_view;
 
@@ -207,7 +209,13 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
     // TODO condition if submitted before the contract is loaded through the async fn?
     <Form.Root onSubmit={form.handleSubmit(submitForm)}>
       <Flex stack gap="l">
-        <TxFormFunction form={form} functionItems={functionItems} selectedFunction={selectedFunction} abi={abi} />
+        <Flex stack>
+          <SectionTitle>Function</SectionTitle>
+
+          <TxFormSelectFunction form={form} functionItems={functionItems} />
+
+          {functionIsSelected && <TxFormFunctionParams selectedFunction={selectedFunction} form={form} abi={abi} />}
+        </Flex>
 
         {functionIsTx && (
           <Flex stack>
@@ -230,6 +238,7 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
             </Flex>
           </Flex>
         )}
+
         <Button
           stableId={StableId.CONTRACT_TRANSACTION_SEND_BUTTON}
           type="submit"
