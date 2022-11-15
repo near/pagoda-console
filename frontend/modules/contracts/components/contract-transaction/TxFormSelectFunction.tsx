@@ -3,6 +3,11 @@ import { Controller } from 'react-hook-form';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import * as Form from '@/components/lib/Form';
 
+interface TxFormSelectFunction {
+  form: any;
+  functionItems: Array<object>;
+}
+
 const TxFormSelectFunction = ({ form, functionItems }) => {
   return (
     <Controller
@@ -12,7 +17,7 @@ const TxFormSelectFunction = ({ form, functionItems }) => {
         required: 'Please select function',
       }}
       render={({ field }) => {
-        const contractFunction = functionItems?.find((option) => option.name === field.value);
+        const contractFunction = functionItems?.find((option: { name: string }) => option.name === field.value);
 
         return (
           <Form.Group>
@@ -29,7 +34,7 @@ const TxFormSelectFunction = ({ form, functionItems }) => {
 
               <DropdownMenu.Content align="start" width="trigger">
                 <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
-                  {functionItems?.map((option) => (
+                  {functionItems?.map((option: { name: string }) => (
                     <DropdownMenu.RadioItem value={option.name} key={option.name}>
                       {option.name}
                     </DropdownMenu.RadioItem>

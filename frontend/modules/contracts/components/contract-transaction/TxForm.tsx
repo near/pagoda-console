@@ -46,6 +46,8 @@ interface ContractFormData {
 }
 
 const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
+  // TODO: simplify the whole logic below
+
   const { accountId, selector } = useWalletSelector(contract.address);
   const [contractMethods, setContractMethods] = useState<AbiContract | null>(null);
   const form = useForm<ContractFormData>({

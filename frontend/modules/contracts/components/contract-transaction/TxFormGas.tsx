@@ -33,7 +33,13 @@ const UseMaxButton = styled(Button, {
   },
 });
 
-const TxFormGas = ({ form, gasFormat, gas }) => {
+interface TxFormGas {
+  form: any;
+  gasFormat: 'Tgas' | 'Ggas' | 'Mgas' | 'gas';
+  gas: any;
+}
+
+const TxFormGas = ({ form, gasFormat, gas }: TxFormGas) => {
   return (
     <Form.Group>
       <Tooltip content="On NEAR, all unused gas will be refunded after the transaction.">

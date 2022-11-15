@@ -1,7 +1,12 @@
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { StableId } from '@/utils/stable-ids';
 
-const TxFormGasFormat = ({ gasFormat, form }) => {
+interface TxFormGasFormat {
+  form: any;
+  gasFormat: string;
+}
+
+const TxFormGasFormat = ({ gasFormat, form }: TxFormGasFormat) => {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Button stableId={StableId.CONTRACT_TRANSACTION_GAS_FORMAT_DROPDOWN} css={{ width: '9rem' }}>

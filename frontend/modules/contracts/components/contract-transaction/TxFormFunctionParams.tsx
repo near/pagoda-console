@@ -9,7 +9,13 @@ interface paramInputs extends AbiParameter {
   label: string;
 }
 
-const TxFormFunctionParams = ({ selectedFunction, form, abi }) => {
+interface TxFormFunctionParams {
+  selectedFunction: any;
+  form: any;
+  abi: any;
+}
+
+const TxFormFunctionParams = ({ selectedFunction, form, abi }: TxFormFunctionParams) => {
   const params = selectedFunction?.params || [];
   const paramsInputs = params.map((param: AbiParameter) => {
     const resolved = resolveAbiDefinition(abi!, param.type_schema);
