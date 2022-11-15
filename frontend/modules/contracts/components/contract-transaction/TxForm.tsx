@@ -23,6 +23,7 @@ import convertNearDeposit from '../utils/convertNearDeposit';
 import resolveAbiDefinition from '../utils/resolveAbiDefinition';
 import TxFormSelectFunction from './TxFormFunction';
 import TxFormGas from './TxFormGas';
+import TxFormGasFormat from './TxFormGasFormat';
 import TxFormWalletLogin from './TxFormWalletLogin';
 
 const SectionTitle = styled(H5, {
@@ -230,20 +231,7 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
             <Flex inline>
               <TxFormGas form={form} gasFormat={gasFormat} gas={gas} />
 
-              <DropdownMenu.Root>
-                <DropdownMenu.Button
-                  stableId={StableId.CONTRACT_TRANSACTION_GAS_FORMAT_DROPDOWN}
-                  css={{ width: '9rem' }}
-                >
-                  {gasFormat}
-                </DropdownMenu.Button>
-                <DropdownMenu.Content>
-                  <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Tgas')}>Tgas</DropdownMenu.Item>
-                  <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Ggas')}>Ggas</DropdownMenu.Item>
-                  <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Mgas')}>Mgas</DropdownMenu.Item>
-                  <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'gas')}>gas</DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </DropdownMenu.Root>
+              <TxFormGasFormat gasFormat={gasFormat} form={form} />
             </Flex>
 
             <Flex inline>
