@@ -8,13 +8,13 @@ import { setupNearWallet } from '@near-wallet-selector/near-wallet';
 import nearWalletIconUrl from '@near-wallet-selector/near-wallet/assets/near-wallet-icon.png';
 import { setupSender } from '@near-wallet-selector/sender';
 import senderIconUrl from '@near-wallet-selector/sender/assets/sender-icon.png';
+import type { Net } from '@pc/database/clients/core';
 import { useCallback, useEffect, useState } from 'react';
 import { distinctUntilChanged, map } from 'rxjs';
 
 import { openToast } from '@/components/lib/Toast';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { storage } from '@/utils/storage';
-import type { NetOption } from '@/utils/types';
 
 // Cache in module to ensure we don't re-init
 let selector: WalletSelector | null = null;
@@ -31,7 +31,7 @@ const SELECTED_CONTRACT = 'selectedWalletSelectorContract';
 export const useWalletSelector = (contractId: string | undefined) => {
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
   const { environment } = useSelectedProject();
-  const [prevNet, setPrevNet] = useState<NetOption | undefined>();
+  const [prevNet, setPrevNet] = useState<Net | undefined>();
   const network = environment?.net.toLowerCase();
 
   const init = useCallback(async () => {

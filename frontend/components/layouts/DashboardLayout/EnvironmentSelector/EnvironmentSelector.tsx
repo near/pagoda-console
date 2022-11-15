@@ -1,9 +1,12 @@
+import type { Api } from '@pc/common/types/api';
+
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { SubnetIcon } from '@/components/lib/SubnetIcon';
 import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
 import { StableId } from '@/utils/stable-ids';
-import type { Environment } from '@/utils/types';
+
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 
 interface Props {
   onBeforeChange?: (change: () => void) => void;

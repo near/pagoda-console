@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { iframeResizer } from 'iframe-resizer';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
@@ -17,7 +18,7 @@ import { useSelectedProject } from '@/hooks/selected-project';
 import { useTheme } from '@/hooks/theme';
 import config from '@/utils/config';
 import { StableId } from '@/utils/stable-ids';
-import type { Contract, Environment, NextPageWithLayout } from '@/utils/types';
+import type { NextPageWithLayout } from '@/utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {
   const { environment, project } = useSelectedProject();
@@ -38,7 +39,10 @@ const ProjectAnalytics: NextPageWithLayout = () => {
   );
 };
 
-function AnalyticsIframe({ environment, contracts }: { environment: Environment; contracts: Contract[] }) {
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
+type Project = Api.Query.Output<'/projects/getContracts'>;
+
+function AnalyticsIframe({ environment, contracts }: { environment: Environment; contracts: Project }) {
   const { activeTheme } = useTheme();
   const iframeId = 'analytics-iframe';
   const initialized = useRef(false);

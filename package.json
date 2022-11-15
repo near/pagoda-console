@@ -9,7 +9,8 @@
   "workspaces": [
     "./frontend",
     "./backend",
-    "database"
+    "database",
+    "common"
   ],
   "scripts": {
     "prepare": "husky install",

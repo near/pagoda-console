@@ -1,10 +1,11 @@
+import type { Api } from '@pc/common/types/api';
 import { useState } from 'react';
 
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { deleteAlert } from '@/modules/alerts/hooks/alerts';
 
-import type { Alert } from '../utils/types';
+type Alert = Api.Query.Output<'/alerts/listAlerts'>[number];
 
 interface Props {
   alert: Alert;

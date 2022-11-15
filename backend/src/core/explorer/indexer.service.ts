@@ -30,18 +30,8 @@ const DS_INDEXER_TESTNET = 'DS_INDEXER_TESTNET';
 
 import { Sequelize, QueryTypes } from 'sequelize';
 import { Net } from '@pc/database/clients/core';
-import { AppConfig } from '../config/validate';
-import { Action } from './explorer/actions';
-
-type OldTransaction = {
-  hash: string;
-  signerId: string;
-  receiverId: string;
-  blockHash: string;
-  blockTimestamp: number;
-  transactionIndex: number;
-  actions: Action[];
-};
+import { AppConfig } from '../../config/validate';
+import { Explorer } from '@pc/common/types/core';
 
 @Injectable()
 export class IndexerService {
@@ -180,7 +170,7 @@ export class IndexerService {
   async createTransactionsList(
     transactionsArray,
     net: Net,
-  ): Promise<OldTransaction[]> {
+  ): Promise<Explorer.Old.Transaction[]> {
     const transactionsHashes = transactionsArray.map(({ hash }) => hash);
     const transactionsActionsList = await this.getTransactionsActionsList(
       transactionsHashes,
@@ -244,7 +234,7 @@ export class IndexerService {
   }
 
   async fetchRecentTransactions(accounts: string[], net: Net) {
-    const promises: Promise<OldTransaction[] | undefined>[] = [];
+    const promises: Promise<Explorer.Old.Transaction[] | undefined>[] = [];
 
     for (const account of accounts) {
       const paginationIndexer = {
@@ -264,8 +254,9 @@ export class IndexerService {
     }
     const results = await Promise.allSettled(promises);
     // console.log(results);
-    let mergedTransactions: (OldTransaction & { sourceContract: string })[] =
-      [];
+    let mergedTransactions: (Explorer.Old.Transaction & {
+      sourceContract: string;
+    })[] = [];
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
       if (result.status === 'fulfilled' && result.value?.length) {

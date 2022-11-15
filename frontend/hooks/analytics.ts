@@ -35,7 +35,7 @@ export function useAnalytics() {
     if (user) {
       // https://segment.com/docs/connections/spec/best-practices-identify/
 
-      analytics.identify(user.uid, {
+      analytics.identify(user.uid!, {
         email: user.email,
         displayName: user.name,
         userId: user.uid,

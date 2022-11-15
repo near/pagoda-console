@@ -1,3 +1,4 @@
+import type { Explorer } from '@pc/common/types/core';
 import type { DurationLikeObject } from 'luxon';
 import { Duration, Interval } from 'luxon';
 import * as React from 'react';
@@ -16,7 +17,6 @@ import { StableId } from '@/utils/stable-ids';
 
 import { Button } from '../../lib/Button';
 import TransactionReceipt from './TransactionReceipt';
-import type { Transaction } from './types';
 
 type Props = {
   transactionHash: string | null;
@@ -49,7 +49,7 @@ const TitleWrapper = styled('div', {
 function customErrorRetry(
   err: any,
   __: string,
-  config: Readonly<PublicConfiguration<Transaction, any, BareFetcher<Transaction>>>,
+  config: Readonly<PublicConfiguration<Explorer.Transaction, any, BareFetcher<Explorer.Transaction>>>,
   revalidate: Revalidator,
   opts: Required<RevalidatorOptions>,
 ): void {
@@ -76,9 +76,13 @@ function customErrorRetry(
 const TransactionActions: React.FC<Props> = React.memo(({ transactionHash }) => {
   const net = useNet();
 
-  const query = useSWR<Transaction>(
+  const query = useSWR(
     transactionHash ? ['explorer/transaction', transactionHash, net] : null,
-    () => unauthenticatedPost(`/explorer/transaction/`, { hash: transactionHash, net }),
+    () =>
+      unauthenticatedPost('/explorer/transaction', {
+        hash: transactionHash!,
+        net,
+      }),
     {
       onErrorRetry: customErrorRetry,
       // TODO currently this is a quick hack to load TXs that may have pending receipts that are scheduled to execute in the next block. We could stop refreshing once we get the last receipt's execution outcome timestamp.
@@ -103,7 +107,7 @@ const TransactionActions: React.FC<Props> = React.memo(({ transactionHash }) => 
 TransactionActions.displayName = 'TransactionActions';
 
 type ListProps = {
-  transaction: Transaction;
+  transaction: Explorer.Transaction;
 };
 
 // see https://github.com/moment/luxon/issues/1134
@@ -137,7 +141,7 @@ export const TransactionReceiptContext = React.createContext<TransactionReceiptC
 const TransactionActionsList: React.FC<ListProps> = React.memo(({ transaction }) => {
   const preCollectedReceipts = React.useMemo(() => {
     const receipts = [] as ToogleReceipt[];
-    const collectReceiptHashes: any = (receipt: Transaction['receipt']) => {
+    const collectReceiptHashes: any = (receipt: Explorer.Transaction['receipt']) => {
       const id = receipt.id;
       receipts.push({ id, active: false });
       return receipt.outcome.nestedReceipts

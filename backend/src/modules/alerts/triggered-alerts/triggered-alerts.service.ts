@@ -4,16 +4,13 @@ import { Alert, Prisma, TriggeredAlert } from '@pc/database/clients/alerts';
 import { PrismaService } from '../prisma.service';
 import { PermissionsService as ProjectPermissionsService } from '../../../core/projects/permissions.service';
 import { AlertsService } from '../alerts.service';
-import { MatchingRule } from '../serde/db.types';
 import {
-  TriggeredAlertDetailsResponseDto,
-  TriggeredAlertsResponseDto,
-} from '../dto';
+  AcctBalMatchingRule,
+  EventMatchingRule,
+  FnCallMatchingRule,
+  TxMatchingRule,
+} from '../serde/db.types';
 import { VError } from 'verror';
-
-type TriggeredAlertWithAlert = TriggeredAlert & {
-  alert: Alert;
-};
 
 @Injectable()
 export class TriggeredAlertsService {
@@ -31,7 +28,7 @@ export class TriggeredAlertsService {
     take: number,
     pagingDateTime: Date,
     alertId?: number,
-  ): Promise<TriggeredAlertsResponseDto> {
+  ) {
     await this.projectPermissions.checkUserProjectEnvPermission(
       user.id,
       projectSlug,
@@ -80,8 +77,15 @@ export class TriggeredAlertsService {
   public async getTriggeredAlertDetails(
     user: User,
     slug: TriggeredAlert['slug'],
-  ): Promise<TriggeredAlertDetailsResponseDto> {
-    const triggeredAlert = await this.getTriggeredAlertWithAlert(slug);
+  ) {
+    const triggeredAlert = await this.prisma.triggeredAlert.findFirst({
+      where: {
+        slug,
+      },
+      include: {
+        alert: true,
+      },
+    });
 
     if (!triggeredAlert) {
       throw new VError(
@@ -125,8 +129,10 @@ export class TriggeredAlertsService {
   }
 
   private toTriggeredAlertDto(
-    triggeredAlert: TriggeredAlertWithAlert,
-  ): TriggeredAlertDetailsResponseDto {
+    triggeredAlert: TriggeredAlert & {
+      alert: Alert;
+    },
+  ) {
     const {
       slug,
       alert,
@@ -136,7 +142,11 @@ export class TriggeredAlertsService {
       triggeredAt,
     } = triggeredAlert;
     const extraData = triggeredAlert.extraData as Record<string, unknown>;
-    const rule = alert.matchingRule as object as MatchingRule;
+    const rule = alert.matchingRule as object as
+      | TxMatchingRule
+      | FnCallMatchingRule
+      | EventMatchingRule
+      | AcctBalMatchingRule;
 
     return {
       slug,
@@ -146,24 +156,8 @@ export class TriggeredAlertsService {
       triggeredInBlockHash,
       triggeredInTransactionHash,
       triggeredInReceiptId,
-      triggeredAt,
+      triggeredAt: triggeredAt.toString(),
       extraData,
     };
-  }
-
-  private async getTriggeredAlertWithAlert(
-    slug: TriggeredAlert['slug'],
-  ): Promise<TriggeredAlertWithAlert> {
-    const triggeredAlert: TriggeredAlertWithAlert =
-      (await this.prisma.triggeredAlert.findFirst({
-        where: {
-          slug,
-        },
-        include: {
-          alert: true,
-        },
-      }))!;
-
-    return triggeredAlert;
   }
 }

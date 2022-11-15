@@ -1,3 +1,5 @@
+import type { Alerts } from '@pc/common/types/alerts';
+import type { Api } from '@pc/common/types/api';
 import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -26,8 +28,6 @@ import { useSelectedProject } from '@/hooks/selected-project';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
 import { createAlert, useAlerts } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
-import type { AlertType, AmountComparator } from '@/modules/alerts/utils/types';
-import { NewAlert } from '@/modules/alerts/utils/types';
 import { formRegex } from '@/utils/constants';
 import { convertNearToYocto } from '@/utils/convert-near';
 import { assertUnreachable } from '@/utils/helpers';
@@ -35,14 +35,14 @@ import { numberInputHandler } from '@/utils/input-handlers';
 import { mergeInputProps } from '@/utils/merge-input-props';
 import { sanitizeNumber } from '@/utils/sanitize-number';
 import { StableId } from '@/utils/stable-ids';
-import type { Contract, Environment, NextPageWithLayout, Project } from '@/utils/types';
+import type { NextPageWithLayout } from '@/utils/types';
 import { validateMaxNearDecimalLength, validateMaxNearU128 } from '@/utils/validations';
 
 interface FormData {
   contract: string;
-  type: AlertType;
+  type: Alerts.RuleType;
   acctBalRule?: {
-    comparator: AmountComparator;
+    comparator: Alerts.Comparator;
   };
   acctBalNumRule?: {
     from: string;
@@ -61,6 +61,10 @@ interface FormData {
     function: string;
   };
 }
+
+type Contract = Api.Query.Output<'/projects/getContracts'>[number];
+type Project = Api.Query.Output<'/projects/getDetails'>;
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 
 const NewAlert: NextPageWithLayout = () => {
   const router = useRouter();
@@ -569,7 +573,7 @@ function returnNewAlertBody(
   destinations: number[],
   project?: Project,
   environment?: Environment,
-): NewAlert {
+): Api.Mutation.Input<'/alerts/createAlert'> {
   if (!project || !environment) throw new Error('No project or environment selected.');
 
   const base = {
@@ -584,8 +588,8 @@ function returnNewAlertBody(
 
       return {
         ...base,
-        type: 'ACCT_BAL_NUM',
         rule: {
+          type: 'ACCT_BAL_NUM',
           contract: data.contract,
           ...returnAcctBalNumBody(data.acctBalRule.comparator, data.acctBalNumRule),
         },
@@ -595,8 +599,8 @@ function returnNewAlertBody(
 
       return {
         ...base,
-        type: 'ACCT_BAL_PCT',
         rule: {
+          type: 'ACCT_BAL_PCT',
           contract: data.contract,
           ...returnAcctBalBody(data.acctBalRule.comparator, data.acctBalPctRule),
         },
@@ -604,8 +608,8 @@ function returnNewAlertBody(
     case 'EVENT':
       return {
         ...base,
-        type: 'EVENT',
         rule: {
+          type: 'EVENT',
           contract: data.contract,
           ...data.eventRule!,
         },
@@ -613,8 +617,8 @@ function returnNewAlertBody(
     case 'FN_CALL':
       return {
         ...base,
-        type: 'FN_CALL',
         rule: {
+          type: 'FN_CALL',
           contract: data.contract,
           ...data.fnCallRule!,
         },
@@ -622,16 +626,16 @@ function returnNewAlertBody(
     case 'TX_FAILURE':
       return {
         ...base,
-        type: 'TX_FAILURE',
         rule: {
+          type: 'TX_FAILURE',
           contract: data.contract,
         },
       };
     case 'TX_SUCCESS':
       return {
         ...base,
-        type: 'TX_SUCCESS',
         rule: {
+          type: 'TX_SUCCESS',
           contract: data.contract,
         },
       };
@@ -640,13 +644,13 @@ function returnNewAlertBody(
   }
 }
 
-function returnAcctBalNumBody(comparator: AmountComparator, { from, to }: { from: string; to: string }) {
+function returnAcctBalNumBody(comparator: Alerts.Comparator, { from, to }: { from: string; to: string }) {
   from = convertNearToYocto(from);
   to = convertNearToYocto(to);
   return returnAcctBalBody(comparator, { from, to });
 }
 
-function returnAcctBalBody(comparator: AmountComparator, { from, to }: { from: string; to: string }) {
+function returnAcctBalBody(comparator: Alerts.Comparator, { from, to }: { from: string; to: string }) {
   switch (comparator) {
     case 'EQ':
       return {

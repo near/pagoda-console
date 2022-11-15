@@ -1,4 +1,5 @@
 import type { WalletSelector } from '@near-wallet-selector/core';
+import type { Api } from '@pc/common/types/api';
 import JSBI from 'jsbi';
 import type { AbiParameter, AbiRoot, AnyContract as AbiContract } from 'near-abi-client-js';
 import { useRouter } from 'next/router';
@@ -34,10 +35,11 @@ import { convertNearToYocto } from '@/utils/convert-near';
 import { numberInputHandler } from '@/utils/input-handlers';
 import { sanitizeNumber } from '@/utils/sanitize-number';
 import { StableId } from '@/utils/stable-ids';
-import type { Contract } from '@/utils/types';
 import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
 import WalletLogin from './WalletLogin';
+
+type Contract = Api.Query.Output<'/projects/getContract'>;
 
 const TextItalic = styled(Text, {
   fontStyle: 'italic',

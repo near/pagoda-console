@@ -1,6 +1,6 @@
-import type { TimeRange } from './types';
+import type { RpcStats } from '@pc/common/types/rpcstats';
 
-export const timeRanges: TimeRange[] = [
+export const timeRanges: { value: RpcStats.TimeRangeValue; label: string }[] = [
   {
     label: '15 Minutes',
     value: '15_MINS',

@@ -1,13 +1,12 @@
+import type { Explorer } from '@pc/common/types/core';
 import * as React from 'react';
 
 import { CodeBlock } from '@/components/lib/CodeBlock';
 import { H4 } from '@/components/lib/Heading';
 import { styled } from '@/styles/stitches';
 
-import type { NestedReceiptWithOutcome } from './types';
-
 type Props = {
-  receipt: NestedReceiptWithOutcome;
+  receipt: Explorer.NestedReceiptWithOutcome;
 };
 
 const DetailsWrapper = styled('div', {

@@ -1,11 +1,13 @@
+import type { Api } from '@pc/common/types/api';
 import { connect, KeyPair, keyStores, transactions } from 'near-api-js';
 
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
-import type { Contract, Project } from '@/utils/types';
 
 import type { ContractTemplate } from '../hooks/contract-templates';
 import { sleep } from './helpers';
+
+type Project = Api.Mutation.Output<'/projects/create'>;
 
 export async function deployContractTemplate(project: Project, template: ContractTemplate) {
   const environmentSubId = 1; // Only TESTNET is supported for now
@@ -51,7 +53,7 @@ export async function deployContractTemplate(project: Project, template: Contrac
     // Remove key from browser storage, it was removed from the account.
     await keyStore.removeKey(nearConfig.networkId, accountId);
 
-    const contract = await authenticatedPost<Contract>('/projects/addContract', {
+    const contract = await authenticatedPost('/projects/addContract', {
       project: project.slug,
       environment: environmentSubId,
       address: accountId,

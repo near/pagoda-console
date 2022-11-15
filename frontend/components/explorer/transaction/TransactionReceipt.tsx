@@ -1,3 +1,4 @@
+import type { Explorer } from '@pc/common/types/core';
 import * as React from 'react';
 
 import { styled } from '@/styles/stitches';
@@ -6,12 +7,11 @@ import AccountLink from '../utils/AccountLink';
 import ReceiptInfo from './ReceiptInfo';
 import ReceiptKind from './ReceiptKind';
 import { TransactionReceiptContext } from './TransactionActions';
-import type { NestedReceiptWithOutcome } from './types';
 
 type Props = {
-  receipt: NestedReceiptWithOutcome;
+  receipt: Explorer.NestedReceiptWithOutcome;
   convertionReceipt: boolean;
-  fellowOutgoingReceipts: NestedReceiptWithOutcome[];
+  fellowOutgoingReceipts: Explorer.NestedReceiptWithOutcome[];
   className: string;
   customCss?: React.CSSProperties;
 };

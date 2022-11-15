@@ -5,7 +5,6 @@ import useSWR from 'swr';
 
 import analytics from '@/utils/analytics';
 import { authenticatedPost, unauthenticatedPost } from '@/utils/http';
-import type { User } from '@/utils/types';
 
 export function useAccount() {
   const identity = useIdentity();
@@ -13,7 +12,7 @@ export function useAccount() {
     data: user,
     error,
     mutate,
-  } = useSWR<User>(identity ? ['/users/getAccountDetails', identity.uid] : null, (key) => {
+  } = useSWR(identity ? ['/users/getAccountDetails' as const, identity.uid] : null, (key) => {
     return authenticatedPost(key);
   });
 
