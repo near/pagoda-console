@@ -50,7 +50,7 @@ export namespace Query {
       endDateTime: string;
       skip?: number;
       take?: number;
-      pagingDateTime?: Date;
+      pagingDateTime?: string;
       filter:
         | {
             type: 'date';

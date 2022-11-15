@@ -14,7 +14,7 @@ export const EndpointMetricsSchema = Joi.object<
   endDateTime: Joi.string().required(),
   skip: Joi.number().integer().min(0).optional(),
   take: Joi.number().integer().min(0).max(100).optional(),
-  pagingDateTime: Joi.date().optional(),
+  pagingDateTime: Joi.date().iso().optional() as unknown as Joi.StringSchema,
   filter: Joi.alternatives(
     Joi.object({
       type: Joi.string().valid('date'),
