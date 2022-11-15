@@ -146,36 +146,36 @@ export const GetAlertDetailsSchema = Joi.object<
 });
 
 const WebhookDestinationSchema = Joi.object<
-  Alerts.CreateWebhookDestinationInput['config'],
+  Alerts.CreateWebhookDestinationConfig,
   true
 >({
+  type: Joi.string().valid('WEBHOOK').required(),
   url: Joi.string().required(),
 });
 const EmailDestinationSchema = Joi.object<
-  Alerts.CreateEmailDestinationInput['config'],
+  Alerts.CreateEmailDestinationConfig,
   true
 >({
+  type: Joi.string().valid('EMAIL').required(),
   email: Joi.string().required(),
 });
 const TelegramDestinationSchema = Joi.object<
-  Alerts.CreateTelegramDestinationInput['config'],
+  Alerts.CreateTelegramDestinationConfig,
   true
->({});
+>({
+  type: Joi.string().valid('TELEGRAM').required(),
+});
 export const CreateDestinationSchema = Joi.object<
   Api.Mutation.Input<'/alerts/createDestination'>,
   true
 >({
   name: Joi.string(),
-  type: Joi.string().valid('WEBHOOK', 'EMAIL', 'TELEGRAM').required(),
   projectSlug: Joi.string().required(),
-  config: Joi.alternatives()
-    .conditional('config.type', {
-      switch: [
-        { is: 'WEBHOOK', then: WebhookDestinationSchema },
-        { is: 'EMAIL', then: EmailDestinationSchema },
-        { is: 'TELEGRAM', then: TelegramDestinationSchema },
-      ],
-    })
+  config: Joi.alternatives([
+    WebhookDestinationSchema,
+    EmailDestinationSchema,
+    TelegramDestinationSchema,
+  ])
     // TODO: fix any
     .required() as any,
 });
@@ -210,22 +210,35 @@ export const DisableDestinationSchema = EnableDestinationSchema;
 
 // update destination
 const UpdateWebhookDestinationSchema = Joi.object<
-  Alerts.UpdateWebhookDestinationInput['config'],
+  Alerts.UpdateWebhookDestinationConfig,
   true
 >({
+  type: Joi.string().valid('WEBHOOK').required(),
   url: Joi.string(),
+});
+const UpdateEmailDestinationSchema = Joi.object<
+  Alerts.UpdateEmailDestinationConfig,
+  true
+>({
+  type: Joi.string().valid('EMAIL').required(),
+});
+const UpdateTelegramDestinationSchema = Joi.object<
+  Alerts.UpdateTelegramDestinationConfig,
+  true
+>({
+  type: Joi.string().valid('TELEGRAM').required(),
 });
 export const UpdateDestinationSchema = Joi.object<
   Api.Mutation.Input<'/alerts/updateDestination'>,
   true
 >({
   id: Joi.number().required(),
-  type: Joi.string().required(),
   name: Joi.string(),
-  config: Joi.alternatives().conditional('config.type', {
-    switch: [{ is: 'WEBHOOK', then: UpdateWebhookDestinationSchema }],
-    // TODO: fix any
-  }) as any,
+  config: Joi.alternatives([
+    UpdateWebhookDestinationSchema,
+    UpdateEmailDestinationSchema,
+    UpdateTelegramDestinationSchema,
+  ]) as any,
 });
 
 // verify email

@@ -1,7 +1,6 @@
 import {
   Alert as AlertDatabase,
   Destination as DestinationDatabase,
-  DestinationType,
   EmailDestination as EmailDestinationDatabase,
   TelegramDestination as TelegramDestinationDatabase,
   WebhookDestination as WebhookDestinationDatabase,
@@ -82,33 +81,29 @@ export type CreateAlertInput =
   | CreateAcctBalPctAlertInput
   | CreateAcctBalNumAlertInput;
 
-type CreateBaseDestinationInput = {
+export type CreateBaseDestinationInput = {
   name?: string;
-  type: DestinationType;
   projectSlug: string;
 };
 
-export type CreateWebhookDestinationInput = CreateBaseDestinationInput & {
+export type CreateWebhookDestinationConfig = {
   type: 'WEBHOOK';
-  config: {
-    url: string;
-  };
+  url: string;
 };
-export type CreateEmailDestinationInput = CreateBaseDestinationInput & {
+export type CreateEmailDestinationConfig = {
   type: 'EMAIL';
-  config: {
-    email: string;
-  };
+  email: string;
 };
-export type CreateTelegramDestinationInput = CreateBaseDestinationInput & {
+export type CreateTelegramDestinationConfig = {
   type: 'TELEGRAM';
-  config?: Record<string, never>; // eslint recommended typing for empty object
 };
 
-export type CreateDestinationInput =
-  | CreateWebhookDestinationInput
-  | CreateEmailDestinationInput
-  | CreateTelegramDestinationInput;
+export type CreateDestinationInput = CreateBaseDestinationInput & {
+  config:
+    | CreateWebhookDestinationConfig
+    | CreateEmailDestinationConfig
+    | CreateTelegramDestinationConfig;
+};
 
 type BaseDestination = Pick<
   DestinationDatabase,
@@ -135,34 +130,36 @@ export type Destination =
   | EmailDestination
   | TelegramDestination;
 
-type UpdateDestinationBaseInput = {
+export type UpdateDestinationBaseInput = {
   id: number;
-  type: DestinationType;
   name?: string;
 };
-export type UpdateWebhookDestinationInput = UpdateDestinationBaseInput & {
+export type UpdateWebhookDestinationConfig = {
   type: 'WEBHOOK';
-  config: {
-    url: string;
-  };
+  url: string;
 };
-export type UpdateEmailDestinationInput = UpdateDestinationBaseInput & {
+export type UpdateEmailDestinationConfig = {
   type: 'EMAIL';
 };
-export type UpdateTelegramDestinationInput = UpdateDestinationBaseInput & {
+export type UpdateTelegramDestinationConfig = {
   type: 'TELEGRAM';
 };
 
-export type UpdateDestinationInput =
-  | UpdateWebhookDestinationInput
-  | UpdateEmailDestinationInput
-  | UpdateTelegramDestinationInput;
-
-type EnabledDestination = Pick<DestinationDatabase, 'id' | 'name' | 'type'> & {
+export type UpdateDestinationInput = UpdateDestinationBaseInput & {
   config:
-    | Pick<EmailDestinationDatabase, 'email'>
-    | Pick<WebhookDestinationDatabase, 'url'>
-    | Pick<TelegramDestinationDatabase, 'chatTitle' | 'startToken'>;
+    | UpdateWebhookDestinationConfig
+    | UpdateEmailDestinationConfig
+    | UpdateTelegramDestinationConfig;
+};
+
+type EnabledDestination = Pick<DestinationDatabase, 'id' | 'name'> & {
+  config:
+    | ({ type: 'EMAIL' } & Pick<EmailDestinationDatabase, 'email'>)
+    | ({ type: 'WEBHOOK' } & Pick<WebhookDestinationDatabase, 'url'>)
+    | ({ type: 'TELEGRAM' } & Pick<
+        TelegramDestinationDatabase,
+        'chatTitle' | 'startToken'
+      >);
 };
 
 export type Alert = Pick<
