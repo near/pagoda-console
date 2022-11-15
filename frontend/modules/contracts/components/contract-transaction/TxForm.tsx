@@ -24,6 +24,7 @@ import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/ut
 
 import convertNearDeposit from '../utils/convertNearDeposit';
 import resolveAbiDefinition from '../utils/resolveAbiDefinition';
+import TxFormSelectFunction from './TxFormSelectFunction';
 import TxFormWalletLogin from './TxFormWalletLogin';
 
 const SectionTitle = styled(H5, {
@@ -258,44 +259,7 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
         <Flex stack>
           <SectionTitle>Function</SectionTitle>
 
-          <Controller
-            name="contractFunction"
-            control={form.control}
-            rules={{
-              required: 'Please select function',
-            }}
-            render={({ field }) => {
-              const contractFunction = functionItems?.find((option) => option.name === field.value);
-
-              return (
-                <Form.Group>
-                  <DropdownMenu.Root>
-                    <DropdownMenu.Trigger asChild>
-                      <Form.FloatingLabelSelect
-                        label="Select Function"
-                        isInvalid={!!form.formState.errors.contractFunction}
-                        onBlur={field.onBlur}
-                        ref={field.ref}
-                        selection={contractFunction && contractFunction.name}
-                      />
-                    </DropdownMenu.Trigger>
-
-                    <DropdownMenu.Content align="start" width="trigger">
-                      <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
-                        {functionItems?.map((option) => (
-                          <DropdownMenu.RadioItem value={option.name} key={option.name}>
-                            {option.name}
-                          </DropdownMenu.RadioItem>
-                        ))}
-                      </DropdownMenu.RadioGroup>
-                    </DropdownMenu.Content>
-                  </DropdownMenu.Root>
-
-                  <Form.Feedback>{form.formState.errors.contractFunction?.message}</Form.Feedback>
-                </Form.Group>
-              );
-            }}
-          />
+          <TxFormSelectFunction form={form} functionItems={functionItems} />
 
           {selectedFunction?.params
             ? selectedFunction?.params.map((param) => <ParamInput key={param.name} param={param} />)
