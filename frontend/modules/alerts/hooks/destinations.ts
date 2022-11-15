@@ -1,3 +1,4 @@
+import type { Alerts } from '@pc/common/types/alerts';
 import type { Api } from '@pc/common/types/api';
 import useSWR from 'swr';
 
@@ -5,6 +6,7 @@ import { openToast } from '@/components/lib/Toast';
 import { useIdentity } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
+import type { MapDiscriminatedUnion } from '@/utils/types';
 
 export async function createDestination(data: Api.Mutation.Input<'/alerts/createDestination'>) {
   const destination = await authenticatedPost('/alerts/createDestination', {
@@ -40,7 +42,9 @@ export async function deleteDestination(destination: Api.Mutation.Input<'/alerts
   return false;
 }
 
-export async function updateDestination(data: Api.Mutation.Input<'/alerts/updateDestination'>) {
+export async function updateDestination<K extends Alerts.Destination['type']>(
+  data: Api.Mutation.Input<'/alerts/updateDestination'>,
+) {
   const destination = await authenticatedPost('/alerts/updateDestination', {
     ...data,
   });
@@ -51,7 +55,7 @@ export async function updateDestination(data: Api.Mutation.Input<'/alerts/update
     id: destination.id,
   });
 
-  return destination;
+  return destination as MapDiscriminatedUnion<Alerts.Destination, 'type'>[K];
 }
 
 export function useDestinations(projectSlug: string | undefined) {
