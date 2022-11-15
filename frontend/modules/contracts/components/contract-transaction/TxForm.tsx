@@ -1,14 +1,13 @@
 import JSBI from 'jsbi';
 import type { AnyContract as AbiContract } from 'near-abi-client-js';
 import { useCallback, useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H5 } from '@/components/lib/Heading';
-import { NearInput } from '@/components/lib/NearInput';
 import { openToast } from '@/components/lib/Toast';
 import { initContractMethods, useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
@@ -17,10 +16,10 @@ import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
 import { StableId } from '@/utils/stable-ids';
 import type { Contract } from '@/utils/types';
-import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
 import convertNearDeposit from '../utils/convertNearDeposit';
 import resolveAbiDefinition from '../utils/resolveAbiDefinition';
+import TxFormDeposit from './TxFormDeposit';
 import TxFormSelectFunction from './TxFormFunction';
 import TxFormGas from './TxFormGas';
 import TxFormGasFormat from './TxFormGasFormat';
@@ -235,33 +234,7 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
             </Flex>
 
             <Flex inline>
-              <Form.Group>
-                <Controller
-                  name="deposit"
-                  control={form.control}
-                  rules={{
-                    validate:
-                      nearFormat === 'yoctoⓃ'
-                        ? {
-                            integer: validateInteger,
-                            maxValue: validateMaxYoctoU128,
-                          }
-                        : {
-                            maxValue: validateMaxNearU128,
-                          },
-                  }}
-                  render={({ field }) => (
-                    <NearInput
-                      yocto={nearFormat === 'yoctoⓃ'}
-                      label="Deposit:"
-                      field={field}
-                      isInvalid={!!form.formState.errors.deposit}
-                    />
-                  )}
-                />
-
-                <Form.Feedback>{form.formState.errors.deposit?.message}</Form.Feedback>
-              </Form.Group>
+              <TxFormDeposit form={form} nearFormat={nearFormat} />
 
               <DropdownMenu.Root>
                 <DropdownMenu.Button
