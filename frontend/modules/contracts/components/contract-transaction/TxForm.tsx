@@ -20,7 +20,7 @@ import convertNearDeposit from '../utils/convertNearDeposit';
 import resolveAbiDefinition from '../utils/resolveAbiDefinition';
 import TxFormDeposit from './TxFormDeposit';
 import TxFormDepositFormat from './TxFormDepositFormat';
-import TxFormSelectFunction from './TxFormFunction';
+import TxFormFunction from './TxFormFunction';
 import TxFormGas from './TxFormGas';
 import TxFormGasFormat from './TxFormGasFormat';
 import TxFormWalletLogin from './TxFormWalletLogin';
@@ -199,27 +199,17 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
     return null;
   };
 
+  const functionIsView = selectedFunction?.is_view;
+  const functionIsTx = selectedFunction && !selectedFunction.is_view;
+
   return (
     // TODO should this be disabled if the contract is null? Seems like there can be a race
     // TODO condition if submitted before the contract is loaded through the async fn?
     <Form.Root onSubmit={form.handleSubmit(submitForm)}>
       <Flex stack gap="l">
-        <TxFormSelectFunction form={form} functionItems={functionItems} selectedFunction={selectedFunction} abi={abi} />
+        <TxFormFunction form={form} functionItems={functionItems} selectedFunction={selectedFunction} abi={abi} />
 
-        {selectedFunction?.is_view && (
-          <Flex stack gap="l">
-            <Button
-              stableId={StableId.CONTRACT_TRANSACTION_VIEW_CALL_BUTTON}
-              type="submit"
-              loading={form.formState.isSubmitting}
-              stretch
-            >
-              View Call
-            </Button>
-          </Flex>
-        )}
-
-        {selectedFunction && !selectedFunction.is_view && (
+        {functionIsTx && (
           <Flex stack>
             <SectionTitle>Transaction Parameters</SectionTitle>
 
@@ -238,17 +228,16 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
 
               <TxFormDepositFormat nearFormat={nearFormat} form={form} />
             </Flex>
-
-            <Button
-              stableId={StableId.CONTRACT_TRANSACTION_SEND_BUTTON}
-              type="submit"
-              loading={form.formState.isSubmitting}
-              stretch
-            >
-              {selectedFunction && selectedFunction.is_view ? 'View Call' : 'Send Transaction'}
-            </Button>
           </Flex>
         )}
+        <Button
+          stableId={StableId.CONTRACT_TRANSACTION_SEND_BUTTON}
+          type="submit"
+          loading={form.formState.isSubmitting}
+          stretch
+        >
+          {functionIsView ? 'View Call' : 'Send Transaction'}
+        </Button>
       </Flex>
     </Form.Root>
   );
