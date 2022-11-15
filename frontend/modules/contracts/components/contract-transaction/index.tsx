@@ -27,7 +27,6 @@ interface Props {
 }
 
 const ContractTransaction = ({ contract }: Props) => {
-  // const { accountId, selector } = useWalletSelector(contract.address);
   const [txResult, setTxResult] = useState<any>(undefined);
   const [txError, setTxError] = useState<any>(undefined);
   const transactionHashParam = useRouteParam('transactionHashes');
@@ -52,23 +51,11 @@ const ContractTransaction = ({ contract }: Props) => {
     setTxError(error);
   }
 
-  // useEffect(() => {
-  //   if (accountId) {
-  //     analytics.track('DC Contract Connect Wallet', { status: 'success', accountId, contract: contract.address });
-  //   }
-  // }, [accountId, contract.address]);
-
   return (
     <Flex gap="l" stack={{ '@laptop': true }}>
       <ContractParams>
         <Flex stack gap="l">
-          <TxForm
-            // accountId={accountId}
-            contract={contract}
-            // selector={selector}
-            onTxResult={onTxResult}
-            onTxError={onTxError}
-          />
+          <TxForm contract={contract} onTxResult={onTxResult} onTxError={onTxError} />
         </Flex>
       </ContractParams>
 

@@ -16,13 +16,13 @@ import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import * as gasUtils from '@/modules/contracts/utils/convert-gas';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
-import { convertNearToYocto } from '@/utils/convert-near';
 import { numberInputHandler } from '@/utils/input-handlers';
 import { sanitizeNumber } from '@/utils/sanitize-number';
 import { StableId } from '@/utils/stable-ids';
 import type { Contract } from '@/utils/types';
 import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
+import convertNearDeposit from '../utils/convertNearDeposit';
 import resolveAbiDefinition from '../utils/resolveAbiDefinition';
 import TxFormWalletLogin from './TxFormWalletLogin';
 
@@ -98,17 +98,6 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
 
   const setContractInteractForm = (params: ContractFormData = form.getValues()) =>
     sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
-
-  const convertNearDeposit = (deposit: string) => {
-    switch (nearFormat) {
-      case 'NEAR':
-        return JSBI.BigInt(convertNearToYocto(deposit));
-      case 'yoctoⓃ':
-        return JSBI.BigInt(deposit);
-      default:
-        return JSBI.BigInt(deposit);
-    }
-  };
 
   const initMethods = useCallback(async () => {
     try {
@@ -194,7 +183,7 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
         const gas = params.gas
           ? gasUtils.convertGasByFormat(params.gas, gasFormat).toString()
           : JSBI.BigInt(10_000_000_000_000).toString();
-        const attachedDeposit = params.deposit ? convertNearDeposit(params.deposit).toString() : '0';
+        const attachedDeposit = params.deposit ? convertNearDeposit(params.deposit, nearFormat).toString() : '0';
 
         res = await call.callFrom(await selector?.wallet(), {
           gas,
