@@ -2,10 +2,20 @@ import { Net } from '@pc/database/clients/core';
 import * as RPC from '../rpc';
 
 export namespace Old {
-  export type Action<K extends RPC.ActionView = RPC.ActionView> = {
+  export type MapAction<K extends RPC.ActionView = RPC.ActionView> = {
     kind: K extends string ? K : keyof K;
     args: ActionArgs<K>;
   };
+
+  export type Action =
+    | MapAction<'CreateAccount'>
+    | MapAction<RPC.DeployContractActionView>
+    | MapAction<RPC.FunctionCallActionView>
+    | MapAction<RPC.TransferActionView>
+    | MapAction<RPC.StakeActionView>
+    | MapAction<RPC.AddKeyActionView>
+    | MapAction<RPC.DeleteKeyActionView>
+    | MapAction<RPC.DeleteAccountActionView>;
 
   export type ActionArgs<K extends RPC.ActionView = RPC.ActionView> =
     K extends string ? {} : K[keyof K];
