@@ -4,13 +4,11 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "test": "ts-node test.ts"
+    "test": "ts-node test.ts",
+    "lint:check": "eslint --cache --max-warnings 0"
   },
   "main": "./dist/index.js",
   "dependencies": {
     "@typescript-eslint/utils": "^5.38.1"
-  },
-  "lint-staged": {
-    "*.{ts}": "eslint --cache --max-warnings 0"
   }
 }
