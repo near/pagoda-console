@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
 import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
-import type { User } from '@/utils/types';
+import { authenticatedPost, unauthenticatedPost } from '@/utils/http';
 
 export function useAccount() {
   const identity = useIdentity();
@@ -13,7 +12,7 @@ export function useAccount() {
     data: user,
     error,
     mutate,
-  } = useSWR<User>(identity ? ['/users/getAccountDetails', identity.uid] : null, (key) => {
+  } = useSWR(identity ? ['/users/getAccountDetails' as const, identity.uid] : null, (key) => {
     return authenticatedPost(key);
   });
 
@@ -53,4 +52,8 @@ export async function deleteAccount(uid: string | undefined) {
     console.error('Failed to delete account');
   }
   return false;
+}
+
+export async function resetPassword(email: string) {
+  await unauthenticatedPost('/users/resetPassword', { email });
 }

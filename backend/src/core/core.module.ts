@@ -7,7 +7,6 @@ import { AuthModule } from './auth/auth.module';
 import validate from '../config/validate';
 
 import { ApiKeysModule } from './keys/apiKeys.module';
-import { IndexerService } from './indexer.service';
 import { EmailModule } from './email/email.module';
 
 @Module({
@@ -26,7 +25,6 @@ import { EmailModule } from './email/email.module';
     EmailModule,
     ExplorerModule,
   ],
-  providers: [IndexerService],
   exports: [EmailModule],
 })
 export class CoreModule {}

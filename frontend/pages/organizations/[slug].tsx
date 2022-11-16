@@ -1,3 +1,5 @@
+import type { Api } from '@pc/common/types/api';
+import type { OrgRole } from '@pc/database/clients/core';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
@@ -34,11 +36,11 @@ import { useIdentity } from '@/hooks/user';
 import { styled } from '@/styles/stitches';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
-import type { NextPageWithLayout, Organization, OrganizationMember, OrganizationRole } from '@/utils/types';
+import type { NextPageWithLayout } from '@/utils/types';
 
-const ROLES: OrganizationRole[] = ['COLLABORATOR', 'ADMIN'];
+const ROLES: OrgRole[] = ['COLLABORATOR', 'ADMIN'];
 
-const ROLE_NAMES: Record<OrganizationRole, string> = {
+const ROLE_NAMES: Record<OrgRole, string> = {
   COLLABORATOR: 'Collaborator',
   ADMIN: 'Admin',
 };
@@ -91,11 +93,11 @@ const RemoveUserDialog = ({
       return;
     }
     if ('uid' in userData) {
-      removeUserMutation.mutate({ uid: userData.uid });
+      removeUserMutation.mutate({ user: userData.uid, org: orgSlug });
     } else {
-      removeInviteMutation.mutate({ email: userData.email });
+      removeInviteMutation.mutate({ email: userData.email, org: orgSlug });
     }
-  }, [removeInviteMutation, removeUserMutation, userData]);
+  }, [removeInviteMutation, removeUserMutation, userData, orgSlug]);
   const resetError = useCallback(() => {
     removeInviteMutation.reset();
     removeUserMutation.reset();
@@ -124,6 +126,9 @@ const RemoveUserDialog = ({
   );
 };
 
+type Organization = Api.Query.Output<'/users/listOrgs'>[number];
+type OrgMember = Api.Query.Output<'/users/listOrgMembers'>[number];
+
 const OrganizationMemberView = ({
   organization,
   member,
@@ -131,8 +136,8 @@ const OrganizationMemberView = ({
   singleAdmin,
 }: {
   organization: Organization;
-  member: OrganizationMember;
-  self: OrganizationMember;
+  member: OrgMember;
+  self: OrgMember;
   singleAdmin: boolean;
 }) => {
   const [leavingModalOpen, setLeavingModalOpen] = useState(false);
@@ -174,7 +179,7 @@ const OrganizationMemberView = ({
               <DropdownMenu.RadioGroup
                 value={member.role}
                 onValueChange={(value) =>
-                  changeRoleMutation.mutate({ uid: member.user.uid!, role: value as OrganizationRole })
+                  changeRoleMutation.mutate({ user: member.user.uid!, role: value as OrgRole, org: organization.slug })
                 }
               >
                 {ROLES.map((role) => (
@@ -207,7 +212,7 @@ const OrganizationMemberView = ({
         confirmText="Remove"
         errorText={(leaveMutation.error as any)?.description}
         isProcessing={leaveMutation.loading}
-        onConfirm={leaveMutation.mutate}
+        onConfirm={() => leaveMutation.mutate({ org: organization.slug, user: self.user.uid! })}
         setErrorText={leaveMutation.reset}
         setShow={setLeavingModalOpen}
         show={leavingModalOpen}
@@ -219,7 +224,7 @@ const OrganizationMemberView = ({
   );
 };
 
-type InviteForm = { email: string; role: OrganizationRole };
+type InviteForm = { email: string; role: OrgRole };
 
 const InviteFormEmailInput = ({ form }: { form: UseFormReturn<InviteForm> }) => {
   return (
@@ -249,10 +254,7 @@ const InviteFormRoleDropdown = ({ form }: { form: UseFormReturn<InviteForm> }) =
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Content align="start">
-        <DropdownMenu.RadioGroup
-          value={role}
-          onValueChange={(value) => form.setValue('role', value as OrganizationRole)}
-        >
+        <DropdownMenu.RadioGroup value={role} onValueChange={(value) => form.setValue('role', value as OrgRole)}>
           {ROLES.map((role) => (
             <DropdownMenu.RadioItem value={role} key={role}>
               {ROLE_NAMES[role]}
@@ -299,7 +301,7 @@ const InviteUserDialog = ({
             <Button
               stableId={StableId.ORGANIZATION_ADD_USER_BUTTON}
               loading={inviteMutation.loading}
-              onClick={form.handleSubmit(inviteMutation.mutate)}
+              onClick={form.handleSubmit((data) => inviteMutation.mutate({ ...data, org: orgSlug }))}
             >
               Add user
             </Button>
@@ -368,7 +370,7 @@ const OrganizationView: NextPageWithLayout = () => {
     if (!selectedOrganization) {
       return;
     }
-    deleteMutation.mutate({ name: selectedOrganization.name });
+    deleteMutation.mutate({ org: selectedOrganization.name });
   }, [deleteMutation, selectedOrganization]);
 
   return (

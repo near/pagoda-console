@@ -1,21 +1,24 @@
+import type { Api } from '@pc/common/types/api';
 import useSWR from 'swr';
-import type { SWRConfiguration } from 'swr/dist/types';
+import type { Fetcher, SWRConfiguration } from 'swr/dist/types';
 
 import { useIdentity } from '@/hooks/user';
 import { authenticatedPost } from '@/utils/http';
-import type { NetOption } from '@/utils/types';
 
-type ApiKeys = Partial<Record<NetOption, string>>;
+type ApiKeys = Api.Query.Output<'/projects/getKeys'>;
 
-export function useApiKeys(project: string | undefined, swrOptions?: SWRConfiguration) {
+export function useApiKeys(
+  project: string | undefined,
+  swrOptions?: SWRConfiguration<ApiKeys, Api.Query.Error<'/projects/getKeys'>, Fetcher<ApiKeys>>,
+) {
   const identity = useIdentity();
   const {
     data: keys,
     error,
     mutate,
-  } = useSWR<ApiKeys>(
+  } = useSWR(
     identity && project ? ['/projects/getKeys', project, identity.uid] : null,
-    (key, project) => {
+    (key: '/projects/getKeys', project: string) => {
       return authenticatedPost(key, { project });
     },
     swrOptions,

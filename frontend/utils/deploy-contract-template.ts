@@ -1,11 +1,13 @@
+import type { Api } from '@pc/common/types/api';
 import { connect, KeyPair, keyStores, transactions } from 'near-api-js';
 
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
-import type { Contract, Project } from '@/utils/types';
 
 import type { ContractTemplate } from '../hooks/contract-templates';
 import { sleep } from './helpers';
+
+type Project = Api.Mutation.Output<'/projects/create'>;
 
 export async function deployContractTemplate(project: Project, template: ContractTemplate) {
   const environmentSubId = 1; // Only TESTNET is supported for now
@@ -26,15 +28,13 @@ export async function deployContractTemplate(project: Project, template: Contrac
     await near.accountCreator.createAccount(accountId, keyPair.getPublicKey());
     await keyStore.setKey(nearConfig.networkId, accountId, keyPair);
 
-    const [wasmResponse, abiResponse] = await Promise.all([
+    const [wasmResponse] = await Promise.all([
       fetch(template.wasmFileUrl),
-      fetch(template.abiFileUrl),
       sleep(1000),
       // This 1 second sleep helps avoid any potential race conditions with the created account not being ready yet
     ]);
 
     const wasm = await wasmResponse.blob();
-    const abi = await abiResponse.json();
 
     const actions = [
       transactions.deployContract(new Uint8Array(await wasm.arrayBuffer())),
@@ -53,15 +53,10 @@ export async function deployContractTemplate(project: Project, template: Contrac
     // Remove key from browser storage, it was removed from the account.
     await keyStore.removeKey(nearConfig.networkId, accountId);
 
-    const contract = await authenticatedPost<Contract>('/projects/addContract', {
+    const contract = await authenticatedPost('/projects/addContract', {
       project: project.slug,
       environment: environmentSubId,
       address: accountId,
-    });
-
-    await authenticatedPost('/abi/addContractAbi', {
-      contract: contract.slug,
-      abi,
     });
 
     return contract;

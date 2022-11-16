@@ -1,3 +1,4 @@
+import type { Alerts, TriggeredAlerts } from '@pc/common/types/alerts';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -21,7 +22,6 @@ import { useSelectedProject, useSelectedProjectSync } from '@/hooks/selected-pro
 import { useAlert } from '@/modules/alerts/hooks/alerts';
 import { useTriggeredAlertDetails } from '@/modules/alerts/hooks/triggered-alerts';
 import { alertTypes } from '@/modules/alerts/utils/constants';
-import type { Alert, TriggeredAlert } from '@/modules/alerts/utils/types';
 import config from '@/utils/config';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -72,12 +72,12 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
 
   useSelectedProjectSync(alert?.environmentSubId, alert?.projectSlug);
 
-  function alertType(triggeredAlert: TriggeredAlert) {
+  function alertType(triggeredAlert: TriggeredAlerts.TriggeredAlert) {
     if (!triggeredAlert) return alertTypes.EVENT;
     return alertTypes[triggeredAlert.type];
   }
 
-  function alertContract(alert: Alert) {
+  function alertContract(alert: Alerts.Alert) {
     return alert?.rule?.contract;
   }
 
@@ -145,21 +145,25 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
 
                   <LabelAndValue label="Alert Triggered at" value={triggeredAtDateFormatted} />
 
-                  <LabelAndValue
-                    label="Transaction Hash"
-                    value={triggeredAlert.triggeredInTransactionHash}
-                    linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlert.triggeredInTransactionHash}`}
-                    copyButtonStableId={StableId.TRIGGERED_ALERT_COPY_TRANSACTION_HASH_BUTTON}
-                    explorerLinkStableId={StableId.TRIGGERED_ALERT_TRANSACTION_HASH_LINK}
-                  />
+                  {triggeredAlert.triggeredInTransactionHash ? (
+                    <LabelAndValue
+                      label="Transaction Hash"
+                      value={triggeredAlert.triggeredInTransactionHash}
+                      linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlert.triggeredInTransactionHash}`}
+                      copyButtonStableId={StableId.TRIGGERED_ALERT_COPY_TRANSACTION_HASH_BUTTON}
+                      explorerLinkStableId={StableId.TRIGGERED_ALERT_TRANSACTION_HASH_LINK}
+                    />
+                  ) : null}
 
-                  <LabelAndValue
-                    label="Receipt ID"
-                    value={triggeredAlert.triggeredInReceiptId}
-                    linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlert.triggeredInTransactionHash}#${triggeredAlert.triggeredInReceiptId}`}
-                    copyButtonStableId={StableId.TRIGGERED_ALERT_COPY_RECEIPT_ID_BUTTON}
-                    explorerLinkStableId={StableId.TRIGGERED_ALERT_RECEIPT_ID_LINK}
-                  />
+                  {triggeredAlert.triggeredInReceiptId ? (
+                    <LabelAndValue
+                      label="Receipt ID"
+                      value={triggeredAlert.triggeredInReceiptId}
+                      linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlert.triggeredInTransactionHash}#${triggeredAlert.triggeredInReceiptId}`}
+                      copyButtonStableId={StableId.TRIGGERED_ALERT_COPY_RECEIPT_ID_BUTTON}
+                      explorerLinkStableId={StableId.TRIGGERED_ALERT_RECEIPT_ID_LINK}
+                    />
+                  ) : null}
 
                   <LabelAndValue
                     label="Block Hash"

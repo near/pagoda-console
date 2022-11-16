@@ -1,26 +1,28 @@
 // import { Translate } from "react-localize-redux";
+import type { Explorer } from '@pc/common/types/core';
+import type * as RPC from '@pc/common/types/rpc';
+import type { Net } from '@pc/database/clients/core';
 import { DateTime } from 'luxon';
 import { PureComponent } from 'react';
 
+import type { FinalityStatus } from '@/modules/contracts/hooks/recent-transactions';
 import config from '@/utils/config';
-import type { NetOption } from '@/utils/types';
 
 import TransactionLink from '../utils/TransactionLink';
 import ActionGroup from './ActionGroup';
 import type { ViewMode } from './ActionRowBlock';
 import TransactionExecutionStatus from './TransactionExecutionStatus';
 // import TransactionsApi, * as T from "../../libraries/explorer-wamp/transactions"; // TODO
-import type * as T from './types';
 
 export interface Props {
-  transaction: T.Transaction;
+  transaction: Explorer.Old.Transaction;
   viewMode?: ViewMode;
-  net: NetOption;
+  net: Net;
   finalityStatus?: FinalityStatus;
 }
 
 interface State {
-  status?: T.ExecutionStatus;
+  status?: keyof RPC.FinalExecutionStatus;
 }
 
 class TransactionAction extends PureComponent<Props, State> {
@@ -48,7 +50,7 @@ class TransactionAction extends PureComponent<Props, State> {
     return (
       <>
         <ActionGroup
-          actionGroup={transaction as T.Transaction}
+          actionGroup={transaction}
           detailsLink={
             <NetContext.Provider value={net}>
               <TransactionLink transactionHash={transaction.hash} />
@@ -122,13 +124,12 @@ class TransactionAction extends PureComponent<Props, State> {
 
 // NOTE: this is a custom implementation for console. Explorer requests this status through
 // its backend from dedicated archival nodes
-import type { FinalityStatus } from '@/utils/types';
 
 import { NetContext } from '../utils/NetContext';
-import type { ExecutionStatus, TransactionInfo } from './types';
+
 async function getTransactionStatus(
-  transaction: TransactionInfo,
-  net: NetOption,
+  transaction: Explorer.Old.Transaction,
+  net: Net,
   forceArchival?: boolean,
 ): Promise<any> {
   let rpcUrl;
@@ -174,7 +175,7 @@ async function getTransactionStatus(
     throw new Error('Failed to fetch transaction status');
   }
   const transactionExtraInfo = res.result;
-  const status = Object.keys(transactionExtraInfo.status)[0] as ExecutionStatus;
+  const status = Object.keys(transactionExtraInfo.status)[0] as keyof RPC.FinalExecutionStatus;
   return status;
 }
 

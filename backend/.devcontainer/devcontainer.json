@@ -38,7 +38,8 @@
   "extensions": [
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "prisma.prisma"
+    "prisma.prisma",
+    "hashicorp.terraform"
   ],
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.

@@ -1,4 +1,5 @@
 import type { WalletSelector } from '@near-wallet-selector/core';
+import type { Api } from '@pc/common/types/api';
 import JSBI from 'jsbi';
 import type { AbiParameter, AbiRoot, AnyContract as AbiContract } from 'near-abi-client-js';
 import { useRouter } from 'next/router';
@@ -11,9 +12,7 @@ import { Box } from '@/components/lib/Box';
 import { Button } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
 import { CodeBlock } from '@/components/lib/CodeBlock';
-import { CopyButton } from '@/components/lib/CopyButton';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
-import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H3, H5 } from '@/components/lib/Heading';
@@ -22,23 +21,25 @@ import { Message } from '@/components/lib/Message';
 import { NearInput } from '@/components/lib/NearInput';
 import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Text } from '@/components/lib/Text';
-import { TextOverflow } from '@/components/lib/TextOverflow';
 import { openToast } from '@/components/lib/Toast';
+import { Tooltip } from '@/components/lib/Tooltip';
 import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { initContractMethods, useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import * as gasUtils from '@/modules/contracts/utils/convert-gas';
 import TxList from '@/public/contracts/images/TxList.svg';
-import WalletIcon from '@/public/images/icons/wallet.svg';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
 import { convertNearToYocto } from '@/utils/convert-near';
 import { numberInputHandler } from '@/utils/input-handlers';
 import { sanitizeNumber } from '@/utils/sanitize-number';
 import { StableId } from '@/utils/stable-ids';
-import type { Contract } from '@/utils/types';
 import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
+
+import WalletLogin from './WalletLogin';
+
+type Contract = Api.Query.Output<'/projects/getContract'>;
 
 const TextItalic = styled(Text, {
   fontStyle: 'italic',
@@ -65,19 +66,6 @@ const ContractParams = styled(Box, {
 
   '@laptop': {
     width: '100%',
-  },
-});
-const FormWrapper = styled(Box, {
-  width: '100%',
-
-  variants: {
-    disabled: {
-      true: {
-        [`& ${SectionTitle}`]: {
-          color: 'var(--color-text-3)',
-        },
-      },
-    },
   },
 });
 const UseMaxButton = styled(Button, {
@@ -129,14 +117,7 @@ const resolveDefinition = (abi: AbiRoot, def: any) => {
 };
 
 export const ContractTransaction = ({ contract }: Props) => {
-  const { accountId, modal, selector } = useWalletSelector(contract.address);
-  const handleWalletSelect = useCallback(async () => {
-    if (selector && selector.store.getState().selectedWalletId) {
-      const wallet = await selector.wallet();
-      await wallet.signOut();
-    }
-    modal?.show();
-  }, [modal, selector]);
+  const { accountId, selector } = useWalletSelector(contract.address);
   const [txResult, setTxResult] = useState<any>(undefined);
   const [txError, setTxError] = useState<any>(undefined);
   const transactionHashParam = useRouteParam('transactionHashes');
@@ -171,32 +152,6 @@ export const ContractTransaction = ({ contract }: Props) => {
     <Flex gap="l" stack={{ '@laptop': true }}>
       <ContractParams>
         <Flex stack gap="l">
-          <Flex stack>
-            <SectionTitle>1. Account</SectionTitle>
-            <Flex inline align="center">
-              {accountId ? (
-                <>
-                  <FeatherIcon icon="user" size="s" />
-                  <Text weight="semibold" color="text1" css={{ minWidth: 0 }}>
-                    <TextOverflow>{accountId}</TextOverflow>
-                  </Text>
-                  <CopyButton value={accountId} stableId={StableId.WALLET_ACCOUNT_ID_COPY_BUTTON} />
-                </>
-              ) : null}
-              <Button
-                stableId={StableId.CONTRACT_TRANSACTION_CONNECT_WALLET_BUTTON}
-                color="primaryBorder"
-                size={!accountId ? 'm' : 's'}
-                onClick={handleWalletSelect}
-                stretch={!accountId}
-                css={{ marginLeft: 'auto' }}
-              >
-                <SvgIcon icon={WalletIcon} noFill size={!accountId ? 's' : 'xs'} />
-                {!accountId ? 'Connect A Wallet' : 'Change'}
-              </Button>
-            </Flex>
-          </Flex>
-
           <ContractTransactionForm
             accountId={accountId}
             contract={contract}
@@ -233,7 +188,14 @@ interface ContractFormData {
 
 const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, onTxError }: ContractFormProps) => {
   const [contractMethods, setContractMethods] = useState<AbiContract | null>(null);
-  const form = useForm<ContractFormData>();
+  const form = useForm<ContractFormData>({
+    defaultValues: {
+      gas: '300',
+      gasFormat: 'Tgas',
+      deposit: '0',
+      nearFormat: 'yoctoⓃ',
+    },
+  });
   const { contractAbi } = useAnyAbi(contract);
 
   const nearFormat = form.watch('nearFormat');
@@ -244,10 +206,8 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   const selectedFunctionName = form.watch('contractFunction');
   const selectedFunction = functionItems?.find((option) => option.name === selectedFunctionName);
 
-  const signedIn = (accountId: string | undefined, wallet: WalletSelector | null): boolean => {
-    // TODO determine if certain wallets leave the account id undefined when signed in.
-    return accountId != undefined && wallet != null;
-  };
+  const setContractInteractForm = (params: ContractFormData = form.getValues()) =>
+    sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
 
   const convertGas = (gas: string) => {
     switch (gasFormat) {
@@ -277,7 +237,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
 
   const initMethods = useCallback(async () => {
     try {
-      if (!signedIn(accountId, selector) || !contractAbi) {
+      if (!contractAbi) {
         return;
       }
 
@@ -286,7 +246,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
     } catch (error) {
       console.error(error);
     }
-  }, [accountId, selector, contract.address, contract.net, contractAbi]);
+  }, [contract.address, contract.net, contractAbi]);
 
   useEffect(() => {
     initMethods();
@@ -311,8 +271,6 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   }, [contract.slug, form]);
 
   useEffect(() => {
-    if (!form.getValues('nearFormat')) form.setValue('nearFormat', 'yoctoⓃ');
-    if (!form.getValues('gasFormat')) form.setValue('gasFormat', 'Tgas');
     form.clearErrors();
   }, [nearFormat, gasFormat, form]);
 
@@ -321,7 +279,7 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
     const contractFn = contractMethods![selectedFunction!.name];
     let call;
 
-    sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
+    setContractInteractForm(params);
 
     if (selectedFunction?.params) {
       try {
@@ -429,80 +387,83 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
   return (
     // TODO should this be disabled if the contract is null? Seems like there can be a race
     // TODO condition if submitted before the contract is loaded through the async fn?
-    <FormWrapper disabled={!signedIn(accountId, selector)}>
-      <Form.Root disabled={!signedIn(accountId, selector)} onSubmit={form.handleSubmit(submitForm)}>
-        <Flex stack gap="l">
-          <Flex stack>
-            <SectionTitle>2. Function</SectionTitle>
+    <Form.Root onSubmit={form.handleSubmit(submitForm)}>
+      <Flex stack gap="l">
+        <Flex stack>
+          <SectionTitle>Function</SectionTitle>
 
-            <Controller
-              name="contractFunction"
-              control={form.control}
-              rules={{
-                required: 'Please select function',
-              }}
-              render={({ field }) => {
-                const contractFunction = functionItems?.find((option) => option.name === field.value);
+          <Controller
+            name="contractFunction"
+            control={form.control}
+            rules={{
+              required: 'Please select function',
+            }}
+            render={({ field }) => {
+              const contractFunction = functionItems?.find((option) => option.name === field.value);
 
-                return (
-                  <Form.Group>
-                    <DropdownMenu.Root>
-                      <DropdownMenu.Trigger asChild>
-                        <Form.FloatingLabelSelect
-                          label="Select Function"
-                          isInvalid={!!form.formState.errors.contractFunction}
-                          onBlur={field.onBlur}
-                          ref={field.ref}
-                          selection={contractFunction && contractFunction.name}
-                        />
-                      </DropdownMenu.Trigger>
-
-                      <DropdownMenu.Content align="start" width="trigger">
-                        <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
-                          {functionItems?.map((option) => (
-                            <DropdownMenu.RadioItem value={option.name} key={option.name}>
-                              {option.name}
-                            </DropdownMenu.RadioItem>
-                          ))}
-                        </DropdownMenu.RadioGroup>
-                      </DropdownMenu.Content>
-                    </DropdownMenu.Root>
-
-                    <Form.Feedback>{form.formState.errors.contractFunction?.message}</Form.Feedback>
-                  </Form.Group>
-                );
-              }}
-            />
-
-            {selectedFunction?.params
-              ? selectedFunction?.params.map((param) => <ParamInput key={param.name} param={param} />)
-              : null}
-          </Flex>
-
-          {selectedFunction?.is_view && (
-            <Flex stack gap="l">
-              <Button
-                stableId={StableId.CONTRACT_TRANSACTION_VIEW_CALL_BUTTON}
-                type="submit"
-                loading={form.formState.isSubmitting}
-                stretch
-              >
-                View Call
-              </Button>
-            </Flex>
-          )}
-
-          {selectedFunction && !selectedFunction.is_view && (
-            <Flex stack>
-              <SectionTitle>3. Transaction Parameters</SectionTitle>
-
-              <Flex inline>
+              return (
                 <Form.Group>
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger asChild>
+                      <Form.FloatingLabelSelect
+                        label="Select Function"
+                        isInvalid={!!form.formState.errors.contractFunction}
+                        onBlur={field.onBlur}
+                        ref={field.ref}
+                        selection={contractFunction && contractFunction.name}
+                      />
+                    </DropdownMenu.Trigger>
+
+                    <DropdownMenu.Content align="start" width="trigger">
+                      <DropdownMenu.RadioGroup value={field.value} onValueChange={(value) => field.onChange(value)}>
+                        {functionItems?.map((option) => (
+                          <DropdownMenu.RadioItem value={option.name} key={option.name}>
+                            {option.name}
+                          </DropdownMenu.RadioItem>
+                        ))}
+                      </DropdownMenu.RadioGroup>
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Root>
+
+                  <Form.Feedback>{form.formState.errors.contractFunction?.message}</Form.Feedback>
+                </Form.Group>
+              );
+            }}
+          />
+
+          {selectedFunction?.params
+            ? selectedFunction?.params.map((param) => <ParamInput key={param.name} param={param} />)
+            : null}
+        </Flex>
+
+        {selectedFunction?.is_view && (
+          <Flex stack gap="l">
+            <Button
+              stableId={StableId.CONTRACT_TRANSACTION_VIEW_CALL_BUTTON}
+              type="submit"
+              loading={form.formState.isSubmitting}
+              stretch
+            >
+              View Call
+            </Button>
+          </Flex>
+        )}
+
+        {selectedFunction && !selectedFunction.is_view && (
+          <Flex stack>
+            <SectionTitle>Transaction Parameters</SectionTitle>
+
+            <Flex stack>
+              <WalletLogin onBeforeLogIn={setContractInteractForm} />
+            </Flex>
+
+            <Flex inline>
+              <Form.Group>
+                <Tooltip content="On NEAR, all unused gas will be refunded after the transaction.">
                   <Form.FloatingLabelInput
                     type="string"
                     label="Gas:"
                     isInvalid={!!form.formState.errors.gas}
-                    defaultValue="10"
                     onInput={(event) => {
                       numberInputHandler(event, { allowComma: false, allowDecimal: false, allowNegative: false });
                     }}
@@ -518,95 +479,94 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
                       },
                     })}
                   />
+                </Tooltip>
 
-                  <Form.Feedback>{form.formState.errors.gas?.message}</Form.Feedback>
+                <Form.Feedback>{form.formState.errors.gas?.message}</Form.Feedback>
 
-                  <UseMaxButton
-                    stableId={StableId.CONTRACT_TRANSACTION_MAX_GAS_BUTTON}
-                    color="transparent"
-                    onClick={() => {
-                      form.setValue('gas', '300');
-                      form.setValue('gasFormat', 'Tgas');
-                    }}
-                    hidden={Boolean(gas)}
-                  >
-                    Use Max
-                  </UseMaxButton>
-                </Form.Group>
+                <UseMaxButton
+                  stableId={StableId.CONTRACT_TRANSACTION_MAX_GAS_BUTTON}
+                  color="transparent"
+                  onClick={() => {
+                    form.setValue('gas', '300');
+                    form.setValue('gasFormat', 'Tgas');
+                  }}
+                  hidden={Boolean(gas)}
+                >
+                  Use Max
+                </UseMaxButton>
+              </Form.Group>
 
-                <DropdownMenu.Root>
-                  <DropdownMenu.Button
-                    stableId={StableId.CONTRACT_TRANSACTION_GAS_FORMAT_DROPDOWN}
-                    css={{ width: '9rem' }}
-                  >
-                    {gasFormat}
-                  </DropdownMenu.Button>
-                  <DropdownMenu.Content>
-                    <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Tgas')}>Tgas</DropdownMenu.Item>
-                    <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Ggas')}>Ggas</DropdownMenu.Item>
-                    <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Mgas')}>Mgas</DropdownMenu.Item>
-                    <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'gas')}>gas</DropdownMenu.Item>
-                  </DropdownMenu.Content>
-                </DropdownMenu.Root>
-              </Flex>
-
-              <Flex inline>
-                <Form.Group>
-                  <Controller
-                    name="deposit"
-                    control={form.control}
-                    rules={{
-                      validate:
-                        nearFormat === 'yoctoⓃ'
-                          ? {
-                              integer: validateInteger,
-                              maxValue: validateMaxYoctoU128,
-                            }
-                          : {
-                              maxValue: validateMaxNearU128,
-                            },
-                    }}
-                    defaultValue="0"
-                    render={({ field }) => (
-                      <NearInput
-                        yocto={nearFormat === 'yoctoⓃ'}
-                        label="Deposit:"
-                        field={field}
-                        isInvalid={!!form.formState.errors.deposit}
-                      />
-                    )}
-                  />
-
-                  <Form.Feedback>{form.formState.errors.deposit?.message}</Form.Feedback>
-                </Form.Group>
-
-                <DropdownMenu.Root>
-                  <DropdownMenu.Button
-                    stableId={StableId.CONTRACT_TRANSACTION_NEAR_FORMAT_DROPDOWN}
-                    css={{ width: '9rem' }}
-                  >
-                    {nearFormat}
-                  </DropdownMenu.Button>
-                  <DropdownMenu.Content>
-                    <DropdownMenu.Item onSelect={() => form.setValue('nearFormat', 'NEAR')}>NEAR</DropdownMenu.Item>
-                    <DropdownMenu.Item onSelect={() => form.setValue('nearFormat', 'yoctoⓃ')}>yoctoⓃ</DropdownMenu.Item>
-                  </DropdownMenu.Content>
-                </DropdownMenu.Root>
-              </Flex>
-
-              <Button
-                stableId={StableId.CONTRACT_TRANSACTION_SEND_BUTTON}
-                type="submit"
-                loading={form.formState.isSubmitting}
-                stretch
-              >
-                {selectedFunction && selectedFunction.is_view ? 'View Call' : 'Send Transaction'}
-              </Button>
+              <DropdownMenu.Root>
+                <DropdownMenu.Button
+                  stableId={StableId.CONTRACT_TRANSACTION_GAS_FORMAT_DROPDOWN}
+                  css={{ width: '9rem' }}
+                >
+                  {gasFormat}
+                </DropdownMenu.Button>
+                <DropdownMenu.Content>
+                  <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Tgas')}>Tgas</DropdownMenu.Item>
+                  <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Ggas')}>Ggas</DropdownMenu.Item>
+                  <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'Mgas')}>Mgas</DropdownMenu.Item>
+                  <DropdownMenu.Item onSelect={() => form.setValue('gasFormat', 'gas')}>gas</DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
             </Flex>
-          )}
-        </Flex>
-      </Form.Root>
-    </FormWrapper>
+
+            <Flex inline>
+              <Form.Group>
+                <Controller
+                  name="deposit"
+                  control={form.control}
+                  rules={{
+                    validate:
+                      nearFormat === 'yoctoⓃ'
+                        ? {
+                            integer: validateInteger,
+                            maxValue: validateMaxYoctoU128,
+                          }
+                        : {
+                            maxValue: validateMaxNearU128,
+                          },
+                  }}
+                  render={({ field }) => (
+                    <NearInput
+                      yocto={nearFormat === 'yoctoⓃ'}
+                      label="Deposit:"
+                      field={field}
+                      isInvalid={!!form.formState.errors.deposit}
+                    />
+                  )}
+                />
+
+                <Form.Feedback>{form.formState.errors.deposit?.message}</Form.Feedback>
+              </Form.Group>
+
+              <DropdownMenu.Root>
+                <DropdownMenu.Button
+                  stableId={StableId.CONTRACT_TRANSACTION_NEAR_FORMAT_DROPDOWN}
+                  css={{ width: '9rem' }}
+                >
+                  {nearFormat}
+                </DropdownMenu.Button>
+                <DropdownMenu.Content>
+                  <DropdownMenu.Item onSelect={() => form.setValue('nearFormat', 'NEAR')}>NEAR</DropdownMenu.Item>
+                  <DropdownMenu.Item onSelect={() => form.setValue('nearFormat', 'yoctoⓃ')}>yoctoⓃ</DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
+            </Flex>
+
+            <Button
+              stableId={StableId.CONTRACT_TRANSACTION_SEND_BUTTON}
+              type="submit"
+              loading={form.formState.isSubmitting}
+              stretch
+            >
+              {selectedFunction && selectedFunction.is_view ? 'View Call' : 'Send Transaction'}
+            </Button>
+          </Flex>
+        )}
+      </Flex>
+    </Form.Root>
   );
 };
 
@@ -651,7 +611,6 @@ const SendTransactionBanner = () => (
       <Flex stack gap="l">
         <H3>Sending a Transaction</H3>
         <ListWrapper as="ol">
-          <ListItem>Connect Wallet</ListItem>
           <ListItem>Select Function</ListItem>
           <ListItem>Input function parameters</ListItem>
           <ListItem>Send transaction</ListItem>

@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useRouter } from 'next/router';
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
 import { useState } from 'react';
@@ -23,8 +24,9 @@ import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatBytes } from '@/utils/format-bytes';
 import { StableId } from '@/utils/stable-ids';
-import type { Contract } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
+
+type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
 const ListContracts: NextPageWithLayout = () => {
   const { project, environment } = useSelectedProject();

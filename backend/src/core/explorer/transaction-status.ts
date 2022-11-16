@@ -1,11 +1,10 @@
 import { ExecutionOutcomeStatus } from './models/readOnlyIndexer';
-import * as RPC from '../near-rpc/types';
-
-export type TransactionStatus = 'unknown' | 'failure' | 'success';
+import { Explorer } from '@pc/common/types/core';
+import * as RPC from '@pc/common/types/rpc';
 
 export const mapRpcTransactionStatus = (
   status: RPC.FinalExecutionStatus,
-): TransactionStatus => {
+): Explorer.TransactionStatus => {
   if ('SuccessValue' in status) {
     return 'success';
   }
@@ -17,7 +16,7 @@ export const mapRpcTransactionStatus = (
 
 export const mapDatabaseTransactionStatus = (
   status: ExecutionOutcomeStatus,
-): TransactionStatus => {
+): Explorer.TransactionStatus => {
   switch (status) {
     case 'SUCCESS_VALUE':
     case 'SUCCESS_RECEIPT_ID':

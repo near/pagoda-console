@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { QRCodeSVG } from 'qrcode.react';
 
 import { Box } from '@/components/lib/Box';
@@ -9,7 +10,7 @@ import { Text } from '@/components/lib/Text';
 import config from '@/utils/config';
 import { StableId } from '@/utils/stable-ids';
 
-import type { Destination } from '../utils/types';
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 interface Props {
   destination: Destination;

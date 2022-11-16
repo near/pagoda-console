@@ -16,7 +16,6 @@ import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
-import type { Project } from '@/utils/types';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface NewProjectFormData {
@@ -35,7 +34,7 @@ const NewNftTutorial: NextPageWithLayout = () => {
 
     try {
       router.prefetch(path);
-      const project: Project = await authenticatedPost<Project>('/projects/create', {
+      const project = await authenticatedPost('/projects/create', {
         name,
         tutorial,
       });

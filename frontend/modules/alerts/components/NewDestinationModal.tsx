@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import type { Alerts } from '@pc/common/types/alerts';
+import type { Api } from '@pc/common/types/api';
+import { useCallback, useState } from 'react';
 import type { FieldValues } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
+import type { KeyedMutator } from 'swr';
 
 import { Badge } from '@/components/lib/Badge';
 import { Box } from '@/components/lib/Box';
@@ -15,37 +18,57 @@ import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
+import type { MapDiscriminatedUnion } from '@/utils/types';
 
 import { createDestination, useDestinations } from '../hooks/destinations';
 import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
 import { destinationTypeOptions } from '../utils/constants';
-import type { Destination, DestinationType, NewDestination } from '../utils/types';
 import { EmailDestinationVerification } from './EmailDestinationVerification';
 import { TelegramDestinationVerification } from './TelegramDestinationVerification';
 import { WebhookDestinationSecret } from './WebhookDestinationSecret';
 
-interface Props {
-  onCreate?: (destination: Destination) => void;
-  onVerify?: (destination: Destination) => void;
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
+type DestinationType = Destination['type'];
+type MappedDestination<K extends DestinationType> = MapDiscriminatedUnion<Destination, 'type'>[K];
+
+interface Props<K extends DestinationType> {
+  onCreate?: (destination: MappedDestination<K>) => void;
+  onVerify?: (destination: MappedDestination<K>) => void;
   projectSlug: string;
   show: boolean;
   setShow: (show: boolean) => void;
 }
 
-interface FormProps extends Props {
+interface FormProps<K extends DestinationType> extends Props<K> {
   setIsCreated: (value: boolean) => void;
 }
 
-function useNewDestinationForm<T extends FieldValues>(props: FormProps) {
+function useNewDestinationForm<T extends FieldValues, K extends DestinationType>(props: FormProps<K>) {
   const { mutate } = useDestinations(props.projectSlug);
-  const [destination, setDestination] = useState<Destination>();
+  const [destination, setDestination] = useState<MappedDestination<K>>();
   const form = useForm<T>();
 
-  useVerifyDestinationInterval(destination, mutate, props.setShow, props.onVerify);
+  useVerifyDestinationInterval(
+    destination,
+    mutate as unknown as KeyedMutator<MappedDestination<K>[]>,
+    useCallback(
+      (nextDestination) => {
+        props.onVerify?.(nextDestination);
+        props.setShow(false);
+      },
+      [props],
+    ),
+  );
 
-  async function create(data: NewDestination) {
+  async function create(
+    data: Omit<Api.Mutation.Input<'/alerts/createDestination'>, 'config'>,
+    config: MapDiscriminatedUnion<Api.Mutation.Input<'/alerts/createDestination'>['config'], 'type'>[K],
+  ) {
     try {
-      const destination = await createDestination(data);
+      const destination = (await createDestination({
+        ...data,
+        config,
+      } as Alerts.CreateDestinationInput)) as MappedDestination<K>;
 
       mutate((state) => {
         return [...(state || []), destination];
@@ -71,7 +94,7 @@ function useNewDestinationForm<T extends FieldValues>(props: FormProps) {
   };
 }
 
-export function NewDestinationModal(props: Props) {
+export function NewDestinationModal(props: Props<DestinationType>) {
   return (
     <Dialog.Root open={props.show} onOpenChange={props.setShow}>
       <Dialog.Content title="New Destination" size="m">
@@ -86,7 +109,7 @@ export function NewDestinationModal(props: Props) {
   );
 }
 
-function ModalContent(props: Props) {
+function ModalContent(props: Props<DestinationType>) {
   const [destinationType, setDestinationType] = useState<DestinationType>('TELEGRAM');
   const [isCreated, setIsCreated] = useState(false);
 
@@ -125,22 +148,24 @@ function ModalContent(props: Props) {
         </CheckboxCard.Group>
       )}
 
-      {destinationType === 'TELEGRAM' && <TelegramDestinationForm setIsCreated={setIsCreated} {...props} />}
-      {destinationType === 'WEBHOOK' && <WebhookDestinationForm setIsCreated={setIsCreated} {...props} />}
-      {destinationType === 'EMAIL' && <EmailDestinationForm setIsCreated={setIsCreated} {...props} />}
+      {destinationType === 'TELEGRAM' && (
+        <TelegramDestinationForm setIsCreated={setIsCreated} {...(props as Props<'TELEGRAM'>)} />
+      )}
+      {destinationType === 'WEBHOOK' && (
+        <WebhookDestinationForm setIsCreated={setIsCreated} {...(props as Props<'WEBHOOK'>)} />
+      )}
+      {destinationType === 'EMAIL' && (
+        <EmailDestinationForm setIsCreated={setIsCreated} {...(props as Props<'EMAIL'>)} />
+      )}
     </Flex>
   );
 }
 
-function TelegramDestinationForm(props: FormProps) {
+function TelegramDestinationForm(props: FormProps<'TELEGRAM'>) {
   const { create, destination, form } = useNewDestinationForm(props);
 
   async function submitForm() {
-    await create({
-      config: {},
-      projectSlug: props.projectSlug,
-      type: 'TELEGRAM',
-    });
+    await create({ projectSlug: props.projectSlug }, { type: 'TELEGRAM' });
   }
 
   if (destination)
@@ -188,17 +213,11 @@ interface WebhookFormData {
   url: string;
 }
 
-function WebhookDestinationForm(props: FormProps) {
-  const { create, destination, form } = useNewDestinationForm<WebhookFormData>(props);
+function WebhookDestinationForm(props: FormProps<'WEBHOOK'>) {
+  const { create, destination, form } = useNewDestinationForm<WebhookFormData, 'WEBHOOK'>(props);
 
   async function submitForm(data: WebhookFormData) {
-    await create({
-      config: {
-        url: data.url,
-      },
-      projectSlug: props.projectSlug,
-      type: 'WEBHOOK',
-    });
+    await create({ projectSlug: props.projectSlug }, { type: 'WEBHOOK', url: data.url });
   }
 
   if (destination)
@@ -263,17 +282,11 @@ interface EmailFormData {
   email: string;
 }
 
-function EmailDestinationForm(props: FormProps) {
-  const { create, destination, form } = useNewDestinationForm<EmailFormData>(props);
+function EmailDestinationForm(props: FormProps<'EMAIL'>) {
+  const { create, destination, form } = useNewDestinationForm<EmailFormData, 'EMAIL'>(props);
 
   async function submitForm(data: EmailFormData) {
-    await create({
-      config: {
-        email: data.email,
-      },
-      projectSlug: props.projectSlug,
-      type: 'EMAIL',
-    });
+    await create({ projectSlug: props.projectSlug }, { type: 'EMAIL', email: data.email });
   }
 
   if (destination)

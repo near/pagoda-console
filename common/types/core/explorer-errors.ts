@@ -1,8 +1,6 @@
-export type TransactionStatus = 'unknown' | 'failure' | 'success';
+export type UnknownError = { type: 'unknown' };
 
-type UnknownError = { type: 'unknown' };
-
-type FunctionCallError =
+export type FunctionCallError =
   | {
       type: 'compilationError';
       error: CompilationError;
@@ -16,7 +14,7 @@ type FunctionCallError =
   | { type: 'executionError'; error: string }
   | UnknownError;
 
-type NewReceiptValidationError =
+export type NewReceiptValidationError =
   | { type: 'invalidPredecessorId'; accountId: string }
   | { type: 'invalidReceiverId'; accountId: string }
   | { type: 'invalidSignerId'; accountId: string }
@@ -30,14 +28,14 @@ type NewReceiptValidationError =
   | { type: 'actionsValidation' }
   | UnknownError;
 
-type CompilationError =
+export type CompilationError =
   | { type: 'codeDoesNotExist'; accountId: string }
   | { type: 'prepareError' }
   | { type: 'wasmerCompileError'; msg: string }
   | { type: 'unsupportedCompiler'; msg: string }
   | UnknownError;
 
-type ReceiptActionError =
+export type ReceiptActionError =
   | {
       type: 'accountAlreadyExists';
       accountId: string;
@@ -110,7 +108,7 @@ type ReceiptActionError =
   | { type: 'deleteAccountWithLargeState'; accountId: string }
   | UnknownError;
 
-type ReceiptTransactionError =
+export type ReceiptTransactionError =
   | { type: 'invalidAccessKeyError' }
   | { type: 'invalidSignerId'; signerId: string }
   | { type: 'signerDoesNotExist'; signerId: string }
@@ -132,7 +130,7 @@ type ReceiptTransactionError =
   | { type: 'transactionSizeExceeded'; size: number; limit: number }
   | UnknownError;
 
-type ReceiptExecutionStatusError =
+export type ReceiptExecutionStatusError =
   | {
       type: 'action';
       error: ReceiptActionError;
@@ -142,114 +140,3 @@ type ReceiptExecutionStatusError =
       error: ReceiptTransactionError;
     }
   | UnknownError;
-
-export type ReceiptExecutionStatus =
-  | {
-      type: 'failure';
-      error: ReceiptExecutionStatusError;
-    }
-  | {
-      type: 'successValue';
-      value: string;
-    }
-  | {
-      type: 'successReceiptId';
-      receiptId: string;
-    }
-  | {
-      type: 'unknown';
-    };
-
-export type Action =
-  | {
-      kind: 'createAccount';
-      args: Record<string, never>;
-    }
-  | {
-      kind: 'deployContract';
-      args: {
-        code: string;
-      };
-    }
-  | {
-      kind: 'functionCall';
-      args: {
-        methodName: string;
-        args: string;
-        gas: number;
-        deposit: string;
-      };
-    }
-  | {
-      kind: 'transfer';
-      args: {
-        deposit: string;
-      };
-    }
-  | {
-      kind: 'stake';
-      args: {
-        stake: string;
-        publicKey: string;
-      };
-    }
-  | {
-      kind: 'addKey';
-      args: {
-        publicKey: string;
-        accessKey: {
-          nonce: number;
-          permission:
-            | {
-                type: 'fullAccess';
-              }
-            | {
-                type: 'functionCall';
-                contractId: string;
-                methodNames: string[];
-              };
-        };
-      };
-    }
-  | {
-      kind: 'deleteKey';
-      args: {
-        publicKey: string;
-      };
-    }
-  | {
-      kind: 'deleteAccount';
-      args: {
-        beneficiaryId: string;
-      };
-    };
-
-export type NestedReceiptWithOutcome = {
-  id: string;
-  predecessorId: string;
-  receiverId: string;
-  actions: Action[];
-  outcome: {
-    block: {
-      hash: string;
-      height: number;
-      timestamp: number;
-    };
-    tokensBurnt: string;
-    gasBurnt: number;
-    status: ReceiptExecutionStatus;
-    logs: string[];
-    nestedReceipts: NestedReceiptWithOutcome[];
-  };
-};
-
-export type Transaction = {
-  hash: string;
-  timestamp: number;
-  signerId: string;
-  receiverId: string;
-  fee: string;
-  amount: string;
-  status: TransactionStatus;
-  receipt: NestedReceiptWithOutcome;
-};

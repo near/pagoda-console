@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
@@ -10,11 +11,12 @@ import { Tooltip } from '@/components/lib/Tooltip';
 import { StableId } from '@/utils/stable-ids';
 
 import { alertTypes } from '../utils/constants';
-import type { Alert } from '../utils/types';
 import { DeleteAlertModal } from './DeleteAlertModal';
 
+type Alert = Api.Query.Output<'/alerts/listAlerts'>[number];
+
 export function AlertTableRow({ alert, onDelete }: { alert: Alert; onDelete: () => void }) {
-  const alertType = alertTypes[alert.type];
+  const alertType = alertTypes[alert.rule.type];
   const url = `/alerts/edit-alert/${alert.id}`;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 

@@ -10,7 +10,7 @@ type UserDetails = User & { name?: string; picture?: string };
 export class AuthService {
   constructor(private usersService: UsersService) {}
 
-  async validateUser(req: Request, token: string): Promise<UserDetails> {
+  async validateUser(req: Request, token: string): Promise<UserDetails | null> {
     try {
       const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
 
@@ -20,6 +20,9 @@ export class AuthService {
         !decodedToken.email_verified &&
         req.path !== '/users/getAccountDetails'
       ) {
+        return null;
+      }
+      if (!decodedToken.email) {
         return null;
       }
 

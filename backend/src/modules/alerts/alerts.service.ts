@@ -2,13 +2,12 @@ import { Injectable } from '@nestjs/common';
 import {
   Prisma,
   Alert,
-  WebhookDestination,
   AlertRuleKind,
   Destination,
-  EmailDestination,
-  DestinationType,
-  TelegramDestination,
   ChainId,
+  WebhookDestination,
+  EmailDestination,
+  TelegramDestination,
 } from '@pc/database/clients/alerts';
 
 // TODO should we re-export these types from the core module? So there is no dependency on the core prisma/client
@@ -20,11 +19,12 @@ import { customAlphabet } from 'nanoid';
 
 import { PrismaService } from './prisma.service';
 import { VError } from 'verror';
-import { PremapDestination, RuleType } from './types';
 import { RuleSerializerService } from './serde/rule-serializer/rule-serializer.service';
 import { RuleDeserializerService } from './serde/rule-deserializer/rule-deserializer.service';
 import {
   AcctBalMatchingRule,
+  EventMatchingRule,
+  FnCallMatchingRule,
   MatchingRule,
   TxMatchingRule,
 } from './serde/db.types';
@@ -35,126 +35,7 @@ import { ConfigService } from '@nestjs/config';
 import { DateTime } from 'luxon';
 import { NearRpcService } from '@/src/core/near-rpc/near-rpc.service';
 import { EmailVerificationService } from './email-verification.service';
-
-type TxRuleSchema = {
-  rule: {
-    contract: string;
-  };
-};
-
-type FnCallRuleSchema = {
-  rule: {
-    contract: string;
-    function: string;
-  };
-};
-
-type EventRuleSchema = {
-  rule: {
-    contract: string;
-    standard: string;
-    version: string;
-    event: string;
-  };
-};
-
-type AcctBalRuleSchema = {
-  type: 'ACCT_BAL_NUM' | 'ACCT_BAL_PCT';
-  rule: {
-    contract: string;
-    from: string | null;
-    to: string | null;
-  };
-};
-
-type CreateAlertBaseSchema = {
-  name?: Alert['name'];
-  type: RuleType;
-  projectSlug: Alert['projectSlug'];
-  environmentSubId: Alert['environmentSubId'];
-  destinations?: Array<Destination['id']>;
-};
-type RuleWithContractSchema = {
-  rule: {
-    contract: string;
-  };
-};
-type CreateTxAlertSchema = CreateAlertBaseSchema & TxRuleSchema;
-type CreateFnCallAlertSchema = CreateAlertBaseSchema & FnCallRuleSchema;
-type CreateEventAlertSchema = CreateAlertBaseSchema & EventRuleSchema;
-type CreateAcctBalAlertSchema = CreateAlertBaseSchema & AcctBalRuleSchema;
-
-type CreateWebhookDestinationSchema = {
-  name?: Destination['name'];
-  projectSlug: Destination['projectSlug'];
-  config: {
-    url: WebhookDestination['url'];
-  };
-};
-
-type CreateWebhookDestinationResponse = {
-  id: WebhookDestination['id'];
-  name?: Destination['name'];
-  type: DestinationType;
-  projectSlug: Destination['projectSlug'];
-  config: {
-    url: WebhookDestination['url'];
-    secret: WebhookDestination['secret'];
-  };
-};
-
-type CreateEmailDestinationSchema = {
-  name?: Destination['name'];
-  projectSlug: Destination['projectSlug'];
-  config: {
-    email: EmailDestination['email'];
-  };
-};
-
-type CreateEmailDestinationResponse = {
-  id: EmailDestination['id'];
-  name?: Destination['name'];
-  type: DestinationType;
-  projectSlug: Destination['projectSlug'];
-  config: {
-    email: EmailDestination['email'];
-    isVerified: EmailDestination['isVerified'];
-  };
-};
-
-type UpdateWebhookDestinationSchema = {
-  id: Destination['id'];
-  name?: Destination['name'];
-  config?: {
-    url?: WebhookDestination['url'];
-  };
-};
-
-type UpdateEmailDestinationSchema = {
-  id: Destination['id'];
-  name?: Destination['name'];
-};
-
-type UpdateTelegramDestinationSchema = {
-  id: Destination['id'];
-  name?: Destination['name'];
-};
-
-type CreateTelegramDestinationSchema = {
-  name?: Destination['name'];
-  projectSlug: Destination['projectSlug'];
-};
-
-type CreateTelegramDestinationResponse = {
-  id: EmailDestination['id'];
-  name?: Destination['name'];
-  type: DestinationType;
-  projectSlug: Destination['projectSlug'];
-  config: {
-    startToken: TelegramDestination['startToken'];
-    chatTitle: TelegramDestination['chatTitle'];
-  };
-};
+import { Alerts } from '@pc/common/types/alerts';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -167,23 +48,16 @@ const nanoidLong = customAlphabet(
 );
 
 type AlertWithDestinations = Alert & {
-  enabledDestinations: Array<{
-    destination: {
-      id: Destination['id'];
-      name: Destination['name'];
-      type: Destination['type'];
-      webhookDestination?: {
-        url: WebhookDestination['url'];
-      };
-      emailDestination?: {
-        email: EmailDestination['email'];
-      };
-      telegramDestination?: Pick<
+  enabledDestinations: {
+    destination: Pick<Destination, 'id' | 'name' | 'type'> & {
+      webhookDestination: Pick<WebhookDestination, 'url'> | null;
+      emailDestination: Pick<EmailDestination, 'email'> | null;
+      telegramDestination: Pick<
         TelegramDestination,
         'startToken' | 'chatTitle'
-      >;
+      > | null;
     };
-  }>;
+  }[];
 };
 
 @Injectable()
@@ -204,99 +78,113 @@ export class AlertsService {
   ) {
     this.emailTokenExpiryMin = this.config.get('alerts.email.tokenExpiryMin', {
       infer: true,
-    });
-    this.telegramTokenExpiryMin = this.config.get(
-      'alerts.telegram.tokenExpiryMin',
-      {
-        infer: true,
-      },
-    );
+    })!;
+    const telegram = this.config.get('alerts.telegram', { infer: true })!;
+    this.telegramTokenExpiryMin = telegram?.tokenExpiryMin || 0;
     this.contractAddressValidationEnabled = this.config.get(
       'featureEnabled.alerts.contractAddressValidation',
       { infer: true },
-    );
+    )!;
     this.resendVerficationRateLimitMillis = this.config.get(
       'alerts.email.resendVerificationRatelimitMillis',
       {
         infer: true,
       },
-    );
+    )!;
   }
 
-  async createTxSuccessAlert(user: User, alert: CreateTxAlertSchema) {
-    const { contract } = alert.rule;
+  async createTxSuccessAlert(
+    user: User,
+    alert: Alerts.CreateAlertBaseInput,
+    rule: Alerts.TransactionRule,
+  ) {
+    const { contract } = rule;
     const defaultName = `Successful action in ${contract}`;
     alert = {
       ...alert,
       name: alert.name || defaultName,
     };
-    const matchingRule = this.ruleSerializer.toTxSuccessJson(alert.rule);
+    const matchingRule = this.ruleSerializer.toTxSuccessJson(rule);
 
-    return this.createAlertRuleWithContract(user, alert, matchingRule);
+    return this.createAlertRuleWithContract(user, alert, rule, matchingRule);
   }
 
-  async createTxFailureAlert(user: User, alert: CreateTxAlertSchema) {
-    const { contract } = alert.rule;
+  async createTxFailureAlert(
+    user: User,
+    alert: Alerts.CreateAlertBaseInput,
+    rule: Alerts.TransactionRule,
+  ) {
+    const { contract } = rule;
     const defaultName = `Failed action in ${contract}`;
     alert = {
       ...alert,
       name: alert.name || defaultName,
     };
-    const matchingRule = this.ruleSerializer.toTxFailureJson(alert.rule);
+    const matchingRule = this.ruleSerializer.toTxFailureJson(rule);
 
-    return this.createAlertRuleWithContract(user, alert, matchingRule);
+    return this.createAlertRuleWithContract(user, alert, rule, matchingRule);
   }
 
-  async createFnCallAlert(user: User, alert: CreateFnCallAlertSchema) {
-    const { contract } = alert.rule;
-    const defaultName = `Function ${alert.rule.function} called in ${contract}`;
+  async createFnCallAlert(
+    user: User,
+    alert: Alerts.CreateAlertBaseInput,
+    rule: Alerts.FunctionCallRule,
+  ) {
+    const { contract } = rule;
+    const defaultName = `Function ${rule.function} called in ${contract}`;
     alert = {
       ...alert,
       name: alert.name || defaultName,
     };
-    const matchingRule = this.ruleSerializer.toFnCallJson(alert.rule);
+    const matchingRule = this.ruleSerializer.toFnCallJson(rule);
 
-    return this.createAlertRuleWithContract(user, alert, matchingRule);
+    return this.createAlertRuleWithContract(user, alert, rule, matchingRule);
   }
 
-  async createEventAlert(user: User, alert: CreateEventAlertSchema) {
-    const { event, contract } = alert.rule;
+  async createEventAlert(
+    user: User,
+    alert: Alerts.CreateAlertBaseInput,
+    rule: Alerts.EventRule,
+  ) {
+    const { event, contract } = rule;
     const defaultName = `Event ${event} logged in ${contract}`;
     alert = {
       ...alert,
       name: alert.name || defaultName,
     };
-    const matchingRule = this.ruleSerializer.toEventJson(alert.rule);
+    const matchingRule = this.ruleSerializer.toEventJson(rule);
 
-    return this.createAlertRuleWithContract(user, alert, matchingRule);
+    return this.createAlertRuleWithContract(user, alert, rule, matchingRule);
   }
 
-  async createAcctBalAlert(user: User, alert: CreateAcctBalAlertSchema) {
-    const { contract } = alert.rule;
+  async createAcctBalAlert(
+    user: User,
+    alert: Alerts.CreateAlertBaseInput,
+    rule: Alerts.AcctBalPctRule | Alerts.AcctBalNumRule,
+  ) {
+    const { contract } = rule;
     const defaultName = `Account balance changed in ${contract}`;
 
     alert = {
       ...alert,
       name: alert.name || defaultName,
     };
-    const matchingRule = this.ruleSerializer.toAcctBalJson(
-      alert.rule,
-      alert.type,
-    );
+    const matchingRule = this.ruleSerializer.toAcctBalJson(rule);
 
-    return this.createAlertRuleWithContract(user, alert, matchingRule);
+    return this.createAlertRuleWithContract(user, alert, rule, matchingRule);
   }
 
   private async createAlertRuleWithContract(
     user: User,
-    alert: CreateAlertBaseSchema & RuleWithContractSchema,
+    alert: Alerts.CreateAlertBaseInput,
+    rule: Alerts.Rule,
     matchingRule: MatchingRule,
   ) {
     const chainId = await this.projects.getEnvironmentNet(
       alert.projectSlug,
       alert.environmentSubId,
     );
-    const address = alert.rule.contract;
+    const address = rule.contract;
 
     await Promise.all([
       this.checkUserCreateAlertPermission(user, alert),
@@ -342,14 +230,14 @@ export class AlertsService {
   private async buildCreateAlertInput(
     user: User,
     chainId: ChainId,
-    alert: CreateAlertBaseSchema,
+    alert: Alerts.CreateAlertBaseInput,
     alertRuleKind: AlertRuleKind,
     matchingRule,
   ): Promise<Prisma.AlertCreateInput> {
     const { name, projectSlug, environmentSubId, destinations } = alert;
 
     const alertInput: Prisma.AlertCreateInput = {
-      name,
+      name: name!,
       alertRuleKind,
       matchingRule,
       projectSlug,
@@ -409,7 +297,7 @@ export class AlertsService {
       });
 
       return this.toAlertDto(alert);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while executing alert creation query');
     }
   }
@@ -463,7 +351,7 @@ export class AlertsService {
         },
       });
       return this.toAlertDto(alert);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while executing alert update query');
     }
   }
@@ -523,7 +411,7 @@ export class AlertsService {
     try {
       await this.checkUserAlertPermission(callingUser.id, id);
 
-      const alert = await this.prisma.alert.findUnique({
+      const alert = (await this.prisma.alert.findUnique({
         where: {
           id,
         },
@@ -556,15 +444,15 @@ export class AlertsService {
             },
           },
         },
-      });
+      }))!;
 
       return this.toAlertDto(alert);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed to get alert rule details');
     }
   }
 
-  private toAlertDto(alert: AlertWithDestinations) {
+  private toAlertDto(alert: AlertWithDestinations): Alerts.Alert {
     const {
       id,
       name,
@@ -577,7 +465,6 @@ export class AlertsService {
     const rule = matchingRule as object as MatchingRule;
     return {
       id,
-      type: this.toAlertType(rule),
       name,
       isPaused,
       projectSlug,
@@ -616,18 +503,18 @@ export class AlertsService {
     };
   }
 
-  public toAlertType(rule: MatchingRule): RuleType {
-    if (
-      rule.rule === 'ACTION_ANY' &&
-      (rule as TxMatchingRule).status === 'SUCCESS'
-    ) {
+  public toAlertType(
+    rule:
+      | TxMatchingRule
+      | FnCallMatchingRule
+      | EventMatchingRule
+      | AcctBalMatchingRule,
+  ): Alerts.RuleType {
+    if (rule.rule === 'ACTION_ANY' && rule.status === 'SUCCESS') {
       return 'TX_SUCCESS';
     }
 
-    if (
-      rule.rule === 'ACTION_ANY' &&
-      (rule as TxMatchingRule).status === 'FAIL'
-    ) {
+    if (rule.rule === 'ACTION_ANY' && rule.status === 'FAIL') {
       return 'TX_FAILURE';
     }
 
@@ -640,8 +527,7 @@ export class AlertsService {
     }
 
     if (rule.rule === 'STATE_CHANGE_ACCOUNT_BALANCE') {
-      return (rule as AcctBalMatchingRule).comparator_kind ===
-        'RELATIVE_PERCENTAGE_AMOUNT'
+      return rule.comparator_kind === 'RELATIVE_PERCENTAGE_AMOUNT'
         ? 'ACCT_BAL_PCT'
         : 'ACCT_BAL_NUM';
     }
@@ -665,7 +551,7 @@ export class AlertsService {
           updatedBy: callingUser.id,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while soft deleting alert');
     }
   }
@@ -674,50 +560,54 @@ export class AlertsService {
     user: User,
     {
       name = 'Webhook Destination',
-      config: { url },
       projectSlug,
-    }: CreateWebhookDestinationSchema,
-  ): Promise<CreateWebhookDestinationResponse> {
+    }: Alerts.CreateBaseDestinationInput,
+    { url }: Alerts.CreateWebhookDestinationConfig,
+  ) {
     await this.projectPermissions.checkUserProjectPermission(
       user.id,
       projectSlug,
     );
 
     try {
-      const res = await this.prisma.destination.create({
-        data: {
-          name,
-          projectSlug,
-          type: 'WEBHOOK',
-          isValid: true,
-          createdBy: user.id,
-          updatedBy: user.id,
-          webhookDestination: {
-            create: {
-              secret: nanoid(),
-              createdBy: user.id,
-              updatedBy: user.id,
-              url,
+      const { webhookDestination, ...destination } =
+        await this.prisma.destination.create({
+          data: {
+            name,
+            projectSlug,
+            type: 'WEBHOOK',
+            isValid: true,
+            createdBy: user.id,
+            updatedBy: user.id,
+            webhookDestination: {
+              create: {
+                secret: nanoid(),
+                createdBy: user.id,
+                updatedBy: user.id,
+                url,
+              },
             },
           },
-        },
-        select: {
-          id: true,
-          name: true,
-          type: true,
-          projectSlug: true,
-          isValid: true,
-          webhookDestination: {
-            select: {
-              url: true,
-              secret: true,
+          select: {
+            id: true,
+            name: true,
+            projectSlug: true,
+            isValid: true,
+            webhookDestination: {
+              select: {
+                url: true,
+                secret: true,
+              },
             },
           },
-        },
-      });
+        });
 
-      return this.transformDestinationRes(res);
-    } catch (e) {
+      return {
+        ...destination,
+        type: 'WEBHOOK' as const,
+        config: webhookDestination!,
+      };
+    } catch (e: any) {
       throw new VError(e, 'Failed to create webhook destination');
     }
   }
@@ -726,90 +616,89 @@ export class AlertsService {
     user: User,
     {
       name = 'Email Destination',
-      config: { email },
       projectSlug,
-    }: CreateEmailDestinationSchema,
-  ): Promise<CreateEmailDestinationResponse> {
+    }: Alerts.CreateBaseDestinationInput,
+    { email }: Alerts.CreateEmailDestinationConfig,
+  ) {
     await this.projectPermissions.checkUserProjectPermission(
       user.id,
       projectSlug,
     );
 
-    let res;
-
     try {
       const expiryDate = this.calculateExpiryDate(this.emailTokenExpiryMin);
       const token = nanoid();
       const tokenCreatedAt = DateTime.now().toUTC().toJSDate();
-      res = await this.prisma.destination.create({
-        data: {
-          name,
-          projectSlug,
-          type: 'EMAIL',
-          createdBy: user.id,
-          updatedBy: user.id,
-          emailDestination: {
-            create: {
-              email,
-              createdBy: user.id,
-              updatedBy: user.id,
-              isVerified: false,
-              tokenCreatedAt,
-              tokenExpiresAt: expiryDate,
-              token,
+      const { emailDestination, ...destination } =
+        await this.prisma.destination.create({
+          data: {
+            name,
+            projectSlug,
+            type: 'EMAIL',
+            createdBy: user.id,
+            updatedBy: user.id,
+            emailDestination: {
+              create: {
+                email,
+                createdBy: user.id,
+                updatedBy: user.id,
+                isVerified: false,
+                tokenCreatedAt,
+                tokenExpiresAt: expiryDate,
+                token,
+              },
             },
           },
-        },
-        select: {
-          id: true,
-          name: true,
-          type: true,
-          projectSlug: true,
-          isValid: true,
-          emailDestination: {
-            select: {
-              id: true,
-              email: true,
-              isVerified: true,
-              token: true,
+          select: {
+            id: true,
+            name: true,
+            projectSlug: true,
+            isValid: true,
+            emailDestination: {
+              select: {
+                id: true,
+                email: true,
+                isVerified: true,
+                token: true,
+              },
             },
           },
-        },
-      });
-    } catch (e) {
+        });
+
+      try {
+        await this.emailVerification.sendVerificationEmail(email, token);
+
+        return {
+          ...destination,
+          type: 'EMAIL' as const,
+          config: emailDestination!,
+        };
+      } catch (e: any) {
+        try {
+          await this.prisma.$transaction([
+            this.prisma.emailDestination.delete({
+              where: {
+                id: emailDestination!.id,
+              },
+            }),
+            this.prisma.destination.delete({
+              where: {
+                id: destination.id,
+              },
+            }),
+          ]);
+        } catch (e) {
+          console.error(
+            'Failed while rolling back email destination creation',
+            e,
+          );
+        }
+
+        throw new VError(e, 'Failed to send an email verification message');
+      }
+    } catch (e: any) {
       throw new VError(e, 'Failed to create email destination');
     }
-
-    try {
-      await this.emailVerification.sendVerificationEmail(
-        email,
-        res.emailDestination.token,
-      );
-    } catch (e) {
-      try {
-        await this.prisma.$transaction([
-          this.prisma.emailDestination.delete({
-            where: {
-              id: res.emailDestination.id,
-            },
-          }),
-          this.prisma.destination.delete({
-            where: {
-              id: res.id,
-            },
-          }),
-        ]);
-      } catch (e) {
-        console.error(
-          'Failed while rolling back email destination creation',
-          e,
-        );
-      }
-
-      throw new VError(e, 'Failed to send an email verification message');
-    }
-
-    return this.transformDestinationRes(res);
   }
 
   async createTelegramDestination(
@@ -817,47 +706,51 @@ export class AlertsService {
     {
       name = 'Telegram Destination',
       projectSlug,
-    }: CreateTelegramDestinationSchema,
-  ): Promise<CreateTelegramDestinationResponse> {
+    }: Alerts.CreateBaseDestinationInput,
+  ) {
     await this.projectPermissions.checkUserProjectPermission(
       user.id,
       projectSlug,
     );
     try {
       const expiryDate = this.calculateExpiryDate(this.telegramTokenExpiryMin);
-      const res = await this.prisma.destination.create({
-        data: {
-          name,
-          projectSlug,
-          type: 'TELEGRAM',
-          createdBy: user.id,
-          updatedBy: user.id,
-          telegramDestination: {
-            create: {
-              startToken: nanoid(),
-              tokenExpiresAt: expiryDate,
-              createdBy: user.id,
-              updatedBy: user.id,
+      const { telegramDestination, ...destination } =
+        await this.prisma.destination.create({
+          data: {
+            name,
+            projectSlug,
+            type: 'TELEGRAM',
+            createdBy: user.id,
+            updatedBy: user.id,
+            telegramDestination: {
+              create: {
+                startToken: nanoid(),
+                tokenExpiresAt: expiryDate,
+                createdBy: user.id,
+                updatedBy: user.id,
+              },
             },
           },
-        },
-        select: {
-          id: true,
-          name: true,
-          type: true,
-          projectSlug: true,
-          isValid: true,
-          telegramDestination: {
-            select: {
-              startToken: true,
-              chatTitle: true,
+          select: {
+            id: true,
+            name: true,
+            projectSlug: true,
+            isValid: true,
+            telegramDestination: {
+              select: {
+                startToken: true,
+                chatTitle: true,
+              },
             },
           },
-        },
-      });
+        });
 
-      return this.transformDestinationRes(res);
-    } catch (e) {
+      return {
+        ...destination,
+        type: 'TELEGRAM' as const,
+        config: telegramDestination!,
+      };
+    } catch (e: any) {
       throw new VError(e, 'Failed to create telegram destination');
     }
   }
@@ -878,7 +771,7 @@ export class AlertsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while soft deleting alert');
     }
   }
@@ -924,7 +817,26 @@ export class AlertsService {
       },
     });
 
-    return destinations.map(this.transformDestinationRes);
+    return destinations.map(
+      ({
+        type,
+        webhookDestination,
+        emailDestination,
+        telegramDestination,
+        ...rest
+      }) => {
+        switch (type) {
+          case 'WEBHOOK':
+            return { ...rest, type, config: webhookDestination! };
+          case 'EMAIL':
+            return { ...rest, type, config: emailDestination! };
+          case 'TELEGRAM':
+            return { ...rest, type, config: telegramDestination! };
+          default:
+            assertUnreachable(type);
+        }
+      },
+    );
   }
 
   async enableDestination(
@@ -958,7 +870,7 @@ export class AlertsService {
           updatedBy: callingUser.id,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while creating enabled destination');
     }
   }
@@ -993,125 +905,138 @@ export class AlertsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while deleting enabled destination');
     }
   }
 
   async updateWebhookDestination(
     callingUser: User,
-    dto: UpdateWebhookDestinationSchema,
+    dto: Alerts.UpdateDestinationBaseInput,
+    config: Alerts.UpdateWebhookDestinationConfig,
   ) {
-    const { id, name, config } = dto;
+    const { id, name } = dto;
     await this.checkUserDestinationPermission(callingUser.id, id);
 
     try {
-      const res = await this.prisma.destination.update({
-        where: {
-          id,
-        },
-        data: {
-          name,
-          updatedBy: callingUser.id,
-          webhookDestination: {
-            update: {
-              url: config?.url,
-              updatedBy: callingUser.id,
+      const { webhookDestination, ...destination } =
+        await this.prisma.destination.update({
+          where: {
+            id,
+          },
+          data: {
+            name,
+            updatedBy: callingUser.id,
+            webhookDestination: {
+              update: {
+                url: config.url,
+                updatedBy: callingUser.id,
+              },
             },
           },
-        },
-        select: {
-          id: true,
-          name: true,
-          type: true,
-          projectSlug: true,
-          isValid: true,
-          webhookDestination: {
-            select: {
-              url: true,
-              secret: true,
+          select: {
+            id: true,
+            name: true,
+            projectSlug: true,
+            isValid: true,
+            webhookDestination: {
+              select: {
+                url: true,
+                secret: true,
+              },
             },
           },
-        },
-      });
-      return this.transformDestinationRes(res);
-    } catch (e) {
+        });
+      return {
+        ...destination,
+        type: 'WEBHOOK' as const,
+        config: webhookDestination!,
+      };
+    } catch (e: any) {
       throw new VError(e, 'Failed while updating webhook destination');
     }
   }
 
   async updateEmailDestination(
     callingUser: User,
-    dto: UpdateEmailDestinationSchema,
+    dto: Alerts.UpdateDestinationBaseInput,
   ) {
     const { id, name } = dto;
     await this.checkUserDestinationPermission(callingUser.id, id);
 
     try {
-      const res = await this.prisma.destination.update({
-        where: {
-          id,
-        },
-        data: {
-          name,
-          updatedBy: callingUser.id,
-        },
-        select: {
-          id: true,
-          name: true,
-          type: true,
-          projectSlug: true,
-          isValid: true,
-          emailDestination: {
-            select: {
-              email: true,
+      const { emailDestination, ...destination } =
+        await this.prisma.destination.update({
+          where: {
+            id,
+          },
+          data: {
+            name,
+            updatedBy: callingUser.id,
+          },
+          select: {
+            id: true,
+            name: true,
+            projectSlug: true,
+            isValid: true,
+            emailDestination: {
+              select: {
+                email: true,
+              },
             },
           },
-        },
-      });
-      return this.transformDestinationRes(res);
-    } catch (e) {
+        });
+      return {
+        ...destination,
+        type: 'EMAIL' as const,
+        config: emailDestination!,
+      };
+    } catch (e: any) {
       throw new VError(e, 'Failed while updating email destination');
     }
   }
 
   async updateTelegramDestination(
     callingUser: User,
-    dto: UpdateTelegramDestinationSchema,
+    dto: Alerts.UpdateDestinationBaseInput,
   ) {
     const { id, name } = dto;
     await this.checkUserDestinationPermission(callingUser.id, id);
 
     try {
-      const res = await this.prisma.destination.update({
-        where: {
-          id,
-        },
-        data: {
-          name,
-          updatedBy: callingUser.id,
-        },
-        select: {
-          id: true,
-          name: true,
-          type: true,
-          projectSlug: true,
-          isValid: true,
-          telegramDestination: {
-            select: {
-              startToken: true,
-              chatTitle: true,
+      const { telegramDestination, ...destination } =
+        await this.prisma.destination.update({
+          where: {
+            id,
+          },
+          data: {
+            name,
+            updatedBy: callingUser.id,
+          },
+          select: {
+            id: true,
+            name: true,
+            projectSlug: true,
+            isValid: true,
+            telegramDestination: {
+              select: {
+                startToken: true,
+                chatTitle: true,
+              },
             },
           },
-        },
-      });
-      return this.transformDestinationRes(res);
-    } catch (e) {
+        });
+      return {
+        ...destination,
+        type: 'TELEGRAM' as const,
+        config: telegramDestination!,
+      };
+    } catch (e: any) {
       throw new VError(e, 'Failed while updating telegram destination');
     }
   }
 
-  async verifyEmailDestination(token: EmailDestination['token']) {
+  async verifyEmailDestination(token?: string) {
     try {
       const emailDestination = await this.prisma.emailDestination.findUnique({
         where: {
@@ -1171,7 +1096,7 @@ export class AlertsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while verifying email destination');
     }
   }
@@ -1180,7 +1105,7 @@ export class AlertsService {
     await this.checkUserDestinationPermission(callingUser.id, id);
 
     try {
-      const targetDestination = await this.prisma.destination.findUnique({
+      const targetDestination = (await this.prisma.destination.findUnique({
         where: {
           id,
         },
@@ -1190,7 +1115,7 @@ export class AlertsService {
           isValid: true,
           emailDestination: true,
         },
-      });
+      }))!;
 
       if (targetDestination.type != 'EMAIL') {
         throw new VError(
@@ -1216,7 +1141,7 @@ export class AlertsService {
 
       if (
         this.shouldBeRateLimited(
-          targetDestination.emailDestination.tokenCreatedAt,
+          targetDestination.emailDestination!.tokenCreatedAt!,
           this.resendVerficationRateLimitMillis,
         )
       ) {
@@ -1253,15 +1178,15 @@ export class AlertsService {
         },
       });
       await this.emailVerification.sendVerificationEmail(
-        res.emailDestination.email,
-        res.emailDestination.token,
+        res.emailDestination!.email,
+        res.emailDestination!.token!,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while resending email verification');
     }
   }
 
-  async unsubscribeFromEmailAlert(token: EmailDestination['unsubscribeToken']) {
+  async unsubscribeFromEmailAlert(token?: string) {
     try {
       await this.prisma.emailDestination.update({
         where: {
@@ -1276,7 +1201,7 @@ export class AlertsService {
           },
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while unsubscribing from email alerts');
     }
   }
@@ -1288,7 +1213,7 @@ export class AlertsService {
     await this.checkUserDestinationPermission(callingUser.id, id);
 
     try {
-      const targetDestination = await this.prisma.destination.findUnique({
+      const targetDestination = (await this.prisma.destination.findUnique({
         where: {
           id,
         },
@@ -1297,7 +1222,7 @@ export class AlertsService {
           active: true,
           webhookDestination: true,
         },
-      });
+      }))!;
 
       if (targetDestination.type !== 'WEBHOOK') {
         throw new VError(
@@ -1313,35 +1238,39 @@ export class AlertsService {
         );
       }
 
-      const result = await this.prisma.destination.update({
-        where: {
-          id,
-        },
-        data: {
-          webhookDestination: {
-            update: {
-              secret: nanoid(),
-              updatedBy: callingUser.id,
+      const { webhookDestination, ...destination } =
+        await this.prisma.destination.update({
+          where: {
+            id,
+          },
+          data: {
+            webhookDestination: {
+              update: {
+                secret: nanoid(),
+                updatedBy: callingUser.id,
+              },
             },
           },
-        },
-        select: {
-          id: true,
-          type: true,
-          name: true,
-          projectSlug: true,
-          isValid: true,
-          webhookDestination: {
-            select: {
-              secret: true,
-              url: true,
+          select: {
+            id: true,
+            name: true,
+            projectSlug: true,
+            isValid: true,
+            webhookDestination: {
+              select: {
+                secret: true,
+                url: true,
+              },
             },
           },
-        },
-      });
+        });
 
-      return this.transformDestinationRes(result);
-    } catch (e) {
+      return {
+        ...destination,
+        type: 'WEBHOOK' as const,
+        config: webhookDestination!,
+      };
+    } catch (e: any) {
       throw new VError(e, 'Failed while rotating webhook destination secret');
     }
   }
@@ -1481,7 +1410,7 @@ export class AlertsService {
   // Checks user permission to create alert as well as permission for webhook destinations
   private async checkUserCreateAlertPermission(
     user: User,
-    alert: CreateAlertBaseSchema,
+    alert: Alerts.CreateAlertBaseInput,
   ) {
     // Verify the user has access to this project in order to create the alert.
     await this.projectPermissions.checkUserProjectEnvPermission(
@@ -1538,32 +1467,6 @@ export class AlertsService {
         'Found destination not compatible with alert',
       );
     }
-  }
-
-  private transformDestinationRes(destination: PremapDestination) {
-    const { id, name, projectSlug, type, isValid } = destination;
-    let config;
-    switch (type) {
-      case 'WEBHOOK':
-        config = destination.webhookDestination;
-        break;
-      case 'EMAIL':
-        config = destination.emailDestination;
-        break;
-      case 'TELEGRAM':
-        config = destination.telegramDestination;
-        break;
-      default:
-        assertUnreachable(type);
-    }
-    return {
-      id,
-      name,
-      projectSlug,
-      type,
-      isValid,
-      config,
-    };
   }
 
   private calculateExpiryDate(expiryMin: number): Date {

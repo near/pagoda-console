@@ -4,7 +4,7 @@ import Mailgun from 'mailgun.js';
 import Client from 'mailgun.js/client';
 import { AppConfig } from 'src/config/validate';
 import { VError } from 'verror';
-import * as formData from 'form-data';
+import formData from 'form-data';
 
 @Injectable()
 export class EmailService {
@@ -13,10 +13,10 @@ export class EmailService {
   constructor(private config: ConfigService<AppConfig>) {
     this.domain = this.config.get('mailgun.domain', {
       infer: true,
-    });
+    })!;
     const apiKey = this.config.get('mailgun.apiKey', {
       infer: true,
-    });
+    })!;
 
     const mailgun = new Mailgun(formData);
     this.mailgunClient = mailgun.client({
@@ -38,7 +38,7 @@ export class EmailService {
         subject,
         html,
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Error while sending an email');
     }
   }
