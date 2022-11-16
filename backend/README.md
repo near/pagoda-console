@@ -221,6 +221,6 @@ which sends the client
 }
 ```
 
-This allows us to easily handle known errors at the controller level even though the originating error may have been wrapped by several VErrors in between.
+This allows us to easily handle known errors at the controller level even though the originating error may have been wrapped by several VErrors in between..
 
 > This example chooses not to display a custom error message to the client, but that can be accomplished in the controller if desired.
