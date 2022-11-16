@@ -490,10 +490,10 @@ function AlertSettings({ alert }: { alert: Alert }) {
   return null;
 }
 
-function returnAmountComparator(from: string | null, to: string | null) {
+function returnAmountComparator<T extends string | number>(from?: T, to?: T) {
   if (from === to) return amountComparators.EQ;
-  if (from === null) return amountComparators.LTE;
-  if (to === null) return amountComparators.GTE;
+  if (from === undefined) return amountComparators.LTE;
+  if (to === undefined) return amountComparators.GTE;
   return amountComparators.RANGE;
 }
 

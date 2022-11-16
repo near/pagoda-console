@@ -62,8 +62,14 @@ export class RuleDeserializerService {
     return {
       type: 'ACCT_BAL_PCT',
       contract: rule.affected_account_id,
-      from: rule.comparator_range.from,
-      to: rule.comparator_range.to,
+      from:
+        rule.comparator_range.from === null
+          ? undefined
+          : Number(rule.comparator_range.from),
+      to:
+        rule.comparator_range.to === null
+          ? undefined
+          : Number(rule.comparator_range.to),
     };
   }
 
@@ -71,8 +77,14 @@ export class RuleDeserializerService {
     return {
       type: 'ACCT_BAL_NUM',
       contract: rule.affected_account_id,
-      from: rule.comparator_range.from,
-      to: rule.comparator_range.to,
+      from:
+        rule.comparator_range.from === null
+          ? undefined
+          : rule.comparator_range.from,
+      to:
+        rule.comparator_range.to === null
+          ? undefined
+          : rule.comparator_range.to,
     };
   }
 }

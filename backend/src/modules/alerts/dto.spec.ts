@@ -1,10 +1,11 @@
+import { Api } from '@pc/common/types/api';
 import { CreateAlertSchema } from './dto';
 
 const contract = 'pagoda.near';
 const projectSlug = '123xyz';
 const environmentSubId = 1;
 
-test.each([
+const validSchemas: Api.Mutation.Input<'/alerts/createAlert'>[] = [
   { projectSlug, environmentSubId, rule: { type: 'TX_SUCCESS', contract } },
   { projectSlug, environmentSubId, rule: { type: 'TX_FAILURE', contract } },
   {
@@ -33,7 +34,7 @@ test.each([
     rule: {
       type: 'ACCT_BAL_NUM',
       contract,
-      from: null,
+      from: undefined,
       to: '34028236692463463374607000000',
     },
   },
@@ -44,7 +45,7 @@ test.each([
       type: 'ACCT_BAL_NUM',
       contract,
       from: '340283463374607000000',
-      to: null,
+      to: undefined,
     },
   },
   {
@@ -53,8 +54,8 @@ test.each([
     rule: {
       type: 'ACCT_BAL_PCT',
       contract,
-      from: '10',
-      to: null,
+      from: 10,
+      to: undefined,
     },
   },
   {
@@ -63,8 +64,8 @@ test.each([
     rule: {
       type: 'ACCT_BAL_PCT',
       contract,
-      from: null,
-      to: '100',
+      from: undefined,
+      to: 100,
     },
   },
   {
@@ -83,8 +84,8 @@ test.each([
     rule: {
       type: 'ACCT_BAL_PCT',
       contract,
-      from: '0',
-      to: '0',
+      from: 0,
+      to: 0,
     },
   },
   {
@@ -93,7 +94,7 @@ test.each([
     rule: {
       type: 'ACCT_BAL_PCT',
       contract,
-      from: '0',
+      from: 0,
     },
   },
   {
@@ -102,24 +103,25 @@ test.each([
     rule: {
       type: 'ACCT_BAL_PCT',
       contract,
-      to: '0',
+      to: 0,
     },
   },
-])('%o should be valid', (input) => {
+];
+
+test.each(validSchemas)('%o should be valid', (input) => {
   const result = CreateAlertSchema.validate(input);
   expect(result.error).toBeUndefined();
 });
 
-test.each([
-  { projectSlug, environmentSubId, rule: { type: 'INCORRECT', contract } },
+const invalidSchemas: Api.Mutation.Input<'/alerts/createAlert'>[] = [
   {
     projectSlug,
     environmentSubId,
     rule: {
       type: 'ACCT_BAL_NUM',
       contract,
-      from: null,
-      to: null,
+      from: undefined,
+      to: undefined,
     },
   },
   {
@@ -137,7 +139,7 @@ test.each([
       type: 'ACCT_BAL_NUM',
       contract,
       from: '-1',
-      to: null,
+      to: undefined,
     },
   },
   {
@@ -157,7 +159,7 @@ test.each([
       type: 'ACCT_BAL_NUM',
       contract,
       from: '340282366920938463463374607431768211456',
-      to: null,
+      to: undefined,
     },
   },
   {
@@ -166,7 +168,7 @@ test.each([
     rule: {
       type: 'ACCT_BAL_NUM',
       contract,
-      from: null,
+      from: undefined,
       to: '340282366920938463463374607431768211456',
     },
   },
@@ -176,8 +178,8 @@ test.each([
     rule: {
       type: 'ACCT_BAL_PCT',
       contract,
-      from: null,
-      to: null,
+      from: undefined,
+      to: undefined,
     },
   },
   {
@@ -186,8 +188,8 @@ test.each([
     rule: {
       type: 'ACCT_BAL_PCT',
       contract,
-      from: '101',
-      to: null,
+      from: 101,
+      to: undefined,
     },
   },
   {
@@ -196,8 +198,8 @@ test.each([
     rule: {
       type: 'ACCT_BAL_PCT',
       contract,
-      from: '0',
-      to: '101',
+      from: 0,
+      to: 101,
     },
   },
   {
@@ -206,11 +208,13 @@ test.each([
     rule: {
       type: 'ACCT_BAL_PCT',
       contract,
-      from: '-1',
-      to: null,
+      from: -1,
+      to: undefined,
     },
   },
-])('%o should throw errors', (input) => {
+];
+
+test.each(invalidSchemas)('%o should throw errors', (input) => {
   const result = CreateAlertSchema.validate(input);
   expect(result.error).toBeDefined();
 });
