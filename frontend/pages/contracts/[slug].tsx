@@ -14,6 +14,7 @@ import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { useContracts } from '@/hooks/contracts';
 import { usePublicOrPrivateContract, usePublicOrPrivateContracts } from '@/hooks/contracts';
+import { useCurrentEnvironment } from '@/hooks/environments';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { usePublicMode } from '@/hooks/public';
 import { useRouteParam } from '@/hooks/route';
@@ -32,7 +33,8 @@ const ViewContract: NextPageWithLayout = () => {
   const { publicModeIsActive } = usePublicMode();
   const router = useRouter();
   const contractSlug = useRouteParam('slug', '/contracts', true) || undefined;
-  const { environment, project } = useSelectedProject();
+  const { project } = useSelectedProject();
+  const { environment } = useCurrentEnvironment();
   const { contracts: privateContracts, mutate: mutateContracts } = useContracts(project?.slug, environment?.subId);
   const { contracts } = usePublicOrPrivateContracts(privateContracts);
   const { contract } = usePublicOrPrivateContract(contractSlug);
