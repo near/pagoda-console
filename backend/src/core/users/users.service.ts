@@ -67,12 +67,12 @@ export class UsersService implements OnModuleInit {
     const metadata = {
       createdByUser: {
         connect: {
-          email: data.email,
+          uid: data.uid,
         },
       },
       updatedByUser: {
         connect: {
-          email: data.email,
+          uid: data.uid,
         },
       },
     };
