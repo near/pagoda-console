@@ -17,7 +17,7 @@ const CreateOrganization: NextPageWithLayout = () => {
   const router = useRouter();
   const closeDialog = useCallback(() => router.replace('/organizations'), [router]);
   const form = useForm<{ name: string }>();
-  const { mutate: createOrganization, loading, result } = useCreateOrg();
+  const { mutate: createOrganization, isLoading: loading, result } = useCreateOrg();
   useEffect(() => {
     if (result) {
       router.replace(`/organizations/${result.slug}`);

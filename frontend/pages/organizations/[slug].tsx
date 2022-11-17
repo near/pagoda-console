@@ -115,7 +115,7 @@ const RemoveUserDialog = ({
       confirmColor="danger"
       confirmText="Remove"
       errorText={(removeUserMutation.error as any)?.description || (removeInviteMutation.error as any)?.description}
-      isProcessing={removeUserMutation.loading || removeInviteMutation.loading}
+      isProcessing={removeUserMutation.isLoading || removeInviteMutation.isLoading}
       onConfirm={removeUser}
       setErrorText={resetError}
       setShow={resetRemovingUserData}
@@ -212,7 +212,7 @@ const OrganizationMemberView = ({
         confirmColor="danger"
         confirmText="Remove"
         errorText={(leaveMutation.error as any)?.description}
-        isProcessing={leaveMutation.loading}
+        isProcessing={leaveMutation.isLoading}
         onConfirm={() => leaveMutation.mutate({ org: organization.slug, user: self.user.uid! })}
         setErrorText={leaveMutation.reset}
         setShow={setLeavingModalOpen}
@@ -301,12 +301,12 @@ const InviteUserDialog = ({
           <Flex>
             <Button
               stableId={StableId.ORGANIZATION_ADD_USER_BUTTON}
-              loading={inviteMutation.loading}
+              loading={inviteMutation.isLoading}
               onClick={form.handleSubmit((data) => inviteMutation.mutate({ ...data, org: orgSlug }))}
             >
               Add user
             </Button>
-            {inviteMutation.loading ? null : (
+            {inviteMutation.isLoading ? null : (
               <Button stableId={StableId.ORGANIZATION_CANCEL_ADD_USER_BUTTON} onClick={switchModal} color="transparent">
                 Cancel
               </Button>
@@ -403,7 +403,7 @@ const OrganizationView: NextPageWithLayout = () => {
                 confirmColor="danger"
                 confirmText="Delete"
                 errorText={(deleteMutation.error as any)?.description}
-                isProcessing={deleteMutation.loading}
+                isProcessing={deleteMutation.isLoading}
                 onConfirm={deleteOrganization}
                 setErrorText={deleteMutation.reset}
                 setShow={setDeleteModalOpen}

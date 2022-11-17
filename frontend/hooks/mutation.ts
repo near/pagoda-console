@@ -4,28 +4,28 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import analytics from '@/utils/analytics';
 
 type MutationLoadingResult = {
-  loading: true;
+  isLoading: true;
   status: 'loading';
   result: undefined;
   error: null;
 };
 
 type MutationErrorResult<Error> = {
-  loading: false;
+  isLoading: false;
   status: 'error';
   result: undefined;
   error: Error;
 };
 
 type MutationSuccessResult<Result> = {
-  loading: false;
+  isLoading: false;
   status: 'success';
   result: Result;
   error: null;
 };
 
 type MutationIdleResult = {
-  loading: false;
+  isLoading: false;
   status: 'idle';
   result: undefined;
   error: null;
@@ -61,7 +61,7 @@ export const useMutation = <Input = void, Result = void, M = unknown, E = unknow
   const forceRefresh = useCallback(() => setCounter((c) => c + 1), [setCounter]);
 
   const mutationRef = useRef<MutationResult<Input, Result, E>>({
-    loading: false,
+    isLoading: false,
     error: null,
     result: undefined,
     status: 'idle',
@@ -76,7 +76,7 @@ export const useMutation = <Input = void, Result = void, M = unknown, E = unknow
     (async (input) => {
       mutationRef.current.error = null;
       mutationRef.current.result = undefined;
-      mutationRef.current.loading = true;
+      mutationRef.current.isLoading = true;
       mutationRef.current.status = 'loading';
       forceRefresh();
       let cache: M | undefined;
@@ -89,7 +89,7 @@ export const useMutation = <Input = void, Result = void, M = unknown, E = unknow
         });
         mutationRef.current.result = result;
         mutationRef.current.status = 'success';
-        mutationRef.current.loading = false;
+        mutationRef.current.isLoading = false;
         forceRefresh();
         onSuccess?.(result, input, cache!);
         return result;
@@ -101,7 +101,7 @@ export const useMutation = <Input = void, Result = void, M = unknown, E = unknow
         });
         mutationRef.current.error = e;
         mutationRef.current.status = 'error';
-        mutationRef.current.loading = false;
+        mutationRef.current.isLoading = false;
         forceRefresh();
         onError?.(e, input, cache);
         throw e;
@@ -119,7 +119,7 @@ export const useMutation = <Input = void, Result = void, M = unknown, E = unknow
   const reset = useCallback(() => {
     mutationRef.current.error = null;
     mutationRef.current.result = undefined;
-    mutationRef.current.loading = false;
+    mutationRef.current.isLoading = false;
     mutationRef.current.status = 'idle';
     forceRefresh();
   }, [mutationRef, forceRefresh]);
