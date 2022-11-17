@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DEPLOYS_DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = env("GENERATE_PATH")
+  binaryTargets = ["linux-musl", "native"]
+}
+
+// a github repo set up for automated deploys
+model Repository {
+  slug                 String                 @unique
+  environmentSlug      String
+  githubRepoFullName   String
+  ContractDeployConfig ContractDeployConfig[]
+  RepoDeployment       RepoDeployment[]
+  enabled              Boolean                @default(true)
+}
+
+// deployment configuration for a given contract in a Repository
+// (many templates will only have one)
+model ContractDeployConfig {
+  slug               String               @unique
+  repository         Repository           @relation(fields: [repositorySlug], references: [slug])
+  repositorySlug     String
+  nearAccountId      String
+  nearPublicKey      String
+  nearPrivateKey     String
+  ContractDeployment ContractDeployment[]
+}
+
+// top level reference to a deployment workflow for a Repository which
+// will lead to 1+ ContractDeployments
+model RepoDeployment {
+  slug               String               @unique
+  repository         Repository           @relation(fields: [repositorySlug], references: [slug])
+  repositorySlug     String
+  commitHash         String
+  commitMessage      String
+  frontendDeployUrl  String?
+  ContractDeployment ContractDeployment[]
+}
+
+// an executed deployment action on a single TemplateContract
+model ContractDeployment {
+  slug                     String               @unique
+  repoDeployment           RepoDeployment       @relation(fields: [repoDeploymentSlug], references: [slug])
+  repoDeploymentSlug       String
+  contractDeployConfig     ContractDeployConfig @relation(fields: [contractDeployConfigSlug], references: [slug])
+  contractDeployConfigSlug String
+  deployTransactionHash    String
+}
