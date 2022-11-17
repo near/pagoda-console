@@ -28,8 +28,8 @@ model ContractDeployConfig {
   slug               String               @unique
   repository         Repository           @relation(fields: [repositorySlug], references: [slug])
   repositorySlug     String
+  filename           String
   nearAccountId      String
-  nearPublicKey      String
   nearPrivateKey     String
   ContractDeployment ContractDeployment[]
 }
