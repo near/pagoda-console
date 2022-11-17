@@ -86,11 +86,15 @@ export interface AppConfig {
     };
   };
   metricsPort: string;
-  rpcProvisioningService: {
-    mock: boolean;
-    apiKey: string;
-    url: string;
-  };
+  rpcProvisioningService:
+    | {
+        mock: true;
+      }
+    | {
+        mock: false;
+        apiKey: string;
+        url: string;
+      };
 }
 
 const databaseSchema = Joi.object({
@@ -205,20 +209,16 @@ const appConfigSchema = Joi.object({
     },
   },
   metricsPort: Joi.number().optional().default(3030),
-  rpcProvisioningService: {
-    mock: Joi.boolean().optional().default(false),
-    url: Joi.string()
-      .uri({ scheme: 'http' })
-      .when('/dev.mock.rpcProvisioningService', {
-        // the slash accesses off the schema root
-        is: Joi.boolean().valid(true),
-        then: Joi.optional().allow(''),
-      }),
-    apiKey: Joi.string().when('/dev.mock.rpcProvisioningService', {
-      is: Joi.boolean().valid(true),
-      then: Joi.optional().allow(''),
-    }),
-  },
+  rpcProvisioningService: Joi.alternatives(
+    {
+      mock: Joi.boolean().truthy(),
+    },
+    {
+      mock: Joi.boolean().falsy(),
+      url: Joi.string().uri({ scheme: 'http' }),
+      apiKey: Joi.string(),
+    },
+  ),
 });
 
 export default function validate(config: Record<string, unknown>): AppConfig {
@@ -339,11 +339,13 @@ export default function validate(config: Record<string, unknown>): AppConfig {
       },
     },
     metricsPort: config.METRICS_PORT,
-    rpcProvisioningService: {
-      mock: Boolean(config.MOCK_KEY_SERVICE),
-      url: config.RPC_API_KEYS_URL,
-      apiKey: config.RPC_API_KEYS_API_KEY,
-    },
+    rpcProvisioningService: config.MOCK_KEY_SERVICE
+      ? { mock: true }
+      : {
+          mock: false,
+          url: config.RPC_API_KEYS_URL,
+          apiKey: config.RPC_API_KEYS_API_KEY,
+        },
   };
 
   // Joi.attempt will return the validated object with values
