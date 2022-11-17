@@ -25,11 +25,17 @@ const EventRuleSchema = Joi.object<Alerts.EventRule, true>({
 });
 
 const validateRange = (value, { original: rule }) => {
-  if (!rule.from && !rule.to) {
+  if (rule.from === undefined && rule.to === undefined) {
     throw Error('"rule.from" or "rule.to" is required');
   }
-  if (rule.from && rule.to && BigInt(rule.from) > BigInt(rule.to)) {
-    throw Error('"rule.from" must be less than or equal to "rule.to"');
+  if (rule.from !== undefined && rule.to !== undefined) {
+    if (typeof rule.from === 'number' && typeof rule.to === 'number') {
+      if (rule.from > rule.to) {
+        throw Error('"rule.from" must be less than or equal to "rule.to"');
+      }
+    } else if (BigInt(rule.from) > BigInt(rule.to)) {
+      throw Error('"rule.from" must be less than or equal to "rule.to"');
+    }
   }
   return value;
 };
@@ -37,14 +43,8 @@ const validateRange = (value, { original: rule }) => {
 const AcctBalPctRuleSchema = Joi.object<Alerts.AcctBalPctRule, true>({
   type: Joi.string().valid('ACCT_BAL_PCT'),
   contract: Joi.string().required(),
-  from: Joi.string()
-    .empty(null)
-    .optional()
-    .regex(/^0$|^[1-9][0-9]?$|^100$/), // Percentage between 0 and 100
-  to: Joi.string()
-    .empty(null)
-    .optional()
-    .regex(/^0$|^[1-9][0-9]?$|^100$/), // Percentage between 0 and 100
+  from: Joi.number().integer().min(0).max(100).optional(),
+  to: Joi.number().integer().min(0).max(100).optional(),
 }).custom(validateRange, 'Validating range');
 
 const validateYoctonearAmount = (value, _) => {
@@ -62,7 +62,7 @@ const AcctBalNumRuleSchema = Joi.object<Alerts.AcctBalNumRule, true>({
   type: Joi.string().valid('ACCT_BAL_NUM'),
   contract: Joi.string().required(),
   from: Joi.string()
-    .empty(null)
+    .empty(undefined)
     .optional()
     .regex(/^0$|^[1-9][0-9]*$/)
     .custom(
@@ -70,7 +70,7 @@ const AcctBalNumRuleSchema = Joi.object<Alerts.AcctBalNumRule, true>({
       'Validating proper value of Yoctonear amount',
     ),
   to: Joi.string()
-    .empty(null)
+    .empty(undefined)
     .optional()
     .regex(/^0$|^[1-9][0-9]*$/)
     .custom(

@@ -3,7 +3,6 @@ import { Alerts } from '@pc/common/types/alerts';
 import { VError } from 'verror';
 import {
   AcctBalMatchingRule,
-  ComparatorKind,
   EventMatchingRule,
   FnCallMatchingRule,
   TxMatchingRule,
@@ -46,36 +45,51 @@ export class RuleSerializerService {
     };
   }
 
-  toAcctBalJson(
-    rule: Alerts.AcctBalPctRule | Alerts.AcctBalNumRule,
-  ): AcctBalMatchingRule {
+  toAcctBalNumJson(rule: Alerts.AcctBalNumRule): AcctBalMatchingRule {
     if (!rule.from && !rule.to) {
       throw new VError('Invalid range');
     }
 
-    if (rule.from && rule.to && BigInt(rule.from) > BigInt(rule.to)) {
+    if (
+      rule.from !== undefined &&
+      rule.to !== undefined &&
+      BigInt(rule.from) > BigInt(rule.to)
+    ) {
       throw new VError('Invalid range');
     }
 
     return {
       rule: 'STATE_CHANGE_ACCOUNT_BALANCE',
       affected_account_id: rule.contract,
-      comparator_kind: this.ruleTypeToComparatorKind(rule.type),
+      comparator_kind: 'RELATIVE_YOCTONEAR_AMOUNT',
       comparator_range: {
-        from: rule.from,
-        to: rule.to,
+        from: rule.from === undefined ? null : rule.from.toString(),
+        to: rule.to === undefined ? null : rule.to.toString(),
       },
     };
   }
 
-  private ruleTypeToComparatorKind(
-    ruleType: 'ACCT_BAL_NUM' | 'ACCT_BAL_PCT',
-  ): ComparatorKind {
-    switch (ruleType) {
-      case 'ACCT_BAL_NUM':
-        return 'RELATIVE_YOCTONEAR_AMOUNT';
-      case 'ACCT_BAL_PCT':
-        return 'RELATIVE_PERCENTAGE_AMOUNT';
+  toAcctBalPctJson(rule: Alerts.AcctBalPctRule): AcctBalMatchingRule {
+    if (rule.from === undefined && rule.to === undefined) {
+      throw new VError('Invalid range');
     }
+
+    if (
+      rule.from !== undefined &&
+      rule.to !== undefined &&
+      rule.from > rule.to
+    ) {
+      throw new VError('Invalid range');
+    }
+
+    return {
+      rule: 'STATE_CHANGE_ACCOUNT_BALANCE',
+      affected_account_id: rule.contract,
+      comparator_kind: 'RELATIVE_PERCENTAGE_AMOUNT',
+      comparator_range: {
+        from: rule.from === undefined ? null : rule.from.toString(),
+        to: rule.to === undefined ? null : rule.to.toString(),
+      },
+    };
   }
 }

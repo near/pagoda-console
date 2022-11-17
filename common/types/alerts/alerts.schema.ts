@@ -35,14 +35,14 @@ export type EventRule = {
 export type AcctBalPctRule = {
   type: 'ACCT_BAL_PCT';
   contract: string;
-  from: string | null;
-  to: string | null;
+  from?: number;
+  to?: number;
 };
 export type AcctBalNumRule = {
   type: 'ACCT_BAL_NUM';
   contract: string;
-  from: string | null;
-  to: string | null;
+  from?: string;
+  to?: string;
 };
 
 export type Rule =
