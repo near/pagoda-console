@@ -49,8 +49,8 @@ interface FormData {
     to: string;
   };
   acctBalPctRule?: {
-    from: string;
-    to: string;
+    from: number;
+    to: number;
   };
   eventRule?: {
     standard: string;
@@ -426,7 +426,7 @@ const NewAlert: NextPageWithLayout = () => {
                             form.clearErrors('acctBalPctRule.to');
                           }}
                           {...form.register('acctBalPctRule.from', {
-                            setValueAs: (value) => sanitizeNumber(value),
+                            setValueAs: (value) => Number(sanitizeNumber(value)),
                             required: 'Please enter a percentage',
                             validate: {
                               maxValue: (value) => Number(value) <= 100 || 'Must be 100 or less',
@@ -446,7 +446,7 @@ const NewAlert: NextPageWithLayout = () => {
                             isNumber
                             onInput={numberInputHandler}
                             {...form.register('acctBalPctRule.to', {
-                              setValueAs: (value) => sanitizeNumber(value),
+                              setValueAs: (value) => Number(sanitizeNumber(value)),
                               required: 'Please enter a percentage',
                               validate: {
                                 minValue: (value) =>
@@ -650,7 +650,7 @@ function returnAcctBalNumBody(comparator: Alerts.Comparator, { from, to }: { fro
   return returnAcctBalBody(comparator, { from, to });
 }
 
-function returnAcctBalBody(comparator: Alerts.Comparator, { from, to }: { from: string; to: string }) {
+function returnAcctBalBody<T extends string | number>(comparator: Alerts.Comparator, { from, to }: { from: T; to: T }) {
   switch (comparator) {
     case 'EQ':
       return {
@@ -660,11 +660,11 @@ function returnAcctBalBody(comparator: Alerts.Comparator, { from, to }: { from: 
     case 'GTE':
       return {
         from,
-        to: null,
+        to: undefined,
       };
     case 'LTE':
       return {
-        from: null,
+        from: undefined,
         to: from,
       };
     case 'RANGE':

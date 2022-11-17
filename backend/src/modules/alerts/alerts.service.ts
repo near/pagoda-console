@@ -169,7 +169,10 @@ export class AlertsService {
       ...alert,
       name: alert.name || defaultName,
     };
-    const matchingRule = this.ruleSerializer.toAcctBalJson(rule);
+    const matchingRule =
+      rule.type === 'ACCT_BAL_NUM'
+        ? this.ruleSerializer.toAcctBalNumJson(rule)
+        : this.ruleSerializer.toAcctBalPctJson(rule);
 
     return this.createAlertRuleWithContract(user, alert, rule, matchingRule);
   }

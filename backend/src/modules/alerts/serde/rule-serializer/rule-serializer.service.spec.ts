@@ -75,7 +75,7 @@ describe('RuleSerializerService', () => {
         type: 'ACCT_BAL_NUM' as const,
         contract: 'pagoda.near',
         from: '0',
-        to: null,
+        to: undefined,
       },
       expected: {
         rule: 'STATE_CHANGE_ACCOUNT_BALANCE',
@@ -92,7 +92,7 @@ describe('RuleSerializerService', () => {
         type: 'ACCT_BAL_NUM' as const,
         contract: 'pagoda.near',
         to: '330',
-        from: null,
+        from: undefined,
       },
       expected: {
         rule: 'STATE_CHANGE_ACCOUNT_BALANCE',
@@ -122,16 +122,16 @@ describe('RuleSerializerService', () => {
       },
     },
   ])('should serialize account balance num rule', ({ dto, expected }) => {
-    expect(service.toAcctBalJson(dto)).toStrictEqual(expected);
+    expect(service.toAcctBalNumJson(dto)).toStrictEqual(expected);
   });
 
   it('should serialize account balance pct rule', () => {
     expect(
-      service.toAcctBalJson({
+      service.toAcctBalPctJson({
         type: 'ACCT_BAL_PCT',
         contract: 'pagoda.near',
-        from: '0',
-        to: null,
+        from: 0,
+        to: undefined,
       }),
     ).toStrictEqual({
       rule: 'STATE_CHANGE_ACCOUNT_BALANCE',
@@ -146,22 +146,22 @@ describe('RuleSerializerService', () => {
 
   it('should fail to serialize account balance rule with invalid range', () => {
     expect(() => {
-      service.toAcctBalJson({
+      service.toAcctBalPctJson({
         type: 'ACCT_BAL_PCT',
         contract: 'pagoda.near',
-        from: null,
-        to: null,
+        from: undefined,
+        to: undefined,
       });
     }).toThrow('Invalid range');
   });
 
   it('should fail to serialize account balance rule with from > to', () => {
     expect(() => {
-      service.toAcctBalJson({
+      service.toAcctBalPctJson({
         type: 'ACCT_BAL_PCT',
         contract: 'pagoda.near',
-        from: '3',
-        to: '0',
+        from: 3,
+        to: 0,
       });
     }).toThrow('Invalid range');
   });
