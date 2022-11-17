@@ -11,11 +11,11 @@ import {
 import { DateTime } from 'luxon';
 
 import { BearerAuthGuard } from 'src/core/auth/bearer-auth.guard';
-import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
+import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
 import { VError } from 'verror';
 import { ProjectsService } from '@/src/core/projects/projects.service';
 import { RpcStatsService } from './rpcstats.service';
-import { EndpointMetricsSchema } from './dto';
+import { RpcStats } from '@pc/common/types/rpcstats';
 import { Api } from '@pc/common/types/api';
 
 @Controller('rpcstats')
@@ -29,7 +29,7 @@ export class RpcStatsController {
 
   @Post('endpointMetrics')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(EndpointMetricsSchema))
+  @UsePipes(new ZodValidationPipe(RpcStats.query.inputs.endpointMetrics))
   async endpointMetrics(
     @Request() req,
     @Body()

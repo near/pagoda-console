@@ -1,34 +1,83 @@
 import type { AbiRoot } from 'near-abi-client-js';
-import { Abi } from '@pc/database/clients/abi';
+import { z } from 'zod';
+import { contractSlug } from '../core/types';
+import { json } from '../schemas';
 
-export namespace Query {
-  export namespace Inputs {
-    export type GetContractAbi = { contract: string };
-  }
+export const abi = z.strictObject({
+  id: z.number(),
+  contractSlug,
+  abi: json,
+  createdAt: z.date().or(z.null()),
+  createdBy: z.number().or(z.null()),
+});
 
-  export namespace Outputs {
-    export type GetContractAbi = Pick<Abi, 'contractSlug'> & {
-      abi: AbiRoot;
-    };
-  }
+const jsonSchemaV7 = z.object({}).passthrough();
+const abiType = z.strictObject({
+  type_schema: jsonSchemaV7,
+  serialization_type: z.string(),
+});
+const abiRoot: z.ZodType<AbiRoot> = z.strictObject({
+  schema_version: z.string(),
+  metadata: z
+    .object({
+      name: z.string(),
+      version: z.string(),
+      authors: z.array(z.string()),
+    })
+    .passthrough()
+    .optional(),
+  body: z.strictObject({
+    functions: z.array(
+      z.strictObject({
+        name: z.string(),
+        doc: z.string().optional(),
+        is_view: z.boolean().optional(),
+        is_init: z.boolean().optional(),
+        is_payable: z.boolean().optional(),
+        is_private: z.boolean().optional(),
+        params: z.array(abiType.extend({ name: z.string() })).optional(),
+        callbacks: z.any().optional(),
+        callbacks_vec: abiType.optional(),
+        result: abiType.optional(),
+      }),
+    ),
+    root_schema: jsonSchemaV7,
+  }),
+});
 
-  export namespace Errors {
-    export type GetContractAbi = unknown;
-  }
-}
+export const query = {
+  inputs: {
+    getContractAbi: z.strictObject({
+      contract: contractSlug,
+    }),
+  },
 
-export namespace Mutation {
-  export namespace Inputs {
-    export type AddContractAbi = { contract: string; abi: AbiRoot };
-  }
+  outputs: {
+    getContractAbi: abi
+      .pick({ contractSlug: true })
+      .merge(z.strictObject({ abi: abiRoot })),
+  },
 
-  export namespace Outputs {
-    export type AddContractAbi = Pick<Abi, 'contractSlug'> & {
-      abi: AbiRoot;
-    };
-  }
+  errors: {
+    getContractAbi: z.unknown(),
+  },
+};
 
-  export namespace Errors {
-    export type AddContractAbi = unknown;
-  }
-}
+export const mutation = {
+  inputs: {
+    addContractAbi: z.strictObject({
+      contract: contractSlug,
+      abi: abiRoot,
+    }),
+  },
+
+  outputs: {
+    addContractAbi: abi
+      .pick({ contractSlug: true })
+      .merge(z.strictObject({ abi: abiRoot })),
+  },
+
+  errors: {
+    addContractAbi: z.unknown(),
+  },
+};

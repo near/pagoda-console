@@ -7,13 +7,8 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ExplorerService } from './explorer.service';
-import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
-import {
-  ActivityInputSchemas,
-  TransactionInputSchemas,
-  BalanceChangesInputSchemas,
-  GetTransactionsSchema,
-} from './dto';
+import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
+import { Explorer } from '@pc/common/types/core';
 import { IndexerService } from './indexer.service';
 
 @Controller('explorer')
@@ -24,7 +19,7 @@ export class ExplorerController {
   ) {}
 
   @Post('activity')
-  @UsePipes(new JoiValidationPipe(ActivityInputSchemas))
+  @UsePipes(new ZodValidationPipe(Explorer.query.inputs.activity))
   async activity(
     @Body() { net, contractId }: Api.Query.Input<'/explorer/activity'>,
   ): Promise<Api.Query.Output<'/explorer/activity'>> {
@@ -32,7 +27,7 @@ export class ExplorerController {
   }
 
   @Post('transaction')
-  @UsePipes(new JoiValidationPipe(TransactionInputSchemas))
+  @UsePipes(new ZodValidationPipe(Explorer.query.inputs.transaction))
   async transaction(
     @Body() { net, hash }: Api.Query.Input<'/explorer/transaction'>,
   ): Promise<Api.Query.Output<'/explorer/transaction'>> {
@@ -44,7 +39,7 @@ export class ExplorerController {
   }
 
   @Post('balanceChanges')
-  @UsePipes(new JoiValidationPipe(BalanceChangesInputSchemas))
+  @UsePipes(new ZodValidationPipe(Explorer.query.inputs.balanceChanges))
   async balanceChanges(
     @Body()
     { net, receiptId, accountIds }: Api.Query.Input<'/explorer/balanceChanges'>,
@@ -53,7 +48,7 @@ export class ExplorerController {
   }
 
   @Post('getTransactions')
-  @UsePipes(new JoiValidationPipe(GetTransactionsSchema))
+  @UsePipes(new ZodValidationPipe(Explorer.query.inputs.getTransactions))
   async getTransactions(
     @Body() { contracts, net }: Api.Query.Input<'/explorer/getTransactions'>,
   ): Promise<Api.Query.Output<'/explorer/getTransactions'>> {
