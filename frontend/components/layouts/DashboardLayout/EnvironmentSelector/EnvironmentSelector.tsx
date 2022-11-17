@@ -1,55 +1,70 @@
 import type { Api } from '@pc/common/types/api';
+import { useCallback } from 'react';
 
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
+import { Spinner } from '@/components/lib/Spinner';
 import { SubnetIcon } from '@/components/lib/SubnetIcon';
-import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project';
+import { useEnvironments } from '@/hooks/environments';
+import { useMaybeProjectContext } from '@/hooks/project-context';
 import analytics from '@/utils/analytics';
 import { StableId } from '@/utils/stable-ids';
 
 type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 
 interface Props {
-  onBeforeChange?: (change: () => void) => void;
+  onChange: (callback: () => void) => void;
 }
 
-export function EnvironmentSelector(props: Props) {
-  const { environment, environments, project } = useSelectedProject({ enforceSelectedProject: false });
-  const { selectEnvironment } = useProjectSelector();
+export function EnvironmentSelector({ onChange }: Props) {
+  const { projectSlug, environmentSubId, updateContext: updateProjectContext } = useMaybeProjectContext();
+  const { environments } = useEnvironments(projectSlug);
 
-  function onSelectEnvironment(environment: Environment) {
-    if (!project) return;
-
-    if (props.onBeforeChange) {
-      props.onBeforeChange(() => {
-        selectEnvironment(project.slug, environment.subId);
-        analytics.track('DC Switch Network');
+  const onSelectEnvironment = useCallback(
+    (environment: Environment) => {
+      if (!projectSlug) {
+        return;
+      }
+      onChange(() => {
+        updateProjectContext(projectSlug, environment.subId);
+        analytics.track('DC Switch Network', {
+          status: 'success',
+          net: environment.net,
+        });
       });
-      return;
-    }
+    },
+    [onChange, updateProjectContext, projectSlug],
+  );
 
-    selectEnvironment(project.slug, environment.subId);
-    analytics.track('DC Switch Network', {
-      status: 'success',
-      net: environment.net,
-    });
-  }
-
+  const selectedEnvironment =
+    environments && environmentSubId
+      ? environments.find((environment) => environment.subId === environmentSubId)
+      : undefined;
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Button stableId={StableId.ENVIRONMENT_SELECTOR_DROPDOWN} css={{ width: '11rem', height: 'auto' }}>
-        <SubnetIcon net={environment?.net} />
-        {environment?.name || '...'}
+        {!selectedEnvironment ? (
+          '...'
+        ) : (
+          <>
+            <SubnetIcon net={selectedEnvironment.net} />
+            {selectedEnvironment.name}
+          </>
+        )}
       </DropdownMenu.Button>
 
       <DropdownMenu.Content width="trigger">
-        {environments?.map((e) => {
-          return (
-            <DropdownMenu.Item key={e.subId} onSelect={() => onSelectEnvironment(e)}>
-              <SubnetIcon net={e.net} />
-              {e.name}
-            </DropdownMenu.Item>
-          );
-        })}
+        {environments ? (
+          environments.map((e) => {
+            return (
+              <DropdownMenu.Item key={e.subId} onSelect={() => onSelectEnvironment(e)}>
+                <SubnetIcon net={e.net} />
+                {e.name}
+              </DropdownMenu.Item>
+            );
+          })
+        ) : (
+          <Spinner size="s" />
+        )}
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   );

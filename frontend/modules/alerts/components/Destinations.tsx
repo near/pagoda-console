@@ -9,6 +9,7 @@ import { Spinner } from '@/components/lib/Spinner';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
+import { useSureProjectContext } from '@/hooks/project-context';
 import { EditDestinationModal } from '@/modules/alerts/components/EditDestinationModal';
 import { NewDestinationModal } from '@/modules/alerts/components/NewDestinationModal';
 import { useDestinations } from '@/modules/alerts/hooks/destinations';
@@ -16,11 +17,11 @@ import { StableId } from '@/utils/stable-ids';
 
 import { DestinationTableRow } from './DestinationsTableRow';
 
-type Project = Api.Query.Output<'/projects/getDetails'>;
 type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
-export function Destinations({ project }: { project?: Project }) {
-  const { destinations, mutate } = useDestinations(project?.slug);
+export function Destinations() {
+  const { projectSlug } = useSureProjectContext();
+  const { destinations, mutate } = useDestinations(projectSlug);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
   const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
@@ -90,13 +91,11 @@ export function Destinations({ project }: { project?: Project }) {
           </Table.Root>
         )}
       </Flex>
-      {project && (
-        <NewDestinationModal
-          projectSlug={project.slug}
-          show={showNewDestinationModal}
-          setShow={setShowNewDestinationModal}
-        />
-      )}
+      <NewDestinationModal
+        projectSlug={projectSlug}
+        show={showNewDestinationModal}
+        setShow={setShowNewDestinationModal}
+      />
 
       {selectedEditDestination && (
         <EditDestinationModal

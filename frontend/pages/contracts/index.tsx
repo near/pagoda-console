@@ -15,9 +15,10 @@ import { Section } from '@/components/lib/Section';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
+import { withSelectedProject } from '@/components/with-selected-project';
 import { useContractMetrics, useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
 import { AddContractForm } from '@/modules/contracts/components/AddContractForm';
 import { DeleteContractModal } from '@/modules/contracts/components/DeleteContractModal';
 import { useAnyAbi } from '@/modules/contracts/hooks/abi';
@@ -29,8 +30,8 @@ import type { NextPageWithLayout } from '@/utils/types';
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
 const ListContracts: NextPageWithLayout = () => {
-  const { project, environment } = useSelectedProject();
-  const { contracts, mutate } = useContracts(project?.slug, environment?.subId);
+  const { projectSlug, environmentSubId } = useSureProjectContext();
+  const { contracts, mutate } = useContracts(projectSlug, environmentSubId);
   const [addContractIsOpen, setAddContractIsOpen] = useState(false);
 
   function onContractAdd(contract: Contract) {
@@ -68,15 +69,11 @@ const ListContracts: NextPageWithLayout = () => {
 
       <ContractsTable contracts={contracts} onDelete={onContractDelete} setAddContractIsOpen={setAddContractIsOpen} />
 
-      {project && environment && (
-        <>
-          <Dialog.Root open={addContractIsOpen} onOpenChange={setAddContractIsOpen}>
-            <Dialog.Content title="Add Contract" size="s">
-              <AddContractForm project={project} environment={environment} onAdd={onContractAdd} />
-            </Dialog.Content>
-          </Dialog.Root>
-        </>
-      )}
+      <Dialog.Root open={addContractIsOpen} onOpenChange={setAddContractIsOpen}>
+        <Dialog.Content title="Add Contract" size="s">
+          <AddContractForm onAdd={onContractAdd} />
+        </Dialog.Content>
+      </Dialog.Root>
     </>
   );
 };
@@ -229,4 +226,4 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
 
 ListContracts.getLayout = useDashboardLayout;
 
-export default ListContracts;
+export default withSelectedProject(ListContracts);

@@ -23,8 +23,8 @@ import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { useSureProjectContext } from '@/hooks/project-context';
 import { useRouteParam } from '@/hooks/route';
-import { useSelectedProject } from '@/hooks/selected-project';
 import { initContractMethods, useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import * as gasUtils from '@/modules/contracts/utils/convert-gas';
@@ -32,6 +32,7 @@ import TxList from '@/public/contracts/images/TxList.svg';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
 import { convertNearToYocto } from '@/utils/convert-near';
+import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 import { numberInputHandler } from '@/utils/input-handlers';
 import { sanitizeNumber } from '@/utils/sanitize-number';
 import { StableId } from '@/utils/stable-ids';
@@ -630,8 +631,8 @@ const TxResult = ({ result }: { result: any }) => (
 );
 
 const TxResultHash = ({ hash }: { hash: string }) => {
-  const { environment } = useSelectedProject();
-  const net = environment?.net;
+  const { environmentSubId } = useSureProjectContext();
+  const net = mapEnvironmentSubIdToNet(environmentSubId);
 
   if (!net) {
     return <></>;

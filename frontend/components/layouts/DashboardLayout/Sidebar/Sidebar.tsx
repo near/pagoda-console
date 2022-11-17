@@ -1,13 +1,15 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ComponentProps } from 'react';
-import { useEffect } from 'react';
+import { useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Tooltip } from '@/components/lib/Tooltip';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useMaybeProjectContext } from '@/hooks/project-context';
+import { useMaybeProject } from '@/hooks/projects';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
 import apisEntries from '@/modules/apis/sidebar-entries';
 import contractsEntries from '@/modules/contracts/sidebar-entries';
@@ -15,6 +17,7 @@ import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
 import type { SidebarEntry } from '@/shared/utils/types';
 import { logOut } from '@/utils/auth';
+import { nonNullishGuard } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 
 import { Logo } from './Logo';
@@ -23,41 +26,40 @@ import * as S from './styles';
 type Props = ComponentProps<typeof S.Root>;
 
 function useProjectPages(): SidebarEntry[] {
-  const pages: SidebarEntry[] = [];
+  const { projectSlug } = useMaybeProjectContext();
+  const { project } = useMaybeProject(projectSlug);
 
-  const { project } = useSelectedProject({
-    enforceSelectedProject: false,
-  });
-
-  if (project?.tutorial === 'NFT_MARKET') {
-    pages.push({
-      display: 'Tutorial',
-      route: '/tutorials/nfts/introduction',
-      routeMatchPattern: '/tutorials/',
-      icon: 'book',
-      stableId: StableId.SIDEBAR_TUTORIAL_LINK,
-    });
-  }
-
-  // pushed individually so that module pages can be placed at any point
-  pages.push(...apisEntries);
-  pages.push(...alertsEntries);
-  pages.push(...contractsEntries);
-  pages.push({
-    display: 'Analytics',
-    route: '/project-analytics',
-    icon: 'bar-chart-2',
-    stableId: StableId.SIDEBAR_ANALYTICS_LINK,
-  });
-  pages.push(...indexersEntries);
-  pages.push({
-    display: 'Settings',
-    route: '/project-settings',
-    icon: 'settings',
-    stableId: StableId.SIDEBAR_PROJECT_SETTINGS_LINK,
-  });
-
-  return pages;
+  return useMemo(
+    () =>
+      [
+        project?.tutorial === 'NFT_MARKET'
+          ? {
+              display: 'Tutorial',
+              route: '/tutorials/nfts/introduction',
+              routeMatchPattern: '/tutorials/',
+              icon: 'book',
+              stableId: StableId.SIDEBAR_TUTORIAL_LINK,
+            }
+          : undefined,
+        ...apisEntries,
+        ...alertsEntries,
+        ...contractsEntries,
+        {
+          display: 'Analytics',
+          route: '/project-analytics',
+          icon: 'bar-chart-2',
+          stableId: StableId.SIDEBAR_ANALYTICS_LINK,
+        },
+        ...indexersEntries,
+        {
+          display: 'Settings',
+          route: '/project-settings',
+          icon: 'settings',
+          stableId: StableId.SIDEBAR_PROJECT_SETTINGS_LINK,
+        },
+      ].filter(nonNullishGuard),
+    [project],
+  );
 }
 
 export function Sidebar({ children, ...props }: Props) {

@@ -8,12 +8,12 @@ import { setupNearWallet } from '@near-wallet-selector/near-wallet';
 import nearWalletIconUrl from '@near-wallet-selector/near-wallet/assets/near-wallet-icon.png';
 import { setupSender } from '@near-wallet-selector/sender';
 import senderIconUrl from '@near-wallet-selector/sender/assets/sender-icon.png';
-import type { Net } from '@pc/database/clients/core';
 import { useCallback, useEffect, useState } from 'react';
 import { distinctUntilChanged, map } from 'rxjs';
 
 import { openToast } from '@/components/lib/Toast';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
+import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 import { storage } from '@/utils/storage';
 
 // Cache in module to ensure we don't re-init
@@ -30,28 +30,28 @@ const SELECTED_CONTRACT = 'selectedWalletSelectorContract';
 // coupled to being called once in ContractTransaction.tsx and serious side-effects may occur if this is changed.
 export const useWalletSelector = (contractId: string | undefined) => {
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
-  const { environment } = useSelectedProject();
-  const [prevNet, setPrevNet] = useState<Net | undefined>();
-  const network = environment?.net.toLowerCase();
+  const { environmentSubId } = useSureProjectContext();
+  const [prevEnvironmentSubId, setPrevEnvironmentSubId] = useState<number | undefined>();
 
   const init = useCallback(async () => {
-    if (!contractId || !environment) {
+    if (!contractId) {
       return null;
     }
 
     //* Bail early if the environment has changed.
     //* There is some logic in Header.tsx to redirect to the /contracts page
     //* if environment changes and that should take precedence over this flow's window reload.
-    if (prevNet && prevNet !== environment.net) {
+    if (prevEnvironmentSubId && prevEnvironmentSubId !== environmentSubId) {
       return null;
     }
-    setPrevNet(environment.net);
+    setPrevEnvironmentSubId(environmentSubId);
+    const lowercaseNetwork = mapEnvironmentSubIdToNet(environmentSubId).toLowerCase() as NetworkId;
 
     //* This is a hack, this is forcing a reload to be able to refresh the modal component
     //* and wallet selector to allow switching contract.
     //* See: https://github.com/near/wallet-selector/issues/403
     const prevSelection = localStorage.getItem(SELECTED_CONTRACT);
-    const currSelection = `${network}:${contractId}`;
+    const currSelection = `${lowercaseNetwork}:${contractId}`;
 
     if (prevSelection && prevSelection !== currSelection) {
       const multiLoginStorage = storage.local.getItem(MULTI_LOGIN_STORAGE_KEY) || {};
@@ -76,7 +76,7 @@ export const useWalletSelector = (contractId: string | undefined) => {
     }
 
     selector = await setupWalletSelector({
-      network: network as NetworkId,
+      network: lowercaseNetwork,
       modules: [
         setupMyNearWallet({ iconUrl: myNearWalletIconUrl.src }),
         setupSender({ iconUrl: senderIconUrl.src }),
@@ -86,14 +86,14 @@ export const useWalletSelector = (contractId: string | undefined) => {
         getItem: async (key: string) => {
           return new Promise((resolve) => {
             const value = localStorage.getItem(key);
-            setMultiLoginStorage(network, contractId, key, value);
+            setMultiLoginStorage(lowercaseNetwork, contractId, key, value);
             resolve(value);
           });
         },
         setItem: async (key: string, value: string): Promise<void> => {
           return new Promise((resolve) => {
             localStorage.setItem(key, value);
-            setMultiLoginStorage(network, contractId, key, value);
+            setMultiLoginStorage(lowercaseNetwork, contractId, key, value);
             resolve();
           });
         },
@@ -125,7 +125,7 @@ export const useWalletSelector = (contractId: string | undefined) => {
       });
 
     return () => subscription.unsubscribe();
-  }, [contractId, environment, prevNet, network]);
+  }, [contractId, environmentSubId, prevEnvironmentSubId]);
 
   useEffect(() => {
     init().catch((err) => {

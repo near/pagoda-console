@@ -31,7 +31,7 @@ export async function deleteContract(contract: Contract) {
   }
 }
 
-export function useContracts(project: string | undefined, environment: number | undefined) {
+export function useContracts(project: string, environment: number) {
   const identity = useIdentity();
 
   const {
@@ -39,7 +39,7 @@ export function useContracts(project: string | undefined, environment: number | 
     error,
     mutate,
   } = useSWR(
-    identity && project && environment ? ['/projects/getContracts' as const, project, environment, identity.uid] : null,
+    identity ? ['/projects/getContracts' as const, project, environment, identity.uid] : null,
     (key, project, environment) => {
       return authenticatedPost(key, {
         project,

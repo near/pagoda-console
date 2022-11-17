@@ -3,9 +3,9 @@ import Link from 'next/link';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Section } from '@/components/lib/Section';
 import * as Tabs from '@/components/lib/Tabs';
+import { withSelectedProject } from '@/components/with-selected-project';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
-import { useSelectedProject } from '@/hooks/selected-project';
 import { Alerts } from '@/modules/alerts/components/Alerts';
 import { Destinations } from '@/modules/alerts/components/Destinations';
 import { TriggeredAlerts } from '@/modules/alerts/components/TriggeredAlerts';
@@ -13,7 +13,6 @@ import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ListAlerts: NextPageWithLayout = () => {
-  const { environment, project } = useSelectedProject();
   const activeTab = useRouteParam('tab', '?tab=alerts', true);
 
   return (
@@ -40,15 +39,15 @@ const ListAlerts: NextPageWithLayout = () => {
         </Tabs.List>
 
         <Tabs.Content value="activity">
-          <TriggeredAlerts environment={environment} project={project} />
+          <TriggeredAlerts />
         </Tabs.Content>
 
         <Tabs.Content value="alerts">
-          <Alerts environment={environment} project={project} />
+          <Alerts />
         </Tabs.Content>
 
         <Tabs.Content value="destinations">
-          <Destinations project={project} />
+          <Destinations />
         </Tabs.Content>
       </Tabs.Root>
     </Section>
@@ -57,4 +56,4 @@ const ListAlerts: NextPageWithLayout = () => {
 
 ListAlerts.getLayout = useDashboardLayout;
 
-export default ListAlerts;
+export default withSelectedProject(ListAlerts);

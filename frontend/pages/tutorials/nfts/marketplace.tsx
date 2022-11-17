@@ -2,8 +2,10 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
+import { withSelectedProject } from '@/components/with-selected-project';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
+import { useProject } from '@/hooks/projects';
 import { EjectProjectModal } from '@/modules/core/components/modals/EjectProjectModal';
 import components from '@/modules/core/components/tutorials/components';
 import TableOfContents from '@/modules/core/components/tutorials/TableOfContents';
@@ -14,7 +16,8 @@ import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Marketplace: NextPageWithLayout = () => {
-  const { project } = useSelectedProject();
+  const { projectSlug } = useSureProjectContext();
+  const { project } = useProject(projectSlug);
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
 
@@ -43,4 +46,4 @@ const Marketplace: NextPageWithLayout = () => {
 
 Marketplace.getLayout = useDashboardLayout;
 
-export default Marketplace;
+export default withSelectedProject(Marketplace);

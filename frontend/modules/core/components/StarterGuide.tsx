@@ -1,4 +1,3 @@
-import type { Net } from '@pc/database/clients/core';
 import { useEffect, useState } from 'react';
 
 import * as Accordion from '@/components/lib/Accordion';
@@ -9,8 +8,9 @@ import { H4 } from '@/components/lib/Heading';
 import { List, ListItem } from '@/components/lib/List';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
 import config from '@/utils/config';
+import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 
 const NAJ_STARTER_TEMPLATE = `const { connect, keyStores } = require("near-api-js");
@@ -73,15 +73,11 @@ export default function StarterGuide() {
     cliKey: CLI_KEY_TEMPLATE,
   });
 
-  const { environment } = useSelectedProject();
+  const { environmentSubId } = useSureProjectContext();
 
   // TODO (P2+) determine net by other means than subId
   useEffect(() => {
-    const net: Net = environment?.subId === 2 ? 'MAINNET' : 'TESTNET';
-
-    if (!environment?.subId) {
-      return;
-    }
+    const net = mapEnvironmentSubIdToNet(environmentSubId);
 
     setStarterCode({
       naj: NAJ_STARTER_TEMPLATE.replace(/<RPC service url>/, config.url.rpc.recommended[net]),
@@ -89,7 +85,7 @@ export default function StarterGuide() {
       cliUrl: CLI_URL_TEMPLATE.replace(/<RPC service url>/, config.url.rpc.recommended[net]),
       cliKey: CLI_KEY_TEMPLATE,
     });
-  }, [environment]);
+  }, [environmentSubId]);
 
   return (
     <Flex stack gap="l">

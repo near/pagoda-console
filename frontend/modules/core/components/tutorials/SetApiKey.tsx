@@ -1,10 +1,10 @@
 import { CodeBlock } from '@/components/lib/CodeBlock';
 import { useApiKeys } from '@/hooks/api-keys';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
 
 export default function ApiKey() {
-  const { project } = useSelectedProject();
-  const { keys } = useApiKeys(project?.slug);
+  const { projectSlug } = useSureProjectContext();
+  const { keys } = useApiKeys(projectSlug);
   const key = keys?.[0].key;
   return (
     <>

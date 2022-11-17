@@ -1,5 +1,4 @@
 // import { useApiKeys } from '@/hooks/api-keys';
-import type { Api } from '@pc/common/types/api';
 import type { RpcStats } from '@pc/common/types/rpcstats';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
@@ -16,6 +15,7 @@ import { Switch } from '@/components/lib/Switch';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { useSureProjectContext } from '@/hooks/project-context';
 import config from '@/utils/config';
 import { formatNumber } from '@/utils/format-number';
 import { StableId } from '@/utils/stable-ids';
@@ -23,22 +23,16 @@ import { StableId } from '@/utils/stable-ids';
 import { useApiStats } from '../hooks/api-stats';
 import { timeRanges } from '../utils/constants';
 
-type Project = Api.Query.Output<'/projects/getDetails'>;
-type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 type ApiStatsData = ReturnType<typeof useApiStats>;
 
-interface Props {
-  environment?: Environment;
-  project?: Project;
-}
-
-export function ApiStats({ environment, project }: Props) {
+export function ApiStats() {
+  const { projectSlug, environmentSubId } = useSureProjectContext();
   // const { keys } = useApiKeys(project?.slug);  // for filtering
   const [selectedTimeRangeValue, setSelectedTimeRangeValue] = useState<RpcStats.TimeRangeValue>('30_DAYS');
   const [liveRefreshEnabled, setLiveRefreshEnabled] = useState(true);
   const selectedTimeRange = timeRanges.find((t) => t.value === selectedTimeRangeValue);
   const [rangeEndTime, setRangeEndTime] = useState(DateTime.now());
-  const stats = useApiStats(environment, project, selectedTimeRangeValue, rangeEndTime);
+  const stats = useApiStats(environmentSubId, projectSlug, selectedTimeRangeValue, rangeEndTime);
   const liveRefreshTooltipTitle = `Last updated: ${rangeEndTime.toLocaleString(DateTime.TIME_24_WITH_SECONDS)}. ${
     liveRefreshEnabled ? `Click to disable live updates.` : 'Click to enable live updates.'
   }`;

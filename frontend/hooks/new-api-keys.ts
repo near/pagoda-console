@@ -7,13 +7,13 @@ import { authenticatedPost } from '@/utils/http';
 
 type Keys = Api.Query.Output<'/projects/getKeys'>;
 
-export function useApiKeys(project: string | undefined) {
+export function useApiKeys(project: string) {
   const identity = useIdentity();
   const {
     data: keys,
     error,
     mutate,
-  } = useSWR(identity && project ? ['/projects/getKeys' as const, project, identity.uid] : null, (key, project) => {
+  } = useSWR(identity ? ['/projects/getKeys' as const, project, identity.uid] : null, (key, project) => {
     return authenticatedPost(key, { project });
   });
 

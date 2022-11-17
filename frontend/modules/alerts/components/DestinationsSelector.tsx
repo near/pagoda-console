@@ -10,7 +10,7 @@ import { Flex } from '@/components/lib/Flex';
 import { Spinner } from '@/components/lib/Spinner';
 import { Switch } from '@/components/lib/Switch';
 import { Text } from '@/components/lib/Text';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
 import { useDestinations } from '@/modules/alerts/hooks/destinations';
 import { destinationTypes } from '@/modules/alerts/utils/constants';
 import { StableId } from '@/utils/stable-ids';
@@ -61,8 +61,8 @@ function toggleDestination(
 }
 
 export function DestinationsSelector(props: Props) {
-  const { project } = useSelectedProject();
-  const { destinations } = useDestinations(project?.slug);
+  const { projectSlug } = useSureProjectContext();
+  const { destinations } = useDestinations(projectSlug);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
   const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
@@ -115,15 +115,13 @@ export function DestinationsSelector(props: Props) {
         </Button>
       </Flex>
 
-      {project && (
-        <NewDestinationModal
-          onCreate={(destination) => toggleDestination(true, destination, props.setSelectedIds, props.onChange)}
-          onVerify={(destination) => toggleDestination(true, destination, props.setSelectedIds, props.onChange)}
-          projectSlug={project.slug}
-          show={showNewDestinationModal}
-          setShow={setShowNewDestinationModal}
-        />
-      )}
+      <NewDestinationModal
+        onCreate={(destination) => toggleDestination(true, destination, props.setSelectedIds, props.onChange)}
+        onVerify={(destination) => toggleDestination(true, destination, props.setSelectedIds, props.onChange)}
+        projectSlug={projectSlug}
+        show={showNewDestinationModal}
+        setShow={setShowNewDestinationModal}
+      />
 
       {selectedEditDestination && (
         <EditDestinationModal

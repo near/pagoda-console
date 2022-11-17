@@ -13,8 +13,8 @@ interface TriggeredAlertFilters {
 const refreshInterval = config.defaultLiveDataRefreshIntervalMs;
 
 export function useTriggeredAlerts(
-  projectSlug: string | undefined,
-  environmentSubId: number | undefined,
+  projectSlug: string,
+  environmentSubId: number,
   pagination: Pagination,
   filters: TriggeredAlertFilters,
 ) {
@@ -25,7 +25,7 @@ export function useTriggeredAlerts(
   const skip = (pagination.state.currentPage - 1) * pagination.state.pageSize;
 
   const { data, error } = useSWR(
-    identity && projectSlug && environmentSubId
+    identity
       ? [
           '/triggeredAlerts/listTriggeredAlerts' as const,
           projectSlug,
@@ -39,8 +39,8 @@ export function useTriggeredAlerts(
       : null,
     (key) => {
       return authenticatedPost(key, {
-        environmentSubId: environmentSubId!,
-        projectSlug: projectSlug!,
+        environmentSubId,
+        projectSlug,
         take,
         skip,
         pagingDateTime: pagination.state.pagingDateTime?.toISOString(),

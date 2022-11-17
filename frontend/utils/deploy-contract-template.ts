@@ -1,4 +1,3 @@
-import type { Api } from '@pc/common/types/api';
 import { connect, KeyPair, keyStores, transactions } from 'near-api-js';
 
 import config from '@/utils/config';
@@ -7,9 +6,7 @@ import { authenticatedPost } from '@/utils/http';
 import type { ContractTemplate } from '../hooks/contract-templates';
 import { sleep } from './helpers';
 
-type Project = Api.Mutation.Output<'/projects/create'>;
-
-export async function deployContractTemplate(project: Project, template: ContractTemplate) {
+export async function deployContractTemplate(projectSlug: string, template: ContractTemplate) {
   const environmentSubId = 1; // Only TESTNET is supported for now
   const keyStore = new keyStores.BrowserLocalStorageKeyStore();
   const nearConfig = {
@@ -54,7 +51,7 @@ export async function deployContractTemplate(project: Project, template: Contrac
     await keyStore.removeKey(nearConfig.networkId, accountId);
 
     const contract = await authenticatedPost('/projects/addContract', {
-      project: project.slug,
+      project: projectSlug,
       environment: environmentSubId,
       address: accountId,
     });

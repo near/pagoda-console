@@ -1,7 +1,7 @@
 import type { Api } from '@pc/common/types/api';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { Card } from '@/components/lib/Card';
@@ -17,8 +17,8 @@ import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { usePagination } from '@/hooks/pagination';
+import { useSureProjectContext } from '@/hooks/project-context';
 import { useRouteParam } from '@/hooks/route';
-import { useOnSelectedProjectChange } from '@/hooks/selected-project';
 import { StableId } from '@/utils/stable-ids';
 import { truncateMiddle } from '@/utils/truncate-middle';
 
@@ -26,33 +26,34 @@ import { useAlerts } from '../hooks/alerts';
 import { useTriggeredAlerts } from '../hooks/triggered-alerts';
 import { alertTypes } from '../utils/constants';
 
-type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
-type Project = Api.Query.Output<'/projects/getDetails'>;
 type TriggeredAlert = Api.Query.Output<'/triggeredAlerts/listTriggeredAlerts'>['page'][number];
 
-export function TriggeredAlerts({ environment, project }: { environment?: Environment; project?: Project }) {
+export function TriggeredAlerts() {
+  const { environmentSubId, projectSlug } = useSureProjectContext();
   const queryParamAlertFilter = useRouteParam('alertId');
-  const pagination = usePagination();
+  const { reset, ...pagination } = usePagination();
   const [filteredAlertId, setFilteredAlertId] = useState(
     queryParamAlertFilter ? parseInt(queryParamAlertFilter) : undefined,
   );
   const filters = { alertId: filteredAlertId };
   const { triggeredAlertsCount, triggeredAlerts } = useTriggeredAlerts(
-    project?.slug,
-    environment?.subId,
-    pagination,
+    projectSlug,
+    environmentSubId,
+    { reset, ...pagination },
     filters,
   );
-  const { alerts } = useAlerts(project?.slug, environment?.subId);
+  const { alerts } = useAlerts(projectSlug, environmentSubId);
   const filteredAlert = alerts?.find((alert) => alert.id === filteredAlertId);
 
   useEffect(() => {
     pagination.updateItemCount(triggeredAlertsCount);
   });
 
-  useOnSelectedProjectChange(() => {
-    clearAlertFilter();
-  });
+  const clearAlertFilter = useCallback(() => {
+    reset();
+    setFilteredAlertId(undefined);
+  }, [reset]);
+  useEffect(clearAlertFilter, [clearAlertFilter, projectSlug, environmentSubId]);
 
   function shouldFlashRow(alert: TriggeredAlert) {
     let result = false;
@@ -66,13 +67,8 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
   }
 
   function onSelectAlertFilter(alertId: string) {
-    pagination.reset();
+    reset();
     setFilteredAlertId(parseInt(alertId));
-  }
-
-  function clearAlertFilter() {
-    pagination.reset();
-    setFilteredAlertId(undefined);
   }
 
   if (alerts?.length === 0) {
@@ -218,7 +214,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
         <Table.Foot>
           <Table.Row>
             <Table.Cell colSpan={100}>
-              <Pagination pagination={pagination} totalCount={triggeredAlertsCount} />
+              <Pagination pagination={{ reset, ...pagination }} totalCount={triggeredAlertsCount} />
             </Table.Cell>
           </Table.Row>
         </Table.Foot>

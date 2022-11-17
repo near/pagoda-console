@@ -42,28 +42,28 @@ export function Header({ redirect, ...props }: Props) {
       <S.Header {...props}>
         <Flex align="stretch">
           <ProjectSelector
-            onBeforeChange={
+            onChange={
               redirect?.projectChange
-                ? (change) => {
+                ? (callback) => {
                     openConfirmRedirectModal(
                       'Changing projects will redirect you away from your current page. Would you like to change?',
-                      change,
+                      callback,
                     );
                   }
-                : undefined
+                : (callback) => callback()
             }
           />
 
           <EnvironmentSelector
-            onBeforeChange={
+            onChange={
               redirect?.environmentChange
-                ? (change) => {
+                ? (callback) => {
                     openConfirmRedirectModal(
                       'Changing environments will redirect you away from your current page. Would you like to change?',
-                      change,
+                      callback,
                     );
                   }
-                : undefined
+                : (callback) => callback()
             }
           />
         </Flex>

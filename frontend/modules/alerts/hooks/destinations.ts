@@ -58,7 +58,7 @@ export async function updateDestination<K extends Alerts.Destination['type']>(
   return destination as MapDiscriminatedUnion<Alerts.Destination, 'type'>[K];
 }
 
-export function useDestinations(projectSlug: string | undefined) {
+export function useDestinations(projectSlug: string) {
   const identity = useIdentity();
 
   const {
@@ -66,12 +66,9 @@ export function useDestinations(projectSlug: string | undefined) {
     error,
     mutate,
     isValidating,
-  } = useSWR(
-    identity && projectSlug ? ['/alerts/listDestinations' as const, projectSlug, identity.uid] : null,
-    (key) => {
-      return authenticatedPost(key, { projectSlug: projectSlug! });
-    },
-  );
+  } = useSWR(identity ? ['/alerts/listDestinations' as const, projectSlug, identity.uid] : null, (key) => {
+    return authenticatedPost(key, { projectSlug });
+  });
 
   return { destinations, error, mutate, isValidating };
 }

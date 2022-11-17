@@ -12,10 +12,11 @@ import * as Tabs from '@/components/lib/Tabs';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { withSelectedProject } from '@/components/with-selected-project';
 import { useContract, useContracts } from '@/hooks/contracts';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
+import { useSureProjectContext } from '@/hooks/project-context';
 import { useRouteParam } from '@/hooks/route';
-import { useSelectedProject } from '@/hooks/selected-project';
 import { ContractAbi } from '@/modules/contracts/components/ContractAbi';
 import { ContractDetails } from '@/modules/contracts/components/ContractDetails';
 import { ContractInteract } from '@/modules/contracts/components/ContractInteract';
@@ -29,8 +30,8 @@ type Contract = Api.Query.Output<'/projects/getContract'>;
 const ViewContract: NextPageWithLayout = () => {
   const router = useRouter();
   const contractSlug = useRouteParam('slug', '/contracts', true) || undefined;
-  const { environment, project } = useSelectedProject();
-  const { contracts, mutate: mutateContracts } = useContracts(project?.slug, environment?.subId);
+  const { projectSlug, environmentSubId } = useSureProjectContext();
+  const { contracts, mutate: mutateContracts } = useContracts(projectSlug, environmentSubId);
   const { contract } = useContract(contractSlug);
   const activeTab = useRouteParam('tab', `/contracts/${contractSlug}?tab=details`, true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -132,7 +133,7 @@ const ViewContract: NextPageWithLayout = () => {
 
         <Section>
           <Tabs.Content css={{ paddingTop: 0 }} value="details">
-            <ContractDetails contract={contract} environment={environment} />
+            <ContractDetails contract={contract} />
           </Tabs.Content>
 
           <Tabs.Content css={{ paddingTop: 0 }} value="interact">
@@ -167,4 +168,4 @@ ViewContract.getLayout = wrapDashboardLayoutWithOptions({
   },
 });
 
-export default ViewContract;
+export default withSelectedProject(ViewContract);

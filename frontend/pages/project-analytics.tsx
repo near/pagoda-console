@@ -12,19 +12,21 @@ import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
+import { withSelectedProject } from '@/components/with-selected-project';
 import { useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
 import { useTheme } from '@/hooks/theme';
 import config from '@/utils/config';
+import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {
-  const { environment, project } = useSelectedProject();
-  const { contracts } = useContracts(project?.slug, environment?.subId);
+  const { environmentSubId, projectSlug } = useSureProjectContext();
+  const { contracts } = useContracts(projectSlug, environmentSubId);
 
-  if (!environment || !contracts || !project) {
+  if (!contracts) {
     return <Spinner center />;
   }
 
@@ -34,15 +36,15 @@ const ProjectAnalytics: NextPageWithLayout = () => {
 
   return (
     <Section>
-      <AnalyticsIframe environment={environment} contracts={contracts} />
+      <AnalyticsIframe contracts={contracts} />
     </Section>
   );
 };
 
-type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 type Project = Api.Query.Output<'/projects/getContracts'>;
 
-function AnalyticsIframe({ environment, contracts }: { environment: Environment; contracts: Project }) {
+function AnalyticsIframe({ contracts }: { contracts: Project }) {
+  const { environmentSubId } = useSureProjectContext();
   const { activeTheme } = useTheme();
   const iframeId = 'analytics-iframe';
   const initialized = useRef(false);
@@ -59,7 +61,9 @@ function AnalyticsIframe({ environment, contracts }: { environment: Environment;
   contracts.forEach((contract) => {
     contractParams += `&contract=${contract.address}`;
   });
-  const iframeUrl = `${config.analyticsIframeUrl[environment.net]}?${contractParams}${themeParam}`;
+  const iframeUrl = `${
+    config.analyticsIframeUrl[mapEnvironmentSubIdToNet(environmentSubId)]
+  }?${contractParams}${themeParam}`;
 
   return (
     <iframe
@@ -103,4 +107,4 @@ function NoContractsNotice() {
 
 ProjectAnalytics.getLayout = useDashboardLayout;
 
-export default ProjectAnalytics;
+export default withSelectedProject(ProjectAnalytics);

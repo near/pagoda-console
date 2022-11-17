@@ -47,7 +47,7 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
         name: projectName,
       });
 
-      await deployContractTemplate(project, template);
+      await deployContractTemplate(project.slug, template);
 
       analytics.track('DC Create New Example Project', {
         status: 'success',
