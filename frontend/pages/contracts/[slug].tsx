@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Projects } from '@pc/common/types/core';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -29,7 +30,7 @@ type Contract = Api.Query.Output<'/projects/getContract'>;
 
 const ViewContract: NextPageWithLayout = () => {
   const router = useRouter();
-  const contractSlug = useRouteParam('slug', '/contracts', true) || undefined;
+  const contractSlug = (useRouteParam('slug', '/contracts', true) || '') as Projects.ContractSlug;
   const { projectSlug, environmentSubId } = useSureProjectContext();
   const { contracts, mutate: mutateContracts } = useContracts(projectSlug, environmentSubId);
   const { contract } = useContract(contractSlug);

@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Projects } from '@pc/common/types/core';
 import type * as RPC from '@pc/common/types/rpc';
 import type { Net } from '@pc/database/clients/core';
 import useSWR from 'swr';
@@ -31,7 +32,7 @@ export async function deleteContract(contract: Contract) {
   }
 }
 
-export function useContracts(project: string, environment: number) {
+export function useContracts(project: Projects.ProjectSlug, environment: Projects.EnvironmentId) {
   const identity = useIdentity();
 
   const {
@@ -51,7 +52,7 @@ export function useContracts(project: string, environment: number) {
   return { contracts, error, mutate };
 }
 
-export function useContract(slug: string | undefined) {
+export function useContract(slug: Projects.ContractSlug | undefined) {
   const identity = useIdentity();
 
   const {

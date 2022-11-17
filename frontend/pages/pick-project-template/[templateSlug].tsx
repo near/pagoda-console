@@ -1,3 +1,4 @@
+import type { Projects } from '@pc/common/types/core';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -22,7 +23,7 @@ import type { NextPageWithLayout } from '@/utils/types';
 
 const ViewProjectTemplate: NextPageWithLayout = () => {
   const router = useRouter();
-  const slug = useRouteParam('templateSlug');
+  const slug = useRouteParam('templateSlug') as Projects.ContractSlug;
   const template = useContractTemplate(slug);
   const { user } = useAccount();
   const [isDeploying, setIsDeploying] = useState(false);

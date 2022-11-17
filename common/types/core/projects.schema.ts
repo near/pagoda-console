@@ -159,3 +159,11 @@ export const mutation = {
     deleteKey: z.unknown(),
   },
 };
+
+export type {
+  EnvironmentId,
+  ProjectSlug,
+  ContractSlug,
+  OrgSlug,
+  ApiKeySlug,
+} from './types';

@@ -1,3 +1,4 @@
+import type { Projects } from '@pc/common/types/core';
 import type { Net } from '@pc/common/types/core/types';
 import type { NextRouter } from 'next/router';
 
@@ -5,7 +6,7 @@ export function assertUnreachable(x: never): never {
   throw new Error(`Unreachable Case: ${x}`);
 }
 
-export function returnContractAddressRegex(environmentSubId: number) {
+export function returnContractAddressRegex(environmentSubId: Projects.EnvironmentId) {
   // https://docs.near.org/docs/concepts/account#account-id-rules
 
   const prefix = '^(([a-z\\d]+[\\-_])*[a-z\\d]+\\.)*([a-z\\d]+[\\-_])*[a-z\\d]+';
@@ -40,7 +41,7 @@ export function sleep(ms: number) {
 
 export const nonNullishGuard = <T>(arg: T): arg is Exclude<T, null | undefined> => arg !== null && arg !== undefined;
 
-export const mapEnvironmentSubIdToNet = (environmentSubId: number): Net => {
+export const mapEnvironmentSubIdToNet = (environmentSubId: Projects.EnvironmentId): Net => {
   switch (environmentSubId) {
     case 2:
       return 'MAINNET';

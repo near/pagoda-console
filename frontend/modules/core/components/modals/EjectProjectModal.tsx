@@ -1,3 +1,4 @@
+import type { Projects } from '@pc/common/types/core';
 import { useState } from 'react';
 
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -7,7 +8,7 @@ import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { ejectTutorial } from '@/hooks/projects';
 
 interface Props {
-  slug: string;
+  slug: Projects.ProjectSlug;
   name: string;
   show: boolean;
   setShow: (show: boolean) => void;

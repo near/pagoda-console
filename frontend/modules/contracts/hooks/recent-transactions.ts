@@ -1,3 +1,4 @@
+import type { Explorer } from '@pc/common/types/core';
 import type * as RPC from '@pc/common/types/rpc';
 import type { Net } from '@pc/database/clients/core';
 import JSBI from 'jsbi';
@@ -17,7 +18,7 @@ export function useRecentTransactions(contract: string | undefined, net: Net | u
     identity && contract && net ? ['/explorer/getTransactions' as const, contract, net, identity.uid] : null,
     (key, contracts, net) => {
       return authenticatedPost(key, {
-        contracts: contracts.split(','),
+        contracts: contracts.split(',') as Explorer.AccountId[],
         net,
       });
     },

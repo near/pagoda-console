@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Projects, Users } from '@pc/common/types/core';
 import useSWR from 'swr';
 import { mutate } from 'swr';
 
@@ -6,7 +7,7 @@ import { useIdentity } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 
-export async function ejectTutorial(slug: string, name: string) {
+export async function ejectTutorial(slug: Projects.ProjectSlug, name: string) {
   try {
     await authenticatedPost('/projects/ejectTutorial', { slug });
     analytics.track('DC Eject Tutorial Project', {
@@ -28,7 +29,7 @@ export async function ejectTutorial(slug: string, name: string) {
 
 type Projects = Api.Query.Output<'/projects/list'>;
 
-export async function deleteProject(userId: string | undefined, slug: string, name: string) {
+export async function deleteProject(userId: Users.UserUid | undefined, slug: Projects.ProjectSlug, name: string) {
   try {
     await authenticatedPost('/projects/delete', { slug });
     analytics.track('DC Remove Project', {
@@ -52,7 +53,7 @@ export async function deleteProject(userId: string | undefined, slug: string, na
   return false;
 }
 
-export function useProject(projectSlug: string) {
+export function useProject(projectSlug: Projects.ProjectSlug) {
   const { data: project, error } = useSWR(['/projects/getDetails' as const, projectSlug], (key, projectSlug) => {
     return authenticatedPost(key, { slug: projectSlug });
   });
@@ -60,7 +61,7 @@ export function useProject(projectSlug: string) {
   return { project, error };
 }
 
-export const useMaybeProject = (projectSlug: string | undefined) => {
+export const useMaybeProject = (projectSlug: Projects.ProjectSlug | undefined) => {
   const { data: project, error } = useSWR(
     projectSlug ? ['/projects/getDetails' as const, projectSlug] : null,
     (key, projectSlug) => authenticatedPost(key, { slug: projectSlug }),

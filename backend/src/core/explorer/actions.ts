@@ -115,9 +115,8 @@ export const mapDatabaseActionToAction = (
               nonce: action.args.access_key.nonce,
               permission: {
                 type: 'functionCall',
-                contractId:
-                  action.args.access_key.permission.permission_details
-                    .receiver_id,
+                contractId: action.args.access_key.permission.permission_details
+                  .receiver_id as Explorer.AccountId,
                 methodNames:
                   action.args.access_key.permission.permission_details
                     .method_names,
@@ -133,7 +132,7 @@ export const mapDatabaseActionToAction = (
       return {
         kind: 'deleteAccount',
         args: {
-          beneficiaryId: action.args.beneficiary_id,
+          beneficiaryId: action.args.beneficiary_id as Explorer.AccountId,
         },
       };
     case 'DELETE_KEY':
@@ -157,7 +156,7 @@ export const mapDatabaseActionToAction = (
           methodName: action.args.method_name,
           args: action.args.args_base64,
           gas: action.args.gas,
-          deposit: action.args.deposit,
+          deposit: action.args.deposit as Explorer.YoctoNear,
         },
       };
     case 'STAKE':
@@ -165,14 +164,14 @@ export const mapDatabaseActionToAction = (
         kind: 'stake',
         args: {
           publicKey: action.args.public_key,
-          stake: action.args.stake,
+          stake: action.args.stake as Explorer.YoctoNear,
         },
       };
     case 'TRANSFER':
       return {
         kind: 'transfer',
         args: {
-          deposit: action.args.deposit,
+          deposit: action.args.deposit as Explorer.YoctoNear,
         },
       };
   }
@@ -199,7 +198,7 @@ export const mapRpcActionToAction = (
       args: {
         methodName: rpcAction.FunctionCall.method_name,
         args: rpcAction.FunctionCall.args,
-        deposit: rpcAction.FunctionCall.deposit,
+        deposit: rpcAction.FunctionCall.deposit as Explorer.YoctoNear,
         gas: rpcAction.FunctionCall.gas,
       },
     };
@@ -207,7 +206,9 @@ export const mapRpcActionToAction = (
   if ('Transfer' in rpcAction) {
     return {
       kind: 'transfer',
-      args: rpcAction.Transfer,
+      args: {
+        deposit: rpcAction.Transfer.deposit as Explorer.YoctoNear,
+      },
     };
   }
   if ('Stake' in rpcAction) {
@@ -215,7 +216,7 @@ export const mapRpcActionToAction = (
       kind: 'stake',
       args: {
         publicKey: rpcAction.Stake.public_key,
-        stake: rpcAction.Stake.stake,
+        stake: rpcAction.Stake.stake as Explorer.YoctoNear,
       },
     };
   }
@@ -233,9 +234,8 @@ export const mapRpcActionToAction = (
                 }
               : {
                   type: 'functionCall',
-                  contractId:
-                    rpcAction.AddKey.access_key.permission.FunctionCall
-                      .receiver_id,
+                  contractId: rpcAction.AddKey.access_key.permission
+                    .FunctionCall.receiver_id as Explorer.AccountId,
                   methodNames:
                     rpcAction.AddKey.access_key.permission.FunctionCall
                       .method_names,
@@ -255,7 +255,8 @@ export const mapRpcActionToAction = (
   return {
     kind: 'deleteAccount',
     args: {
-      beneficiaryId: rpcAction.DeleteAccount.beneficiary_id,
+      beneficiaryId: rpcAction.DeleteAccount
+        .beneficiary_id as Explorer.AccountId,
     },
   };
 };

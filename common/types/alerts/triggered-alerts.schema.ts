@@ -17,7 +17,7 @@ export type TriggeredAlertSlug = z.infer<typeof triggeredAlertSlug>;
 
 const triggeredAlert = z.strictObject({
   slug: triggeredAlertSlug,
-  alertId: z.number(),
+  alertId: alertId,
   name: z.string(),
   type: ruleType,
   triggeredInBlockHash: blockHash,

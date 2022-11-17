@@ -1,5 +1,6 @@
 import type { Alerts } from '@pc/common/types/alerts';
 import type { Api } from '@pc/common/types/api';
+import type { Explorer, Projects } from '@pc/common/types/core';
 import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -40,7 +41,7 @@ import type { NextPageWithLayout } from '@/utils/types';
 import { validateMaxNearDecimalLength, validateMaxNearU128 } from '@/utils/validations';
 
 interface FormData {
-  contract: string;
+  contract: Explorer.AccountId;
   type: Alerts.RuleType;
   acctBalRule?: {
     comparator: Alerts.Comparator;
@@ -71,7 +72,7 @@ const NewAlert: NextPageWithLayout = () => {
   const { projectSlug, environmentSubId } = useSureProjectContext();
   const { mutate } = useAlerts(projectSlug, environmentSubId);
   const [createError, setCreateError] = useState('');
-  const [selectedDestinationIds, setSelectedDestinationIds] = useState<number[]>([]);
+  const [selectedDestinationIds, setSelectedDestinationIds] = useState<Alerts.DestinationId[]>([]);
   const { contracts } = useContracts(projectSlug, environmentSubId);
   const [contractComboboxItems, setContractComboboxItems] = useState<Contract[]>([]);
 
@@ -569,9 +570,9 @@ NewAlert.getLayout = wrapDashboardLayoutWithOptions({
 
 function returnNewAlertBody(
   data: FormData,
-  destinations: number[],
-  projectSlug: string,
-  environmentSubId: number,
+  destinations: Alerts.DestinationId[],
+  projectSlug: Projects.ProjectSlug,
+  environmentSubId: Projects.EnvironmentId,
 ): Api.Mutation.Input<'/alerts/createAlert'> {
   const base = {
     destinations,

@@ -6,9 +6,7 @@ import {
   Net,
   User,
   Contract,
-  Environment,
   ApiKey,
-  Org,
 } from '@pc/database/clients/core';
 import { VError } from 'verror';
 import { customAlphabet } from 'nanoid';
@@ -20,6 +18,7 @@ import { ReadonlyService } from './readonly.service';
 import { ApiKeysService } from '../keys/apiKeys.service';
 import { ReadonlyService as UsersReadonlyService } from '../users/readonly.service';
 import { PermissionsService as UsersPermissionsService } from '../users/permissions.service';
+import { Projects } from '@pc/common/types/core';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -52,9 +51,9 @@ export class ProjectsService {
   async create(
     user: User,
     name: Project['name'],
-    orgSlug?: Org['slug'],
+    orgSlug?: Projects.OrgSlug,
     tutorial?: Project['tutorial'],
-  ): Promise<{ name: Project['name']; slug: Project['slug'] }> {
+  ): Promise<{ name: Project['name']; slug: Projects.ProjectSlug }> {
     if (!orgSlug) {
       try {
         const { slug } = await this.users.getPersonalOrg(user);
@@ -403,12 +402,12 @@ export class ProjectsService {
 
   async addContract(
     callingUser: User,
-    project: Project['slug'],
-    subId: Environment['subId'],
+    project: Projects.ProjectSlug,
+    subId: Projects.EnvironmentId,
     address: Contract['address'],
   ) {
     let net: Net;
-    let environmentId: Environment['id'];
+    let environmentId: Projects.EnvironmentId;
     try {
       const environment = await this.getActiveEnvironment(project, subId);
       net = environment.net;
@@ -501,8 +500,8 @@ export class ProjectsService {
   }
 
   private async findContract(
-    project: Project['slug'],
-    subId: Environment['subId'],
+    project: Projects.ProjectSlug,
+    subId: Projects.EnvironmentId,
     address: Contract['address'],
   ) {
     return await this.prisma.contract.findFirst({
@@ -578,8 +577,8 @@ export class ProjectsService {
 
   async getContracts(
     callingUser: User,
-    project: Project['slug'],
-    subId: Environment['subId'],
+    project: Projects.ProjectSlug,
+    subId: Projects.EnvironmentId,
   ) {
     const environment = await this.getActiveEnvironmentAssert(project, subId);
 
@@ -606,7 +605,7 @@ export class ProjectsService {
     }
   }
 
-  async getContract(callingUser: User, slug: Contract['slug']) {
+  async getContract(callingUser: User, slug: Projects.ContractSlug) {
     await this.permissions.checkUserContractPermission(callingUser.id, slug);
     const { net, address } = await this.readonly.getContract(slug);
     return { slug, net, address };
@@ -640,8 +639,8 @@ export class ProjectsService {
   }
 
   async getActiveEnvironmentAssert(
-    projectSlug: Project['slug'],
-    subId: Environment['subId'],
+    projectSlug: Projects.ProjectSlug,
+    subId: Projects.EnvironmentId,
   ) {
     // check that project is active
     // quick check, only return minimal info
@@ -677,8 +676,8 @@ export class ProjectsService {
   }
 
   async getActiveEnvironment(
-    projectSlug: Project['slug'],
-    subId: Environment['subId'],
+    projectSlug: Projects.ProjectSlug,
+    subId: Projects.EnvironmentId,
   ) {
     // check that project is active
     const environment = await this.prisma.environment.findFirst({
@@ -814,8 +813,8 @@ export class ProjectsService {
 
   async getEnvironmentDetails(
     callingUser: User,
-    project: Project['slug'],
-    subId: Environment['subId'],
+    project: Projects.ProjectSlug,
+    subId: Projects.EnvironmentId,
   ) {
     const environment = await this.getActiveEnvironment(project, subId);
 
@@ -877,7 +876,7 @@ export class ProjectsService {
     }
   }
 
-  async isProjectNameUnique(name: Project['name'], orgSlug: Org['slug']) {
+  async isProjectNameUnique(name: Project['name'], orgSlug: Projects.OrgSlug) {
     try {
       const p = await this.prisma.project.findFirst({
         where: {
@@ -897,7 +896,7 @@ export class ProjectsService {
 
   async getKeysWithKongConsumer(
     callingUser: User,
-    projectSlug: Project['slug'],
+    projectSlug: Projects.ProjectSlug,
   ) {
     const projectWhereUnique = {
       slug: projectSlug,
@@ -922,13 +921,13 @@ export class ProjectsService {
     }
   }
 
-  async getKeys(callingUser: User, projectSlug: Project['slug']) {
+  async getKeys(callingUser: User, projectSlug: Projects.ProjectSlug) {
     return (await this.getKeysWithKongConsumer(callingUser, projectSlug)).map(
       ({ kongConsumerName: _kongConsumerName, ...el }) => el,
     );
   }
 
-  async rotateKey(callingUser: User, keySlug: ApiKey['slug']) {
+  async rotateKey(callingUser: User, keySlug: Projects.ApiKeySlug) {
     let keyRelatedSlugs;
     try {
       keyRelatedSlugs = await this.apiKeys.getKeyDetails(keySlug);
@@ -972,7 +971,7 @@ export class ProjectsService {
 
   async generateKey(
     callingUser: User,
-    projectSlug: Project['slug'],
+    projectSlug: Projects.ProjectSlug,
     description?: ApiKey['description'],
   ) {
     const projectWhereUnique = {
@@ -1007,7 +1006,7 @@ export class ProjectsService {
     }
   }
 
-  async deleteKey(callingUser: User, keySlug: ApiKey['slug']) {
+  async deleteKey(callingUser: User, keySlug: Projects.ApiKeySlug) {
     let keyRelatedSlugs;
     try {
       keyRelatedSlugs = await this.apiKeys.getKeyDetails(keySlug);
@@ -1071,7 +1070,7 @@ export class ProjectsService {
   }
 
   // Deletes api keys associated with an org.
-  async deleteApiKeysByOrg(user: User, orgSlug: Org['slug']) {
+  async deleteApiKeysByOrg(user: User, orgSlug: Projects.OrgSlug) {
     try {
       await this.apiKeys.deleteOrg(user.id, orgSlug);
     } catch (e: any) {

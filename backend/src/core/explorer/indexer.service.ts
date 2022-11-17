@@ -233,7 +233,7 @@ export class IndexerService {
     return await this.createTransactionsList(accountTxList, net);
   }
 
-  async fetchRecentTransactions(accounts: string[], net: Net) {
+  async fetchRecentTransactions(accounts: Explorer.AccountId[], net: Net) {
     const promises: Promise<Explorer.Old.Transaction[] | undefined>[] = [];
 
     for (const account of accounts) {
@@ -255,7 +255,7 @@ export class IndexerService {
     const results = await Promise.allSettled(promises);
     // console.log(results);
     let mergedTransactions: (Explorer.Old.Transaction & {
-      sourceContract: string;
+      sourceContract: Explorer.AccountId;
     })[] = [];
     for (let i = 0; i < results.length; i++) {
       const result = results[i];

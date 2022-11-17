@@ -1,5 +1,6 @@
 import type { WalletSelector } from '@near-wallet-selector/core';
 import type { Api } from '@pc/common/types/api';
+import type { Explorer } from '@pc/common/types/core';
 import JSBI from 'jsbi';
 import type { AbiParameter, AbiRoot, AnyContract as AbiContract } from 'near-abi-client-js';
 import { useRouter } from 'next/router';
@@ -586,7 +587,7 @@ const TxResultView = ({ result, error }: { result: any; error: any }) => {
   }
 
   if (result?.hash) {
-    const hash = result?.hash as string;
+    const hash = result?.hash as Explorer.TransactionHash;
     return (
       <Flex stack>
         <ResultTitle>Result</ResultTitle>
@@ -630,7 +631,7 @@ const TxResult = ({ result }: { result: any }) => (
   </Card>
 );
 
-const TxResultHash = ({ hash }: { hash: string }) => {
+const TxResultHash = ({ hash }: { hash: Explorer.TransactionHash }) => {
   const { environmentSubId } = useSureProjectContext();
   const net = mapEnvironmentSubIdToNet(environmentSubId);
 

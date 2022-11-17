@@ -20,7 +20,7 @@ export const query = {
 
   outputs: {
     getAccountDetails: z.strictObject({
-      uid: z.string().optional(),
+      uid: userUid.optional(),
       email: z.string().optional(),
       name: z.string().optional(),
       photoUrl: z.string().optional(),
@@ -125,3 +125,5 @@ export const mutation = {
     resetPassword: z.unknown(),
   },
 };
+
+export type { UserUid } from './types';

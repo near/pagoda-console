@@ -1,3 +1,5 @@
+import type { Projects } from '@pc/common/types/core';
+
 import { Button } from '@/components/lib/Button';
 import { CopyButton } from '@/components/lib/CopyButton';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -18,7 +20,7 @@ const ButtonWallet = styled(Button, {
 });
 
 const WalletLogin = ({ onBeforeLogIn }: { onBeforeLogIn: () => void }) => {
-  const contractSlug = useRouteParam('slug', '/contracts', true) || undefined;
+  const contractSlug = (useRouteParam('slug', '/contracts', true) || undefined) as Projects.ContractSlug | undefined;
   const { contract: { address: contractId } = {} } = useContract(contractSlug);
   const { accountId, signOut, modal } = useWalletSelector(contractId);
 

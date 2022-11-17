@@ -12,7 +12,7 @@ import {
 
 // TODO should we re-export these types from the core module? So there is no dependency on the core prisma/client
 // yes
-import { User, Project } from '@pc/database/clients/core';
+import { User } from '@pc/database/clients/core';
 import { PermissionsService as ProjectPermissionsService } from '../../core/projects/permissions.service';
 
 import { customAlphabet } from 'nanoid';
@@ -36,6 +36,7 @@ import { DateTime } from 'luxon';
 import { NearRpcService } from '@/src/core/near-rpc/near-rpc.service';
 import { EmailVerificationService } from './email-verification.service';
 import { Alerts } from '@pc/common/types/alerts';
+import { Projects } from '@pc/common/types/core';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -287,7 +288,7 @@ export class AlertsService {
 
   async updateAlert(
     callingUser: User,
-    id: Alert['id'],
+    id: Alerts.AlertId,
     name?: Alert['name'],
     isPaused?: Alert['isPaused'],
   ) {
@@ -390,7 +391,7 @@ export class AlertsService {
     return alerts.map((a) => this.toAlertDto(a));
   }
 
-  async getAlertDetails(callingUser: User, id: Alert['id']) {
+  async getAlertDetails(callingUser: User, id: Alerts.AlertId) {
     try {
       await this.checkUserAlertPermission(callingUser.id, id);
 
@@ -520,7 +521,7 @@ export class AlertsService {
     });
   }
 
-  async deleteAlert(callingUser: User, id: Alert['id']): Promise<void> {
+  async deleteAlert(callingUser: User, id: Alerts.AlertId): Promise<void> {
     await this.checkUserAlertPermission(callingUser.id, id);
 
     try {
@@ -738,7 +739,7 @@ export class AlertsService {
     }
   }
 
-  async deleteDestination(user: User, id: Destination['id']): Promise<void> {
+  async deleteDestination(user: User, id: Alerts.DestinationId): Promise<void> {
     await this.checkUserDestinationPermission(user.id, id);
 
     try {
@@ -759,7 +760,7 @@ export class AlertsService {
     }
   }
 
-  async listDestinations(user: User, projectSlug: Project['slug']) {
+  async listDestinations(user: User, projectSlug: Projects.ProjectSlug) {
     await this.projectPermissions.checkUserProjectPermission(
       user.id,
       projectSlug,
@@ -824,8 +825,8 @@ export class AlertsService {
 
   async enableDestination(
     callingUser: User,
-    alertId: Alert['id'],
-    destinationId: Destination['id'],
+    alertId: Alerts.AlertId,
+    destinationId: Alerts.DestinationId,
   ) {
     await this.checkUserAlertPermission(callingUser.id, alertId);
     await this.checkAlertDestinationPermission(alertId, destinationId);
@@ -860,8 +861,8 @@ export class AlertsService {
 
   async disableDestination(
     callingUser: User,
-    alertId: Alert['id'],
-    destinationId: Destination['id'],
+    alertId: Alerts.AlertId,
+    destinationId: Alerts.DestinationId,
   ) {
     await this.checkUserAlertPermission(callingUser.id, alertId);
 
@@ -1084,7 +1085,7 @@ export class AlertsService {
     }
   }
 
-  async resendEmailVerification(callingUser: User, id: Destination['id']) {
+  async resendEmailVerification(callingUser: User, id: Alerts.DestinationId) {
     await this.checkUserDestinationPermission(callingUser.id, id);
 
     try {
@@ -1191,7 +1192,7 @@ export class AlertsService {
 
   async rotateWebhookDestinationSecret(
     callingUser: User,
-    id: Destination['id'],
+    id: Alerts.DestinationId,
   ) {
     await this.checkUserDestinationPermission(callingUser.id, id);
 
@@ -1261,7 +1262,7 @@ export class AlertsService {
   // Confirms the user is a member of the alert's project.
   private async checkUserAlertPermission(
     userId: User['id'],
-    id: Alert['id'],
+    id: Alerts.AlertId,
   ): Promise<void> {
     const alert = await this.prisma.alert.findUnique({
       where: {
@@ -1293,7 +1294,7 @@ export class AlertsService {
   // Confirms the user is a member of the webhook's project.
   private async checkUserDestinationPermission(
     userId: User['id'],
-    id: Destination['id'],
+    id: Alerts.DestinationId,
   ): Promise<void> {
     const destination = await this.prisma.destination.findUnique({
       where: {
@@ -1333,8 +1334,8 @@ export class AlertsService {
    * Assumes alert validity has already been checked
    */
   private async checkAlertDestinationPermission(
-    alertId: number,
-    destinationId: number,
+    alertId: Alerts.AlertId,
+    destinationId: Alerts.DestinationId,
   ) {
     const alert = await this.prisma.alert.findUnique({
       where: {
@@ -1413,8 +1414,8 @@ export class AlertsService {
 
   // Checks that the destination belongs to the same project as the alert
   private async checkAlertDestinationCompatibility(
-    projectSlug: Project['slug'],
-    ids: Array<Destination['id']>,
+    projectSlug: Projects.ProjectSlug,
+    ids: Array<Alerts.DestinationId>,
   ) {
     const destinations = await this.prisma.destination.findMany({
       where: {

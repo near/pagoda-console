@@ -1,3 +1,4 @@
+import type { Users } from '@pc/common/types/core';
 import type { User as FirebaseUser } from 'firebase/auth';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useState } from 'react';
@@ -19,13 +20,15 @@ export function useAccount() {
   return { user, error, mutate };
 }
 
-export function useIdentity(): FirebaseUser | null {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+type FlavoredUser = Omit<FirebaseUser, 'uid'> & { uid: Users.UserUid };
+
+export function useIdentity(): FlavoredUser | null {
+  const [user, setUser] = useState<FlavoredUser | null>(null);
 
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user: FirebaseUser | null) => {
-      setUser(user);
+      setUser(user as FlavoredUser);
     });
 
     return () => unsubscribe();
@@ -34,7 +37,7 @@ export function useIdentity(): FirebaseUser | null {
   return user;
 }
 
-export async function deleteAccount(uid: string | undefined) {
+export async function deleteAccount(uid: Users.UserUid | undefined) {
   try {
     await authenticatedPost('/users/deleteAccount');
     analytics.track('Delete account', {

@@ -352,4 +352,11 @@ export const query = {
   },
 };
 
-export type { TransactionStatus } from './types';
+export type {
+  TransactionStatus,
+  AccountId,
+  TransactionHash,
+  ReceiptId,
+  YoctoNear,
+  BlockHash,
+} from './types';

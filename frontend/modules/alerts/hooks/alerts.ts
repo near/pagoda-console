@@ -1,4 +1,6 @@
+import type { Alerts } from '@pc/common/types/alerts';
 import type { Api } from '@pc/common/types/api';
+import type { Projects } from '@pc/common/types/core';
 import useSWR from 'swr';
 
 import { useIdentity } from '@/hooks/user';
@@ -39,7 +41,7 @@ export async function deleteAlert(alert: Api.Mutation.Input<'/alerts/deleteAlert
   return false;
 }
 
-export async function disableDestinationForAlert(alertId: number, destinationId: number) {
+export async function disableDestinationForAlert(alertId: Alerts.AlertId, destinationId: Alerts.DestinationId) {
   await authenticatedPost('/alerts/disableDestination', {
     alert: alertId,
     destination: destinationId,
@@ -52,7 +54,7 @@ export async function disableDestinationForAlert(alertId: number, destinationId:
   });
 }
 
-export async function enableDestinationForAlert(alertId: number, destinationId: number) {
+export async function enableDestinationForAlert(alertId: Alerts.AlertId, destinationId: Alerts.DestinationId) {
   await authenticatedPost('/alerts/enableDestination', {
     alert: alertId,
     destination: destinationId,
@@ -79,7 +81,7 @@ export async function updateAlert(data: Api.Mutation.Input<'/alerts/updateAlert'
   return alert;
 }
 
-export function useAlert(alertId: number | undefined) {
+export function useAlert(alertId: Alerts.AlertId | undefined) {
   const identity = useIdentity();
 
   const {
@@ -96,7 +98,7 @@ export function useAlert(alertId: number | undefined) {
   return { alert, error, mutate };
 }
 
-export function useAlerts(projectSlug: string, environmentSubId: number) {
+export function useAlerts(projectSlug: Projects.ProjectSlug, environmentSubId: Projects.EnvironmentId) {
   const identity = useIdentity();
   const {
     data: alerts,

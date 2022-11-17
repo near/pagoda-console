@@ -10,7 +10,7 @@ const mapRpcCompilationError = (
   if ('CodeDoesNotExist' in error) {
     return {
       type: 'codeDoesNotExist',
-      accountId: error.CodeDoesNotExist.account_id,
+      accountId: error.CodeDoesNotExist.account_id as Explorer.AccountId,
     };
   }
   if ('PrepareError' in error) {
@@ -87,25 +87,25 @@ const mapRpcNewReceiptValidationError = (
   if ('InvalidPredecessorId' in error) {
     return {
       type: 'invalidPredecessorId',
-      accountId: error.InvalidPredecessorId.account_id,
+      accountId: error.InvalidPredecessorId.account_id as Explorer.AccountId,
     };
   }
   if ('InvalidReceiverId' in error) {
     return {
       type: 'invalidReceiverId',
-      accountId: error.InvalidReceiverId.account_id,
+      accountId: error.InvalidReceiverId.account_id as Explorer.AccountId,
     };
   }
   if ('InvalidSignerId' in error) {
     return {
       type: 'invalidSignerId',
-      accountId: error.InvalidSignerId.account_id,
+      accountId: error.InvalidSignerId.account_id as Explorer.AccountId,
     };
   }
   if ('InvalidDataReceiverId' in error) {
     return {
       type: 'invalidDataReceiverId',
-      accountId: error.InvalidDataReceiverId.account_id,
+      accountId: error.InvalidDataReceiverId.account_id as Explorer.AccountId,
     };
   }
   if ('ReturnedValueLengthExceeded' in error) {
@@ -161,13 +161,13 @@ const mapRpcReceiptInvalidTxError = (
   if ('InvalidSignerId' in error) {
     return {
       type: 'invalidSignerId',
-      signerId: error.InvalidSignerId.signer_id,
+      signerId: error.InvalidSignerId.signer_id as Explorer.AccountId,
     };
   }
   if ('SignerDoesNotExist' in error) {
     return {
       type: 'signerDoesNotExist',
-      signerId: error.SignerDoesNotExist.signer_id,
+      signerId: error.SignerDoesNotExist.signer_id as Explorer.AccountId,
     };
   }
   if ('InvalidNonce' in error) {
@@ -187,7 +187,7 @@ const mapRpcReceiptInvalidTxError = (
   if ('InvalidReceiverId' in error) {
     return {
       type: 'invalidReceiverId',
-      receiverId: error.InvalidReceiverId.receiver_id,
+      receiverId: error.InvalidReceiverId.receiver_id as Explorer.AccountId,
     };
   }
   if ('InvalidSignature' in error) {
@@ -198,16 +198,16 @@ const mapRpcReceiptInvalidTxError = (
   if ('NotEnoughBalance' in error) {
     return {
       type: 'notEnoughBalance',
-      signerId: error.NotEnoughBalance.signer_id,
-      balance: error.NotEnoughBalance.balance,
-      cost: error.NotEnoughBalance.cost,
+      signerId: error.NotEnoughBalance.signer_id as Explorer.AccountId,
+      balance: error.NotEnoughBalance.balance as Explorer.YoctoNear,
+      cost: error.NotEnoughBalance.cost as Explorer.YoctoNear,
     };
   }
   if ('LackBalanceForState' in error) {
     return {
       type: 'lackBalanceForState',
-      signerId: error.LackBalanceForState.signer_id,
-      amount: error.LackBalanceForState.amount,
+      signerId: error.LackBalanceForState.signer_id as Explorer.AccountId,
+      amount: error.LackBalanceForState.amount as Explorer.YoctoNear,
     };
   }
   if ('CostOverflow' in error) {
@@ -247,86 +247,89 @@ const mapRpcReceiptActionError = (
   if ('AccountAlreadyExists' in kind) {
     return {
       type: 'accountAlreadyExists',
-      accountId: kind.AccountAlreadyExists.account_id,
+      accountId: kind.AccountAlreadyExists.account_id as Explorer.AccountId,
     };
   }
   if ('AccountDoesNotExist' in kind) {
     return {
       type: 'accountDoesNotExist',
-      accountId: kind.AccountDoesNotExist.account_id,
+      accountId: kind.AccountDoesNotExist.account_id as Explorer.AccountId,
     };
   }
   if ('CreateAccountOnlyByRegistrar' in kind) {
     return {
       type: 'createAccountOnlyByRegistrar',
-      accountId: kind.CreateAccountOnlyByRegistrar.account_id,
-      registrarAccountId:
-        kind.CreateAccountOnlyByRegistrar.registrar_account_id,
-      predecessorId: kind.CreateAccountOnlyByRegistrar.predecessor_id,
+      accountId: kind.CreateAccountOnlyByRegistrar
+        .account_id as Explorer.AccountId,
+      registrarAccountId: kind.CreateAccountOnlyByRegistrar
+        .registrar_account_id as Explorer.AccountId,
+      predecessorId: kind.CreateAccountOnlyByRegistrar
+        .predecessor_id as Explorer.AccountId,
     };
   }
   if ('CreateAccountNotAllowed' in kind) {
     return {
       type: 'createAccountNotAllowed',
-      accountId: kind.CreateAccountNotAllowed.account_id,
-      predecessorId: kind.CreateAccountNotAllowed.predecessor_id,
+      accountId: kind.CreateAccountNotAllowed.account_id as Explorer.AccountId,
+      predecessorId: kind.CreateAccountNotAllowed
+        .predecessor_id as Explorer.AccountId,
     };
   }
   if ('ActorNoPermission' in kind) {
     return {
       type: 'actorNoPermission',
-      accountId: kind.ActorNoPermission.account_id,
-      actorId: kind.ActorNoPermission.actor_id,
+      accountId: kind.ActorNoPermission.account_id as Explorer.AccountId,
+      actorId: kind.ActorNoPermission.actor_id as Explorer.AccountId,
     };
   }
   if ('DeleteKeyDoesNotExist' in kind) {
     return {
       type: 'deleteKeyDoesNotExist',
-      accountId: kind.DeleteKeyDoesNotExist.account_id,
+      accountId: kind.DeleteKeyDoesNotExist.account_id as Explorer.AccountId,
       publicKey: kind.DeleteKeyDoesNotExist.public_key,
     };
   }
   if ('AddKeyAlreadyExists' in kind) {
     return {
       type: 'addKeyAlreadyExists',
-      accountId: kind.AddKeyAlreadyExists.account_id,
+      accountId: kind.AddKeyAlreadyExists.account_id as Explorer.AccountId,
       publicKey: kind.AddKeyAlreadyExists.public_key,
     };
   }
   if ('DeleteAccountStaking' in kind) {
     return {
       type: 'deleteAccountStaking',
-      accountId: kind.DeleteAccountStaking.account_id,
+      accountId: kind.DeleteAccountStaking.account_id as Explorer.AccountId,
     };
   }
   if ('LackBalanceForState' in kind) {
     return {
       type: 'lackBalanceForState',
-      accountId: kind.LackBalanceForState.account_id,
-      amount: kind.LackBalanceForState.amount,
+      accountId: kind.LackBalanceForState.account_id as Explorer.AccountId,
+      amount: kind.LackBalanceForState.amount as Explorer.YoctoNear,
     };
   }
   if ('TriesToUnstake' in kind) {
     return {
       type: 'triesToUnstake',
-      accountId: kind.TriesToUnstake.account_id,
+      accountId: kind.TriesToUnstake.account_id as Explorer.AccountId,
     };
   }
   if ('TriesToStake' in kind) {
     return {
       type: 'triesToStake',
-      accountId: kind.TriesToStake.account_id,
-      stake: kind.TriesToStake.stake,
-      locked: kind.TriesToStake.locked,
-      balance: kind.TriesToStake.balance,
+      accountId: kind.TriesToStake.account_id as Explorer.AccountId,
+      stake: kind.TriesToStake.stake as Explorer.YoctoNear,
+      locked: kind.TriesToStake.locked as Explorer.YoctoNear,
+      balance: kind.TriesToStake.balance as Explorer.YoctoNear,
     };
   }
   if ('InsufficientStake' in kind) {
     return {
       type: 'insufficientStake',
-      accountId: kind.InsufficientStake.account_id,
-      stake: kind.InsufficientStake.stake,
-      minimumStake: kind.InsufficientStake.minimum_stake,
+      accountId: kind.InsufficientStake.account_id as Explorer.AccountId,
+      stake: kind.InsufficientStake.stake as Explorer.YoctoNear,
+      minimumStake: kind.InsufficientStake.minimum_stake as Explorer.YoctoNear,
     };
   }
   if ('FunctionCallError' in kind) {
@@ -344,13 +347,15 @@ const mapRpcReceiptActionError = (
   if ('OnlyImplicitAccountCreationAllowed' in kind) {
     return {
       type: 'onlyImplicitAccountCreationAllowed',
-      accountId: kind.OnlyImplicitAccountCreationAllowed.account_id,
+      accountId: kind.OnlyImplicitAccountCreationAllowed
+        .account_id as Explorer.AccountId,
     };
   }
   if ('DeleteAccountWithLargeState' in kind) {
     return {
       type: 'deleteAccountWithLargeState',
-      accountId: kind.DeleteAccountWithLargeState.account_id,
+      accountId: kind.DeleteAccountWithLargeState
+        .account_id as Explorer.AccountId,
     };
   }
   return UNKNOWN_ERROR;
@@ -363,7 +368,10 @@ export const mapRpcReceiptStatus = (
     return { type: 'successValue', value: status.SuccessValue };
   }
   if ('SuccessReceiptId' in status) {
-    return { type: 'successReceiptId', receiptId: status.SuccessReceiptId };
+    return {
+      type: 'successReceiptId',
+      receiptId: status.SuccessReceiptId as Explorer.ReceiptId,
+    };
   }
   if ('Failure' in status) {
     return { type: 'failure', error: mapRpcReceiptError(status.Failure) };

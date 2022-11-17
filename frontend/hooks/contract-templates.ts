@@ -1,3 +1,5 @@
+import type { Projects } from '@pc/common/types/core';
+
 export interface ContractTemplate {
   abiFileUrl: string;
   detailSummary: string;
@@ -55,6 +57,6 @@ export function useContractTemplates() {
   return contractTemplates;
 }
 
-export function useContractTemplate(slug?: string | null) {
+export function useContractTemplate(slug?: Projects.ContractSlug | null) {
   return contractTemplates.find((template) => template.slug === slug);
 }

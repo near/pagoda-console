@@ -25,21 +25,21 @@ import { mapRpcReceiptStatus } from './receipt-status';
 import { Explorer } from '@pc/common/types/core';
 
 type BasePreview = {
-  signerId: string;
-  receiverId: string;
+  signerId: Explorer.AccountId;
+  receiverId: Explorer.AccountId;
   actions: Explorer.Action[];
 };
 
 type TransactionPreview = BasePreview & {
   type: 'transaction';
-  hash: string;
+  hash: Explorer.TransactionHash;
   status: Explorer.TransactionStatus;
 };
 
 type ReceiptPreview = BasePreview & {
   type: 'receipt';
-  originatedFromTransactionHash: string;
-  receiptId: string;
+  originatedFromTransactionHash: Explorer.TransactionHash;
+  receiptId: Explorer.ReceiptId;
 };
 
 const nanosecondsToMilliseconds = (ns: bigint): number => {
@@ -169,17 +169,19 @@ const getIdsFromAccountChanges = (
   changes: Awaited<ReturnType<typeof queryBalanceChanges>>,
 ) => {
   return changes.reduce<{
-    receiptIds: string[];
-    transactionHashes: string[];
+    receiptIds: Explorer.ReceiptId[];
+    transactionHashes: Explorer.TransactionHash[];
     blocksTimestamps: string[];
   }>(
     (acc, change) => {
       switch (change.cause) {
         case 'RECEIPT':
-          acc.receiptIds.push(change.receiptId!);
+          acc.receiptIds.push(change.receiptId! as Explorer.ReceiptId);
           break;
         case 'TRANSACTION':
-          acc.transactionHashes.push(change.transactionHash!);
+          acc.transactionHashes.push(
+            change.transactionHash! as Explorer.TransactionHash,
+          );
           break;
         case 'VALIDATORS_REWARD':
           acc.blocksTimestamps.push(change.blockTimestamp);
@@ -216,7 +218,7 @@ const withActivityConnection = <T>(
   if (!source) {
     return {
       ...input,
-      transactionHash: '',
+      transactionHash: '' as Explorer.TransactionHash,
     };
   }
   if ('receiptId' in source) {
@@ -277,16 +279,16 @@ const parseReceipt = (
 ): Omit<ParsedReceipt, 'outcome'> => {
   if (!receipt) {
     return {
-      id: outcome.id,
-      predecessorId: transaction.signer_id,
-      receiverId: transaction.receiver_id,
+      id: outcome.id as Explorer.ReceiptId,
+      predecessorId: transaction.signer_id as Explorer.AccountId,
+      receiverId: transaction.receiver_id as Explorer.AccountId,
       actions: transaction.actions.map(mapRpcActionToAction),
     };
   }
   return {
-    id: receipt.receipt_id,
-    predecessorId: receipt.predecessor_id,
-    receiverId: receipt.receiver_id,
+    id: receipt.receipt_id as Explorer.ReceiptId,
+    predecessorId: receipt.predecessor_id as Explorer.AccountId,
+    receiverId: receipt.receiver_id as Explorer.AccountId,
     actions:
       'Action' in receipt.receipt
         ? receipt.receipt.Action.actions.map(mapRpcActionToAction)
@@ -295,22 +297,22 @@ const parseReceipt = (
 };
 
 type ParsedBlock = {
-  hash: string;
+  hash: Explorer.BlockHash;
   height: number;
   timestamp: number;
 };
 
 const parseOutcome = (
   outcome: RPC.ExecutionOutcomeWithIdView,
-  blocksMap: Map<string, ParsedBlock>,
+  blocksMap: Map<Explorer.BlockHash, ParsedBlock>,
 ): ParsedReceipt['outcome'] => {
   return {
-    tokensBurnt: outcome.outcome.tokens_burnt,
+    tokensBurnt: outcome.outcome.tokens_burnt as Explorer.YoctoNear,
     gasBurnt: outcome.outcome.gas_burnt,
     status: mapRpcReceiptStatus(outcome.outcome.status),
     logs: outcome.outcome.logs,
     receiptIds: outcome.outcome.receipt_ids,
-    block: blocksMap.get(outcome.block_hash)!,
+    block: blocksMap.get(outcome.block_hash as Explorer.BlockHash)!,
   };
 };
 
@@ -364,18 +366,25 @@ export class ExplorerService {
 
   getAccountActivityAction(
     change: Awaited<ReturnType<typeof queryBalanceChanges>>[number],
-    receiptsMapping: Map<string, ReceiptPreview>,
-    transactionsMapping: Map<string, TransactionPreview>,
-    blockHeightsMapping: Map<string, { hash: string }>,
+    receiptsMapping: Map<Explorer.ReceiptId, ReceiptPreview>,
+    transactionsMapping: Map<Explorer.TransactionHash, TransactionPreview>,
+    blockHeightsMapping: Map<string, { hash: Explorer.BlockHash }>,
     receiptRelations: Map<
-      string,
-      { parentReceiptId: string | null; childrenReceiptIds: string[] }
+      Explorer.ReceiptId,
+      {
+        parentReceiptId: Explorer.ReceiptId | null;
+        childrenReceiptIds: Explorer.ReceiptId[];
+      }
     >,
   ): Explorer.ActivityActionItemAction | null {
     switch (change.cause) {
       case 'RECEIPT': {
-        const connectedReceipt = receiptsMapping.get(change.receiptId!)!;
-        const relation = receiptRelations.get(change.receiptId!)!;
+        const connectedReceipt = receiptsMapping.get(
+          change.receiptId! as Explorer.ReceiptId,
+        )!;
+        const relation = receiptRelations.get(
+          change.receiptId! as Explorer.ReceiptId,
+        )!;
         const parentReceipt = relation.parentReceiptId
           ? receiptsMapping.get(relation.parentReceiptId)!
           : undefined;
@@ -414,7 +423,7 @@ export class ExplorerService {
       }
       case 'TRANSACTION': {
         const connectedTransaction = transactionsMapping.get(
-          change.transactionHash!,
+          change.transactionHash! as Explorer.TransactionHash,
         )!;
         // filter out inbound successful transactions
         if (
@@ -464,12 +473,15 @@ export class ExplorerService {
 
   async getReceiptsByIds(
     net: Net,
-    ids: string[],
+    ids: Explorer.ReceiptId[],
   ): Promise<{
-    receiptsMapping: Map<string, ReceiptPreview>;
+    receiptsMapping: Map<Explorer.ReceiptId, ReceiptPreview>;
     relations: Map<
-      string,
-      { parentReceiptId: string | null; childrenReceiptIds: string[] }
+      Explorer.ReceiptId,
+      {
+        parentReceiptId: Explorer.ReceiptId | null;
+        childrenReceiptIds: Explorer.ReceiptId[];
+      }
     >;
   }> {
     if (ids.length === 0) {
@@ -493,8 +505,8 @@ export class ExplorerService {
       .execute();
     const relations = ids.reduce((acc, id) => {
       const relatedIds: {
-        parentReceiptId: string | null;
-        childrenReceiptIds: string[];
+        parentReceiptId: Explorer.ReceiptId | null;
+        childrenReceiptIds: Explorer.ReceiptId[];
       } = {
         parentReceiptId: null,
         childrenReceiptIds: [],
@@ -503,18 +515,19 @@ export class ExplorerService {
         (row) => row.producedReceiptId === id,
       );
       if (parentRow) {
-        relatedIds.parentReceiptId = parentRow.executedReceiptId;
+        relatedIds.parentReceiptId =
+          parentRow.executedReceiptId as Explorer.ReceiptId;
       }
       const childrenRows = relatedResult.filter(
         (row) => row.executedReceiptId === id,
       );
       if (childrenRows.length !== 0) {
         relatedIds.childrenReceiptIds = childrenRows.map(
-          (row) => row.producedReceiptId,
+          (row) => row.producedReceiptId as Explorer.ReceiptId,
         );
       }
       return acc.set(id, relatedIds);
-    }, new Map<string, { parentReceiptId: string | null; childrenReceiptIds: string[] }>());
+    }, new Map<Explorer.ReceiptId, { parentReceiptId: Explorer.ReceiptId | null; childrenReceiptIds: Explorer.ReceiptId[] }>());
     const prevReceiptIds = [...receiptsMapping.keys()];
     const lookupIds = [...relations.values()].reduce<Set<string>>(
       (acc, relation) => {
@@ -543,7 +556,7 @@ export class ExplorerService {
 
   getReceiptMapping(
     receiptRows: Awaited<ReturnType<typeof queryReceiptsByIds>>,
-    initialMapping: Map<string, ReceiptPreview> = new Map(),
+    initialMapping: Map<Explorer.ReceiptId, ReceiptPreview> = new Map(),
   ) {
     return receiptRows.reduce((mapping, receipt) => {
       const action = mapDatabaseActionToAction({
@@ -551,28 +564,30 @@ export class ExplorerService {
         kind: receipt.kind,
         args: receipt.args,
       } as DatabaseAction);
-      const existingReceipt = mapping.get(receipt.id);
+      const receiptId = receipt.id as Explorer.ReceiptId;
+      const existingReceipt = mapping.get(receiptId);
       if (!existingReceipt) {
-        return mapping.set(receipt.id, {
+        return mapping.set(receiptId, {
           type: 'receipt',
-          signerId: receipt.predecessorId,
-          receiverId: receipt.receiverId,
-          receiptId: receipt.id,
-          originatedFromTransactionHash: receipt.originatedFromTransactionHash,
+          signerId: receipt.predecessorId as Explorer.AccountId,
+          receiverId: receipt.receiverId as Explorer.AccountId,
+          receiptId: receipt.id as Explorer.ReceiptId,
+          originatedFromTransactionHash:
+            receipt.originatedFromTransactionHash as Explorer.TransactionHash,
           actions: [action],
         });
       }
-      return mapping.set(receipt.id, {
+      return mapping.set(receiptId, {
         ...existingReceipt,
         actions: [...existingReceipt.actions, action],
       });
-    }, new Map<string, ReceiptPreview>(initialMapping));
+    }, new Map<Explorer.ReceiptId, ReceiptPreview>(initialMapping));
   }
 
   async getTransactionsByHashes(
     net: Net,
-    hashes: string[],
-  ): Promise<Map<string, TransactionPreview>> {
+    hashes: Explorer.TransactionHash[],
+  ): Promise<Map<Explorer.TransactionHash, TransactionPreview>> {
     if (hashes.length === 0) {
       return new Map();
     }
@@ -612,16 +627,16 @@ export class ExplorerService {
       new Map<string, Explorer.Action[]>(),
     );
     return transactionRows.reduce((acc, transaction) => {
-      acc.set(transaction.hash, {
+      acc.set(transaction.hash as Explorer.TransactionHash, {
         type: 'transaction',
-        hash: transaction.hash,
-        signerId: transaction.signerId,
-        receiverId: transaction.receiverId,
+        hash: transaction.hash as Explorer.TransactionHash,
+        signerId: transaction.signerId as Explorer.AccountId,
+        receiverId: transaction.receiverId as Explorer.AccountId,
         status: mapDatabaseTransactionStatus(transaction.status),
         actions: transactionsActionsList.get(transaction.hash) ?? [],
       });
       return acc;
-    }, new Map<string, TransactionPreview>());
+    }, new Map<Explorer.TransactionHash, TransactionPreview>());
   }
 
   queryBalanceChanges(
@@ -704,7 +719,7 @@ export class ExplorerService {
 
   async fetchTransaction(
     net: Net,
-    hash: string,
+    hash: Explorer.TransactionHash,
   ): Promise<Explorer.Transaction | null> {
     try {
       const indexerDatabase = this.indexerDatabase[net];
@@ -739,12 +754,12 @@ export class ExplorerService {
         .execute();
       const blocksMap = blocks.reduce(
         (map, row) =>
-          map.set(row.hash, {
-            hash: row.hash,
+          map.set(row.hash as Explorer.BlockHash, {
+            hash: row.hash as Explorer.BlockHash,
             height: parseInt(row.height),
             timestamp: parseInt(row.timestamp),
           }),
-        new Map<string, ParsedBlock>(),
+        new Map<Explorer.BlockHash, ParsedBlock>(),
       );
 
       const transactionFee = getTransactionFee(
@@ -776,10 +791,11 @@ export class ExplorerService {
       return {
         hash,
         timestamp: parseInt(databaseTransaction.timestamp),
-        signerId: rpcTransaction.transaction.signer_id,
-        receiverId: rpcTransaction.transaction.receiver_id,
-        fee: transactionFee.toString(),
-        amount: transactionAmount.toString(),
+        signerId: rpcTransaction.transaction.signer_id as Explorer.AccountId,
+        receiverId: rpcTransaction.transaction
+          .receiver_id as Explorer.AccountId,
+        fee: transactionFee.toString() as Explorer.YoctoNear,
+        amount: transactionAmount.toString() as Explorer.YoctoNear,
         status: mapRpcTransactionStatus(rpcTransaction.status),
         receipt: collectNestedReceiptWithOutcome(
           rpcTransaction.transaction_outcome.outcome.receipt_ids[0],

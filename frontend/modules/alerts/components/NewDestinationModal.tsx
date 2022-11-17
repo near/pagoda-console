@@ -1,5 +1,6 @@
 import type { Alerts } from '@pc/common/types/alerts';
 import type { Api } from '@pc/common/types/api';
+import type { Projects } from '@pc/common/types/core';
 import { useCallback, useState } from 'react';
 import type { FieldValues } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
@@ -34,7 +35,7 @@ type MappedDestination<K extends DestinationType> = MapDiscriminatedUnion<Destin
 interface Props<K extends DestinationType> {
   onCreate?: (destination: MappedDestination<K>) => void;
   onVerify?: (destination: MappedDestination<K>) => void;
-  projectSlug: string;
+  projectSlug: Projects.ProjectSlug;
   show: boolean;
   setShow: (show: boolean) => void;
 }

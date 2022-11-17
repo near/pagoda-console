@@ -1,3 +1,4 @@
+import type { Projects } from '@pc/common/types/core';
 import { useRouter } from 'next/router';
 import { useCallback } from 'react';
 
@@ -23,7 +24,7 @@ export function ProjectSelector({ onChange }: Props) {
   const router = useRouter();
 
   const onSelectProject = useCallback(
-    (projectSlug: string, isTutorial: boolean) => {
+    (projectSlug: Projects.ProjectSlug, isTutorial: boolean) => {
       onChange(() => {
         updateProjectContext(projectSlug, null);
         if (router.pathname.startsWith('/tutorials/') && !isTutorial) {

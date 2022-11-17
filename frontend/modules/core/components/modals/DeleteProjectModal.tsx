@@ -1,3 +1,4 @@
+import type { Projects } from '@pc/common/types/core';
 import { useState } from 'react';
 
 import { Text } from '@/components/lib/Text';
@@ -6,7 +7,7 @@ import { deleteProject } from '@/hooks/projects';
 import { useIdentity } from '@/hooks/user';
 
 interface Props {
-  slug: string;
+  slug: Projects.ProjectSlug;
   name: string;
   show: boolean;
   setShow: (show: boolean) => void;

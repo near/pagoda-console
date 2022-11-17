@@ -20,6 +20,7 @@ import { ProjectsService } from '../projects/projects.service';
 import firebaseAdmin from 'firebase-admin';
 import { ApiKeysService } from '../keys/apiKeys.service';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
+import { Projects } from '@pc/common/types/core';
 
 const newOrgSlug = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -77,7 +78,7 @@ export class UsersService implements OnModuleInit {
       },
     };
 
-    const orgSlug = newOrgSlug();
+    const orgSlug = newOrgSlug() as Projects.OrgSlug;
     const emsId = newEmsId();
     try {
       await this.apiKeysService.createOrganization(emsId, orgSlug);
@@ -285,7 +286,7 @@ export class UsersService implements OnModuleInit {
 
     const metadata = this.creationMetadata(callingUser);
 
-    const slug = newOrgSlug();
+    const slug = newOrgSlug() as Projects.OrgSlug;
     const emsId = newEmsId();
     try {
       await this.apiKeysService.createOrganization(emsId, slug);
@@ -339,7 +340,7 @@ export class UsersService implements OnModuleInit {
   // TODO members should not be able to invite an admin to the org.
   async inviteToOrg(
     callingUser: User,
-    orgSlug: Org['slug'],
+    orgSlug: Projects.OrgSlug,
     recipient: User['email'],
     role: OrgRole,
   ) {
@@ -434,7 +435,7 @@ export class UsersService implements OnModuleInit {
 
   async removeOrgInvite(
     callingUser: User,
-    orgSlug: Org['slug'],
+    orgSlug: Projects.OrgSlug,
     target: User['email'],
   ) {
     // check that user has permission to remove invites
@@ -610,7 +611,7 @@ export class UsersService implements OnModuleInit {
 
   async removeFromOrg(
     callingUser: User,
-    orgSlug: Org['slug'],
+    orgSlug: Projects.OrgSlug,
     targetUser: User['uid'],
   ) {
     const orgCheck = await this.checkOrgPermission(orgSlug, callingUser.id);
@@ -665,7 +666,7 @@ export class UsersService implements OnModuleInit {
     }
   }
 
-  async listOrgMembers(callingUser: User, orgSlug: Org['slug']) {
+  async listOrgMembers(callingUser: User, orgSlug: Projects.OrgSlug) {
     await this.checkOrgPermission(orgSlug, callingUser.id);
 
     const [members, invites] = await Promise.all([
@@ -756,7 +757,7 @@ export class UsersService implements OnModuleInit {
     }));
   }
 
-  async deleteOrg(callingUser: User, orgSlug: Org['slug']) {
+  async deleteOrg(callingUser: User, orgSlug: Projects.OrgSlug) {
     const orgCheck = await this.checkOrgPermission(orgSlug, callingUser.id);
 
     if (orgCheck.isPersonal) {
@@ -858,7 +859,7 @@ export class UsersService implements OnModuleInit {
 
   async changeOrgRole(
     callingUser: User,
-    orgSlug: Org['slug'],
+    orgSlug: Projects.OrgSlug,
     targetUser: User['uid'],
     role: OrgRole,
   ) {
@@ -945,7 +946,7 @@ export class UsersService implements OnModuleInit {
   }
 
   private async hasOtherAdmin(
-    orgSlug: Org['slug'],
+    orgSlug: Projects.OrgSlug,
     userUid: User['uid'],
   ): Promise<boolean> {
     const otherAdmin = await this.prisma.orgMember.findFirst({
@@ -976,7 +977,7 @@ export class UsersService implements OnModuleInit {
 
   // throws if user does not have permission for org
   private async checkOrgPermission(
-    orgSlug: Org['slug'],
+    orgSlug: Projects.OrgSlug,
     userId: User['id'],
   ): Promise<{ name: string; role: OrgRole; isPersonal: boolean }> {
     const membership = await this.prisma.orgMember.findUnique({

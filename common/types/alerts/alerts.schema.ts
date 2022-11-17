@@ -25,7 +25,7 @@ export type DestinationId = z.infer<typeof destinationId>;
 
 export const alertName = z.string();
 export const databaseAlert = z.strictObject({
-  id: z.number(),
+  id: alertId,
   alertRuleKind,
   name: alertName,
   matchingRule: json,
@@ -42,7 +42,7 @@ export const databaseAlert = z.strictObject({
 
 export const destinationName = z.string();
 export const databaseDestination = z.strictObject({
-  id: z.number(),
+  id: destinationId,
   name: z.string().or(z.null()),
   projectSlug,
   type: destinationType,
