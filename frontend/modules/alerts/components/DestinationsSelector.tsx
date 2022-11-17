@@ -1,7 +1,6 @@
 import type { Alerts } from '@pc/common/types/alerts';
 import type { Api } from '@pc/common/types/api';
-import type { Dispatch, SetStateAction } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { Button } from '@/components/lib/Button';
@@ -12,7 +11,7 @@ import { Spinner } from '@/components/lib/Spinner';
 import { Switch } from '@/components/lib/Switch';
 import { Text } from '@/components/lib/Text';
 import { useSureProjectContext } from '@/hooks/project-context';
-import { useDestinations } from '@/modules/alerts/hooks/destinations';
+import { useQuery } from '@/hooks/query';
 import { destinationTypes } from '@/modules/alerts/utils/constants';
 import { StableId } from '@/utils/stable-ids';
 
@@ -21,105 +20,61 @@ import { NewDestinationModal } from './NewDestinationModal';
 
 type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
-export interface OnDestinationSelectionChangeEvent {
-  destination: Destination;
-  isSelected: boolean;
-  selectedIds: Alerts.DestinationId[];
-}
-
 interface Props {
   debounce?: boolean;
-  onChange?: (event: OnDestinationSelectionChangeEvent) => void;
+  onChange: (destinationId: Alerts.DestinationId, selected: boolean) => void;
   selectedIds: Alerts.DestinationId[];
-  setSelectedIds: Dispatch<SetStateAction<Alerts.DestinationId[]>>;
 }
 
-function toggleDestination(
-  isSelected: boolean,
-  destination: Destination,
-  setSelectedIds: Dispatch<SetStateAction<Alerts.DestinationId[]>>,
-  onChange?: (event: OnDestinationSelectionChangeEvent) => void,
-) {
-  if (!destination.isValid) return;
-
-  let ids: Alerts.DestinationId[] = [];
-
-  setSelectedIds((value) => {
-    ids = value.filter((id) => id !== destination.id);
-    if (isSelected) {
-      ids.push(destination.id);
-    }
-    return ids;
-  });
-
-  if (onChange) {
-    onChange({
-      destination,
-      isSelected,
-      selectedIds: ids,
-    });
-  }
-}
-
-export function DestinationsSelector(props: Props) {
+export const DestinationsSelector = (props: Props) => {
   const { projectSlug } = useSureProjectContext();
-  const { destinations } = useDestinations(projectSlug);
+  const destinationsQuery = useQuery(['/alerts/listDestinations', { projectSlug }]);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
-  const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
-  const previousDestinations = useRef<Destination[]>([]);
+  const [selectedEditDestination, setSelectedEditDestination] =
+    useState<Api.Query.Output<'/alerts/listDestinations'>[number]>();
 
-  useEffect(() => {
-    destinations?.forEach((current) => {
-      const previous = previousDestinations.current.find((p) => p.id === current.id);
-
-      if (current.isValid && previous && !previous.isValid) {
-        toggleDestination(true, current, props.setSelectedIds, props.onChange);
-      }
-    });
-
-    previousDestinations.current = [...(destinations || [])];
-  }, [destinations, props]);
-
-  function openDestination(destination: Destination) {
+  function openDestination(destination: Api.Query.Output<'/alerts/listDestinations'>[number]) {
     setSelectedEditDestination(destination);
     setShowEditDestinationModal(true);
   }
 
   return (
     <Flex stack>
-      {!destinations && <Spinner center />}
-
-      {destinations?.length === 0 && (
+      {destinationsQuery.status === 'loading' ? (
+        <Spinner center />
+      ) : destinationsQuery.status === 'error' ? (
+        <div>Error while loading destinations</div>
+      ) : destinationsQuery.data.length === 0 ? (
         <Text>{`Your selected project doesn't have any destinations configured yet.`}</Text>
+      ) : (
+        <Flex stack gap="s">
+          {destinationsQuery.data.map((destination) => {
+            return (
+              <DestinationCard
+                key={destination.id}
+                destination={destination}
+                openDestination={openDestination}
+                debounce={props.debounce}
+                checked={props.selectedIds.includes(destination.id)}
+                onChange={(nextChecked) => props.onChange(destination.id, nextChecked)}
+              />
+            );
+          })}
+
+          <Button
+            color="neutral"
+            onClick={() => setShowNewDestinationModal(true)}
+            stretch
+            stableId={StableId.DESTINATIONS_SELECTOR_OPEN_CREATE_MODAL_BUTTON}
+          >
+            <FeatherIcon icon="plus" color="primary" /> New Destination
+          </Button>
+        </Flex>
       )}
 
-      <Flex stack gap="s">
-        {destinations?.map((destination) => {
-          return (
-            <DestinationCard
-              destination={destination}
-              openDestination={openDestination}
-              {...props}
-              key={destination.id}
-            />
-          );
-        })}
-
-        <Button
-          color="neutral"
-          onClick={() => setShowNewDestinationModal(true)}
-          stretch
-          stableId={StableId.DESTINATIONS_SELECTOR_OPEN_CREATE_MODAL_BUTTON}
-        >
-          <FeatherIcon icon="plus" color="primary" /> New Destination
-        </Button>
-      </Flex>
-
       <NewDestinationModal
-        onCreate={(destination) => toggleDestination(true, destination, props.setSelectedIds, props.onChange)}
-        onVerify={(destination) => toggleDestination(true, destination, props.setSelectedIds, props.onChange)}
-        projectSlug={projectSlug}
+        onCreate={(destination) => props.onChange(destination.id, true)}
         show={showNewDestinationModal}
         setShow={setShowNewDestinationModal}
       />
@@ -133,43 +88,30 @@ export function DestinationsSelector(props: Props) {
       )}
     </Flex>
   );
-}
+};
 
-type DestinationCardProps = Props & {
+type DestinationCardProps = Pick<Props, 'debounce'> & {
+  checked: boolean;
+  onChange: (nextChecked: boolean) => void;
   destination: Destination;
   openDestination: (destination: Destination) => void;
 };
 
-function DestinationCard({
-  destination,
-  debounce = true,
-  openDestination,
-  onChange,
-  selectedIds,
-  setSelectedIds,
-}: DestinationCardProps) {
+function DestinationCard({ destination, checked, debounce = true, openDestination, onChange }: DestinationCardProps) {
   const destinationType = destinationTypes[destination.type];
-  const isChecked = !!selectedIds.find((id) => id === destination.id);
-
-  const onCheckedChange = useCallback(
-    (isSelected: boolean) => {
-      toggleDestination(isSelected, destination, setSelectedIds, onChange);
-    },
-    [destination, onChange, setSelectedIds],
-  );
 
   return (
     <Card padding="m" borderRadius="m">
       <Flex align="center">
         <Switch
           stableId={StableId.DESTINATIONS_SELECTOR_SELECTED_SWITCH}
-          checked={isChecked}
-          onCheckedChange={onCheckedChange}
+          checked={checked}
+          onCheckedChange={onChange}
           debounce={debounce}
           aria-label={`Destination: ${destination.name}`}
           disabled={!destination.isValid}
         />
-        <FeatherIcon icon={destinationType.icon} color={isChecked ? 'primary' : 'text3'} size="m" />
+        <FeatherIcon icon={destinationType.icon} color={checked ? 'primary' : 'text3'} size="m" />
         <Flex stack gap="none">
           <Text color="text1" weight="semibold">
             {destination.name}

@@ -6,6 +6,7 @@ import '@/styles/enhanced-api.scss';
 import '@/styles/near-wallet-selector.scss';
 
 import * as FullStory from '@fullstory/browser';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Gleap from 'gleap';
@@ -15,8 +16,8 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { appWithTranslation } from 'next-i18next';
 import type { ComponentType } from 'react';
+import { useState } from 'react';
 import { useEffect } from 'react';
-import { SWRConfig, useSWRConfig } from 'swr';
 
 import { SimpleLayout } from '@/components/layouts/SimpleLayout';
 import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
@@ -30,7 +31,7 @@ import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
 import config from '@/utils/config';
 import { hydrateAllStores } from '@/utils/hydrate-all-stores';
-import { customErrorRetry } from '@/utils/swr';
+import { getShouldRetry, retryDelay } from '@/utils/query';
 import type { NextPageWithLayout } from '@/utils/types';
 
 type AppPropsWithLayout = AppProps & {
@@ -58,7 +59,17 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   useAnalytics();
   const identity = useIdentity();
   const router = useRouter();
-  const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: getShouldRetry([400, 401, 403, 404]),
+            retryDelay: retryDelay,
+          },
+        },
+      }),
+  );
   const initializeCurrentUserSettings = useSettingsStore((store) => store.initializeCurrentUserSettings);
 
   useEffect(() => {
@@ -84,22 +95,18 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (!firebaseUser && !unauthedPaths.includes(router.pathname)) {
         analytics.reset();
-        cache.clear();
+        queryClient.clear();
         router.replace('/');
       }
     });
 
     return () => unsubscribe(); // TODO why lambda function?
-  }, [router, cache]);
+  }, [router, queryClient]);
 
   const getLayout = Component.getLayout ?? ((page) => page);
 
   return (
-    <SWRConfig
-      value={{
-        onErrorRetry: customErrorRetry,
-      }}
-    >
+    <QueryClientProvider client={queryClient}>
       <Head>
         <title>Pagoda Developer Console</title>
         <meta
@@ -121,7 +128,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       ) : (
         getLayout(<Component {...pageProps} />)
       )}
-    </SWRConfig>
+    </QueryClientProvider>
   );
 }
 

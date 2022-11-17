@@ -15,11 +15,10 @@ import { H1 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
-import { useOrganizations } from '@/hooks/organizations';
+import { useMutation } from '@/hooks/mutation';
+import { useQuery } from '@/hooks/query';
 import { useRouteParam } from '@/hooks/route';
-import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
-import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -31,11 +30,11 @@ interface NewProjectFormData {
 }
 
 const NewProject: NextPageWithLayout = () => {
-  const { register, handleSubmit, formState, setError, getValues, watch, setValue } = useForm<NewProjectFormData>();
+  const { register, handleSubmit, formState, getValues, watch, setValue } = useForm<NewProjectFormData>();
   const router = useRouter();
   const isOnboarding = useRouteParam('onboarding');
 
-  const { organizations = [] } = useOrganizations(false);
+  const { data: organizations = [] } = useQuery(['/users/listOrgs']);
   useEffect(() => {
     if (organizations.length !== 0 && !getValues('projectOrg')) {
       const personalOrg = organizations.find((organization) => organization.isPersonal);
@@ -43,33 +42,21 @@ const NewProject: NextPageWithLayout = () => {
       setValue('projectOrg', selectedOrg.slug);
     }
   }, [organizations, getValues, setValue]);
+  const createProjectMutation = useMutation('/projects/create', {
+    onMutate: () => router.prefetch('/apis?tab=keys'),
+    onSuccess: (result) => router.push(`/apis?tab=keys&project=${result.slug}`),
+    getAnalyticsSuccessData: (variables) => ({ name: variables.name }),
+    getAnalyticsErrorData: (variables) => ({ name: variables.name }),
+  });
+  const mutationError =
+    createProjectMutation.status === 'error'
+      ? (createProjectMutation.error as any).statusCode === 409
+        ? 'Project name is already in use'
+        : 'Something went wrong'
+      : undefined;
 
-  const createProject: SubmitHandler<NewProjectFormData> = async ({ projectName, projectOrg }) => {
-    try {
-      router.prefetch('/apis?tab=keys');
-      const project = await authenticatedPost('/projects/create', { name: projectName, org: projectOrg });
-      analytics.track('DC Create New Project', {
-        status: 'success',
-        name: projectName,
-      });
-      await router.push(`/apis?tab=keys&project=${project.slug}`);
-    } catch (e: any) {
-      analytics.track('DC Create New Project', {
-        status: 'failure',
-        name: projectName,
-        error: e.message,
-      });
-
-      if (e.statusCode === 409) {
-        setError('projectName', {
-          message: 'Project name is already in use',
-        });
-      } else {
-        setError('projectName', {
-          message: 'Something went wrong',
-        });
-      }
-    }
+  const createProject: SubmitHandler<NewProjectFormData> = ({ projectName, projectOrg }) => {
+    createProjectMutation.mutate({ name: projectName, org: projectOrg });
   };
 
   const setProjectOrg = useCallback((value: Projects.OrgSlug) => setValue('projectOrg', value), [setValue]);
@@ -112,7 +99,7 @@ const NewProject: NextPageWithLayout = () => {
                 placeholder="Cool New Project"
                 {...register('projectName', formValidations.projectName)}
               />
-              <Form.Feedback>{formState.errors.projectName?.message}</Form.Feedback>
+              <Form.Feedback>{mutationError || formState.errors.projectName?.message}</Form.Feedback>
             </Form.Group>
 
             <Form.Group>

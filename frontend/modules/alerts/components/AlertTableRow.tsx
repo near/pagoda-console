@@ -13,9 +13,13 @@ import { StableId } from '@/utils/stable-ids';
 import { alertTypes } from '../utils/constants';
 import { DeleteAlertModal } from './DeleteAlertModal';
 
-type Alert = Api.Query.Output<'/alerts/listAlerts'>[number];
-
-export function AlertTableRow({ alert, onDelete }: { alert: Alert; onDelete: () => void }) {
+export function AlertTableRow({
+  alert,
+  onDelete,
+}: {
+  alert: Api.Query.Output<'/alerts/listAlerts'>[number];
+  onDelete: () => void;
+}) {
   const alertType = alertTypes[alert.rule.type];
   const url = `/alerts/edit-alert/${alert.id}`;
   const [showDeleteModal, setShowDeleteModal] = useState(false);

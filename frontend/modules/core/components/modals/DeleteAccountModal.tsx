@@ -6,8 +6,9 @@ import { Message } from '@/components/lib/Message';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useOrgsWithOnlyAdmin } from '@/hooks/organizations';
-import { deleteAccount, useIdentity } from '@/hooks/user';
+import { useMutation } from '@/hooks/mutation';
+import { useQuery } from '@/hooks/query';
+import { useIdentity } from '@/hooks/user';
 import { StableId } from '@/utils/stable-ids';
 
 export default function DeleteAccountModal({
@@ -21,45 +22,34 @@ export default function DeleteAccountModal({
 }) {
   const identity = useIdentity();
   const [errorText, setErrorText] = useState<string | undefined>();
-  const [isDeleting, setIsDeleting] = useState(false);
-  const { organizations } = useOrgsWithOnlyAdmin();
-
-  async function onConfirm() {
-    setIsDeleting(true);
-
-    const success = await deleteAccount(identity?.uid);
-
-    if (success) {
-      onDelete();
-    } else {
-      setErrorText('Something went wrong while deleting an account.');
-      setIsDeleting(false);
-    }
-  }
-
-  const isOnlyAdmin = organizations && organizations.length > 0;
+  const orgsWithOnlyAdminQuery = useQuery(['/users/listOrgsWithOnlyAdmin']);
+  const deleteAccountMutation = useMutation('/users/deleteAccount', {
+    onSuccess: onDelete,
+    onError: () => setErrorText('Something went wrong while deleting an account.'),
+  });
+  const orgsWithOnlyAdmin = orgsWithOnlyAdminQuery.data ?? [];
 
   return (
     <ConfirmModal
       confirmColor="danger"
       confirmText="Delete"
       errorText={errorText}
-      isProcessing={isDeleting}
-      onConfirm={onConfirm}
-      setErrorText={setErrorText}
+      isProcessing={deleteAccountMutation.isLoading}
+      onConfirm={deleteAccountMutation.mutate}
+      resetError={deleteAccountMutation.reset}
       setShow={setShow}
       show={show}
-      disabled={isOnlyAdmin}
+      disabled={orgsWithOnlyAdmin.length > 0}
       title={`Delete Account`}
     >
-      {isOnlyAdmin ? (
+      {orgsWithOnlyAdmin.length > 0 ? (
         <>
           <Message type="warning">
             <Text color="warning">Your account currently owns the following organizations:</Text>
           </Message>
 
           <List>
-            {organizations.map(({ name, slug }) => (
+            {orgsWithOnlyAdmin.map(({ name, slug }) => (
               <ListItem key={slug}>
                 <Link href={`/organizations/${slug}`} passHref>
                   <TextLink stableId={StableId.DELETE_ACCOUNT_MODAL_ORGANIZATION_LINK}>{name}</TextLink>

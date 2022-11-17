@@ -1,72 +1,34 @@
-import type { Api } from '@pc/common/types/api';
-import { getAuth, getIdToken } from 'firebase/auth';
+import { getAuth, getIdToken } from '@firebase/auth';
 
 import config from '@/utils/config';
 
-export const unauthenticatedPost = async <K extends Api.Mutation.Key | Api.Query.Key>(
-  ...[endpoint, body, headers]: [
-    K,
-    K extends Api.Mutation.Key ? Api.Mutation.Input<K> : K extends Api.Query.Key ? Api.Query.Input<K> : never,
-    HeadersInit?,
-  ]
-): Promise<
-  K extends Api.Mutation.Key ? Api.Mutation.Output<K> : K extends Api.Query.Key ? Api.Query.Output<K> : never
-> => {
-  const res = await fetch(`${config.url.api}${endpoint}`, {
+export const fetchApi = async <E extends string, R, I>([endpoint, input]: [E, I?], auth?: boolean): Promise<R> => {
+  let headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  if (auth) {
+    const user = getAuth().currentUser;
+    if (!user) {
+      throw new Error('No authenticated user');
+    }
+    headers = { ...headers, Authorization: `Bearer ${await getIdToken(user)}` };
+  }
+  const response = await fetch(`${config.url.api}${endpoint}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
-    body: JSON.stringify(body),
+    headers,
+    body: input ? JSON.stringify(input) : undefined,
   });
 
-  return parseFetchResponse(res);
-};
-
-async function parseFetchResponse<R = unknown>(res: Response): Promise<R> {
-  let resJson;
   try {
-    if (res.status === 204) {
-      resJson = {};
-    } else {
-      resJson = await res.json();
+    const json = await response.json();
+    if (!response.ok) {
+      throw json;
     }
+    return json;
   } catch (e) {
-    if (res.ok) {
+    if (response.ok) {
       return undefined as unknown as R;
     }
+    throw new Error('Unknown JSON error');
   }
-  if (!res.ok) {
-    // TODO (P2+) it is generally frowned upon to throw a non-Error object, but we
-    // need to pass the status code through to the onErrorRetry function. Find a better
-    // way to do that
-    throw resJson;
-  }
-  return resJson;
-}
-
-export const authenticatedPost = async <K extends Api.Mutation.Key | Api.Query.Key>(
-  ...[endpoint, body]: K extends Api.Mutation.Key
-    ? Api.Mutation.Input<K> extends void
-      ? [K]
-      : [K, Api.Mutation.Input<K>]
-    : K extends Api.Query.Key
-    ? Api.Query.Input<K> extends void
-      ? [K]
-      : [K, Api.Query.Input<K>]
-    : never
-): Promise<
-  K extends Api.Mutation.Key ? Api.Mutation.Output<K> : K extends Api.Query.Key ? Api.Query.Output<K> : never
-> => {
-  const user = getAuth().currentUser;
-  if (!user) throw new Error('No authenticated user');
-  const headers = {
-    Authorization: `Bearer ${await getIdToken(user)}`,
-  };
-  return unauthenticatedPost<K>(
-    endpoint as K,
-    body as K extends Api.Mutation.Key ? Api.Mutation.Input<K> : K extends Api.Query.Key ? Api.Query.Input<K> : never,
-    headers,
-  );
 };

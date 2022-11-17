@@ -1,7 +1,7 @@
 import type { Api } from '@pc/common/types/api';
 import { useRouter } from 'next/router';
-import type { Dispatch, ReactNode, SetStateAction } from 'react';
-import { useState } from 'react';
+import type { ReactNode } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import * as Dialog from '@/components/lib/Dialog';
@@ -16,9 +16,10 @@ import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { withSelectedProject } from '@/components/with-selected-project';
-import { useContractMetrics, useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
+import { useRpcQuery } from '@/hooks/rpc';
 import { AddContractForm } from '@/modules/contracts/components/AddContractForm';
 import { DeleteContractModal } from '@/modules/contracts/components/DeleteContractModal';
 import { useAnyAbi } from '@/modules/contracts/hooks/abi';
@@ -30,23 +31,8 @@ import type { NextPageWithLayout } from '@/utils/types';
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
 const ListContracts: NextPageWithLayout = () => {
-  const { projectSlug, environmentSubId } = useSureProjectContext();
-  const { contracts, mutate } = useContracts(projectSlug, environmentSubId);
   const [addContractIsOpen, setAddContractIsOpen] = useState(false);
-
-  function onContractAdd(contract: Contract) {
-    setAddContractIsOpen(false);
-
-    mutate((contracts) => {
-      return [...(contracts || []), contract];
-    });
-  }
-
-  function onContractDelete(contract: Contract) {
-    mutate((contracts) => {
-      return contracts?.filter((c) => c.slug !== contract.slug) || [];
-    });
-  }
+  const openAddContract = useCallback(() => setAddContractIsOpen(true), [setAddContractIsOpen]);
 
   return (
     <>
@@ -57,36 +43,43 @@ const ListContracts: NextPageWithLayout = () => {
               <FeatherIcon icon="zap" size="l" />
               <H1>Contracts</H1>
             </Flex>
-            <Button
-              stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON}
-              onClick={() => setAddContractIsOpen(true)}
-            >
+            <Button stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON} onClick={openAddContract}>
               <FeatherIcon icon="plus" /> Add Contract
             </Button>
           </Flex>
         </Flex>
       </Section>
 
-      <ContractsTable contracts={contracts} onDelete={onContractDelete} setAddContractIsOpen={setAddContractIsOpen} />
+      <ListContractsInner dialogOpen={addContractIsOpen} onDialogOpenChange={setAddContractIsOpen} />
+    </>
+  );
+};
 
-      <Dialog.Root open={addContractIsOpen} onOpenChange={setAddContractIsOpen}>
+const ListContractsInner = ({
+  dialogOpen,
+  onDialogOpenChange,
+}: {
+  dialogOpen: boolean;
+  onDialogOpenChange: (nextOpen: boolean) => void;
+}) => {
+  const { projectSlug, environmentSubId } = useSureProjectContext();
+  const contractsQuery = useQuery(['/projects/getContracts', { project: projectSlug, environment: environmentSubId }]);
+  const openDialog = useCallback(() => onDialogOpenChange(true), [onDialogOpenChange]);
+  const closeDialog = useCallback(() => onDialogOpenChange(false), [onDialogOpenChange]);
+  return (
+    <>
+      <ContractsTable contracts={contractsQuery.data} openDialog={openDialog} />
+
+      <Dialog.Root open={dialogOpen} onOpenChange={onDialogOpenChange}>
         <Dialog.Content title="Add Contract" size="s">
-          <AddContractForm onAdd={onContractAdd} />
+          <AddContractForm onAdd={closeDialog} />
         </Dialog.Content>
       </Dialog.Root>
     </>
   );
 };
 
-function ContractsTable({
-  contracts,
-  onDelete,
-  setAddContractIsOpen,
-}: {
-  contracts?: Contract[];
-  onDelete: (contract: Contract) => void;
-  setAddContractIsOpen: Dispatch<SetStateAction<boolean>>;
-}) {
+function ContractsTable({ contracts, openDialog }: { contracts?: Contract[]; openDialog: () => void }) {
   if (contracts?.length === 0) {
     return (
       <Section css={{ margin: 'auto' }}>
@@ -100,10 +93,7 @@ function ContractsTable({
             <ListItem>Upload a Contract ABI.</ListItem>
             <ListItem>Interact with the contract via the ABI.</ListItem>
           </List>
-          <TextButton
-            stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_TEXT_BUTTON}
-            onClick={() => setAddContractIsOpen(true)}
-          >
+          <TextButton stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_TEXT_BUTTON} onClick={openDialog}>
             Add a Contract
           </TextButton>
         </Flex>
@@ -128,7 +118,7 @@ function ContractsTable({
             {!contracts && <Table.PlaceholderRows />}
 
             {contracts?.map((contract) => {
-              return <ContractTableRow contract={contract} onDelete={onDelete} key={contract.slug} />;
+              return <ContractTableRow contract={contract} key={contract.slug} />;
             })}
           </Table.Body>
         </Table.Root>
@@ -137,12 +127,18 @@ function ContractsTable({
   );
 }
 
-function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete: (contract: Contract) => void }) {
-  const { metrics, error } = useContractMetrics(contract.address, contract.net);
+function ContractTableRow({ contract }: { contract: Contract }) {
+  const { data: metrics, error } = useRpcQuery(
+    contract.net,
+    'view_account',
+    { finality: 'final', account_id: contract.address },
+    { retry: false },
+  );
   const url = `/contracts/${contract.slug}`;
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { contractAbi } = useAnyAbi(contract);
+  const abis = useAnyAbi(contract);
+  const hasAbi = Boolean(abis.embeddedQuery.data?.abi || abis.query.data?.abi);
 
   function ContractTableCellData({ children }: { children: ReactNode }) {
     if (metrics)
@@ -197,7 +193,7 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
               </Flex>
             </DropdownMenu.Item>
 
-            {contractAbi && (
+            {hasAbi && (
               <DropdownMenu.Item onClick={() => router.push(`/contracts/${contract.slug}?tab=abi`)}>
                 <Flex align="center">
                   <FeatherIcon icon="file-text" color="primary" /> Contract ABI
@@ -214,12 +210,7 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
         </DropdownMenu.Root>
       </Table.Row>
 
-      <DeleteContractModal
-        contract={contract}
-        show={showDeleteModal}
-        setShow={setShowDeleteModal}
-        onDelete={onDelete}
-      />
+      <DeleteContractModal contract={contract} show={showDeleteModal} setShow={setShowDeleteModal} />
     </>
   );
 }

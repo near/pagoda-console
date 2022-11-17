@@ -13,14 +13,16 @@ import { Message } from '@/components/lib/Message';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
-import { useProjectGroups } from '@/hooks/projects';
+import { useQuery } from '@/hooks/query';
 import DeleteProjectModal from '@/modules/core/components/modals/DeleteProjectModal';
+import { getProjectGroups } from '@/utils/projects';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Projects: NextPageWithLayout = () => {
   const router = useRouter();
-  const { projectGroups, error, isValidating, mutate: refetchProjects } = useProjectGroups();
+  const projectsQuery = useQuery(['/projects/list']);
+  const projectGroups = getProjectGroups(projectsQuery.data);
   const [isEditing, setIsEditing] = useState(false);
   const [showRedirectAlert, setShowRedirectAlert] = useState(false);
 
@@ -34,10 +36,15 @@ const Projects: NextPageWithLayout = () => {
   }, [router]);
 
   useEffect(() => {
-    if (!error && projectGroups && projectGroups.length === 0 && !isValidating && !showRedirectAlert) {
+    if (
+      projectsQuery.status !== 'error' &&
+      projectGroups.length === 0 &&
+      !projectsQuery.isLoading &&
+      !showRedirectAlert
+    ) {
       router.push('/pick-project?onboarding=true');
     }
-  }, [router, error, projectGroups, isValidating, showRedirectAlert]);
+  }, [router, projectsQuery, projectGroups.length, showRedirectAlert]);
 
   return (
     <Container size="s">
@@ -59,7 +66,7 @@ const Projects: NextPageWithLayout = () => {
           </Button>
         </Flex>
 
-        {error && <Message type="error" content="An error occurred." />}
+        {projectsQuery.status === 'error' ? <Message type="error" content="An error occurred." /> : null}
 
         {showRedirectAlert && (
           <Message
@@ -69,20 +76,14 @@ const Projects: NextPageWithLayout = () => {
           />
         )}
 
-        {projectGroups ? (
+        {projectsQuery.isLoading ? (
           <Flex stack gap="none" align="stretch">
             {projectGroups.map(([orgName, projects], i) => (
               <div key={orgName}>
                 <Text css={{ padding: '12px 0', borderBottom: '1px solid var(--color-surface-5)' }}>{orgName}</Text>
                 <Flex stack css={{ paddingLeft: 12 }}>
                   {projects.map((project) => (
-                    <ProjectRow
-                      key={project.id}
-                      project={project}
-                      showDelete={isEditing}
-                      isTop={i === 0}
-                      onDelete={() => refetchProjects()}
-                    />
+                    <ProjectRow key={project.id} project={project} showDelete={isEditing} isTop={i === 0} />
                   ))}
                 </Flex>
               </div>
@@ -98,7 +99,7 @@ const Projects: NextPageWithLayout = () => {
 
 type Project = Api.Query.Output<'/projects/list'>[number];
 
-function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boolean; onDelete: () => void }) {
+function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boolean }) {
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -110,13 +111,7 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
         padding: 'var(--space-m) 0',
       }}
     >
-      <DeleteProjectModal
-        slug={props.project.slug}
-        name={props.project.name}
-        show={showModal}
-        setShow={setShowModal}
-        onDelete={props.onDelete}
-      />
+      <DeleteProjectModal slug={props.project.slug} name={props.project.name} show={showModal} setShow={setShowModal} />
 
       <Link href={`/contracts?project=${props.project.slug}`} passHref>
         <H4

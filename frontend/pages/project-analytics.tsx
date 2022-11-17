@@ -13,37 +13,39 @@ import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { withSelectedProject } from '@/components/with-selected-project';
-import { useContracts } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
 import { useTheme } from '@/hooks/theme';
 import config from '@/utils/config';
 import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
-import type { NextPageWithLayout } from '@/utils/types';
 
-const ProjectAnalytics: NextPageWithLayout = () => {
-  const { environmentSubId, projectSlug } = useSureProjectContext();
-  const { contracts } = useContracts(projectSlug, environmentSubId);
+type Contracts = Api.Query.Output<'/projects/getContracts'>;
 
-  if (!contracts) {
+const ProjectAnalytics = () => {
+  const { projectSlug, environmentSubId } = useSureProjectContext();
+  const contractsQuery = useQuery(['/projects/getContracts', { project: projectSlug, environment: environmentSubId }]);
+
+  if (contractsQuery.status === 'loading') {
     return <Spinner center />;
   }
+  if (contractsQuery.status === 'error') {
+    return <div>Error while loading contracts: {String(contractsQuery.error)}</div>;
+  }
 
-  if (contracts.length === 0) {
+  if (contractsQuery.data.length === 0) {
     return <NoContractsNotice />;
   }
 
   return (
     <Section>
-      <AnalyticsIframe contracts={contracts} />
+      <AnalyticsIframe contracts={contractsQuery.data} />
     </Section>
   );
 };
 
-type Project = Api.Query.Output<'/projects/getContracts'>;
-
-function AnalyticsIframe({ contracts }: { contracts: Project }) {
+function AnalyticsIframe({ contracts }: { contracts: Contracts }) {
   const { environmentSubId } = useSureProjectContext();
   const { activeTheme } = useTheme();
   const iframeId = 'analytics-iframe';

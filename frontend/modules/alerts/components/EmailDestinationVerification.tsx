@@ -1,12 +1,12 @@
 import type { Api } from '@pc/common/types/api';
-import { useState } from 'react';
+import { useCallback } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
+import { openToast } from '@/components/lib/Toast';
+import { useMutation } from '@/hooks/mutation';
 import { StableId } from '@/utils/stable-ids';
-
-import { resendEmailVerification } from '../hooks/destinations';
 
 type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
@@ -15,13 +15,28 @@ interface Props {
 }
 
 export function EmailDestinationVerification({ destination }: Props) {
-  const [isSending, setIsSending] = useState(false);
+  const resendEmailVerificationMutation = useMutation('/alerts/resendEmailVerification', {
+    onSuccess: () => {
+      openToast({
+        type: 'success',
+        title: 'Verification Sent',
+        description: 'Check your inbox and spam folder.',
+      });
+    },
+    onError: () => {
+      openToast({
+        type: 'error',
+        title: 'Send Failure',
+        description: `Failed to send verification email. Please try again later.`,
+      });
+    },
+    getAnalyticsSuccessData: ({ destinationId }) => ({ name: destinationId }),
+    getAnalyticsErrorData: ({ destinationId }) => ({ name: destinationId }),
+  });
 
-  async function resend() {
-    setIsSending(true);
-    await resendEmailVerification(destination.id);
-    setIsSending(false);
-  }
+  const resend = useCallback(() => {
+    resendEmailVerificationMutation.mutate({ destinationId: destination.id });
+  }, [destination.id, resendEmailVerificationMutation]);
 
   if (destination.type !== 'EMAIL') return null;
 
@@ -39,7 +54,7 @@ export function EmailDestinationVerification({ destination }: Props) {
         <Button
           stableId={StableId.EMAIL_DESTINATION_VERIFICATION_RESEND_BUTTON}
           color="neutral"
-          loading={isSending}
+          loading={resendEmailVerificationMutation.isLoading}
           onClick={resend}
         >
           Resend Verification Email

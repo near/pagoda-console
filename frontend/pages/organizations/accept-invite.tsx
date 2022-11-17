@@ -6,15 +6,36 @@ import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
 import { Spinner } from '@/components/lib/Spinner';
 import { useOrganizationsLayout } from '@/hooks/layouts';
+import { useMutation } from '@/hooks/mutation';
 import type { ParsedError } from '@/hooks/organizations';
-import { useAcceptOrgInvite } from '@/hooks/organizations';
+import { openUserErrorToast, parseError, UserError } from '@/hooks/organizations';
+import { useQueryCache } from '@/hooks/query-cache';
 import { useIdentity } from '@/hooks/user';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
+const getInviteErrorMessage = (code: UserError) => {
+  switch (code) {
+    case UserError.ORG_INVITE_BAD_TOKEN:
+      return 'This invitation does not exist.';
+    case UserError.ORG_INVITE_EMAIL_MISMATCH:
+      return 'This invitation belongs to a different email address.';
+    case UserError.ORG_INVITE_EXPIRED:
+      return 'This invitation has expired.';
+    case UserError.BAD_ORG:
+      return 'The organization has been deleted.';
+    case UserError.ORG_INVITE_ALREADY_MEMBER:
+      return 'The user is already a member of the organization.';
+  }
+};
+
 const AcceptOrgInvite: NextPageWithLayout = () => {
   const router = useRouter();
-  const acceptMutation = useAcceptOrgInvite();
+  const orgsCache = useQueryCache('/users/listOrgs');
+  const acceptMutation = useMutation('/users/acceptOrgInvite', {
+    onSuccess: () => orgsCache.invalidate(),
+    onError: (error) => openUserErrorToast(parseError(error, getInviteErrorMessage)),
+  });
   const user = useIdentity();
   const queryToken = router.query.token;
   const token = Array.isArray(queryToken) ? queryToken[0] : queryToken;

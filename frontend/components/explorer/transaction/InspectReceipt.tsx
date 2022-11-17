@@ -1,12 +1,11 @@
 import type { Explorer } from '@pc/common/types/core';
 import JSBI from 'jsbi';
 import * as React from 'react';
-import useSWR from 'swr';
 
 import { useNet } from '@/hooks/net';
+import { useQuery } from '@/hooks/query';
 import { styled } from '@/styles/stitches';
 import * as BI from '@/utils/bigint';
-import { unauthenticatedPost } from '@/utils/http';
 
 import AccountLink from '../utils/AccountLink';
 import BlockLink from '../utils/BlockLink';
@@ -62,15 +61,12 @@ const getGasAttached = (actions: Explorer.Action[]): JSBI => {
 
 const InspectReceipt: React.FC<Props> = React.memo(({ receipt: { id, ...receipt } }) => {
   const net = useNet();
-  const query = useSWR(['explorer/balanceChanges', net, receipt.predecessorId, receipt.receiverId], () =>
-    unauthenticatedPost(`/explorer/balanceChanges`, {
-      net,
-      receiptId: id,
-      accountIds: [receipt.predecessorId, receipt.receiverId],
-    }),
-  );
-  const predecessorBalance = query.data?.[0];
-  const receiverBalance = query.data?.[0];
+  const balancesQuery = useQuery([
+    '/explorer/balanceChanges',
+    { net, receiptId: id, accountIds: [receipt.predecessorId, receipt.receiverId] },
+  ]);
+  const predecessorBalance = balancesQuery.data?.[0];
+  const receiverBalance = balancesQuery.data?.[0];
 
   const gasAttached = getGasAttached(receipt.actions);
   const refund =

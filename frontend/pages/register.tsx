@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import type { AuthError } from 'firebase/auth';
 import {
   createUserWithEmailAndPassword,
@@ -8,8 +9,8 @@ import {
 } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import type { SubmitErrorHandler, SubmitHandler } from 'react-hook-form';
+import { useCallback, useEffect } from 'react';
+import type { SubmitErrorHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
@@ -51,7 +52,6 @@ interface RegisterFormData {
 
 export function RegisterForm() {
   const { getValues, register, handleSubmit, formState, watch } = useForm<RegisterFormData>();
-  const [registerError, setRegisterError] = useState<string | null>();
   const router = useRouter();
 
   useEffect(() => {
@@ -94,41 +94,22 @@ export function RegisterForm() {
     return false;
   };
 
-  const signUpWithEmail: SubmitHandler<RegisterFormData> = async ({ email, password }) => {
-    try {
-      setRegisterError('');
-      analytics.track('DC Submitted email registration form');
+  const signUpWithEmailMutation = useMutation<void, AuthError, { email: string; password: string }>(
+    ['signup'],
+    async ({ email, password }) => {
       const auth = getAuth();
       await createUserWithEmailAndPassword(auth, email, password);
+    },
+    {
+      onSuccess: () => analytics.track(`DC sign up with email`, { status: 'success' }),
+      onError: (error) => analytics.track(`DC sign up with email`, { status: 'success', error: error.code }),
+    },
+  );
 
-      try {
-        analytics.track('DC Signed up with email', {
-          status: 'success',
-        });
-      } catch (e) {
-        // silently fail
-      }
-    } catch (e) {
-      const error = e as AuthError;
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // TODO determine error handling
-      console.error(`${errorCode}: ${errorMessage}`);
-
-      switch (errorCode) {
-        case 'auth/email-already-in-use':
-          setRegisterError('Email is already in use');
-          break;
-        default:
-          setRegisterError(errorMessage);
-      }
-
-      analytics.track('DC Signed up with email', {
-        status: 'failure',
-        error: errorCode,
-      });
-    }
-  };
+  const signUpWithEmail = useCallback(
+    (form: RegisterFormData) => signUpWithEmailMutation.mutate(form),
+    [signUpWithEmailMutation],
+  );
 
   return (
     <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(signUpWithEmail, handleInvalidSubmit)}>
@@ -188,7 +169,14 @@ export function RegisterForm() {
           </Form.Group>
         </Flex>
 
-        <ErrorModal error={registerError} setError={setRegisterError} />
+        <ErrorModal
+          error={
+            signUpWithEmailMutation.error?.code === 'auth/email-already-in-use'
+              ? 'Email is already in use'
+              : signUpWithEmailMutation.error?.message
+          }
+          resetError={signUpWithEmailMutation.reset}
+        />
 
         <Button stableId={StableId.REGISTER_SIGN_UP_BUTTON} stretch type="submit" loading={formState.isSubmitting}>
           Sign Up

@@ -967,3 +967,54 @@ export type ResponseMapping = {
   // https://docs.rs/near-jsonrpc-client/latest/near_jsonrpc_client/methods/validators/type.RpcValidatorResponse.html
   validators: EpochValidatorInfo;
 };
+
+export type RequestMapping = {
+  EXPERIMENTAL_broadcast_tx_sync: unknown;
+  EXPERIMENTAL_changes: unknown;
+  EXPERIMENTAL_changes_in_block: unknown;
+  EXPERIMENTAL_check_tx: unknown;
+  EXPERIMENTAL_genesis_config: unknown;
+  EXPERIMENTAL_protocol_config: unknown;
+  EXPERIMENTAL_receipt: unknown;
+  EXPERIMENTAL_tx_status: unknown;
+  EXPERIMENTAL_validators_ordered: unknown;
+  block: unknown;
+  broadcast_tx_async: unknown;
+  broadcast_tx_commit: unknown;
+  chunk: unknown;
+  gas_price: unknown;
+  health: unknown;
+  light_client_proof: unknown;
+  network_info: unknown;
+  next_light_client_block: unknown;
+  query: unknown;
+  status: unknown;
+  tx: unknown;
+  validators: unknown;
+};
+
+export type ErrorMapping = {
+  EXPERIMENTAL_broadcast_tx_sync: unknown;
+  EXPERIMENTAL_changes: unknown;
+  EXPERIMENTAL_changes_in_block: unknown;
+  EXPERIMENTAL_check_tx: unknown;
+  EXPERIMENTAL_genesis_config: unknown;
+  EXPERIMENTAL_protocol_config: unknown;
+  EXPERIMENTAL_receipt: unknown;
+  EXPERIMENTAL_tx_status: unknown;
+  EXPERIMENTAL_validators_ordered: unknown;
+  block: unknown;
+  broadcast_tx_async: unknown;
+  broadcast_tx_commit: unknown;
+  chunk: unknown;
+  gas_price: unknown;
+  health: unknown;
+  light_client_proof: unknown;
+  network_info: unknown;
+  next_light_client_block: unknown;
+  // TODO: verify
+  query: { name: string };
+  status: unknown;
+  tx: unknown;
+  validators: unknown;
+};

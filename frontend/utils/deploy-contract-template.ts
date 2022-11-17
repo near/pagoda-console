@@ -1,14 +1,12 @@
-import type { Explorer, Projects } from '@pc/common/types/core';
+import type { Explorer } from '@pc/common/types/core';
 import { connect, KeyPair, keyStores, transactions } from 'near-api-js';
 
 import config from '@/utils/config';
-import { authenticatedPost } from '@/utils/http';
 
 import type { ContractTemplate } from '../hooks/contract-templates';
 import { sleep } from './helpers';
 
-export async function deployContractTemplate(projectSlug: Projects.ProjectSlug, template: ContractTemplate) {
-  const environmentSubId = 1; // Only TESTNET is supported for now
+export async function deployContractTemplate(template: ContractTemplate) {
   const keyStore = new keyStores.BrowserLocalStorageKeyStore();
   const nearConfig = {
     networkId: 'testnet',
@@ -51,13 +49,7 @@ export async function deployContractTemplate(projectSlug: Projects.ProjectSlug, 
     // Remove key from browser storage, it was removed from the account.
     await keyStore.removeKey(nearConfig.networkId, accountId);
 
-    const contract = await authenticatedPost('/projects/addContract', {
-      project: projectSlug,
-      environment: environmentSubId,
-      address: accountId,
-    });
-
-    return contract;
+    return accountId;
   } catch (error) {
     throw error;
   }

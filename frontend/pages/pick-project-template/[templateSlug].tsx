@@ -2,7 +2,7 @@ import type { Projects } from '@pc/common/types/core';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { ContractTemplateDetails } from '@/components/contract-templates/ContractTemplateDetails';
 import { Container } from '@/components/lib/Container';
@@ -13,11 +13,10 @@ import { openToast } from '@/components/lib/Toast';
 import { SignInModal } from '@/components/modals/SignInModal';
 import { useContractTemplate } from '@/hooks/contract-templates';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
+import { useMutation } from '@/hooks/mutation';
+import { useQuery } from '@/hooks/query';
 import { useRouteParam } from '@/hooks/route';
-import { useAccount } from '@/hooks/user';
-import analytics from '@/utils/analytics';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
-import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -25,14 +24,23 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
   const router = useRouter();
   const slug = useRouteParam('templateSlug') as Projects.ContractSlug;
   const template = useContractTemplate(slug);
-  const { user } = useAccount();
-  const [isDeploying, setIsDeploying] = useState(false);
+  const userQuery = useQuery(['/users/getAccountDetails']);
   const [showSignInModal, setShowSignInModal] = useState(false);
+  const createProjectMutation = useMutation('/projects/create', {
+    onSuccess: (project) => router.push(`/contracts?project=${project.slug}&environment=1`),
+    onError: () =>
+      openToast({
+        type: 'error',
+        title: 'Failed to create example project.',
+      }),
+    getAnalyticsSuccessData: ({ name }) => ({ name, slug: template?.slug }),
+    getAnalyticsErrorData: ({ name }) => ({ name, slug: template?.slug }),
+  });
 
-  async function createProject() {
+  const createProject = useCallback(() => {
     if (!template) return;
 
-    if (!user) {
+    if (!userQuery.data) {
       setShowSignInModal(true);
       sessionStorage.setItem('signInRedirectUrl', router.asPath);
       return;
@@ -40,53 +48,25 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
 
     const date = DateTime.now().toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
     const projectName = `${template.title}, ${date}`;
-
-    try {
-      setIsDeploying(true);
-
-      const project = await authenticatedPost('/projects/create', {
-        name: projectName,
-      });
-
-      await deployContractTemplate(project.slug, template);
-
-      analytics.track('DC Create New Example Project', {
-        status: 'success',
-        name: projectName,
-        slug: template.slug,
-      });
-
-      await router.push(`/contracts?project=${project.slug}&environment=1`);
-    } catch (e: any) {
-      setIsDeploying(false);
-
-      analytics.track('DC Create New Example Project', {
-        status: 'failure',
-        slug: template.slug,
-        error: e.message,
-      });
-
-      console.log(e);
-
-      openToast({
-        type: 'error',
-        title: 'Failed to create example project.',
-      });
-    }
-  }
+    createProjectMutation.mutate({ name: projectName }, { onSuccess: () => deployContractTemplate(template) });
+  }, [template, userQuery.data, createProjectMutation, router.asPath]);
 
   if (!template) return null;
 
   return (
     <Container size="s">
       <Flex stack gap="l">
-        <Link href={user ? '/pick-project-template' : '/'} passHref>
+        <Link href={userQuery.data ? '/pick-project-template' : '/'} passHref>
           <TextLink stableId={StableId.PROJECT_TEMPLATE_BACK_TO_TEMPLATES_LINK}>
             <FeatherIcon icon="arrow-left" /> Example Projects
           </TextLink>
         </Link>
 
-        <ContractTemplateDetails template={template} onSelect={createProject} isDeploying={isDeploying} />
+        <ContractTemplateDetails
+          template={template}
+          onSelect={createProject}
+          isDeploying={createProjectMutation.isLoading}
+        />
       </Flex>
 
       <SignInModal

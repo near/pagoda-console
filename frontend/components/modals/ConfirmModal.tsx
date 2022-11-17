@@ -17,7 +17,7 @@ interface Props {
   isProcessing?: boolean;
   disabled?: boolean;
   onConfirm?: () => void;
-  setErrorText?: (error: string) => void;
+  resetError?: () => void;
   setShow: (show: boolean) => void;
   size?: 's' | 'm';
   show: boolean;
@@ -33,11 +33,7 @@ export function ConfirmModal(props: Props) {
         <Flex stack gap="l">
           {props.children}
 
-          <Message
-            content={props.errorText}
-            type="error"
-            dismiss={props.setErrorText ? () => props.setErrorText!('') : undefined}
-          />
+          <Message content={props.errorText} type="error" dismiss={props.resetError} />
 
           <Flex justify="spaceBetween" align="center">
             <Button

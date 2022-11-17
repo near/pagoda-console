@@ -198,7 +198,8 @@ const ContractTransactionForm = ({ accountId, contract, selector, onTxResult, on
       nearFormat: 'yoctoⓃ',
     },
   });
-  const { contractAbi } = useAnyAbi(contract);
+  const abis = useAnyAbi(contract);
+  const contractAbi = abis.embeddedQuery.data?.abi || abis.query.data?.abi;
 
   const nearFormat = form.watch('nearFormat');
   const gasFormat = form.watch('gasFormat');

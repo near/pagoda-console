@@ -1,26 +1,25 @@
 import { useRouter } from 'next/router';
 import type { ComponentType } from 'react';
 import { useEffect } from 'react';
-import useSWR from 'swr';
 
 import { Spinner } from '@/components/lib/Spinner';
 import { useMaybeProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
 import { useIdentity } from '@/hooks/user';
 import config from '@/utils/config';
-import { authenticatedPost } from '@/utils/http';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const useRedirectIfProjectDoesNotExist = () => {
   const { projectSlug, updateContext } = useMaybeProjectContext();
   const router = useRouter();
-  const { error } = useSWR(projectSlug ? ['/projects/getDetails' as const, projectSlug] : null, (key, projectSlug) =>
-    authenticatedPost(key, { slug: projectSlug }),
-  );
+  const { error } = useQuery(['/projects/getDetails', { slug: projectSlug || 'unknown' }], {
+    enabled: Boolean(projectSlug),
+  });
   useEffect(() => {
     if (!projectSlug) {
       return;
     }
-    if (router.pathname !== '/projects' && [400, 403].includes(error?.statusCode)) {
+    if (router.pathname !== '/projects' && [400, 403].includes((error as any)?.statusCode)) {
       updateContext(undefined, null);
       window.sessionStorage.setItem('redirected', 'true');
       router.push('/projects');

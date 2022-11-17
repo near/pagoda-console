@@ -14,18 +14,18 @@ import { TextLink } from '@/components/lib/TextLink';
 import { withSelectedProject } from '@/components/with-selected-project';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSureProjectContext } from '@/hooks/project-context';
-import { useProject } from '@/hooks/projects';
+import { useQuery } from '@/hooks/query';
 import DeleteProjectModal from '@/modules/core/components/modals/DeleteProjectModal';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ProjectSettings: NextPageWithLayout = () => {
   const { projectSlug } = useSureProjectContext();
-  const { project } = useProject(projectSlug);
+  const projectQuery = useQuery(['/projects/getDetails', { slug: projectSlug }]);
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
 
-  if (!project) {
+  if (!projectQuery.data) {
     return (
       <Section>
         <Flex stack gap="l">
@@ -71,8 +71,8 @@ const ProjectSettings: NextPageWithLayout = () => {
       </Section>
 
       <DeleteProjectModal
-        slug={project.slug}
-        name={project.name}
+        slug={projectQuery.data.slug}
+        name={projectQuery.data.name}
         show={showModal}
         setShow={setShowModal}
         onDelete={() => router.push('/projects')}

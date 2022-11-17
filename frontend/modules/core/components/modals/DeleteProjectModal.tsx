@@ -1,47 +1,38 @@
 import type { Projects } from '@pc/common/types/core';
-import { useState } from 'react';
+import { useCallback } from 'react';
 
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { deleteProject } from '@/hooks/projects';
-import { useIdentity } from '@/hooks/user';
+import { useMutation } from '@/hooks/mutation';
+import { useQueryCache } from '@/hooks/query-cache';
 
 interface Props {
   slug: Projects.ProjectSlug;
   name: string;
   show: boolean;
   setShow: (show: boolean) => void;
-  onDelete: () => void;
+  onDelete?: () => void;
 }
 
 export default function DeleteProjectModal({ slug, name, show, setShow, onDelete }: Props) {
-  const identity = useIdentity();
-  const [errorText, setErrorText] = useState<string | undefined>();
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  async function onConfirm() {
-    setIsDeleting(true);
-    setErrorText('');
-
-    const success = await deleteProject(identity?.uid, slug, name);
-
-    if (success) {
-      onDelete();
-      setShow(false);
-    } else {
-      setErrorText('Something went wrong.');
-      setIsDeleting(false);
-    }
-  }
+  const projectsCache = useQueryCache('/projects/list');
+  const deleteProjectMutation = useMutation('/projects/delete', {
+    onSuccess: () => {
+      projectsCache.update(undefined, (projects) => projects?.filter((project) => project.slug !== slug));
+      onDelete?.();
+    },
+    getAnalyticsSuccessData: () => ({ name }),
+  });
+  const onConfirm = useCallback(() => deleteProjectMutation.mutate({ slug }), [deleteProjectMutation, slug]);
 
   return (
     <ConfirmModal
       confirmColor="danger"
       confirmText="Remove"
-      errorText={errorText}
-      isProcessing={isDeleting}
+      errorText={deleteProjectMutation.status === 'error' ? 'Something went wrong' : undefined}
+      isProcessing={deleteProjectMutation.isLoading}
       onConfirm={onConfirm}
-      setErrorText={setErrorText}
+      resetError={deleteProjectMutation.reset}
       setShow={setShow}
       show={show}
       title={`Remove ${name}`}

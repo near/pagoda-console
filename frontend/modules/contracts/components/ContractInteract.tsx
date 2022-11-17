@@ -1,5 +1,5 @@
 import type { Api } from '@pc/common/types/api';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
@@ -12,31 +12,22 @@ import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 type Contract = Api.Query.Output<'/projects/getContract'>;
 
 interface Props {
-  contract?: Contract;
+  contract: Contract;
 }
 
 export const ContractInteract = ({ contract }: Props) => {
-  const [abiUploaded, setAbiUploaded] = useState<boolean | undefined>(undefined);
-  const { contractAbi, error } = useAnyAbi(contract);
-
+  const { embeddedQuery, query: abiQuery } = useAnyAbi(contract);
+  const error = embeddedQuery.error || abiQuery.error;
   useEffect(() => {
-    if (contractAbi) {
-      setAbiUploaded(true);
-    } else if (error?.message === 'ABI_NOT_FOUND') {
-      setAbiUploaded(false);
-    } else {
-      setAbiUploaded(undefined);
+    if (error && (error as any).message && ['Failed to fetch', 'ABI_NOT_FOUND'].indexOf((error as any).message) < 0) {
+      openToast({
+        type: 'error',
+        title: 'Failed to retrieve ABI.',
+      });
     }
-  }, [contract, contractAbi, error]);
+  }, [error]);
 
-  if (error && error.message && ['Failed to fetch', 'ABI_NOT_FOUND'].indexOf(error.message) < 0) {
-    openToast({
-      type: 'error',
-      title: 'Failed to retrieve ABI.',
-    });
-  }
-
-  if (!contract?.slug || abiUploaded === undefined) {
+  if (!contract?.slug || embeddedQuery.isLoading) {
     return (
       <Container size="s">
         <Flex stack align="center">
@@ -46,13 +37,9 @@ export const ContractInteract = ({ contract }: Props) => {
     );
   }
 
-  return (
-    <>
-      {!abiUploaded ? (
-        <UploadContractAbi contractSlug={contract.slug} setAbiUploaded={setAbiUploaded} />
-      ) : (
-        <ContractTransaction contract={contract} />
-      )}
-    </>
-  );
+  if (embeddedQuery.data || abiQuery.data) {
+    return <ContractTransaction contract={contract} />;
+  }
+
+  return <UploadContractAbi contractSlug={contract.slug} />;
 };

@@ -4,7 +4,7 @@ import type { Explorer, Projects } from '@pc/common/types/core';
 import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Badge } from '@/components/lib/Badge';
@@ -24,11 +24,12 @@ import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { withSelectedProject } from '@/components/with-selected-project';
-import { useContracts } from '@/hooks/contracts';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
+import { useMutation } from '@/hooks/mutation';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
+import { useQueryCache } from '@/hooks/query-cache';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
-import { createAlert, useAlerts } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
 import { formRegex } from '@/utils/constants';
 import { convertNearToYocto } from '@/utils/convert-near';
@@ -64,27 +65,24 @@ interface FormData {
   };
 }
 
-type Contract = Api.Query.Output<'/projects/getContracts'>[number];
-
 const NewAlert: NextPageWithLayout = () => {
   const router = useRouter();
   const form = useForm<FormData>();
   const { projectSlug, environmentSubId } = useSureProjectContext();
-  const { mutate } = useAlerts(projectSlug, environmentSubId);
-  const [createError, setCreateError] = useState('');
+  const alertsCache = useQueryCache('/alerts/listAlerts');
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<Alerts.DestinationId[]>([]);
-  const { contracts } = useContracts(projectSlug, environmentSubId);
-  const [contractComboboxItems, setContractComboboxItems] = useState<Contract[]>([]);
+  const contractsQuery = useQuery(['/projects/getContracts', { project: projectSlug, environment: environmentSubId }]);
+  const [contractComboboxItems, setContractComboboxItems] = useState<Api.Query.Output<'/projects/getContracts'>>([]);
 
   const acctBalRuleComparator = form.watch('acctBalRule.comparator');
   const acctBalNumRuleFrom = form.watch('acctBalNumRule.from');
   const acctBalPctRuleFrom = form.watch('acctBalPctRule.from');
 
   useEffect(() => {
-    if (contracts) {
-      setContractComboboxItems(contracts);
+    if (contractsQuery.data) {
+      setContractComboboxItems(contractsQuery.data);
     }
-  }, [contracts]);
+  }, [contractsQuery.data]);
 
   const environmentTitle = environmentSubId === 1 ? 'Testnet' : 'Mainnet';
   const environmentTla = environmentSubId === 1 ? 'testnet' : 'near';
@@ -97,7 +95,7 @@ const NewAlert: NextPageWithLayout = () => {
     },
     onInputValueChange({ inputValue }) {
       const query = inputValue?.toLowerCase().trim();
-      const filtered = contracts?.filter((item) => !query || item.address.toLowerCase().includes(query));
+      const filtered = contractsQuery.data?.filter((item) => !query || item.address.toLowerCase().includes(query));
       setContractComboboxItems(filtered || []);
     },
     onSelectedItemChange() {
@@ -107,32 +105,30 @@ const NewAlert: NextPageWithLayout = () => {
 
   const selectedAlertType = form.watch('type');
 
-  async function submitForm(data: FormData) {
-    try {
-      const body = returnNewAlertBody(data, selectedDestinationIds, projectSlug, environmentSubId);
-      const alert = await createAlert(body);
-
-      mutate((alerts) => {
-        return [...(alerts || []), alert];
-      });
-
+  const createAlertMutation = useMutation('/alerts/createAlert', {
+    onSuccess: (result, variables) => {
+      alertsCache.update(
+        { projectSlug: variables.projectSlug, environmentSubId: variables.environmentSubId },
+        (alerts) => alerts && [...alerts, result],
+      );
       openToast({
         type: 'success',
         title: 'Alert was created.',
       });
+      router.push('/alerts');
+    },
+    getAnalyticsSuccessData: (_variables, result) => ({
+      name: result.name,
+      id: result.id,
+    }),
+  });
 
-      await router.push('/alerts');
-    } catch (e: any) {
-      if (e.message === 'ADDRESS_NOT_FOUND') {
-        const net = environmentTitle.toLowerCase();
-        setCreateError(`Address ${data.contract} was not found on ${net}.`);
-        return;
-      }
-
-      console.error('Failed to create alert', e);
-      setCreateError('Failed to create alert.');
-    }
-  }
+  const submitForm = useCallback(
+    (data: FormData) => {
+      createAlertMutation.mutate(returnNewAlertBody(data, selectedDestinationIds, projectSlug, environmentSubId));
+    },
+    [createAlertMutation, projectSlug, environmentSubId, selectedDestinationIds],
+  );
 
   return (
     <Section>
@@ -230,7 +226,7 @@ const NewAlert: NextPageWithLayout = () => {
               </Form.Group>
 
               <datalist id="contractsDatalist">
-                {contracts?.map((c) => {
+                {contractsQuery.data?.map((c) => {
                   return <option value={c.address} key={c.slug} />;
                 })}
               </datalist>
@@ -534,7 +530,13 @@ const NewAlert: NextPageWithLayout = () => {
               <DestinationsSelector
                 debounce={false}
                 selectedIds={selectedDestinationIds}
-                setSelectedIds={setSelectedDestinationIds}
+                onChange={(destinationId, selected) => {
+                  if (selected) {
+                    setSelectedDestinationIds((prev) => [...prev, destinationId]);
+                  } else {
+                    setSelectedDestinationIds((prev) => prev.filter((id) => id !== destinationId));
+                  }
+                }}
               />
             </Flex>
 
@@ -555,7 +557,16 @@ const NewAlert: NextPageWithLayout = () => {
         </Form.Root>
       </Flex>
 
-      <ErrorModal error={createError} setError={setCreateError} />
+      <ErrorModal
+        error={
+          createAlertMutation.status === 'error'
+            ? (createAlertMutation.error as any).message === 'ADDRESS_NOT_FOUND'
+              ? `Address ${form.getValues('contract')} was not found on ${environmentTitle.toLowerCase()}.`
+              : 'Failed to create alert'
+            : undefined
+        }
+        resetError={createAlertMutation.reset}
+      />
     </Section>
   );
 };

@@ -1,10 +1,8 @@
 import type { Alerts } from '@pc/common/types/alerts';
 import type { Api } from '@pc/common/types/api';
-import type { Projects } from '@pc/common/types/core';
 import { useCallback, useState } from 'react';
 import type { FieldValues } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
-import type { KeyedMutator } from 'swr';
 
 import { Badge } from '@/components/lib/Badge';
 import { Box } from '@/components/lib/Box';
@@ -17,11 +15,13 @@ import * as Form from '@/components/lib/Form';
 import { H5 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
+import { useMutation } from '@/hooks/mutation';
+import { useSureProjectContext } from '@/hooks/project-context';
+import { useQueryCache } from '@/hooks/query-cache';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
 import type { MapDiscriminatedUnion } from '@/utils/types';
 
-import { createDestination, useDestinations } from '../hooks/destinations';
 import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
 import { destinationTypeOptions } from '../utils/constants';
 import { EmailDestinationVerification } from './EmailDestinationVerification';
@@ -34,65 +34,40 @@ type MappedDestination<K extends DestinationType> = MapDiscriminatedUnion<Destin
 
 interface Props<K extends DestinationType> {
   onCreate?: (destination: MappedDestination<K>) => void;
-  onVerify?: (destination: MappedDestination<K>) => void;
-  projectSlug: Projects.ProjectSlug;
   show: boolean;
   setShow: (show: boolean) => void;
 }
 
-interface FormProps<K extends DestinationType> extends Props<K> {
-  setIsCreated: (value: boolean) => void;
-}
+type FormProps<K extends DestinationType> = Omit<Props<K>, 'setShow' | 'show'> & {
+  closeModal: () => void;
+};
 
-function useNewDestinationForm<T extends FieldValues, K extends DestinationType>(props: FormProps<K>) {
-  const { mutate } = useDestinations(props.projectSlug);
-  const [destination, setDestination] = useState<MappedDestination<K>>();
-  const form = useForm<T>();
-
-  useVerifyDestinationInterval(
-    destination,
-    mutate as unknown as KeyedMutator<MappedDestination<K>[]>,
-    useCallback(
-      (nextDestination) => {
-        props.onVerify?.(nextDestination);
-        props.setShow(false);
-      },
-      [props],
-    ),
-  );
-
-  async function create(
-    data: Omit<Api.Mutation.Input<'/alerts/createDestination'>, 'config'>,
-    config: MapDiscriminatedUnion<Api.Mutation.Input<'/alerts/createDestination'>['config'], 'type'>[K],
-  ) {
-    try {
-      const destination = (await createDestination({
-        ...data,
-        config,
-      } as Alerts.CreateDestinationInput)) as MappedDestination<K>;
-
-      mutate((state) => {
-        return [...(state || []), destination];
+function useCreateDestinationMutation<K extends DestinationType>(
+  onDone: ((destination: MappedDestination<K>) => void) | undefined,
+  onVerify: () => void,
+) {
+  const { projectSlug } = useSureProjectContext();
+  const destinationsCache = useQueryCache('/alerts/listDestinations');
+  const createDestinationMutation = useMutation('/alerts/createDestination', {
+    onSuccess: (result) => {
+      destinationsCache.update({ projectSlug }, (destinations) => {
+        if (!destinations) {
+          return;
+        }
+        return [...destinations, result];
       });
-
-      props.setIsCreated(true);
-      setDestination(destination);
-
-      if (props.onCreate) props.onCreate(destination);
-    } catch (e: any) {
-      console.error('Failed to create destination', e);
+      onDone?.(result as MappedDestination<K>);
+    },
+    onError: () => {
       openToast({
         type: 'error',
         title: 'Failed to create destination.',
       });
-    }
-  }
-
-  return {
-    create,
-    destination,
-    form,
-  };
+    },
+    getAnalyticsSuccessData: (_, result) => ({ name: result.name, id: result.id }),
+  });
+  useVerifyDestinationInterval(createDestinationMutation.data?.id, onVerify);
+  return createDestinationMutation;
 }
 
 export function NewDestinationModal(props: Props<DestinationType>) {
@@ -110,10 +85,21 @@ export function NewDestinationModal(props: Props<DestinationType>) {
   );
 }
 
-function ModalContent(props: Props<DestinationType>) {
+function ModalContent({ setShow, show: _show, onCreate, ...props }: Props<DestinationType>) {
   const [destinationType, setDestinationType] = useState<DestinationType>('TELEGRAM');
   const [isCreated, setIsCreated] = useState(false);
 
+  const formProps: FormProps<DestinationType> = {
+    ...props,
+    onCreate: useCallback(
+      (result) => {
+        onCreate?.(result);
+        setIsCreated(true);
+      },
+      [onCreate],
+    ),
+    closeModal: useCallback(() => setShow(false), [setShow]),
+  };
   return (
     <Flex stack gap="l">
       {!isCreated && (
@@ -149,27 +135,23 @@ function ModalContent(props: Props<DestinationType>) {
         </CheckboxCard.Group>
       )}
 
-      {destinationType === 'TELEGRAM' && (
-        <TelegramDestinationForm setIsCreated={setIsCreated} {...(props as Props<'TELEGRAM'>)} />
-      )}
-      {destinationType === 'WEBHOOK' && (
-        <WebhookDestinationForm setIsCreated={setIsCreated} {...(props as Props<'WEBHOOK'>)} />
-      )}
-      {destinationType === 'EMAIL' && (
-        <EmailDestinationForm setIsCreated={setIsCreated} {...(props as Props<'EMAIL'>)} />
-      )}
+      {destinationType === 'TELEGRAM' && <TelegramDestinationForm {...(formProps as FormProps<'TELEGRAM'>)} />}
+      {destinationType === 'WEBHOOK' && <WebhookDestinationForm {...(formProps as FormProps<'WEBHOOK'>)} />}
+      {destinationType === 'EMAIL' && <EmailDestinationForm {...(formProps as FormProps<'EMAIL'>)} />}
     </Flex>
   );
 }
 
 function TelegramDestinationForm(props: FormProps<'TELEGRAM'>) {
-  const { create, destination, form } = useNewDestinationForm(props);
+  const { projectSlug } = useSureProjectContext();
+  const form = useForm<FieldValues>();
+  const createDestinationMutation = useCreateDestinationMutation<'TELEGRAM'>(props.onCreate, props.closeModal);
 
-  async function submitForm() {
-    await create({ projectSlug: props.projectSlug }, { type: 'TELEGRAM' });
-  }
+  const submitForm = useCallback(() => {
+    createDestinationMutation.mutate({ projectSlug, config: { type: 'TELEGRAM' } });
+  }, [createDestinationMutation, projectSlug]);
 
-  if (destination)
+  if (createDestinationMutation.data)
     return (
       <Flex stack gap="l">
         <Flex align="center">
@@ -177,7 +159,7 @@ function TelegramDestinationForm(props: FormProps<'TELEGRAM'>) {
           <H5>Telegram destination has been created.</H5>
         </Flex>
 
-        <TelegramDestinationVerification destination={destination} />
+        <TelegramDestinationVerification destination={createDestinationMutation.data} />
       </Flex>
     );
 
@@ -197,11 +179,7 @@ function TelegramDestinationForm(props: FormProps<'TELEGRAM'>) {
           >
             Create
           </Button>
-          <Button
-            onClick={() => props.setShow(false)}
-            color="neutral"
-            stableId={StableId.NEW_DESTINATION_MODAL_CANCEL_BUTTON}
-          >
+          <Button onClick={props.closeModal} color="neutral" stableId={StableId.NEW_DESTINATION_MODAL_CANCEL_BUTTON}>
             Cancel
           </Button>
         </Flex>
@@ -215,13 +193,18 @@ interface WebhookFormData {
 }
 
 function WebhookDestinationForm(props: FormProps<'WEBHOOK'>) {
-  const { create, destination, form } = useNewDestinationForm<WebhookFormData, 'WEBHOOK'>(props);
+  const { projectSlug } = useSureProjectContext();
+  const form = useForm<WebhookFormData>();
+  const createDestinationMutation = useCreateDestinationMutation<'WEBHOOK'>(props.onCreate, props.closeModal);
 
-  async function submitForm(data: WebhookFormData) {
-    await create({ projectSlug: props.projectSlug }, { type: 'WEBHOOK', url: data.url });
-  }
+  const submitForm = useCallback(
+    (data: WebhookFormData) => {
+      createDestinationMutation.mutate({ projectSlug, config: { type: 'WEBHOOK', url: data.url } });
+    },
+    [createDestinationMutation, projectSlug],
+  );
 
-  if (destination)
+  if (createDestinationMutation.data)
     return (
       <Flex stack gap="l">
         <Flex align="center">
@@ -229,10 +212,10 @@ function WebhookDestinationForm(props: FormProps<'WEBHOOK'>) {
           <H5>Webhook destination has been created.</H5>
         </Flex>
 
-        <WebhookDestinationSecret destination={destination} />
+        <WebhookDestinationSecret destination={createDestinationMutation.data as Alerts.WebhookDestination} />
 
         <Flex gap="l" align="center">
-          <Button stableId={StableId.NEW_DESTINATION_MODAL_FINISH_WEBHOOK_BUTTON} onClick={() => props.setShow(false)}>
+          <Button stableId={StableId.NEW_DESTINATION_MODAL_FINISH_WEBHOOK_BUTTON} onClick={props.closeModal}>
             Finish
           </Button>
           <Text size="bodySmall" color="text3">
@@ -266,11 +249,7 @@ function WebhookDestinationForm(props: FormProps<'WEBHOOK'>) {
           >
             Create
           </Button>
-          <Button
-            onClick={() => props.setShow(false)}
-            color="neutral"
-            stableId={StableId.NEW_DESTINATION_MODAL_CANCEL_BUTTON}
-          >
+          <Button onClick={props.closeModal} color="neutral" stableId={StableId.NEW_DESTINATION_MODAL_CANCEL_BUTTON}>
             Cancel
           </Button>
         </Flex>
@@ -284,13 +263,21 @@ interface EmailFormData {
 }
 
 function EmailDestinationForm(props: FormProps<'EMAIL'>) {
-  const { create, destination, form } = useNewDestinationForm<EmailFormData, 'EMAIL'>(props);
+  const { projectSlug } = useSureProjectContext();
+  const form = useForm<EmailFormData>();
+  const createDestinationMutation = useCreateDestinationMutation<'EMAIL'>(props.onCreate, props.closeModal);
 
-  async function submitForm(data: EmailFormData) {
-    await create({ projectSlug: props.projectSlug }, { type: 'EMAIL', email: data.email });
-  }
+  const submitForm = useCallback(
+    (data: EmailFormData) => {
+      createDestinationMutation.mutate({
+        projectSlug,
+        config: { type: 'EMAIL', email: data.email },
+      });
+    },
+    [createDestinationMutation, projectSlug],
+  );
 
-  if (destination)
+  if (createDestinationMutation.data)
     return (
       <Flex stack gap="l">
         <Flex align="center">
@@ -298,7 +285,7 @@ function EmailDestinationForm(props: FormProps<'EMAIL'>) {
           <H5>Email destination has been created.</H5>
         </Flex>
 
-        <EmailDestinationVerification destination={destination} />
+        <EmailDestinationVerification destination={createDestinationMutation.data} />
       </Flex>
     );
 
@@ -325,11 +312,7 @@ function EmailDestinationForm(props: FormProps<'EMAIL'>) {
           >
             Create
           </Button>
-          <Button
-            onClick={() => props.setShow(false)}
-            color="neutral"
-            stableId={StableId.NEW_DESTINATION_MODAL_CANCEL_BUTTON}
-          >
+          <Button onClick={props.closeModal} color="neutral" stableId={StableId.NEW_DESTINATION_MODAL_CANCEL_BUTTON}>
             Cancel
           </Button>
         </Flex>

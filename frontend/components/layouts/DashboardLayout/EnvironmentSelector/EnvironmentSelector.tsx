@@ -4,8 +4,8 @@ import { useCallback } from 'react';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { Spinner } from '@/components/lib/Spinner';
 import { SubnetIcon } from '@/components/lib/SubnetIcon';
-import { useEnvironments } from '@/hooks/environments';
 import { useMaybeProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
 import analytics from '@/utils/analytics';
 import { StableId } from '@/utils/stable-ids';
 
@@ -17,7 +17,9 @@ interface Props {
 
 export function EnvironmentSelector({ onChange }: Props) {
   const { projectSlug, environmentSubId, updateContext: updateProjectContext } = useMaybeProjectContext();
-  const { environments } = useEnvironments(projectSlug);
+  const environmentsQuery = useQuery(['/projects/getEnvironments', { project: projectSlug || 'unknown' }], {
+    enabled: Boolean(projectSlug),
+  });
 
   const onSelectEnvironment = useCallback(
     (environment: Environment) => {
@@ -36,8 +38,8 @@ export function EnvironmentSelector({ onChange }: Props) {
   );
 
   const selectedEnvironment =
-    environments && environmentSubId
-      ? environments.find((environment) => environment.subId === environmentSubId)
+    environmentsQuery.data && environmentSubId
+      ? environmentsQuery.data.find((environment) => environment.subId === environmentSubId)
       : undefined;
   return (
     <DropdownMenu.Root>
@@ -53,8 +55,8 @@ export function EnvironmentSelector({ onChange }: Props) {
       </DropdownMenu.Button>
 
       <DropdownMenu.Content width="trigger">
-        {environments ? (
-          environments.map((e) => {
+        {environmentsQuery.data ? (
+          environmentsQuery.data.map((e) => {
             return (
               <DropdownMenu.Item key={e.subId} onSelect={() => onSelectEnvironment(e)}>
                 <SubnetIcon net={e.net} />

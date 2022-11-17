@@ -1,16 +1,16 @@
 import { useRouter } from 'next/router';
 import { useEffect, useRef } from 'react';
 
+import { useQuery } from '@/hooks/query';
 import analytics from '@/utils/analytics';
 
 import { useBrowserLayoutEffect } from './browser-layout-effect';
-import { useAccount } from './user';
 
 let lastTrackedPage = '';
 
 export function useAnalytics() {
   const router = useRouter();
-  const { user } = useAccount();
+  const userQuery = useQuery(['/users/getAccountDetails']);
 
   useEffect(() => {
     let page;
@@ -32,6 +32,7 @@ export function useAnalytics() {
   }, [router.pathname]);
 
   useEffect(() => {
+    const user = userQuery.data;
     if (user) {
       // https://segment.com/docs/connections/spec/best-practices-identify/
 
@@ -41,7 +42,7 @@ export function useAnalytics() {
         userId: user.uid,
       });
     }
-  }, [user]);
+  }, [userQuery.data]);
 
   useGlobalClickTracker();
 }

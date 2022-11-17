@@ -7,31 +7,33 @@ import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
 import { Spinner } from '@/components/lib/Spinner';
 import { useOrganizationsLayout } from '@/hooks/layouts';
-import { useOrganizations } from '@/hooks/organizations';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
+import { useQuery } from '../../hooks/query';
+
 const Organizations: NextPageWithLayout = () => {
   const router = useRouter();
-  const { organizations, error, mutate: refetchOrganizations } = useOrganizations(true);
+  const organizationsQuery = useQuery(['/users/listOrgs']);
 
   useEffect(() => {
-    if (organizations) {
-      if (organizations.length === 0) {
+    if (organizationsQuery.data) {
+      const filteredOrgs = organizationsQuery.data.filter((org) => !org.isPersonal);
+      if (filteredOrgs.length === 0) {
         router.replace('/organizations/create/');
       } else {
-        router.replace(`/organizations/${organizations[0].slug}/`);
+        router.replace(`/organizations/${filteredOrgs[0].slug}/`);
       }
     }
-  }, [router, organizations]);
+  }, [router, organizationsQuery.data]);
 
   return (
     <Container size="s">
       <Flex stack gap="l" align="center">
-        {error ? (
+        {organizationsQuery.status === 'error' ? (
           <>
             <Message type="error" content="An error occurred." />{' '}
-            <Button stableId={StableId.ORGANIZATIONS_REFETCH_BUTTON} onClick={() => refetchOrganizations()}>
+            <Button stableId={StableId.ORGANIZATIONS_REFETCH_BUTTON} onClick={() => organizationsQuery.refetch()}>
               Refetch
             </Button>
           </>

@@ -7,6 +7,22 @@ import {
 } from '@pc/database/clients/core';
 import { flavored, Flavored } from '../utils';
 
+// Explorer types
+export const accountId = z.string().refine<Flavored<'accountId'>>(flavored);
+export type AccountId = z.infer<typeof accountId>;
+export const receiptId = z.string().refine<Flavored<'receiptId'>>(flavored);
+export type ReceiptId = z.infer<typeof receiptId>;
+export const transactionHash = z
+  .string()
+  .refine<Flavored<'transactionHash'>>(flavored);
+export type TransactionHash = z.infer<typeof transactionHash>;
+export const blockHash = z.string().refine<Flavored<'blockHash'>>(flavored);
+export type BlockHash = z.infer<typeof blockHash>;
+export const yoctoNear = z.string().refine<Flavored<'yoctoNear'>>(flavored);
+export type YoctoNear = z.infer<typeof yoctoNear>;
+export const transactionStatus = z.enum(['unknown', 'failure', 'success']);
+export type TransactionStatus = z.infer<typeof transactionStatus>;
+
 export const userUid = z.string().refine<Flavored<'userUid'>>(flavored);
 export type UserUid = z.infer<typeof userUid>;
 export const projectSlug = z.string().refine<Flavored<'projectSlug'>>(flavored);
@@ -101,7 +117,7 @@ export const contract = z.strictObject({
   id: z.number(),
   slug: contractSlug,
   environmentId: environmentId,
-  address: z.string(),
+  address: accountId,
   net,
   active: z.boolean(),
   createdAt: z.date().or(z.null()),
@@ -135,19 +151,3 @@ export const apiKey = z.strictObject({
   updatedAt: z.date().or(z.null()),
   updatedBy: z.number().or(z.null()),
 });
-
-// Explorer types
-export const accountId = z.string().refine<Flavored<'accountId'>>(flavored);
-export type AccountId = z.infer<typeof accountId>;
-export const receiptId = z.string().refine<Flavored<'receiptId'>>(flavored);
-export type ReceiptId = z.infer<typeof receiptId>;
-export const transactionHash = z
-  .string()
-  .refine<Flavored<'transactionHash'>>(flavored);
-export type TransactionHash = z.infer<typeof transactionHash>;
-export const blockHash = z.string().refine<Flavored<'blockHash'>>(flavored);
-export type BlockHash = z.infer<typeof blockHash>;
-export const yoctoNear = z.string().refine<Flavored<'yoctoNear'>>(flavored);
-export type YoctoNear = z.infer<typeof yoctoNear>;
-export const transactionStatus = z.enum(['unknown', 'failure', 'success']);
-export type TransactionStatus = z.infer<typeof transactionStatus>;

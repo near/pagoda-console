@@ -9,14 +9,14 @@ import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
 import { StableId } from '@/utils/stable-ids';
 
-import { useAlerts } from '../hooks/alerts';
 import { AlertTableRow } from './AlertTableRow';
 
 export function Alerts() {
   const { environmentSubId, projectSlug } = useSureProjectContext();
-  const { alerts, mutate } = useAlerts(projectSlug, environmentSubId);
+  const alertsQuery = useQuery(['/alerts/listAlerts', { projectSlug, environmentSubId }]);
 
   return (
     <Flex stack gap="l">
@@ -29,11 +29,13 @@ export function Alerts() {
         </Link>
       </Flex>
 
-      {!alerts && <Spinner center />}
-
-      {alerts?.length === 0 && <Text>{`Your selected environment doesn't have any alerts configured yet.`}</Text>}
-
-      {alerts && alerts?.length > 0 && (
+      {alertsQuery.status === 'loading' ? (
+        <Spinner center />
+      ) : alertsQuery.status === 'error' ? (
+        <Text>Error while loading alerts</Text>
+      ) : alertsQuery.data.length === 0 ? (
+        <Text>{`Your selected environment doesn't have any alerts configured yet.`}</Text>
+      ) : (
         <Table.Root>
           <Table.Head>
             <Table.Row>
@@ -46,23 +48,15 @@ export function Alerts() {
           </Table.Head>
 
           <Table.Body>
-            {!alerts && <Table.PlaceholderRows />}
-
-            {alerts?.map((row) => {
+            {alertsQuery.data.map((row) => {
               return (
                 <AlertTableRow
                   alert={row}
                   onDelete={() => {
-                    const name = row?.name;
-
                     openToast({
                       type: 'success',
                       title: 'Alert Deleted',
-                      description: name,
-                    });
-
-                    mutate(() => {
-                      return alerts?.filter((a) => a.id !== row.id);
+                      description: row?.name,
                     });
                   }}
                   key={row.id}

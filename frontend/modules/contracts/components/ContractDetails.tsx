@@ -9,22 +9,26 @@ import { H2 } from '@/components/lib/Heading';
 import { Placeholder } from '@/components/lib/Placeholder';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
-import { useContractMetrics } from '@/hooks/contracts';
-import { useSureProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
+import { useRpcQuery } from '@/hooks/rpc';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatBytes } from '@/utils/format-bytes';
-import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 
-import { useFinalityStatus, useRecentTransactions } from '../hooks/recent-transactions';
+import { useFinalityStatus } from '../hooks/recent-transactions';
 
 type Contract = Api.Query.Output<'/projects/getContract'>;
 
 interface Props {
-  contract?: Contract;
+  contract: Contract;
 }
 
 export function ContractDetails({ contract }: Props) {
-  const { metrics, error } = useContractMetrics(contract?.address, contract?.net);
+  const { data: metrics, error } = useRpcQuery(
+    contract.net,
+    'view_account',
+    { finality: 'final', account_id: contract.address },
+    { retry: false },
+  );
 
   function Metric({ label, value }: { label: string; value?: string }) {
     return (
@@ -65,32 +69,37 @@ export function ContractDetails({ contract }: Props) {
   );
 }
 
-function RecentTransactionList({ contract }: { contract?: Contract }) {
+function RecentTransactionList({ contract }: { contract: Contract }) {
   // NOTE: This component and following code is legacy and will soon be replaced by new explorer components.
 
-  const net = mapEnvironmentSubIdToNet(useSureProjectContext().environmentSubId);
-  const { finalityStatus } = useFinalityStatus(net);
-  const { transactions } = useRecentTransactions(contract?.address, net);
+  const finalityStatusQuery = useFinalityStatus(contract.net);
+
+  // TODO (P2+) look into whether using contracts as part of the react-query key will cause a large
+  // amount of unnecessary caching, since every modification to the contract set will be a
+  // separate key
+  const transactionsQuery = useQuery([
+    '/explorer/getTransactions',
+    { net: contract.net, contracts: [contract.address] },
+  ]);
 
   return (
     <Flex stack>
       <H2>Recent Transactions</H2>
-
-      {!transactions && <Spinner center />}
-
-      {transactions?.length === 0 && <Text>No recent transactions have occurred for this contract.</Text>}
-
-      <Box css={{ width: '100%' }}>
-        {transactions &&
-          transactions.map((t) => {
+      {transactionsQuery.status === 'loading' ? (
+        <Spinner center />
+      ) : transactionsQuery.status === 'error' ? (
+        <div>Error while loading transactions</div>
+      ) : transactionsQuery.data.length === 0 ? (
+        <Text>No recent transactions have occurred for this contract.</Text>
+      ) : (
+        <Box css={{ width: '100%' }}>
+          {transactionsQuery.data.map((t) => {
             return (
               <Flex key={t.hash}>
                 <Box css={{ flexGrow: 1 }}>
-                  {net && (
-                    <NetContext.Provider value={net}>
-                      <TransactionAction transaction={t} net={net} finalityStatus={finalityStatus} />
-                    </NetContext.Provider>
-                  )}
+                  <NetContext.Provider value={contract.net}>
+                    <TransactionAction transaction={t} net={contract.net} finalityStatus={finalityStatusQuery.data} />
+                  </NetContext.Provider>
                 </Box>
 
                 <Text
@@ -106,7 +115,8 @@ function RecentTransactionList({ contract }: { contract?: Contract }) {
               </Flex>
             );
           })}
-      </Box>
+        </Box>
+      )}
     </Flex>
   );
 }

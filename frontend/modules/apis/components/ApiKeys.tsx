@@ -1,5 +1,4 @@
 import type { Api } from '@pc/common/types/api';
-import type { Projects } from '@pc/common/types/core';
 import { Root as VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useRef, useState } from 'react';
 
@@ -13,12 +12,12 @@ import * as Popover from '@/components/lib/Popover';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useApiKeys } from '@/hooks/new-api-keys';
+import { useMutation } from '@/hooks/mutation';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
 import { CreateApiKeyForm } from '@/modules/apis/components/CreateApiKeyForm';
 import StarterGuide from '@/modules/core/components/StarterGuide';
 import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 
 type ApiKey = Api.Query.Output<'/projects/getKeys'>[number];
@@ -28,7 +27,7 @@ const ROTATION_WARNING =
 
 export function ApiKeys() {
   const { projectSlug } = useSureProjectContext();
-  const { keys, mutate: mutateKeys } = useApiKeys(projectSlug);
+  const keysQuery = useQuery(['/projects/getKeys', { project: projectSlug }]);
   const [showRotationModal, setShowRotationModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -38,44 +37,29 @@ export function ApiKeys() {
     key: '',
   });
 
-  async function rotateKey(keySlug: Projects.ApiKeySlug) {
-    showRotationModal && setShowRotationModal(false);
-    try {
-      mutateKeys((cachedKeys) => {
+  const rotateKeyMutation = useMutation('/projects/rotateKey', {
+    onMutate: (variables) => {
+      setShowRotationModal(false);
+      keysQuery.updateCache((cachedKeys) => {
         return cachedKeys?.map((key) => {
-          if (key.keySlug === keySlug) {
-            key.keySlug = '';
-            key.key = '';
+          if (key.keySlug === variables.slug) {
+            return { ...key, keySlug: '', key: '' };
           }
           return key;
         });
       });
-      await mutateKeys(async (cachedKeys) => {
-        const { keySlug: newKeySlug, key: newKey } = await authenticatedPost('/projects/rotateKey' as const, {
-          slug: keySlug,
-        });
-
-        analytics.track('DC Rotate API Key', {
-          status: 'success',
-          description: keyToRotate.description,
-        });
-        return cachedKeys?.map((key: ApiKey) => {
-          if (key.keySlug === keyToRotate.keySlug) {
-            key.keySlug = newKeySlug;
-            key.key = newKey;
+    },
+    onSuccess: (result, variables) => {
+      keysQuery.updateCache((cachedKeys) => {
+        return cachedKeys?.map((key) => {
+          if (key.keySlug === variables.slug) {
+            return result;
           }
           return key;
         });
       });
-    } catch (e: any) {
-      analytics.track('DC Rotate API Key', {
-        status: 'failure',
-        description: keyToRotate.description,
-        error: e.message,
-      });
-      throw new Error('Failed to rotate key');
-    }
-  }
+    },
+  });
 
   return (
     <Flex stack gap="l">
@@ -89,12 +73,12 @@ export function ApiKeys() {
       <Flex stack>
         <Dialog.Root open={showCreateModal} onOpenChange={setShowCreateModal}>
           <Dialog.Content title="Create New Key" size="s">
-            <CreateApiKeyForm setShow={setShowCreateModal} show={showCreateModal} projectSlug={projectSlug} />
+            <CreateApiKeyForm close={() => setShowCreateModal(false)} />
           </Dialog.Content>
         </Dialog.Root>
         <ConfirmModal
           confirmText="Rotate"
-          onConfirm={() => rotateKey(keyToRotate.keySlug)}
+          onConfirm={() => rotateKeyMutation.mutate({ slug: keyToRotate.keySlug })}
           setShow={setShowRotationModal}
           show={showRotationModal}
           title="Rotate Key?"
@@ -111,8 +95,8 @@ export function ApiKeys() {
           </Table.Head>
 
           <Table.Body>
-            {keys &&
-              keys.map((apiKey, index) => {
+            {keysQuery.data &&
+              keysQuery.data.map((apiKey, index) => {
                 return (
                   <Table.Row key={index}>
                     <KeyRow

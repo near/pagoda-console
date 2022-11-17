@@ -10,23 +10,22 @@ import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
 import { EditDestinationModal } from '@/modules/alerts/components/EditDestinationModal';
 import { NewDestinationModal } from '@/modules/alerts/components/NewDestinationModal';
-import { useDestinations } from '@/modules/alerts/hooks/destinations';
 import { StableId } from '@/utils/stable-ids';
 
 import { DestinationTableRow } from './DestinationsTableRow';
 
-type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
-
 export function Destinations() {
   const { projectSlug } = useSureProjectContext();
-  const { destinations, mutate } = useDestinations(projectSlug);
+  const destinationsQuery = useQuery(['/alerts/listDestinations', { projectSlug }]);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
-  const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
+  const [selectedEditDestination, setSelectedEditDestination] =
+    useState<Api.Query.Output<'/alerts/listDestinations'>[number]>();
 
-  function openDestination(destination: Destination) {
+  function openDestination(destination: Api.Query.Output<'/alerts/listDestinations'>[number]) {
     setSelectedEditDestination(destination);
     setShowEditDestinationModal(true);
   }
@@ -44,13 +43,13 @@ export function Destinations() {
           </Button>
         </Flex>
 
-        {!destinations && <Spinner center />}
-
-        {destinations?.length === 0 && (
+        {destinationsQuery.status === 'loading' ? (
+          <Spinner center />
+        ) : destinationsQuery.status === 'error' ? (
+          <div>Error loading destinations</div>
+        ) : destinationsQuery.data.length === 0 ? (
           <Text>{`Your selected project doesn't have any destinations configured yet.`}</Text>
-        )}
-
-        {destinations && destinations?.length > 0 && (
+        ) : (
           <Table.Root>
             <Table.Head>
               <Table.Row>
@@ -63,24 +62,16 @@ export function Destinations() {
             </Table.Head>
 
             <Table.Body>
-              {!destinations && <Table.PlaceholderRows />}
-
-              {destinations?.map((row) => {
+              {destinationsQuery.data.map((row) => {
                 return (
                   <DestinationTableRow
                     destination={row}
                     onClick={() => openDestination(row)}
                     onDelete={() => {
-                      const name = row?.name;
-
                       openToast({
                         type: 'success',
                         title: 'Destination Deleted',
-                        description: name ?? undefined,
-                      });
-
-                      mutate(() => {
-                        return destinations?.filter((d) => d.id !== row.id);
+                        description: row?.name ?? undefined,
                       });
                     }}
                     key={row.id}
@@ -91,11 +82,7 @@ export function Destinations() {
           </Table.Root>
         )}
       </Flex>
-      <NewDestinationModal
-        projectSlug={projectSlug}
-        show={showNewDestinationModal}
-        setShow={setShowNewDestinationModal}
-      />
+      <NewDestinationModal show={showNewDestinationModal} setShow={setShowNewDestinationModal} />
 
       {selectedEditDestination && (
         <EditDestinationModal

@@ -9,8 +9,9 @@ import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { useMaybeProjectContext } from '@/hooks/project-context';
-import { useMaybeProject, useProjectGroups } from '@/hooks/projects';
+import { useQuery } from '@/hooks/query';
 import analytics from '@/utils/analytics';
+import { getProjectGroups } from '@/utils/projects';
 import { StableId } from '@/utils/stable-ids';
 
 interface Props {
@@ -19,8 +20,11 @@ interface Props {
 
 export function ProjectSelector({ onChange }: Props) {
   const { projectSlug, updateContext: updateProjectContext } = useMaybeProjectContext();
-  const { project } = useMaybeProject(projectSlug);
-  const { projectGroups } = useProjectGroups();
+  const projectQuery = useQuery(['/projects/getDetails', { slug: projectSlug || 'unknown' }], {
+    enabled: Boolean(projectSlug),
+  });
+  const projectsQuery = useQuery(['/projects/list']);
+  const projectGroups = getProjectGroups(projectsQuery.data);
   const router = useRouter();
 
   const onSelectProject = useCallback(
@@ -43,7 +47,7 @@ export function ProjectSelector({ onChange }: Props) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Button stableId={StableId.PROJECT_SELECTOR_DROPDOWN} css={{ width: '22rem', height: 'auto' }}>
-        <TextOverflow>{project ? project.name : '...'}</TextOverflow>
+        <TextOverflow>{projectQuery.data ? projectQuery.data.name : '...'}</TextOverflow>
       </DropdownMenu.Button>
 
       <DropdownMenu.Content width="trigger" innerCss={{ padding: 0, borderRadius: 'inherit' }}>

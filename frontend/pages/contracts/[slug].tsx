@@ -2,21 +2,22 @@ import type { Api } from '@pc/common/types/api';
 import type { Projects } from '@pc/common/types/core';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { Section } from '@/components/lib/Section';
+import { Spinner } from '@/components/lib/Spinner';
 import * as Tabs from '@/components/lib/Tabs';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { withSelectedProject } from '@/components/with-selected-project';
-import { useContract, useContracts } from '@/hooks/contracts';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
 import { useRouteParam } from '@/hooks/route';
 import { ContractAbi } from '@/modules/contracts/components/ContractAbi';
 import { ContractDetails } from '@/modules/contracts/components/ContractDetails';
@@ -26,27 +27,49 @@ import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
-type Contract = Api.Query.Output<'/projects/getContract'>;
+type Contract = Api.Query.Output<'/projects/getContracts'>[number];
+
+const ContractLink = ({ contract, activeTab }: { contract: Contract; activeTab: string | null }) => {
+  const abis = useAnyAbi(contract);
+  const abi = abis.embeddedQuery.data?.abi || abis.query.data?.abi;
+  if (!abi) {
+    return <Spinner />;
+  }
+  return (
+    <Link href={`/contracts/${contract.slug}?tab=abi`} passHref>
+      <Tabs.TriggerLink stableId={StableId.CONTRACT_TABS_ABI_LINK} active={activeTab === 'abi'}>
+        <FeatherIcon icon="file-text" size="xs" /> Contract ABI
+      </Tabs.TriggerLink>
+    </Link>
+  );
+};
+
+const ContractTab = ({ contract }: { contract: Contract }) => {
+  const abis = useAnyAbi(contract);
+  const abi = abis.embeddedQuery.data?.abi || abis.query.data?.abi;
+  if (!abi) {
+    return <Spinner />;
+  }
+  return (
+    <Tabs.Content css={{ paddingTop: 0 }} value="abi">
+      <ContractAbi contract={contract} />
+    </Tabs.Content>
+  );
+};
 
 const ViewContract: NextPageWithLayout = () => {
-  const router = useRouter();
-  const contractSlug = (useRouteParam('slug', '/contracts', true) || '') as Projects.ContractSlug;
+  const contractSlug = useRouteParam('slug', '/contracts', true) as Projects.ContractSlug;
   const { projectSlug, environmentSubId } = useSureProjectContext();
-  const { contracts, mutate: mutateContracts } = useContracts(projectSlug, environmentSubId);
-  const { contract } = useContract(contractSlug);
+  const router = useRouter();
+  const contractsQuery = useQuery(['/projects/getContracts', { project: projectSlug, environment: environmentSubId }]);
+  const contractQuery = useQuery(['/projects/getContract', { slug: contractSlug }]);
   const activeTab = useRouteParam('tab', `/contracts/${contractSlug}?tab=details`, true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { contractAbi } = useAnyAbi(contract);
 
   // TODO: Pull in useSelectedProjectSync() to match [triggeredAlertId].tsx logic to sync env/proj to loaded contract.
   // TODO: Handle 404
 
-  function onDelete(contract: Contract) {
-    mutateContracts((contracts) => {
-      return contracts?.filter((c) => c.slug !== contract.slug) || [];
-    });
-    router.replace('/contracts');
-  }
+  const onDelete = useCallback(() => router.replace('/contracts'), [router]);
 
   function onSelectedContractChange(slug: string) {
     router.push(`/contracts/${slug}?tab=${activeTab}`);
@@ -77,12 +100,12 @@ const ViewContract: NextPageWithLayout = () => {
                   }}
                 >
                   <FeatherIcon icon="zap" color="primary" />
-                  <TextOverflow>{contract?.address || '...'}</TextOverflow>
+                  <TextOverflow>{contractQuery.data?.address || '...'}</TextOverflow>
                 </DropdownMenu.Button>
 
                 <DropdownMenu.Content align="start" width="trigger">
                   <DropdownMenu.RadioGroup value={contractSlug} onValueChange={onSelectedContractChange}>
-                    {contracts?.map((c) => {
+                    {contractsQuery.data?.map((c) => {
                       return (
                         <DropdownMenu.RadioItem key={c.slug} value={c.slug.toString()}>
                           {c.address}
@@ -107,13 +130,7 @@ const ViewContract: NextPageWithLayout = () => {
                     </Tabs.TriggerLink>
                   </Link>
 
-                  {contractAbi && (
-                    <Link href={`/contracts/${contractSlug}?tab=abi`} passHref>
-                      <Tabs.TriggerLink stableId={StableId.CONTRACT_TABS_ABI_LINK} active={activeTab === 'abi'}>
-                        <FeatherIcon icon="file-text" size="xs" /> Contract ABI
-                      </Tabs.TriggerLink>
-                    </Link>
-                  )}
+                  {contractQuery.data ? <ContractLink contract={contractQuery.data} activeTab={activeTab} /> : null}
                 </Tabs.List>
 
                 <Tooltip content="Remove this contract">
@@ -134,24 +151,20 @@ const ViewContract: NextPageWithLayout = () => {
 
         <Section>
           <Tabs.Content css={{ paddingTop: 0 }} value="details">
-            <ContractDetails contract={contract} />
+            {contractQuery.data ? <ContractDetails contract={contractQuery.data} /> : <Spinner />}
           </Tabs.Content>
 
           <Tabs.Content css={{ paddingTop: 0 }} value="interact">
-            <ContractInteract contract={contract} />
+            {contractQuery.data ? <ContractInteract contract={contractQuery.data} /> : <Spinner />}
           </Tabs.Content>
 
-          {contractAbi && (
-            <Tabs.Content css={{ paddingTop: 0 }} value="abi">
-              <ContractAbi contract={contract} />
-            </Tabs.Content>
-          )}
+          {contractQuery.data ? <ContractTab contract={contractQuery.data} /> : null}
         </Section>
       </Tabs.Root>
 
-      {contract && (
+      {contractQuery.data && (
         <DeleteContractModal
-          contract={contract}
+          contract={contractQuery.data}
           show={showDeleteModal}
           setShow={setShowDeleteModal}
           onDelete={onDelete}
