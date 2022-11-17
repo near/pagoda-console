@@ -1,13 +1,24 @@
+// this is a JSON5 file, comments are supported, you may wish to switch your syntax mode
+// to json5 or jsonc
 {
   "$schema": "https://turborepo.org/schema.json",
   "pipeline": {
     "dev": {
+      "dependsOn": [],
       "cache": false
     },
+    "build:ready": {
+      "dependsOn": [],
+      "outputs": []
+    },
     "build": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build", "build:ready"],
+      "outputs": ["dist/**", ".next/**", "clients"]
     },
     "start": {
+      "dependsOn": ["build"]
+    },
+    "serve:cms": {
       "dependsOn": ["build"]
     },
     "lint:check": {
