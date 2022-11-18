@@ -1,7 +1,7 @@
 import type { ComponentProps } from '@stitches/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { ProjectSelector } from '@/components/layouts/DashboardLayout/ProjectSelector';
 import { Box } from '@/components/lib/Box';
@@ -38,6 +38,10 @@ export function Header({ redirect, ...props }: Props) {
   const [redirectMessage, setRedirectMessage] = useState('');
   const redirectOnConfirmRef = useRef<() => void>();
   const [showRedirectConfirmModal, setShowRedirectConfirmModal] = useState(false);
+
+  useEffect(() => {
+    router.prefetch('/projects');
+  }, [router]);
 
   function exitPublicMode() {
     router.replace('/projects');
