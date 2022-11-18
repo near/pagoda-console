@@ -81,54 +81,57 @@ export function EmailForm({ isAuthenticating, setIsAuthenticating }: Props) {
   return (
     <>
       <Form.Root disabled={isSubmitting} onSubmit={handleSubmit(signInWithEmail)}>
-        <Flex stack gap="m" align="center">
-          <Form.Group>
-            <Form.Label htmlFor="email">Email</Form.Label>
-            <Form.Input
-              id="email"
-              type="email"
-              placeholder="name@example.com"
-              isInvalid={!!formState.errors.email}
-              {...register('email', formValidations.email)}
-            />
-            <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
-          </Form.Group>
+        <Flex stack gap="l" align="center">
+          <Flex stack gap="m">
+            <Form.Group>
+              <Form.Label htmlFor="email">Email</Form.Label>
+              <Form.Input
+                id="email"
+                type="email"
+                placeholder="name@example.com"
+                isInvalid={!!formState.errors.email}
+                {...register('email', formValidations.email)}
+              />
+              <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
+            </Form.Group>
 
-          <Form.Group>
-            <Form.Label htmlFor="password">Password</Form.Label>
-            <Form.Input
-              id="password"
-              type="password"
-              placeholder="Password"
-              isInvalid={!!formState.errors.password}
-              {...register('password', formValidations.password)}
-            />
-            <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
-          </Form.Group>
+            <Form.Group>
+              <Form.Label htmlFor="password">Password</Form.Label>
+              <Form.Input
+                id="password"
+                type="password"
+                placeholder="Password"
+                isInvalid={!!formState.errors.password}
+                {...register('password', formValidations.password)}
+              />
+              <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
+            </Form.Group>
 
-          <Button
-            stableId={StableId.AUTHENTICATION_EMAIL_FORM_SIGN_IN_BUTTON}
-            type="submit"
-            stretch
-            loading={formState.isSubmitting}
-          >
-            Continue
-          </Button>
-
-          <Link href="/register" passHref>
-            <ButtonLink
-              stableId={StableId.AUTHENTICATION_EMAIL_FORM_SIGN_UP_BUTTON}
-              color="neutral"
+            <Button
+              stableId={StableId.AUTHENTICATION_EMAIL_FORM_SIGN_IN_BUTTON}
+              type="submit"
               stretch
-              onClick={() => analytics.track('DC Clicked Sign Up on Login')}
+              loading={formState.isSubmitting}
             >
-              Sign Up
-            </ButtonLink>
-          </Link>
+              Continue
+            </Button>
+
+            <Link href="/register" passHref>
+              <ButtonLink
+                stableId={StableId.AUTHENTICATION_EMAIL_FORM_SIGN_UP_BUTTON}
+                color="neutral"
+                stretch
+                onClick={() => analytics.track('DC Clicked Sign Up on Login')}
+              >
+                Sign Up
+              </ButtonLink>
+            </Link>
+          </Flex>
 
           <TextButton
             stableId={StableId.AUTHENTICATION_EMAIL_FORM_FORGOT_PASSWORD_BUTTON}
             color="neutral"
+            size="s"
             onClick={() => setShowResetModal(true)}
           >
             Forgot Password?

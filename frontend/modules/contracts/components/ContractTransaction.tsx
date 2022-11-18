@@ -23,8 +23,8 @@ import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { useCurrentEnvironment } from '@/hooks/environments';
 import { useRouteParam } from '@/hooks/route';
-import { useSelectedProject } from '@/hooks/selected-project';
 import { initContractMethods, useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import * as gasUtils from '@/modules/contracts/utils/convert-gas';
@@ -630,7 +630,7 @@ const TxResult = ({ result }: { result: any }) => (
 );
 
 const TxResultHash = ({ hash }: { hash: string }) => {
-  const { environment } = useSelectedProject();
+  const { environment } = useCurrentEnvironment();
   const net = environment?.net;
 
   if (!net) {

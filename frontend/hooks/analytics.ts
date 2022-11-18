@@ -1,16 +1,32 @@
 import { useRouter } from 'next/router';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import analytics from '@/utils/analytics';
 
+import { useAccount, useAuth } from './auth';
 import { useBrowserLayoutEffect } from './browser-layout-effect';
-import { useAccount } from './user';
 
 let lastTrackedPage = '';
 
 export function useAnalytics() {
   const router = useRouter();
+  const { authStatus } = useAuth();
   const { user } = useAccount();
+  const [hasIdentified, setHasIdentified] = useState(false);
+
+  useEffect(() => {
+    if (user?.uid) {
+      // https://segment.com/docs/connections/spec/best-practices-identify/
+
+      analytics.identify(user.uid, {
+        email: user.email,
+        displayName: user.name,
+        userId: user.uid,
+      });
+
+      setHasIdentified(true);
+    }
+  }, [user]);
 
   useEffect(() => {
     let page;
@@ -22,14 +38,16 @@ export function useAnalytics() {
 
     page = page.toUpperCase();
 
-    if (page === lastTrackedPage) return;
+    if (page === lastTrackedPage || authStatus === 'LOADING' || (authStatus === 'AUTHENTICATED' && !hasIdentified)) {
+      return;
+    }
 
     lastTrackedPage = page;
 
     analytics.pageView(`DC View ${page} Page`, {
       path: router.pathname,
     });
-  }, [router.pathname]);
+  }, [authStatus, hasIdentified, router.pathname]);
 
   useEffect(() => {
     if (user) {

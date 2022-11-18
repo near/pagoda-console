@@ -15,10 +15,11 @@ import { Button } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import { HR } from '@/components/lib/HorizontalRule';
 import { ErrorModal } from '@/components/modals/ErrorModal';
+import { useSignedInHandler } from '@/hooks/auth';
+import { usePublicMode } from '@/hooks/public';
 import GithubIconSvg from '@/public/images/icons/github.svg';
 import GoogleIconSvg from '@/public/images/icons/google.svg';
 import analytics from '@/utils/analytics';
-import { signInRedirectHandler } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 
 import { EmailForm } from './EmailForm';
@@ -58,10 +59,12 @@ const providers: Array<ProviderDetails> = [
   },
 ];
 
-export function AuthenticationForm({ onSignIn }: Props) {
+export function AuthForm({ onSignIn }: Props) {
   const router = useRouter();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authError, setAuthError] = useState('');
+  const signedInHandler = useSignedInHandler();
+  const { publicModeIsActive } = usePublicMode();
 
   useEffect(() => {
     router.prefetch('/projects');
@@ -79,16 +82,18 @@ export function AuthenticationForm({ onSignIn }: Props) {
         router.push('/verification?existing=true');
       } else if (user) {
         if (onSignIn) {
+          signedInHandler(false);
           onSignIn();
         } else {
-          signInRedirectHandler(router, '/projects');
+          signedInHandler('/projects');
         }
       }
     });
     return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
-  }, [onSignIn, router]);
+  }, [onSignIn, router, signedInHandler]);
 
   async function socialSignIn(provider: AuthProvider) {
+    const cachedPublicModeIsActive = publicModeIsActive;
     setIsAuthenticating(true);
     const auth = getAuth();
 
@@ -99,6 +104,10 @@ export function AuthenticationForm({ onSignIn }: Props) {
       try {
         if (additional?.isNewUser) {
           analytics.track(`DC Signed up with ${provider.providerId.split('.')[0].toUpperCase()}`);
+
+          if (cachedPublicModeIsActive) {
+            analytics.track(`DC Public Mode Sign Up`);
+          }
         } else {
           analytics.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);
         }

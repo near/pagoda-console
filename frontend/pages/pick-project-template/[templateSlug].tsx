@@ -7,13 +7,13 @@ import { ContractTemplateDetails } from '@/components/contract-templates/Contrac
 import { Container } from '@/components/lib/Container';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
+import { Section } from '@/components/lib/Section';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
-import { SignInModal } from '@/components/modals/SignInModal';
+import { useAuth } from '@/hooks/auth';
 import { useContractTemplate } from '@/hooks/contract-templates';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
-import { useAccount } from '@/hooks/user';
 import analytics from '@/utils/analytics';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
 import { authenticatedPost } from '@/utils/http';
@@ -24,18 +24,11 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
   const router = useRouter();
   const slug = useRouteParam('templateSlug');
   const template = useContractTemplate(slug);
-  const { user } = useAccount();
+  const { authStatus } = useAuth();
   const [isDeploying, setIsDeploying] = useState(false);
-  const [showSignInModal, setShowSignInModal] = useState(false);
 
   async function createProject() {
     if (!template) return;
-
-    if (!user) {
-      setShowSignInModal(true);
-      sessionStorage.setItem('signInRedirectUrl', router.asPath);
-      return;
-    }
 
     const date = DateTime.now().toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
     const projectName = `${template.title}, ${date}`;
@@ -43,19 +36,34 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
     try {
       setIsDeploying(true);
 
-      const project = await authenticatedPost('/projects/create', {
-        name: projectName,
-      });
+      const deployResult = await deployContractTemplate(template);
 
-      await deployContractTemplate(project, template);
+      if (authStatus === 'AUTHENTICATED') {
+        const project = await authenticatedPost('/projects/create', {
+          name: projectName,
+        });
 
-      analytics.track('DC Create New Example Project', {
-        status: 'success',
-        name: projectName,
-        slug: template.slug,
-      });
+        await authenticatedPost('/projects/addContract', {
+          project: project.slug,
+          environment: deployResult.subId,
+          address: deployResult.address,
+        });
 
-      await router.push(`/contracts?project=${project.slug}&environment=1`);
+        analytics.track('DC Create New Example Project', {
+          status: 'success',
+          name: projectName,
+          slug: template.slug,
+        });
+
+        await router.push(`/contracts?project=${project.slug}&environment=1`);
+      } else {
+        analytics.track('DC Create New Example Project (Guest)', {
+          status: 'success',
+          slug: template.slug,
+        });
+
+        await router.push(`/public/contracts?addresses=${deployResult.address}&net=TESTNET`);
+      }
     } catch (e: any) {
       setIsDeploying(false);
 
@@ -77,23 +85,19 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
   if (!template) return null;
 
   return (
-    <Container size="s">
-      <Flex stack gap="l">
-        <Link href={user ? '/pick-project-template' : '/'} passHref>
-          <TextLink stableId={StableId.PROJECT_TEMPLATE_BACK_TO_TEMPLATES_LINK}>
-            <FeatherIcon icon="arrow-left" /> Example Projects
-          </TextLink>
-        </Link>
+    <Section>
+      <Container size="s">
+        <Flex stack gap="l">
+          <Link href={authStatus === 'AUTHENTICATED' ? '/pick-project-template' : '/'} passHref>
+            <TextLink stableId={StableId.PROJECT_TEMPLATE_BACK_TO_TEMPLATES_LINK}>
+              <FeatherIcon icon="arrow-left" /> Example Projects
+            </TextLink>
+          </Link>
 
-        <ContractTemplateDetails template={template} onSelect={createProject} isDeploying={isDeploying} />
-      </Flex>
-
-      <SignInModal
-        description="You’ll need to sign in or create an account in order to deploy and explore your contract."
-        show={showSignInModal}
-        setShow={setShowSignInModal}
-      />
-    </Container>
+          <ContractTemplateDetails template={template} onSelect={createProject} isDeploying={isDeploying} />
+        </Flex>
+      </Container>
+    </Section>
   );
 };
 
