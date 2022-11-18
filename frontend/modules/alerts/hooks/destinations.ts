@@ -3,7 +3,7 @@ import type { Api } from '@pc/common/types/api';
 import useSWR from 'swr';
 
 import { openToast } from '@/components/lib/Toast';
-import { useIdentity } from '@/hooks/user';
+import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 import type { MapDiscriminatedUnion } from '@/utils/types';
@@ -59,7 +59,7 @@ export async function updateDestination<K extends Alerts.Destination['type']>(
 }
 
 export function useDestinations(projectSlug: string | undefined) {
-  const identity = useIdentity();
+  const { identity } = useAuth();
 
   const {
     data: destinations,

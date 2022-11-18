@@ -2,10 +2,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-import { Container } from '@/components/lib/Container';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H1 } from '@/components/lib/Heading';
+import { Section } from '@/components/lib/Section';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
@@ -56,7 +56,7 @@ const PickProject: NextPageWithLayout = () => {
   const isOnboarding = useRouteParam('onboarding');
 
   return (
-    <Container size="l">
+    <Section>
       <Flex stack gap="xl">
         <Flex stack>
           {!isOnboarding && (
@@ -92,7 +92,7 @@ const PickProject: NextPageWithLayout = () => {
           ))}
         </Flex>
       </Flex>
-    </Container>
+    </Section>
   );
 };
 

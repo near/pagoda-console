@@ -18,7 +18,7 @@ export const ContractAbi = ({ contract }: Props) => {
   return (
     <Flex gap="l" stack="true" autoWidth>
       {!contractAbi && <Spinner size="m" center />}
-      {embedded && <Message type="info" content="ABI is embedded in the smart contract" />}
+      {embedded && <Message type="info" content="This contract has an embedded ABI." />}
       {contractAbi && <CodeBlock language="json">{JSON.stringify(contractAbi, null, 2)}</CodeBlock>}
     </Flex>
   );

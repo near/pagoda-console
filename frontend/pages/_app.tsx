@@ -7,7 +7,6 @@ import '@/styles/near-wallet-selector.scss';
 
 import * as FullStory from '@fullstory/browser';
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Gleap from 'gleap';
 import { withLDProvider } from 'launchdarkly-react-client-sdk';
 import type { AppProps } from 'next/app';
@@ -16,14 +15,14 @@ import { useRouter } from 'next/router';
 import { appWithTranslation } from 'next-i18next';
 import type { ComponentType } from 'react';
 import { useEffect } from 'react';
-import { SWRConfig, useSWRConfig } from 'swr';
+import { SWRConfig } from 'swr';
 
 import { SimpleLayout } from '@/components/layouts/SimpleLayout';
 import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
 import { Toaster } from '@/components/lib/Toast';
 import { useAnalytics } from '@/hooks/analytics';
+import { useAuth, useAuthSync } from '@/hooks/auth';
 import { useSelectedProjectRouteParamSync } from '@/hooks/selected-project';
-import { useIdentity } from '@/hooks/user';
 import { DowntimeMode } from '@/modules/core/components/DowntimeMode';
 import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
 import { useSettingsStore } from '@/stores/settings';
@@ -46,21 +45,12 @@ if (typeof window !== 'undefined') {
   if (config.gleapAuth) Gleap.initialize(config.gleapAuth);
 }
 
-const unauthedPaths = [
-  '/',
-  '/register',
-  '/ui',
-  '/alerts/verify-email',
-  '/alerts/unsubscribe-from-email-alert',
-  '/pick-project-template/[templateSlug]',
-];
-
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  useAuthSync();
   useSelectedProjectRouteParamSync();
   useAnalytics();
-  const identity = useIdentity();
+  const { identity } = useAuth();
   const router = useRouter();
-  const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
   const initializeCurrentUserSettings = useSettingsStore((store) => store.initializeCurrentUserSettings);
 
   useEffect(() => {
@@ -80,19 +70,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   useEffect(() => {
     initializeNaj();
   }, []);
-
-  useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (!firebaseUser && !unauthedPaths.includes(router.pathname)) {
-        analytics.reset();
-        cache.clear();
-        router.replace('/');
-      }
-    });
-
-    return () => unsubscribe(); // TODO why lambda function?
-  }, [router, cache]);
 
   const getLayout = Component.getLayout ?? ((page) => page);
 
