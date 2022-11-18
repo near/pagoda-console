@@ -1,12 +1,9 @@
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { StableId } from '@/utils/stable-ids';
 
-interface TxFormDepositFormat {
-  form: any;
-  nearFormat: string;
-}
+import type { TxFormDepositFormatProps } from './types';
 
-const TxFormDepositFormat = ({ form, nearFormat }: TxFormDepositFormat) => {
+const TxFormDepositFormat = ({ form, nearFormat }: TxFormDepositFormatProps) => {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Button stableId={StableId.CONTRACT_TRANSACTION_NEAR_FORMAT_DROPDOWN} css={{ width: '9rem' }}>

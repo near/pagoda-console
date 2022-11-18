@@ -4,8 +4,9 @@ import TxResultBanner from './TxResultBanner';
 import TxResultCode from './TxResultCode';
 import TxResultError from './TxResultError';
 import TxResultHash from './TxResultHash';
+import type { TxResultProps } from './types';
 
-const TxResult = ({ result, error }: { result: any; error: any }) => {
+const TxResult = ({ result, error }: TxResultProps) => {
   const bannerView = !result && !error;
   const errorView = error;
   const hashView = result?.hash;

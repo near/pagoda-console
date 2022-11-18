@@ -12,12 +12,13 @@ import { styled } from '@/styles/stitches';
 import { StableId } from '@/utils/stable-ids';
 
 import { useWalletSelector } from '../../hooks/wallet-selector';
+import type { TxFormWalletLoginProps } from './types';
 
 const ButtonWallet = styled(Button, {
   marginLeft: 'auto',
 });
 
-const TxFormWalletLogin = ({ onBeforeLogIn }: { onBeforeLogIn: () => void }) => {
+const TxFormWalletLogin = ({ onBeforeLogIn }: TxFormWalletLoginProps) => {
   const contractSlug = useRouteParam('slug', '/contracts', true) || undefined;
   const { contract: { address: contractId } = {} } = useContract(contractSlug);
   const { accountId, signOut, modal } = useWalletSelector(contractId);

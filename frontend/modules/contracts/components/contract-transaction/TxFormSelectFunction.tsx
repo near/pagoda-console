@@ -3,12 +3,9 @@ import { Controller } from 'react-hook-form';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import * as Form from '@/components/lib/Form';
 
-interface TxFormSelectFunction {
-  form: any;
-  functionItems: Array<object>;
-}
+import type { TxFormSelectFunctionProps } from './types';
 
-const TxFormSelectFunction = ({ form, functionItems }) => {
+const TxFormSelectFunction = ({ form, functionItems }: TxFormSelectFunctionProps) => {
   return (
     <Controller
       name="contractFunction"

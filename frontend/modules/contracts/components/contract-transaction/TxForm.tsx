@@ -14,7 +14,6 @@ import * as gasUtils from '@/modules/contracts/utils/convert-gas';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
 import { StableId } from '@/utils/stable-ids';
-import type { Contract } from '@/utils/types';
 
 import convertNearDeposit from '../utils/convertNearDeposit';
 import resolveAbiDefinition from '../utils/resolveAbiDefinition';
@@ -25,32 +24,18 @@ import TxFormGas from './TxFormGas';
 import TxFormGasFormat from './TxFormGasFormat';
 import TxFormSelectFunction from './TxFormSelectFunction';
 import TxFormWalletLogin from './TxFormWalletLogin';
+import type { TxFormData, TxFormProps } from './types';
 
 const SectionTitle = styled(H5, {
   userSelect: 'none',
 });
 
-interface ContractFormProps {
-  contract: Contract;
-  onTxResult: (result: any) => void;
-  onTxError: (error: any) => void;
-}
-
-interface ContractFormData {
-  contractFunction: string;
-  gas: string;
-  deposit: string;
-  nearFormat: 'NEAR' | 'yoctoⓃ';
-  gasFormat: 'Tgas' | 'Ggas' | 'Mgas' | 'gas';
-  [param: string]: any;
-}
-
-const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
+const TxForm = ({ contract, onTxResult, onTxError }: TxFormProps) => {
   // TODO: simplify the whole logic below
 
   const { accountId, selector } = useWalletSelector(contract.address);
   const [contractMethods, setContractMethods] = useState<AbiContract | null>(null);
-  const form = useForm<ContractFormData>({
+  const form = useForm<TxFormData>({
     defaultValues: {
       gas: '300',
       gasFormat: 'Tgas',
@@ -74,7 +59,7 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
   const selectedFunctionName = form.watch('contractFunction');
   const selectedFunction = functionItems?.find((option) => option.name === selectedFunctionName);
 
-  const setContractInteractForm = (params: ContractFormData = form.getValues()) =>
+  const setContractInteractForm = (params: TxFormData = form.getValues()) =>
     sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
 
   const initMethods = useCallback(async () => {
@@ -116,7 +101,7 @@ const TxForm = ({ contract, onTxResult, onTxError }: ContractFormProps) => {
     form.clearErrors();
   }, [nearFormat, gasFormat, form]);
 
-  const submitForm = async (params: ContractFormData) => {
+  const submitForm = async (params: TxFormData) => {
     // Asserts that contract exists and selected function is valid
     const contractFn = contractMethods![selectedFunction!.name];
     let call;

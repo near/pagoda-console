@@ -7,11 +7,13 @@ import { H5 } from '@/components/lib/Heading';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { styled } from '@/styles/stitches';
 
+import type { TxResultHashProps } from './types';
+
 const ResultTitle = styled(H5, {
   userSelect: 'none',
 });
 
-const TxResultHash = ({ result }: { result: any }) => {
+const TxResultHash = ({ result }: TxResultHashProps) => {
   const hash = result?.hash as string;
   const { environment } = useSelectedProject();
   const net = environment?.net;

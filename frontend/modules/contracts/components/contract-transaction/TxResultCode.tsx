@@ -5,11 +5,13 @@ import { Flex } from '@/components/lib/Flex';
 import { H5 } from '@/components/lib/Heading';
 import { styled } from '@/styles/stitches';
 
+import type { TxResultCodeProps } from './types';
+
 const ResultTitle = styled(H5, {
   userSelect: 'none',
 });
 
-const TxResultCode = ({ result }: { result: any }) => (
+const TxResultCode = ({ result }: TxResultCodeProps) => (
   <Flex stack>
     <ResultTitle>Result</ResultTitle>
     <Card padding="l">

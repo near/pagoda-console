@@ -9,6 +9,8 @@ import { numberInputHandler } from '@/utils/input-handlers';
 import { sanitizeNumber } from '@/utils/sanitize-number';
 import { StableId } from '@/utils/stable-ids';
 
+import type { TxFormGasProps } from './types';
+
 const UseMaxButton = styled(Button, {
   textTransform: 'uppercase',
   position: 'absolute',
@@ -33,13 +35,7 @@ const UseMaxButton = styled(Button, {
   },
 });
 
-interface TxFormGas {
-  form: any;
-  gasFormat: 'Tgas' | 'Ggas' | 'Mgas' | 'gas';
-  gas: any;
-}
-
-const TxFormGas = ({ form, gasFormat, gas }: TxFormGas) => {
+const TxFormGas = ({ form, gasFormat, gas }: TxFormGasProps) => {
   return (
     <Form.Group>
       <Tooltip content="On NEAR, all unused gas will be refunded after the transaction.">

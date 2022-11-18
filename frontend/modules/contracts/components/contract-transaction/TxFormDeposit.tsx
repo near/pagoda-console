@@ -4,12 +4,9 @@ import * as Form from '@/components/lib/Form';
 import { NearInput } from '@/components/lib/NearInput';
 import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
-interface TxFormDeposit {
-  form: any;
-  nearFormat: string;
-}
+import type { TxFormDepositProps } from './types';
 
-const TxFormDeposit = ({ form, nearFormat }: TxFormDeposit) => {
+const TxFormDeposit = ({ form, nearFormat }: TxFormDepositProps) => {
   return (
     <Form.Group>
       <Controller
