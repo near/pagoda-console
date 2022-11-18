@@ -65,20 +65,21 @@ const ProjectSettings: NextPageWithLayout = () => {
                   Looking to invite team members?{' '}
                   {project.org.personalForUserId ? (
                     <>
-                      <TextLink href="/organizations" stableId={StableId.PROJECT_SETTINGS_CREATE_ORGANIZATION_LINK}>
-                        Create an organization
-                      </TextLink>{' '}
+                      <Link href="/organizations" passHref>
+                        <TextLink stableId={StableId.PROJECT_SETTINGS_CREATE_ORGANIZATION_LINK}>
+                          Create an organization
+                        </TextLink>
+                      </Link>{' '}
                       to collaborate with others. For now, you&apos;ll need to create a new project after creating the
                       organization.
                     </>
                   ) : (
                     <>
-                      <TextLink
-                        href={`/organizations/${project.org.slug}`}
-                        stableId={StableId.PROJECT_SETTINGS_INVITE_ORGANIZATION_LINK}
-                      >
-                        View your organization
-                      </TextLink>{' '}
+                      <Link href={`/organizations/${project.org.slug}`} passHref>
+                        <TextLink stableId={StableId.PROJECT_SETTINGS_INVITE_ORGANIZATION_LINK}>
+                          View your organization
+                        </TextLink>
+                      </Link>{' '}
                       to send invites and collaborate with others.
                     </>
                   )}
