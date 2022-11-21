@@ -10,7 +10,7 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { usePublicMode } from '@/hooks/public';
-import { ContractTransaction } from '@/modules/contracts/components/ContractTransaction';
+import ContractTransaction from '@/modules/contracts/components/contract-transaction';
 import { UploadContractAbi } from '@/modules/contracts/components/UploadContractAbi';
 import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { StableId } from '@/utils/stable-ids';
