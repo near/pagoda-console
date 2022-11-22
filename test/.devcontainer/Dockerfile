@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright:v1.27.1-focal
+FROM mcr.microsoft.com/playwright:v1.28.0-focal
 
 # Remove node 16 from the playwright image and replace with node 14 which is what this project uses.
 RUN apt remove -y nodejs && \

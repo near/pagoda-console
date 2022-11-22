@@ -25,7 +25,8 @@
         "path": "/usr/bin/bash"
       }
     }
-  }
+  },
+  "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
   // Uncomment when using a ptrace-based debugger like C++, Go, and Rust
   // https://playwright.dev/docs/ci#docker
   // "runArgs": [ "--ipc=host" ]
