@@ -581,7 +581,7 @@ export class ProjectsService {
     project: Project['slug'],
     subId: Environment['subId'],
   ) {
-    const environment = await this.getActiveEnvironment(project, subId, true);
+    const environment = await this.getActiveEnvironmentAssert(project, subId);
 
     // throw an error if the user doesn't have permission to perform this action
     await this.checkUserPermission({
@@ -639,43 +639,57 @@ export class ProjectsService {
     return project;
   }
 
-  /**
-   *
-   * @param environmentWhereUnique
-   * @param assert Should be set to true when this function is being called
-   *               for an assertion and the full project info does not need
-   *               to be returned
-   * @returns full Prisma.Project is assert is false
-   */
+  async getActiveEnvironmentAssert(
+    projectSlug: Project['slug'],
+    subId: Environment['subId'],
+  ) {
+    // check that project is active
+    // quick check, only return minimal info
+    const environment = await this.prisma.environment.findFirst({
+      where: {
+        subId,
+        project: {
+          slug: projectSlug,
+        },
+      },
+      select: { id: true, active: true, project: true },
+    });
+    if (!environment) {
+      throw new VError(
+        { info: { code: 'BAD_ENVIRONMENT' } },
+        'Environment not found',
+      );
+    }
+    if (!environment.active) {
+      throw new VError(
+        { info: { code: 'BAD_ENVIRONMENT' } },
+        'Environment not active',
+      );
+    }
+    if (!environment.project.active) {
+      throw new VError(
+        { info: { code: 'BAD_ENVIRONMENT' } },
+        'Project not active',
+      );
+    }
+
+    return environment;
+  }
+
   async getActiveEnvironment(
     projectSlug: Project['slug'],
     subId: Environment['subId'],
-    assert = false,
   ) {
     // check that project is active
-    let environment;
-    if (assert) {
-      // quick check, only return minimal info
-      environment = await this.prisma.environment.findFirst({
-        where: {
-          subId,
-          project: {
-            slug: projectSlug,
-          },
+    const environment = await this.prisma.environment.findFirst({
+      where: {
+        subId,
+        project: {
+          slug: projectSlug,
         },
-        select: { id: true, active: true, project: true },
-      });
-    } else {
-      environment = await this.prisma.environment.findFirst({
-        where: {
-          subId,
-          project: {
-            slug: projectSlug,
-          },
-        },
-        include: { project: true },
-      });
-    }
+      },
+      include: { project: true },
+    });
     if (!environment) {
       throw new VError(
         { info: { code: 'BAD_ENVIRONMENT' } },
@@ -732,17 +746,15 @@ export class ProjectsService {
       },
     });
 
-    return projects.map((p) => {
-      const isPersonal = !!p.org.personalForUserId;
-      return {
-        ...p,
+    return projects.map(
+      ({ org: { personalForUserId, ...org }, ...project }) => ({
+        ...project,
         org: {
-          name: isPersonal ? undefined : p.org.name,
-          slug: p.org.slug,
-          isPersonal,
+          ...org,
+          isPersonal: !!personalForUserId,
         },
-      };
-    });
+      }),
+    );
   }
 
   async getEnvironments(

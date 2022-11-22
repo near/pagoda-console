@@ -1,3 +1,4 @@
+import type { Explorer } from '@pc/common/types/core';
 import * as React from 'react';
 
 import { Tooltip } from '@/components/lib/Tooltip';
@@ -5,10 +6,9 @@ import { styled } from '@/styles/stitches';
 import { truncateMiddle } from '@/utils/truncate-middle';
 
 import TransactionLink from '../utils/TransactionLink';
-import type { AccountActivityAction, ActivityConnectionActions } from './types';
 
 type Props = {
-  action: AccountActivityAction | NonNullable<ActivityConnectionActions['parentAction']>;
+  action: Explorer.AccountActivityAction | Explorer.AccountActivityWithConnection;
 };
 
 const Wrapper = styled('div', {
@@ -22,7 +22,7 @@ const Wrapper = styled('div', {
   fontSize: 12,
 });
 
-const ACTION_NAMES: Record<AccountActivityAction['kind'], string> = {
+const ACTION_NAMES: Record<Explorer.AccountActivityAction['kind'], string> = {
   transfer: 'Transfer',
   stake: 'Restake',
   deployContract: 'Contract Deployed',

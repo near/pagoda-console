@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { AuthStatusRenderer } from '@/components/AuthStatusRenderer';
 import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Section } from '@/components/lib/Section';
@@ -8,12 +9,17 @@ import { useDashboardLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { ApiKeys } from '@/modules/apis/components/ApiKeys';
+import { ApisMarketing } from '@/modules/apis/components/ApisMarketing';
 import { ApiStats } from '@/modules/apis/components/ApiStats';
 import EnhancedApi from '@/modules/apis/components/EnhancedApi';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
-const ListApis: NextPageWithLayout = () => {
+const ListApisPage: NextPageWithLayout = () => {
+  return <AuthStatusRenderer authenticated={<ListApis />} unauthenticated={<ApisMarketing />} />;
+};
+
+function ListApis() {
   const { environment, project } = useSelectedProject();
   const activeTab = useRouteParam('tab', '?tab=keys', true);
 
@@ -61,8 +67,8 @@ const ListApis: NextPageWithLayout = () => {
       </Tabs.Root>
     </Section>
   );
-};
+}
 
-ListApis.getLayout = useDashboardLayout;
+ListApisPage.getLayout = useDashboardLayout;
 
-export default ListApis;
+export default ListApisPage;

@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { iframeResizer } from 'iframe-resizer';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
@@ -12,18 +13,22 @@ import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useContracts } from '@/hooks/contracts';
+import { usePublicOrPrivateContracts } from '@/hooks/contracts';
+import { useCurrentEnvironment } from '@/hooks/environments';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useTheme } from '@/hooks/theme';
 import config from '@/utils/config';
 import { StableId } from '@/utils/stable-ids';
-import type { Contract, Environment, NextPageWithLayout } from '@/utils/types';
+import type { NextPageWithLayout } from '@/utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {
-  const { environment, project } = useSelectedProject();
-  const { contracts } = useContracts(project?.slug, environment?.subId);
+  const { project } = useSelectedProject();
+  const { environment } = useCurrentEnvironment();
+  const { contracts: privateContracts } = useContracts(project?.slug, environment?.subId);
+  const { contracts } = usePublicOrPrivateContracts(privateContracts);
 
-  if (!environment || !contracts || !project) {
+  if (!environment || !contracts) {
     return <Spinner center />;
   }
 
@@ -38,7 +43,10 @@ const ProjectAnalytics: NextPageWithLayout = () => {
   );
 };
 
-function AnalyticsIframe({ environment, contracts }: { environment: Environment; contracts: Contract[] }) {
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
+type Project = Api.Query.Output<'/projects/getContracts'>;
+
+function AnalyticsIframe({ environment, contracts }: { environment: Environment; contracts: Project }) {
   const { activeTheme } = useTheme();
   const iframeId = 'analytics-iframe';
   const initialized = useRef(false);

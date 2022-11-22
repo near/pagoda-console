@@ -40,3 +40,20 @@ export const formatGas = (gas: string) => {
   }
   return gasShow;
 };
+
+type format = 'Tgas' | 'Ggas' | 'Mgas' | 'gas';
+
+export const convertGasByFormat = (gas: string, format: format) => {
+  switch (format) {
+    case 'Tgas':
+      return JSBI.BigInt(convertGasToTgas(gas));
+    case 'Ggas':
+      return JSBI.BigInt(convertGasToGgas(gas));
+    case 'Mgas':
+      return JSBI.BigInt(convertGasToMgas(gas));
+    case 'gas':
+      return JSBI.BigInt(gas);
+    default:
+      return JSBI.BigInt(convertGasToTgas(gas));
+  }
+};

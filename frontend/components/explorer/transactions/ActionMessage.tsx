@@ -1,71 +1,63 @@
+import type { Explorer } from '@pc/common/types/core';
+
+import type { MapDiscriminatedUnion } from '@/utils/types';
+
 import AccountLink from '../utils/AccountLink';
 import Balance from '../utils/Balance';
 import CodeArgs from '../utils/CodeArgs';
-import type * as T from './types';
 
-export interface Props<A> {
-  actionKind: keyof TransactionMessageRenderers;
-  actionArgs: A;
+export interface Props<K extends Explorer.Old.Action['kind']> {
+  action: MapDiscriminatedUnion<Explorer.Old.Action, 'kind'>[K];
   receiverId: string;
   showDetails?: boolean;
 }
 
-type AnyAction =
-  | T.CreateAccount
-  | T.DeleteAccount
-  | T.DeployContract
-  | T.FunctionCall
-  | T.Transfer
-  | T.Stake
-  | T.AddKey
-  | T.DeleteKey;
-
 interface TransactionMessageRenderers {
-  CreateAccount: React.FC<Props<T.CreateAccount>>;
-  DeleteAccount: React.FC<Props<T.DeleteAccount>>;
-  DeployContract: React.FC<Props<T.DeployContract>>;
-  FunctionCall: React.FC<Props<T.FunctionCall>>;
-  Transfer: React.FC<Props<T.Transfer>>;
-  Stake: React.FC<Props<T.Stake>>;
-  AddKey: React.FC<Props<T.AddKey>>;
-  DeleteKey: React.FC<Props<T.DeleteKey>>;
+  CreateAccount: React.FC<Props<'CreateAccount'>>;
+  DeleteAccount: React.FC<Props<'DeleteAccount'>>;
+  DeployContract: React.FC<Props<'DeployContract'>>;
+  FunctionCall: React.FC<Props<'FunctionCall'>>;
+  Transfer: React.FC<Props<'Transfer'>>;
+  Stake: React.FC<Props<'Stake'>>;
+  AddKey: React.FC<Props<'AddKey'>>;
+  DeleteKey: React.FC<Props<'DeleteKey'>>;
 }
 
 const transactionMessageRenderers: TransactionMessageRenderers = {
-  CreateAccount: ({ receiverId }: Props<T.CreateAccount>) => (
+  CreateAccount: ({ receiverId }: Props<'CreateAccount'>) => (
     <>
       <>New account created: </>
       <AccountLink accountId={receiverId} />
     </>
   ),
-  DeleteAccount: ({ receiverId, actionArgs }: Props<T.DeleteAccount>) => (
+  DeleteAccount: ({ receiverId, action }: Props<'DeleteAccount'>) => (
     <>
       <>Delete account </>
       <AccountLink accountId={receiverId} />
       <> and transfer remaining funds to </>
-      <AccountLink accountId={actionArgs.beneficiary_id} />
+      <AccountLink accountId={action.args.beneficiary_id} />
     </>
   ),
-  DeployContract: ({ receiverId }: Props<T.DeployContract>) => (
+  DeployContract: ({ receiverId }: Props<'DeployContract'>) => (
     <>
       <>Contract deployed: </>
       <AccountLink accountId={receiverId} />
     </>
   ),
-  FunctionCall: ({ receiverId, actionArgs, showDetails }: Props<T.FunctionCall>) => {
+  FunctionCall: ({ receiverId, action, showDetails }: Props<'FunctionCall'>) => {
     let args;
     if (showDetails) {
-      if (typeof actionArgs.args === 'undefined') {
+      if (typeof action.args.args === 'undefined') {
         args = <p>Loading...</p>;
-      } else if ((typeof actionArgs.args === 'string' && actionArgs.args.length === 0) || !actionArgs.args) {
+      } else if ((typeof action.args.args === 'string' && action.args.args.length === 0) || !action.args.args) {
         args = <p>The arguments are empty</p>;
       } else {
-        args = <CodeArgs args={actionArgs.args} />;
+        args = <CodeArgs args={action.args.args} />;
       }
     }
     return (
       <>
-        <>{`Called method: ${actionArgs.method_name} in contract: `}</>
+        <>{`Called method: ${action.args.method_name} in contract: `}</>
         <AccountLink accountId={receiverId} />
         {showDetails ? (
           <dl>
@@ -78,7 +70,12 @@ const transactionMessageRenderers: TransactionMessageRenderers = {
       </>
     );
   },
-  Transfer: ({ receiverId, actionArgs: { deposit } }: Props<T.Transfer>) => (
+  Transfer: ({
+    receiverId,
+    action: {
+      args: { deposit },
+    },
+  }: Props<'Transfer'>) => (
     <>
       <>Transferred </>
       <Balance amount={deposit} />
@@ -86,61 +83,56 @@ const transactionMessageRenderers: TransactionMessageRenderers = {
       <AccountLink accountId={receiverId} />
     </>
   ),
-  Stake: ({ actionArgs: { stake, public_key } }: Props<T.Stake>) => (
+  Stake: ({
+    action: {
+      args: { stake, public_key },
+    },
+  }: Props<'Stake'>) => (
     <>
       <>Staked: </>
       <Balance amount={stake} /> <>with ${public_key.substring(0, 15)}...</>
     </>
   ),
-  AddKey: ({ receiverId, actionArgs }: Props<T.AddKey>) => (
+  AddKey: ({ receiverId, action }: Props<'AddKey'>) => (
     <>
-      {typeof actionArgs.access_key.permission === 'object' ? (
-        actionArgs.access_key.permission.permission_kind ? (
-          <>
-            <>New key added for </>
-            <AccountLink accountId={receiverId} />
-            {`: ${actionArgs.public_key.substring(0, 15)}...`}
-            <p>
-              <>{`with permission ${actionArgs.access_key.permission.permission_kind}`}</>
-            </p>
-          </>
-        ) : (
-          <>
-            <>Access key added for contract </>
-            <AccountLink accountId={actionArgs.access_key.permission.FunctionCall.receiver_id} />
-            {`: ${actionArgs.public_key.substring(0, 15)}...`}
-            <p>
-              {`with permission to call ${
-                actionArgs.access_key.permission.FunctionCall.method_names.length > 0
-                  ? `(${actionArgs.access_key.permission.FunctionCall.method_names.join(', ')})`
-                  : 'any'
-              } methods`}
-            </p>
-          </>
-        )
+      {typeof action.args.access_key.permission === 'object' ? (
+        <>
+          <>Access key added for contract </>
+          <AccountLink accountId={action.args.access_key.permission.FunctionCall.receiver_id} />
+          {`: ${action.args.public_key.substring(0, 15)}...`}
+          <p>
+            {`with permission to call ${
+              action.args.access_key.permission.FunctionCall.method_names.length > 0
+                ? `(${action.args.access_key.permission.FunctionCall.method_names.join(', ')})`
+                : 'any'
+            } methods`}
+          </p>
+        </>
       ) : (
         <>
           <>New key added for </>
           <AccountLink accountId={receiverId} />
-          {`: ${actionArgs.public_key.substring(0, 15)}...`}
+          {`: ${action.args.public_key.substring(0, 15)}...`}
           <p>
-            <>{`with permission ${actionArgs.access_key.permission}`}</>
+            <>{`with permission ${action.args.access_key.permission}`}</>
           </p>
         </>
       )}
     </>
   ),
-  DeleteKey: ({ actionArgs: { public_key } }: Props<T.DeleteKey>) => (
-    <>{`Key deleted: ${public_key.substring(0, 15)}...`}</>
-  ),
+  DeleteKey: ({
+    action: {
+      args: { public_key },
+    },
+  }: Props<'DeleteKey'>) => <>{`Key deleted: ${public_key.substring(0, 15)}...`}</>,
 };
 
-const ActionMessage = (props: Props<AnyAction>) => {
-  const MessageRenderer = transactionMessageRenderers[props.actionKind];
+const ActionMessage = (props: Props<Explorer.Old.Action['kind']>) => {
+  const MessageRenderer = transactionMessageRenderers[props.action.kind];
   if (MessageRenderer === undefined) {
     return (
       <>
-        `${props.actionKind}: ${JSON.stringify(props.actionArgs)}`
+        `${props.action.kind}: ${JSON.stringify(props.action.args)}`
       </>
     );
   }

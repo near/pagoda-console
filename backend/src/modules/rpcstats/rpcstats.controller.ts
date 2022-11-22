@@ -15,11 +15,8 @@ import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 import { VError } from 'verror';
 import { ProjectsService } from '@/src/core/projects/projects.service';
 import { RpcStatsService } from './rpcstats.service';
-import {
-  EndpointMetricsSchema,
-  EndpointMetricsDto,
-  EndpointMetricsResponseDto,
-} from './dto';
+import { EndpointMetricsSchema } from './dto';
+import { Api } from '@pc/common/types/api';
 
 @Controller('rpcstats')
 export class RpcStatsController {
@@ -41,10 +38,9 @@ export class RpcStatsController {
       environmentSubId,
       startDateTime,
       endDateTime,
-      dateTimeResolution,
-      grouping,
-    }: EndpointMetricsDto,
-  ): Promise<EndpointMetricsResponseDto> {
+      filter,
+    }: Api.Query.Input<'/rpcstats/endpointMetrics'>,
+  ): Promise<Api.Query.Output<'/rpcstats/endpointMetrics'>> {
     try {
       // When there is a project passed in, check that the user has access to the project
       // await this.projectService.checkUserPermission(
@@ -82,8 +78,7 @@ export class RpcStatsController {
         allApiKeyConsumerNames,
         DateTime.fromISO(startDateTime),
         DateTime.fromISO(endDateTime),
-        dateTimeResolution,
-        grouping!,
+        filter,
       );
     } catch (e: any) {
       throw mapError(e);

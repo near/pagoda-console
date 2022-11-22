@@ -45,12 +45,6 @@ export interface AppConfig {
     credentials: string;
     clientConfig: string;
   };
-  dev: {
-    mock: {
-      rpcProvisioningService: boolean;
-      email: boolean;
-    };
-  };
   log: {
     queries: boolean;
     indexer: boolean;
@@ -63,9 +57,8 @@ export interface AppConfig {
       tokenExpiryMin: number;
       resendVerificationRatelimitMillis: number;
     };
-    telegram: {
+    telegram?: {
       tokenExpiryMin: number;
-      enableWebhook: boolean;
       botToken?: string;
       secret?: string;
     };
@@ -75,6 +68,7 @@ export interface AppConfig {
     apiKey: string;
   };
   email: {
+    mock: boolean;
     noReply: string;
     alerts: {
       noReply: string;
@@ -92,10 +86,15 @@ export interface AppConfig {
     };
   };
   metricsPort: string;
-  rpcProvisioningService: {
-    apiKey: string;
-    url: string;
-  };
+  rpcProvisioningService:
+    | {
+        mock: true;
+      }
+    | {
+        mock: false;
+        apiKey: string;
+        url: string;
+      };
 }
 
 const databaseSchema = Joi.object({
@@ -163,12 +162,6 @@ const appConfigSchema = Joi.object({
     credentials: Joi.string(),
     clientConfig: Joi.string(),
   },
-  dev: {
-    mock: {
-      rpcProvisioningService: Joi.boolean().optional().default(false),
-      email: Joi.boolean().optional().default(false),
-    },
-  },
   log: {
     queries: Joi.boolean().optional().default(false),
     indexer: Joi.boolean().optional().default(false),
@@ -183,7 +176,6 @@ const appConfigSchema = Joi.object({
     }),
     telegram: Joi.object({
       tokenExpiryMin: Joi.number().optional().default(10000), // TODO set to a small value once requesting a new token is possible
-      enableWebhook: Joi.boolean().optional().default(false),
       botToken: Joi.string().when('/alerts.telegram.enableWebhook', {
         is: Joi.boolean().valid(false),
         then: Joi.optional().allow(''),
@@ -192,13 +184,14 @@ const appConfigSchema = Joi.object({
         is: Joi.boolean().valid(false),
         then: Joi.optional().allow(''),
       }),
-    }),
+    }).optional(),
   },
   mailgun: {
     domain: Joi.string(),
     apiKey: Joi.string(),
   },
   email: {
+    mock: Joi.boolean().optional().default(false),
     noReply: Joi.string(),
     alerts: {
       noReply: Joi.string(),
@@ -216,19 +209,16 @@ const appConfigSchema = Joi.object({
     },
   },
   metricsPort: Joi.number().optional().default(3030),
-  rpcProvisioningService: {
-    url: Joi.string()
-      .uri({ scheme: 'http' })
-      .when('/dev.mock.rpcProvisioningService', {
-        // the slash accesses off the schema root
-        is: Joi.boolean().valid(true),
-        then: Joi.optional().allow(''),
-      }),
-    apiKey: Joi.string().when('/dev.mock.rpcProvisioningService', {
-      is: Joi.boolean().valid(true),
-      then: Joi.optional().allow(''),
-    }),
-  },
+  rpcProvisioningService: Joi.alternatives(
+    {
+      mock: Joi.boolean().truthy(),
+    },
+    {
+      mock: Joi.boolean().falsy(),
+      url: Joi.string().uri({ scheme: 'http' }),
+      apiKey: Joi.string(),
+    },
+  ),
 });
 
 export default function validate(config: Record<string, unknown>): AppConfig {
@@ -303,12 +293,6 @@ export default function validate(config: Record<string, unknown>): AppConfig {
       credentials: config.FIREBASE_CREDENTIALS,
       clientConfig: config.FIREBASE_CLIENT_CONFIG,
     },
-    dev: {
-      mock: {
-        rpcProvisioningService: config.MOCK_KEY_SERVICE,
-        email: config.MOCK_EMAIL_SERVICE,
-      },
-    },
     log: {
       queries: config.LOG_QUERIES,
       indexer: config.LOG_INDEXER,
@@ -322,18 +306,20 @@ export default function validate(config: Record<string, unknown>): AppConfig {
         resendVerificationRatelimitMillis:
           config.RESEND_VERIFICATION_RATE_LIMIT_MILLIS,
       },
-      telegram: {
-        tokenExpiryMin: config.TELEGRAM_TOKEN_EXPIRY_MIN,
-        enableWebhook: config.TELEGRAM_ENABLE_WEBHOOK,
-        botToken: config.TELEGRAM_BOT_TOKEN,
-        secret: config.TELEGRAM_SECRET,
-      },
+      telegram: config.TELEGRAM_ENABLE_WEBHOOK
+        ? {
+            tokenExpiryMin: config.TELEGRAM_TOKEN_EXPIRY_MIN,
+            botToken: config.TELEGRAM_BOT_TOKEN,
+            secret: config.TELEGRAM_SECRET,
+          }
+        : undefined,
     },
     mailgun: {
       domain: config.MAILGUN_DOMAIN,
       apiKey: config.MAILGUN_API_KEY,
     },
     email: {
+      mock: config.MOCK_EMAIL_SERVICE,
       noReply: config.EMAIL_NO_REPLY,
       alerts: {
         noReply: config.EMAIL_ALERTS_NO_REPLY,
@@ -353,10 +339,13 @@ export default function validate(config: Record<string, unknown>): AppConfig {
       },
     },
     metricsPort: config.METRICS_PORT,
-    rpcProvisioningService: {
-      url: config.RPC_API_KEYS_URL,
-      apiKey: config.RPC_API_KEYS_API_KEY,
-    },
+    rpcProvisioningService: config.MOCK_KEY_SERVICE
+      ? { mock: true }
+      : {
+          mock: false,
+          url: config.RPC_API_KEYS_URL,
+          apiKey: config.RPC_API_KEYS_API_KEY,
+        },
   };
 
   // Joi.attempt will return the validated object with values

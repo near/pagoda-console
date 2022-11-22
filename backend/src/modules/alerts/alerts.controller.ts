@@ -17,63 +17,40 @@ import { AppConfig } from 'src/config/validate';
 import { assertUnreachable } from 'src/helpers';
 import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
 import { VError } from 'verror';
+import { AlertsService } from './alerts.service';
 import {
-  AlertsService,
-  CreateAcctBalAlertSchema,
-  CreateEventAlertSchema,
-  CreateFnCallAlertSchema,
-  CreateTxAlertSchema,
-} from './alerts.service';
-import {
-  CreateAlertDto,
   CreateAlertSchema,
-  DeleteAlertDto,
   DeleteAlertSchema,
-  ListAlertDto,
   ListAlertSchema,
   UpdateAlertSchema,
-  UpdateAlertDto,
   GetAlertDetailsSchema,
-  GetAlertDetailsDto,
-  ListDestinationDto,
   ListDestinationSchema,
-  DeleteDestinationDto,
   DeleteDestinationSchema,
-  AlertDetailsResponseDto,
-  CreateDestinationDto,
   CreateDestinationSchema,
-  DisableDestinationDto,
   DisableDestinationSchema,
-  EnableDestinationDto,
   EnableDestinationSchema,
   UpdateDestinationSchema,
-  UpdateDestinationDto,
   VerifyEmailSchema,
-  VerifyEmailDto,
-  ResendEmailVerificationDto,
   ResendEmailVerificationSchema,
-  UnsubscribeFromEmailAlertDto,
   UnsubscribeFromEmailAlertSchema,
   RotateWebhookDestinationSecretSchema,
-  RotateWebhookDestinationSecretDto,
 } from './dto';
 import { TooManyRequestsException } from './exception/tooManyRequestsException';
 import { TelegramService } from './telegram/telegram.service';
-import { TgUpdate } from './telegram/types';
+import { Api } from '@pc/common/types/api';
 
 @Controller('alerts')
 export class AlertsController {
-  private tgSecret: string;
-  private tgEnableWebhook: boolean;
+  private tgSecret?: string;
   constructor(
     private config: ConfigService<AppConfig>,
     private readonly alertsService: AlertsService,
     private readonly telegramService: TelegramService,
   ) {
-    this.tgSecret = this.config.get('alerts.telegram.secret', { infer: true })!;
-    this.tgEnableWebhook = this.config.get('alerts.telegram.enableWebhook', {
+    const telegramOptions = this.config.get('alerts.telegram', {
       infer: true,
-    })!;
+    });
+    this.tgSecret = telegramOptions?.secret;
   }
 
   @Post('createAlert')
@@ -81,39 +58,48 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(CreateAlertSchema))
   async createAlert(
     @Request() req,
-    @Body() dto: CreateAlertDto,
-  ): Promise<AlertDetailsResponseDto> {
+    @Body() dto: Api.Mutation.Input<'/alerts/createAlert'>,
+  ): Promise<Api.Mutation.Output<'/alerts/createAlert'>> {
     try {
-      const ruleType = dto.type;
-      switch (ruleType) {
+      const { rule, ...rest } = dto;
+      switch (rule.type) {
         case 'TX_SUCCESS':
           return await this.alertsService.createTxSuccessAlert(
             req.user,
-            dto as CreateTxAlertSchema,
+            rest,
+            rule,
           );
         case 'TX_FAILURE':
           return await this.alertsService.createTxFailureAlert(
             req.user,
-            dto as CreateTxAlertSchema,
+            rest,
+            rule,
           );
         case 'FN_CALL':
           return await this.alertsService.createFnCallAlert(
             req.user,
-            dto as CreateFnCallAlertSchema,
+            rest,
+            rule,
           );
         case 'EVENT':
           return await this.alertsService.createEventAlert(
             req.user,
-            dto as CreateEventAlertSchema,
+            rest,
+            rule,
           );
         case 'ACCT_BAL_NUM':
         case 'ACCT_BAL_PCT':
           return await this.alertsService.createAcctBalAlert(
             req.user,
-            dto as CreateAcctBalAlertSchema,
+            rest,
+            rule,
           );
         default:
-          assertUnreachable(ruleType);
+          assertUnreachable(
+            rule,
+            (rule) =>
+              (rule as Api.Mutation.Input<'/alerts/createAlert'>['rule']).type,
+          );
       }
     } catch (e: any) {
       throw mapError(e);
@@ -125,8 +111,8 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(UpdateAlertSchema))
   async updateAlert(
     @Request() req,
-    @Body() { id, name, isPaused }: UpdateAlertDto,
-  ): Promise<AlertDetailsResponseDto> {
+    @Body() { id, name, isPaused }: Api.Mutation.Input<'/alerts/updateAlert'>,
+  ): Promise<Api.Mutation.Output<'/alerts/updateAlert'>> {
     try {
       return await this.alertsService.updateAlert(req.user, id, name, isPaused);
     } catch (e: any) {
@@ -139,8 +125,9 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(ListAlertSchema))
   async listAlerts(
     @Request() req,
-    @Body() { projectSlug, environmentSubId }: ListAlertDto,
-  ): Promise<AlertDetailsResponseDto[]> {
+    @Body()
+    { projectSlug, environmentSubId }: Api.Query.Input<'/alerts/listAlerts'>,
+  ): Promise<Api.Query.Output<'/alerts/listAlerts'>> {
     try {
       return await this.alertsService.listAlerts(
         req.user,
@@ -156,7 +143,10 @@ export class AlertsController {
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(DeleteAlertSchema))
-  async deleteAlert(@Request() req, @Body() { id }: DeleteAlertDto) {
+  async deleteAlert(
+    @Request() req,
+    @Body() { id }: Api.Mutation.Input<'/alerts/deleteAlert'>,
+  ): Promise<Api.Mutation.Output<'/alerts/deleteAlert'>> {
     try {
       return await this.alertsService.deleteAlert(req.user, id);
     } catch (e: any) {
@@ -169,8 +159,8 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(GetAlertDetailsSchema))
   async getAlertDetails(
     @Request() req,
-    @Body() { id }: GetAlertDetailsDto,
-  ): Promise<AlertDetailsResponseDto> {
+    @Body() { id }: Api.Query.Input<'/alerts/getAlertDetails'>,
+  ): Promise<Api.Query.Output<'/alerts/getAlertDetails'>> {
     try {
       return await this.alertsService.getAlertDetails(req.user, id);
     } catch (e: any) {
@@ -181,24 +171,38 @@ export class AlertsController {
   @Post('createDestination')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(CreateDestinationSchema))
-  async createDestination(@Request() req, @Body() dto: CreateDestinationDto) {
+  async createDestination(
+    @Request() req,
+    @Body() dto: Api.Mutation.Input<'/alerts/createDestination'>,
+  ): Promise<Api.Mutation.Output<'/alerts/createDestination'>> {
     try {
-      const type = dto.type;
-      switch (type) {
+      const { config, ...rest } = dto;
+      switch (config.type) {
         case 'WEBHOOK':
           return await this.alertsService.createWebhookDestination(
             req.user,
-            dto,
+            rest,
+            config,
           );
         case 'EMAIL':
-          return await this.alertsService.createEmailDestination(req.user, dto);
+          return await this.alertsService.createEmailDestination(
+            req.user,
+            rest,
+            config,
+          );
         case 'TELEGRAM':
           return await this.alertsService.createTelegramDestination(
             req.user,
-            dto,
+            rest,
           );
         default:
-          assertUnreachable(type);
+          assertUnreachable(
+            config,
+            (config) =>
+              (
+                config as Api.Mutation.Input<'/alerts/createDestination'>['config']
+              ).type,
+          );
       }
     } catch (e: any) {
       throw mapError(e);
@@ -211,8 +215,8 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(DeleteDestinationSchema))
   async deleteDestination(
     @Request() req,
-    @Body() { id }: DeleteDestinationDto,
-  ) {
+    @Body() { id }: Api.Mutation.Input<'/alerts/deleteDestination'>,
+  ): Promise<Api.Mutation.Output<'/alerts/deleteDestination'>> {
     try {
       return await this.alertsService.deleteDestination(req.user, id);
     } catch (e: any) {
@@ -225,8 +229,8 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(ListDestinationSchema))
   async listDestinations(
     @Request() req,
-    @Body() { projectSlug }: ListDestinationDto,
-  ) {
+    @Body() { projectSlug }: Api.Query.Input<'/alerts/listDestinations'>,
+  ): Promise<Api.Query.Output<'/alerts/listDestinations'>> {
     try {
       return await this.alertsService.listDestinations(req.user, projectSlug);
     } catch (e: any) {
@@ -240,8 +244,9 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(EnableDestinationSchema))
   async enableDestination(
     @Request() req,
-    @Body() { alert, destination }: EnableDestinationDto,
-  ) {
+    @Body()
+    { alert, destination }: Api.Mutation.Input<'/alerts/enableDestination'>,
+  ): Promise<Api.Mutation.Output<'/alerts/enableDestination'>> {
     try {
       return await this.alertsService.enableDestination(
         req.user,
@@ -259,8 +264,9 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(DisableDestinationSchema))
   async disableDestination(
     @Request() req,
-    @Body() { alert, destination }: DisableDestinationDto,
-  ) {
+    @Body()
+    { alert, destination }: Api.Mutation.Input<'/alerts/disableDestination'>,
+  ): Promise<Api.Mutation.Output<'/alerts/disableDestination'>> {
     try {
       return await this.alertsService.disableDestination(
         req.user,
@@ -275,24 +281,37 @@ export class AlertsController {
   @Post('updateDestination')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new JoiValidationPipe(UpdateDestinationSchema))
-  async updateDestination(@Request() req, @Body() dto: UpdateDestinationDto) {
+  async updateDestination(
+    @Request() req,
+    @Body() dto: Api.Mutation.Input<'/alerts/updateDestination'>,
+  ): Promise<Api.Mutation.Output<'/alerts/updateDestination'>> {
     try {
-      const type = dto.type;
-      switch (type) {
+      const { config, ...rest } = dto;
+      switch (config.type) {
         case 'WEBHOOK':
           return await this.alertsService.updateWebhookDestination(
             req.user,
-            dto,
+            rest,
+            config,
           );
         case 'EMAIL':
-          return await this.alertsService.updateEmailDestination(req.user, dto);
+          return await this.alertsService.updateEmailDestination(
+            req.user,
+            rest,
+          );
         case 'TELEGRAM':
           return await this.alertsService.updateTelegramDestination(
             req.user,
-            dto,
+            rest,
           );
         default:
-          assertUnreachable(type);
+          assertUnreachable(
+            config,
+            (config) =>
+              (
+                config as Api.Mutation.Input<'/alerts/updateDestination'>['config']
+              ).type,
+          );
       }
     } catch (e: any) {
       throw mapError(e);
@@ -302,9 +321,11 @@ export class AlertsController {
   @Post('verifyEmailDestination')
   @HttpCode(204)
   @UsePipes(new JoiValidationPipe(VerifyEmailSchema))
-  async verifyEmailDestination(@Body() { token }: VerifyEmailDto) {
+  async verifyEmailDestination(
+    @Body() { token }: Api.Mutation.Input<'/alerts/verifyEmailDestination'>,
+  ): Promise<Api.Mutation.Output<'/alerts/verifyEmailDestination'>> {
     try {
-      await this.alertsService.verifyEmailDestination(token);
+      return await this.alertsService.verifyEmailDestination(token);
     } catch (e: any) {
       throw mapError(e);
     }
@@ -315,9 +336,9 @@ export class AlertsController {
   @HttpCode(200)
   async start(
     @Headers('X-Telegram-Bot-Api-Secret-Token') secret: string,
-    @Body() body: TgUpdate,
-  ) {
-    if (!this.tgEnableWebhook) {
+    @Body() body: Api.Mutation.Input<'/alerts/telegramWebhook'>,
+  ): Promise<Api.Mutation.Output<'/alerts/telegramWebhook'>> {
+    if (!this.tgSecret) {
       throw new ForbiddenException();
     }
 
@@ -382,10 +403,14 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(ResendEmailVerificationSchema))
   async resendEmailVerification(
     @Request() req,
-    @Body() { destinationId }: ResendEmailVerificationDto,
-  ) {
+    @Body()
+    { destinationId }: Api.Mutation.Input<'/alerts/resendEmailVerification'>,
+  ): Promise<Api.Mutation.Output<'/alerts/resendEmailVerification'>> {
     try {
-      await this.alertsService.resendEmailVerification(req.user, destinationId);
+      return await this.alertsService.resendEmailVerification(
+        req.user,
+        destinationId,
+      );
     } catch (e: any) {
       throw mapError(e);
     }
@@ -395,10 +420,10 @@ export class AlertsController {
   @HttpCode(204)
   @UsePipes(new JoiValidationPipe(UnsubscribeFromEmailAlertSchema))
   async unsubscribeFromEmailAlert(
-    @Body() { token }: UnsubscribeFromEmailAlertDto,
-  ) {
+    @Body() { token }: Api.Mutation.Input<'/alerts/unsubscribeFromEmailAlert'>,
+  ): Promise<Api.Mutation.Output<'/alerts/unsubscribeFromEmailAlert'>> {
     try {
-      await this.alertsService.unsubscribeFromEmailAlert(token);
+      return await this.alertsService.unsubscribeFromEmailAlert(token);
     } catch (e: any) {
       throw mapError(e);
     }
@@ -410,8 +435,11 @@ export class AlertsController {
   @UsePipes(new JoiValidationPipe(RotateWebhookDestinationSecretSchema))
   async rotateWebhookDestinationSecret(
     @Request() req,
-    @Body() { destinationId }: RotateWebhookDestinationSecretDto,
-  ) {
+    @Body()
+    {
+      destinationId,
+    }: Api.Mutation.Input<'/alerts/rotateWebhookDestinationSecret'>,
+  ): Promise<Api.Mutation.Output<'/alerts/rotateWebhookDestinationSecret'>> {
     try {
       return await this.alertsService.rotateWebhookDestinationSecret(
         req.user,

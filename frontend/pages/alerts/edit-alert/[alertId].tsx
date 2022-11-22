@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
@@ -29,7 +30,6 @@ import {
   useAlert,
 } from '@/modules/alerts/hooks/alerts';
 import { alertTypes, amountComparators } from '@/modules/alerts/utils/constants';
-import type { Alert } from '@/modules/alerts/utils/types';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatNumber } from '@/utils/format-number';
 import { StableId } from '@/utils/stable-ids';
@@ -39,7 +39,7 @@ interface NameFormData {
   name: string;
 }
 
-async function update(alert: Alert, data: { isPaused?: boolean; name?: string }) {
+async function update(alert: Api.Mutation.Input<'/alerts/updateAlert'>, data: { isPaused?: boolean; name?: string }) {
   try {
     await updateAlert({
       id: alert.id,
@@ -333,10 +333,10 @@ const EditAlert: NextPageWithLayout = () => {
               <H4>Condition</H4>
 
               <Flex align="center">
-                <FeatherIcon icon={alertTypes[alert.type].icon} color="text3" />
+                <FeatherIcon icon={alertTypes[alert.rule.type].icon} color="text3" />
                 <Flex stack gap="none">
-                  <H6>{alertTypes[alert.type].name}</H6>
-                  <Text>{alertTypes[alert.type].description}</Text>
+                  <H6>{alertTypes[alert.rule.type].name}</H6>
+                  <Text>{alertTypes[alert.rule.type].description}</Text>
                 </Flex>
               </Flex>
 
@@ -363,6 +363,8 @@ const EditAlert: NextPageWithLayout = () => {
   );
 };
 
+type Alert = Api.Query.Output<'/alerts/getAlertDetails'>;
+
 function AlertSettings({ alert }: { alert: Alert }) {
   function Wrapper({ children }: { children: ReactNode }) {
     return (
@@ -375,7 +377,7 @@ function AlertSettings({ alert }: { alert: Alert }) {
     );
   }
 
-  if (alert.type === 'ACCT_BAL_NUM') {
+  if (alert.rule.type === 'ACCT_BAL_NUM') {
     const comparator = returnAmountComparator(alert.rule.from, alert.rule.to);
 
     return (
@@ -412,7 +414,7 @@ function AlertSettings({ alert }: { alert: Alert }) {
     );
   }
 
-  if (alert.type === 'ACCT_BAL_PCT') {
+  if (alert.rule.type === 'ACCT_BAL_PCT') {
     const comparator = returnAmountComparator(alert.rule.from, alert.rule.to);
 
     return (
@@ -447,7 +449,7 @@ function AlertSettings({ alert }: { alert: Alert }) {
     );
   }
 
-  if (alert.type === 'EVENT') {
+  if (alert.rule.type === 'EVENT') {
     return (
       <Wrapper>
         <Text>
@@ -472,7 +474,7 @@ function AlertSettings({ alert }: { alert: Alert }) {
     );
   }
 
-  if (alert.type === 'FN_CALL') {
+  if (alert.rule.type === 'FN_CALL') {
     return (
       <Wrapper>
         <Text>
@@ -488,10 +490,10 @@ function AlertSettings({ alert }: { alert: Alert }) {
   return null;
 }
 
-function returnAmountComparator(from: string | null, to: string | null) {
+function returnAmountComparator<T extends string | number>(from?: T, to?: T) {
   if (from === to) return amountComparators.EQ;
-  if (from === null) return amountComparators.LTE;
-  if (to === null) return amountComparators.GTE;
+  if (from === undefined) return amountComparators.LTE;
+  if (to === undefined) return amountComparators.GTE;
   return amountComparators.RANGE;
 }
 

@@ -7,8 +7,8 @@ import { Flex } from '@/components/lib/Flex';
 import { H2 } from '@/components/lib/Heading';
 import { Section } from '@/components/lib/Section';
 import { Text } from '@/components/lib/Text';
-import { useSimpleLayoutNoPadding } from '@/hooks/layouts';
-import { AuthenticationForm } from '@/modules/core/components/AuthenticationForm';
+import { useSimpleLayout } from '@/hooks/layouts';
+import { AuthForm } from '@/modules/core/components/AuthForm';
 import type { NextPageWithLayout } from '@/utils/types';
 
 /*
@@ -37,7 +37,7 @@ const Login: NextPageWithLayout = () => {
         <Container size="xs">
           <Flex stack gap="l">
             <H2>Sign In</H2>
-            <AuthenticationForm />
+            <AuthForm />
           </Flex>
         </Container>
       </Section>
@@ -57,6 +57,6 @@ const Login: NextPageWithLayout = () => {
   );
 };
 
-Login.getLayout = useSimpleLayoutNoPadding;
+Login.getLayout = useSimpleLayout;
 
 export default Login;

@@ -1,148 +1,220 @@
+import { Api } from '@pc/common/types/api';
 import { CreateAlertSchema } from './dto';
 
 const contract = 'pagoda.near';
 const projectSlug = '123xyz';
 const environmentSubId = 1;
 
-test.each([
-  { type: 'TX_SUCCESS', projectSlug, environmentSubId, rule: { contract } },
-  { type: 'TX_FAILURE', projectSlug, environmentSubId, rule: { contract } },
+const validSchemas: Api.Mutation.Input<'/alerts/createAlert'>[] = [
+  { projectSlug, environmentSubId, rule: { type: 'TX_SUCCESS', contract } },
+  { projectSlug, environmentSubId, rule: { type: 'TX_FAILURE', contract } },
   {
-    type: 'FN_CALL',
     projectSlug,
     environmentSubId,
-    rule: { contract, function: '*' },
+    rule: {
+      type: 'FN_CALL',
+      contract,
+      function: '*',
+    },
   },
   {
-    type: 'EVENT',
     projectSlug,
     environmentSubId,
-    rule: { contract, standard: '*', event: '*', version: '*' },
+    rule: {
+      type: 'EVENT',
+      contract,
+      standard: '*',
+      event: '*',
+      version: '*',
+    },
   },
   {
-    type: 'ACCT_BAL_NUM',
     projectSlug,
     environmentSubId,
-    rule: { contract, from: null, to: '34028236692463463374607000000' },
+    rule: {
+      type: 'ACCT_BAL_NUM',
+      contract,
+      from: undefined,
+      to: '34028236692463463374607000000',
+    },
   },
   {
-    type: 'ACCT_BAL_NUM',
     projectSlug,
     environmentSubId,
-    rule: { contract, from: '340283463374607000000', to: null },
+    rule: {
+      type: 'ACCT_BAL_NUM',
+      contract,
+      from: '340283463374607000000',
+      to: undefined,
+    },
   },
   {
-    type: 'ACCT_BAL_PCT',
     projectSlug,
     environmentSubId,
-    rule: { contract, from: '10', to: null },
+    rule: {
+      type: 'ACCT_BAL_PCT',
+      contract,
+      from: 10,
+      to: undefined,
+    },
   },
   {
-    type: 'ACCT_BAL_PCT',
     projectSlug,
     environmentSubId,
-    rule: { contract, from: null, to: '100' },
+    rule: {
+      type: 'ACCT_BAL_PCT',
+      contract,
+      from: undefined,
+      to: 100,
+    },
   },
   {
-    type: 'ACCT_BAL_NUM',
     projectSlug,
     environmentSubId,
-    rule: { contract, from: '0', to: '0' },
+    rule: {
+      type: 'ACCT_BAL_NUM',
+      contract,
+      from: '0',
+      to: '0',
+    },
   },
   {
-    type: 'ACCT_BAL_PCT',
     projectSlug,
     environmentSubId,
-    rule: { contract, from: '0', to: '0' },
+    rule: {
+      type: 'ACCT_BAL_PCT',
+      contract,
+      from: 0,
+      to: 0,
+    },
   },
   {
-    type: 'ACCT_BAL_PCT',
     projectSlug,
     environmentSubId,
-    rule: { contract, from: '0' },
+    rule: {
+      type: 'ACCT_BAL_PCT',
+      contract,
+      from: 0,
+    },
   },
   {
-    type: 'ACCT_BAL_PCT',
     projectSlug,
     environmentSubId,
-    rule: { contract, to: '0' },
+    rule: {
+      type: 'ACCT_BAL_PCT',
+      contract,
+      to: 0,
+    },
   },
-])('%o should be valid', (input) => {
+];
+
+test.each(validSchemas)('%o should be valid', (input) => {
   const result = CreateAlertSchema.validate(input);
   expect(result.error).toBeUndefined();
 });
 
-test.each([
-  { type: 'INCORRECT', projectSlug, environmentSubId, rule: { contract } },
+const invalidSchemas: Api.Mutation.Input<'/alerts/createAlert'>[] = [
   {
-    type: 'ACCT_BAL_NUM',
-    projectSlug,
-    environmentSubId,
-    rule: { contract, from: null, to: null },
-  },
-  {
-    type: 'ACCT_BAL_NUM',
-    projectSlug,
-    environmentSubId,
-    rule: { contract },
-  },
-  {
-    type: 'ACCT_BAL_NUM',
-    projectSlug,
-    environmentSubId,
-    rule: { contract, from: '-1', to: null },
-  },
-  {
-    type: 'ACCT_BAL_NUM',
-    projectSlug,
-    environmentSubId,
-    rule: { contract, from: '3', to: '1' },
-  },
-  {
-    type: 'ACCT_BAL_NUM',
     projectSlug,
     environmentSubId,
     rule: {
+      type: 'ACCT_BAL_NUM',
       contract,
-      from: '340282366920938463463374607431768211456',
-      to: null,
+      from: undefined,
+      to: undefined,
     },
   },
   {
-    type: 'ACCT_BAL_NUM',
     projectSlug,
     environmentSubId,
     rule: {
+      type: 'ACCT_BAL_NUM',
       contract,
-      from: null,
+    },
+  },
+  {
+    projectSlug,
+    environmentSubId,
+    rule: {
+      type: 'ACCT_BAL_NUM',
+      contract,
+      from: '-1',
+      to: undefined,
+    },
+  },
+  {
+    projectSlug,
+    environmentSubId,
+    rule: {
+      type: 'ACCT_BAL_NUM',
+      contract,
+      from: '3',
+      to: '1',
+    },
+  },
+  {
+    projectSlug,
+    environmentSubId,
+    rule: {
+      type: 'ACCT_BAL_NUM',
+      contract,
+      from: '340282366920938463463374607431768211456',
+      to: undefined,
+    },
+  },
+  {
+    projectSlug,
+    environmentSubId,
+    rule: {
+      type: 'ACCT_BAL_NUM',
+      contract,
+      from: undefined,
       to: '340282366920938463463374607431768211456',
     },
   },
   {
-    type: 'ACCT_BAL_PCT',
     projectSlug,
     environmentSubId,
-    rule: { contract, from: null, to: null },
+    rule: {
+      type: 'ACCT_BAL_PCT',
+      contract,
+      from: undefined,
+      to: undefined,
+    },
   },
   {
-    type: 'ACCT_BAL_PCT',
     projectSlug,
     environmentSubId,
-    rule: { contract, from: '101', to: null },
+    rule: {
+      type: 'ACCT_BAL_PCT',
+      contract,
+      from: 101,
+      to: undefined,
+    },
   },
   {
-    type: 'ACCT_BAL_PCT',
     projectSlug,
     environmentSubId,
-    rule: { contract, from: '0', to: '101' },
+    rule: {
+      type: 'ACCT_BAL_PCT',
+      contract,
+      from: 0,
+      to: 101,
+    },
   },
   {
-    type: 'ACCT_BAL_PCT',
     projectSlug,
     environmentSubId,
-    rule: { contract, from: '-1', to: null },
+    rule: {
+      type: 'ACCT_BAL_PCT',
+      contract,
+      from: -1,
+      to: undefined,
+    },
   },
-])('%o should throw errors', (input) => {
+];
+
+test.each(invalidSchemas)('%o should throw errors', (input) => {
   const result = CreateAlertSchema.validate(input);
   expect(result.error).toBeDefined();
 });

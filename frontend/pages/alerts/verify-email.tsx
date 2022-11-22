@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
+import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { unauthenticatedPost } from '@/utils/http';
@@ -41,13 +42,15 @@ const Verification: NextPageWithLayout = () => {
   }
 
   return (
-    <Container size="s">
-      <Flex stack align="center">
-        {!verificationMessage && !error && <Spinner size="m" />}
-        {error && <Message content={error} type="error" />}
-        {verificationMessage && <Message content={verificationMessage} type="success" />}
-      </Flex>
-    </Container>
+    <Section>
+      <Container size="s">
+        <Flex stack align="center">
+          {!verificationMessage && !error && <Spinner size="m" />}
+          {error && <Message content={error} type="error" />}
+          {verificationMessage && <Message content={verificationMessage} type="success" />}
+        </Flex>
+      </Container>
+    </Section>
   );
 };
 

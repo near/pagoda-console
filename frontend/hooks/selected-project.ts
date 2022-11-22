@@ -1,15 +1,19 @@
+import type { Api } from '@pc/common/types/api';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 
+import { usePublicStore } from '@/stores/public';
 import { useSettingsStore } from '@/stores/settings';
 import config from '@/utils/config';
-import type { Environment, Project } from '@/utils/types';
 
+import { useAuth } from './auth';
 import { useEnvironments } from './environments';
 import { usePreviousValue } from './previous-value';
 import { useProject } from './projects';
+import { usePublicMode } from './public';
 import { useRouteParam } from './route';
-import { useIdentity } from './user';
+
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 
 interface Options {
   enforceSelectedProject?: boolean;
@@ -26,6 +30,8 @@ export function useSelectedProject(
   const { project } = useProject(settings?.selectedProjectSlug);
   const { environments } = useEnvironments(settings?.selectedProjectSlug);
   const [environment, setEnvironment] = useState<Environment>();
+  const publicModeIsActive = usePublicStore((store) => store.publicModeIsActive);
+  const publicModeHasHydrated = usePublicStore((store) => store.hasHydrated);
 
   // Compute the currently selected environment:
 
@@ -43,7 +49,14 @@ export function useSelectedProject(
   // Conditionally redirect to force user to select project:
 
   useEffect(() => {
-    if (!options.enforceSelectedProject || projectSlugRouteParam || !settings || settings.selectedProjectSlug) {
+    if (
+      !options.enforceSelectedProject ||
+      projectSlugRouteParam ||
+      !settings ||
+      settings.selectedProjectSlug ||
+      !publicModeHasHydrated ||
+      publicModeIsActive
+    ) {
       return;
     }
 
@@ -56,7 +69,7 @@ export function useSelectedProject(
     }
 
     router.replace('/projects');
-  }, [options, projectSlugRouteParam, router, settings]);
+  }, [options, projectSlugRouteParam, publicModeHasHydrated, publicModeIsActive, router, settings]);
 
   return {
     environment,
@@ -66,7 +79,7 @@ export function useSelectedProject(
 }
 
 export function useProjectSelector() {
-  const identity = useIdentity();
+  const { identity } = useAuth();
   const updateSettings = useSettingsStore((store) => store.updateSettings);
   const updateProjectSettings = useSettingsStore((store) => store.updateProjectSettings);
 
@@ -115,7 +128,7 @@ export function useOnSelectedProjectChange(onChange: () => void) {
 
 export function useSelectedProjectSync(
   selectedEnvironmentSubId: Environment['subId'] | undefined,
-  selectedProjectSlug: Project['slug'] | undefined,
+  selectedProjectSlug: string | undefined,
 ) {
   const settings = useSettingsStore((store) => store.currentUser);
   const { environment, project } = useSelectedProject();
@@ -148,6 +161,7 @@ export function useSelectedProjectSync(
 }
 
 export function useSelectedProjectRouteParamSync() {
+  const { deactivatePublicMode } = usePublicMode();
   const hasInitialized = useSettingsStore((store) => store.hasInitialized);
   const { selectEnvironment, selectProject } = useProjectSelector();
   const projectSlugRouteParam = useRouteParam('project');
@@ -160,6 +174,7 @@ export function useSelectedProjectRouteParamSync() {
     if (!hasInitialized) return;
 
     if (projectSlugRouteParam) {
+      deactivatePublicMode();
       selectProject(projectSlugRouteParam);
 
       if (environmentSubIdRouteParam) {
@@ -172,5 +187,13 @@ export function useSelectedProjectRouteParamSync() {
         shallow: true,
       });
     }
-  }, [environmentSubIdRouteParam, hasInitialized, projectSlugRouteParam, router, selectEnvironment, selectProject]);
+  }, [
+    deactivatePublicMode,
+    environmentSubIdRouteParam,
+    hasInitialized,
+    projectSlugRouteParam,
+    router,
+    selectEnvironment,
+    selectProject,
+  ]);
 }

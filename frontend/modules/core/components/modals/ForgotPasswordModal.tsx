@@ -9,7 +9,7 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
-import { resetPassword } from '@/hooks/user';
+import { resetPassword } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';

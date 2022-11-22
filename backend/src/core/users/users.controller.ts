@@ -13,31 +13,20 @@ import {
 import { UsersService } from './users.service';
 import { BearerAuthGuard } from '../auth/bearer-auth.guard';
 import {
-  AcceptOrgInviteDto,
   AcceptOrgInviteSchema,
-  ChangeOrgRoleDto,
   ChangeOrgRoleSchema,
-  CreateOrgDto,
   CreateOrgSchema,
-  DeleteOrgDto,
   DeleteOrgSchema,
-  InviteToOrgDto,
   InviteToOrgSchema,
-  ListOrgMembersDto,
   ListOrgMembersSchema,
-  OrgData,
-  OrgMemberData,
-  RemoveFromOrgDto,
   RemoveFromOrgSchema,
-  RemoveOrgInviteDto,
   RemoveOrgInviteSchema,
-  ResetPasswordDto,
   ResetPasswordSchema,
 } from './dto';
 import { JoiValidationPipe } from '@/src/pipes/JoiValidationPipe';
 import { VError } from 'verror';
 import { UserError } from './user-error';
-import { Org } from '@pc/database/clients/core';
+import { Api } from '@pc/common/types/api';
 
 @Controller('users')
 export class UsersController {
@@ -49,7 +38,10 @@ export class UsersController {
   // ! request
   @Post('getAccountDetails')
   @UseGuards(BearerAuthGuard)
-  async getAccountDetails(@Request() req) {
+  async getAccountDetails(
+    @Request() req,
+    @Body() _: Api.Query.Input<'/users/getAccountDetails'>,
+  ): Promise<Api.Query.Output<'/users/getAccountDetails'>> {
     const { uid, email, name, photoUrl } = req.user;
     return { uid, email, name, photoUrl };
   }
@@ -57,7 +49,10 @@ export class UsersController {
   // Gets a list of orgs that this user is the sole admin of.
   @Post('listOrgsWithOnlyAdmin')
   @UseGuards(BearerAuthGuard)
-  async listOrgsWithOnlyAdmin(@Request() req) {
+  async listOrgsWithOnlyAdmin(
+    @Request() req,
+    @Body() _: Api.Query.Input<'/users/listOrgsWithOnlyAdmin'>,
+  ): Promise<Api.Query.Output<'/users/listOrgsWithOnlyAdmin'>> {
     try {
       return await this.usersService.listOrgsWithOnlyAdmin(req.user.uid);
     } catch (e: any) {
@@ -68,10 +63,13 @@ export class UsersController {
   @Post('deleteAccount')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  async deleteAccount(@Request() req) {
+  async deleteAccount(
+    @Request() req,
+    @Body() _: Api.Mutation.Input<'/users/deleteAccount'>,
+  ): Promise<Api.Mutation.Output<'/users/deleteAccount'>> {
     const { uid } = req.user;
     try {
-      await this.usersService.deactivateUser(uid);
+      return await this.usersService.deactivateUser(uid);
     } catch (e: any) {
       throw mapError(e);
     }
@@ -82,8 +80,8 @@ export class UsersController {
   @UsePipes(new JoiValidationPipe(CreateOrgSchema))
   async create(
     @Request() req,
-    @Body() { name }: CreateOrgDto,
-  ): Promise<OrgData> {
+    @Body() { name }: Api.Mutation.Input<'/users/createOrg'>,
+  ): Promise<Api.Mutation.Output<'/users/createOrg'>> {
     try {
       return await this.usersService.createOrg(req.user, name.trim());
     } catch (e: any) {
@@ -97,8 +95,8 @@ export class UsersController {
   @UsePipes(new JoiValidationPipe(InviteToOrgSchema))
   async inviteToOrg(
     @Request() req,
-    @Body() { org, email, role }: InviteToOrgDto,
-  ): Promise<void> {
+    @Body() { org, email, role }: Api.Mutation.Input<'/users/inviteToOrg'>,
+  ): Promise<Api.Mutation.Output<'/users/inviteToOrg'>> {
     try {
       return await this.usersService.inviteToOrg(req.user, org, email, role);
     } catch (e: any) {
@@ -111,8 +109,8 @@ export class UsersController {
   @UsePipes(new JoiValidationPipe(AcceptOrgInviteSchema))
   async acceptOrgInvite(
     @Request() req,
-    @Body() { token }: AcceptOrgInviteDto,
-  ): Promise<{ org: Pick<Org, 'name' | 'slug'> }> {
+    @Body() { token }: Api.Mutation.Input<'/users/acceptOrgInvite'>,
+  ): Promise<Api.Mutation.Output<'/users/acceptOrgInvite'>> {
     try {
       return await this.usersService.acceptOrgInvite(req.user, token);
     } catch (e: any) {
@@ -125,8 +123,8 @@ export class UsersController {
   @UsePipes(new JoiValidationPipe(ListOrgMembersSchema))
   async listOrgMembers(
     @Request() req,
-    @Body() { org }: ListOrgMembersDto,
-  ): Promise<OrgMemberData[]> {
+    @Body() { org }: Api.Query.Input<'/users/listOrgMembers'>,
+  ): Promise<Api.Query.Output<'/users/listOrgMembers'>> {
     try {
       return await this.usersService.listOrgMembers(req.user, org);
     } catch (e: any) {
@@ -136,7 +134,10 @@ export class UsersController {
 
   @Post('listOrgs')
   @UseGuards(BearerAuthGuard)
-  async listOrgs(@Request() req): Promise<OrgData[]> {
+  async listOrgs(
+    @Request() req,
+    @Body() _: Api.Query.Input<'/users/listOrgs'>,
+  ): Promise<Api.Query.Output<'/users/listOrgs'>> {
     try {
       return await this.usersService.listOrgs(req.user);
     } catch (e: any) {
@@ -150,8 +151,8 @@ export class UsersController {
   @UsePipes(new JoiValidationPipe(DeleteOrgSchema))
   async deleteOrg(
     @Request() req,
-    @Body() { org }: DeleteOrgDto,
-  ): Promise<void> {
+    @Body() { org }: Api.Mutation.Input<'/users/deleteOrg'>,
+  ): Promise<Api.Mutation.Output<'/users/deleteOrg'>> {
     try {
       return await this.usersService.deleteOrg(req.user, org);
     } catch (e: any) {
@@ -164,8 +165,8 @@ export class UsersController {
   @UsePipes(new JoiValidationPipe(ChangeOrgRoleSchema))
   async changeOrgRole(
     @Request() req,
-    @Body() { org, user, role }: ChangeOrgRoleDto,
-  ): Promise<OrgMemberData> {
+    @Body() { org, user, role }: Api.Mutation.Input<'/users/changeOrgRole'>,
+  ): Promise<Api.Mutation.Output<'/users/changeOrgRole'>> {
     try {
       return await this.usersService.changeOrgRole(req.user, org, user, role);
     } catch (e: any) {
@@ -178,8 +179,8 @@ export class UsersController {
   @UsePipes(new JoiValidationPipe(RemoveFromOrgSchema))
   async removeFromOrg(
     @Request() req,
-    @Body() { org, user }: RemoveFromOrgDto,
-  ): Promise<void> {
+    @Body() { org, user }: Api.Mutation.Input<'/users/removeFromOrg'>,
+  ): Promise<Api.Mutation.Output<'/users/removeFromOrg'>> {
     try {
       return await this.usersService.removeFromOrg(req.user, org, user);
     } catch (e: any) {
@@ -192,8 +193,8 @@ export class UsersController {
   @UsePipes(new JoiValidationPipe(RemoveOrgInviteSchema))
   async removeOrgInvite(
     @Request() req,
-    @Body() { org, email }: RemoveOrgInviteDto,
-  ): Promise<void> {
+    @Body() { org, email }: Api.Mutation.Input<'/users/removeOrgInvite'>,
+  ): Promise<Api.Mutation.Output<'/users/removeOrgInvite'>> {
     try {
       return await this.usersService.removeOrgInvite(req.user, org, email);
     } catch (e: any) {
@@ -204,7 +205,9 @@ export class UsersController {
   @Post('resetPassword')
   @UsePipes(new JoiValidationPipe(ResetPasswordSchema))
   @HttpCode(204)
-  async resetPassword(@Body() { email }: ResetPasswordDto) {
+  async resetPassword(
+    @Body() { email }: Api.Mutation.Input<'/users/resetPassword'>,
+  ): Promise<Api.Mutation.Output<'/users/resetPassword'>> {
     try {
       await this.usersService.resetPassword(email);
     } catch (e: any) {

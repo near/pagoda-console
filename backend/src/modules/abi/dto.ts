@@ -2,14 +2,10 @@
 // because class-validator was experiencing issues at the time of implementation
 // and had many unaddressed github issues
 
+import { Api } from '@pc/common/types/api';
 import * as Joi from 'joi';
-import { ABI } from './abi';
 
 // add contract abi
-export interface AddContractAbiDto {
-  contract: string;
-  abi: ABI;
-}
 const JsonSchemaSchema = Joi.object({}).unknown(true).required();
 export const AbiSchema = Joi.object({
   schema_version: Joi.string().required(),
@@ -44,15 +40,18 @@ export const AbiSchema = Joi.object({
     root_schema: JsonSchemaSchema,
   }).required(),
 }).required();
-export const AddContractAbiSchema = Joi.object({
+export const AddContractAbiSchema = Joi.object<
+  Api.Mutation.Input<'/abi/addContractAbi'>,
+  true
+>({
   contract: Joi.string().required(),
   abi: AbiSchema,
 });
 
 // get contract abi
-export interface GetContractAbiDto {
-  contract: string;
-}
-export const GetContractAbiSchema = Joi.object({
+export const GetContractAbiSchema = Joi.object<
+  Api.Query.Input<'/abi/getContractAbi'>,
+  true
+>({
   contract: Joi.string().required(),
 });

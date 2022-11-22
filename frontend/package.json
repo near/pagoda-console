@@ -25,6 +25,7 @@
     "@near-wallet-selector/my-near-wallet": "^7.0.3",
     "@near-wallet-selector/near-wallet": "^7.0.3",
     "@near-wallet-selector/sender": "^7.0.3",
+    "@pc/common": "*",
     "@pc/database": "*",
     "@radix-ui/react-accordion": "^1.0.0",
     "@radix-ui/react-dialog": "^1.0.0",

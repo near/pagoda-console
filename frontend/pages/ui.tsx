@@ -1,3 +1,4 @@
+import type { Net } from '@pc/database/clients/core';
 import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -56,7 +57,7 @@ import config from '@/utils/config';
 import { formValidations } from '@/utils/constants';
 import { mergeInputProps } from '@/utils/merge-input-props';
 import { StableId } from '@/utils/stable-ids';
-import type { NetOption, NextPageWithLayout } from '@/utils/types';
+import type { NextPageWithLayout } from '@/utils/types';
 import { validateMaxNearDecimalLength, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
 const Block = styled('div', {
@@ -219,7 +220,7 @@ const tableRows = [
 ];
 
 const WithNetDropdown: FC<{ children: ReactNode }> = ({ children }) => {
-  const [net, setNet] = useState<NetOption>('MAINNET');
+  const [net, setNet] = useState<Net>('MAINNET');
   return (
     <>
       <DropdownMenu.Root>

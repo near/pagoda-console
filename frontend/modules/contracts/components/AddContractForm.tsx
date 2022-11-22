@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
@@ -19,7 +20,10 @@ import { formRegex } from '@/utils/constants';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
 import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
-import type { Contract, Environment, Project } from '@/utils/types';
+
+type Project = Api.Query.Output<'/projects/getDetails'>;
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
+type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
 interface Props {
   project: Project;
@@ -47,7 +51,13 @@ export function AddContractForm(props: Props) {
     try {
       setIsDeployingContract(true);
 
-      const contract = await deployContractTemplate(props.project, template);
+      const deployResult = await deployContractTemplate(template);
+
+      const contract = await authenticatedPost('/projects/addContract', {
+        project: props.project.slug,
+        environment: deployResult.subId,
+        address: deployResult.address,
+      });
 
       analytics.track('DC Deploy Contract Template', {
         status: 'success',
@@ -83,7 +93,7 @@ export function AddContractForm(props: Props) {
   const submitForm: SubmitHandler<FormData> = async ({ contractAddress }) => {
     const contractAddressValue = contractAddress.trim();
     try {
-      const contract: Contract = await authenticatedPost('/projects/addContract', {
+      const contract = await authenticatedPost('/projects/addContract', {
         project: props.project.slug,
         environment: props.environment.subId,
         address: contractAddressValue,

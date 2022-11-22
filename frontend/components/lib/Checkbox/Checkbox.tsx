@@ -20,12 +20,12 @@ export const CheckboxGroup = ({ children, ...props }: CheckboxGroupProps) => {
 };
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ children, css, isInvalid, radio = false, ...props }, ref) => {
+  ({ children, css, disabled, isInvalid, radio = false, ...props }, ref) => {
     const type = radio ? 'radio' : 'checkbox';
 
     return (
-      <S.Label css={css}>
-        <S.Input aria-invalid={isInvalid} type={type} ref={ref} {...props} />
+      <S.Label disabled={disabled} css={css}>
+        <S.Input aria-invalid={isInvalid} type={type} ref={ref} disabled={disabled} {...props} />
 
         <S.Indicator invalid={isInvalid} radio={radio}>
           {radio ? (

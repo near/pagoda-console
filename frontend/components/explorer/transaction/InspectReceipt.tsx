@@ -1,3 +1,4 @@
+import type { Explorer } from '@pc/common/types/core';
 import JSBI from 'jsbi';
 import * as React from 'react';
 import useSWR from 'swr';
@@ -11,10 +12,9 @@ import AccountLink from '../utils/AccountLink';
 import BlockLink from '../utils/BlockLink';
 import Gas from '../utils/Gas';
 import { NearAmount } from '../utils/NearAmount';
-import type { Action, NestedReceiptWithOutcome } from './types';
 
 type Props = {
-  receipt: NestedReceiptWithOutcome;
+  receipt: Explorer.NestedReceiptWithOutcome;
 };
 
 const Table = styled('table', {
@@ -36,12 +36,12 @@ const BalanceAmount = styled('div', {
   color: 'var(--color-cta-neutral-highlight_',
 });
 
-const getDeposit = (actions: Action[]): JSBI => {
+const getDeposit = (actions: Explorer.Action[]): JSBI => {
   return actions
     .map((action) => ('deposit' in action.args ? JSBI.BigInt(action.args.deposit) : BI.zero))
     .reduce((accumulator, deposit) => JSBI.add(accumulator, deposit), BI.zero);
 };
-const getGasAttached = (actions: Action[]): JSBI => {
+const getGasAttached = (actions: Explorer.Action[]): JSBI => {
   const gasAttached = actions
     .map((action) => action.args)
     .filter(
@@ -62,14 +62,12 @@ const getGasAttached = (actions: Action[]): JSBI => {
 
 const InspectReceipt: React.FC<Props> = React.memo(({ receipt: { id, ...receipt } }) => {
   const net = useNet();
-  const query = useSWR<(string | null)[]>(
-    ['explorer/balanceChanges', net, receipt.predecessorId, receipt.receiverId],
-    () =>
-      unauthenticatedPost(`/explorer/balanceChanges/`, {
-        net,
-        receiptId: id,
-        accountIds: [receipt.predecessorId, receipt.receiverId],
-      }),
+  const query = useSWR(['explorer/balanceChanges', net, receipt.predecessorId, receipt.receiverId], () =>
+    unauthenticatedPost(`/explorer/balanceChanges`, {
+      net,
+      receiptId: id,
+      accountIds: [receipt.predecessorId, receipt.receiverId],
+    }),
   );
   const predecessorBalance = query.data?.[0];
   const receiverBalance = query.data?.[0];

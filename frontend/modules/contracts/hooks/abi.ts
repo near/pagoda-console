@@ -1,27 +1,27 @@
+import type { Api } from '@pc/common/types/api';
+import type { Net } from '@pc/database/clients/core';
 import type { AbiRoot, AnyContract } from 'near-abi-client-js';
 import { Contract as NearContract } from 'near-abi-client-js';
 import { connect, keyStores } from 'near-api-js';
 import useSWR from 'swr';
 
-import { useIdentity } from '@/hooks/user';
+import { useAuth } from '@/hooks/auth';
+import { usePublicMode } from '@/hooks/public';
 import analytics from '@/utils/analytics';
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
-import type { Contract, NetOption } from '@/utils/types';
 
 import { inspectContract } from '../utils/embedded-abi';
 
 const RPC_API_ENDPOINT = config.url.rpc.default.TESTNET;
 
-interface AbiResponse {
-  contractSlug: string;
-  abi: AbiRoot;
-}
+type Contract = Api.Query.Output<'/projects/getContract'>;
 
 // Prefers an embedded ABI in the wasm, if there is one, else returns any manually uploaded ABI.
 export const useAnyAbi = (contract: Contract | undefined) => {
+  const { publicModeIsActive } = usePublicMode();
   const { embeddedAbi } = useEmbeddedAbi(contract?.net, contract?.address);
-  const { contractAbi, error } = useContractAbi(contract?.slug);
+  const { contractAbi, error } = useContractAbi(publicModeIsActive ? undefined : contract?.slug);
 
   // We haven't determined if there is an embedded ABI yet, so let's return nothing for now.
   if (embeddedAbi === undefined) {
@@ -33,29 +33,34 @@ export const useAnyAbi = (contract: Contract | undefined) => {
     return { contractAbi: embeddedAbi, embedded: true };
   }
 
+  // There is no embedded ABI for public mode.
+  if (publicModeIsActive) {
+    return { error: new Error('ABI_NOT_FOUND') };
+  }
+
   // There is no embedded ABI.
   return { contractAbi, error };
 };
 
-export const useEmbeddedAbi = (net: NetOption | undefined, address: string | undefined) => {
+export const useEmbeddedAbi = (net: Net | undefined, address: string | undefined) => {
   const {
     data: embeddedAbi,
     error,
     mutate,
-  } = useSWR<AbiRoot | null | undefined>(net && address ? [net, address] : null, (net, address) => {
+  } = useSWR(net && address ? [net, address] : null, (net, address) => {
     return inspectContract(net, address);
   });
   return { embeddedAbi, error, mutate };
 };
 
 export const useContractAbi = (contract: string | undefined) => {
-  const identity = useIdentity();
+  const { identity } = useAuth();
   const {
     data: contractAbi,
     error,
     mutate,
-  } = useSWR<AbiResponse>(
-    identity && contract ? ['/abi/getContractAbi', contract, identity.uid] : null,
+  } = useSWR(
+    identity && contract ? ['/abi/getContractAbi' as const, contract, identity.uid] : null,
     (key, contract) => {
       return authenticatedPost(key, { contract });
     },

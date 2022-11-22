@@ -7,7 +7,7 @@ const moduleExports = {
   sentry: {
     hideSourceMaps: false, // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#use-hidden-source-map
   },
-  experimental: { esmExternals: true },
+  experimental: { esmExternals: true, externalDir: true },
   reactStrictMode: true,
   webpack(config, options) {
     config.module.rules.push({

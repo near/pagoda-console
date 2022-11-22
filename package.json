@@ -10,6 +10,7 @@
     "./frontend",
     "./backend",
     "database",
+    "common",
     "./test"
   ],
   "scripts": {

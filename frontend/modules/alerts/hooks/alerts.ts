@@ -1,13 +1,12 @@
+import type { Api } from '@pc/common/types/api';
 import useSWR from 'swr';
 
-import { useIdentity } from '@/hooks/user';
+import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 
-import type { Alert, NewAlert, UpdateAlert } from '../utils/types';
-
-export async function createAlert(data: NewAlert) {
-  const alert: Alert = await authenticatedPost('/alerts/createAlert', {
+export async function createAlert(data: Api.Mutation.Input<'/alerts/createAlert'>) {
+  const alert = await authenticatedPost('/alerts/createAlert', {
     ...data,
   });
 
@@ -20,7 +19,7 @@ export async function createAlert(data: NewAlert) {
   return alert;
 }
 
-export async function deleteAlert(alert: Alert) {
+export async function deleteAlert(alert: Api.Mutation.Input<'/alerts/deleteAlert'>) {
   try {
     await authenticatedPost('/alerts/deleteAlert', { id: alert.id });
     analytics.track('DC Remove Alert', {
@@ -66,8 +65,8 @@ export async function enableDestinationForAlert(alertId: number, destinationId: 
   });
 }
 
-export async function updateAlert(data: UpdateAlert) {
-  const alert: Alert = await authenticatedPost('/alerts/updateAlert', {
+export async function updateAlert(data: Api.Mutation.Input<'/alerts/updateAlert'>) {
+  const alert = await authenticatedPost('/alerts/updateAlert', {
     ...data,
   });
 
@@ -81,14 +80,14 @@ export async function updateAlert(data: UpdateAlert) {
 }
 
 export function useAlert(alertId: number | undefined) {
-  const identity = useIdentity();
+  const { identity } = useAuth();
 
   const {
     data: alert,
     error,
     mutate,
-  } = useSWR<Alert>(
-    identity && alertId ? ['/alerts/getAlertDetails', alertId, identity.uid] : null,
+  } = useSWR(
+    identity && alertId ? ['/alerts/getAlertDetails' as const, alertId, identity.uid] : null,
     async (key, alertId) => {
       return authenticatedPost(key, { id: alertId });
     },
@@ -98,18 +97,18 @@ export function useAlert(alertId: number | undefined) {
 }
 
 export function useAlerts(projectSlug: string | undefined, environmentSubId: number | undefined) {
-  const identity = useIdentity();
+  const { identity } = useAuth();
   const {
     data: alerts,
     error,
     mutate,
     isValidating,
-  } = useSWR<Alert[]>(
+  } = useSWR(
     identity && projectSlug && environmentSubId
-      ? ['/alerts/listAlerts', projectSlug, environmentSubId, identity.uid]
+      ? ['/alerts/listAlerts' as const, projectSlug, environmentSubId, identity.uid]
       : null,
     (key) => {
-      return authenticatedPost(key, { environmentSubId, projectSlug });
+      return authenticatedPost(key, { environmentSubId: environmentSubId!, projectSlug: projectSlug! });
     },
   );
 

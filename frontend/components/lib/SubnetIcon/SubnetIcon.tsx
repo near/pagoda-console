@@ -1,16 +1,23 @@
+import type { Net } from '@pc/database/clients/core';
+import type { ComponentProps } from 'react';
+
 import { assertUnreachable } from '@/utils/helpers';
-import type { NetOption } from '@/utils/types';
 
 import { FeatherIcon } from '../FeatherIcon';
 
-export function SubnetIcon({ net }: { net?: NetOption }) {
+type FeatherIconProps = ComponentProps<typeof FeatherIcon>;
+type Props = Pick<FeatherIconProps, 'size'> & {
+  net?: Net;
+};
+
+export function SubnetIcon({ net, size }: Props) {
   if (!net) return null;
 
   switch (net) {
     case 'MAINNET':
-      return <FeatherIcon icon="layers" css={{ color: 'var(--color-mainnet)' }} />;
+      return <FeatherIcon icon="layers" css={{ color: 'var(--color-mainnet)' }} size={size} />;
     case 'TESTNET':
-      return <FeatherIcon icon="code" css={{ color: 'var(--color-testnet)' }} />;
+      return <FeatherIcon icon="code" css={{ color: 'var(--color-testnet)' }} size={size} />;
     default:
       assertUnreachable(net);
   }

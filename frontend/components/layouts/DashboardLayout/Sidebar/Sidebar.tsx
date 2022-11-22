@@ -7,24 +7,26 @@ import { useState } from 'react';
 import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Tooltip } from '@/components/lib/Tooltip';
-import useFeatureFlag from '@/hooks/features';
+import { useAuth, useSignOut } from '@/hooks/auth';
+import { usePublicMode } from '@/hooks/public';
 import { useSelectedProject } from '@/hooks/selected-project';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
 import apisEntries from '@/modules/apis/sidebar-entries';
 import contractsEntries from '@/modules/contracts/sidebar-entries';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
-import type { SidebarEntry } from '@/shared/utils/types';
-import { logOut } from '@/utils/auth';
 import { StableId } from '@/utils/stable-ids';
 
 import { Logo } from './Logo';
 import * as S from './styles';
+import type { SidebarEntry } from './types';
 
 type Props = ComponentProps<typeof S.Root>;
 
 function useProjectPages(): SidebarEntry[] {
-  const pages: SidebarEntry[] = [];
+  const { publicModeIsActive } = usePublicMode();
+  const { authStatus } = useAuth();
+  let pages: SidebarEntry[] = [];
 
   const { project } = useSelectedProject({
     enforceSelectedProject: false,
@@ -40,25 +42,32 @@ function useProjectPages(): SidebarEntry[] {
     });
   }
 
-  // pushed individually so that module pages can be placed at any point
   pages.push(...apisEntries);
-  if (useFeatureFlag('momentary-alerts-enabled')) {
-    pages.push(...alertsEntries);
-  }
+  pages.push(...alertsEntries);
   pages.push(...contractsEntries);
+
   pages.push({
     display: 'Analytics',
     route: '/project-analytics',
     icon: 'bar-chart-2',
     stableId: StableId.SIDEBAR_ANALYTICS_LINK,
+    visibleForAuthPublicMode: true,
   });
+
   pages.push(...indexersEntries);
-  pages.push({
-    display: 'Settings',
-    route: '/project-settings',
-    icon: 'settings',
-    stableId: StableId.SIDEBAR_PROJECT_SETTINGS_LINK,
-  });
+
+  if (authStatus === 'AUTHENTICATED') {
+    pages.push({
+      display: 'Settings',
+      route: '/project-settings',
+      icon: 'settings',
+      stableId: StableId.SIDEBAR_PROJECT_SETTINGS_LINK,
+    });
+  }
+
+  if (authStatus === 'AUTHENTICATED' && publicModeIsActive) {
+    pages = pages.filter((page) => page.visibleForAuthPublicMode);
+  }
 
   return pages;
 }
@@ -70,6 +79,8 @@ export function Sidebar({ children, ...props }: Props) {
   const [sidebarHoverExpand, setSidebarHoverExpand] = useState(false);
   const [sidebarCollapseButtonHover, setSidebarCollapseButtonHover] = useState(false);
   const sidebarCollapseToggleLabel = sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
+  const signOut = useSignOut();
+  const { authStatus } = useAuth();
 
   useEffect(() => {
     if (sidebarCollapsed === undefined) {
@@ -150,12 +161,15 @@ export function Sidebar({ children, ...props }: Props) {
         </S.Nav>
 
         <S.Nav>
-          <S.NavItem>
-            <S.NavLink as="button" type="button" onClick={logOut}>
-              <FeatherIcon icon="log-out" />
-              <S.NavLinkLabel>Logout</S.NavLinkLabel>
-            </S.NavLink>
-          </S.NavItem>
+          {authStatus === 'AUTHENTICATED' && (
+            <S.NavItem>
+              <S.NavLink as="button" type="button" onClick={signOut}>
+                <FeatherIcon icon="log-out" />
+                <S.NavLinkLabel>Logout</S.NavLinkLabel>
+              </S.NavLink>
+            </S.NavItem>
+          )}
+
           <S.NavItem>
             <ThemeToggle collapsed={sidebarCollapsed && !sidebarHoverExpand} />
           </S.NavItem>

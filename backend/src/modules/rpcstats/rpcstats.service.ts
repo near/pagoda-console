@@ -1,12 +1,9 @@
 import { DateTime } from 'luxon';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import {
-  DateTimeResolution,
-  EndpointMetricsResponseDto,
-  MetricGroupBy,
-} from './dto';
-import { Net } from '../alerts/types';
+import { Api } from '@pc/common/types/api';
+import { Net } from '@pc/database/clients/core';
+import { RpcStats } from '@pc/common/types/rpcstats';
 
 @Injectable()
 export class RpcStatsService {
@@ -17,9 +14,8 @@ export class RpcStatsService {
     apiKeyConsumerNames: Array<string>,
     startDateTime: DateTime,
     endDateTime: DateTime,
-    dateTimeResolution: DateTimeResolution,
-    grouping: MetricGroupBy[],
-  ): Promise<EndpointMetricsResponseDto> {
+    filter: Api.Query.Input<'/rpcstats/endpointMetrics'>['filter'],
+  ): Promise<Api.Query.Output<'/rpcstats/endpointMetrics'>> {
     const whereClause = this.determineWhereClause(
       network,
       apiKeyConsumerNames,
@@ -29,20 +25,19 @@ export class RpcStatsService {
 
     const groupBy: any = [];
     const orderBy: any = [];
-    if (grouping?.includes(MetricGroupBy.ENDPOINT)) {
+    if (filter.type === 'endpoint') {
       groupBy.push('endpointMethod');
       orderBy.push({ endpointMethod: 'asc' });
-    }
-    if (grouping?.includes(MetricGroupBy.DATE)) {
+    } else {
       groupBy.push('year', 'month', 'day');
       orderBy.push({ year: 'asc' }, { month: 'asc' }, { day: 'asc' });
-      if (dateTimeResolution === DateTimeResolution.ONE_HOUR) {
+      if (filter.dateTimeResolution === 'ONE_HOUR') {
         groupBy.push('hour24');
         orderBy.push({ hour24: 'asc' });
-      } else if (dateTimeResolution === DateTimeResolution.ONE_MINUTE) {
+      } else if (filter.dateTimeResolution === 'ONE_MINUTE') {
         groupBy.push('hour24', 'minute');
         orderBy.push({ hour24: 'asc' }, { minute: 'asc' });
-      } else if (dateTimeResolution === DateTimeResolution.FIFTEEN_SECONDS) {
+      } else if (filter.dateTimeResolution === 'FIFTEEN_SECONDS') {
         groupBy.push('hour24', 'minute', 'quarterMinute');
         orderBy.push(
           { hour24: 'asc' },
@@ -75,7 +70,12 @@ export class RpcStatsService {
     });
 
     const [metrics] = await Promise.all([listPromise]);
-    const page = metrics.map((m) => this.toDto(m, dateTimeResolution));
+    const page = metrics.map((m) =>
+      this.toDto(
+        m,
+        filter.type === 'date' ? filter.dateTimeResolution : undefined,
+      ),
+    );
     return {
       count: metrics.length, // no paging currently but maintaining the paging interface in case it's needed
       page,
@@ -83,7 +83,7 @@ export class RpcStatsService {
   }
 
   private dateTimePartsToResolution(
-    dateTimeResolution: DateTimeResolution,
+    dateTimeResolution: RpcStats.DateTimeResolution,
     dateTimeParts: {
       year: number;
       month: number;
@@ -102,7 +102,7 @@ export class RpcStatsService {
       quarterMinute,
     } = dateTimeParts;
     switch (dateTimeResolution) {
-      case DateTimeResolution.FIFTEEN_SECONDS:
+      case 'FIFTEEN_SECONDS':
         const secondsInQuarterMinute = quarterMinute! * 15;
         return DateTime.fromObject(
           {
@@ -116,16 +116,16 @@ export class RpcStatsService {
           { zone: 'UTC' },
         );
         break;
-      case DateTimeResolution.ONE_MINUTE:
+      case 'ONE_MINUTE':
         return DateTime.fromObject(
           { year, month, day, hour, minute },
           { zone: 'UTC' },
         );
         break;
-      case DateTimeResolution.ONE_HOUR:
+      case 'ONE_HOUR':
         return DateTime.fromObject({ year, month, day, hour }, { zone: 'UTC' });
         break;
-      case DateTimeResolution.ONE_DAY:
+      case 'ONE_DAY':
         return DateTime.fromObject({ year, month, day }, { zone: 'UTC' });
         break;
       default:
@@ -133,7 +133,10 @@ export class RpcStatsService {
     }
   }
 
-  private toDto(aggregatedMetricRow, dateTimeResolution: DateTimeResolution) {
+  private toDto(
+    aggregatedMetricRow,
+    dateTimeResolution?: RpcStats.DateTimeResolution,
+  ) {
     const { apiKeyIdentifier, endpointMethod, network } = aggregatedMetricRow;
 
     const dto = {
