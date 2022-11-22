@@ -17,7 +17,7 @@ model Repository {
   slug                 String                 @unique
   projectSlug          String
   environmentSubId     Int
-  githubRepoFullName   String
+  githubRepoFullName   String                 @unique         
   ContractDeployConfig ContractDeployConfig[]
   RepoDeployment       RepoDeployment[]
   enabled              Boolean                @default(true)
