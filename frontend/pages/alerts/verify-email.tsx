@@ -1,9 +1,10 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
+import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { unauthenticatedPost } from '@/utils/http';
@@ -14,13 +15,17 @@ const Verification: NextPageWithLayout = () => {
   const [error, setError] = useState('');
   const router = useRouter();
   const { token } = router.query;
+  const hasSentRequest = useRef(false);
 
   useEffect(() => {
     if (typeof token !== 'string') {
       return;
     }
 
-    sendVerification(token);
+    if (!hasSentRequest.current) {
+      sendVerification(token);
+      hasSentRequest.current = true;
+    }
   }, [token]);
 
   async function sendVerification(token: string) {
@@ -37,13 +42,15 @@ const Verification: NextPageWithLayout = () => {
   }
 
   return (
-    <Container size="s">
-      <Flex stack align="center">
-        {!verificationMessage && !error && <Spinner size="m" />}
-        {error && <Message content={error} type="error" />}
-        {verificationMessage && <Message content={verificationMessage} type="success" />}
-      </Flex>
-    </Container>
+    <Section>
+      <Container size="s">
+        <Flex stack align="center">
+          {!verificationMessage && !error && <Spinner size="m" />}
+          {error && <Message content={error} type="error" />}
+          {verificationMessage && <Message content={verificationMessage} type="success" />}
+        </Flex>
+      </Container>
+    </Section>
   );
 };
 

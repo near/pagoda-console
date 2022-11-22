@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react';
+import type { Api } from '@pc/common/types/api';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import type { KeyedMutator } from 'swr';
 
 import { Button } from '@/components/lib/Button';
 import * as Dialog from '@/components/lib/Dialog';
@@ -12,31 +14,36 @@ import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { formValidations } from '@/utils/constants';
+import { StableId } from '@/utils/stable-ids';
+import type { MapDiscriminatedUnion } from '@/utils/types';
 
 import { updateDestination, useDestinations } from '../hooks/destinations';
 import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
 import { destinationTypes } from '../utils/constants';
-import type { Destination } from '../utils/types';
 import { DeleteDestinationModal } from './DeleteDestinationModal';
 import { EmailDestinationVerification } from './EmailDestinationVerification';
 import { TelegramDestinationVerification } from './TelegramDestinationVerification';
 import { WebhookDestinationSecret } from './WebhookDestinationSecret';
 
-interface Props {
-  destination: Destination;
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
+type DestinationType = Destination['type'];
+type MappedDestination<K extends DestinationType> = MapDiscriminatedUnion<Destination, 'type'>[K];
+
+interface Props<K extends DestinationType> {
+  destination: MappedDestination<K>;
   show: boolean;
   setShow: (show: boolean) => void;
 }
 
-interface FormProps extends Props {
-  onUpdate: (destination: Destination) => void;
+interface FormProps<K extends DestinationType> extends Props<K> {
+  onUpdate: (destination: MappedDestination<K>) => void;
 }
 
-interface WebhookFormProps extends FormProps {
-  onSecretRotate: (destination: Destination) => void;
+interface WebhookFormProps extends FormProps<'WEBHOOK'> {
+  onSecretRotate: (destination: MappedDestination<'WEBHOOK'>) => void;
 }
 
-export function EditDestinationModal(props: Props) {
+export function EditDestinationModal<K extends DestinationType>(props: Props<K>) {
   return (
     <Dialog.Root open={props.show} onOpenChange={props.setShow}>
       <Dialog.Content title="Edit Destination" size="m">
@@ -51,12 +58,16 @@ export function EditDestinationModal(props: Props) {
   );
 }
 
-function ModalContent(props: Props) {
+function ModalContent<K extends DestinationType>(props: Props<K>) {
   const { mutate } = useDestinations(props.destination.projectSlug);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const destinationType = destinationTypes[props.destination.type];
 
-  useVerifyDestinationInterval(props.destination, mutate, props.setShow);
+  useVerifyDestinationInterval<Destination>(
+    props.destination,
+    mutate as unknown as KeyedMutator<Destination[]>,
+    useCallback(() => props.setShow(false), [props]),
+  );
 
   function onDelete() {
     mutate((data) => {
@@ -66,7 +77,7 @@ function ModalContent(props: Props) {
     props.setShow(false);
   }
 
-  function onUpdate(updated: Destination) {
+  function onUpdate(updated: MappedDestination<K>) {
     mutate((destinations) => {
       return destinations?.map((d) => {
         if (d.id === updated.id) {
@@ -116,23 +127,40 @@ function ModalContent(props: Props) {
               <H5>{destinationType.name}</H5>
 
               <Text family="code" size="bodySmall">
-                {props.destination.type === 'TELEGRAM' && props.destination.config.chatTitle}
-                {props.destination.type === 'WEBHOOK' && props.destination.config.url}
-                {props.destination.type === 'EMAIL' && props.destination.config.email}
+                {props.destination.type === 'TELEGRAM' && (props as Props<'TELEGRAM'>).destination.config.chatTitle}
+                {props.destination.type === 'WEBHOOK' && (props as Props<'WEBHOOK'>).destination.config.url}
+                {props.destination.type === 'EMAIL' && (props as Props<'EMAIL'>).destination.config.email}
               </Text>
             </Flex>
           </Flex>
 
-          <Button size="s" aria-label="Delete Destination" color="danger" onClick={() => setShowDeleteModal(true)}>
+          <Button
+            stableId={StableId.EDIT_DESTINATION_MODAL_OPEN_DELETE_MODAL_BUTTON}
+            size="s"
+            aria-label="Delete Destination"
+            color="danger"
+            onClick={() => setShowDeleteModal(true)}
+          >
             <FeatherIcon icon="trash-2" size="xs" />
           </Button>
         </Flex>
 
-        {props.destination.type === 'TELEGRAM' && <TelegramDestinationForm onUpdate={onUpdate} {...props} />}
-        {props.destination.type === 'WEBHOOK' && (
-          <WebhookDestinationForm onUpdate={onUpdate} onSecretRotate={onWebhookSecretRotate} {...props} />
+        {props.destination.type === 'TELEGRAM' && (
+          <TelegramDestinationForm
+            onUpdate={onUpdate as FormProps<'TELEGRAM'>['onUpdate']}
+            {...(props as Props<'TELEGRAM'>)}
+          />
         )}
-        {props.destination.type === 'EMAIL' && <EmailDestinationForm onUpdate={onUpdate} {...props} />}
+        {props.destination.type === 'WEBHOOK' && (
+          <WebhookDestinationForm
+            onUpdate={onUpdate as FormProps<'WEBHOOK'>['onUpdate']}
+            onSecretRotate={onWebhookSecretRotate}
+            {...(props as Props<'WEBHOOK'>)}
+          />
+        )}
+        {props.destination.type === 'EMAIL' && (
+          <EmailDestinationForm onUpdate={onUpdate as FormProps<'EMAIL'>['onUpdate']} {...(props as Props<'EMAIL'>)} />
+        )}
       </Flex>
 
       <DeleteDestinationModal
@@ -149,21 +177,25 @@ interface TelegramFormData {
   name: string;
 }
 
-function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps) {
+function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps<'TELEGRAM'>) {
   if (destination.type !== 'TELEGRAM') throw new Error('Invalid destination for TelegramDestinationForm');
 
   const { formState, setValue, register, handleSubmit } = useForm<TelegramFormData>();
 
   useEffect(() => {
-    setValue('name', destination.name);
+    if (destination.name) {
+      setValue('name', destination.name);
+    }
   }, [setValue, destination]);
 
   async function submitForm(data: TelegramFormData) {
     try {
-      const updated = await updateDestination({
+      const updated = await updateDestination<'TELEGRAM'>({
         id: destination.id,
-        type: destination.type,
         name: data.name,
+        config: {
+          type: 'TELEGRAM',
+        },
       });
 
       onUpdate(updated);
@@ -206,10 +238,18 @@ function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps) 
         </Flex>
 
         <Flex justify="spaceBetween" align="center">
-          <Button type="submit" loading={formState.isSubmitting}>
+          <Button
+            stableId={StableId.EDIT_DESTINATION_MODAL_UPDATE_BUTTON}
+            type="submit"
+            loading={formState.isSubmitting}
+          >
             Update
           </Button>
-          <TextButton color="neutral" onClick={() => setShow(false)}>
+          <TextButton
+            stableId={StableId.EDIT_DESTINATION_MODAL_CANCEL_BUTTON}
+            color="neutral"
+            onClick={() => setShow(false)}
+          >
             Cancel
           </TextButton>
         </Flex>
@@ -229,17 +269,19 @@ function WebhookDestinationForm({ destination, onUpdate, setShow, onSecretRotate
   const { formState, setValue, register, handleSubmit } = useForm<WebhookFormData>();
 
   useEffect(() => {
-    setValue('name', destination.name);
+    if (destination.name) {
+      setValue('name', destination.name);
+    }
     setValue('url', destination.config.url);
   }, [setValue, destination]);
 
   async function submitForm(data: WebhookFormData) {
     try {
-      const updated = await updateDestination({
+      const updated = await updateDestination<'WEBHOOK'>({
         id: destination.id,
-        type: destination.type,
         name: data.name,
         config: {
+          type: 'WEBHOOK',
           url: data.url,
         },
       });
@@ -291,10 +333,18 @@ function WebhookDestinationForm({ destination, onUpdate, setShow, onSecretRotate
         </Flex>
 
         <Flex justify="spaceBetween" align="center">
-          <Button type="submit" loading={formState.isSubmitting}>
+          <Button
+            stableId={StableId.EDIT_DESTINATION_MODAL_UPDATE_BUTTON}
+            type="submit"
+            loading={formState.isSubmitting}
+          >
             Update
           </Button>
-          <TextButton color="neutral" onClick={() => setShow(false)}>
+          <TextButton
+            stableId={StableId.EDIT_DESTINATION_MODAL_CANCEL_BUTTON}
+            color="neutral"
+            onClick={() => setShow(false)}
+          >
             Cancel
           </TextButton>
         </Flex>
@@ -307,21 +357,25 @@ interface EmailFormData {
   name: string;
 }
 
-function EmailDestinationForm({ destination, onUpdate, setShow }: FormProps) {
+function EmailDestinationForm({ destination, onUpdate, setShow }: FormProps<'EMAIL'>) {
   if (destination.type !== 'EMAIL') throw new Error('Invalid destination for EmailDestinationForm');
 
   const { formState, setValue, register, handleSubmit } = useForm<EmailFormData>();
 
   useEffect(() => {
-    setValue('name', destination.name);
+    if (destination.name) {
+      setValue('name', destination.name);
+    }
   }, [setValue, destination]);
 
   async function submitForm(data: EmailFormData) {
     try {
-      const updated = await updateDestination({
+      const updated = await updateDestination<'EMAIL'>({
         id: destination.id,
-        type: destination.type,
         name: data.name,
+        config: {
+          type: 'EMAIL',
+        },
       });
 
       onUpdate(updated);
@@ -364,10 +418,18 @@ function EmailDestinationForm({ destination, onUpdate, setShow }: FormProps) {
         </Flex>
 
         <Flex justify="spaceBetween" align="center">
-          <Button type="submit" loading={formState.isSubmitting}>
+          <Button
+            stableId={StableId.EDIT_DESTINATION_MODAL_UPDATE_BUTTON}
+            type="submit"
+            loading={formState.isSubmitting}
+          >
             Update
           </Button>
-          <TextButton color="neutral" onClick={() => setShow(false)}>
+          <TextButton
+            stableId={StableId.EDIT_DESTINATION_MODAL_CANCEL_BUTTON}
+            color="neutral"
+            onClick={() => setShow(false)}
+          >
             Cancel
           </TextButton>
         </Flex>

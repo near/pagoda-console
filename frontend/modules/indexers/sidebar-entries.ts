@@ -6,11 +6,12 @@
 //
 // Available icons: https://feathericons.com/
 
-import type { SidebarEntry } from '@/shared/utils/types';
+import type { SidebarEntry } from '@/components/layouts/DashboardLayout/Sidebar';
+import { StableId } from '@/utils/stable-ids';
 
 const entries: SidebarEntry[] = [
   //e.g. { display: 'Security', route: `/security`, icon: 'lock' },
-  { display: 'Indexers', route: `/indexers`, icon: 'database' },
+  { display: 'Indexers', route: `/indexers`, icon: 'database', stableId: StableId.SIDEBAR_INDEXERS_LINK },
 ];
 
 // uses default export instead of named export to avoid collisions when

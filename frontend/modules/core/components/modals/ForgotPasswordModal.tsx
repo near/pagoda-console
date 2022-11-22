@@ -1,4 +1,3 @@
-import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 import { useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
@@ -10,8 +9,10 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
+import { resetPassword } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
+import { StableId } from '@/utils/stable-ids';
 
 interface ForgotPasswordFormData {
   email: string;
@@ -23,13 +24,12 @@ interface Props {
 }
 
 const ModalContent = ({ setShow }: Props) => {
-  const { register, handleSubmit, formState, setError, getValues } = useForm<ForgotPasswordFormData>();
+  const { register, handleSubmit, formState, setError } = useForm<ForgotPasswordFormData>();
   const [hasSent, setHasSent] = useState(false);
 
   const sendPasswordReset: SubmitHandler<ForgotPasswordFormData> = async ({ email }) => {
     try {
-      const auth = getAuth();
-      await sendPasswordResetEmail(auth, email);
+      await resetPassword(email);
       analytics.track('DC Forgot Password', {
         status: 'success',
       });
@@ -43,15 +43,9 @@ const ModalContent = ({ setShow }: Props) => {
       });
 
       switch (e.code) {
-        case 'auth/missing-email':
-        case 'auth/invalid-email':
+        case 400:
           setError('email', {
             message: 'Please enter a valid email address',
-          });
-          break;
-        case 'auth/user-not-found':
-          setError('email', {
-            message: 'User not found',
           });
           break;
         default:
@@ -70,13 +64,12 @@ const ModalContent = ({ setShow }: Props) => {
           <FeatherIcon icon="check-circle" color="success" size="l" />
 
           <Text>
-            A reset email has been sent to your address:{' '}
-            <Text as="span" color="text1">
-              {getValues('email')}
-            </Text>
+            If an account is associated to this email, you will receive an email with a link to reset your password.
           </Text>
 
-          <Button onClick={() => setShow(false)}>Okay</Button>
+          <Button stableId={StableId.FORGOT_PASSWORD_MODAL_FINISH_BUTTON} onClick={() => setShow(false)}>
+            Okay
+          </Button>
         </Flex>
       ) : (
         <Flex stack>
@@ -93,8 +86,14 @@ const ModalContent = ({ setShow }: Props) => {
           </Form.Group>
 
           <Flex justify="spaceBetween" align="center">
-            <Button type="submit">Send</Button>
-            <TextButton color="neutral" onClick={() => setShow(false)}>
+            <Button stableId={StableId.FORGOT_PASSWORD_MODAL_SEND_RESET_EMAIL_BUTTON} type="submit">
+              Send
+            </Button>
+            <TextButton
+              stableId={StableId.FORGOT_PASSWORD_MODAL_CANCEL_BUTTON}
+              color="neutral"
+              onClick={() => setShow(false)}
+            >
               Cancel
             </TextButton>
           </Flex>

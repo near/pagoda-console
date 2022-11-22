@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
@@ -8,10 +9,12 @@ import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { StableId } from '@/utils/stable-ids';
 
 import { destinationTypes } from '../utils/constants';
-import type { Destination } from '../utils/types';
 import { DeleteDestinationModal } from './DeleteDestinationModal';
+
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 export function DestinationTableRow({
   destination,
@@ -64,7 +67,13 @@ export function DestinationTableRow({
 
         <Table.Cell>
           <Tooltip content="Delete this destination">
-            <Button size="s" aria-label="Delete Destination" color="neutral" onClick={() => setShowDeleteModal(true)}>
+            <Button
+              stableId={StableId.DESTINATIONS_TABLE_ROW_OPEN_DELETE_MODAL_BUTTON}
+              size="s"
+              aria-label="Delete Destination"
+              color="neutral"
+              onClick={() => setShowDeleteModal(true)}
+            >
               <FeatherIcon icon="trash-2" size="xs" />
             </Button>
           </Tooltip>

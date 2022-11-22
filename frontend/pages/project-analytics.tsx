@@ -1,6 +1,7 @@
+import type { Api } from '@pc/common/types/api';
 import { iframeResizer } from 'iframe-resizer';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { ButtonLink } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
@@ -12,17 +13,22 @@ import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useContracts } from '@/hooks/contracts';
+import { usePublicOrPrivateContracts } from '@/hooks/contracts';
+import { useCurrentEnvironment } from '@/hooks/environments';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { useTheme } from '@/hooks/theme';
 import config from '@/utils/config';
-import type { Contract, Environment, NextPageWithLayout } from '@/utils/types';
+import { StableId } from '@/utils/stable-ids';
+import type { NextPageWithLayout } from '@/utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => {
-  const { environment, project } = useSelectedProject();
-  const { contracts } = useContracts(project?.slug, environment?.subId);
+  const { project } = useSelectedProject();
+  const { environment } = useCurrentEnvironment();
+  const { contracts: privateContracts } = useContracts(project?.slug, environment?.subId);
+  const { contracts } = usePublicOrPrivateContracts(privateContracts);
 
-  if (!environment || !contracts || !project) {
+  if (!environment || !contracts) {
     return <Spinner center />;
   }
 
@@ -37,11 +43,19 @@ const ProjectAnalytics: NextPageWithLayout = () => {
   );
 };
 
-function AnalyticsIframe({ environment, contracts }: { environment: Environment; contracts: Contract[] }) {
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
+type Project = Api.Query.Output<'/projects/getContracts'>;
+
+function AnalyticsIframe({ environment, contracts }: { environment: Environment; contracts: Project }) {
   const { activeTheme } = useTheme();
+  const iframeId = 'analytics-iframe';
+  const initialized = useRef(false);
 
   useEffect(() => {
-    iframeResizer({}, 'iframe');
+    if (!initialized.current) {
+      iframeResizer({}, `#${iframeId}`);
+      initialized.current = true;
+    }
   }, []);
 
   const themeParam = activeTheme === 'dark' ? '#theme=night' : '';
@@ -53,6 +67,7 @@ function AnalyticsIframe({ environment, contracts }: { environment: Environment;
 
   return (
     <iframe
+      id={iframeId}
       src={iframeUrl}
       frameBorder="0"
       style={{
@@ -73,13 +88,13 @@ function NoContractsNotice() {
           <Text>
             Your selected project and environment doesn&apos;t have any saved contracts yet. Visit the{' '}
             <Link href="/contracts" passHref>
-              <TextLink>Contracts</TextLink>
+              <TextLink stableId={StableId.PROJECT_ANALYTICS_NO_CONTRACTS_LINK}>Contracts</TextLink>
             </Link>{' '}
             page to add a contract.
           </Text>
 
           <Link href="/contracts" passHref>
-            <ButtonLink>
+            <ButtonLink stableId={StableId.PROJECT_ANALYTICS_NO_CONTRACTS_BUTTON_LINK}>
               <FeatherIcon icon="zap" />
               Contracts
             </ButtonLink>

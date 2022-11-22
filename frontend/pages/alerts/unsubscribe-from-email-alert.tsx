@@ -1,9 +1,10 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
+import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { unauthenticatedPost } from '@/utils/http';
@@ -14,13 +15,17 @@ const Unsubscribe: NextPageWithLayout = () => {
   const [error, setError] = useState('');
   const router = useRouter();
   const { token } = router.query;
+  const hasSentRequest = useRef(false);
 
   useEffect(() => {
     if (typeof token !== 'string') {
       return;
     }
 
-    sendUnsubscribeRequest(token);
+    if (!hasSentRequest.current) {
+      sendUnsubscribeRequest(token);
+      hasSentRequest.current = true;
+    }
   }, [token]);
 
   async function sendUnsubscribeRequest(token: string) {
@@ -36,13 +41,15 @@ const Unsubscribe: NextPageWithLayout = () => {
   }
 
   return (
-    <Container size="s">
-      <Flex stack align="center">
-        {!unsubscribeMessage && !error && <Spinner size="m" />}
-        {error && <Message content={error} type="error" />}
-        {unsubscribeMessage && <Message content={unsubscribeMessage} type="success" />}
-      </Flex>
-    </Container>
+    <Section>
+      <Container size="s">
+        <Flex stack align="center">
+          {!unsubscribeMessage && !error && <Spinner size="m" />}
+          {error && <Message content={error} type="error" />}
+          {unsubscribeMessage && <Message content={unsubscribeMessage} type="success" />}
+        </Flex>
+      </Container>
+    </Section>
   );
 };
 

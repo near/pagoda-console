@@ -1,3 +1,4 @@
+import type { Alerts, TriggeredAlerts } from '@pc/common/types/alerts';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -21,11 +22,17 @@ import { useSelectedProject, useSelectedProjectSync } from '@/hooks/selected-pro
 import { useAlert } from '@/modules/alerts/hooks/alerts';
 import { useTriggeredAlertDetails } from '@/modules/alerts/hooks/triggered-alerts';
 import { alertTypes } from '@/modules/alerts/utils/constants';
-import type { Alert, TriggeredAlert } from '@/modules/alerts/utils/types';
 import config from '@/utils/config';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
-function LabelAndValue(props: { label: string; value: string; linkToExplorer?: string }) {
+function LabelAndValue(props: {
+  label: string;
+  value: string;
+  linkToExplorer?: string;
+  explorerLinkStableId?: StableId;
+  copyButtonStableId?: StableId;
+}) {
   return (
     <Flex align="center" justify="start">
       <Text size="bodySmall" color="text1" css={{ minWidth: '10rem' }}>
@@ -34,10 +41,16 @@ function LabelAndValue(props: { label: string; value: string; linkToExplorer?: s
       <Flex align="center" justify="end" css={{ minWidth: 0 }}>
         {props.linkToExplorer ? (
           <>
-            <TextLink size="s" external href={props.linkToExplorer} css={{ minWidth: 0 }}>
+            <TextLink
+              stableId={props.explorerLinkStableId!}
+              size="s"
+              external
+              href={props.linkToExplorer}
+              css={{ minWidth: 0 }}
+            >
               <TextOverflow>{props.value}</TextOverflow>
             </TextLink>
-            <CopyButton value={props.value} />
+            <CopyButton stableId={props.copyButtonStableId!} value={props.value} />
           </>
         ) : (
           <Text color="text1" weight="semibold">
@@ -59,12 +72,12 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
 
   useSelectedProjectSync(alert?.environmentSubId, alert?.projectSlug);
 
-  function alertType(triggeredAlert: TriggeredAlert) {
+  function alertType(triggeredAlert: TriggeredAlerts.TriggeredAlert) {
     if (!triggeredAlert) return alertTypes.EVENT;
     return alertTypes[triggeredAlert.type];
   }
 
-  function alertContract(alert: Alert) {
+  function alertContract(alert: Alerts.Alert) {
     return alert?.rule?.contract;
   }
 
@@ -76,7 +89,7 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
     <Section>
       <Flex gap="l" stack={{ '@laptop': true }}>
         <Link href="/alerts?tab=activity" passHref>
-          <TextLink>
+          <TextLink stableId={StableId.TRIGGERED_ALERT_BACK_TO_ACTIVITY_LINK}>
             <FeatherIcon icon="arrow-left" />
             Activity
           </TextLink>
@@ -116,7 +129,11 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
                       </Flex>
 
                       <Link href={`/alerts/edit-alert/${alert.id}`} passHref>
-                        <ButtonLink size="s" aria-label="View alert configuration">
+                        <ButtonLink
+                          stableId={StableId.TRIGGERED_ALERT_EDIT_LINK}
+                          size="s"
+                          aria-label="View alert configuration"
+                        >
                           <FeatherIcon icon="settings" size="xs" />
                           Edit Alert
                         </ButtonLink>
@@ -128,22 +145,32 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
 
                   <LabelAndValue label="Alert Triggered at" value={triggeredAtDateFormatted} />
 
-                  <LabelAndValue
-                    label="Transaction Hash"
-                    value={triggeredAlert.triggeredInTransactionHash}
-                    linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlert.triggeredInTransactionHash}`}
-                  />
+                  {triggeredAlert.triggeredInTransactionHash ? (
+                    <LabelAndValue
+                      label="Transaction Hash"
+                      value={triggeredAlert.triggeredInTransactionHash}
+                      linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlert.triggeredInTransactionHash}`}
+                      copyButtonStableId={StableId.TRIGGERED_ALERT_COPY_TRANSACTION_HASH_BUTTON}
+                      explorerLinkStableId={StableId.TRIGGERED_ALERT_TRANSACTION_HASH_LINK}
+                    />
+                  ) : null}
 
-                  <LabelAndValue
-                    label="Receipt ID"
-                    value={triggeredAlert.triggeredInReceiptId}
-                    linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlert.triggeredInTransactionHash}#${triggeredAlert.triggeredInReceiptId}`}
-                  />
+                  {triggeredAlert.triggeredInReceiptId ? (
+                    <LabelAndValue
+                      label="Receipt ID"
+                      value={triggeredAlert.triggeredInReceiptId}
+                      linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlert.triggeredInTransactionHash}#${triggeredAlert.triggeredInReceiptId}`}
+                      copyButtonStableId={StableId.TRIGGERED_ALERT_COPY_RECEIPT_ID_BUTTON}
+                      explorerLinkStableId={StableId.TRIGGERED_ALERT_RECEIPT_ID_LINK}
+                    />
+                  ) : null}
 
                   <LabelAndValue
                     label="Block Hash"
                     value={triggeredAlert.triggeredInBlockHash}
                     linkToExplorer={`${baseExplorerUrl}/blocks/${triggeredAlert.triggeredInBlockHash}`}
+                    copyButtonStableId={StableId.TRIGGERED_ALERT_COPY_BLOCK_HASH_BUTTON}
+                    explorerLinkStableId={StableId.TRIGGERED_ALERT_BLOCK_HASH_LINK}
                   />
 
                   <LabelAndValue label="Triggered Alert ID" value={triggeredAlert.slug} />

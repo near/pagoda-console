@@ -1,4 +1,4 @@
-import { User } from '@/generated/prisma/core';
+import { User } from '@pc/database/clients/core';
 import { Injectable } from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
 import { VError } from 'verror';
@@ -35,7 +35,7 @@ export class ApiKeysService {
           updatedBy: userId,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while generating key');
     }
 
@@ -54,7 +54,7 @@ export class ApiKeysService {
       await this.provisioningService.generate(kongConsumerName, slug);
 
       return await this.getKey(slug);
-    } catch (e) {
+    } catch (e: any) {
       //rolling back if failed to generate keys in the provisioning service
       try {
         await this.prisma.apiKey.delete({
@@ -62,7 +62,7 @@ export class ApiKeysService {
             slug,
           },
         });
-      } catch (e) {
+      } catch (e: any) {
         throw new VError(
           e,
           'Failed while rolling back after failed keys generation',
@@ -107,7 +107,7 @@ export class ApiKeysService {
         },
       });
       return await this.getKey(slug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while rotating key in provisioning service');
     }
   }
@@ -141,7 +141,7 @@ export class ApiKeysService {
 
     try {
       await this.provisioningService.delete(kongConsumerName, slug);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while deleting key in provisioning service');
     }
 
@@ -155,7 +155,7 @@ export class ApiKeysService {
           updatedBy: userId,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while deleting key');
     }
   }
@@ -189,7 +189,7 @@ export class ApiKeysService {
         key: string;
         kongConsumerName: string;
       }[] = [];
-      const keyPromises = [];
+      const keyPromises: Promise<void>[] = [];
       projectKeySlugs.forEach((el) => {
         keyPromises.push(
           this.provisioningService.fetch(el.slug).then((key) => {
@@ -209,7 +209,7 @@ export class ApiKeysService {
       return keys
         .sort((a, b) => a.id - b.id) // sorting in ascending order by id
         .map(({ id: _id, ...el }) => el); // cutting out the id
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while getting keys');
     }
   }
@@ -225,7 +225,7 @@ export class ApiKeysService {
           description: true,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while getting a key from DB');
     }
 
@@ -235,8 +235,12 @@ export class ApiKeysService {
 
     try {
       const key = await this.provisioningService.fetch(slug);
-      return { keySlug: slug, description: keyDetails.description, key };
-    } catch (e) {
+      return {
+        keySlug: slug,
+        description: keyDetails.description,
+        key,
+      };
+    } catch (e: any) {
       throw new VError(e, 'Failed while getting a key');
     }
   }
@@ -266,7 +270,7 @@ export class ApiKeysService {
       );
 
       await this.provisioningService.deleteOrganization(kongConsumerName);
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while deleting org');
     }
   }
@@ -284,7 +288,7 @@ export class ApiKeysService {
           active: true,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, `Failed to get api key details for keySlug ${slug}`);
     }
     return keyDetails;
@@ -306,7 +310,7 @@ export class ApiKeysService {
         return [];
       }
 
-      const keyPromises = [];
+      const keyPromises: Promise<void>[] = [];
       projectKeySlugs.forEach((el) => {
         keyPromises.push(this.deleteKey(userId, el.orgSlug, el.slug));
       });
@@ -333,14 +337,14 @@ export class ApiKeysService {
 
   private async getKongConsumerName(orgSlug: string) {
     try {
-      const res = await this.prisma.org.findFirst({
+      const res = (await this.prisma.org.findFirst({
         where: {
           slug: orgSlug,
         },
         select: {
           emsId: true,
         },
-      });
+      }))!;
       return res.emsId;
     } catch (e) {
       throw new VError('Getting emsId from org table failed', e);

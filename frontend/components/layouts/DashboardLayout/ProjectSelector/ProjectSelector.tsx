@@ -7,20 +7,21 @@ import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { useProjectGroups } from '@/hooks/projects';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
-import type { Project } from '@/utils/types';
+import { StableId } from '@/utils/stable-ids';
 
 interface Props {
   onBeforeChange?: (change: () => void) => void;
 }
 
 export function ProjectSelector(props: Props) {
-  const { project, selectProject } = useSelectedProject();
+  const { project } = useSelectedProject({ enforceSelectedProject: false });
+  const { selectProject } = useProjectSelector();
   const { projectGroups } = useProjectGroups();
   const router = useRouter();
 
-  function onSelectProject(project: Project) {
+  function onSelectProject(project: NonNullable<typeof projectGroups>[number][1][number]) {
     if (props.onBeforeChange) {
       props.onBeforeChange(() => {
         selectProject(project.slug);
@@ -44,47 +45,51 @@ export function ProjectSelector(props: Props) {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button css={{ width: '22rem', height: 'auto' }}>
+      <DropdownMenu.Button stableId={StableId.PROJECT_SELECTOR_DROPDOWN} css={{ width: '22rem', height: 'auto' }}>
         <TextOverflow>{project?.name || '...'}</TextOverflow>
       </DropdownMenu.Button>
 
       <DropdownMenu.Content width="trigger" innerCss={{ padding: 0, borderRadius: 'inherit' }}>
-        <Flex
-          css={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'stretch',
-            gap: 'var(--space-m)',
-            padding: 'var(--space-s)',
-          }}
-        >
-          {projectGroups?.map(([orgName, projects]) => {
-            return (
-              <div key={orgName}>
-                <DropdownMenu.ContentItem css={{ paddingBottom: 0 }}>
-                  <Text size="bodySmall" color="text3" css={{ textTransform: 'uppercase' }}>
-                    {orgName}
-                  </Text>
-                </DropdownMenu.ContentItem>
-                {projects.map((project) => (
-                  <DropdownMenu.Item key={project.id} onSelect={() => onSelectProject(project)}>
-                    {project.name}
-                    {project.tutorial && <Badge size="s">Tutorial</Badge>}
-                  </DropdownMenu.Item>
-                ))}
-              </div>
-            );
-          })}
-        </Flex>
+        {projectGroups && projectGroups.length > 0 && (
+          <Flex
+            css={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'stretch',
+              gap: 'var(--space-m)',
+              padding: 'var(--space-s)',
+            }}
+          >
+            {projectGroups?.map(([orgName, projects]) => {
+              return (
+                <div key={orgName}>
+                  <DropdownMenu.ContentItem css={{ paddingBottom: 0 }}>
+                    <Text size="bodySmall" color="text3" css={{ textTransform: 'uppercase' }}>
+                      {orgName}
+                    </Text>
+                  </DropdownMenu.ContentItem>
+                  {projects.map((project) => (
+                    <DropdownMenu.Item key={project.id} onSelect={() => onSelectProject(project)}>
+                      {project.name}
+                      {project.tutorial && <Badge size="s">Tutorial</Badge>}
+                    </DropdownMenu.Item>
+                  ))}
+                </div>
+              );
+            })}
+          </Flex>
+        )}
 
         <Flex
           css={{
             position: 'sticky',
             bottom: 0,
             background: 'var(--background-color)',
-            borderTop: 'solid 1px var(--color-border-1)',
-            marginTop: 'var(--space-s)',
             padding: 'var(--space-s)',
+
+            '&:not(:first-child)': {
+              borderTop: 'solid 1px var(--color-border-1)',
+            },
           }}
         >
           <DropdownMenu.Item

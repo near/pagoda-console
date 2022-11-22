@@ -1,7 +1,7 @@
-import { Abi } from '@/generated/prisma/abi';
-import { User } from '@/generated/prisma/core';
+import { Abi } from '@pc/database/clients/abi';
+import { User } from '@pc/database/clients/core';
 import { Injectable } from '@nestjs/common';
-import { ABI } from './abi';
+import type { AbiRoot } from 'near-abi-client-js';
 import { PrismaService } from './prisma.service';
 import { PermissionsService as ProjectPermissionsService } from '../../core/projects/permissions.service';
 import { VError } from 'verror';
@@ -16,14 +16,14 @@ export class AbiService {
   async addContractAbi(
     user: User,
     contractSlug: Abi['contractSlug'],
-    abi: ABI,
+    abi: AbiRoot,
   ) {
     await this.projectPermissions.checkUserContractPermission(
       user.id,
       contractSlug,
     );
 
-    let createdAbi;
+    let createdAbi: Abi;
     try {
       createdAbi = await this.prisma.abi.create({
         data: {
@@ -32,11 +32,14 @@ export class AbiService {
           createdBy: user.id,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while creating abi');
     }
 
-    return { contractSlug, abi: createdAbi.abi };
+    return {
+      contractSlug,
+      abi: createdAbi.abi as unknown as AbiRoot,
+    };
   }
 
   async getContractAbi(user: User, contractSlug: Abi['contractSlug']) {
@@ -45,7 +48,7 @@ export class AbiService {
       contractSlug,
     );
 
-    let abi;
+    let abi: Pick<Abi, 'abi' | 'contractSlug'> | null = null;
     try {
       abi = await this.prisma.abi.findFirst({
         where: {
@@ -59,7 +62,7 @@ export class AbiService {
           id: 'desc',
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       throw new VError(e, 'Failed while getting ABI');
     }
 
@@ -75,6 +78,9 @@ export class AbiService {
       );
     }
 
-    return abi;
+    return {
+      contractSlug: abi.contractSlug,
+      abi: abi.abi as unknown as AbiRoot,
+    };
   }
 }

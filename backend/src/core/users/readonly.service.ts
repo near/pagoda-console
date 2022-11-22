@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { Org, Team, User } from '@/generated/prisma/core';
+import { Org, Team, User } from '@pc/database/clients/core';
 import { VError } from 'verror';
 
 @Injectable()
@@ -8,7 +8,7 @@ export class ReadonlyService {
   constructor(private prisma: PrismaService) {}
 
   async getPersonalOrg(user: User): Promise<Pick<Org, 'slug' | 'name'>> {
-    const org = this.prisma.org.findUnique({
+    const org = await this.prisma.org.findUnique({
       where: {
         personalForUserId: user.id,
       },
@@ -25,7 +25,7 @@ export class ReadonlyService {
   }
 
   async getDefaultTeam(orgSlug: Org['slug']): Promise<Team> {
-    const team = this.prisma.team.findFirst({
+    const team = await this.prisma.team.findFirst({
       where: {
         name: {
           equals: 'default',

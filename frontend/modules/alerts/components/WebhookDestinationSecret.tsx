@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
@@ -7,13 +8,19 @@ import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { StableId } from '@/utils/stable-ids';
+import type { MapDiscriminatedUnion } from '@/utils/types';
 
 import { rotateWebhookDestinationSecret } from '../hooks/destinations';
-import type { Destination } from '../utils/types';
+
+type WebhookDestination = MapDiscriminatedUnion<
+  Api.Query.Output<'/alerts/listDestinations'>[number],
+  'type'
+>['WEBHOOK'];
 
 interface Props {
-  destination: Destination;
-  onRotate?: (d: Destination) => void;
+  destination: WebhookDestination;
+  onRotate?: (d: WebhookDestination) => void;
 }
 
 const ROTATION_WARNING =
@@ -35,13 +42,7 @@ export function WebhookDestinationSecret({ destination, onRotate }: Props) {
       setIsSending(true);
       const res = await rotateWebhookDestinationSecret(destination.id);
       if (res.type !== 'WEBHOOK') return;
-
-      const updated = {
-        ...destination,
-      };
-      updated.config.secret = res.config.secret;
-
-      onRotate(updated);
+      onRotate(res);
     } catch (e) {
       console.error('Failed to rotate webhook secret.', e);
       openToast({
@@ -68,9 +69,19 @@ export function WebhookDestinationSecret({ destination, onRotate }: Props) {
             <Text family="code" color="text1" weight="semibold">
               {authorizationHeader}
             </Text>
-            <CopyButton value={authorizationHeader} css={{ marginLeft: 'auto' }} color="transparent" />
+            <CopyButton
+              stableId={StableId.WEBHOOK_DESTINATION_SECRET_COPY_SECRET_BUTTON}
+              value={authorizationHeader}
+              css={{ marginLeft: 'auto' }}
+              color="transparent"
+            />
             {onRotate && (
-              <Button color="neutral" loading={isSending} onClick={() => setShowRotateConfirmModal(true)}>
+              <Button
+                stableId={StableId.WEBHOOK_DESTINATION_SECRET_ROTATE_SECRET_BUTTON}
+                color="neutral"
+                loading={isSending}
+                onClick={() => setShowRotateConfirmModal(true)}
+              >
                 Rotate
               </Button>
             )}

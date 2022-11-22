@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import Link from 'next/link';
 
 import { ButtonLink } from '@/components/lib/Button';
@@ -8,10 +9,13 @@ import { Spinner } from '@/components/lib/Spinner';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
-import type { Environment, Project } from '@/utils/types';
+import { StableId } from '@/utils/stable-ids';
 
 import { useAlerts } from '../hooks/alerts';
 import { AlertTableRow } from './AlertTableRow';
+
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
+type Project = Api.Query.Output<'/projects/getDetails'>;
 
 export function Alerts({ environment, project }: { environment?: Environment; project?: Project }) {
   const { alerts, mutate } = useAlerts(project?.slug, environment?.subId);
@@ -21,7 +25,7 @@ export function Alerts({ environment, project }: { environment?: Environment; pr
       <Flex justify="spaceBetween">
         <H1>Alerts</H1>
         <Link href="/alerts/new-alert" passHref>
-          <ButtonLink stableId="new-alert">
+          <ButtonLink stableId={StableId.ALERTS_NEW_ALERT_LINK}>
             <FeatherIcon icon="plus" /> New Alert
           </ButtonLink>
         </Link>

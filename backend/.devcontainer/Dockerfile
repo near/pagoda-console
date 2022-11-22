@@ -20,3 +20,5 @@ RUN su node -c "npm i -g @nestjs/cli"
 # RUN dpkg -i bat_0.18.3_amd64.deb
 
 ENV NODE_ENV=development
+
+RUN npm completion >> ~/.zshrc

@@ -1,10 +1,10 @@
-import type { NextRouter } from 'next/router';
-
-import type { Environment } from './types';
+import type { Api } from '@pc/common/types/api';
 
 export function assertUnreachable(x: never): never {
   throw new Error(`Unreachable Case: ${x}`);
 }
+
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 
 export function returnContractAddressRegex(environment?: Environment) {
   // https://docs.near.org/docs/concepts/account#account-id-rules
@@ -28,12 +28,6 @@ export function returnContractAddressRegex(environment?: Environment) {
   }
 
   return new RegExp(prefix + postfix);
-}
-
-export function signInRedirectHandler(router: NextRouter, defaultRedirectUrl: string) {
-  const redirectUrl = sessionStorage.getItem('signInRedirectUrl') || defaultRedirectUrl;
-  sessionStorage.removeItem('signInRedirectUrl');
-  router.push(redirectUrl);
 }
 
 export function sleep(ms: number) {

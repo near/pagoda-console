@@ -2,13 +2,11 @@ import '@/styles/reset.css';
 import '@/styles/fonts.css';
 import '@/styles/variables.css';
 import '@/styles/global.css';
-import '@near-wallet-selector/modal-ui/styles.css';
 import '@/styles/enhanced-api.scss';
-import '@near-wallet-selector/modal-ui/styles.css';
+import '@/styles/near-wallet-selector.scss';
 
 import * as FullStory from '@fullstory/browser';
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Gleap from 'gleap';
 import { withLDProvider } from 'launchdarkly-react-client-sdk';
 import type { AppProps } from 'next/app';
@@ -17,15 +15,17 @@ import { useRouter } from 'next/router';
 import { appWithTranslation } from 'next-i18next';
 import type { ComponentType } from 'react';
 import { useEffect } from 'react';
-import { SWRConfig, useSWRConfig } from 'swr';
+import { SWRConfig } from 'swr';
 
 import { SimpleLayout } from '@/components/layouts/SimpleLayout';
 import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
 import { Toaster } from '@/components/lib/Toast';
-import { usePageTracker } from '@/hooks/page-tracker';
-import { useAccount } from '@/hooks/user';
+import { useAnalytics } from '@/hooks/analytics';
+import { useAuth, useAuthSync } from '@/hooks/auth';
+import { useSelectedProjectRouteParamSync } from '@/hooks/selected-project';
 import { DowntimeMode } from '@/modules/core/components/DowntimeMode';
 import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
+import { useSettingsStore } from '@/stores/settings';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
 import config from '@/utils/config';
@@ -40,24 +40,24 @@ type AppPropsWithLayout = AppProps & {
 initializeApp(config.firebaseConfig);
 analytics.init();
 
-const unauthedPaths = [
-  '/',
-  '/register',
-  '/ui',
-  '/alerts/verify-email',
-  '/alerts/unsubscribe-from-email-alert',
-  '/pick-project-template/[templateSlug]',
-];
+if (typeof window !== 'undefined') {
+  FullStory.init({ orgId: 'o-1A5K4V-na1' });
+  if (config.gleapAuth) Gleap.initialize(config.gleapAuth);
+}
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
-  usePageTracker();
+  useAuthSync();
+  useSelectedProjectRouteParamSync();
+  useAnalytics();
+  const { identity } = useAuth();
   const router = useRouter();
-  const { user } = useAccount();
-  const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
+  const initializeCurrentUserSettings = useSettingsStore((store) => store.initializeCurrentUserSettings);
 
   useEffect(() => {
-    FullStory.init({ orgId: 'o-1A5K4V-na1' });
-  }, []);
+    if (identity?.uid) {
+      initializeCurrentUserSettings(identity.uid);
+    }
+  }, [initializeCurrentUserSettings, identity?.uid]);
 
   useEffect(() => {
     router.prefetch('/');
@@ -70,29 +70,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   useEffect(() => {
     initializeNaj();
   }, []);
-
-  useEffect(() => {
-    if (config.gleapAuth) Gleap.initialize(config.gleapAuth);
-  });
-
-  useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        analytics.identify(firebaseUser.uid, {
-          email: user?.email,
-          displayName: user?.name,
-          userId: user?.uid,
-        });
-      } else if (!firebaseUser && !unauthedPaths.includes(router.pathname)) {
-        analytics.reset();
-        cache.clear();
-        router.push('/');
-      }
-    });
-
-    return () => unsubscribe(); // TODO why lambda function?
-  }, [router, cache, user]);
 
   const getLayout = Component.getLayout ?? ((page) => page);
 

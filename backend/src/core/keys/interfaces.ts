@@ -7,6 +7,6 @@ export interface ApiKeysProvisioningServiceInterface {
   delete(kongConsumer: string, keySlug: string);
   deleteOrganization(kongConsumer: string);
   fetch(keySlug: string): Promise<string>;
-  fetchAll(kongConsumer: string): Promise<Array<string>>;
-  getOrganization(kongConsumer: string): Promise<Consumer>;
+  fetchAll(kongConsumer: string): Promise<Array<string> | undefined>;
+  getOrganization(kongConsumer: string): Promise<Consumer | null>;
 }

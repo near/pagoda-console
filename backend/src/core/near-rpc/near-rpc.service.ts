@@ -3,9 +3,9 @@ import { Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import { ConfigService } from '@nestjs/config';
 import { VError } from 'verror';
-import { Net } from '../../../generated/prisma/core';
+import { Net } from '@pc/database/clients/core';
 import { AppConfig } from '../../config/validate';
-import * as RPC from './types';
+import * as RPC from '@pc/common/types/rpc';
 
 type AccountStatus = 'EXISTS' | 'NOT_FOUND';
 

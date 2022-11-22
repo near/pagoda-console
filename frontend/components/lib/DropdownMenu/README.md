@@ -36,16 +36,14 @@ const [person, setPerson] = useState('pedro');
       <FeatherIcon icon="eye" /> With Icon
     </DropdownMenu.Item>
 
-    <DropdownMenu.Root>
-      <DropdownMenu.TriggerItem>More Tools</DropdownMenu.TriggerItem>
-      <DropdownMenu.Content nested>
+    <DropdownMenu.Sub>
+      <DropdownMenu.SubTrigger>More Tools</DropdownMenu.SubTrigger>
+      <DropdownMenu.SubContent>
         <DropdownMenu.Item>Save Page As...</DropdownMenu.Item>
         <DropdownMenu.Item>Create Shortcut…</DropdownMenu.Item>
         <DropdownMenu.Item>Name Window…</DropdownMenu.Item>
-        <DropdownMenu.Separator />
-        <DropdownMenu.Item>Developer Tools</DropdownMenu.Item>
-      </DropdownMenu.Content>
-    </DropdownMenu.Root>
+      </DropdownMenu.SubContent>
+    </DropdownMenu.Sub>
 
     <DropdownMenu.Separator />
 
@@ -143,7 +141,7 @@ import { TextOverflow } from '@/components/lib/TextOverflow';
 
 ## Nested Menus
 
-In the primary `Example` section above, note the used of the `nested` prop on the nested menu content component: `<DropdownMenu.Content nested>`. This will set proper offsets for the menu and arrow for nested menus. This prop shouldn't be used on the root menu - only on child menus inside.
+In the primary `Example` section above, note the use of the `Sub`, `SubTrigger`, and `SubContent` components to achieve a nested menu.
 
 ## Form Select Dropdown
 

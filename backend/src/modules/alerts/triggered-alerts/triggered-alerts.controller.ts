@@ -14,12 +14,9 @@ import { VError } from 'verror';
 import { TriggeredAlertsService } from './triggered-alerts.service';
 import {
   ListTriggeredAlertSchema,
-  ListTriggeredAlertDto,
-  TriggeredAlertsResponseDto,
   GetTriggeredAlertDetailsSchema,
-  TriggeredAlertDetailsResponseDto,
-  GetTriggeredAlertDetailsDto,
 } from '../dto';
+import { Api } from '@pc/common/types/api';
 
 @Controller('triggeredAlerts')
 export class TriggeredAlertsController {
@@ -42,8 +39,8 @@ export class TriggeredAlertsController {
       take,
       pagingDateTime,
       alertId,
-    }: ListTriggeredAlertDto,
-  ): Promise<TriggeredAlertsResponseDto> {
+    }: Api.Query.Input<'/triggeredAlerts/listTriggeredAlerts'>,
+  ): Promise<Api.Query.Output<'/triggeredAlerts/listTriggeredAlerts'>> {
     try {
       return await this.triggeredAlertsService.listTriggeredAlertsByProject(
         req.user,
@@ -51,10 +48,10 @@ export class TriggeredAlertsController {
         environmentSubId,
         skip || 0,
         take || 100,
-        pagingDateTime,
+        pagingDateTime ? new Date(pagingDateTime) : undefined,
         alertId,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -64,14 +61,15 @@ export class TriggeredAlertsController {
   @UsePipes(new JoiValidationPipe(GetTriggeredAlertDetailsSchema))
   async getTriggeredAlertDetails(
     @Request() req,
-    @Body() { slug }: GetTriggeredAlertDetailsDto,
-  ): Promise<TriggeredAlertDetailsResponseDto> {
+    @Body()
+    { slug }: Api.Query.Input<'/triggeredAlerts/getTriggeredAlertDetails'>,
+  ): Promise<Api.Query.Output<'/triggeredAlerts/getTriggeredAlertDetails'>> {
     try {
       return await this.triggeredAlertsService.getTriggeredAlertDetails(
         req.user,
         slug,
       );
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }

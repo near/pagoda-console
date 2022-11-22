@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { QRCodeSVG } from 'qrcode.react';
 
 import { Box } from '@/components/lib/Box';
@@ -7,8 +8,9 @@ import { Flex } from '@/components/lib/Flex';
 import { H5 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
 import config from '@/utils/config';
+import { StableId } from '@/utils/stable-ids';
 
-import type { Destination } from '../utils/types';
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 interface Props {
   destination: Destination;
@@ -58,7 +60,11 @@ export function TelegramDestinationVerification({ destination }: Props) {
 
           <Text>OR</Text>
 
-          <ButtonLink href={telegramUrl} external>
+          <ButtonLink
+            stableId={StableId.TELEGRAM_DESTINATION_VERIFICATION_OPEN_TELEGRAM_LINK}
+            href={telegramUrl}
+            external
+          >
             Open Telegram
           </ButtonLink>
         </Flex>
@@ -68,8 +74,16 @@ export function TelegramDestinationVerification({ destination }: Props) {
         <H5>Group Message</H5>
 
         <Text>
-          Start a Telegram group chat and include <CopyButton content={config.telegramBotHandle} /> then send the
-          following message: <CopyButton content={startCommand} />
+          Start a Telegram group chat and include{' '}
+          <CopyButton
+            stableId={StableId.TELEGRAM_DESTINATION_VERIFICATION_COPY_BOT_HANDLE_BUTTON}
+            content={config.telegramBotHandle}
+          />{' '}
+          then send the following message:{' '}
+          <CopyButton
+            stableId={StableId.TELEGRAM_DESTINATION_VERIFICATION_COPY_MESSAGE_BUTTON}
+            content={startCommand}
+          />
         </Text>
       </Flex>
     </Flex>

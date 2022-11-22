@@ -1,10 +1,9 @@
+import type { Net } from '@pc/database/clients/core';
 import type { FirebaseOptions } from 'firebase/app';
 
-import type { NetOption } from './types';
-
-type ExplorerNets = Record<NetOption, string>;
-type RpcNets = Record<NetOption, string>;
-type EapiNets = Record<NetOption, string>;
+type ExplorerNets = Record<Net, string>;
+type RpcNets = Record<Net, string>;
+type EapiNets = Record<Net, string>;
 type DeployEnvironment = 'LOCAL' | 'DEVELOPMENT' | 'PRODUCTION';
 
 // * NOTE: This is ugly, but we are limited in how we can
@@ -92,6 +91,7 @@ interface AppConfig {
   analyticsIframeUrl: RpcNets;
   launchDarklyEnv: string;
   gleapAuth?: string;
+  googleTagManagerId?: string;
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
@@ -143,6 +143,7 @@ const config: AppConfig = {
   },
   launchDarklyEnv: process.env.NEXT_PUBLIC_LAUNCHDARKLY_SDK_ENV,
   gleapAuth: process.env.NEXT_PUBLIC_GLEAP_AUTH_KEY,
+  googleTagManagerId: process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID,
 };
 
 export default config;

@@ -4,13 +4,10 @@ import { Button } from '../Button';
 import { FeatherIcon } from '../FeatherIcon';
 import { openToast } from '../Toast';
 
-type Props = Omit<
-  ComponentProps<typeof Button> & {
-    content?: string;
-    value?: string;
-  },
-  'onClick'
->;
+type Props = Omit<ComponentProps<typeof Button>, 'onClick'> & {
+  content?: string;
+  value?: string;
+};
 
 export function CopyButton({ content, value, ...props }: Props) {
   function copy() {

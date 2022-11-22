@@ -13,11 +13,12 @@ import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
+import { useSignOut } from '@/hooks/auth';
+import { useAccount, useAuth } from '@/hooks/auth';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { useAccount, useIdentity } from '@/hooks/user';
 import DeleteAccountModal from '@/modules/core/components/modals/DeleteAccountModal';
-import { logOut } from '@/utils/auth';
 import { formValidations } from '@/utils/constants';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface SettingsFormData {
@@ -28,9 +29,10 @@ const Settings: NextPageWithLayout = () => {
   const { register, handleSubmit, formState, setValue } = useForm<SettingsFormData>();
   const [isEditing, setIsEditing] = useState(false);
   const { user, error, mutate } = useAccount();
-  const identity = useIdentity();
+  const { identity } = useAuth();
   const [updateError, setUpdateError] = useState('');
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const signOut = useSignOut();
 
   function edit() {
     setValue('displayName', user!.name!);
@@ -64,7 +66,7 @@ const Settings: NextPageWithLayout = () => {
   };
 
   const onAccountDelete = async () => {
-    await logOut();
+    await signOut();
     openToast({
       type: 'success',
       title: 'Account Deleted',
@@ -83,8 +85,16 @@ const Settings: NextPageWithLayout = () => {
           <Flex stack gap="l">
             <Flex justify="spaceBetween">
               <H1>User Settings</H1>
-              {isEditing && <Button type="submit">Done</Button>}
-              {!isEditing && <Button onClick={edit}>Edit</Button>}
+              {isEditing && (
+                <Button stableId={StableId.USER_SETTINGS_SAVE_BUTTON} type="submit">
+                  Done
+                </Button>
+              )}
+              {!isEditing && (
+                <Button stableId={StableId.USER_SETTINGS_EDIT_BUTTON} onClick={edit}>
+                  Edit
+                </Button>
+              )}
             </Flex>
 
             <HR />
@@ -119,7 +129,11 @@ const Settings: NextPageWithLayout = () => {
       <Section>
         <Flex justify="spaceBetween" align="center">
           <H4>Delete</H4>
-          <Button color="danger" onClick={() => setShowDeleteAccountModal(true)}>
+          <Button
+            stableId={StableId.USER_SETTINGS_OPEN_DELETE_ACCOUNT_MODAL_BUTTON}
+            color="danger"
+            onClick={() => setShowDeleteAccountModal(true)}
+          >
             Delete Account
           </Button>
         </Flex>

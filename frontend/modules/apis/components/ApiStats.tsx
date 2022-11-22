@@ -1,4 +1,6 @@
 // import { useApiKeys } from '@/hooks/api-keys';
+import type { Api } from '@pc/common/types/api';
+import type { RpcStats } from '@pc/common/types/rpcstats';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
 import * as Charts from 'recharts';
@@ -16,11 +18,14 @@ import { Text } from '@/components/lib/Text';
 import { Tooltip } from '@/components/lib/Tooltip';
 import config from '@/utils/config';
 import { formatNumber } from '@/utils/format-number';
-import type { Environment, Project } from '@/utils/types';
+import { StableId } from '@/utils/stable-ids';
 
 import { useApiStats } from '../hooks/api-stats';
 import { timeRanges } from '../utils/constants';
-import type { ApiStatsData, TimeRangeValue } from '../utils/types';
+
+type Project = Api.Query.Output<'/projects/getDetails'>;
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
+type ApiStatsData = ReturnType<typeof useApiStats>;
 
 interface Props {
   environment?: Environment;
@@ -29,7 +34,7 @@ interface Props {
 
 export function ApiStats({ environment, project }: Props) {
   // const { keys } = useApiKeys(project?.slug);  // for filtering
-  const [selectedTimeRangeValue, setSelectedTimeRangeValue] = useState<TimeRangeValue>('30_DAYS');
+  const [selectedTimeRangeValue, setSelectedTimeRangeValue] = useState<RpcStats.TimeRangeValue>('30_DAYS');
   const [liveRefreshEnabled, setLiveRefreshEnabled] = useState(true);
   const selectedTimeRange = timeRanges.find((t) => t.value === selectedTimeRangeValue);
   const [rangeEndTime, setRangeEndTime] = useState(DateTime.now());
@@ -67,7 +72,12 @@ export function ApiStats({ environment, project }: Props) {
           <H2 css={{ marginRight: 'auto' }}>RPC Statistics</H2>
           <Tooltip align="end" content={liveRefreshTooltipTitle}>
             <span>
-              <Switch aria-label="Live Updates" checked={liveRefreshEnabled} onCheckedChange={setLiveRefreshEnabled}>
+              <Switch
+                stableId={StableId.API_STATS_LIVE_UPDATES_SWITCH}
+                aria-label="Live Updates"
+                checked={liveRefreshEnabled}
+                onCheckedChange={setLiveRefreshEnabled}
+              >
                 <FeatherIcon icon="refresh-cw" size="xs" data-on />
                 <FeatherIcon icon="pause" size="xs" data-off />
               </Switch>
@@ -75,7 +85,7 @@ export function ApiStats({ environment, project }: Props) {
           </Tooltip>
 
           <DropdownMenu.Root>
-            <DropdownMenu.Button css={{ width: '15rem' }}>
+            <DropdownMenu.Button stableId={StableId.API_STATS_TIME_RANGE_DROPDOWN} css={{ width: '15rem' }}>
               <FeatherIcon icon="clock" color="primary" />
               {selectedTimeRange?.label}
             </DropdownMenu.Button>
@@ -83,7 +93,7 @@ export function ApiStats({ environment, project }: Props) {
             <DropdownMenu.Content width="trigger">
               <DropdownMenu.RadioGroup
                 value={selectedTimeRangeValue}
-                onValueChange={(value) => setSelectedTimeRangeValue(value as TimeRangeValue)}
+                onValueChange={(value) => setSelectedTimeRangeValue(value as RpcStats.TimeRangeValue)}
               >
                 {timeRanges?.map((range) => {
                   return (

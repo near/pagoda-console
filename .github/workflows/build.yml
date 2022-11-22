@@ -1,0 +1,25 @@
+name: Build Project
+on:
+  pull_request:
+    branches: [develop, module, release, main]
+jobs:
+  build:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16.x"
+
+      - name: Install Nest.js
+        run: npm i -g @nestjs/cli
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test building a project
+        run: npm -w backend run build
+
+      - name: Run unit tests
+        run: npm -w backend run test

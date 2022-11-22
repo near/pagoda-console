@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
@@ -11,10 +12,12 @@ import { openToast } from '@/components/lib/Toast';
 import { EditDestinationModal } from '@/modules/alerts/components/EditDestinationModal';
 import { NewDestinationModal } from '@/modules/alerts/components/NewDestinationModal';
 import { useDestinations } from '@/modules/alerts/hooks/destinations';
-import type { Destination } from '@/modules/alerts/utils/types';
-import type { Project } from '@/utils/types';
+import { StableId } from '@/utils/stable-ids';
 
 import { DestinationTableRow } from './DestinationsTableRow';
+
+type Project = Api.Query.Output<'/projects/getDetails'>;
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 export function Destinations({ project }: { project?: Project }) {
   const { destinations, mutate } = useDestinations(project?.slug);
@@ -32,7 +35,10 @@ export function Destinations({ project }: { project?: Project }) {
       <Flex stack gap="l">
         <Flex justify="spaceBetween">
           <H1>Destinations</H1>
-          <Button onClick={() => setShowNewDestinationModal(true)}>
+          <Button
+            stableId={StableId.DESTINATIONS_OPEN_CREATE_MODAL_BUTTON}
+            onClick={() => setShowNewDestinationModal(true)}
+          >
             <FeatherIcon icon="plus" /> New Destination
           </Button>
         </Flex>
@@ -69,7 +75,7 @@ export function Destinations({ project }: { project?: Project }) {
                       openToast({
                         type: 'success',
                         title: 'Destination Deleted',
-                        description: name,
+                        description: name ?? undefined,
                       });
 
                       mutate(() => {

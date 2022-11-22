@@ -11,13 +11,9 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { VError } from 'verror';
+import { Api } from '@pc/common/types/api';
 import { AbiService } from './abi.service';
-import {
-  AddContractAbiDto,
-  AddContractAbiSchema,
-  GetContractAbiDto,
-  GetContractAbiSchema,
-} from './dto';
+import { AddContractAbiSchema, GetContractAbiSchema } from './dto';
 
 @Controller('abi')
 export class AbiController {
@@ -28,11 +24,11 @@ export class AbiController {
   @UsePipes(new JoiValidationPipe(AddContractAbiSchema))
   async addContractAbi(
     @Request() req,
-    @Body() { contract, abi }: AddContractAbiDto,
-  ) {
+    @Body() { contract, abi }: Api.Mutation.Input<'/abi/addContractAbi'>,
+  ): Promise<Api.Mutation.Output<'/abi/addContractAbi'>> {
     try {
       return await this.abi.addContractAbi(req.user, contract, abi);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }
@@ -42,11 +38,11 @@ export class AbiController {
   @UsePipes(new JoiValidationPipe(GetContractAbiSchema))
   async getContractAbi(
     @Request() req,
-    @Body() { contract }: GetContractAbiDto,
-  ) {
+    @Body() { contract }: Api.Query.Input<'/abi/getContractAbi'>,
+  ): Promise<Api.Query.Output<'/abi/getContractAbi'>> {
     try {
       return await this.abi.getContractAbi(req.user, contract);
-    } catch (e) {
+    } catch (e: any) {
       throw mapError(e);
     }
   }

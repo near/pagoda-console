@@ -3,34 +3,40 @@
 // and had many unaddressed github issues
 
 import * as Joi from 'joi';
-import { Net } from '../../../generated/prisma/core';
+import { Api } from '@pc/common/types/api';
+
+const netSchema = Joi.alternatives('MAINNET', 'TESTNET');
 
 // activity
-export type ActivityInputDto = {
-  net: Net;
-  contractId: string;
-};
-export const ActivityInputSchemas = Joi.object({
-  net: Joi.string(),
+export const ActivityInputSchemas = Joi.object<
+  Api.Query.Input<'/explorer/activity'>,
+  true
+>({
+  net: netSchema,
   contractId: Joi.string(),
 });
 // transaction
-export type TransactionInputDto = {
-  net: Net;
-  hash: string;
-};
-export const TransactionInputSchemas = Joi.object({
-  net: Joi.string(),
+export const TransactionInputSchemas = Joi.object<
+  Api.Query.Input<'/explorer/transaction'>,
+  true
+>({
+  net: netSchema,
   hash: Joi.string(),
 });
 // balance changes
-export type BalanceChangesInputDto = {
-  net: Net;
-  receiptId: string;
-  accountIds: string[];
-};
-export const BalanceChangesInputSchemas = Joi.object({
-  net: Joi.string(),
+export const BalanceChangesInputSchemas = Joi.object<
+  Api.Query.Input<'/explorer/balanceChanges'>,
+  true
+>({
+  net: netSchema,
   receiptId: Joi.string(),
   accountIds: Joi.array().items(Joi.string()),
+});
+
+export const GetTransactionsSchema = Joi.object<
+  Api.Query.Input<'/explorer/getTransactions'>,
+  true
+>({
+  contracts: Joi.array().items(Joi.string()),
+  net: netSchema,
 });

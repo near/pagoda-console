@@ -1,11 +1,14 @@
+import type { Api } from '@pc/common/types/api';
 import { useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
+import { StableId } from '@/utils/stable-ids';
 
 import { resendEmailVerification } from '../hooks/destinations';
-import type { Destination } from '../utils/types';
+
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 interface Props {
   destination: Destination;
@@ -33,7 +36,12 @@ export function EmailDestinationVerification({ destination }: Props) {
       </Text>
 
       <Flex>
-        <Button color="neutral" loading={isSending} onClick={resend}>
+        <Button
+          stableId={StableId.EMAIL_DESTINATION_VERIFICATION_RESEND_BUTTON}
+          color="neutral"
+          loading={isSending}
+          onClick={resend}
+        >
           Resend Verification Email
         </Button>
       </Flex>

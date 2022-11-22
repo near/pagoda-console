@@ -45,5 +45,8 @@ near-dev-platform-firebase-adminsdk-7zimk-2208813638.json
 ignore
 .eslintcache
 
-# prisma for modules
-generated
+# terraform
+*.out
+.terraform
+*.tfstate
+*.tfstate.backup

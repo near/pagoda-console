@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import { useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
@@ -7,13 +8,15 @@ import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { StableId } from '@/utils/stable-ids';
 
 import { alertTypes } from '../utils/constants';
-import type { Alert } from '../utils/types';
 import { DeleteAlertModal } from './DeleteAlertModal';
 
+type Alert = Api.Query.Output<'/alerts/listAlerts'>[number];
+
 export function AlertTableRow({ alert, onDelete }: { alert: Alert; onDelete: () => void }) {
-  const alertType = alertTypes[alert.type];
+  const alertType = alertTypes[alert.rule.type];
   const url = `/alerts/edit-alert/${alert.id}`;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -49,7 +52,13 @@ export function AlertTableRow({ alert, onDelete }: { alert: Alert; onDelete: () 
         </Table.Cell>
         <Table.Cell>
           <Tooltip content="Delete this alert">
-            <Button size="s" aria-label="Delete Alert" color="neutral" onClick={() => setShowDeleteModal(true)}>
+            <Button
+              stableId={StableId.ALERT_TABLE_ROW_OPEN_DELETE_MODAL_BUTTON}
+              size="s"
+              aria-label="Delete Alert"
+              color="neutral"
+              onClick={() => setShowDeleteModal(true)}
+            >
               <FeatherIcon icon="trash-2" size="xs" />
             </Button>
           </Tooltip>

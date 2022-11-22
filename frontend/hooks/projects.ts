@@ -1,12 +1,14 @@
+import type { Api } from '@pc/common/types/api';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import useSWR from 'swr';
 import { mutate } from 'swr';
 
-import { useIdentity } from '@/hooks/user';
+import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
-import type { Project } from '@/utils/types';
+
+import { useProjectSelector } from './selected-project';
 
 export async function ejectTutorial(slug: string, name: string) {
   try {
@@ -28,6 +30,8 @@ export async function ejectTutorial(slug: string, name: string) {
   return false;
 }
 
+type Projects = Api.Query.Output<'/projects/list'>;
+
 export async function deleteProject(userId: string | undefined, slug: string, name: string) {
   try {
     await authenticatedPost('/projects/delete', { slug });
@@ -36,7 +40,7 @@ export async function deleteProject(userId: string | undefined, slug: string, na
       name,
     });
     // Update the SWR cache before a refetch for better UX.
-    mutate<Project[]>(userId ? ['/projects/list', userId] : null, async (projects) => {
+    mutate<Projects>(userId ? ['/projects/list', userId] : null, async (projects) => {
       return projects?.filter((p) => p.slug !== slug);
     });
     return true;
@@ -54,35 +58,41 @@ export async function deleteProject(userId: string | undefined, slug: string, na
 
 export function useProject(projectSlug: string | undefined) {
   const router = useRouter();
-  const identity = useIdentity();
+  const { identity } = useAuth();
+  const { selectProject } = useProjectSelector();
 
-  useEffect(() => {
-    router.prefetch('/projects');
-  }, [router]);
-
-  const { data: project, error } = useSWR<Project>(
-    identity && projectSlug ? ['/projects/getDetails', projectSlug, identity.uid] : null,
+  const { data: project, error } = useSWR(
+    identity && projectSlug ? ['/projects/getDetails' as const, projectSlug, identity.uid] : null,
     (key, projectSlug) => {
       return authenticatedPost(key, { slug: projectSlug });
     },
   );
 
-  if ([400, 403].includes(error?.statusCode)) {
-    window.sessionStorage.setItem('redirected', 'true');
-    router.push('/projects');
-  }
+  useEffect(() => {
+    router.prefetch('/projects');
+  }, [router]);
+
+  useEffect(() => {
+    if (router.pathname !== '/projects') {
+      if ([400, 403].includes(error?.statusCode)) {
+        selectProject(undefined);
+        window.sessionStorage.setItem('redirected', 'true');
+        router.push('/projects');
+      }
+    }
+  }, [error, router, selectProject]);
 
   return { project, error };
 }
 
 export function useProjects() {
-  const identity = useIdentity();
+  const { identity } = useAuth();
   const {
     data: projects,
     error,
     mutate,
     isValidating,
-  } = useSWR<Project[]>(identity ? ['/projects/list', identity.uid] : null, (key) => {
+  } = useSWR(identity ? ['/projects/list' as const, identity.uid] : null, (key) => {
     return authenticatedPost(key);
   });
 
@@ -94,8 +104,8 @@ export function useProjectGroups() {
   return {
     projectGroups: projects
       ? Object.entries(
-          projects.reduce<Record<string, Project[]>>((acc, project) => {
-            const orgName = project.org.isPersonal ? 'Personal' : project.org.name || 'unknown';
+          projects.reduce<Record<string, Projects>>((acc, project) => {
+            const orgName = project.org.isPersonal ? 'Personal' : project.org.name;
             if (!acc[orgName]) {
               acc[orgName] = [];
             }

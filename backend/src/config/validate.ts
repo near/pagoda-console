@@ -1,4 +1,4 @@
-import { Net } from '../../generated/prisma/core';
+import { Net } from '@pc/database/clients/core';
 import * as Joi from 'joi';
 
 // * Adding an environment variable? There are three places in this
@@ -41,18 +41,9 @@ export interface AppConfig {
   projectRefPrefix: string;
   indexerDatabase: Record<Net, Database>;
   indexerActivityDatabase: Partial<Record<Net, Database>>;
-  analytics: {
-    url: string;
-    token: string;
-  };
   firebase: {
     credentials: string;
-  };
-  dev: {
-    mock: {
-      rpcProvisioningService: boolean;
-      email: boolean;
-    };
+    clientConfig: string;
   };
   log: {
     queries: boolean;
@@ -66,9 +57,8 @@ export interface AppConfig {
       tokenExpiryMin: number;
       resendVerificationRatelimitMillis: number;
     };
-    telegram: {
+    telegram?: {
       tokenExpiryMin: number;
-      enableWebhook: boolean;
       botToken?: string;
       secret?: string;
     };
@@ -78,6 +68,7 @@ export interface AppConfig {
     apiKey: string;
   };
   email: {
+    mock: boolean;
     noReply: string;
     alerts: {
       noReply: string;
@@ -95,10 +86,15 @@ export interface AppConfig {
     };
   };
   metricsPort: string;
-  rpcProvisioningService: {
-    apiKey: string;
-    url: string;
-  };
+  rpcProvisioningService:
+    | {
+        mock: true;
+      }
+    | {
+        mock: false;
+        apiKey: string;
+        url: string;
+      };
 }
 
 const databaseSchema = Joi.object({
@@ -162,18 +158,9 @@ const appConfigSchema = Joi.object({
   }),
   recentTransactionsCount: Joi.number().integer(),
   projectRefPrefix: Joi.string().optional().default(''),
-  analytics: {
-    url: Joi.string().uri({ scheme: 'https' }),
-    token: Joi.string(),
-  },
   firebase: {
     credentials: Joi.string(),
-  },
-  dev: {
-    mock: {
-      rpcProvisioningService: Joi.boolean().optional().default(false),
-      email: Joi.boolean().optional().default(false),
-    },
+    clientConfig: Joi.string(),
   },
   log: {
     queries: Joi.boolean().optional().default(false),
@@ -189,7 +176,6 @@ const appConfigSchema = Joi.object({
     }),
     telegram: Joi.object({
       tokenExpiryMin: Joi.number().optional().default(10000), // TODO set to a small value once requesting a new token is possible
-      enableWebhook: Joi.boolean().optional().default(false),
       botToken: Joi.string().when('/alerts.telegram.enableWebhook', {
         is: Joi.boolean().valid(false),
         then: Joi.optional().allow(''),
@@ -198,13 +184,14 @@ const appConfigSchema = Joi.object({
         is: Joi.boolean().valid(false),
         then: Joi.optional().allow(''),
       }),
-    }),
+    }).optional(),
   },
   mailgun: {
     domain: Joi.string(),
     apiKey: Joi.string(),
   },
   email: {
+    mock: Joi.boolean().optional().default(false),
     noReply: Joi.string(),
     alerts: {
       noReply: Joi.string(),
@@ -222,19 +209,16 @@ const appConfigSchema = Joi.object({
     },
   },
   metricsPort: Joi.number().optional().default(3030),
-  rpcProvisioningService: {
-    url: Joi.string()
-      .uri({ scheme: 'http' })
-      .when('/dev.mock.rpcProvisioningService', {
-        // the slash accesses off the schema root
-        is: Joi.boolean().valid(true),
-        then: Joi.optional().allow(''),
-      }),
-    apiKey: Joi.string().when('/dev.mock.rpcProvisioningService', {
-      is: Joi.boolean().valid(true),
-      then: Joi.optional().allow(''),
-    }),
-  },
+  rpcProvisioningService: Joi.alternatives(
+    {
+      mock: Joi.boolean().truthy(),
+    },
+    {
+      mock: Joi.boolean().falsy(),
+      url: Joi.string().uri({ scheme: 'http' }),
+      apiKey: Joi.string(),
+    },
+  ),
 });
 
 export default function validate(config: Record<string, unknown>): AppConfig {
@@ -305,18 +289,9 @@ export default function validate(config: Record<string, unknown>): AppConfig {
     },
     recentTransactionsCount: config.RECENT_TRANSACTIONS_COUNT,
     projectRefPrefix: config.PROJECT_REF_PREFIX,
-    analytics: {
-      url: config.MIXPANEL_API,
-      token: config.MIXPANEL_TOKEN,
-    },
     firebase: {
       credentials: config.FIREBASE_CREDENTIALS,
-    },
-    dev: {
-      mock: {
-        rpcProvisioningService: config.MOCK_KEY_SERVICE,
-        email: config.MOCK_EMAIL_SERVICE,
-      },
+      clientConfig: config.FIREBASE_CLIENT_CONFIG,
     },
     log: {
       queries: config.LOG_QUERIES,
@@ -331,18 +306,20 @@ export default function validate(config: Record<string, unknown>): AppConfig {
         resendVerificationRatelimitMillis:
           config.RESEND_VERIFICATION_RATE_LIMIT_MILLIS,
       },
-      telegram: {
-        tokenExpiryMin: config.TELEGRAM_TOKEN_EXPIRY_MIN,
-        enableWebhook: config.TELEGRAM_ENABLE_WEBHOOK,
-        botToken: config.TELEGRAM_BOT_TOKEN,
-        secret: config.TELEGRAM_SECRET,
-      },
+      telegram: config.TELEGRAM_ENABLE_WEBHOOK
+        ? {
+            tokenExpiryMin: config.TELEGRAM_TOKEN_EXPIRY_MIN,
+            botToken: config.TELEGRAM_BOT_TOKEN,
+            secret: config.TELEGRAM_SECRET,
+          }
+        : undefined,
     },
     mailgun: {
       domain: config.MAILGUN_DOMAIN,
       apiKey: config.MAILGUN_API_KEY,
     },
     email: {
+      mock: config.MOCK_EMAIL_SERVICE,
       noReply: config.EMAIL_NO_REPLY,
       alerts: {
         noReply: config.EMAIL_ALERTS_NO_REPLY,
@@ -362,22 +339,32 @@ export default function validate(config: Record<string, unknown>): AppConfig {
       },
     },
     metricsPort: config.METRICS_PORT,
-    rpcProvisioningService: {
-      url: config.RPC_API_KEYS_URL,
-      apiKey: config.RPC_API_KEYS_API_KEY,
-    },
+    rpcProvisioningService: config.MOCK_KEY_SERVICE
+      ? { mock: true }
+      : {
+          mock: false,
+          url: config.RPC_API_KEYS_URL,
+          apiKey: config.RPC_API_KEYS_API_KEY,
+        },
   };
 
   // Joi.attempt will return the validated object with values
   // cast to their proper types or throw an error if validation
   // fails
-  const validatedConfig: AppConfig = Joi.attempt(
-    structuredConfig,
-    appConfigSchema,
-    {
-      presence: 'required',
-    },
-  );
-
-  return validatedConfig;
+  try {
+    const validatedConfig: AppConfig = Joi.attempt(
+      structuredConfig,
+      appConfigSchema,
+      {
+        presence: 'required',
+      },
+    );
+    return validatedConfig;
+  } catch (e: any) {
+    if (e.details) {
+      // very simplistic error formatic since we are replacing Joi soon anyways
+      throw new Error(JSON.stringify(e.details));
+    }
+    throw e;
+  }
 }

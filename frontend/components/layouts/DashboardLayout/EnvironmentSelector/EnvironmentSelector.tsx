@@ -1,26 +1,33 @@
+import type { Api } from '@pc/common/types/api';
+
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { SubnetIcon } from '@/components/lib/SubnetIcon';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
-import type { Environment } from '@/utils/types';
+import { StableId } from '@/utils/stable-ids';
+
+type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 
 interface Props {
   onBeforeChange?: (change: () => void) => void;
 }
 
 export function EnvironmentSelector(props: Props) {
-  const { environment, environments, selectEnvironment } = useSelectedProject();
+  const { environment, environments, project } = useSelectedProject({ enforceSelectedProject: false });
+  const { selectEnvironment } = useProjectSelector();
 
   function onSelectEnvironment(environment: Environment) {
+    if (!project) return;
+
     if (props.onBeforeChange) {
       props.onBeforeChange(() => {
-        selectEnvironment(environment.subId);
+        selectEnvironment(project.slug, environment.subId);
         analytics.track('DC Switch Network');
       });
       return;
     }
 
-    selectEnvironment(environment.subId);
+    selectEnvironment(project.slug, environment.subId);
     analytics.track('DC Switch Network', {
       status: 'success',
       net: environment.net,
@@ -29,7 +36,7 @@ export function EnvironmentSelector(props: Props) {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button css={{ width: '11rem', height: 'auto' }}>
+      <DropdownMenu.Button stableId={StableId.ENVIRONMENT_SELECTOR_DROPDOWN} css={{ width: '11rem', height: 'auto' }}>
         <SubnetIcon net={environment?.net} />
         {environment?.name || '...'}
       </DropdownMenu.Button>

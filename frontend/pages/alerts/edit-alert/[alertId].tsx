@@ -1,3 +1,4 @@
+import type { Api } from '@pc/common/types/api';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
@@ -29,16 +30,16 @@ import {
   useAlert,
 } from '@/modules/alerts/hooks/alerts';
 import { alertTypes, amountComparators } from '@/modules/alerts/utils/constants';
-import type { Alert } from '@/modules/alerts/utils/types';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatNumber } from '@/utils/format-number';
+import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface NameFormData {
   name: string;
 }
 
-async function update(alert: Alert, data: { isPaused?: boolean; name?: string }) {
+async function update(alert: Api.Mutation.Input<'/alerts/updateAlert'>, data: { isPaused?: boolean; name?: string }) {
   try {
     await updateAlert({
       id: alert.id,
@@ -205,7 +206,7 @@ const EditAlert: NextPageWithLayout = () => {
           </Text>
 
           <Link href="/alerts" passHref>
-            <TextLink>
+            <TextLink stableId={StableId.ALERT_BACK_TO_ALERTS_LINK}>
               <FeatherIcon icon="arrow-left" />
               Alerts
             </TextLink>
@@ -238,6 +239,7 @@ const EditAlert: NextPageWithLayout = () => {
                       </Form.Group>
 
                       <Button
+                        stableId={StableId.ALERT_SAVE_ALERT_NAME_BUTTON}
                         aria-label="Save Alert Name"
                         loading={nameForm.formState.isSubmitting}
                         type="submit"
@@ -254,6 +256,7 @@ const EditAlert: NextPageWithLayout = () => {
                       <H3>
                         {alert.name}{' '}
                         <Button
+                          stableId={StableId.ALERT_EDIT_ALERT_NAME_BUTTON}
                           size="s"
                           aria-label="Edit Alert Name"
                           color="transparent"
@@ -270,6 +273,7 @@ const EditAlert: NextPageWithLayout = () => {
                     <Tooltip content={alertIsActive ? 'Pause this alert' : 'Activate this alert'}>
                       <span>
                         <Switch
+                          stableId={StableId.ALERT_ACTIVE_SWITCH}
                           aria-label="Alert Is Active"
                           checked={alertIsActive}
                           onCheckedChange={updateIsActive}
@@ -284,7 +288,12 @@ const EditAlert: NextPageWithLayout = () => {
                     <Tooltip content="View alert activity">
                       <span>
                         <Link href={`/alerts?tab=activity&alertId=${alert.id}`} passHref>
-                          <ButtonLink size="s" aria-label="View Alert Activity" color="primaryBorder">
+                          <ButtonLink
+                            stableId={StableId.ALERT_ACTIVITY_LINK}
+                            size="s"
+                            aria-label="View Alert Activity"
+                            color="primaryBorder"
+                          >
                             <FeatherIcon icon="list" size="xs" />
                           </ButtonLink>
                         </Link>
@@ -293,6 +302,7 @@ const EditAlert: NextPageWithLayout = () => {
 
                     <Tooltip content="Delete this alert">
                       <Button
+                        stableId={StableId.ALERT_OPEN_DELETE_ALERT_MODAL_BUTTON}
                         size="s"
                         aria-label="Delete Alert"
                         color="danger"
@@ -323,10 +333,10 @@ const EditAlert: NextPageWithLayout = () => {
               <H4>Condition</H4>
 
               <Flex align="center">
-                <FeatherIcon icon={alertTypes[alert.type].icon} color="text3" />
+                <FeatherIcon icon={alertTypes[alert.rule.type].icon} color="text3" />
                 <Flex stack gap="none">
-                  <H6>{alertTypes[alert.type].name}</H6>
-                  <Text>{alertTypes[alert.type].description}</Text>
+                  <H6>{alertTypes[alert.rule.type].name}</H6>
+                  <Text>{alertTypes[alert.rule.type].description}</Text>
                 </Flex>
               </Flex>
 
@@ -353,6 +363,8 @@ const EditAlert: NextPageWithLayout = () => {
   );
 };
 
+type Alert = Api.Query.Output<'/alerts/getAlertDetails'>;
+
 function AlertSettings({ alert }: { alert: Alert }) {
   function Wrapper({ children }: { children: ReactNode }) {
     return (
@@ -365,7 +377,7 @@ function AlertSettings({ alert }: { alert: Alert }) {
     );
   }
 
-  if (alert.type === 'ACCT_BAL_NUM') {
+  if (alert.rule.type === 'ACCT_BAL_NUM') {
     const comparator = returnAmountComparator(alert.rule.from, alert.rule.to);
 
     return (
@@ -402,7 +414,7 @@ function AlertSettings({ alert }: { alert: Alert }) {
     );
   }
 
-  if (alert.type === 'ACCT_BAL_PCT') {
+  if (alert.rule.type === 'ACCT_BAL_PCT') {
     const comparator = returnAmountComparator(alert.rule.from, alert.rule.to);
 
     return (
@@ -437,7 +449,7 @@ function AlertSettings({ alert }: { alert: Alert }) {
     );
   }
 
-  if (alert.type === 'EVENT') {
+  if (alert.rule.type === 'EVENT') {
     return (
       <Wrapper>
         <Text>
@@ -462,7 +474,7 @@ function AlertSettings({ alert }: { alert: Alert }) {
     );
   }
 
-  if (alert.type === 'FN_CALL') {
+  if (alert.rule.type === 'FN_CALL') {
     return (
       <Wrapper>
         <Text>
@@ -478,10 +490,10 @@ function AlertSettings({ alert }: { alert: Alert }) {
   return null;
 }
 
-function returnAmountComparator(from: string | null, to: string | null) {
+function returnAmountComparator<T extends string | number>(from?: T, to?: T) {
   if (from === to) return amountComparators.EQ;
-  if (from === null) return amountComparators.LTE;
-  if (to === null) return amountComparators.GTE;
+  if (from === undefined) return amountComparators.LTE;
+  if (to === undefined) return amountComparators.GTE;
   return amountComparators.RANGE;
 }
 

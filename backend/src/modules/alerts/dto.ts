@@ -1,25 +1,22 @@
 // Note: we use Joi instead of Nest's default recommendation of class-validator
 // because class-validator was experiencing issues at the time of implementation
 // and had many unaddressed github issues
-import { DestinationType } from '../../../generated/prisma/alerts';
 import * as Joi from 'joi';
-import {
-  AcctBalRuleDto,
-  EventRuleDto,
-  FnCallRuleDto,
-  RuleType,
-  TxRuleDto,
-} from './serde/dto.types';
+import { Api } from '@pc/common/types/api';
+import { Alerts } from '@pc/common/types/alerts';
 
-const TxRuleSchema = Joi.object({
+const TxRuleSchema = Joi.object<Alerts.TransactionRule, true>({
+  type: Joi.alternatives('TX_SUCCESS', 'TX_FAILURE'),
   contract: Joi.string().required(),
 });
-const FnCallRuleSchema = Joi.object({
+const FnCallRuleSchema = Joi.object<Alerts.FunctionCallRule, true>({
+  type: Joi.string().valid('FN_CALL'),
   contract: Joi.string().required(),
   function: Joi.string().required(),
   // params: Joi.object(),
 });
-const EventRuleSchema = Joi.object({
+const EventRuleSchema = Joi.object<Alerts.EventRule, true>({
+  type: Joi.string().valid('EVENT'),
   contract: Joi.string().required(),
   standard: Joi.string().required(),
   version: Joi.string().required(),
@@ -28,25 +25,26 @@ const EventRuleSchema = Joi.object({
 });
 
 const validateRange = (value, { original: rule }) => {
-  if (!rule.from && !rule.to) {
+  if (rule.from === undefined && rule.to === undefined) {
     throw Error('"rule.from" or "rule.to" is required');
   }
-  if (rule.from && rule.to && BigInt(rule.from) > BigInt(rule.to)) {
-    throw Error('"rule.from" must be less than or equal to "rule.to"');
+  if (rule.from !== undefined && rule.to !== undefined) {
+    if (typeof rule.from === 'number' && typeof rule.to === 'number') {
+      if (rule.from > rule.to) {
+        throw Error('"rule.from" must be less than or equal to "rule.to"');
+      }
+    } else if (BigInt(rule.from) > BigInt(rule.to)) {
+      throw Error('"rule.from" must be less than or equal to "rule.to"');
+    }
   }
   return value;
 };
 
-const AcctBalPctRuleSchema = Joi.object({
+const AcctBalPctRuleSchema = Joi.object<Alerts.AcctBalPctRule, true>({
+  type: Joi.string().valid('ACCT_BAL_PCT'),
   contract: Joi.string().required(),
-  from: Joi.string()
-    .empty(null)
-    .optional()
-    .regex(/^0$|^[1-9][0-9]?$|^100$/), // Percentage between 0 and 100
-  to: Joi.string()
-    .empty(null)
-    .optional()
-    .regex(/^0$|^[1-9][0-9]?$|^100$/), // Percentage between 0 and 100
+  from: Joi.number().integer().min(0).max(100).optional(),
+  to: Joi.number().integer().min(0).max(100).optional(),
 }).custom(validateRange, 'Validating range');
 
 const validateYoctonearAmount = (value, _) => {
@@ -60,10 +58,11 @@ const validateYoctonearAmount = (value, _) => {
   return value;
 };
 
-const AcctBalNumRuleSchema = Joi.object({
+const AcctBalNumRuleSchema = Joi.object<Alerts.AcctBalNumRule, true>({
+  type: Joi.string().valid('ACCT_BAL_NUM'),
   contract: Joi.string().required(),
   from: Joi.string()
-    .empty(null)
+    .empty(undefined)
     .optional()
     .regex(/^0$|^[1-9][0-9]*$/)
     .custom(
@@ -71,7 +70,7 @@ const AcctBalNumRuleSchema = Joi.object({
       'Validating proper value of Yoctonear amount',
     ),
   to: Joi.string()
-    .empty(null)
+    .empty(undefined)
     .optional()
     .regex(/^0$|^[1-9][0-9]*$/)
     .custom(
@@ -81,51 +80,16 @@ const AcctBalNumRuleSchema = Joi.object({
 }).custom(validateRange, 'Validating range');
 
 // create alert
-interface CreateAlertBaseDto {
-  name?: string;
-  type: RuleType;
-  projectSlug: string;
-  environmentSubId: number;
-  destinations?: Array<number>;
-}
-export interface CreateTxAlertDto extends CreateAlertBaseDto {
-  type: 'TX_SUCCESS' | 'TX_FAILURE';
-  rule: TxRuleDto;
-}
-export interface CreateFnCallAlertDto extends CreateAlertBaseDto {
-  type: 'FN_CALL';
-  rule: FnCallRuleDto;
-}
-export interface CreateEventAlertDto extends CreateAlertBaseDto {
-  type: 'EVENT';
-  rule: EventRuleDto;
-}
-export interface CreateAcctBalAlertDto extends CreateAlertBaseDto {
-  type: 'ACCT_BAL_NUM' | 'ACCT_BAL_PCT';
-  rule: AcctBalRuleDto;
-}
-export type CreateAlertDto =
-  | CreateTxAlertDto
-  | CreateFnCallAlertDto
-  | CreateEventAlertDto
-  | CreateAcctBalAlertDto;
-export const CreateAlertSchema = Joi.object({
+export const CreateAlertSchema = Joi.object<
+  Api.Mutation.Input<'/alerts/createAlert'>,
+  true
+>({
   name: Joi.string(),
-  type: Joi.string()
-    .valid(
-      'TX_SUCCESS',
-      'TX_FAILURE',
-      'FN_CALL',
-      'EVENT',
-      'ACCT_BAL_PCT',
-      'ACCT_BAL_NUM',
-    )
-    .required(),
   projectSlug: Joi.string().required(),
   environmentSubId: Joi.number().required(),
   destinations: Joi.array().items(Joi.number()).optional(),
   rule: Joi.alternatives()
-    .conditional('type', {
+    .conditional('rule.type', {
       switch: [
         { is: 'TX_SUCCESS', then: TxRuleSchema },
         { is: 'TX_FAILURE', then: TxRuleSchema },
@@ -141,250 +105,190 @@ export const CreateAlertSchema = Joi.object({
         },
       ],
     })
-    .required(),
+    // TODO: fix any
+    .required() as any,
 });
 
 // update alert
-export interface UpdateAlertDto {
-  id: number;
-  name?: string;
-  isPaused?: boolean;
-}
-export const UpdateAlertSchema = Joi.object({
+export const UpdateAlertSchema = Joi.object<
+  Api.Mutation.Input<'/alerts/updateAlert'>,
+  true
+>({
   id: Joi.number().required(),
   name: Joi.string(),
-  isPaused: Joi.boolean(),
+  // see https://github.com/hapijs/joi/issues/2848
+  isPaused: Joi.boolean().optional() as unknown as Joi.AlternativesSchema,
 });
 
 // list alerts
-export interface ListAlertDto {
-  projectSlug: string;
-  environmentSubId: number;
-}
-export const ListAlertSchema = Joi.object({
+export const ListAlertSchema = Joi.object<
+  Api.Query.Input<'/alerts/listAlerts'>,
+  true
+>({
   projectSlug: Joi.string().required(),
   environmentSubId: Joi.number().required(),
 });
 
 // delete alert
-export interface DeleteAlertDto {
-  id: number;
-}
-export const DeleteAlertSchema = Joi.object({
+export const DeleteAlertSchema = Joi.object<
+  Api.Mutation.Input<'/alerts/deleteAlert'>,
+  true
+>({
   id: Joi.number().required(),
 });
 
 // get alert details
-export interface GetAlertDetailsDto {
-  id: number;
-}
-export const GetAlertDetailsSchema = Joi.object({
+export const GetAlertDetailsSchema = Joi.object<
+  Api.Query.Input<'/alerts/getAlertDetails'>,
+  true
+>({
   id: Joi.number().required(),
 });
 
-interface WebhookDestinationResponseDto {
-  url: string;
-}
-export interface AlertDetailsResponseDto {
-  id: number;
-  type: RuleType;
-  name: string;
-  isPaused: boolean;
-  projectSlug: string;
-  environmentSubId: number;
-  rule: TxRuleDto | FnCallRuleDto | EventRuleDto | AcctBalRuleDto;
-  enabledDestinations: Array<{
-    id: number;
-    name: string;
-    type: DestinationType;
-    config: WebhookDestinationResponseDto;
-  }>;
-}
-
-interface CreateBaseDestinationDto {
-  name?: string;
-  type: DestinationType;
-  projectSlug: string;
-}
-interface CreateWebhookDestinationDto extends CreateBaseDestinationDto {
-  type: 'WEBHOOK';
-  config: {
-    url: string;
-  };
-}
-interface CreateEmailDestinationDto extends CreateBaseDestinationDto {
-  type: 'EMAIL';
-  config: {
-    email: string;
-  };
-}
-interface CreateTelegramDestinationDto extends CreateBaseDestinationDto {
-  type: 'TELEGRAM';
-  config?: Record<string, never>; // eslint recommended typing for empty object
-}
-
-export type CreateDestinationDto =
-  | CreateWebhookDestinationDto
-  | CreateEmailDestinationDto
-  | CreateTelegramDestinationDto;
-
-const WebhookDestinationSchema = Joi.object({
+const WebhookDestinationSchema = Joi.object<
+  Alerts.CreateWebhookDestinationConfig,
+  true
+>({
+  type: Joi.string().valid('WEBHOOK').required(),
   url: Joi.string().required(),
 });
-const EmailDestinationSchema = Joi.object({
+const EmailDestinationSchema = Joi.object<
+  Alerts.CreateEmailDestinationConfig,
+  true
+>({
+  type: Joi.string().valid('EMAIL').required(),
   email: Joi.string().required(),
 });
-const TelegramDestinationSchema = Joi.object({});
-export const CreateDestinationSchema = Joi.object({
+const TelegramDestinationSchema = Joi.object<
+  Alerts.CreateTelegramDestinationConfig,
+  true
+>({
+  type: Joi.string().valid('TELEGRAM').required(),
+});
+export const CreateDestinationSchema = Joi.object<
+  Api.Mutation.Input<'/alerts/createDestination'>,
+  true
+>({
   name: Joi.string(),
-  type: Joi.string().valid('WEBHOOK', 'EMAIL', 'TELEGRAM').required(),
   projectSlug: Joi.string().required(),
-  config: Joi.alternatives()
-    .conditional('type', {
-      switch: [
-        { is: 'WEBHOOK', then: WebhookDestinationSchema },
-        { is: 'EMAIL', then: EmailDestinationSchema },
-        { is: 'TELEGRAM', then: TelegramDestinationSchema },
-      ],
-    })
-    .required(),
+  config: Joi.alternatives([
+    WebhookDestinationSchema,
+    EmailDestinationSchema,
+    TelegramDestinationSchema,
+  ])
+    // TODO: fix any
+    .required() as any,
 });
 
 // delete destinations
-export interface DeleteDestinationDto {
-  id: number;
-}
-export const DeleteDestinationSchema = Joi.object({
+export const DeleteDestinationSchema = Joi.object<
+  Api.Mutation.Input<'/alerts/deleteDestination'>,
+  true
+>({
   id: Joi.number().required(),
 });
 
 // list destinations
-export interface ListDestinationDto {
-  projectSlug: string;
-}
-export const ListDestinationSchema = Joi.object({
+export const ListDestinationSchema = Joi.object<
+  Api.Query.Input<'/alerts/listDestinations'>,
+  true
+>({
   projectSlug: Joi.string().required(),
 });
 
 // enable destination
-export interface EnableDestinationDto {
-  alert: number;
-  destination: number;
-}
-export const EnableDestinationSchema = Joi.object({
+export const EnableDestinationSchema = Joi.object<
+  Api.Mutation.Input<'/alerts/enableDestination'>,
+  true
+>({
   alert: Joi.number().required(),
   destination: Joi.number().required(),
 });
 
 // disable destination
-export type DisableDestinationDto = EnableDestinationDto;
 export const DisableDestinationSchema = EnableDestinationSchema;
 
 // update destination
-export interface UpdateDestinationBaseDto {
-  id: number;
-  type: DestinationType;
-  name?: string;
-}
-export interface UpdateWebhookDestinationDto extends UpdateDestinationBaseDto {
-  type: 'WEBHOOK';
-  config?: {
-    url?: string;
-  };
-}
-export interface UpdateEmailDestinationDto extends UpdateDestinationBaseDto {
-  type: 'EMAIL';
-}
-export interface UpdateTelegramDestinationDto extends UpdateDestinationBaseDto {
-  type: 'TELEGRAM';
-}
-
-export type UpdateDestinationDto =
-  | UpdateWebhookDestinationDto
-  | UpdateEmailDestinationDto
-  | UpdateTelegramDestinationDto;
-
-const UpdateWebhookDestinationSchema = Joi.object({
+const UpdateWebhookDestinationSchema = Joi.object<
+  Alerts.UpdateWebhookDestinationConfig,
+  true
+>({
+  type: Joi.string().valid('WEBHOOK').required(),
   url: Joi.string(),
 });
-export const UpdateDestinationSchema = Joi.object({
+const UpdateEmailDestinationSchema = Joi.object<
+  Alerts.UpdateEmailDestinationConfig,
+  true
+>({
+  type: Joi.string().valid('EMAIL').required(),
+});
+const UpdateTelegramDestinationSchema = Joi.object<
+  Alerts.UpdateTelegramDestinationConfig,
+  true
+>({
+  type: Joi.string().valid('TELEGRAM').required(),
+});
+export const UpdateDestinationSchema = Joi.object<
+  Api.Mutation.Input<'/alerts/updateDestination'>,
+  true
+>({
   id: Joi.number().required(),
-  type: Joi.string().required(),
   name: Joi.string(),
-  config: Joi.alternatives().conditional('type', {
-    switch: [{ is: 'WEBHOOK', then: UpdateWebhookDestinationSchema }],
-  }),
+  config: Joi.alternatives([
+    UpdateWebhookDestinationSchema,
+    UpdateEmailDestinationSchema,
+    UpdateTelegramDestinationSchema,
+  ]) as any,
 });
 
 // verify email
-export interface VerifyEmailDto {
-  token: string;
-}
-export const VerifyEmailSchema = Joi.object({
+export const VerifyEmailSchema = Joi.object<
+  Api.Mutation.Input<'/alerts/verifyEmailDestination'>,
+  true
+>({
   token: Joi.string().required(),
 });
 
 // Triggered Alerts
-export interface ListTriggeredAlertDto {
-  projectSlug: string;
-  environmentSubId: number;
-  skip?: number;
-  take?: number;
-  pagingDateTime?: Date;
-  alertId?: number;
-}
-export const ListTriggeredAlertSchema = Joi.object({
+export const ListTriggeredAlertSchema = Joi.object<
+  Api.Query.Input<'/triggeredAlerts/listTriggeredAlerts'>,
+  true
+>({
   projectSlug: Joi.string().required(),
   environmentSubId: Joi.number().required(),
   skip: Joi.number().integer().min(0).optional(),
   take: Joi.number().integer().min(0).max(100).optional(),
-  pagingDateTime: Joi.date().optional(),
+  pagingDateTime: Joi.date().iso().optional() as unknown as Joi.StringSchema,
   alertId: Joi.number().integer().positive().optional(),
 });
 
-export interface GetTriggeredAlertDetailsDto {
-  slug: string;
-}
-export const GetTriggeredAlertDetailsSchema = Joi.object({
+export const GetTriggeredAlertDetailsSchema = Joi.object<
+  Api.Query.Input<'/triggeredAlerts/getTriggeredAlertDetails'>,
+  true
+>({
   slug: Joi.string().required(),
 });
 
-export interface TriggeredAlertsResponseDto {
-  count: number;
-  page: Array<TriggeredAlertDetailsResponseDto>;
-}
-export interface TriggeredAlertDetailsResponseDto {
-  slug: string;
-  alertId: number;
-  name: string;
-  type: RuleType;
-  triggeredInBlockHash: string;
-  triggeredInTransactionHash: string;
-  triggeredInReceiptId: string;
-  triggeredAt: Date;
-  extraData?: Record<string, unknown>;
-}
-
 // resend verification email
-export interface ResendEmailVerificationDto {
-  destinationId: number;
-}
-export const ResendEmailVerificationSchema = Joi.object({
+export const ResendEmailVerificationSchema = Joi.object<
+  Api.Mutation.Input<'/alerts/resendEmailVerification'>,
+  true
+>({
   destinationId: Joi.number().required(),
 });
 
 // unsubscribe from alerts email
-export interface UnsubscribeFromEmailAlertDto {
-  token: string;
-}
-export const UnsubscribeFromEmailAlertSchema = Joi.object({
+export const UnsubscribeFromEmailAlertSchema = Joi.object<
+  Api.Mutation.Input<'/alerts/unsubscribeFromEmailAlert'>,
+  true
+>({
   token: Joi.string().required(),
 });
 
 // rotate webhook destination secret
-export interface RotateWebhookDestinationSecretDto {
-  destinationId: number;
-}
-export const RotateWebhookDestinationSecretSchema = Joi.object({
+export const RotateWebhookDestinationSecretSchema = Joi.object<
+  Api.Mutation.Input<'/alerts/rotateWebhookDestinationSecret'>,
+  true
+>({
   destinationId: Joi.number().required(),
 });
