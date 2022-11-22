@@ -85,7 +85,7 @@ function Projects() {
                   <Flex stack css={{ paddingLeft: 12 }}>
                     {projects.map((project) => (
                       <ProjectRow
-                        key={project.id}
+                        key={project.slug}
                         project={project}
                         showDelete={isEditing}
                         isTop={i === 0}
