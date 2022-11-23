@@ -10,8 +10,8 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: "16.x"
       - name: Install dependencies
@@ -26,7 +26,7 @@ jobs:
           TEST_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
           TEST_CREATE_BLANK_PROJECT: "My Cool Project for E2E Testing"
           TEST_CREATE_NFT_TUTORIAL_PROJECT: "My Cool NFT Project for E2E Testing"
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: playwright-report
