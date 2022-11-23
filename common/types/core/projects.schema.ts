@@ -25,7 +25,7 @@ export namespace Query {
     export type GetContract = Pick<Contract, 'slug' | 'address' | 'net'>;
     export type List = (Pick<
       Project,
-      'id' | 'name' | 'slug' | 'tutorial' | 'active'
+      'name' | 'slug' | 'tutorial' | 'active'
     > & {
       org: Pick<Org, 'slug' | 'name'> & {
         isPersonal: boolean;

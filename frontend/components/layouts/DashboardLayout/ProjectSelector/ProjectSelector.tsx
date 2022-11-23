@@ -69,7 +69,7 @@ export function ProjectSelector(props: Props) {
                     </Text>
                   </DropdownMenu.ContentItem>
                   {projects.map((project) => (
-                    <DropdownMenu.Item key={project.id} onSelect={() => onSelectProject(project)}>
+                    <DropdownMenu.Item key={project.slug} onSelect={() => onSelectProject(project)}>
                       {project.name}
                       {project.tutorial && <Badge size="s">Tutorial</Badge>}
                     </DropdownMenu.Item>
