@@ -104,7 +104,7 @@ This is an RPC-style API. All endpoints are POSTs and all bodies are JSON. This 
 
 ## Input Validation
 
-All endpoints which accept input (JSON bodies) should validate that input with [Joi](https://joi.dev/). The best way to learn how to do this is to inspect an existing endpoint.
+All endpoints which accept input (JSON bodies) should validate that input with [zod](https://github.com/colinhacks/zod). The best way to learn how to do this is to inspect an existing endpoint.
 
 ## Authentication
 
