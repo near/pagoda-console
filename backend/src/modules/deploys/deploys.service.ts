@@ -127,7 +127,9 @@ export class DeploysService {
     });
 
     if (!repo) {
-      throw new BadRequestException('githubRepoFullName not found');
+      throw new BadRequestException(
+        'githubRepoFullName not found please add a Repository project to deploy to',
+      );
     }
 
     const repoDeployment = await this.prisma.repoDeployment.create({
@@ -245,5 +247,38 @@ export class DeploysService {
         },
       });
     }
+
+    await this.prisma.contractDeployment.create({
+      data: {
+        slug: nanoid(),
+        repoDeploymentSlug,
+        contractDeployConfigSlug: deployConfig.slug,
+      },
+    });
+  }
+
+  /**
+   * Sets Frontend Deploy Url
+   */
+  async setFrontendDeployUrl({ repoDeploymentSlug, frontendDeployUrl }) {
+    return this.prisma.repoDeployment.update({
+      where: {
+        slug: repoDeploymentSlug,
+      },
+      data: {
+        frontendDeployUrl,
+      },
+    });
+  }
+
+  getRepoDeploymentBySlug(slug) {
+    return this.prisma.repoDeployment.findUnique({
+      where: {
+        slug,
+      },
+      include: {
+        repository: true,
+      },
+    });
   }
 }

@@ -2,12 +2,14 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Patch,
   Post,
   Req,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
   UsePipes,
+  ForbiddenException,
 } from '@nestjs/common';
 import { DeploysService } from './deploys.service';
 import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
@@ -39,10 +41,12 @@ const deployWasmInput = z.strictObject({
 const wasmFilesInput = z.array(
   z.object({ mimetype: z.string().startsWith('application/wasm') }),
 );
+const patchDeploymentFrontendUrlInput = z.strictObject({
+  repoDeploymentSlug: z.string(),
+  frontendDeployUrl: z.string().url(),
+});
 
 // TODO
-// Set frontend url
-// add github auth guard
 // add GET endpoints to view this data
 @Controller('deploys')
 export class DeploysController {
@@ -57,7 +61,7 @@ export class DeploysController {
     { githubRepoFullName, projectName }: z.infer<typeof addDeployInput>,
   ) {
     // called from Console frontend to initialize a new repo for deployment
-    return await this.deploysService.createDeployProject({
+    return this.deploysService.createDeployProject({
       user: req.user as User, // TODO change to UserDetails from auth service
       githubRepoFullName,
       projectName,
@@ -65,7 +69,6 @@ export class DeploysController {
   }
 
   @Post('deployWasm')
-  // @UseGuards(BearerAuthGuard) // TODO replace with github auth guard
   @UseInterceptors(AnyFilesInterceptor())
   async deployWasm(
     @Req() req: Request,
@@ -81,14 +84,62 @@ export class DeploysController {
     if (parsedFiles.success === false) {
       throw new BadRequestException(fromZodError(parsedFiles.error).toString());
     }
-
     const { githubRepoFullName, commitHash, commitMessage } = body;
+
+    // auth guard code
+    const authorized = await fetch(
+      `https://api.github.com/repos/${githubRepoFullName}`,
+      {
+        headers: { Authorization: req.headers['x-github-token'] as string },
+      },
+    ).then((res) => /\brepo\b/.test(res.headers.get('x-oauth-scopes') || ''));
+    if (!authorized) {
+      throw new ForbiddenException('Unauthorized github token');
+    }
+    //
+
     // called from Console frontend to initialize a new repo for deployment
-    return await this.deploysService.deployRepository({
+    return this.deploysService.deployRepository({
       githubRepoFullName,
       commitHash,
       commitMessage,
       files,
+    });
+  }
+
+  @Patch('setFrontendDeployUrl')
+  @UsePipes(new ZodValidationPipe(patchDeploymentFrontendUrlInput))
+  async setFrontendDeployUrl(
+    @Req() req: Request,
+    @Body()
+    {
+      repoDeploymentSlug,
+      frontendDeployUrl,
+    }: z.infer<typeof patchDeploymentFrontendUrlInput>,
+  ) {
+    // auth guard code
+    const repoDeployment = await this.deploysService.getRepoDeploymentBySlug(
+      repoDeploymentSlug,
+    );
+    if (!repoDeployment) {
+      throw new BadRequestException(
+        `RepoDeployment slug ${repoDeploymentSlug} not found`,
+      );
+    }
+    const authorized = await fetch(
+      `https://api.github.com/repos/${repoDeployment.repository.githubRepoFullName}`,
+      {
+        headers: { Authorization: req.headers['x-github-token'] as string },
+      },
+    ).then((res) => /\brepo\b/.test(res.headers.get('x-oauth-scopes') || ''));
+    if (!authorized) {
+      throw new ForbiddenException('Unauthorized github token');
+    }
+    //
+
+    return this.deploysService.setFrontendDeployUrl({
+      repoDeploymentSlug,
+      frontendDeployUrl,
     });
   }
 }
