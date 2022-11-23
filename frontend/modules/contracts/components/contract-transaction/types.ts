@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Net } from '@pc/database/clients/core';
 import type { AbiFunction, AbiParameter, AbiRoot } from 'near-abi-client-js';
 import type { UseFormReturn } from 'react-hook-form';
 
@@ -63,6 +64,7 @@ export interface TxFormWalletLoginProps {
 export interface TxResultProps {
   result: any;
   error: any;
+  net: Net;
 }
 
 export interface TxResultCodeProps {
@@ -75,4 +77,5 @@ export interface TxResultErrorProps {
 
 export interface TxResultHashProps {
   result: any;
+  net: Net;
 }

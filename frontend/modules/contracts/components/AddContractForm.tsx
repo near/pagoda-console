@@ -14,20 +14,17 @@ import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import type { ContractTemplate } from '@/hooks/contract-templates';
-import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
 import analytics from '@/utils/analytics';
 import { formRegex } from '@/utils/constants';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
+import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 
-type Project = Api.Query.Output<'/projects/getDetails'>;
-type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
 interface Props {
-  project: Project;
-  environment: Environment;
   onAdd: (contract: Contract) => void;
 }
 
@@ -39,22 +36,19 @@ export function AddContractForm(props: Props) {
   const { register, handleSubmit, formState, setValue } = useForm<FormData>();
   const [isDeployingContract, setIsDeployingContract] = useState(false);
   const [selectedContractTemplate, setSelectedContractTemplate] = useState<ContractTemplate | undefined>();
-  const { project } = useSelectedProject();
-  const { selectEnvironment } = useProjectSelector();
+  const { projectSlug, environmentSubId, updateContext: updateProjectContext } = useSureProjectContext();
 
-  const environmentTitle = props.environment?.net === 'TESTNET' ? 'Testnet' : 'Mainnet';
-  const environmentTla = props.environment?.net === 'TESTNET' ? 'testnet' : 'near';
+  const environmentTitle = environmentSubId === 1 ? 'Testnet' : 'Mainnet';
+  const environmentTla = environmentSubId === 1 ? 'testnet' : 'near';
 
   async function deployContract(template: ContractTemplate) {
-    if (!project) return;
-
     try {
       setIsDeployingContract(true);
 
       const deployResult = await deployContractTemplate(template);
 
       const contract = await authenticatedPost('/projects/addContract', {
-        project: props.project.slug,
+        project: projectSlug,
         environment: deployResult.subId,
         address: deployResult.address,
       });
@@ -70,7 +64,7 @@ export function AddContractForm(props: Props) {
         description: contract.address,
       });
 
-      selectEnvironment(project.slug, 1); // Make sure TESTNET is selected if they happened to currently be on MAINNET
+      updateProjectContext(projectSlug, 1); // Make sure TESTNET is selected if they happened to currently be on MAINNET
 
       props.onAdd(contract);
     } catch (e: any) {
@@ -94,15 +88,15 @@ export function AddContractForm(props: Props) {
     const contractAddressValue = contractAddress.trim();
     try {
       const contract = await authenticatedPost('/projects/addContract', {
-        project: props.project.slug,
-        environment: props.environment.subId,
+        project: projectSlug,
+        environment: environmentSubId,
         address: contractAddressValue,
       });
 
       analytics.track('DC Add Contract', {
         status: 'success',
         contractId: contractAddressValue,
-        net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
+        net: environmentSubId === 2 ? 'MAINNET' : 'TESTNET',
       });
 
       openToast({
@@ -123,7 +117,7 @@ export function AddContractForm(props: Props) {
       }
 
       if (e.message === 'ADDRESS_NOT_FOUND') {
-        const net = props.environment.net.toLowerCase();
+        const net = mapEnvironmentSubIdToNet(environmentSubId).toLowerCase();
         openToast({
           type: 'error',
           title: 'Contract not found',
@@ -136,7 +130,7 @@ export function AddContractForm(props: Props) {
         status: 'failure',
         error: e.message,
         contractId: contractAddressValue,
-        net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
+        net: environmentSubId === 2 ? 'MAINNET' : 'TESTNET',
       });
 
       openToast({

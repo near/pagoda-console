@@ -4,7 +4,6 @@ import type { Net } from '@pc/database/clients/core';
 import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
-import { usePublicStore } from '@/stores/public';
 import analytics from '@/utils/analytics';
 import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
@@ -32,7 +31,7 @@ export async function deleteContract(contract: Contract) {
   }
 }
 
-export function useContracts(project: string | undefined, environment: number | undefined) {
+export function useContracts(project: string, environment: number) {
   const { identity } = useAuth();
 
   const {
@@ -40,7 +39,7 @@ export function useContracts(project: string | undefined, environment: number | 
     error,
     mutate,
   } = useSWR(
-    identity && project && environment ? ['/projects/getContracts' as const, project, environment, identity.uid] : null,
+    identity ? ['/projects/getContracts' as const, project, environment, identity.uid] : null,
     (key, project, environment) => {
       return authenticatedPost(key, {
         project,
@@ -100,29 +99,5 @@ export function useContractMetrics(address: string | undefined, net: Net | undef
     metrics: data?.result,
     error,
     mutate,
-  };
-}
-
-export function usePublicOrPrivateContract(slug: string | undefined) {
-  const publicModeHasHydrated = usePublicStore((store) => store.hasHydrated);
-  const publicModeIsActive = usePublicStore((store) => store.publicModeIsActive);
-  const publicContracts = usePublicStore((store) => store.contracts);
-  const { contract: privateContract, error } = useContract(
-    publicModeHasHydrated && !publicModeIsActive ? slug : undefined,
-  );
-  const publicContract = publicContracts.find((c) => c.slug === slug);
-
-  return {
-    contract: publicModeIsActive ? publicContract : privateContract,
-    error,
-  };
-}
-
-export function usePublicOrPrivateContracts(privateContracts: Contract[] | undefined) {
-  const publicModeIsActive = usePublicStore((store) => store.publicModeIsActive);
-  const publicContracts = usePublicStore((store) => store.contracts);
-
-  return {
-    contracts: publicModeIsActive ? publicContracts : privateContracts,
   };
 }

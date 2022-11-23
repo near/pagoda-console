@@ -4,9 +4,9 @@ import { AuthStatusRenderer } from '@/components/AuthStatusRenderer';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Section } from '@/components/lib/Section';
 import * as Tabs from '@/components/lib/Tabs';
+import { withSelectedProject } from '@/components/with-selected-project';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
-import { useSelectedProject } from '@/hooks/selected-project';
 import { Alerts } from '@/modules/alerts/components/Alerts';
 import { AlertsMarketing } from '@/modules/alerts/components/AlertsMarketing';
 import { Destinations } from '@/modules/alerts/components/Destinations';
@@ -14,12 +14,7 @@ import { TriggeredAlerts } from '@/modules/alerts/components/TriggeredAlerts';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
-const ListAlertsPage: NextPageWithLayout = () => {
-  return <AuthStatusRenderer authenticated={<ListAlerts />} unauthenticated={<AlertsMarketing />} />;
-};
-
-function ListAlerts() {
-  const { environment, project } = useSelectedProject();
+const ListAlerts = withSelectedProject(() => {
   const activeTab = useRouteParam('tab', '?tab=alerts', true);
 
   return (
@@ -46,20 +41,24 @@ function ListAlerts() {
         </Tabs.List>
 
         <Tabs.Content value="activity">
-          <TriggeredAlerts environment={environment} project={project} />
+          <TriggeredAlerts />
         </Tabs.Content>
 
         <Tabs.Content value="alerts">
-          <Alerts environment={environment} project={project} />
+          <Alerts />
         </Tabs.Content>
 
         <Tabs.Content value="destinations">
-          <Destinations project={project} />
+          <Destinations />
         </Tabs.Content>
       </Tabs.Root>
     </Section>
   );
-}
+});
+
+const ListAlertsPage: NextPageWithLayout = () => {
+  return <AuthStatusRenderer authenticated={<ListAlerts />} unauthenticated={<AlertsMarketing />} />;
+};
 
 ListAlertsPage.getLayout = useDashboardLayout;
 

@@ -1,20 +1,21 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ComponentProps } from 'react';
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { useAuth, useSignOut } from '@/hooks/auth';
+import { useMaybeProjectContext } from '@/hooks/project-context';
+import { useMaybeProject } from '@/hooks/projects';
 import { usePublicMode } from '@/hooks/public';
-import { useSelectedProject } from '@/hooks/selected-project';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
 import apisEntries from '@/modules/apis/sidebar-entries';
 import contractsEntries from '@/modules/contracts/sidebar-entries';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
+import { nonNullishGuard } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 
 import { Logo } from './Logo';
@@ -26,50 +27,51 @@ type Props = ComponentProps<typeof S.Root>;
 function useProjectPages(): SidebarEntry[] {
   const { publicModeIsActive } = usePublicMode();
   const { authStatus } = useAuth();
-  let pages: SidebarEntry[] = [];
 
-  const { project } = useSelectedProject({
-    enforceSelectedProject: false,
-  });
+  const { projectSlug } = useMaybeProjectContext();
+  const { project } = useMaybeProject(projectSlug);
 
-  if (project?.tutorial === 'NFT_MARKET') {
-    pages.push({
-      display: 'Tutorial',
-      route: '/tutorials/nfts/introduction',
-      routeMatchPattern: '/tutorials/',
-      icon: 'book',
-      stableId: StableId.SIDEBAR_TUTORIAL_LINK,
-    });
-  }
-
-  pages.push(...apisEntries);
-  pages.push(...alertsEntries);
-  pages.push(...contractsEntries);
-
-  pages.push({
-    display: 'Analytics',
-    route: '/project-analytics',
-    icon: 'bar-chart-2',
-    stableId: StableId.SIDEBAR_ANALYTICS_LINK,
-    visibleForAuthPublicMode: true,
-  });
-
-  pages.push(...indexersEntries);
-
-  if (authStatus === 'AUTHENTICATED') {
-    pages.push({
-      display: 'Settings',
-      route: '/project-settings',
-      icon: 'settings',
-      stableId: StableId.SIDEBAR_PROJECT_SETTINGS_LINK,
-    });
-  }
-
-  if (authStatus === 'AUTHENTICATED' && publicModeIsActive) {
-    pages = pages.filter((page) => page.visibleForAuthPublicMode);
-  }
-
-  return pages;
+  return useMemo(
+    () =>
+      [
+        project?.tutorial === 'NFT_MARKET'
+          ? {
+              display: 'Tutorial',
+              route: '/tutorials/nfts/introduction',
+              routeMatchPattern: '/tutorials/',
+              icon: 'book',
+              stableId: StableId.SIDEBAR_TUTORIAL_LINK,
+            }
+          : undefined,
+        ...apisEntries,
+        ...alertsEntries,
+        ...contractsEntries,
+        {
+          display: 'Analytics',
+          route: '/project-analytics',
+          icon: 'bar-chart-2',
+          stableId: StableId.SIDEBAR_ANALYTICS_LINK,
+          visibleForAuthPublicMode: true,
+        },
+        ...indexersEntries,
+        authStatus === 'AUTHENTICATED'
+          ? {
+              display: 'Settings',
+              route: '/project-settings',
+              icon: 'settings',
+              stableId: StableId.SIDEBAR_PROJECT_SETTINGS_LINK,
+            }
+          : null,
+      ]
+        .filter(nonNullishGuard)
+        .filter((page) => {
+          if (authStatus === 'AUTHENTICATED' && publicModeIsActive) {
+            return page.visibleForAuthPublicMode;
+          }
+          return true;
+        }),
+    [project, authStatus, publicModeIsActive],
+  );
 }
 
 export function Sidebar({ children, ...props }: Props) {

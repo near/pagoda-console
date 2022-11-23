@@ -14,14 +14,17 @@ import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
+import { withSelectedProject } from '@/components/with-selected-project';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
+import { useProject } from '@/hooks/projects';
 import DeleteProjectModal from '@/modules/core/components/modals/DeleteProjectModal';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const ProjectSettings: NextPageWithLayout = () => {
-  const { project } = useSelectedProject();
+  const { projectSlug } = useSureProjectContext();
+  const { project } = useProject(projectSlug);
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
 
@@ -113,4 +116,4 @@ const ProjectSettings: NextPageWithLayout = () => {
 
 ProjectSettings.getLayout = useDashboardLayout;
 
-export default ProjectSettings;
+export default withSelectedProject(ProjectSettings);

@@ -2,6 +2,7 @@ import type { Alerts, TriggeredAlerts } from '@pc/common/types/alerts';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { ButtonLink } from '@/components/lib/Button';
@@ -17,12 +18,14 @@ import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
+import { withSelectedProject } from '@/components/with-selected-project';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
-import { useSelectedProject, useSelectedProjectSync } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
 import { useAlert } from '@/modules/alerts/hooks/alerts';
 import { useTriggeredAlertDetails } from '@/modules/alerts/hooks/triggered-alerts';
 import { alertTypes } from '@/modules/alerts/utils/constants';
 import config from '@/utils/config';
+import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -67,10 +70,15 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
   const triggeredAlertId = router.query.triggeredAlertId as string;
   const { triggeredAlert, error } = useTriggeredAlertDetails(triggeredAlertId);
   const { alert } = useAlert(triggeredAlert?.alertId);
-  const { environment } = useSelectedProject();
-  const baseExplorerUrl = environment && config.url.explorer[environment?.net];
+  const { environmentSubId, updateContext: updateProjectContext } = useSureProjectContext();
+  const baseExplorerUrl = config.url.explorer[mapEnvironmentSubIdToNet(environmentSubId)];
 
-  useSelectedProjectSync(alert?.environmentSubId, alert?.projectSlug);
+  useEffect(() => {
+    if (!alert) {
+      return;
+    }
+    updateProjectContext(alert.projectSlug, alert.environmentSubId);
+  }, [alert, updateProjectContext]);
 
   function alertType(triggeredAlert: TriggeredAlerts.TriggeredAlert) {
     if (!triggeredAlert) return alertTypes.EVENT;
@@ -201,4 +209,4 @@ ViewTriggeredAlert.getLayout = wrapDashboardLayoutWithOptions({
   },
 });
 
-export default ViewTriggeredAlert;
+export default withSelectedProject(ViewTriggeredAlert);

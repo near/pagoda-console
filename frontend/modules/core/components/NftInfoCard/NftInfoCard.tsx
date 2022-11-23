@@ -15,8 +15,9 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { withSelectedProject } from '@/components/with-selected-project';
 import { useAuth } from '@/hooks/auth';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
 import { useSettingsStore } from '@/stores/settings';
 import analytics from '@/utils/analytics';
 import type { ContractMetadata, NftData, Token } from '@/utils/chain-data';
@@ -30,26 +31,26 @@ interface NftInfoFormData {
   contractAddress: string;
 }
 
-export function NftInfoCard() {
+const NftInfoCard = () => {
   const { register, handleSubmit, formState, setValue } = useForm<NftInfoFormData>();
   const [isEditing, setIsEditing] = useState(true);
   const [savedContractAddress, setSavedContractAddress] = useState<string | null>(null);
   const [showQuickInfo, setShowQuickInfo] = useState(true);
-  const { environment, project } = useSelectedProject();
+  const { projectSlug, environmentSubId } = useSureProjectContext();
   const { identity } = useAuth();
   const settings = useSettingsStore((store) => store.currentUser);
   const updateProjectSettings = useSettingsStore((store) => store.updateProjectSettings);
-  const contractAddressRegex = returnContractAddressRegex(environment);
+  const contractAddressRegex = returnContractAddressRegex(environmentSubId);
 
   useEffect(() => {
-    const projectSettings = settings?.projects[project?.slug || ''];
+    const projectSettings = settings?.projects[projectSlug];
 
     if (projectSettings?.nftContract) {
       setSavedContractAddress(projectSettings.nftContract);
       setValue('contractAddress', projectSettings.nftContract);
       setIsEditing(false);
     }
-  }, [project, settings, setValue]);
+  }, [projectSlug, settings, setValue]);
 
   // fetch basic account info for the NFT contract
   const { data: contractBasics, error: basicsError } = useContractInfo(savedContractAddress);
@@ -62,10 +63,10 @@ export function NftInfoCard() {
 
   // update the contract address for data fetching
   const saveAddressChange: SubmitHandler<NftInfoFormData> = async ({ contractAddress }) => {
-    if (!identity || !project) return;
+    if (!identity) return;
     setSavedContractAddress(contractAddress);
     setIsEditing(false);
-    updateProjectSettings(identity.uid, project.slug, {
+    updateProjectSettings(identity.uid, projectSlug, {
       nftContract: contractAddress,
     });
     analytics.track('DC Set NFT quick info card address');
@@ -156,7 +157,7 @@ export function NftInfoCard() {
       </Flex>
     </S.Root>
   );
-}
+};
 
 // wrapper component for the metadata and token list sections
 function NftInfo({ nftData }: { nftData: NftData }) {
@@ -369,3 +370,7 @@ function ErrorIndicator() {
     </Tooltip>
   );
 }
+
+const WrappedNftInfoCard = withSelectedProject(NftInfoCard);
+
+export { WrappedNftInfoCard as NftInfoCard };

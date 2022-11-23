@@ -5,8 +5,9 @@ import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
 import config from '@/utils/config';
+import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 
 import * as S from './styles';
 
@@ -24,8 +25,8 @@ import * as S from './styles';
 
 const EnhancedAPI = () => {
   const [displayMessage, setDisplayMessage] = useState(true);
-  const { environment } = useSelectedProject();
-  const url = environment && config.url.eapiSpec[environment.net];
+  const { environmentSubId } = useSureProjectContext();
+  const url = config.url.eapiSpec[mapEnvironmentSubIdToNet(environmentSubId)];
 
   return (
     <Flex stack>

@@ -1,5 +1,4 @@
 import type { Api } from '@pc/common/types/api';
-import type { Net } from '@pc/database/clients/core';
 
 import TransactionAction from '@/components/explorer/transactions/TransactionAction';
 import { NetContext } from '@/components/explorer/utils/NetContext';
@@ -11,20 +10,20 @@ import { Placeholder } from '@/components/lib/Placeholder';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { useContractMetrics } from '@/hooks/contracts';
+import { useSureProjectContext } from '@/hooks/project-context';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatBytes } from '@/utils/format-bytes';
+import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 
 import { useFinalityStatus, useRecentTransactions } from '../hooks/recent-transactions';
 
 type Contract = Api.Query.Output<'/projects/getContract'>;
-type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 
 interface Props {
   contract?: Contract;
-  environment?: Environment;
 }
 
-export function ContractDetails({ contract, environment }: Props) {
+export function ContractDetails({ contract }: Props) {
   const { metrics, error } = useContractMetrics(contract?.address, contract?.net);
 
   function Metric({ label, value }: { label: string; value?: string }) {
@@ -61,14 +60,15 @@ export function ContractDetails({ contract, environment }: Props) {
         </Flex>
       </Card>
 
-      <RecentTransactionList contract={contract} net={environment?.net} />
+      <RecentTransactionList contract={contract} />
     </Flex>
   );
 }
 
-function RecentTransactionList({ contract, net }: { contract?: Contract; net?: Net }) {
+function RecentTransactionList({ contract }: { contract?: Contract }) {
   // NOTE: This component and following code is legacy and will soon be replaced by new explorer components.
 
+  const net = mapEnvironmentSubIdToNet(useSureProjectContext().environmentSubId);
   const { finalityStatus } = useFinalityStatus(net);
   const { transactions } = useRecentTransactions(contract?.address, net);
 

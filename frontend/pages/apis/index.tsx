@@ -5,9 +5,9 @@ import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Section } from '@/components/lib/Section';
 import * as Tabs from '@/components/lib/Tabs';
+import { withSelectedProject } from '@/components/with-selected-project';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
-import { useSelectedProject } from '@/hooks/selected-project';
 import { ApiKeys } from '@/modules/apis/components/ApiKeys';
 import { ApisMarketing } from '@/modules/apis/components/ApisMarketing';
 import { ApiStats } from '@/modules/apis/components/ApiStats';
@@ -15,12 +15,7 @@ import EnhancedApi from '@/modules/apis/components/EnhancedApi';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
-const ListApisPage: NextPageWithLayout = () => {
-  return <AuthStatusRenderer authenticated={<ListApis />} unauthenticated={<ApisMarketing />} />;
-};
-
-function ListApis() {
-  const { environment, project } = useSelectedProject();
+const ListApis = withSelectedProject(() => {
   const activeTab = useRouteParam('tab', '?tab=keys', true);
 
   return (
@@ -54,11 +49,11 @@ function ListApis() {
         </Tabs.List>
 
         <Tabs.Content value="keys">
-          <ApiKeys project={project} />
+          <ApiKeys />
         </Tabs.Content>
 
         <Tabs.Content value="statistics">
-          <ApiStats project={project} environment={environment} />
+          <ApiStats />
         </Tabs.Content>
 
         <Tabs.Content value="enhancedApi">
@@ -67,7 +62,11 @@ function ListApis() {
       </Tabs.Root>
     </Section>
   );
-}
+});
+
+const ListApisPage: NextPageWithLayout = () => {
+  return <AuthStatusRenderer authenticated={<ListApis />} unauthenticated={<ApisMarketing />} />;
+};
 
 ListApisPage.getLayout = useDashboardLayout;
 

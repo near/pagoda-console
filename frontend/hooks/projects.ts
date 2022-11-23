@@ -1,14 +1,10 @@
 import type { Api } from '@pc/common/types/api';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 import useSWR from 'swr';
 import { mutate } from 'swr';
 
 import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
-
-import { useProjectSelector } from './selected-project';
 
 export async function ejectTutorial(slug: string, name: string) {
   try {
@@ -56,34 +52,22 @@ export async function deleteProject(userId: string | undefined, slug: string, na
   return false;
 }
 
-export function useProject(projectSlug: string | undefined) {
-  const router = useRouter();
-  const { identity } = useAuth();
-  const { selectProject } = useProjectSelector();
-
-  const { data: project, error } = useSWR(
-    identity && projectSlug ? ['/projects/getDetails' as const, projectSlug, identity.uid] : null,
-    (key, projectSlug) => {
-      return authenticatedPost(key, { slug: projectSlug });
-    },
-  );
-
-  useEffect(() => {
-    router.prefetch('/projects');
-  }, [router]);
-
-  useEffect(() => {
-    if (router.pathname !== '/projects') {
-      if ([400, 403].includes(error?.statusCode)) {
-        selectProject(undefined);
-        window.sessionStorage.setItem('redirected', 'true');
-        router.push('/projects');
-      }
-    }
-  }, [error, router, selectProject]);
+export function useProject(projectSlug: string) {
+  const { data: project, error } = useSWR(['/projects/getDetails' as const, projectSlug], (key, projectSlug) => {
+    return authenticatedPost(key, { slug: projectSlug });
+  });
 
   return { project, error };
 }
+
+export const useMaybeProject = (projectSlug: string | undefined) => {
+  const { data: project, error } = useSWR(
+    projectSlug ? ['/projects/getDetails' as const, projectSlug] : null,
+    (key, projectSlug) => authenticatedPost(key, { slug: projectSlug }),
+  );
+
+  return { project, error };
+};
 
 export function useProjects() {
   const { identity } = useAuth();

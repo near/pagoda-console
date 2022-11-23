@@ -9,13 +9,17 @@ import { SubnetIcon } from '@/components/lib/SubnetIcon';
 import { Text } from '@/components/lib/Text';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { useAuth } from '@/hooks/auth';
-import { useCurrentEnvironment } from '@/hooks/environments';
 import { usePublicMode } from '@/hooks/public';
+import { usePublicStore } from '@/stores/public';
+import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 
 export function PublicHeader() {
   const { authStatus } = useAuth();
-  const { environment } = useCurrentEnvironment();
+  const publicModeHasHydrated = usePublicStore((store) => store.hasHydrated);
+  const publicContracts = usePublicStore((store) => store.contracts);
+  const publicEnvironmentSubId = publicModeHasHydrated ? (publicContracts[0]?.net === 'MAINNET' ? 2 : 1) : undefined;
+  const publicNet = publicEnvironmentSubId === undefined ? undefined : mapEnvironmentSubIdToNet(publicEnvironmentSubId);
   const { deactivatePublicMode } = usePublicMode();
   const router = useRouter();
 
@@ -35,9 +39,9 @@ export function PublicHeader() {
       </Text>
 
       <Flex align="center" gap="xs" autoWidth>
-        <SubnetIcon net={environment?.net} size="xs" />
+        <SubnetIcon net={publicNet} size="xs" />
         <Text family="code" color="text1" weight="semibold" size="bodySmall">
-          {environment?.name}
+          {publicNet ? `${publicNet[0]}${publicNet.slice(1).toLowerCase()}` : ''}
         </Text>
       </Flex>
 

@@ -13,24 +13,21 @@ import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useApiKeys } from '@/hooks/new-api-keys';
+import { useSureProjectContext } from '@/hooks/project-context';
 import { CreateApiKeyForm } from '@/modules/apis/components/CreateApiKeyForm';
 import StarterGuide from '@/modules/core/components/StarterGuide';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 
-type Project = Api.Query.Output<'/projects/getDetails'>;
 type ApiKey = Api.Query.Output<'/projects/getKeys'>[number];
 
 const ROTATION_WARNING =
   'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';
 
-interface Props {
-  project?: Project;
-}
-
-export function ApiKeys({ project }: Props) {
-  const { keys, mutate: mutateKeys } = useApiKeys(project?.slug);
+export function ApiKeys() {
+  const { projectSlug } = useSureProjectContext();
+  const { keys, mutate: mutateKeys } = useApiKeys(projectSlug);
   const [showRotationModal, setShowRotationModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -91,7 +88,7 @@ export function ApiKeys({ project }: Props) {
       <Flex stack>
         <Dialog.Root open={showCreateModal} onOpenChange={setShowCreateModal}>
           <Dialog.Content title="Create New Key" size="s">
-            <CreateApiKeyForm setShow={setShowCreateModal} show={showCreateModal} project={project} />
+            <CreateApiKeyForm setShow={setShowCreateModal} show={showCreateModal} projectSlug={projectSlug} />
           </Dialog.Content>
         </Dialog.Root>
         <ConfirmModal

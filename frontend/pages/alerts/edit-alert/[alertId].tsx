@@ -19,6 +19,7 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { withSelectedProject } from '@/components/with-selected-project';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { DeleteAlertModal } from '@/modules/alerts/components/DeleteAlertModal';
 import type { OnDestinationSelectionChangeEvent } from '@/modules/alerts/components/DestinationsSelector';
@@ -505,4 +506,4 @@ EditAlert.getLayout = wrapDashboardLayoutWithOptions({
   },
 });
 
-export default EditAlert;
+export default withSelectedProject(EditAlert);

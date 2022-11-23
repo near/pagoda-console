@@ -1,7 +1,9 @@
 import type { Api } from '@pc/common/types/api';
 import { useRouter } from 'next/router';
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
+import { useCallback } from 'react';
 import { useState } from 'react';
+import { mutate } from 'swr';
 
 import { Button } from '@/components/lib/Button';
 import * as Dialog from '@/components/lib/Dialog';
@@ -15,13 +17,13 @@ import { Section } from '@/components/lib/Section';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
-import { useContractMetrics, useContracts } from '@/hooks/contracts';
-import { usePublicOrPrivateContracts } from '@/hooks/contracts';
-import { useCurrentEnvironment } from '@/hooks/environments';
+import { useAuth } from '@/hooks/auth';
+import { useContractMetrics } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
+import { useMaybeProjectContext } from '@/hooks/project-context';
 import { usePublicMode } from '@/hooks/public';
-import { useSelectedProject } from '@/hooks/selected-project';
 import { AddContractForm } from '@/modules/contracts/components/AddContractForm';
+import { ContractsWrapper } from '@/modules/contracts/components/ContractsWrapper';
 import { DeleteContractModal } from '@/modules/contracts/components/DeleteContractModal';
 import { ShareContracts } from '@/modules/contracts/components/ShareContracts';
 import { useAnyAbi } from '@/modules/contracts/hooks/abi';
@@ -33,26 +35,24 @@ import type { NextPageWithLayout } from '@/utils/types';
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
 const ListContracts: NextPageWithLayout = () => {
+  const { identity } = useAuth();
   const { publicModeIsActive } = usePublicMode();
-  const { project } = useSelectedProject();
-  const { environment } = useCurrentEnvironment();
-  const { contracts: privateContracts, mutate } = useContracts(project?.slug, environment?.subId);
-  const { contracts } = usePublicOrPrivateContracts(privateContracts);
   const [addContractIsOpen, setAddContractIsOpen] = useState(false);
   const [shareContractsIsOpen, setShareContractsIsOpen] = useState(false);
 
-  function onContractAdd(contract: Contract) {
-    setAddContractIsOpen(false);
-
-    mutate((contracts) => {
-      return [...(contracts || []), contract];
-    });
-  }
-
+  const { projectSlug, environmentSubId } = useMaybeProjectContext();
+  const mutateContracts = useCallback(
+    (updater) => mutate(['/projects/getContracts', projectSlug, environmentSubId, identity?.uid], updater),
+    [projectSlug, environmentSubId, identity?.uid],
+  );
   function onContractDelete(contract: Contract) {
-    mutate((contracts) => {
+    mutateContracts((contracts) => {
       return contracts?.filter((c) => c.slug !== contract.slug) || [];
     });
+  }
+  function onContractAdd(contract: Contract) {
+    setAddContractIsOpen(false);
+    mutateContracts((contracts) => [...(contracts || []), contract]);
   }
 
   return (
@@ -65,15 +65,19 @@ const ListContracts: NextPageWithLayout = () => {
               <H1>Contracts</H1>
             </Flex>
 
-            {contracts && contracts.length > 0 && (
-              <Button
-                color="neutral"
-                stableId={StableId.CONTRACTS_OPEN_SHARE_CONTRACTS_MODAL_BUTTON}
-                onClick={() => setShareContractsIsOpen(true)}
-              >
-                <FeatherIcon icon="share" /> Share
-              </Button>
-            )}
+            <ContractsWrapper>
+              {({ contracts }) =>
+                contracts && contracts.length > 0 ? (
+                  <Button
+                    color="neutral"
+                    stableId={StableId.CONTRACTS_OPEN_SHARE_CONTRACTS_MODAL_BUTTON}
+                    onClick={() => setShareContractsIsOpen(true)}
+                  >
+                    <FeatherIcon icon="share" /> Share
+                  </Button>
+                ) : null
+              }
+            </ContractsWrapper>
 
             {!publicModeIsActive && (
               <Button
@@ -87,23 +91,36 @@ const ListContracts: NextPageWithLayout = () => {
         </Flex>
       </Section>
 
-      <ContractsTable contracts={contracts} onDelete={onContractDelete} setAddContractIsOpen={setAddContractIsOpen} />
+      <ContractsWrapper>
+        {({ contracts }) => (
+          <ContractsTable
+            contracts={contracts}
+            onDelete={onContractDelete}
+            setAddContractIsOpen={setAddContractIsOpen}
+          />
+        )}
+      </ContractsWrapper>
 
-      {!publicModeIsActive && project && environment && (
-        <Dialog.Root open={addContractIsOpen} onOpenChange={setAddContractIsOpen}>
-          <Dialog.Content title="Add Contract" size="s">
-            <AddContractForm project={project} environment={environment} onAdd={onContractAdd} />
-          </Dialog.Content>
-        </Dialog.Root>
-      )}
-
-      {contracts && environment && (
-        <Dialog.Root open={shareContractsIsOpen} onOpenChange={setShareContractsIsOpen}>
-          <Dialog.Content title="Share Contracts" size="s">
-            <ShareContracts contracts={contracts} environment={environment} />
-          </Dialog.Content>
-        </Dialog.Root>
-      )}
+      <ContractsWrapper>
+        {({ contracts, isPublicMode }) => {
+          if (isPublicMode) {
+            return (
+              <Dialog.Root open={shareContractsIsOpen} onOpenChange={setShareContractsIsOpen}>
+                <Dialog.Content title="Share Contracts" size="s">
+                  <ShareContracts contracts={contracts} />
+                </Dialog.Content>
+              </Dialog.Root>
+            );
+          }
+          return (
+            <Dialog.Root open={addContractIsOpen} onOpenChange={setAddContractIsOpen}>
+              <Dialog.Content title="Add Contract" size="s">
+                <AddContractForm onAdd={onContractAdd} />
+              </Dialog.Content>
+            </Dialog.Root>
+          );
+        }}
+      </ContractsWrapper>
     </>
   );
 };
@@ -247,12 +264,14 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
         </DropdownMenu.Root>
       </Table.Row>
 
-      <DeleteContractModal
-        contract={contract}
-        show={showDeleteModal}
-        setShow={setShowDeleteModal}
-        onDelete={onDelete}
-      />
+      {!publicModeIsActive && (
+        <DeleteContractModal
+          contract={contract}
+          show={showDeleteModal}
+          setShow={setShowDeleteModal}
+          onDelete={onDelete}
+        />
+      )}
     </>
   );
 }

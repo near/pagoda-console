@@ -6,7 +6,7 @@ import TxResultError from './TxResultError';
 import TxResultHash from './TxResultHash';
 import type { TxResultProps } from './types';
 
-const TxResult = ({ result, error }: TxResultProps) => {
+const TxResult = ({ result, error, net }: TxResultProps) => {
   const bannerView = !result && !error;
   const errorView = error;
   const hashView = result?.hash;
@@ -16,7 +16,7 @@ const TxResult = ({ result, error }: TxResultProps) => {
     <Flex stack>
       {bannerView && <TxResultBanner />}
       {errorView && <TxResultError error={error} />}
-      {hashView && <TxResultHash result={result} />}
+      {hashView && <TxResultHash result={result} net={net} />}
       {CodeView && <TxResultCode result={result} />}
     </Flex>
   );

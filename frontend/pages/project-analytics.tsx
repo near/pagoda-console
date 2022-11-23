@@ -12,41 +12,39 @@ import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
-import { useContracts } from '@/hooks/contracts';
-import { usePublicOrPrivateContracts } from '@/hooks/contracts';
-import { useCurrentEnvironment } from '@/hooks/environments';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
 import { useTheme } from '@/hooks/theme';
+import { ContractsWrapper } from '@/modules/contracts/components/ContractsWrapper';
 import config from '@/utils/config';
+import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
-const ProjectAnalytics: NextPageWithLayout = () => {
-  const { project } = useSelectedProject();
-  const { environment } = useCurrentEnvironment();
-  const { contracts: privateContracts } = useContracts(project?.slug, environment?.subId);
-  const { contracts } = usePublicOrPrivateContracts(privateContracts);
+const ProjectAnalytics: NextPageWithLayout = () => (
+  <ContractsWrapper>
+    {({ contracts }) => {
+      if (!contracts) {
+        return <Spinner center />;
+      }
 
-  if (!environment || !contracts) {
-    return <Spinner center />;
-  }
+      if (contracts.length === 0) {
+        return <NoContractsNotice />;
+      }
 
-  if (contracts.length === 0) {
-    return <NoContractsNotice />;
-  }
+      return (
+        <Section>
+          <AnalyticsIframe contracts={contracts} />
+        </Section>
+      );
+    }}
+  </ContractsWrapper>
+);
 
-  return (
-    <Section>
-      <AnalyticsIframe environment={environment} contracts={contracts} />
-    </Section>
-  );
-};
-
-type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 type Project = Api.Query.Output<'/projects/getContracts'>;
 
-function AnalyticsIframe({ environment, contracts }: { environment: Environment; contracts: Project }) {
+function AnalyticsIframe({ contracts }: { contracts: Project }) {
+  const { environmentSubId } = useSureProjectContext();
   const { activeTheme } = useTheme();
   const iframeId = 'analytics-iframe';
   const initialized = useRef(false);
@@ -63,7 +61,9 @@ function AnalyticsIframe({ environment, contracts }: { environment: Environment;
   contracts.forEach((contract) => {
     contractParams += `&contract=${contract.address}`;
   });
-  const iframeUrl = `${config.analyticsIframeUrl[environment.net]}?${contractParams}${themeParam}`;
+  const iframeUrl = `${
+    config.analyticsIframeUrl[mapEnvironmentSubIdToNet(environmentSubId)]
+  }?${contractParams}${themeParam}`;
 
   return (
     <iframe

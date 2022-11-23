@@ -96,21 +96,16 @@ export function useAlert(alertId: number | undefined) {
   return { alert, error, mutate };
 }
 
-export function useAlerts(projectSlug: string | undefined, environmentSubId: number | undefined) {
+export function useAlerts(projectSlug: string, environmentSubId: number) {
   const { identity } = useAuth();
   const {
     data: alerts,
     error,
     mutate,
     isValidating,
-  } = useSWR(
-    identity && projectSlug && environmentSubId
-      ? ['/alerts/listAlerts' as const, projectSlug, environmentSubId, identity.uid]
-      : null,
-    (key) => {
-      return authenticatedPost(key, { environmentSubId: environmentSubId!, projectSlug: projectSlug! });
-    },
-  );
+  } = useSWR(identity ? ['/alerts/listAlerts' as const, projectSlug, environmentSubId, identity.uid] : null, (key) => {
+    return authenticatedPost(key, { environmentSubId, projectSlug });
+  });
 
   return { alerts, error, mutate, isValidating };
 }

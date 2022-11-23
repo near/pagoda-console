@@ -60,7 +60,7 @@ const ContractTransaction = ({ contract }: Props) => {
       </ContractParams>
 
       <Box css={{ width: '100%', minWidth: '0' }}>
-        <TxResult result={txResult} error={txError} />
+        <TxResult result={txResult} error={txError} net={contract.net} />
       </Box>
     </Flex>
   );

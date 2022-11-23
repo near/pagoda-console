@@ -7,9 +7,6 @@ import useSWR from 'swr';
 import { useAuth } from '@/hooks/auth';
 import { authenticatedPost } from '@/utils/http';
 
-type Project = Api.Query.Output<'/projects/getDetails'>;
-type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
-
 function timeRangeToDates(timeRangeValue: RpcStats.TimeRangeValue, endTime: DateTime): [DateTime, DateTime] {
   switch (timeRangeValue) {
     case '30_DAYS':
@@ -120,8 +117,8 @@ function fillEmptyDateValues(
 type EndpointMetrics = Api.Query.Output<'/rpcstats/endpointMetrics'>;
 
 export function useApiStats(
-  environment: Environment | undefined,
-  project: Project | undefined,
+  environmentSubId: number,
+  projectSlug: string,
   timeRangeValue: RpcStats.TimeRangeValue,
   rangeEndTime: DateTime,
 ) {
@@ -132,11 +129,11 @@ export function useApiStats(
   const [dataByEndpoint, setDataByEndpoint] = useState<EndpointMetrics>();
 
   const { data: dataByDateResponse } = useSWR(
-    identity && environment && project && startDateTime && endDateTime
+    identity && startDateTime && endDateTime
       ? [
           '/rpcstats/endpointMetrics' as const,
           'date',
-          environment.subId,
+          environmentSubId,
           identity.uid,
           startDateTime.toISO(),
           endDateTime.toISO(),
@@ -144,8 +141,8 @@ export function useApiStats(
       : null,
     (key) => {
       return authenticatedPost(key, {
-        environmentSubId: environment!.subId,
-        projectSlug: project!.slug,
+        environmentSubId,
+        projectSlug,
         startDateTime: startDateTime.toString(),
         endDateTime: endDateTime.toString(),
         filter: {
@@ -157,11 +154,11 @@ export function useApiStats(
   );
 
   const { data: dataByEndpointResponse } = useSWR(
-    identity && environment && project && startDateTime && endDateTime
+    identity && startDateTime && endDateTime
       ? [
           '/rpcstats/endpointMetrics' as const,
           'endpoint',
-          environment.subId,
+          environmentSubId,
           identity.uid,
           startDateTime.toISO(),
           endDateTime.toISO(),
@@ -169,8 +166,8 @@ export function useApiStats(
       : null,
     (key) => {
       return authenticatedPost(key, {
-        environmentSubId: environment!.subId,
-        projectSlug: project!.slug,
+        environmentSubId,
+        projectSlug,
         startDateTime: startDateTime.toString(),
         endDateTime: endDateTime.toString(),
         filter: { type: 'endpoint' },

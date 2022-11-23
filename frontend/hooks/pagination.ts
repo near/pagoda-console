@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import config from '@/utils/config';
 
@@ -22,12 +22,15 @@ export function usePagination() {
     pagingDateTime: undefined,
   });
 
-  function updateState(newState: Partial<PagingState>) {
-    setState({
-      ...state,
-      ...newState,
-    });
-  }
+  const updateState = useCallback(
+    (newState: Partial<PagingState>) => {
+      setState((prevState) => ({
+        ...prevState,
+        ...newState,
+      }));
+    },
+    [setState],
+  );
 
   function goToNextPage() {
     if (state.currentPage >= numberOfPages) return;
@@ -78,14 +81,14 @@ export function usePagination() {
     });
   }
 
-  function reset() {
+  const reset = useCallback(() => {
     updateState({
       currentPage: 1,
       itemCount: 0,
       pageSize: config.defaultPageSize,
       pagingDateTime: undefined,
     });
-  }
+  }, [updateState]);
 
   const numberOfPages = Math.ceil(state.itemCount / state.pageSize);
   const currentPageFirstItem = (state.currentPage - 1) * state.pageSize + 1;

@@ -8,7 +8,7 @@ import { H5 } from '@/components/lib/Heading';
 import { List, ListItem } from '@/components/lib/List';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
 
 import { useAlerts } from '../hooks/alerts';
 import { deleteDestination } from '../hooks/destinations';
@@ -26,8 +26,8 @@ interface Props {
 export function DeleteDestinationModal({ destination, show, setShow, onDelete }: Props) {
   const [errorText, setErrorText] = useState<string | undefined>();
   const [isDeleting, setIsDeleting] = useState(false);
-  const { environment, project } = useSelectedProject();
-  const { alerts } = useAlerts(project?.slug, environment?.subId);
+  const { environmentSubId, projectSlug } = useSureProjectContext();
+  const { alerts } = useAlerts(projectSlug, environmentSubId);
   const [enabledAlerts, setEnabledAlerts] = useState<Alerts>([]);
 
   useEffect(() => {

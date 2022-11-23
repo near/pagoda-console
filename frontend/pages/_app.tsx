@@ -22,7 +22,6 @@ import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
 import { Toaster } from '@/components/lib/Toast';
 import { useAnalytics } from '@/hooks/analytics';
 import { useAuth, useAuthSync } from '@/hooks/auth';
-import { useSelectedProjectRouteParamSync } from '@/hooks/selected-project';
 import { DowntimeMode } from '@/modules/core/components/DowntimeMode';
 import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
 import { useSettingsStore } from '@/stores/settings';
@@ -47,7 +46,6 @@ if (typeof window !== 'undefined') {
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   useAuthSync();
-  useSelectedProjectRouteParamSync();
   useAnalytics();
   const { identity } = useAuth();
   const router = useRouter();

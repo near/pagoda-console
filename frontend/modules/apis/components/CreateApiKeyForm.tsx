@@ -1,4 +1,3 @@
-import type { Api } from '@pc/common/types/api';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
@@ -11,8 +10,6 @@ import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 
-type Project = Api.Query.Output<'/projects/getDetails'>;
-
 interface NewKeyFormData {
   description: string;
 }
@@ -20,27 +17,24 @@ interface NewKeyFormData {
 interface Props {
   show: boolean;
   setShow: (show: boolean) => void;
-  project?: Project;
+  projectSlug: string;
 }
 
 const ButtonContainer = styled(Flex, {
   marginTop: '24px',
 });
 
-export const CreateApiKeyForm = ({ show, setShow, project }: Props) => {
-  const { mutate: mutateKeys } = useApiKeys(project?.slug);
+export const CreateApiKeyForm = ({ show, setShow, projectSlug }: Props) => {
+  const { mutate: mutateKeys } = useApiKeys(projectSlug);
   const { register, handleSubmit, formState } = useForm<NewKeyFormData>();
 
   async function createKey(description: string) {
-    if (!project) {
-      return;
-    }
     show && setShow(false);
     try {
       await mutateKeys(async (cachedKeys) => {
         const newKey = await authenticatedPost('/projects/generateKey', {
           description,
-          project: project.slug,
+          project: projectSlug,
         });
         analytics.track('DC Create API Key', {
           status: 'success',

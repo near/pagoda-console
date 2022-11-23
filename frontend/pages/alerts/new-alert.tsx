@@ -22,9 +22,10 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
+import { withSelectedProject } from '@/components/with-selected-project';
 import { useContracts } from '@/hooks/contracts';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useSureProjectContext } from '@/hooks/project-context';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
 import { createAlert, useAlerts } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
@@ -63,17 +64,15 @@ interface FormData {
 }
 
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
-type Project = Api.Query.Output<'/projects/getDetails'>;
-type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 
 const NewAlert: NextPageWithLayout = () => {
   const router = useRouter();
   const form = useForm<FormData>();
-  const { project, environment } = useSelectedProject();
-  const { mutate } = useAlerts(project?.slug, environment?.subId);
+  const { projectSlug, environmentSubId } = useSureProjectContext();
+  const { mutate } = useAlerts(projectSlug, environmentSubId);
   const [createError, setCreateError] = useState('');
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<number[]>([]);
-  const { contracts } = useContracts(project?.slug, environment?.subId);
+  const { contracts } = useContracts(projectSlug, environmentSubId);
   const [contractComboboxItems, setContractComboboxItems] = useState<Contract[]>([]);
 
   const acctBalRuleComparator = form.watch('acctBalRule.comparator');
@@ -86,8 +85,8 @@ const NewAlert: NextPageWithLayout = () => {
     }
   }, [contracts]);
 
-  const environmentTitle = environment?.net === 'TESTNET' ? 'Testnet' : 'Mainnet';
-  const environmentTla = environment?.net === 'TESTNET' ? 'testnet' : 'near';
+  const environmentTitle = environmentSubId === 1 ? 'Testnet' : 'Mainnet';
+  const environmentTla = environmentSubId === 1 ? 'testnet' : 'near';
 
   const contractCombobox = useCombobox({
     id: 'contract-cbx',
@@ -109,7 +108,7 @@ const NewAlert: NextPageWithLayout = () => {
 
   async function submitForm(data: FormData) {
     try {
-      const body = returnNewAlertBody(data, selectedDestinationIds, project, environment);
+      const body = returnNewAlertBody(data, selectedDestinationIds, projectSlug, environmentSubId);
       const alert = await createAlert(body);
 
       mutate((alerts) => {
@@ -571,15 +570,13 @@ NewAlert.getLayout = wrapDashboardLayoutWithOptions({
 function returnNewAlertBody(
   data: FormData,
   destinations: number[],
-  project?: Project,
-  environment?: Environment,
+  projectSlug: string,
+  environmentSubId: number,
 ): Api.Mutation.Input<'/alerts/createAlert'> {
-  if (!project || !environment) throw new Error('No project or environment selected.');
-
   const base = {
     destinations,
-    environmentSubId: environment.subId,
-    projectSlug: project.slug,
+    environmentSubId,
+    projectSlug,
   };
 
   switch (data.type) {
@@ -677,4 +674,4 @@ function returnAcctBalBody<T extends string | number>(comparator: Alerts.Compara
   }
 }
 
-export default NewAlert;
+export default withSelectedProject(NewAlert);
