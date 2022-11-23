@@ -10,7 +10,8 @@
     "./frontend",
     "./backend",
     "database",
-    "common"
+    "common",
+    "./test"
   ],
   "scripts": {
     "prepare": "husky install",

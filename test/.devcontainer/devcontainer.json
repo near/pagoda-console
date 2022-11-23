@@ -5,7 +5,7 @@
   // Sets the run context to one level up instead of the .devcontainer folder.
   // "context": "..",
   // Update the 'dockerFile' property if you aren't using the standard 'Dockerfile' filename.
-  "dockerFile": "Dockerfile.playwright",
+  "dockerFile": "Dockerfile",
   // 9323 is used by npx playwright show-report
   "forwardPorts": [9323],
   // Uncomment the next line to run commands after the container is created - for example installing curl.
@@ -25,7 +25,8 @@
         "path": "/usr/bin/bash"
       }
     }
-  }
+  },
+  "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
   // Uncomment when using a ptrace-based debugger like C++, Go, and Rust
   // https://playwright.dev/docs/ci#docker
   // "runArgs": [ "--ipc=host" ]

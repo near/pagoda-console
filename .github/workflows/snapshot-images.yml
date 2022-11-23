@@ -17,7 +17,7 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps
       - name: Run snapshot tests
-        run: npx playwright test frontend/tests/playwright/snapshot/ --update-snapshots
+        run: npx playwright test test/tests/snapshot/ --update-snapshots
         env:
           TEST_URL: https://core.dev.console.pagoda.co
           TEST_EMAIL: jon+e2e@near.org
@@ -27,5 +27,5 @@ jobs:
         if: always()
         with:
           name: updated-snapshots
-          path: frontend/tests/playwright/snapshot
+          path: test/tests/snapshot
           retention-days: 1
