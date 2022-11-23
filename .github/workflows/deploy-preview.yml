@@ -46,7 +46,7 @@ jobs:
         name: "Outputs docker image with registry's sha256"
         run: |
           export API_IMAGE=$(docker inspect --format='{{index .RepoDigests 0}}' gcr.io/developer-platform-dev/developer-console-api:$PREVIEW_NAMESPACE)
-          echo "::set-output name=image::$API_IMAGE"
+          echo "image=$API_IMAGE" >> $GITHUB_OUTPUT
 
   terraform-preview-environment:
     timeout-minutes: 15
