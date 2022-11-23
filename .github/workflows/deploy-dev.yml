@@ -43,7 +43,7 @@ jobs:
         name: "Outputs docker image with registry's sha256"
         run: |
           export API_IMAGE=$(docker inspect --format='{{index .RepoDigests 0}}' gcr.io/near-dev-platform/developer-console-api:$NAMESPACE)
-          echo "::set-output name=image::$API_IMAGE"
+          echo "image=$API_IMAGE" >> $GITHUB_OUTPUT
   deploy-image:
     timeout-minutes: 15
     runs-on: ubuntu-latest
