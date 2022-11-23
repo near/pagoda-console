@@ -54,5 +54,5 @@ model ContractDeployment {
   repoDeploymentSlug       String
   contractDeployConfig     ContractDeployConfig @relation(fields: [contractDeployConfigSlug], references: [slug])
   contractDeployConfigSlug String
-  deployTransactionHash    String
+  deployTransactionHash    String?
 }
