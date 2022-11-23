@@ -11,5 +11,8 @@
   "bugs": {
     "url": "https://github.com/near/pagoda-console/issues"
   },
-  "homepage": "https://github.com/near/pagoda-console#readme"
+  "homepage": "https://github.com/near/pagoda-console#readme",
+  "dependencies": {
+    "zod": "^3.19.1"
+  }
 }

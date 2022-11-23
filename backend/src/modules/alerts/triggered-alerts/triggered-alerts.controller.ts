@@ -9,13 +9,10 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { BearerAuthGuard } from 'src/core/auth/bearer-auth.guard';
-import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
+import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
 import { VError } from 'verror';
 import { TriggeredAlertsService } from './triggered-alerts.service';
-import {
-  ListTriggeredAlertSchema,
-  GetTriggeredAlertDetailsSchema,
-} from '../dto';
+import { TriggeredAlerts } from '@pc/common/types/alerts';
 import { Api } from '@pc/common/types/api';
 
 @Controller('triggeredAlerts')
@@ -28,7 +25,9 @@ export class TriggeredAlertsController {
 
   @Post('listTriggeredAlerts')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(ListTriggeredAlertSchema))
+  @UsePipes(
+    new ZodValidationPipe(TriggeredAlerts.query.inputs.listTriggeredAlerts),
+  )
   async listTriggeredAlerts(
     @Request() req,
     @Body()
@@ -58,7 +57,11 @@ export class TriggeredAlertsController {
 
   @Post('getTriggeredAlertDetails')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(GetTriggeredAlertDetailsSchema))
+  @UsePipes(
+    new ZodValidationPipe(
+      TriggeredAlerts.query.inputs.getTriggeredAlertDetails,
+    ),
+  )
   async getTriggeredAlertDetails(
     @Request() req,
     @Body()

@@ -1,106 +1,127 @@
+import { z } from 'zod';
 import {
-  Org,
-  OrgRole,
-  User,
-  OrgMember,
-  OrgInvite,
-} from '@pc/database/clients/core';
+  orgRole,
+  orgName,
+  orgSlug,
+  userUid,
+  org,
+  orgInvite,
+  user,
+  orgMember,
+} from './types';
 
-export namespace Query {
-  export namespace Inputs {
-    export type GetAccountDetails = void;
-    export type ListOrgsWithOnlyAdmin = void;
-    export type ListOrgMembers = { org: Org['slug'] };
-    export type ListOrgs = void;
-  }
+export const query = {
+  inputs: {
+    getAccountDetails: z.void(),
+    listOrgsWithOnlyAdmin: z.void(),
+    listOrgMembers: z.strictObject({ org: orgSlug }),
+    listOrgs: z.void(),
+  },
 
-  export namespace Outputs {
-    export type GetAccountDetails = {
-      uid?: string;
-      email?: string;
-      name?: string;
-      photoUrl?: string;
-    };
-    export type ListOrgsWithOnlyAdmin = Pick<Org, 'name' | 'slug'>[];
-    export type ListOrgMembers = (Pick<OrgInvite, 'orgSlug' | 'role'> &
-      (
-        | {
-            isInvite: true;
-            user: {
-              uid: null;
-              email: OrgInvite['email'];
-            };
-          }
-        | {
-            isInvite: false;
-            user: Pick<User, 'email' | 'uid'>;
-          }
-      ))[];
-    export type ListOrgs = (Pick<Org, 'slug' | 'name'> & {
-      isPersonal: boolean;
-    })[];
-  }
+  outputs: {
+    getAccountDetails: z.strictObject({
+      uid: z.string().optional(),
+      email: z.string().optional(),
+      name: z.string().optional(),
+      photoUrl: z.string().optional(),
+    }),
+    listOrgsWithOnlyAdmin: org.pick({ name: true, slug: true }).array(),
+    listOrgMembers: z.array(
+      orgInvite.pick({ orgSlug: true, role: true }).and(
+        z.union([
+          z.strictObject({
+            isInvite: z.literal(true),
+            user: z.strictObject({
+              uid: z.null(),
+              email: orgInvite.shape.email,
+            }),
+          }),
+          z.strictObject({
+            isInvite: z.literal(false),
+            user: user.pick({ email: true, uid: true }),
+          }),
+        ]),
+      ),
+    ),
+    listOrgs: z.array(
+      org.pick({ slug: true, name: true }).merge(
+        z.strictObject({
+          isPersonal: z.boolean(),
+        }),
+      ),
+    ),
+  },
 
-  export namespace Errors {
-    export type GetAccountDetails = unknown;
-    export type ListOrgsWithOnlyAdmin = unknown;
-    export type ListOrgMembers = unknown;
-    export type ListOrgs = unknown;
-  }
-}
+  errors: {
+    getAccountDetails: z.unknown(),
+    listOrgsWithOnlyAdmin: z.unknown(),
+    listOrgMembers: z.unknown(),
+    listOrgs: z.unknown(),
+  },
+};
 
-export namespace Mutation {
-  export namespace Inputs {
-    export type DeleteAccount = void;
-    export type CreateOrg = { name: string };
-    export type InviteToOrg = {
-      org: Org['slug'];
-      email: string;
-      role: OrgRole;
-    };
-    export type AcceptOrgInvite = { token: string };
-    export type DeleteOrg = { org: Org['slug'] };
-    export type ChangeOrgRole = {
-      org: Org['slug'];
-      role: OrgRole;
-      user: User['uid'];
-    };
-    export type RemoveFromOrg = {
-      org: Org['slug'];
-      user: User['uid'];
-    };
-    export type RemoveOrgInvite = {
-      org: Org['slug'];
-      email: string;
-    };
-    export type ResetPassword = { email: string };
-  }
+export const mutation = {
+  inputs: {
+    deleteAccount: z.void(),
+    createOrg: z.strictObject({
+      name: orgName,
+    }),
+    inviteToOrg: z.strictObject({
+      org: orgSlug,
+      email: z.string().email(),
+      role: orgRole,
+    }),
+    acceptOrgInvite: z.strictObject({
+      token: z.string(),
+    }),
+    deleteOrg: z.strictObject({
+      org: orgSlug,
+    }),
+    changeOrgRole: z.strictObject({
+      org: orgSlug,
+      role: orgRole,
+      user: userUid,
+    }),
+    removeFromOrg: z.strictObject({
+      org: orgSlug,
+      user: userUid,
+    }),
+    removeOrgInvite: z.strictObject({
+      org: orgSlug,
+      email: z.string().email(),
+    }),
+    resetPassword: z.strictObject({
+      email: z.string().email(),
+    }),
+  },
 
-  export namespace Outputs {
-    export type DeleteAccount = void;
-    export type CreateOrg = Pick<Org, 'name' | 'slug'> & {
-      isPersonal: false;
-    };
-    export type InviteToOrg = void;
-    export type AcceptOrgInvite = Pick<Org, 'name' | 'slug'>;
-    export type DeleteOrg = void;
-    export type ChangeOrgRole = Pick<OrgMember, 'orgSlug' | 'role'> & {
-      user: Pick<User, 'uid' | 'email'>;
-    };
-    export type RemoveFromOrg = void;
-    export type RemoveOrgInvite = void;
-    export type ResetPassword = void;
-  }
+  outputs: {
+    deleteAccount: z.void(),
+    createOrg: org
+      .pick({ name: true, slug: true })
+      .merge(z.strictObject({ isPersonal: z.literal(false) })),
+    inviteToOrg: z.void(),
+    acceptOrgInvite: org.pick({ name: true, slug: true }),
+    deleteOrg: z.void(),
+    changeOrgRole: orgMember.pick({ orgSlug: true, role: true }).merge(
+      z.strictObject({
+        user: user.pick({ uid: true, email: true }),
+      }),
+    ),
+    removeFromOrg: z.void(),
+    removeOrgInvite: z.void(),
+    resetPassword: z.void(),
+  },
 
-  export namespace Errors {
-    export type DeleteAccount = unknown;
-    export type CreateOrg = unknown;
-    export type InviteToOrg = unknown;
-    export type AcceptOrgInvite = unknown;
-    export type DeleteOrg = unknown;
-    export type ChangeOrgRole = unknown;
-    export type RemoveFromOrg = unknown;
-    export type RemoveOrgInvite = unknown;
-    export type ResetPassword = unknown;
-  }
-}
+  errors: {
+    deleteAccount: z.unknown(),
+    createOrg: z.unknown(),
+    inviteToOrg: z.unknown(),
+    acceptOrgInvite: z.unknown(),
+    deleteOrg: z.unknown(),
+    changeOrgRole: z.unknown(),
+    removeFromOrg: z.unknown(),
+    removeOrgInvite: z.unknown(),
+    resetPassword: z.unknown(),
+  },
+};

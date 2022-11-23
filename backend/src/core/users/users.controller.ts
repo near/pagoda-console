@@ -12,18 +12,8 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { BearerAuthGuard } from '../auth/bearer-auth.guard';
-import {
-  AcceptOrgInviteSchema,
-  ChangeOrgRoleSchema,
-  CreateOrgSchema,
-  DeleteOrgSchema,
-  InviteToOrgSchema,
-  ListOrgMembersSchema,
-  RemoveFromOrgSchema,
-  RemoveOrgInviteSchema,
-  ResetPasswordSchema,
-} from './dto';
-import { JoiValidationPipe } from '@/src/pipes/JoiValidationPipe';
+import { ZodValidationPipe } from '@/src/pipes/ZodValidationPipe';
+import { Users } from '@pc/common/types/core';
 import { VError } from 'verror';
 import { UserError } from './user-error';
 import { Api } from '@pc/common/types/api';
@@ -38,6 +28,7 @@ export class UsersController {
   // ! request
   @Post('getAccountDetails')
   @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(Users.query.inputs.getAccountDetails))
   async getAccountDetails(
     @Request() req,
     @Body() _: Api.Query.Input<'/users/getAccountDetails'>,
@@ -49,6 +40,7 @@ export class UsersController {
   // Gets a list of orgs that this user is the sole admin of.
   @Post('listOrgsWithOnlyAdmin')
   @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(Users.query.inputs.listOrgsWithOnlyAdmin))
   async listOrgsWithOnlyAdmin(
     @Request() req,
     @Body() _: Api.Query.Input<'/users/listOrgsWithOnlyAdmin'>,
@@ -63,6 +55,7 @@ export class UsersController {
   @Post('deleteAccount')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(Users.mutation.inputs.deleteAccount))
   async deleteAccount(
     @Request() req,
     @Body() _: Api.Mutation.Input<'/users/deleteAccount'>,
@@ -77,7 +70,7 @@ export class UsersController {
 
   @Post('createOrg')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(CreateOrgSchema))
+  @UsePipes(new ZodValidationPipe(Users.mutation.inputs.createOrg))
   async create(
     @Request() req,
     @Body() { name }: Api.Mutation.Input<'/users/createOrg'>,
@@ -92,7 +85,7 @@ export class UsersController {
   @Post('inviteToOrg')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(InviteToOrgSchema))
+  @UsePipes(new ZodValidationPipe(Users.mutation.inputs.inviteToOrg))
   async inviteToOrg(
     @Request() req,
     @Body() { org, email, role }: Api.Mutation.Input<'/users/inviteToOrg'>,
@@ -106,7 +99,7 @@ export class UsersController {
 
   @Post('acceptOrgInvite')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(AcceptOrgInviteSchema))
+  @UsePipes(new ZodValidationPipe(Users.mutation.inputs.acceptOrgInvite))
   async acceptOrgInvite(
     @Request() req,
     @Body() { token }: Api.Mutation.Input<'/users/acceptOrgInvite'>,
@@ -120,7 +113,7 @@ export class UsersController {
 
   @Post('listOrgMembers')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(ListOrgMembersSchema))
+  @UsePipes(new ZodValidationPipe(Users.query.inputs.listOrgMembers))
   async listOrgMembers(
     @Request() req,
     @Body() { org }: Api.Query.Input<'/users/listOrgMembers'>,
@@ -134,6 +127,7 @@ export class UsersController {
 
   @Post('listOrgs')
   @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(Users.query.inputs.listOrgs))
   async listOrgs(
     @Request() req,
     @Body() _: Api.Query.Input<'/users/listOrgs'>,
@@ -148,7 +142,7 @@ export class UsersController {
   @Post('deleteOrg')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(DeleteOrgSchema))
+  @UsePipes(new ZodValidationPipe(Users.mutation.inputs.deleteOrg))
   async deleteOrg(
     @Request() req,
     @Body() { org }: Api.Mutation.Input<'/users/deleteOrg'>,
@@ -162,7 +156,7 @@ export class UsersController {
 
   @Post('changeOrgRole')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(ChangeOrgRoleSchema))
+  @UsePipes(new ZodValidationPipe(Users.mutation.inputs.changeOrgRole))
   async changeOrgRole(
     @Request() req,
     @Body() { org, user, role }: Api.Mutation.Input<'/users/changeOrgRole'>,
@@ -176,7 +170,7 @@ export class UsersController {
 
   @Post('removeFromOrg')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(RemoveFromOrgSchema))
+  @UsePipes(new ZodValidationPipe(Users.mutation.inputs.removeFromOrg))
   async removeFromOrg(
     @Request() req,
     @Body() { org, user }: Api.Mutation.Input<'/users/removeFromOrg'>,
@@ -190,7 +184,7 @@ export class UsersController {
 
   @Post('removeOrgInvite')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(RemoveOrgInviteSchema))
+  @UsePipes(new ZodValidationPipe(Users.mutation.inputs.removeOrgInvite))
   async removeOrgInvite(
     @Request() req,
     @Body() { org, email }: Api.Mutation.Input<'/users/removeOrgInvite'>,
@@ -203,7 +197,7 @@ export class UsersController {
   }
 
   @Post('resetPassword')
-  @UsePipes(new JoiValidationPipe(ResetPasswordSchema))
+  @UsePipes(new ZodValidationPipe(Users.mutation.inputs.resetPassword))
   @HttpCode(204)
   async resetPassword(
     @Body() { email }: Api.Mutation.Input<'/users/resetPassword'>,

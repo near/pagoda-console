@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import type { Abi } from './abi';
 import type { Alerts, TriggeredAlerts } from './alerts';
 import type { Explorer, Projects, Users } from './core';
@@ -7,116 +9,124 @@ export namespace Api {
   export namespace Query {
     type Mapping = {
       '/explorer/activity': {
-        input: Explorer.Query.Inputs.Activity;
-        output: Explorer.Query.Outputs.Activity;
-        error: Explorer.Query.Errors.Activity;
+        input: z.infer<typeof Explorer.query.inputs.activity>;
+        output: z.infer<typeof Explorer.query.outputs.activity>;
+        error: z.infer<typeof Explorer.query.errors.activity>;
       };
       '/explorer/balanceChanges': {
-        input: Explorer.Query.Inputs.BalanceChanges;
-        output: Explorer.Query.Outputs.BalanceChanges;
-        error: Explorer.Query.Errors.BalanceChanges;
+        input: z.infer<typeof Explorer.query.inputs.balanceChanges>;
+        output: z.infer<typeof Explorer.query.outputs.balanceChanges>;
+        error: z.infer<typeof Explorer.query.errors.balanceChanges>;
       };
       '/explorer/transaction': {
-        input: Explorer.Query.Inputs.GetTransaction;
-        output: Explorer.Query.Outputs.GetTransaction;
-        error: Explorer.Query.Errors.GetTransaction;
+        input: z.infer<typeof Explorer.query.inputs.transaction>;
+        output: z.infer<typeof Explorer.query.outputs.transaction>;
+        error: z.infer<typeof Explorer.query.errors.transaction>;
       };
       '/explorer/getTransactions': {
-        input: Explorer.Query.Inputs.GetTransactions;
-        output: Explorer.Query.Outputs.GetTransactions;
-        error: Explorer.Query.Errors.GetTransactions;
+        input: z.infer<typeof Explorer.query.inputs.getTransactions>;
+        output: z.infer<typeof Explorer.query.outputs.getTransactions>;
+        error: z.infer<typeof Explorer.query.errors.getTransactions>;
       };
 
       '/projects/getDetails': {
-        input: Projects.Query.Inputs.GetDetails;
-        output: Projects.Query.Outputs.GetDetails;
-        error: Projects.Query.Errors.GetDetails;
+        input: z.infer<typeof Projects.query.inputs.getDetails>;
+        output: z.infer<typeof Projects.query.outputs.getDetails>;
+        error: z.infer<typeof Projects.query.errors.getDetails>;
       };
       '/projects/getContracts': {
-        input: Projects.Query.Inputs.GetContracts;
-        output: Projects.Query.Outputs.GetContracts;
-        error: Projects.Query.Errors.GetContracts;
+        input: z.infer<typeof Projects.query.inputs.getContracts>;
+        output: z.infer<typeof Projects.query.outputs.getContracts>;
+        error: z.infer<typeof Projects.query.errors.getContracts>;
       };
       '/projects/getContract': {
-        input: Projects.Query.Inputs.GetContract;
-        output: Projects.Query.Outputs.GetContract;
-        error: Projects.Query.Errors.GetContract;
+        input: z.infer<typeof Projects.query.inputs.getContract>;
+        output: z.infer<typeof Projects.query.outputs.getContract>;
+        error: z.infer<typeof Projects.query.errors.getContract>;
       };
       '/projects/list': {
-        input: Projects.Query.Inputs.List;
-        output: Projects.Query.Outputs.List;
-        error: Projects.Query.Errors.List;
+        input: z.infer<typeof Projects.query.inputs.list>;
+        output: z.infer<typeof Projects.query.outputs.list>;
+        error: z.infer<typeof Projects.query.errors.list>;
       };
       '/projects/getEnvironments': {
-        input: Projects.Query.Inputs.GetEnvironments;
-        output: Projects.Query.Outputs.GetEnvironments;
-        error: Projects.Query.Errors.GetEnvironments;
+        input: z.infer<typeof Projects.query.inputs.getEnvironments>;
+        output: z.infer<typeof Projects.query.outputs.getEnvironments>;
+        error: z.infer<typeof Projects.query.errors.getEnvironments>;
       };
       '/projects/getKeys': {
-        input: Projects.Query.Inputs.GetKeys;
-        output: Projects.Query.Outputs.GetKeys;
-        error: Projects.Query.Errors.GetKeys;
+        input: z.infer<typeof Projects.query.inputs.getKeys>;
+        output: z.infer<typeof Projects.query.outputs.getKeys>;
+        error: z.infer<typeof Projects.query.errors.getKeys>;
       };
 
       '/users/getAccountDetails': {
-        input: Users.Query.Inputs.GetAccountDetails;
+        input: z.infer<typeof Users.query.inputs.getAccountDetails>;
         // TODO: verify those types, no idea where they are from
-        output: Users.Query.Outputs.GetAccountDetails;
-        error: Users.Query.Errors.GetAccountDetails;
+        output: z.infer<typeof Users.query.outputs.getAccountDetails>;
+        error: z.infer<typeof Users.query.errors.getAccountDetails>;
       };
       '/users/listOrgsWithOnlyAdmin': {
-        input: Users.Query.Inputs.ListOrgsWithOnlyAdmin;
-        output: Users.Query.Outputs.ListOrgsWithOnlyAdmin;
-        error: Users.Query.Errors.ListOrgsWithOnlyAdmin;
+        input: z.infer<typeof Users.query.inputs.listOrgsWithOnlyAdmin>;
+        output: z.infer<typeof Users.query.outputs.listOrgsWithOnlyAdmin>;
+        error: z.infer<typeof Users.query.errors.listOrgsWithOnlyAdmin>;
       };
       '/users/listOrgMembers': {
-        input: Users.Query.Inputs.ListOrgMembers;
-        output: Users.Query.Outputs.ListOrgMembers;
-        error: Users.Query.Errors.ListOrgMembers;
+        input: z.infer<typeof Users.query.inputs.listOrgMembers>;
+        output: z.infer<typeof Users.query.outputs.listOrgMembers>;
+        error: z.infer<typeof Users.query.errors.listOrgMembers>;
       };
       '/users/listOrgs': {
-        input: Users.Query.Inputs.ListOrgs;
-        output: Users.Query.Outputs.ListOrgs;
-        error: Users.Query.Errors.ListOrgs;
+        input: z.infer<typeof Users.query.inputs.listOrgs>;
+        output: z.infer<typeof Users.query.outputs.listOrgs>;
+        error: z.infer<typeof Users.query.errors.listOrgs>;
       };
 
       '/abi/getContractAbi': {
-        input: Abi.Query.Inputs.GetContractAbi;
-        output: Abi.Query.Outputs.GetContractAbi;
-        error: Abi.Query.Errors.GetContractAbi;
+        input: z.infer<typeof Abi.query.inputs.getContractAbi>;
+        output: z.infer<typeof Abi.query.outputs.getContractAbi>;
+        error: z.infer<typeof Abi.query.errors.getContractAbi>;
       };
 
       '/alerts/listAlerts': {
-        input: Alerts.Query.Inputs.ListAlerts;
-        output: Alerts.Query.Outputs.ListAlerts;
-        error: Alerts.Query.Errors.ListAlerts;
+        input: z.infer<typeof Alerts.query.inputs.listAlerts>;
+        output: z.infer<typeof Alerts.query.outputs.listAlerts>;
+        error: z.infer<typeof Alerts.query.errors.listAlerts>;
       };
       '/alerts/getAlertDetails': {
-        input: Alerts.Query.Inputs.GetAlertDetails;
-        output: Alerts.Query.Outputs.GetAlertDetails;
-        error: Alerts.Query.Errors.GetAlertDetails;
+        input: z.infer<typeof Alerts.query.inputs.getAlertDetails>;
+        output: z.infer<typeof Alerts.query.outputs.getAlertDetails>;
+        error: z.infer<typeof Alerts.query.errors.getAlertDetails>;
       };
       '/alerts/listDestinations': {
-        input: Alerts.Query.Inputs.ListDestinations;
-        output: Alerts.Query.Outputs.ListDestinations;
-        error: Alerts.Query.Errors.ListDestinations;
+        input: z.infer<typeof Alerts.query.inputs.listDestinations>;
+        output: z.infer<typeof Alerts.query.outputs.listDestinations>;
+        error: z.infer<typeof Alerts.query.errors.listDestinations>;
       };
 
       '/triggeredAlerts/listTriggeredAlerts': {
-        input: TriggeredAlerts.Query.Inputs.ListTriggeredAlerts;
-        output: TriggeredAlerts.Query.Outputs.ListTriggeredAlerts;
-        error: TriggeredAlerts.Query.Errors.ListTriggeredAlerts;
+        input: z.infer<typeof TriggeredAlerts.query.inputs.listTriggeredAlerts>;
+        output: z.infer<
+          typeof TriggeredAlerts.query.outputs.listTriggeredAlerts
+        >;
+        error: z.infer<typeof TriggeredAlerts.query.errors.listTriggeredAlerts>;
       };
       '/triggeredAlerts/getTriggeredAlertDetails': {
-        input: TriggeredAlerts.Query.Inputs.GetTriggeredAlertDetails;
-        output: TriggeredAlerts.Query.Outputs.GetTriggeredAlertDetails;
-        error: TriggeredAlerts.Query.Errors.GetTriggeredAlertDetails;
+        input: z.infer<
+          typeof TriggeredAlerts.query.inputs.getTriggeredAlertDetails
+        >;
+        output: z.infer<
+          typeof TriggeredAlerts.query.outputs.getTriggeredAlertDetails
+        >;
+        error: z.infer<
+          typeof TriggeredAlerts.query.errors.getTriggeredAlertDetails
+        >;
       };
 
       '/rpcstats/endpointMetrics': {
-        input: RpcStats.Query.Inputs.EndpointMetrics;
-        output: RpcStats.Query.Outputs.EndpointMetrics;
-        error: RpcStats.Query.Errors.EndpointMetrics;
+        input: z.infer<typeof RpcStats.query.inputs.endpointMetrics>;
+        output: z.infer<typeof RpcStats.query.outputs.endpointMetrics>;
+        error: z.infer<typeof RpcStats.query.errors.endpointMetrics>;
       };
     };
 
@@ -129,163 +139,171 @@ export namespace Api {
   export namespace Mutation {
     type Mapping = {
       '/projects/create': {
-        input: Projects.Mutation.Inputs.Create;
-        output: Projects.Mutation.Outputs.Create;
-        error: Projects.Mutation.Errors.Create;
+        input: z.infer<typeof Projects.mutation.inputs.create>;
+        output: z.infer<typeof Projects.mutation.outputs.create>;
+        error: z.infer<typeof Projects.mutation.errors.create>;
       };
       '/projects/ejectTutorial': {
-        input: Projects.Mutation.Inputs.EjectTutorial;
-        output: Projects.Mutation.Outputs.EjectTutorial;
-        error: Projects.Mutation.Errors.EjectTutorial;
+        input: z.infer<typeof Projects.mutation.inputs.ejectTutorial>;
+        output: z.infer<typeof Projects.mutation.outputs.ejectTutorial>;
+        error: z.infer<typeof Projects.mutation.errors.ejectTutorial>;
       };
       '/projects/delete': {
-        input: Projects.Mutation.Inputs.Delete;
-        output: Projects.Mutation.Outputs.Delete;
-        error: Projects.Mutation.Errors.Delete;
+        input: z.infer<typeof Projects.mutation.inputs.delete>;
+        output: z.infer<typeof Projects.mutation.outputs.delete>;
+        error: z.infer<typeof Projects.mutation.errors.delete>;
       };
       '/projects/addContract': {
-        input: Projects.Mutation.Inputs.AddContract;
-        output: Projects.Mutation.Outputs.AddContract;
-        error: Projects.Mutation.Errors.AddContract;
+        input: z.infer<typeof Projects.mutation.inputs.addContract>;
+        output: z.infer<typeof Projects.mutation.outputs.addContract>;
+        error: z.infer<typeof Projects.mutation.errors.addContract>;
       };
       '/projects/removeContract': {
-        input: Projects.Mutation.Inputs.RemoveContract;
-        output: Projects.Mutation.Outputs.RemoveContract;
-        error: Projects.Mutation.Errors.RemoveContract;
+        input: z.infer<typeof Projects.mutation.inputs.removeContract>;
+        output: z.infer<typeof Projects.mutation.outputs.removeContract>;
+        error: z.infer<typeof Projects.mutation.errors.removeContract>;
       };
       '/projects/rotateKey': {
-        input: Projects.Mutation.Inputs.RotateKey;
-        output: Projects.Mutation.Outputs.RotateKey;
-        error: Projects.Mutation.Errors.RotateKey;
+        input: z.infer<typeof Projects.mutation.inputs.rotateKey>;
+        output: z.infer<typeof Projects.mutation.outputs.rotateKey>;
+        error: z.infer<typeof Projects.mutation.errors.rotateKey>;
       };
       '/projects/generateKey': {
-        input: Projects.Mutation.Inputs.GenerateKey;
-        output: Projects.Mutation.Outputs.GenerateKey;
-        error: Projects.Mutation.Errors.GenerateKey;
+        input: z.infer<typeof Projects.mutation.inputs.generateKey>;
+        output: z.infer<typeof Projects.mutation.outputs.generateKey>;
+        error: z.infer<typeof Projects.mutation.errors.generateKey>;
       };
       '/projects/deleteKey': {
-        input: Projects.Mutation.Inputs.DeleteKey;
-        output: Projects.Mutation.Outputs.DeleteKey;
-        error: Projects.Mutation.Errors.DeleteKey;
+        input: z.infer<typeof Projects.mutation.inputs.deleteKey>;
+        output: z.infer<typeof Projects.mutation.outputs.deleteKey>;
+        error: z.infer<typeof Projects.mutation.errors.deleteKey>;
       };
 
       '/users/deleteAccount': {
-        input: Users.Mutation.Inputs.DeleteAccount;
-        output: Users.Mutation.Outputs.DeleteAccount;
-        error: Users.Mutation.Errors.DeleteAccount;
+        input: z.infer<typeof Users.mutation.inputs.deleteAccount>;
+        output: z.infer<typeof Users.mutation.outputs.deleteAccount>;
+        error: z.infer<typeof Users.mutation.errors.deleteAccount>;
       };
       '/users/createOrg': {
-        input: Users.Mutation.Inputs.CreateOrg;
-        output: Users.Mutation.Outputs.CreateOrg;
-        error: Users.Mutation.Errors.CreateOrg;
+        input: z.infer<typeof Users.mutation.inputs.createOrg>;
+        output: z.infer<typeof Users.mutation.outputs.createOrg>;
+        error: z.infer<typeof Users.mutation.errors.createOrg>;
       };
       '/users/inviteToOrg': {
-        input: Users.Mutation.Inputs.InviteToOrg;
-        output: Users.Mutation.Outputs.InviteToOrg;
-        error: Users.Mutation.Errors.InviteToOrg;
+        input: z.infer<typeof Users.mutation.inputs.inviteToOrg>;
+        output: z.infer<typeof Users.mutation.outputs.inviteToOrg>;
+        error: z.infer<typeof Users.mutation.errors.inviteToOrg>;
       };
       '/users/acceptOrgInvite': {
-        input: Users.Mutation.Inputs.AcceptOrgInvite;
-        output: Users.Mutation.Outputs.AcceptOrgInvite;
-        error: Users.Mutation.Errors.AcceptOrgInvite;
+        input: z.infer<typeof Users.mutation.inputs.acceptOrgInvite>;
+        output: z.infer<typeof Users.mutation.outputs.acceptOrgInvite>;
+        error: z.infer<typeof Users.mutation.errors.acceptOrgInvite>;
       };
       '/users/deleteOrg': {
-        input: Users.Mutation.Inputs.DeleteOrg;
-        output: Users.Mutation.Outputs.DeleteOrg;
-        error: Users.Mutation.Errors.DeleteOrg;
+        input: z.infer<typeof Users.mutation.inputs.deleteOrg>;
+        output: z.infer<typeof Users.mutation.outputs.deleteOrg>;
+        error: z.infer<typeof Users.mutation.errors.deleteOrg>;
       };
       '/users/changeOrgRole': {
-        input: Users.Mutation.Inputs.ChangeOrgRole;
-        output: Users.Mutation.Outputs.ChangeOrgRole;
-        error: Users.Mutation.Errors.ChangeOrgRole;
+        input: z.infer<typeof Users.mutation.inputs.changeOrgRole>;
+        output: z.infer<typeof Users.mutation.outputs.changeOrgRole>;
+        error: z.infer<typeof Users.mutation.errors.changeOrgRole>;
       };
       '/users/removeFromOrg': {
-        input: Users.Mutation.Inputs.RemoveFromOrg;
-        output: Users.Mutation.Outputs.RemoveFromOrg;
-        error: Users.Mutation.Errors.RemoveFromOrg;
+        input: z.infer<typeof Users.mutation.inputs.removeFromOrg>;
+        output: z.infer<typeof Users.mutation.outputs.removeFromOrg>;
+        error: z.infer<typeof Users.mutation.errors.removeFromOrg>;
       };
       '/users/removeOrgInvite': {
-        input: Users.Mutation.Inputs.RemoveOrgInvite;
-        output: Users.Mutation.Outputs.RemoveOrgInvite;
-        error: Users.Mutation.Errors.RemoveOrgInvite;
+        input: z.infer<typeof Users.mutation.inputs.removeOrgInvite>;
+        output: z.infer<typeof Users.mutation.outputs.removeOrgInvite>;
+        error: z.infer<typeof Users.mutation.errors.removeOrgInvite>;
       };
       '/users/resetPassword': {
-        input: Users.Mutation.Inputs.ResetPassword;
-        output: Users.Mutation.Outputs.ResetPassword;
-        error: Users.Mutation.Errors.ResetPassword;
+        input: z.infer<typeof Users.mutation.inputs.resetPassword>;
+        output: z.infer<typeof Users.mutation.outputs.resetPassword>;
+        error: z.infer<typeof Users.mutation.errors.resetPassword>;
       };
 
       '/abi/addContractAbi': {
-        input: Abi.Mutation.Inputs.AddContractAbi;
-        output: Abi.Mutation.Outputs.AddContractAbi;
-        error: Abi.Mutation.Errors.AddContractAbi;
+        input: z.infer<typeof Abi.mutation.inputs.addContractAbi>;
+        output: z.infer<typeof Abi.mutation.outputs.addContractAbi>;
+        error: z.infer<typeof Abi.mutation.errors.addContractAbi>;
       };
 
       '/alerts/createAlert': {
-        input: Alerts.Mutation.Inputs.CreateAlert;
-        output: Alerts.Mutation.Outputs.CreateAlert;
-        error: Alerts.Mutation.Errors.CreateAlert;
+        input: z.infer<typeof Alerts.mutation.inputs.createAlert>;
+        output: z.infer<typeof Alerts.mutation.outputs.createAlert>;
+        error: z.infer<typeof Alerts.mutation.errors.createAlert>;
       };
       '/alerts/updateAlert': {
-        input: Alerts.Mutation.Inputs.UpdateAlert;
-        output: Alerts.Mutation.Outputs.UpdateAlert;
-        error: Alerts.Mutation.Errors.UpdateAlert;
+        input: z.infer<typeof Alerts.mutation.inputs.updateAlert>;
+        output: z.infer<typeof Alerts.mutation.outputs.updateAlert>;
+        error: z.infer<typeof Alerts.mutation.errors.updateAlert>;
       };
       '/alerts/deleteAlert': {
-        input: Alerts.Mutation.Inputs.DeleteAlert;
-        output: Alerts.Mutation.Outputs.DeleteAlert;
-        error: Alerts.Mutation.Errors.DeleteAlert;
+        input: z.infer<typeof Alerts.mutation.inputs.deleteAlert>;
+        output: z.infer<typeof Alerts.mutation.outputs.deleteAlert>;
+        error: z.infer<typeof Alerts.mutation.errors.deleteAlert>;
       };
       '/alerts/createDestination': {
-        input: Alerts.Mutation.Inputs.CreateDestination;
-        output: Alerts.Mutation.Outputs.CreateDestination;
-        error: Alerts.Mutation.Errors.CreateDestination;
+        input: z.infer<typeof Alerts.mutation.inputs.createDestination>;
+        output: z.infer<typeof Alerts.mutation.outputs.createDestination>;
+        error: z.infer<typeof Alerts.mutation.errors.createDestination>;
       };
       '/alerts/deleteDestination': {
-        input: Alerts.Mutation.Inputs.DeleteDestination;
-        output: Alerts.Mutation.Outputs.DeleteDestination;
-        error: Alerts.Mutation.Errors.DeleteDestination;
+        input: z.infer<typeof Alerts.mutation.inputs.deleteDestination>;
+        output: z.infer<typeof Alerts.mutation.outputs.deleteDestination>;
+        error: z.infer<typeof Alerts.mutation.errors.deleteDestination>;
       };
       '/alerts/enableDestination': {
-        input: Alerts.Mutation.Inputs.EnableDestination;
-        output: Alerts.Mutation.Outputs.EnableDestination;
-        error: Alerts.Mutation.Errors.EnableDestination;
+        input: z.infer<typeof Alerts.mutation.inputs.enableDestination>;
+        output: z.infer<typeof Alerts.mutation.outputs.enableDestination>;
+        error: z.infer<typeof Alerts.mutation.errors.enableDestination>;
       };
       '/alerts/disableDestination': {
-        input: Alerts.Mutation.Inputs.DisableDestination;
-        output: Alerts.Mutation.Outputs.DisableDestination;
-        error: Alerts.Mutation.Errors.DisableDestination;
+        input: z.infer<typeof Alerts.mutation.inputs.disableDestination>;
+        output: z.infer<typeof Alerts.mutation.outputs.disableDestination>;
+        error: z.infer<typeof Alerts.mutation.errors.disableDestination>;
       };
       '/alerts/updateDestination': {
-        input: Alerts.Mutation.Inputs.UpdateDestination;
-        output: Alerts.Mutation.Outputs.UpdateDestination;
-        error: Alerts.Mutation.Errors.UpdateDestination;
+        input: z.infer<typeof Alerts.mutation.inputs.updateDestination>;
+        output: z.infer<typeof Alerts.mutation.outputs.updateDestination>;
+        error: z.infer<typeof Alerts.mutation.errors.updateDestination>;
       };
       '/alerts/verifyEmailDestination': {
-        input: Alerts.Mutation.Inputs.VerifyEmailDestination;
-        output: Alerts.Mutation.Outputs.VerifyEmailDestination;
-        error: Alerts.Mutation.Errors.VerifyEmailDestination;
+        input: z.infer<typeof Alerts.mutation.inputs.verifyEmailDestination>;
+        output: z.infer<typeof Alerts.mutation.outputs.verifyEmailDestination>;
+        error: z.infer<typeof Alerts.mutation.errors.verifyEmailDestination>;
       };
       // TODO: should we expose that?
       '/alerts/telegramWebhook': {
-        input: Alerts.Mutation.Inputs.TelegramWebhook;
-        output: Alerts.Mutation.Outputs.TelegramWebhook;
-        error: Alerts.Mutation.Errors.TelegramWebhook;
+        input: z.infer<typeof Alerts.mutation.inputs.telegramWebhook>;
+        output: z.infer<typeof Alerts.mutation.outputs.telegramWebhook>;
+        error: z.infer<typeof Alerts.mutation.errors.telegramWebhook>;
       };
       '/alerts/resendEmailVerification': {
-        input: Alerts.Mutation.Inputs.ResendEmailVerification;
-        output: Alerts.Mutation.Outputs.ResendEmailVerification;
-        error: Alerts.Mutation.Errors.ResendEmailVerification;
+        input: z.infer<typeof Alerts.mutation.inputs.resendEmailVerification>;
+        output: z.infer<typeof Alerts.mutation.outputs.resendEmailVerification>;
+        error: z.infer<typeof Alerts.mutation.errors.resendEmailVerification>;
       };
       '/alerts/unsubscribeFromEmailAlert': {
-        input: Alerts.Mutation.Inputs.UnsubscribeFromEmailAlert;
-        output: Alerts.Mutation.Outputs.UnsubscribeFromEmailAlert;
-        error: Alerts.Mutation.Errors.UnsubscribeFromEmailAlert;
+        input: z.infer<typeof Alerts.mutation.inputs.unsubscribeFromEmailAlert>;
+        output: z.infer<
+          typeof Alerts.mutation.outputs.unsubscribeFromEmailAlert
+        >;
+        error: z.infer<typeof Alerts.mutation.errors.unsubscribeFromEmailAlert>;
       };
       '/alerts/rotateWebhookDestinationSecret': {
-        input: Alerts.Mutation.Inputs.RotateWebhookDestinationSecret;
-        output: Alerts.Mutation.Outputs.RotateWebhookDestinationSecret;
-        error: Alerts.Mutation.Errors.RotateWebhookDestinationSecret;
+        input: z.infer<
+          typeof Alerts.mutation.inputs.rotateWebhookDestinationSecret
+        >;
+        output: z.infer<
+          typeof Alerts.mutation.outputs.rotateWebhookDestinationSecret
+        >;
+        error: z.infer<
+          typeof Alerts.mutation.errors.rotateWebhookDestinationSecret
+        >;
       };
     };
 
