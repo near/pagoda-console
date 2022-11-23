@@ -25,10 +25,10 @@ jobs:
         run: dbdocs
 
       - name: Install DB Generator for Prisma
-        run: npm install prisma-dbml-generator
+        run: npm install prisma-dbml-generator@0.10.0-dev.1
 
       - name: add generator to Prisma's schema
-        run: printf '\ngenerator dbml {\n  provider = "prisma-dbml-generator"\n}' >> ./database/schemas/core/schema.prisma
+        run: printf '\ngenerator dbml {\n  provider = "prisma-dbml-generator"\n  includeRelationFields = "false"\n}' >> ./database/schemas/core/schema.prisma
 
       - name: Generate DB Docs schema file
         run: npx prisma generate --schema ./database/schemas/core/schema.prisma
