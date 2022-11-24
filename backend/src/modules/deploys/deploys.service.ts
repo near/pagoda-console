@@ -171,7 +171,15 @@ export class DeploysService {
         slug: repoDeployment.slug,
       },
       include: {
-        ContractDeployment: true,
+        ContractDeployment: {
+          include: {
+            contractDeployConfig: {
+              select: {
+                nearAccountId: true,
+              },
+            },
+          },
+        },
       },
     });
   }
