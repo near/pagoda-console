@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { User, Project, Environment } from '@pc/database/clients/core';
+import { User } from '@pc/database/clients/core';
 import { PrismaService } from '../prisma.service';
 import { VError } from 'verror';
+import { Projects } from '@pc/common/types/core';
 
 @Injectable()
 export class PermissionsService {
@@ -9,8 +10,8 @@ export class PermissionsService {
 
   async checkUserProjectEnvPermission(
     userId: User['id'],
-    slug: Project['slug'],
-    subId: Environment['subId'],
+    slug: Projects.ProjectSlug,
+    subId: Projects.EnvironmentId,
   ) {
     const res = await this.prisma.teamMember.findFirst({
       where: {
@@ -44,7 +45,10 @@ export class PermissionsService {
     }
   }
 
-  async checkUserProjectPermission(userId: User['id'], slug: Project['slug']) {
+  async checkUserProjectPermission(
+    userId: User['id'],
+    slug: Projects.ProjectSlug,
+  ) {
     const res = await this.prisma.teamMember.findFirst({
       where: {
         userId,
@@ -71,7 +75,10 @@ export class PermissionsService {
     }
   }
 
-  async checkUserContractPermission(userId: User['id'], slug: Project['slug']) {
+  async checkUserContractPermission(
+    userId: User['id'],
+    slug: Projects.ContractSlug,
+  ) {
     const res = await this.prisma.teamMember.findFirst({
       where: {
         userId,

@@ -13,6 +13,7 @@ import {
   SecretBodyKongCredTypeEnum,
 } from './rpcaas-client';
 import { VError } from 'verror';
+import { Projects } from '@pc/common/types/core';
 
 @Injectable()
 export class ApiKeysProvisioningService
@@ -39,7 +40,7 @@ export class ApiKeysProvisioningService
     this.secretClient = new SecretApi(configuration);
   }
 
-  async createOrganization(kongConsumer: string, orgSlug: string) {
+  async createOrganization(kongConsumer: string, orgSlug: Projects.OrgSlug) {
     try {
       await this.createConsumer(kongConsumer, orgSlug);
     } catch (e: any) {
@@ -48,7 +49,7 @@ export class ApiKeysProvisioningService
     }
   }
 
-  async generate(kongConsumer: string, keySlug: string) {
+  async generate(kongConsumer: string, keySlug: Projects.ApiKeySlug) {
     const keyName = this.getKeyName(keySlug);
     const body: SecretBody = {
       kongCredType: SecretBodyKongCredTypeEnum.KeyAuth,
@@ -64,7 +65,7 @@ export class ApiKeysProvisioningService
     }
   }
 
-  async rotate(kongConsumer: string, keySlug: string) {
+  async rotate(kongConsumer: string, keySlug: Projects.ApiKeySlug) {
     try {
       await this.delete(kongConsumer, keySlug);
       await this.generate(kongConsumer, keySlug);
@@ -73,7 +74,7 @@ export class ApiKeysProvisioningService
     }
   }
 
-  async delete(kongConsumer: string, keySlug: string) {
+  async delete(kongConsumer: string, keySlug: Projects.ApiKeySlug) {
     try {
       await this.secretClient.deleteSecret(
         this.getConsumerName(kongConsumer),
@@ -94,7 +95,7 @@ export class ApiKeysProvisioningService
     }
   }
 
-  async fetch(keySlug: string): Promise<string> {
+  async fetch(keySlug: Projects.ApiKeySlug): Promise<string> {
     try {
       const keyName = this.getKeyName(keySlug);
       return (await this.secretClient.getSecret(keyName)).data.api_token;
@@ -124,7 +125,10 @@ export class ApiKeysProvisioningService
     }
   }
 
-  private async createConsumer(kongConsumer: string, orgSlug: string) {
+  private async createConsumer(
+    kongConsumer: string,
+    orgSlug: Projects.OrgSlug,
+  ) {
     const username = this.getConsumerName(kongConsumer);
     const consumer: Consumer = {
       custom_id: orgSlug,
@@ -143,7 +147,7 @@ export class ApiKeysProvisioningService
     return kongConsumer;
   }
 
-  private getKeyName(keySlug: string) {
+  private getKeyName(keySlug: Projects.ApiKeySlug) {
     return keySlug;
   }
 }

@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Explorer, Projects } from '@pc/common/types/core';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
@@ -29,7 +30,7 @@ const Public: NextPageWithLayout = () => {
   const addressesParam = router.query.addresses as string;
   const sharedParam = router.query.shared as string;
   const netParam = router.query.net as NetOption;
-  const addresses = addressesParam ? addressesParam.split(',') : [];
+  const addresses = (addressesParam ? addressesParam.split(',') : []) as Explorer.AccountId[];
   const addressesAreValid = addresses.length > 0;
   const netIsValid = netOptions.includes(netParam);
   const routeNameIsValid = ['analytics', 'contracts'].includes(redirectPageNameParam);
@@ -52,7 +53,7 @@ const Public: NextPageWithLayout = () => {
     const contracts: Contract[] = addresses.map((address) => {
       return {
         address,
-        slug: address,
+        slug: address as unknown as Projects.ContractSlug,
         net: netParam,
       };
     });

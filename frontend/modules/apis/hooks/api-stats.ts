@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Projects } from '@pc/common/types/core';
 import type { RpcStats } from '@pc/common/types/rpcstats';
 import type { DateTime, DateTimeUnit } from 'luxon';
 import { useEffect, useState } from 'react';
@@ -117,8 +118,8 @@ function fillEmptyDateValues(
 type EndpointMetrics = Api.Query.Output<'/rpcstats/endpointMetrics'>;
 
 export function useApiStats(
-  environmentSubId: number,
-  projectSlug: string,
+  environmentSubId: Projects.EnvironmentId,
+  projectSlug: Projects.ProjectSlug,
   timeRangeValue: RpcStats.TimeRangeValue,
   rangeEndTime: DateTime,
 ) {

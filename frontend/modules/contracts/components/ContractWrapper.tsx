@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Projects } from '@pc/common/types/core';
 import type { ReactElement } from 'react';
 
 import { GetPublicModeWrapper } from '@/components/lib/PublicModeWrapper';
@@ -15,7 +16,7 @@ type ChildrenProps = {
 };
 
 type Props = {
-  slug: string;
+  slug: Projects.ContractSlug;
   children: (props: ChildrenProps) => ReactElement | null;
 };
 

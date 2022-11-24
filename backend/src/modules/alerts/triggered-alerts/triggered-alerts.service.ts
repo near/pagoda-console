@@ -11,7 +11,8 @@ import {
   TxMatchingRule,
 } from '../serde/db.types';
 import { VError } from 'verror';
-import { Alerts } from '@pc/common/types/alerts';
+import { Alerts, TriggeredAlerts } from '@pc/common/types/alerts';
+import { Projects } from '@pc/common/types/core';
 
 @Injectable()
 export class TriggeredAlertsService {
@@ -23,12 +24,12 @@ export class TriggeredAlertsService {
 
   async listTriggeredAlertsByProject(
     user: User,
-    projectSlug: Alert['projectSlug'],
-    environmentSubId: Alert['environmentSubId'],
+    projectSlug: Projects.ProjectSlug,
+    environmentSubId: Projects.EnvironmentId,
     skip: number,
     take: number,
     pagingDateTime: Date | undefined,
-    alertId?: number,
+    alertId?: Alerts.AlertId,
   ) {
     await this.projectPermissions.checkUserProjectEnvPermission(
       user.id,
@@ -77,7 +78,7 @@ export class TriggeredAlertsService {
 
   public async getTriggeredAlertDetails(
     user: User,
-    slug: TriggeredAlert['slug'],
+    slug: TriggeredAlerts.TriggeredAlertSlug,
   ) {
     const triggeredAlert = await this.prisma.triggeredAlert.findFirst({
       where: {
@@ -108,9 +109,9 @@ export class TriggeredAlertsService {
 
   private determineWhereClause(
     pagingDateTime: Date | undefined,
-    projectSlug: string,
-    environmentSubId: number,
-    alertId?: number,
+    projectSlug: Projects.ProjectSlug,
+    environmentSubId: Projects.EnvironmentId,
+    alertId?: Alerts.AlertId,
   ): Prisma.TriggeredAlertWhereInput {
     const listWhere: Prisma.TriggeredAlertWhereInput = {
       alert: {

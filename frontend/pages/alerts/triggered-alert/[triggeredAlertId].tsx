@@ -67,7 +67,7 @@ function LabelAndValue(props: {
 
 const ViewTriggeredAlert: NextPageWithLayout = () => {
   const router = useRouter();
-  const triggeredAlertId = router.query.triggeredAlertId as string;
+  const triggeredAlertId = router.query.triggeredAlertId as TriggeredAlerts.TriggeredAlertSlug;
   const { triggeredAlert, error } = useTriggeredAlertDetails(triggeredAlertId);
   const { alert } = useAlert(triggeredAlert?.alertId);
   const { environmentSubId, updateContext: updateProjectContext } = useSureProjectContext();

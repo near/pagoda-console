@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
+import { Projects } from '@pc/common/types/core';
 import { ApiKeysProvisioningServiceInterface } from './interfaces';
 import { Consumer, ConsumerRateLimitingPolicyEnum } from './rpcaas-client';
 
@@ -17,22 +18,22 @@ export class ApiKeysMockProvisioningService
       username: kongConsumer,
     };
   }
-  async createOrganization(kongConsumer: string, orgSlug: string) {
+  async createOrganization(kongConsumer: string, orgSlug: Projects.OrgSlug) {
     return;
   }
-  async generate(kongConsumer: string, keySlug: string) {
+  async generate(kongConsumer: string, keySlug: Projects.ApiKeySlug) {
     return this.MOCK_KEY;
   }
-  async rotate(kongConsumer: string, keySlug: string) {
+  async rotate(kongConsumer: string, keySlug: Projects.ApiKeySlug) {
     return this.MOCK_KEY;
   }
-  async delete(kongConsumer: string, keySlug: string) {
+  async delete(kongConsumer: string, keySlug: Projects.ApiKeySlug) {
     return;
   }
   async deleteOrganization(kongConsumer: string) {
     return;
   }
-  async fetch(keySlug: string): Promise<string> {
+  async fetch(keySlug: Projects.ApiKeySlug): Promise<string> {
     return this.MOCK_KEY;
   }
   async fetchAll(kongConsumer: string): Promise<string[]> {

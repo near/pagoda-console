@@ -1,3 +1,4 @@
+import type { Alerts } from '@pc/common/types/alerts';
 import type { Api } from '@pc/common/types/api';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
@@ -32,8 +33,8 @@ export function TriggeredAlerts() {
   const { environmentSubId, projectSlug } = useSureProjectContext();
   const queryParamAlertFilter = useRouteParam('alertId');
   const { reset, ...pagination } = usePagination();
-  const [filteredAlertId, setFilteredAlertId] = useState(
-    queryParamAlertFilter ? parseInt(queryParamAlertFilter) : undefined,
+  const [filteredAlertId, setFilteredAlertId] = useState<Alerts.AlertId | undefined>(
+    queryParamAlertFilter ? (parseInt(queryParamAlertFilter) as Alerts.AlertId) : undefined,
   );
   const filters = { alertId: filteredAlertId };
   const { triggeredAlertsCount, triggeredAlerts } = useTriggeredAlerts(
@@ -68,7 +69,7 @@ export function TriggeredAlerts() {
 
   function onSelectAlertFilter(alertId: string) {
     reset();
-    setFilteredAlertId(parseInt(alertId));
+    setFilteredAlertId(parseInt(alertId) as Alerts.AlertId);
   }
 
   if (alerts?.length === 0) {

@@ -1,3 +1,5 @@
+import type { Alerts, TriggeredAlerts } from '@pc/common/types/alerts';
+import type { Projects } from '@pc/common/types/core';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
@@ -7,14 +9,14 @@ import config from '@/utils/config';
 import { authenticatedPost } from '@/utils/http';
 
 interface TriggeredAlertFilters {
-  alertId?: number;
+  alertId?: Alerts.AlertId;
 }
 
 const refreshInterval = config.defaultLiveDataRefreshIntervalMs;
 
 export function useTriggeredAlerts(
-  projectSlug: string,
-  environmentSubId: number,
+  projectSlug: Projects.ProjectSlug,
+  environmentSubId: Projects.EnvironmentId,
   pagination: Pagination,
   filters: TriggeredAlertFilters,
 ) {
@@ -63,7 +65,7 @@ export function useTriggeredAlerts(
   };
 }
 
-export function useTriggeredAlertDetails(slug: string) {
+export function useTriggeredAlertDetails(slug: TriggeredAlerts.TriggeredAlertSlug) {
   const { identity } = useAuth();
 
   const { data, error } = useSWR(

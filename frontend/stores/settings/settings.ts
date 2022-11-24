@@ -1,9 +1,10 @@
+import type { Users } from '@pc/common/types/core';
 import { merge } from 'lodash-es';
 import create from 'zustand';
 
 import type { SettingsStore } from './types';
 
-function getUser(userId: string, state: SettingsStore) {
+function getUser(userId: Users.UserUid, state: SettingsStore) {
   state.users[userId] ||= {
     projects: {},
   };

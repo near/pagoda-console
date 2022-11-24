@@ -1,3 +1,4 @@
+import type { Projects } from '@pc/common/types/core';
 import type { ChangeEvent, DragEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -18,7 +19,7 @@ import { StableId } from '@/utils/stable-ids';
 const MAX_CODE_HEIGHT = '18rem';
 
 type Props = {
-  contractSlug: string;
+  contractSlug: Projects.ContractSlug;
   setAbiUploaded: (arg0: boolean) => void;
 };
 

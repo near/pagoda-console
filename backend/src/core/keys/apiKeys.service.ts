@@ -4,6 +4,7 @@ import { customAlphabet } from 'nanoid';
 import { VError } from 'verror';
 import { PrismaService } from '../prisma.service';
 import { ApiKeysProvisioningService } from './provisioning.service';
+import { Projects } from '@pc/common/types/core';
 
 const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 20);
 
@@ -16,11 +17,11 @@ export class ApiKeysService {
 
   async generateKey(
     userId: User['id'],
-    orgSlug: string,
-    projectSlug: string,
+    orgSlug: Projects.OrgSlug,
+    projectSlug: Projects.ProjectSlug,
     usersDescription?: string,
   ) {
-    const slug = nanoid();
+    const slug = nanoid() as Projects.ApiKeySlug;
     const description = usersDescription ? usersDescription : 'default';
     const kongConsumerName = await this.getKongConsumerName(orgSlug);
 
@@ -75,7 +76,7 @@ export class ApiKeysService {
     }
   }
 
-  async rotateKey(userId: User['id'], slug: string) {
+  async rotateKey(userId: User['id'], slug: Projects.ApiKeySlug) {
     let keyDetails;
     try {
       keyDetails = await this.getKeyDetails(slug);
@@ -112,7 +113,11 @@ export class ApiKeysService {
     }
   }
 
-  async deleteKey(userId: User['id'], orgSlug: string, slug: string) {
+  async deleteKey(
+    userId: User['id'],
+    orgSlug: Projects.OrgSlug,
+    slug: Projects.ApiKeySlug,
+  ) {
     const kongConsumerName = await this.getKongConsumerName(orgSlug);
 
     if (!kongConsumerName) {
@@ -160,7 +165,7 @@ export class ApiKeysService {
     }
   }
 
-  async getKeys(projectSlug: string) {
+  async getKeys(projectSlug: Projects.ProjectSlug) {
     try {
       const projectKeySlugs = await this.prisma.apiKey.findMany({
         where: {
@@ -184,7 +189,7 @@ export class ApiKeysService {
 
       const keys: {
         id: number;
-        keySlug: string;
+        keySlug: Projects.ApiKeySlug;
         description: string;
         key: string;
         kongConsumerName: string;
@@ -214,7 +219,7 @@ export class ApiKeysService {
     }
   }
 
-  async getKey(slug: string) {
+  async getKey(slug: Projects.ApiKeySlug) {
     let keyDetails;
     try {
       keyDetails = await this.prisma.apiKey.findUnique({
@@ -245,7 +250,7 @@ export class ApiKeysService {
     }
   }
 
-  async deleteOrg(userId: User['id'], orgSlug: string) {
+  async deleteOrg(userId: User['id'], orgSlug: Projects.OrgSlug) {
     const kongConsumerName = await this.getKongConsumerName(orgSlug);
 
     if (!kongConsumerName) {
@@ -275,7 +280,7 @@ export class ApiKeysService {
     }
   }
 
-  async getKeyDetails(slug: string) {
+  async getKeyDetails(slug: Projects.ApiKeySlug) {
     let keyDetails;
     try {
       keyDetails = await this.prisma.apiKey.findUnique({
@@ -294,7 +299,10 @@ export class ApiKeysService {
     return keyDetails;
   }
 
-  async deleteProjectKeys(userId: User['id'], projectSlug: string) {
+  async deleteProjectKeys(
+    userId: User['id'],
+    projectSlug: Projects.ProjectSlug,
+  ) {
     try {
       const projectKeySlugs = await this.prisma.apiKey.findMany({
         where: {
@@ -321,7 +329,10 @@ export class ApiKeysService {
     }
   }
 
-  async createOrganization(kongConsumerName: string, orgSlug: string) {
+  async createOrganization(
+    kongConsumerName: string,
+    orgSlug: Projects.OrgSlug,
+  ) {
     try {
       await this.provisioningService.createOrganization(
         kongConsumerName,
@@ -335,7 +346,7 @@ export class ApiKeysService {
     }
   }
 
-  private async getKongConsumerName(orgSlug: string) {
+  private async getKongConsumerName(orgSlug: Projects.OrgSlug) {
     try {
       const res = (await this.prisma.org.findFirst({
         where: {

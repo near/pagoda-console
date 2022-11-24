@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Projects } from '@pc/common/types/core';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -67,7 +68,7 @@ const ContractAbiTab = ({ contract }: { contract: Contract | undefined }) => {
 const ViewContract: NextPageWithLayout = () => {
   const { publicModeIsActive } = usePublicMode();
   const router = useRouter();
-  const contractSlug = useRouteParam('slug', '/contracts', true) || '';
+  const contractSlug = (useRouteParam('slug', '/contracts', true) || '') as Projects.ContractSlug;
   const activeTab = useRouteParam('tab', `/contracts/${contractSlug}?tab=details`, true);
   const { identity } = useAuth();
   const { projectSlug, environmentSubId } = useMaybeProjectContext();

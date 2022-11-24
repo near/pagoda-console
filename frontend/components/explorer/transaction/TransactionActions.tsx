@@ -19,7 +19,7 @@ import { Button } from '../../lib/Button';
 import TransactionReceipt from './TransactionReceipt';
 
 type Props = {
-  transactionHash: string | null;
+  transactionHash: Explorer.TransactionHash | null;
 };
 
 type ToogleReceipt = {

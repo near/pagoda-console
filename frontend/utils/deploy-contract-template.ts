@@ -1,3 +1,4 @@
+import type { Explorer } from '@pc/common/types/core';
 import { connect, KeyPair, keyStores, transactions } from 'near-api-js';
 
 import config from '@/utils/config';
@@ -18,7 +19,7 @@ export async function deployContractTemplate(template: ContractTemplate) {
   };
   const near = await connect(nearConfig);
   const randomNumber = Math.floor(Math.random() * (99999999999999 - 10000000000000) + 10000000000000);
-  const accountId = `dev-${Date.now()}-${randomNumber}`;
+  const accountId = `dev-${Date.now()}-${randomNumber}` as Explorer.AccountId;
   const keyPair = KeyPair.fromRandom('ed25519');
 
   try {

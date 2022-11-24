@@ -1,3 +1,4 @@
+import type { Alerts } from '@pc/common/types/alerts';
 import type { Api } from '@pc/common/types/api';
 import type { Dispatch, SetStateAction } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -23,25 +24,25 @@ type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 export interface OnDestinationSelectionChangeEvent {
   destination: Destination;
   isSelected: boolean;
-  selectedIds: number[];
+  selectedIds: Alerts.DestinationId[];
 }
 
 interface Props {
   debounce?: boolean;
   onChange?: (event: OnDestinationSelectionChangeEvent) => void;
-  selectedIds: number[];
-  setSelectedIds: Dispatch<SetStateAction<number[]>>;
+  selectedIds: Alerts.DestinationId[];
+  setSelectedIds: Dispatch<SetStateAction<Alerts.DestinationId[]>>;
 }
 
 function toggleDestination(
   isSelected: boolean,
   destination: Destination,
-  setSelectedIds: Dispatch<SetStateAction<number[]>>,
+  setSelectedIds: Dispatch<SetStateAction<Alerts.DestinationId[]>>,
   onChange?: (event: OnDestinationSelectionChangeEvent) => void,
 ) {
   if (!destination.isValid) return;
 
-  let ids: number[] = [];
+  let ids: Alerts.DestinationId[] = [];
 
   setSelectedIds((value) => {
     ids = value.filter((id) => id !== destination.id);

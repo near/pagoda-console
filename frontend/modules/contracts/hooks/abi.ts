@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Projects } from '@pc/common/types/core';
 import type { Net } from '@pc/database/clients/core';
 import type { AbiRoot, AnyContract } from 'near-abi-client-js';
 import { Contract as NearContract } from 'near-abi-client-js';
@@ -53,7 +54,7 @@ export const useEmbeddedAbi = (net: Net | undefined, address: string | undefined
   return { embeddedAbi, error, mutate };
 };
 
-export const useContractAbi = (contract: string | undefined) => {
+export const useContractAbi = (contract: Projects.ContractSlug | undefined) => {
   const { identity } = useAuth();
   const {
     data: contractAbi,
@@ -69,7 +70,7 @@ export const useContractAbi = (contract: string | undefined) => {
   return { contractAbi: contractAbi?.abi, error, mutate };
 };
 
-export const uploadContractAbi = async (contractSlug: string, abi: AbiRoot) => {
+export const uploadContractAbi = async (contractSlug: Projects.ContractSlug, abi: AbiRoot) => {
   try {
     await authenticatedPost('/abi/addContractAbi', {
       contract: contractSlug,

@@ -204,7 +204,7 @@ const ActivityItemRow: React.FC<RowProps> = ({ item }) => {
 };
 
 type Props = {
-  accountId: string;
+  accountId: Explorer.AccountId;
 };
 
 const AccountActivityView: React.FC<Props> = ({ accountId }) => {

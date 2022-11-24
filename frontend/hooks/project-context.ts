@@ -1,3 +1,4 @@
+import type { Projects } from '@pc/common/types/core';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo } from 'react';
 
@@ -16,7 +17,10 @@ const useUpdateProjectContext = () => {
   const updateProjectSettings = useSettingsStore((store) => store.updateProjectSettings);
 
   return useCallback(
-    (selectedProjectSlug: string | undefined, selectedEnvironmentSubId: number | null) => {
+    (
+      selectedProjectSlug: Projects.ProjectSlug | undefined,
+      selectedEnvironmentSubId: Projects.EnvironmentId | null,
+    ) => {
       if (!identityUid) {
         return;
       }
@@ -37,9 +41,11 @@ const useUpdateProjectContext = () => {
 
 // Moving project & environment route params to local storage
 const useMoveProjectContextToLocalStorage = () => {
-  const routeProjectSlug = useRouteParam('project');
+  const routeProjectSlug = useRouteParam('project') as Projects.ProjectSlug | undefined;
   const rawRouteEnvironmentSubId = useRouteParam('environment');
-  const routeEnvironmentSubId = rawRouteEnvironmentSubId ? Number(rawRouteEnvironmentSubId) : Number.NaN;
+  const routeEnvironmentSubId = (
+    rawRouteEnvironmentSubId ? Number(rawRouteEnvironmentSubId) : Number.NaN
+  ) as Projects.EnvironmentId;
   const updateProjectContext = useUpdateProjectContext();
   const router = useRouter();
   const { deactivatePublicMode } = usePublicMode();

@@ -1,3 +1,4 @@
+import type { Projects } from '@pc/common/types/core';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ChangeEvent } from 'react';
@@ -31,7 +32,7 @@ const PERSONAL_ORGANIZATION_NAME = 'Personal organization';
 
 interface NewProjectFormData {
   projectName: string;
-  projectOrg: string;
+  projectOrg: Projects.OrgSlug;
 }
 
 const NewProject: NextPageWithLayout = () => {
@@ -103,7 +104,7 @@ const NewProject: NextPageWithLayout = () => {
     }
   };
 
-  const setProjectOrg = useCallback((value: string) => setValue('projectOrg', value), [setValue]);
+  const setProjectOrg = useCallback((value: string) => setValue('projectOrg', value as Projects.OrgSlug), [setValue]);
 
   const selectedOrganizationSlug = watch('projectOrg');
   const selectedOrganization = organizations.find((organization) => organization.slug === selectedOrganizationSlug);

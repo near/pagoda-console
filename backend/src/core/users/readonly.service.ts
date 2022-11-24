@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Org, Team, User } from '@pc/database/clients/core';
 import { VError } from 'verror';
+import { Projects } from '@pc/common/types/core';
 
 @Injectable()
 export class ReadonlyService {
@@ -24,7 +25,7 @@ export class ReadonlyService {
     return org;
   }
 
-  async getDefaultTeam(orgSlug: Org['slug']): Promise<Team> {
+  async getDefaultTeam(orgSlug: Projects.OrgSlug): Promise<Team> {
     const team = await this.prisma.team.findFirst({
       where: {
         name: {

@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Projects } from '@pc/common/types/core';
 import type { KeyedMutator } from 'swr';
 import useSWR from 'swr';
 
@@ -7,7 +8,7 @@ import { authenticatedPost } from '@/utils/http';
 
 type Keys = Api.Query.Output<'/projects/getKeys'>;
 
-export function useApiKeys(project: string) {
+export function useApiKeys(project: Projects.ProjectSlug) {
   const { identity } = useAuth();
 
   const {

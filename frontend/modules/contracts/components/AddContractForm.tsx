@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Explorer } from '@pc/common/types/core';
 import { useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
@@ -29,7 +30,7 @@ interface Props {
 }
 
 interface FormData {
-  contractAddress: string;
+  contractAddress: Explorer.AccountId;
 }
 
 export function AddContractForm(props: Props) {
@@ -85,7 +86,7 @@ export function AddContractForm(props: Props) {
   }
 
   const submitForm: SubmitHandler<FormData> = async ({ contractAddress }) => {
-    const contractAddressValue = contractAddress.trim();
+    const contractAddressValue = contractAddress.trim() as Explorer.AccountId;
     try {
       const contract = await authenticatedPost('/projects/addContract', {
         project: projectSlug,
@@ -182,7 +183,7 @@ export function AddContractForm(props: Props) {
                       message: 'Invalid address format.',
                     },
                   })}
-                  onChange={(e) => setValue('contractAddress', e.target.value.trim())}
+                  onChange={(e) => setValue('contractAddress', e.target.value.trim() as Explorer.AccountId)}
                 />
                 <Form.Feedback>{formState.errors.contractAddress?.message}</Form.Feedback>
               </Form.Group>

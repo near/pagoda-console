@@ -1,3 +1,4 @@
+import type { Alerts } from '@pc/common/types/alerts';
 import type { Api } from '@pc/common/types/api';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -63,16 +64,16 @@ async function update(alert: Api.Mutation.Input<'/alerts/updateAlert'>, data: { 
 
 const EditAlert: NextPageWithLayout = () => {
   const router = useRouter();
-  const alertId = parseInt(router.query.alertId as string);
+  const alertId = parseInt(router.query.alertId as string) as Alerts.AlertId;
   const nameForm = useForm<NameFormData>();
   const { alert, mutate } = useAlert(alertId);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [alertIsActive, setAlertIsActive] = useState(true);
   const [isEditingName, setIsEditingName] = useState(false);
-  const [selectedDestinationIds, setSelectedDestinationIds] = useState<number[]>([]);
+  const [selectedDestinationIds, setSelectedDestinationIds] = useState<Alerts.DestinationId[]>([]);
 
   useEffect(() => {
-    const destinationIds: number[] = [];
+    const destinationIds: Alerts.DestinationId[] = [];
 
     if (alert) {
       setAlertIsActive(!alert.isPaused);

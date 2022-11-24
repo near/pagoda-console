@@ -1,5 +1,6 @@
 import type { Alerts } from '@pc/common/types/alerts';
 import type { Api } from '@pc/common/types/api';
+import type { Projects } from '@pc/common/types/core';
 import useSWR from 'swr';
 
 import { openToast } from '@/components/lib/Toast';
@@ -58,7 +59,7 @@ export async function updateDestination<K extends Alerts.Destination['type']>(
   return destination as MapDiscriminatedUnion<Alerts.Destination, 'type'>[K];
 }
 
-export function useDestinations(projectSlug: string) {
+export function useDestinations(projectSlug: Projects.ProjectSlug) {
   const { identity } = useAuth();
 
   const {
@@ -73,7 +74,7 @@ export function useDestinations(projectSlug: string) {
   return { destinations, error, mutate, isValidating };
 }
 
-export async function resendEmailVerification(destinationId: number) {
+export async function resendEmailVerification(destinationId: Alerts.DestinationId) {
   try {
     await authenticatedPost('/alerts/resendEmailVerification', { destinationId });
 
@@ -105,7 +106,7 @@ export async function resendEmailVerification(destinationId: number) {
   }
 }
 
-export async function rotateWebhookDestinationSecret(destinationId: number) {
+export async function rotateWebhookDestinationSecret(destinationId: Alerts.DestinationId) {
   const destination = await authenticatedPost('/alerts/rotateWebhookDestinationSecret', {
     destinationId,
   });

@@ -1,4 +1,4 @@
-import type { User as FirebaseUser } from 'firebase/auth';
+import type { Users } from '@pc/common/types/core';
 import { getAuth, onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect } from 'react';
@@ -6,6 +6,7 @@ import { useSWRConfig } from 'swr';
 import useSWR from 'swr';
 
 import { useAuthStore } from '@/stores/auth';
+import type { AuthStore } from '@/stores/auth/types';
 import analytics from '@/utils/analytics';
 import { authenticatedPost, unauthenticatedPost } from '@/utils/http';
 
@@ -44,8 +45,8 @@ export function useAuthSync() {
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (result: FirebaseUser | null) => {
-      setIdentity(result);
+    const unsubscribe = onAuthStateChanged(auth, (result) => {
+      setIdentity(result as AuthStore['identity']);
       setStatus(result ? 'AUTHENTICATED' : 'UNAUTHENTICATED');
     });
 
@@ -95,7 +96,7 @@ export function useSignOut() {
   return signOut;
 }
 
-export async function deleteAccount(uid: string | undefined) {
+export async function deleteAccount(uid: Users.UserUid | undefined) {
   try {
     await authenticatedPost('/users/deleteAccount');
     analytics.track('Delete account', {

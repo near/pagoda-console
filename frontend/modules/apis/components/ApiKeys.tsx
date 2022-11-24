@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Projects } from '@pc/common/types/core';
 import { Root as VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useRef, useState } from 'react';
 
@@ -37,7 +38,7 @@ export function ApiKeys() {
     key: '',
   });
 
-  async function rotateKey(keySlug: string) {
+  async function rotateKey(keySlug: Projects.ApiKeySlug) {
     showRotationModal && setShowRotationModal(false);
     try {
       mutateKeys((cachedKeys) => {

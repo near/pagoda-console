@@ -1,3 +1,4 @@
+import type { Explorer } from '@pc/common/types/core';
 import type { Net } from '@pc/database/clients/core';
 import { useCombobox } from 'downshift';
 import Link from 'next/link';
@@ -239,8 +240,8 @@ const WithNetDropdown: FC<{ children: ReactNode }> = ({ children }) => {
 };
 
 const AccountActivitySection = () => {
-  const form = useForm<{ contractId: string }>();
-  const [address, setAddress] = useState('');
+  const form = useForm<{ contractId: Explorer.AccountId }>();
+  const [address, setAddress] = useState<Explorer.AccountId>('' as Explorer.AccountId);
 
   return (
     <>
@@ -261,8 +262,8 @@ const AccountActivitySection = () => {
 };
 
 const TransactionSection = () => {
-  const form = useForm<{ transactionHash: string }>();
-  const [hash, setHash] = useState('');
+  const form = useForm<{ transactionHash: Explorer.TransactionHash }>();
+  const [hash, setHash] = useState<Explorer.TransactionHash>('' as Explorer.TransactionHash);
   const net = useNet();
 
   return (

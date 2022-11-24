@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Projects, Users } from '@pc/common/types/core';
 import { noop } from 'lodash-es';
 import { useMemo } from 'react';
 import type { MutatorCallback, MutatorOptions } from 'swr';
@@ -111,10 +112,10 @@ type OrgsMutationOptions<Key extends Api.Mutation.Key, M = unknown> = MutationOp
   Api.Mutation.Error<Key>
 >;
 
-const getOrgMembersKey = (orgSlug: string | undefined) => ['/users/listOrgMembers', orgSlug] as const;
+const getOrgMembersKey = (orgSlug: Projects.OrgSlug | undefined) => ['/users/listOrgMembers', orgSlug] as const;
 const getOrgsKey = () => ['/users/listOrgs'] as const;
 
-export const useOrgMembers = (slug: string) => {
+export const useOrgMembers = (slug: Projects.OrgSlug) => {
   const { identity } = useAuth();
   const { data, error, mutate, isValidating } = useSWR(identity ? getOrgMembersKey(slug) : null, (path) =>
     authenticatedPost(path, { org: slug }),
@@ -146,7 +147,7 @@ const mutateOrganizations = (data?: MutationData<Orgs>, opts?: boolean | Mutator
 type OrgMembers = Api.Query.Output<'/users/listOrgMembers'>;
 
 const mutateOrganizationMembers = (
-  orgSlug: string,
+  orgSlug: Projects.OrgSlug,
   data?: MutationData<OrgMembers>,
   opts?: boolean | MutatorOptions<OrgMembers>,
 ) => mutate<OrgMembers>(getOrgMembersKey(orgSlug), data, opts);
@@ -201,7 +202,7 @@ export const useCreateOrg = () => {
   return useMutation(useMemo(() => createOrgMutationOptions(account.user), [account.user]));
 };
 
-const updateOrgMembersCache = (orgSlug: string, uid: string, role: OrgMembers[number]['role']) => {
+const updateOrgMembersCache = (orgSlug: Projects.OrgSlug, uid: Users.UserUid, role: OrgMembers[number]['role']) => {
   let prevRole: OrgMembers[number]['role'] | undefined;
   mutate<OrgMembers>(
     getOrgMembersKey(orgSlug),
@@ -239,7 +240,7 @@ const getUserRoleChangeMessage = (code: UserError) => {
 };
 
 const createChangeUserRoleMutationOptions = (
-  orgSlug: string,
+  orgSlug: Projects.OrgSlug,
 ): OrgsMutationOptions<'/users/changeOrgRole', OrgMembers[number]['role'] | undefined> => ({
   eventName: 'Change user role in organization',
   mutate: ({ user, role }) =>
@@ -256,7 +257,7 @@ const createChangeUserRoleMutationOptions = (
   },
 });
 
-export const useChangeUserRoleInOrg = (orgSlug: string) =>
+export const useChangeUserRoleInOrg = (orgSlug: Projects.OrgSlug) =>
   useMutation(useMemo(() => createChangeUserRoleMutationOptions(orgSlug), [orgSlug]));
 
 const getRemoveFromOrgMessage = (code: UserError) => {
@@ -271,8 +272,8 @@ const getRemoveFromOrgMessage = (code: UserError) => {
 };
 
 const createLeaveOrgMutationOptions = (
-  orgSlug: string,
-  selfUid?: string,
+  orgSlug: Projects.OrgSlug,
+  selfUid?: Users.UserUid,
 ): OrgsMutationOptions<'/users/removeFromOrg'> => ({
   eventName: 'Leave from organization',
   mutate: selfUid
@@ -296,7 +297,7 @@ const createLeaveOrgMutationOptions = (
   onError: openUserErrorToast,
 });
 
-export const useLeaveOrg = (orgSlug: string) => {
+export const useLeaveOrg = (orgSlug: Projects.OrgSlug) => {
   const { identity } = useAuth();
   const selfUid = identity?.uid;
   return useMutation(useMemo(() => createLeaveOrgMutationOptions(orgSlug, selfUid), [orgSlug, selfUid]));
@@ -315,7 +316,7 @@ const getInviteMemberMessage = (code: UserError) => {
   }
 };
 
-const createInviteUserMutationOptions = (orgSlug: string): OrgsMutationOptions<'/users/inviteToOrg'> => ({
+const createInviteUserMutationOptions = (orgSlug: Projects.OrgSlug): OrgsMutationOptions<'/users/inviteToOrg'> => ({
   eventName: 'Invite user to organization',
   mutate: ({ email, role }) =>
     authenticatedPost('/users/inviteToOrg', { org: orgSlug, email, role }).catch((e) =>
@@ -344,7 +345,7 @@ const createInviteUserMutationOptions = (orgSlug: string): OrgsMutationOptions<'
   onError: openUserErrorToast,
 });
 
-export const useInviteMemberToOrg = (orgSlug: string) =>
+export const useInviteMemberToOrg = (orgSlug: Projects.OrgSlug) =>
   useMutation(useMemo(() => createInviteUserMutationOptions(orgSlug), [orgSlug]));
 
 const getRemoveInviteMessage = (code: UserError) => {
@@ -358,7 +359,9 @@ const getRemoveInviteMessage = (code: UserError) => {
   }
 };
 
-const createRekoveInviteMutationOptions = (orgSlug: string): OrgsMutationOptions<'/users/removeOrgInvite'> => ({
+const createRekoveInviteMutationOptions = (
+  orgSlug: Projects.OrgSlug,
+): OrgsMutationOptions<'/users/removeOrgInvite'> => ({
   eventName: 'Revoke organization invite',
   mutate: ({ email }) =>
     authenticatedPost('/users/removeOrgInvite', { org: orgSlug, email }).catch((e) =>
@@ -375,10 +378,10 @@ const createRekoveInviteMutationOptions = (orgSlug: string): OrgsMutationOptions
   onError: openUserErrorToast,
 });
 
-export const useRemoveOrgInvite = (orgSlug: string) =>
+export const useRemoveOrgInvite = (orgSlug: Projects.OrgSlug) =>
   useMutation(useMemo(() => createRekoveInviteMutationOptions(orgSlug), [orgSlug]));
 
-const createRemoveUserMutationOptions = (orgSlug: string): OrgsMutationOptions<'/users/removeFromOrg'> => ({
+const createRemoveUserMutationOptions = (orgSlug: Projects.OrgSlug): OrgsMutationOptions<'/users/removeFromOrg'> => ({
   eventName: 'Remove user from organization',
   mutate: ({ user }) =>
     authenticatedPost('/users/removeFromOrg', { org: orgSlug, user }).catch((e) =>
@@ -393,7 +396,7 @@ const createRemoveUserMutationOptions = (orgSlug: string): OrgsMutationOptions<'
   onError: openUserErrorToast,
 });
 
-export const useRemoveUserFromOrg = (orgSlug: string) =>
+export const useRemoveUserFromOrg = (orgSlug: Projects.OrgSlug) =>
   useMutation(useMemo(() => createRemoveUserMutationOptions(orgSlug), [orgSlug]));
 
 const getDeleteOrgMessage = (code: UserError) => {
@@ -405,7 +408,7 @@ const getDeleteOrgMessage = (code: UserError) => {
   }
 };
 
-const createDeleteOrgMutationOptions = (orgSlug: string): OrgsMutationOptions<'/users/deleteOrg'> => ({
+const createDeleteOrgMutationOptions = (orgSlug: Projects.OrgSlug): OrgsMutationOptions<'/users/deleteOrg'> => ({
   eventName: 'Delete organization',
   mutate: () =>
     authenticatedPost('/users/deleteOrg', { org: orgSlug }).catch((e) => parseError(e, getDeleteOrgMessage)),
@@ -419,7 +422,7 @@ const createDeleteOrgMutationOptions = (orgSlug: string): OrgsMutationOptions<'/
   onError: openUserErrorToast,
 });
 
-export const useDeleteOrg = (orgSlug: string) =>
+export const useDeleteOrg = (orgSlug: Projects.OrgSlug) =>
   useMutation(useMemo(() => createDeleteOrgMutationOptions(orgSlug), [orgSlug]));
 
 const getInviteErrorMessage = (code: UserError) => {
@@ -446,7 +449,7 @@ const acceptOrgInviteOptions: OrgsMutationOptions<'/users/acceptOrgInvite'> = {
 
 export const useAcceptOrgInvite = () => useMutation(acceptOrgInviteOptions);
 
-export const useSelectedOrg = (orgSlug: string, filterPersonal: boolean) => {
+export const useSelectedOrg = (orgSlug: Projects.OrgSlug, filterPersonal: boolean) => {
   const { organizations } = useOrganizations(filterPersonal);
   return organizations?.find((organization) => organization.slug === orgSlug);
 };

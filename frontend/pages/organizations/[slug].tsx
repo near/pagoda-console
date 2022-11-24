@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Projects, Users } from '@pc/common/types/core';
 import type { OrgRole } from '@pc/database/clients/core';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -69,7 +70,7 @@ const Trigger = styled('div', {
 
 type RemovingUserData =
   | {
-      uid: string;
+      uid: Users.UserUid;
       email: string;
     }
   | {
@@ -81,7 +82,7 @@ const RemoveUserDialog = ({
   userData,
   setUserData,
 }: {
-  orgSlug: string;
+  orgSlug: Projects.OrgSlug;
   userData: RemovingUserData;
   setUserData: (data?: RemovingUserData) => void;
 }) => {
@@ -271,7 +272,7 @@ const InviteUserDialog = ({
   modalOpen,
   switchModal,
 }: {
-  orgSlug: string;
+  orgSlug: Projects.OrgSlug;
   modalOpen: boolean;
   switchModal: () => void;
 }) => {
@@ -347,7 +348,7 @@ const OrganizationsDropdown = ({ selectedOrganization }: { selectedOrganization?
 
 const OrganizationView: NextPageWithLayout = () => {
   const router = useRouter();
-  const orgSlug = useRouteParam('slug', '/organizations', true) || '';
+  const orgSlug = (useRouteParam('slug', '/organizations', true) || '') as Projects.OrgSlug;
   const { members, error, mutate: refetchOrganization } = useOrgMembers(orgSlug);
   const { identity } = useAuth();
   const self = members?.find((member) => member.user.uid === identity?.uid);
@@ -370,7 +371,7 @@ const OrganizationView: NextPageWithLayout = () => {
     if (!selectedOrganization) {
       return;
     }
-    deleteMutation.mutate({ org: selectedOrganization.name });
+    deleteMutation.mutate({ org: selectedOrganization.slug });
   }, [deleteMutation, selectedOrganization]);
 
   return (

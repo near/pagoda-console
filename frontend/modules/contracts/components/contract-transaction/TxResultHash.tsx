@@ -1,3 +1,5 @@
+import type { Explorer } from '@pc/common/types/core';
+
 import TransactionActions from '@/components/explorer/transaction/TransactionActions';
 import { NetContext } from '@/components/explorer/utils/NetContext';
 import { Box } from '@/components/lib/Box';
@@ -13,7 +15,7 @@ const ResultTitle = styled(H5, {
 });
 
 const TxResultHash = ({ result, net }: TxResultHashProps) => {
-  const hash = result?.hash as string;
+  const hash = result?.hash as Explorer.TransactionHash | null;
 
   return (
     <Flex stack>

@@ -1,3 +1,4 @@
+import type { Projects } from '@pc/common/types/core';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
@@ -17,7 +18,7 @@ interface NewKeyFormData {
 interface Props {
   show: boolean;
   setShow: (show: boolean) => void;
-  projectSlug: string;
+  projectSlug: Projects.ProjectSlug;
 }
 
 const ButtonContainer = styled(Flex, {
