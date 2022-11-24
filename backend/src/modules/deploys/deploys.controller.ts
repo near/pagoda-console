@@ -87,13 +87,20 @@ export class DeploysController {
     const { githubRepoFullName, commitHash, commitMessage } = body;
 
     // auth guard code
-    const authorized = await fetch(
-      `https://api.github.com/repos/${githubRepoFullName}`,
+    const setTag = await fetch(
+      `https://api.github.com/repos/${githubRepoFullName}/git/tags`,
       {
+        method: 'POST',
         headers: { Authorization: req.headers['x-github-token'] as string },
+        body: JSON.stringify({
+          tag: 'console-tag',
+          message: 'Pagoda console deployment tag',
+          object: commitHash,
+          type: 'commit',
+        }),
       },
-    ).then((res) => /\brepo\b/.test(res.headers.get('x-oauth-scopes') || ''));
-    if (!authorized) {
+    );
+    if (setTag.status !== 201) {
       throw new ForbiddenException('Unauthorized github token');
     }
     //
@@ -126,13 +133,20 @@ export class DeploysController {
         `RepoDeployment slug ${repoDeploymentSlug} not found`,
       );
     }
-    const authorized = await fetch(
-      `https://api.github.com/repos/${repoDeployment.repository.githubRepoFullName}`,
+    const setTag = await fetch(
+      `https://api.github.com/repos/${repoDeployment.repository.githubRepoFullName}/git/tags`,
       {
+        method: 'POST',
         headers: { Authorization: req.headers['x-github-token'] as string },
+        body: JSON.stringify({
+          tag: 'console-tag',
+          message: 'Pagoda console deployment tag',
+          object: repoDeployment.commitHash,
+          type: 'commit',
+        }),
       },
-    ).then((res) => /\brepo\b/.test(res.headers.get('x-oauth-scopes') || ''));
-    if (!authorized) {
+    );
+    if (setTag.status !== 201) {
       throw new ForbiddenException('Unauthorized github token');
     }
     //

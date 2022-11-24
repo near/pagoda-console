@@ -244,16 +244,10 @@ export class DeploysService {
     const { code_hash: accountCodeHash } = await account.state();
     const uploadedCodeHash = Base58.encode(createHash().update(file).digest());
 
+    let txOutcome;
+
     if (uploadedCodeHash != accountCodeHash) {
-      const txOutcome = await account.deployContract(file);
-      await this.prisma.contractDeployment.create({
-        data: {
-          slug: nanoid(),
-          repoDeploymentSlug,
-          contractDeployConfigSlug: deployConfig.slug,
-          deployTransactionHash: txOutcome.transaction.hash,
-        },
-      });
+      txOutcome = await account.deployContract(file);
     }
 
     await this.prisma.contractDeployment.create({
@@ -261,6 +255,7 @@ export class DeploysService {
         slug: nanoid(),
         repoDeploymentSlug,
         contractDeployConfigSlug: deployConfig.slug,
+        deployTransactionHash: txOutcome ? txOutcome.transaction.hash : null,
       },
     });
   }
