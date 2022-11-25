@@ -18,6 +18,18 @@
  */
 export interface SecretBody {
   /**
+   * Algorithm used to validate JWT against public key
+   * @type {string}
+   * @memberof SecretBody
+   */
+  algorithm?: string;
+  /**
+   * A unique string identifying the credential
+   * @type {string}
+   * @memberof SecretBody
+   */
+  key?: string;
+  /**
    * Additional ID field used for further linking with external systems
    * @type {string}
    * @memberof SecretBody
@@ -29,6 +41,12 @@ export interface SecretBody {
    * @memberof SecretBody
    */
   name: string;
+  /**
+   * PEM format public key for use in JWT validation
+   * @type {string}
+   * @memberof SecretBody
+   */
+  rsaPublicKey?: string;
 }
 
 /**
@@ -36,5 +54,6 @@ export interface SecretBody {
  * @enum {string}
  */
 export enum SecretBodyKongCredTypeEnum {
+  Jwt = 'jwt',
   KeyAuth = 'key-auth',
 }

@@ -2,7 +2,7 @@
 
 ### Forwarding EMS dev instance to localhost
 
-Follow the insctructions here, to setup a port forwarding from the EMS instance to the localhost: https://nearinc.atlassian.net/wiki/spaces/EAP/pages/96010677/RPCaaS+API+token+operations+manual
+Follow the insctructions here, to setup a port forwarding from the EMS instance to the localhost: https://pagodaplatform.atlassian.net/wiki/spaces/EAP/pages/73334858/Accessing+EMS+internal+resources#Developer-Access
 
 ### Swagger Codegen
 
