@@ -11,12 +11,11 @@ import { Placeholder } from '@/components/lib/Placeholder';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
 import { useRpc, useRpcQuery } from '@/hooks/rpc';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatBytes } from '@/utils/format-bytes';
 import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
-
-import { useRecentTransactions } from '../hooks/recent-transactions';
 
 type Contract = Api.Query.Output<'/projects/getContract'>;
 
@@ -90,31 +89,37 @@ function RecentTransactionList({ contract }: { contract: Contract }) {
   const finalBlockTimestampNanosecond = blockFinalityQuery.data
     ? JSBI.BigInt(blockFinalityQuery.data.header.timestamp_nanosec)
     : undefined;
-  const { transactions } = useRecentTransactions(contract.address, net);
+  // TODO (P2+) look into whether using contracts as part of the react-query key will cause a large
+  // amount of unnecessary caching, since every modification to the contract set will be a
+  // separate key
+  const transactionsQuery = useQuery(
+    ['/explorer/getTransactions', { net: contract.net, contracts: [contract.address] }],
+    { unauth: true },
+  );
 
   return (
     <Flex stack>
       <H2>Recent Transactions</H2>
 
-      {!transactions && <Spinner center />}
-
-      {transactions?.length === 0 && <Text>No recent transactions have occurred for this contract.</Text>}
-
-      <Box css={{ width: '100%' }}>
-        {transactions &&
-          transactions.map((t) => {
+      {transactionsQuery.status === 'loading' ? (
+        <Spinner center />
+      ) : transactionsQuery.status === 'error' ? (
+        <div>Error while loading transactions</div>
+      ) : transactionsQuery.data.length === 0 ? (
+        <Text>No recent transactions have occurred for this contract.</Text>
+      ) : (
+        <Box css={{ width: '100%' }}>
+          {transactionsQuery.data.map((t) => {
             return (
               <Flex key={t.hash}>
                 <Box css={{ flexGrow: 1 }}>
-                  {net && (
-                    <NetContext.Provider value={net}>
-                      <TransactionAction
-                        transaction={t}
-                        net={net}
-                        finalBlockTimestampNanosecond={finalBlockTimestampNanosecond}
-                      />
-                    </NetContext.Provider>
-                  )}
+                  <NetContext.Provider value={contract.net}>
+                    <TransactionAction
+                      transaction={t}
+                      net={contract.net}
+                      finalBlockTimestampNanosecond={finalBlockTimestampNanosecond}
+                    />
+                  </NetContext.Provider>
                 </Box>
 
                 <Text
@@ -130,7 +135,8 @@ function RecentTransactionList({ contract }: { contract: Contract }) {
               </Flex>
             );
           })}
-      </Box>
+        </Box>
+      )}
     </Flex>
   );
 }
