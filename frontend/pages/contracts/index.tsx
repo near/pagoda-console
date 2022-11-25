@@ -16,9 +16,9 @@ import { Section } from '@/components/lib/Section';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
-import { useContractMetrics } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { usePublicMode } from '@/hooks/public';
+import { useRpcQuery } from '@/hooks/rpc';
 import { AddContractForm } from '@/modules/contracts/components/AddContractForm';
 import { ContractsWrapper } from '@/modules/contracts/components/ContractsWrapper';
 import { DeleteContractModal } from '@/modules/contracts/components/DeleteContractModal';
@@ -160,7 +160,15 @@ function ContractsTable({
 }
 
 function ContractTableRow({ contract }: { contract: Contract }) {
-  const { metrics, error } = useContractMetrics(contract.address, contract.net);
+  const metricsQuery = useRpcQuery(
+    contract.net,
+    'view_account',
+    {
+      finality: 'final',
+      account_id: contract.address,
+    },
+    { retry: false },
+  );
   const url = `/contracts/${contract.slug}`;
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -169,14 +177,14 @@ function ContractTableRow({ contract }: { contract: Contract }) {
   const { publicModeIsActive } = usePublicMode();
 
   function ContractTableCellData({ children }: { children: ReactNode }) {
-    if (metrics)
+    if (metricsQuery.status === 'success')
       return (
         <Text family="number" color="text2" size="current">
           {children}
         </Text>
       );
 
-    if (error)
+    if (metricsQuery.status === 'error')
       return (
         <Text family="number" color="text3" size="current">
           N/A
@@ -194,11 +202,15 @@ function ContractTableRow({ contract }: { contract: Contract }) {
         </Table.Cell>
 
         <Table.Cell href={url}>
-          <ContractTableCellData>{metrics && convertYoctoToNear(metrics.amount, true)}</ContractTableCellData>
+          <ContractTableCellData>
+            {metricsQuery.status === 'success' && convertYoctoToNear(metricsQuery.data.amount, true)}
+          </ContractTableCellData>
         </Table.Cell>
 
         <Table.Cell href={url}>
-          <ContractTableCellData>{metrics && formatBytes(metrics.storage_usage)}</ContractTableCellData>
+          <ContractTableCellData>
+            {metricsQuery.status === 'success' && formatBytes(metricsQuery.data.storage_usage)}
+          </ContractTableCellData>
         </Table.Cell>
 
         <DropdownMenu.Root>
