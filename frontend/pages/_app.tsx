@@ -13,7 +13,8 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { appWithTranslation } from 'next-i18next';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
+import { useState } from 'react';
 import { useEffect } from 'react';
 import { SWRConfig } from 'swr';
 
@@ -29,7 +30,7 @@ import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
 import config from '@/utils/config';
 import { hydrateAllStores } from '@/utils/hydrate-all-stores';
-import { customErrorRetry } from '@/utils/swr';
+import { getCustomErrorRetry } from '@/utils/query';
 import type { NextPageWithLayout } from '@/utils/types';
 
 type AppPropsWithLayout = AppProps & {
@@ -71,12 +72,12 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   const getLayout = Component.getLayout ?? ((page) => page);
 
+  const [swrConfig] = useState<ComponentProps<typeof SWRConfig>['value']>(() => ({
+    onErrorRetry: getCustomErrorRetry(),
+  }));
+
   return (
-    <SWRConfig
-      value={{
-        onErrorRetry: customErrorRetry,
-      }}
-    >
+    <SWRConfig value={swrConfig}>
       <Head>
         <title>Pagoda Developer Console</title>
         <meta
