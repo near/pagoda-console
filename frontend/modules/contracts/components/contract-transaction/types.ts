@@ -1,23 +1,36 @@
 import type { Api } from '@pc/common/types/api';
 import type { Net } from '@pc/database/clients/core';
-import type { AbiFunction, AbiParameter, AbiRoot } from 'near-abi-client-js';
+import type { AbiFunction, AbiParameter, AbiRoot, AnyContract as AbiContract } from 'near-abi-client-js';
 import type { UseFormReturn } from 'react-hook-form';
+
+import type { UseMutationResult } from '@/hooks/raw-mutation';
 
 export type Contract = Api.Query.Output<'/projects/getContract'>;
 
+export type TransactionData = unknown;
+
+export type MutateInput = {
+  selectedFunction: AbiFunction | undefined;
+  methods: AbiContract | null;
+  abi: AbiRoot | undefined;
+  gas: string;
+  deposit: string;
+  params: Record<string, any>;
+};
+
 export interface TxFormProps {
   contract: Contract;
-  onTxResult: (result: any) => void;
-  onTxError: (error: any) => void;
+  methods: AbiContract | null;
+  mutation: UseMutationResult<TransactionData, unknown, MutateInput>;
 }
 
 export interface TxFormData {
   contractFunction: string;
-  gas: string;
-  deposit: string;
-  nearFormat: 'NEAR' | 'yoctoⓃ';
+  gasValue: string;
   gasFormat: 'Tgas' | 'Ggas' | 'Mgas' | 'gas';
-  [param: string]: any;
+  depositValue: string;
+  depositFormat: 'NEAR' | 'yoctoⓃ';
+  params: Record<string, any>;
 }
 
 export interface TxFormDepositProps {

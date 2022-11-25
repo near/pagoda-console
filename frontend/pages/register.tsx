@@ -8,8 +8,7 @@ import {
 } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useState } from 'react';
-import type { SubmitErrorHandler, SubmitHandler } from 'react-hook-form';
+import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
@@ -24,6 +23,7 @@ import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useSignedInHandler } from '@/hooks/auth';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { usePublicMode } from '@/hooks/public';
+import { useRawMutation } from '@/hooks/raw-mutation';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
@@ -53,7 +53,6 @@ interface RegisterFormData {
 
 export function RegisterForm() {
   const { getValues, register, handleSubmit, formState, watch } = useForm<RegisterFormData>();
-  const [registerError, setRegisterError] = useState<string | null>();
   const router = useRouter();
   const signedInHandler = useSignedInHandler();
   const { publicModeIsActive } = usePublicMode();
@@ -92,57 +91,37 @@ export function RegisterForm() {
     return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
   }, [getValues, router, signedInHandler]);
 
-  const handleInvalidSubmit: SubmitErrorHandler<RegisterFormData> = () => {
+  const handleInvalidSubmit = useCallback(() => {
     analytics.track('DC Submitted email registration form');
     analytics.track('DC Registration form validation failed');
     return false;
-  };
+  }, []);
 
-  const signUpWithEmail: SubmitHandler<RegisterFormData> = async ({ email, password }) => {
-    try {
-      const cachedPublicModeIsActive = publicModeIsActive;
-      setRegisterError('');
-      analytics.track('DC Submitted email registration form');
+  const signUpWithEmailMutation = useRawMutation<void, AuthError, { email: string; password: string }>(
+    async ({ email, password }) => {
       const auth = getAuth();
       await createUserWithEmailAndPassword(auth, email, password);
-
-      try {
-        analytics.track('DC Signed up with email', {
-          status: 'success',
-        });
-
-        if (cachedPublicModeIsActive) {
-          analytics.track(`DC Public Mode Sign Up`);
-        }
-      } catch (e) {
-        // silently fail
+      if (publicModeIsActive) {
+        analytics.track(`DC Public Mode Sign Up`);
       }
-    } catch (e) {
-      const error = e as AuthError;
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // TODO determine error handling
-      console.error(`${errorCode}: ${errorMessage}`);
+    },
+    {
+      onSuccess: () => analytics.track(`DC sign up with email`, { status: 'success' }),
+      onError: (error) => analytics.track(`DC sign up with email`, { status: 'success', error: error.code }),
+    },
+  );
 
-      switch (errorCode) {
-        case 'auth/email-already-in-use':
-          setRegisterError('Email is already in use');
-          break;
-        default:
-          setRegisterError(errorMessage);
-      }
-
-      analytics.track('DC Signed up with email', {
-        status: 'failure',
-        error: errorCode,
-      });
-    }
-  };
-  const resetError = useCallback(() => setRegisterError(''), [setRegisterError]);
+  const signUpWithEmail = useCallback(
+    (form: RegisterFormData) => signUpWithEmailMutation.mutate(form),
+    [signUpWithEmailMutation],
+  );
 
   return (
     <Section>
-      <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(signUpWithEmail, handleInvalidSubmit)}>
+      <Form.Root
+        disabled={signUpWithEmailMutation.isLoading}
+        onSubmit={handleSubmit(signUpWithEmail, handleInvalidSubmit)}
+      >
         <Flex stack gap="l">
           <Flex stack>
             <Form.Group>
@@ -199,9 +178,21 @@ export function RegisterForm() {
             </Form.Group>
           </Flex>
 
-          <ErrorModal error={registerError} resetError={resetError} />
+          <ErrorModal
+            error={
+              signUpWithEmailMutation.error?.code === 'auth/email-already-in-use'
+                ? 'Email is already in use'
+                : signUpWithEmailMutation.error?.message
+            }
+            resetError={signUpWithEmailMutation.reset}
+          />
 
-          <Button stableId={StableId.REGISTER_SIGN_UP_BUTTON} stretch type="submit" loading={formState.isSubmitting}>
+          <Button
+            stableId={StableId.REGISTER_SIGN_UP_BUTTON}
+            stretch
+            type="submit"
+            loading={signUpWithEmailMutation.isLoading}
+          >
             Sign Up
           </Button>
 

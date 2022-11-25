@@ -33,7 +33,7 @@ const TxFormFunctionParams = ({ selectedFunction, form, abi }: TxFormFunctionPar
     <>
       {paramsInputs.map((param: paramInputs) => (
         <Form.Group key={param.name}>
-          <Form.FloatingLabelInput type={param.type} label={param.label} {...form.register(param.name)} />
+          <Form.FloatingLabelInput type={param.type} label={param.label} {...form.register(`params.${param.name}`)} />
         </Form.Group>
       ))}
     </>
