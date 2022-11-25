@@ -1,57 +1,11 @@
 import type { Api } from '@pc/common/types/api';
-import type { Projects, Users } from '@pc/common/types/core';
+import type { Projects } from '@pc/common/types/core';
 import useSWR from 'swr';
-import { mutate } from 'swr';
 
 import { useAuth } from '@/hooks/auth';
-import analytics from '@/utils/analytics';
 import { fetchApi } from '@/utils/http';
 
-export async function ejectTutorial(slug: Projects.ProjectSlug, name: string) {
-  try {
-    await fetchApi(['/projects/ejectTutorial', { slug }]);
-    analytics.track('DC Eject Tutorial Project', {
-      status: 'success',
-      name,
-    });
-    return true;
-  } catch (e: any) {
-    analytics.track('DC Eject Tutorial Project', {
-      status: 'failure',
-      name,
-      error: e.message,
-    });
-    // TODO
-    console.error('Failed to eject tutorial project');
-  }
-  return false;
-}
-
 type Projects = Api.Query.Output<'/projects/list'>;
-
-export async function deleteProject(userId: Users.UserUid | undefined, slug: Projects.ProjectSlug, name: string) {
-  try {
-    await fetchApi(['/projects/delete', { slug }]);
-    analytics.track('DC Remove Project', {
-      status: 'success',
-      name,
-    });
-    // Update the SWR cache before a refetch for better UX.
-    mutate<Projects>(userId ? ['/projects/list', userId] : null, async (projects) => {
-      return projects?.filter((p) => p.slug !== slug);
-    });
-    return true;
-  } catch (e: any) {
-    analytics.track('DC Remove Project', {
-      status: 'failure',
-      name,
-      error: e.message,
-    });
-    // TODO
-    console.error('Failed to delete project');
-  }
-  return false;
-}
 
 export function useProject(projectSlug: Projects.ProjectSlug) {
   const { data: project, error } = useSWR(['/projects/getDetails' as const, projectSlug], (key, projectSlug) => {

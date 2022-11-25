@@ -1,10 +1,12 @@
+import type { Api } from '@pc/common/types/api';
 import type { Projects } from '@pc/common/types/core';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
+import { mutate } from 'swr';
 
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useAuth } from '@/hooks/auth';
-import { deleteProject } from '@/hooks/projects';
+import { useMutation } from '@/hooks/mutation';
 
 interface Props {
   slug: Projects.ProjectSlug;
@@ -14,35 +16,30 @@ interface Props {
   onDelete: () => void;
 }
 
+type Projects = Api.Query.Output<'/projects/list'>;
+
 export default function DeleteProjectModal({ slug, name, show, setShow, onDelete }: Props) {
   const { identity } = useAuth();
-  const [errorText, setErrorText] = useState<string | undefined>();
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  async function onConfirm() {
-    setIsDeleting(true);
-    setErrorText('');
-
-    const success = await deleteProject(identity?.uid, slug, name);
-
-    if (success) {
-      onDelete();
-      setShow(false);
-    } else {
-      setErrorText('Something went wrong.');
-      setIsDeleting(false);
-    }
-  }
-  const resetError = useCallback(() => setErrorText(''), [setErrorText]);
+  const deleteProjectMutation = useMutation('/projects/delete', {
+    onSuccess: () => {
+      if (identity?.uid) {
+        mutate<Projects>(['/projects/list', identity.uid], (projects) => projects?.filter((p) => p.slug !== slug));
+      }
+      onDelete?.();
+    },
+    getAnalyticsSuccessData: () => ({ name }),
+    getAnalyticsErrorData: () => ({ name }),
+  });
+  const onConfirm = useCallback(() => deleteProjectMutation.mutate({ slug }), [deleteProjectMutation, slug]);
 
   return (
     <ConfirmModal
       confirmColor="danger"
       confirmText="Remove"
-      errorText={errorText}
-      isProcessing={isDeleting}
+      errorText={deleteProjectMutation.status === 'error' ? 'Something went wrong' : undefined}
+      isProcessing={deleteProjectMutation.isLoading}
       onConfirm={onConfirm}
-      resetError={resetError}
+      resetError={deleteProjectMutation.reset}
       setShow={setShow}
       show={show}
       title={`Remove ${name}`}
