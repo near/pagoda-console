@@ -18,7 +18,7 @@ export const ContractAbi = ({ contract }: Props) => {
 
   return (
     <Flex gap="l" stack="true" autoWidth>
-      {embeddedQuery.isValidating || (privateQuery.isValidating && <Spinner size="m" center />)}
+      {embeddedQuery.isValidating || (privateQuery.isLoading && <Spinner size="m" center />)}
       {embeddedQuery.data && <Message type="info" content="This contract has an embedded ABI." />}
       {abi && <CodeBlock language="json">{JSON.stringify(abi, null, 2)}</CodeBlock>}
     </Flex>
