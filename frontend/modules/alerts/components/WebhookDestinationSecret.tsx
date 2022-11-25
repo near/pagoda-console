@@ -10,10 +10,9 @@ import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useMutation } from '@/hooks/mutation';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQueryCache } from '@/hooks/query-cache';
 import { StableId } from '@/utils/stable-ids';
 import type { MapDiscriminatedUnion } from '@/utils/types';
-
-import { useDestinations } from '../hooks/destinations';
 
 type WebhookDestination = MapDiscriminatedUnion<
   Api.Query.Output<'/alerts/listDestinations'>[number],
@@ -30,11 +29,11 @@ const ROTATION_WARNING =
 
 export function WebhookDestinationSecret({ destination, viaConfirm }: Props) {
   const { projectSlug } = useSureProjectContext();
-  const { mutate } = useDestinations(projectSlug);
+  const listDestinationsCache = useQueryCache('/alerts/listDestinations');
   const [showRotateConfirmModal, setShowRotateConfirmModal] = useState(false);
   const rotateWebhookDestinationSecretMutation = useMutation('/alerts/rotateWebhookDestinationSecret', {
     onSuccess: (result) => {
-      mutate((destinations) => {
+      listDestinationsCache.update({ projectSlug }, (destinations) => {
         if (!destinations) {
           return;
         }

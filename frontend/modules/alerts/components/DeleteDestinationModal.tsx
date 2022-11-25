@@ -1,6 +1,5 @@
 import type { Api } from '@pc/common/types/api';
 import { useCallback, useMemo } from 'react';
-import { mutate } from 'swr';
 
 import { Card } from '@/components/lib/Card';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -9,11 +8,10 @@ import { H5 } from '@/components/lib/Heading';
 import { List, ListItem } from '@/components/lib/List';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useAuth } from '@/hooks/auth';
 import { useMutation } from '@/hooks/mutation';
 import { useSureProjectContext } from '@/hooks/project-context';
-
-import { useAlerts } from '../hooks/alerts';
+import { useQuery } from '@/hooks/query';
+import { useQueryCache } from '@/hooks/query-cache';
 
 type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
@@ -25,12 +23,12 @@ interface Props {
 }
 
 export function DeleteDestinationModal({ destination, show, setShow, onDelete }: Props) {
-  const { identity } = useAuth();
   const { projectSlug, environmentSubId } = useSureProjectContext();
-  const { alerts } = useAlerts(projectSlug, environmentSubId);
+  const alertsQuery = useQuery(['/alerts/listAlerts', { projectSlug, environmentSubId }]);
+  const listDestinationsCache = useQueryCache('/alerts/listDestinations');
   const deleteDestinationMutation = useMutation('/alerts/deleteDestination', {
     onSuccess: (_result, variables) => {
-      mutate(['/alerts/listDestinations', projectSlug, identity?.uid], (prev) => {
+      listDestinationsCache.update({ projectSlug }, (prev) => {
         if (!prev) {
           return;
         }
@@ -44,10 +42,10 @@ export function DeleteDestinationModal({ destination, show, setShow, onDelete }:
   });
   const enabledAlerts = useMemo(
     () =>
-      alerts?.filter((alert) =>
+      alertsQuery.data?.filter((alert) =>
         alert.enabledDestinations.some((lookupDestination) => destination.id === lookupDestination.id),
       ) ?? [],
-    [alerts, destination.id],
+    [alertsQuery.data, destination.id],
   );
 
   const onConfirm = useCallback(

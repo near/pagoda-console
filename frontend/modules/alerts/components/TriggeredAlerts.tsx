@@ -25,7 +25,6 @@ import config from '@/utils/config';
 import { StableId } from '@/utils/stable-ids';
 import { truncateMiddle } from '@/utils/truncate-middle';
 
-import { useAlerts } from '../hooks/alerts';
 import { alertTypes } from '../utils/constants';
 
 type TriggeredAlert = Api.Query.Output<'/triggeredAlerts/listTriggeredAlerts'>['page'][number];
@@ -53,8 +52,8 @@ export function TriggeredAlerts() {
     ],
     { refetchInterval: config.defaultLiveDataRefreshIntervalMs, keepPreviousData: true },
   );
-  const { alerts } = useAlerts(projectSlug, environmentSubId);
-  const filteredAlert = alerts?.find((alert) => alert.id === filteredAlertId);
+  const alertsQuery = useQuery(['/alerts/listAlerts', { projectSlug, environmentSubId }]);
+  const filteredAlert = alertsQuery.data?.find((alert) => alert.id === filteredAlertId);
 
   useEffect(() => {
     updateItemCount(triggeredAlertsQuery.data?.count);
@@ -85,7 +84,7 @@ export function TriggeredAlerts() {
     [reset],
   );
 
-  if (alerts?.length === 0) {
+  if (alertsQuery.data?.length === 0) {
     return (
       <Card>
         <Flex stack align="center">
@@ -135,7 +134,7 @@ export function TriggeredAlerts() {
                           value={filteredAlert?.id?.toString()}
                           onValueChange={onSelectAlertFilter}
                         >
-                          {alerts?.map((a) => {
+                          {alertsQuery.data?.map((a) => {
                             const alertTypeOption = alertTypes[a.rule.type];
                             return (
                               <DropdownMenu.RadioItem
