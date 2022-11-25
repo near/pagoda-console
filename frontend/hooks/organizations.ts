@@ -1,12 +1,4 @@
-import type { Api } from '@pc/common/types/api';
-import type { Projects } from '@pc/common/types/core';
-import { useMemo } from 'react';
-import type { MutatorCallback, MutatorOptions } from 'swr';
-import useSWR, { mutate } from 'swr';
-
 import { openToast } from '@/components/lib/Toast';
-import { useAuth } from '@/hooks/auth';
-import { fetchApi } from '@/utils/http';
 
 export enum UserError {
   SERVER_ERROR = 'SERVER_ERROR',
@@ -100,57 +92,4 @@ const getErrorTitle = (error: UserError) => {
     default:
       return 'Unknown error';
   }
-};
-
-const getOrgMembersKey = (orgSlug: Projects.OrgSlug | undefined) => ['/users/listOrgMembers', orgSlug] as const;
-const getOrgsKey = () => ['/users/listOrgs'] as const;
-
-export const useOrgMembers = (slug: Projects.OrgSlug) => {
-  const { identity } = useAuth();
-  const { data, error, mutate, isValidating } = useSWR(identity ? getOrgMembersKey(slug) : null, (path) =>
-    fetchApi([path, { org: slug }]),
-  );
-
-  return { members: data, error, mutate, isValidating };
-};
-
-export const useOrganizations = (filterPersonal: boolean) => {
-  const { identity } = useAuth();
-  const { data, error, mutate, isValidating } = useSWR(identity ? getOrgsKey() : null, (path) => fetchApi([path]));
-  const filteredOrgs = useMemo(
-    () => (filterPersonal ? data?.filter((org) => !org.isPersonal) : data),
-    [data, filterPersonal],
-  );
-
-  return { organizations: filteredOrgs, error, mutate, isValidating };
-};
-
-type MutationData<T> = T | Promise<T> | MutatorCallback<T>;
-
-type Orgs = Api.Query.Output<'/users/listOrgs'>;
-
-export const mutateOrganizations = (data?: MutationData<Orgs>, opts?: boolean | MutatorOptions<Orgs>) =>
-  mutate<Orgs>(getOrgsKey(), data, opts);
-
-type OrgMembers = Api.Query.Output<'/users/listOrgMembers'>;
-
-export const mutateOrganizationMembers = (
-  orgSlug: Projects.OrgSlug,
-  data?: MutationData<OrgMembers>,
-  opts?: boolean | MutatorOptions<OrgMembers>,
-) => mutate<OrgMembers>(getOrgMembersKey(orgSlug), data, opts);
-
-export const useOrgsWithOnlyAdmin = () => {
-  const { identity } = useAuth();
-  const { data, error, mutate, isValidating } = useSWR(
-    identity ? ['/users/listOrgsWithOnlyAdmin' as const, identity.uid] : null,
-    (key) => fetchApi([key]),
-  );
-
-  return { organizations: data, error, mutate, isValidating };
-};
-
-export const useSelectedOrg = (orgSlug: Projects.OrgSlug, filterPersonal: boolean) => {
-  const { organizations } = useOrganizations(filterPersonal);
-  return organizations?.find((organization) => organization.slug === orgSlug);
 };

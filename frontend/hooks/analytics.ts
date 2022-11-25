@@ -1,9 +1,10 @@
 import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
+import { useQuery } from '@/hooks/query';
 import analytics from '@/utils/analytics';
 
-import { useAccount, useAuth } from './auth';
+import { useAuth } from './auth';
 import { useBrowserLayoutEffect } from './browser-layout-effect';
 
 let lastTrackedPage = '';
@@ -11,22 +12,27 @@ let lastTrackedPage = '';
 export function useAnalytics() {
   const router = useRouter();
   const { authStatus } = useAuth();
-  const { user } = useAccount();
-  const [hasIdentified, setHasIdentified] = useState(false);
+  const userQuery = useQuery(['/users/getAccountDetails']);
+  const user = userQuery.data;
+  const userData = useMemo(
+    () =>
+      user?.uid
+        ? {
+            email: user.email,
+            displayName: user.name,
+            userId: user.uid,
+          }
+        : null,
+    [user],
+  );
 
   useEffect(() => {
-    if (user?.uid) {
-      // https://segment.com/docs/connections/spec/best-practices-identify/
-
-      analytics.identify(user.uid, {
-        email: user.email,
-        displayName: user.name,
-        userId: user.uid,
-      });
-
-      setHasIdentified(true);
+    if (!userData) {
+      return;
     }
-  }, [user]);
+    // https://segment.com/docs/connections/spec/best-practices-identify/
+    analytics.identify(userData.userId, userData);
+  }, [userData]);
 
   useEffect(() => {
     let page;
@@ -38,7 +44,7 @@ export function useAnalytics() {
 
     page = page.toUpperCase();
 
-    if (page === lastTrackedPage || authStatus === 'LOADING' || (authStatus === 'AUTHENTICATED' && !hasIdentified)) {
+    if (page === lastTrackedPage || authStatus === 'LOADING' || (authStatus === 'AUTHENTICATED' && !userData)) {
       return;
     }
 
@@ -47,19 +53,7 @@ export function useAnalytics() {
     analytics.pageView(`DC View ${page} Page`, {
       path: router.pathname,
     });
-  }, [authStatus, hasIdentified, router.pathname]);
-
-  useEffect(() => {
-    if (user) {
-      // https://segment.com/docs/connections/spec/best-practices-identify/
-
-      analytics.identify(user.uid!, {
-        email: user.email,
-        displayName: user.name,
-        userId: user.uid,
-      });
-    }
-  }, [user]);
+  }, [authStatus, userData, router.pathname]);
 
   useGlobalClickTracker();
 }

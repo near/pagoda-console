@@ -4,31 +4,32 @@ import { List, ListItem } from '@/components/lib/List';
 import { Message } from '@/components/lib/Message';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
+import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useAuth } from '@/hooks/auth';
+import { useAuth, useSignOut } from '@/hooks/auth';
 import { useMutation } from '@/hooks/mutation';
-import { useOrgsWithOnlyAdmin } from '@/hooks/organizations';
+import { useQuery } from '@/hooks/query';
 import { StableId } from '@/utils/stable-ids';
 
-export default function DeleteAccountModal({
-  show,
-  setShow,
-  onDelete,
-}: {
-  show: boolean;
-  setShow: (show: boolean) => void;
-  onDelete: () => void;
-}) {
+export default function DeleteAccountModal({ show, setShow }: { show: boolean; setShow: (show: boolean) => void }) {
   const { identity } = useAuth();
-  const { organizations } = useOrgsWithOnlyAdmin();
+  const orgsWithOnlyAdminQuery = useQuery(['/users/listOrgsWithOnlyAdmin']);
+  const signOut = useSignOut();
 
   const deleteAccountMutation = useMutation('/users/deleteAccount', {
-    onSuccess: onDelete,
+    onSuccess: async () => {
+      await signOut();
+      openToast({
+        type: 'success',
+        title: 'Account Deleted',
+        description: 'Your account has been deleted and you have been signed out.',
+      });
+    },
     getAnalyticsSuccessData: () => ({ uid: identity?.uid }),
     getAnalyticsErrorData: () => ({ uid: identity?.uid }),
   });
 
-  const isOnlyAdmin = organizations && organizations.length > 0;
+  const isOnlyAdmin = orgsWithOnlyAdminQuery.status === 'success' && orgsWithOnlyAdminQuery.data.length > 0;
 
   return (
     <ConfirmModal
@@ -52,7 +53,7 @@ export default function DeleteAccountModal({
           </Message>
 
           <List>
-            {organizations.map(({ name, slug }) => (
+            {orgsWithOnlyAdminQuery.data.map(({ name, slug }) => (
               <ListItem key={slug}>
                 <Link href={`/organizations/${slug}`} passHref>
                   <TextLink stableId={StableId.DELETE_ACCOUNT_MODAL_ORGANIZATION_LINK}>{name}</TextLink>

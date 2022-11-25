@@ -11,9 +11,9 @@ import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { useSignedInHandler, useSignOut } from '@/hooks/auth';
 import { useSimpleLayout } from '@/hooks/layouts';
+import { useQuery } from '@/hooks/query';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
-import { fetchApi } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -21,7 +21,6 @@ const Verification: NextPageWithLayout = () => {
   const router = useRouter();
   const [hasResent, setHasResent] = useState(false);
   const existing = useRouteParam('existing') === 'true';
-  const hasCalledInitAccount = useRef(false);
   const verificationCheckTimer = useRef<NodeJS.Timeout | undefined>();
   const signOut = useSignOut();
   const signedInHandler = useSignedInHandler();
@@ -50,19 +49,7 @@ const Verification: NextPageWithLayout = () => {
   }, [router]);
 
   // send off a trivial request to make sure this user is initialized in DB
-  useEffect(() => {
-    if (!hasCalledInitAccount.current) {
-      initAccount();
-      hasCalledInitAccount.current = true;
-    }
-  }, []);
-  async function initAccount() {
-    try {
-      await fetchApi(['/users/getAccountDetails']);
-    } catch (e) {
-      // silently fail
-    }
-  }
+  useQuery(['/users/getAccountDetails']);
 
   useEffect(() => {
     queueVerificationCheck(); // only run once since it will re-queue itself

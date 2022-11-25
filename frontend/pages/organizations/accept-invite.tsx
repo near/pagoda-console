@@ -9,13 +9,14 @@ import { useAuth } from '@/hooks/auth';
 import { useOrganizationsLayout } from '@/hooks/layouts';
 import { useMutation } from '@/hooks/mutation';
 import type { ParsedError } from '@/hooks/organizations';
-import { mutateOrganizations } from '@/hooks/organizations';
+import { useQueryCache } from '@/hooks/query-cache';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const AcceptOrgInvite: NextPageWithLayout = () => {
   const router = useRouter();
-  const acceptMutation = useMutation('/users/acceptOrgInvite', { onSuccess: () => mutateOrganizations() });
+  const orgsCache = useQueryCache('/users/listOrgs');
+  const acceptMutation = useMutation('/users/acceptOrgInvite', { onSuccess: () => orgsCache.invalidate() });
   const { identity } = useAuth();
   const queryToken = router.query.token;
   const token = Array.isArray(queryToken) ? queryToken[0] : queryToken;

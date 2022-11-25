@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import React, { useCallback } from 'react';
+import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
@@ -10,14 +11,8 @@ import { H1 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
 import { useOrganizationsLayout } from '@/hooks/layouts';
 import { useMutation } from '@/hooks/mutation';
-import {
-  mutateOrganizationMembers,
-  mutateOrganizations,
-  openSuccessToast,
-  openUserErrorToast,
-  parseError,
-  UserError,
-} from '@/hooks/organizations';
+import { openSuccessToast, openUserErrorToast, parseError, UserError } from '@/hooks/organizations';
+import { useQueryCache } from '@/hooks/query-cache';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -30,13 +25,17 @@ const getCreateOrgMessage = (code: UserError) => {
   }
 };
 
+type Form = { name: string };
+
 const CreateOrganization: NextPageWithLayout = () => {
   const router = useRouter();
   const closeDialog = useCallback(() => router.replace('/organizations'), [router]);
-  const form = useForm<{ name: string }>();
+  const form = useForm<Form>();
+  const orgsCache = useQueryCache('/users/listOrgs');
+  const orgMembersCache = useQueryCache('/users/listOrgMembers');
   const createOrgMutation = useMutation('/users/createOrg', {
     onSuccess: (createdOrg) => {
-      mutateOrganizationMembers(createdOrg.slug, [
+      orgMembersCache.update({ org: createdOrg.slug }, () => [
         {
           role: 'ADMIN',
           orgSlug: createdOrg.slug,
@@ -44,19 +43,30 @@ const CreateOrganization: NextPageWithLayout = () => {
           user: createdOrg.user,
         },
       ]);
-      mutateOrganizations((organizations) => organizations && [...organizations, createdOrg], {
-        revalidate: false,
+      orgsCache.update(undefined, (organizations) => {
+        if (!organizations) {
+          return;
+        }
+        return [
+          ...organizations,
+          {
+            slug: createdOrg.slug,
+            name: createdOrg.name,
+            isPersonal: createdOrg.isPersonal,
+          },
+        ];
       });
       openSuccessToast(`Organization "${createdOrg.name}" created`);
       router.replace(`/organizations/${createdOrg.slug}`);
     },
     onError: (error) => openUserErrorToast(parseError(error, getCreateOrgMessage)),
   });
+  const createOrg = useCallback<SubmitHandler<Form>>((form) => createOrgMutation.mutate(form), [createOrgMutation]);
 
   return (
     <Flex stack gap="l" justify="center" align="center" css={{ flex: 1 }}>
       <Card css={{ width: 'initial' }}>
-        <Form.Root onSubmit={form.handleSubmit(createOrgMutation.mutate)}>
+        <Form.Root onSubmit={form.handleSubmit(createOrg)}>
           <Flex stack>
             <H1>Add Organization</H1>
             <Text>This will allow you to collaborate with other users on multiple projects.</Text>
@@ -76,7 +86,7 @@ const CreateOrganization: NextPageWithLayout = () => {
               <Button
                 stableId={StableId.CREATE_ORGANIZATION_SAVE_BUTTON}
                 loading={createOrgMutation.isLoading}
-                onClick={form.handleSubmit(createOrgMutation.mutate)}
+                onClick={form.handleSubmit(createOrg)}
               >
                 Save
               </Button>
