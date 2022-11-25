@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 function timeRangeToDates(timeRangeValue: RpcStats.TimeRangeValue, endTime: DateTime): [DateTime, DateTime] {
   switch (timeRangeValue) {
@@ -141,16 +141,19 @@ export function useApiStats(
         ]
       : null,
     (key) => {
-      return authenticatedPost(key, {
-        environmentSubId,
-        projectSlug,
-        startDateTime: startDateTime.toString(),
-        endDateTime: endDateTime.toString(),
-        filter: {
-          type: 'date',
-          dateTimeResolution,
+      return fetchApi([
+        key,
+        {
+          environmentSubId,
+          projectSlug,
+          startDateTime: startDateTime.toString(),
+          endDateTime: endDateTime.toString(),
+          filter: {
+            type: 'date',
+            dateTimeResolution,
+          },
         },
-      });
+      ]);
     },
   );
 
@@ -166,13 +169,16 @@ export function useApiStats(
         ]
       : null,
     (key) => {
-      return authenticatedPost(key, {
-        environmentSubId,
-        projectSlug,
-        startDateTime: startDateTime.toString(),
-        endDateTime: endDateTime.toString(),
-        filter: { type: 'endpoint' },
-      });
+      return fetchApi([
+        key,
+        {
+          environmentSubId,
+          projectSlug,
+          startDateTime: startDateTime.toString(),
+          endDateTime: endDateTime.toString(),
+          filter: { type: 'endpoint' },
+        },
+      ]);
     },
   );
 

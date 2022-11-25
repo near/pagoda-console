@@ -7,15 +7,13 @@ import useSWR from 'swr';
 import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
 import config from '@/utils/config';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
 export async function deleteContract(contract: Contract) {
   try {
-    await authenticatedPost('/projects/removeContract', {
-      slug: contract.slug,
-    });
+    await fetchApi(['/projects/removeContract', { slug: contract.slug }]);
     analytics.track('DC Remove Contract', {
       status: 'success',
       contractId: contract.address,
@@ -42,10 +40,7 @@ export function useContracts(project: Projects.ProjectSlug, environment: number)
   } = useSWR(
     identity ? ['/projects/getContracts' as const, project, environment, identity.uid] : null,
     (key, project, environment) => {
-      return authenticatedPost(key, {
-        project,
-        environment,
-      });
+      return fetchApi([key, { project, environment }]);
     },
   );
 
@@ -60,7 +55,7 @@ export function useContract(slug: Projects.ContractSlug | undefined) {
     error,
     mutate,
   } = useSWR(identity && slug ? ['/projects/getContract' as const, slug, identity.uid] : null, (key, slug) => {
-    return authenticatedPost(key, { slug });
+    return fetchApi([key, { slug }]);
   });
 
   return { contract, error, mutate };

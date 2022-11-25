@@ -8,7 +8,7 @@ import { openToast } from '@/components/lib/Toast';
 import { useAccount, useAuth } from '@/hooks/auth';
 import type { MutationOptions } from '@/hooks/mutation';
 import { useMutation } from '@/hooks/mutation';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 type User = Api.Query.Output<'/users/getAccountDetails'>;
 
@@ -110,7 +110,7 @@ const getOrgsKey = () => ['/users/listOrgs'] as const;
 export const useOrgMembers = (slug: Projects.OrgSlug) => {
   const { identity } = useAuth();
   const { data, error, mutate, isValidating } = useSWR(identity ? getOrgMembersKey(slug) : null, (path) =>
-    authenticatedPost(path, { org: slug }),
+    fetchApi([path, { org: slug }]),
   );
 
   return { members: data, error, mutate, isValidating };
@@ -118,9 +118,7 @@ export const useOrgMembers = (slug: Projects.OrgSlug) => {
 
 export const useOrganizations = (filterPersonal: boolean) => {
   const { identity } = useAuth();
-  const { data, error, mutate, isValidating } = useSWR(identity ? getOrgsKey() : null, (path) =>
-    authenticatedPost(path),
-  );
+  const { data, error, mutate, isValidating } = useSWR(identity ? getOrgsKey() : null, (path) => fetchApi([path]));
   const filteredOrgs = useMemo(
     () => (filterPersonal ? data?.filter((org) => !org.isPersonal) : data),
     [data, filterPersonal],
@@ -148,7 +146,7 @@ export const useOrgsWithOnlyAdmin = () => {
   const { identity } = useAuth();
   const { data, error, mutate, isValidating } = useSWR(
     identity ? ['/users/listOrgsWithOnlyAdmin' as const, identity.uid] : null,
-    (key) => authenticatedPost<'/users/listOrgsWithOnlyAdmin'>(key),
+    (key) => fetchApi([key]),
   );
 
   return { organizations: data, error, mutate, isValidating };

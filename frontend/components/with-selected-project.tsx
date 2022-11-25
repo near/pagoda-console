@@ -7,14 +7,14 @@ import { Spinner } from '@/components/lib/Spinner';
 import { useAuth } from '@/hooks/auth';
 import { useMaybeProjectContext } from '@/hooks/project-context';
 import config from '@/utils/config';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const useRedirectIfProjectDoesNotExist = () => {
   const { projectSlug, updateContext } = useMaybeProjectContext();
   const router = useRouter();
   const { error } = useSWR(projectSlug ? ['/projects/getDetails' as const, projectSlug] : null, (key, projectSlug) =>
-    authenticatedPost(key, { slug: projectSlug }),
+    fetchApi([key, { slug: projectSlug }]),
   );
   useEffect(() => {
     if (!projectSlug) {

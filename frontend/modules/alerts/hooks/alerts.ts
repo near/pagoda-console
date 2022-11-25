@@ -5,12 +5,10 @@ import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 export async function createAlert(data: Api.Mutation.Input<'/alerts/createAlert'>) {
-  const alert = await authenticatedPost('/alerts/createAlert', {
-    ...data,
-  });
+  const alert = await fetchApi(['/alerts/createAlert', { ...data }]);
 
   analytics.track('DC Create New Alert', {
     status: 'success',
@@ -23,7 +21,7 @@ export async function createAlert(data: Api.Mutation.Input<'/alerts/createAlert'
 
 export async function deleteAlert(alert: Api.Mutation.Input<'/alerts/deleteAlert'>) {
   try {
-    await authenticatedPost('/alerts/deleteAlert', { id: alert.id });
+    await fetchApi(['/alerts/deleteAlert', { id: alert.id }]);
     analytics.track('DC Remove Alert', {
       status: 'success',
       name: alert.id,
@@ -42,10 +40,7 @@ export async function deleteAlert(alert: Api.Mutation.Input<'/alerts/deleteAlert
 }
 
 export async function disableDestinationForAlert(alertId: Alerts.AlertId, destinationId: Alerts.DestinationId) {
-  await authenticatedPost('/alerts/disableDestination', {
-    alert: alertId,
-    destination: destinationId,
-  });
+  await fetchApi(['/alerts/disableDestination', { alert: alertId, destination: destinationId }]);
 
   analytics.track('DC Disable Destination for Alert', {
     status: 'success',
@@ -55,10 +50,7 @@ export async function disableDestinationForAlert(alertId: Alerts.AlertId, destin
 }
 
 export async function enableDestinationForAlert(alertId: Alerts.AlertId, destinationId: Alerts.DestinationId) {
-  await authenticatedPost('/alerts/enableDestination', {
-    alert: alertId,
-    destination: destinationId,
-  });
+  await fetchApi(['/alerts/enableDestination', { alert: alertId, destination: destinationId }]);
 
   analytics.track('DC Enable Destination for Alert', {
     status: 'success',
@@ -68,9 +60,7 @@ export async function enableDestinationForAlert(alertId: Alerts.AlertId, destina
 }
 
 export async function updateAlert(data: Api.Mutation.Input<'/alerts/updateAlert'>) {
-  const alert = await authenticatedPost('/alerts/updateAlert', {
-    ...data,
-  });
+  const alert = await fetchApi(['/alerts/updateAlert', { ...data }]);
 
   analytics.track('DC Update Alert', {
     status: 'success',
@@ -91,7 +81,7 @@ export function useAlert(alertId: Alerts.AlertId | undefined) {
   } = useSWR(
     identity && alertId ? ['/alerts/getAlertDetails' as const, alertId, identity.uid] : null,
     async (key, alertId) => {
-      return authenticatedPost(key, { id: alertId });
+      return fetchApi([key, { id: alertId }]);
     },
   );
 
@@ -106,7 +96,7 @@ export function useAlerts(projectSlug: Projects.ProjectSlug, environmentSubId: P
     mutate,
     isValidating,
   } = useSWR(identity ? ['/alerts/listAlerts' as const, projectSlug, environmentSubId, identity.uid] : null, (key) => {
-    return authenticatedPost(key, { environmentSubId, projectSlug });
+    return fetchApi([key, { environmentSubId, projectSlug }]);
   });
 
   return { alerts, error, mutate, isValidating };

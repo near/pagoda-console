@@ -5,11 +5,11 @@ import { mutate } from 'swr';
 
 import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 export async function ejectTutorial(slug: Projects.ProjectSlug, name: string) {
   try {
-    await authenticatedPost('/projects/ejectTutorial', { slug });
+    await fetchApi(['/projects/ejectTutorial', { slug }]);
     analytics.track('DC Eject Tutorial Project', {
       status: 'success',
       name,
@@ -31,7 +31,7 @@ type Projects = Api.Query.Output<'/projects/list'>;
 
 export async function deleteProject(userId: Users.UserUid | undefined, slug: Projects.ProjectSlug, name: string) {
   try {
-    await authenticatedPost('/projects/delete', { slug });
+    await fetchApi(['/projects/delete', { slug }]);
     analytics.track('DC Remove Project', {
       status: 'success',
       name,
@@ -55,7 +55,7 @@ export async function deleteProject(userId: Users.UserUid | undefined, slug: Pro
 
 export function useProject(projectSlug: Projects.ProjectSlug) {
   const { data: project, error } = useSWR(['/projects/getDetails' as const, projectSlug], (key, projectSlug) => {
-    return authenticatedPost(key, { slug: projectSlug });
+    return fetchApi([key, { slug: projectSlug }]);
   });
 
   return { project, error };
@@ -64,7 +64,7 @@ export function useProject(projectSlug: Projects.ProjectSlug) {
 export const useMaybeProject = (projectSlug: Projects.ProjectSlug | undefined) => {
   const { data: project, error } = useSWR(
     projectSlug ? ['/projects/getDetails' as const, projectSlug] : null,
-    (key, projectSlug) => authenticatedPost(key, { slug: projectSlug }),
+    (key, projectSlug) => fetchApi([key, { slug: projectSlug }]),
   );
 
   return { project, error };
@@ -78,7 +78,7 @@ export function useProjects() {
     mutate,
     isValidating,
   } = useSWR(identity ? ['/projects/list' as const, identity.uid] : null, (key) => {
-    return authenticatedPost(key);
+    return fetchApi([key]);
   });
 
   return { projects, error, mutate, isValidating };

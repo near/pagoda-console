@@ -5,7 +5,7 @@ import JSBI from 'jsbi';
 import useSWR from 'swr';
 
 import config from '@/utils/config';
-import { unauthenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 export function useRecentTransactions(contract: string | undefined, net: Net | undefined) {
   // TODO (P2+) look into whether using contracts as part of the SWR key will cause a large
@@ -15,10 +15,7 @@ export function useRecentTransactions(contract: string | undefined, net: Net | u
   const { data: transactions, error } = useSWR(
     contract && net ? ['/explorer/getTransactions' as const, contract, net] : null,
     (key, contracts, net) => {
-      return unauthenticatedPost(key, {
-        contracts: contracts.split(',') as Explorer.AccountId[],
-        net,
-      });
+      return fetchApi([key, { contracts: contracts.split(',') as Explorer.AccountId[], net }], true);
     },
   );
 

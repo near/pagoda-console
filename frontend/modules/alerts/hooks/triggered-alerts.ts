@@ -6,7 +6,7 @@ import useSWR from 'swr';
 import { useAuth } from '@/hooks/auth';
 import type { Pagination } from '@/hooks/pagination';
 import config from '@/utils/config';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 interface TriggeredAlertFilters {
   alertId?: Alerts.AlertId;
@@ -40,14 +40,17 @@ export function useTriggeredAlerts(
         ]
       : null,
     (key) => {
-      return authenticatedPost(key, {
-        environmentSubId,
-        projectSlug,
-        take,
-        skip,
-        pagingDateTime: pagination.state.pagingDateTime?.toISOString(),
-        alertId: filters?.alertId,
-      });
+      return fetchApi([
+        key,
+        {
+          environmentSubId,
+          projectSlug,
+          take,
+          skip,
+          pagingDateTime: pagination.state.pagingDateTime?.toISOString(),
+          alertId: filters?.alertId,
+        },
+      ]);
     },
     {
       refreshInterval: pagination.state.liveRefreshEnabled ? refreshInterval : undefined,
@@ -71,9 +74,7 @@ export function useTriggeredAlertDetails(slug: TriggeredAlerts.TriggeredAlertSlu
   const { data, error } = useSWR(
     identity ? ['/triggeredAlerts/getTriggeredAlertDetails' as const, slug] : null,
     (key) => {
-      return authenticatedPost(key, {
-        slug,
-      });
+      return fetchApi([key, { slug }]);
     },
   );
 

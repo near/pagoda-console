@@ -6,7 +6,7 @@ import type {
 } from '@/hooks/raw-mutation';
 import { useRawMutation } from '@/hooks/raw-mutation';
 import analytics from '@/utils/analytics';
-import { authenticatedPost, unauthenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 export type UseMutationResult<K extends Api.Mutation.Key> = RawMutationResult<
   Api.Mutation.Output<K>,
@@ -31,9 +31,9 @@ export const useMutation = <K extends Api.Mutation.Key, C>(
 ): UseMutationResult<K> =>
   useRawMutation<Api.Mutation.Output<K>, Api.Mutation.Error<K>, Api.Mutation.Input<K>, C>(
     ((variables) =>
-      (options.unauth ? unauthenticatedPost : authenticatedPost)(
-        endpoint,
-        variables,
+      fetchApi(
+        [endpoint, variables] as unknown as Parameters<typeof fetchApi>[0],
+        options.unauth,
       )) as unknown as Api.Mutation.Input<K> extends void
       ? () => Promise<Api.Mutation.Output<K>>
       : (input: Api.Mutation.Input<K>) => Promise<Api.Mutation.Output<K>>,

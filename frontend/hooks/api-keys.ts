@@ -4,7 +4,7 @@ import useSWR from 'swr';
 import type { Fetcher, SWRConfiguration } from 'swr/dist/types';
 
 import { useAuth } from '@/hooks/auth';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 type ApiKeys = Api.Query.Output<'/projects/getKeys'>;
 
@@ -20,7 +20,7 @@ export function useApiKeys(
     mutate,
   } = useSWR(
     identity && project ? ['/projects/getKeys' as const, project, identity.uid] : null,
-    (key, project) => authenticatedPost(key, { project }),
+    (key, project) => fetchApi([key, { project }]),
     swrOptions,
   );
 

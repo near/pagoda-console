@@ -17,7 +17,7 @@ import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -40,15 +40,12 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
       const deployResult = await deployContractTemplate(template);
 
       if (authStatus === 'AUTHENTICATED') {
-        const project = await authenticatedPost('/projects/create', {
-          name: projectName,
-        });
+        const project = await fetchApi(['/projects/create', { name: projectName }]);
 
-        await authenticatedPost('/projects/addContract', {
-          project: project.slug,
-          environment: deployResult.subId,
-          address: deployResult.address,
-        });
+        await fetchApi([
+          '/projects/addContract',
+          { project: project.slug, environment: deployResult.subId, address: deployResult.address },
+        ]);
 
         analytics.track('DC Create New Example Project', {
           status: 'success',

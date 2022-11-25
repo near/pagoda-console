@@ -8,7 +8,7 @@ import { TextButton } from '@/components/lib/TextLink';
 import { useApiKeys } from '@/hooks/new-api-keys';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 
 interface NewKeyFormData {
@@ -33,10 +33,7 @@ export const CreateApiKeyForm = ({ show, setShow, projectSlug }: Props) => {
     show && setShow(false);
     try {
       await mutateKeys(async (cachedKeys) => {
-        const newKey = await authenticatedPost('/projects/generateKey', {
-          description,
-          project: projectSlug,
-        });
+        const newKey = await fetchApi(['/projects/generateKey', { description, project: projectSlug }]);
         analytics.track('DC Create API Key', {
           status: 'success',
           description,
