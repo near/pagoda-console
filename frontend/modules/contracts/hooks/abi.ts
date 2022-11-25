@@ -4,10 +4,9 @@ import { Contract as NearContract } from 'near-abi-client-js';
 import { connect, keyStores } from 'near-api-js';
 import useSWR from 'swr';
 
-import { useAuth } from '@/hooks/auth';
 import { usePublicMode } from '@/hooks/public';
+import { useQuery } from '@/hooks/query';
 import config from '@/utils/config';
-import { fetchApi } from '@/utils/http';
 
 import { inspectContract } from '../utils/embedded-abi';
 
@@ -22,12 +21,7 @@ export const useEmbeddedAbi = (contract: Contract) => {
   );
 };
 
-export const usePrivateAbi = (contract: Contract) => {
-  const { identity } = useAuth();
-  return useSWR(identity ? ['/abi/getContractAbi', contract, identity.uid] : null, () =>
-    fetchApi(['/abi/getContractAbi', { contract: contract.slug }]),
-  );
-};
+export const usePrivateAbi = (contract: Contract) => useQuery(['/abi/getContractAbi', { contract: contract.slug }]);
 
 // Returns both embedded ABI in the wasm and manually uploaded ABI.
 export const useAnyAbi = (contract: Contract) => {
