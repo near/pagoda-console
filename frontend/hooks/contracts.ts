@@ -1,50 +1,23 @@
-import type { Api } from '@pc/common/types/api';
 import type { Projects } from '@pc/common/types/core';
 import type * as RPC from '@pc/common/types/rpc';
 import type { Net } from '@pc/database/clients/core';
 import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
-import analytics from '@/utils/analytics';
 import config from '@/utils/config';
 import { fetchApi } from '@/utils/http';
 
-type Contract = Api.Query.Output<'/projects/getContracts'>[number];
-
-export async function deleteContract(contract: Contract) {
-  try {
-    await fetchApi(['/projects/removeContract', { slug: contract.slug }]);
-    analytics.track('DC Remove Contract', {
-      status: 'success',
-      contractId: contract.address,
-    });
-    return true;
-  } catch (e: any) {
-    analytics.track('DC Remove Contract', {
-      status: 'failure',
-      contractId: contract.address,
-      error: e.message,
-    });
-    console.error(e);
-    return false;
-  }
-}
-
-export function useContracts(project: Projects.ProjectSlug, environment: number) {
+export function useContracts(project: Projects.ProjectSlug, environment: Projects.EnvironmentId) {
   const { identity } = useAuth();
 
-  const {
-    data: contracts,
-    error,
-    mutate,
-  } = useSWR(
+  const { data: contracts, error } = useSWR(
     identity ? ['/projects/getContracts' as const, project, environment, identity.uid] : null,
     (key, project, environment) => {
       return fetchApi([key, { project, environment }]);
     },
   );
 
-  return { contracts, error, mutate };
+  return { contracts, error };
 }
 
 export function useContract(slug: Projects.ContractSlug | undefined) {

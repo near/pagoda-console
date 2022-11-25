@@ -42,3 +42,12 @@ export const mapEnvironmentSubIdToNet = (environmentSubId: Projects.EnvironmentI
       return 'TESTNET';
   }
 };
+
+export const mapNetToEnvironmentSubId = (net: Net): Projects.EnvironmentId => {
+  switch (net) {
+    case 'MAINNET':
+      return 2;
+    default:
+      return 1;
+  }
+};

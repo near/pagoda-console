@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
 import { useCallback } from 'react';
 import { useState } from 'react';
-import { mutate } from 'swr';
 
 import { Button } from '@/components/lib/Button';
 import * as Dialog from '@/components/lib/Dialog';
@@ -17,10 +16,8 @@ import { Section } from '@/components/lib/Section';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
-import { useAuth } from '@/hooks/auth';
 import { useContractMetrics } from '@/hooks/contracts';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { useMaybeProjectContext } from '@/hooks/project-context';
 import { usePublicMode } from '@/hooks/public';
 import { AddContractForm } from '@/modules/contracts/components/AddContractForm';
 import { ContractsWrapper } from '@/modules/contracts/components/ContractsWrapper';
@@ -35,25 +32,11 @@ import type { NextPageWithLayout } from '@/utils/types';
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
 const ListContracts: NextPageWithLayout = () => {
-  const { identity } = useAuth();
   const { publicModeIsActive } = usePublicMode();
   const [addContractIsOpen, setAddContractIsOpen] = useState(false);
   const [shareContractsIsOpen, setShareContractsIsOpen] = useState(false);
 
-  const { projectSlug, environmentSubId } = useMaybeProjectContext();
-  const mutateContracts = useCallback(
-    (updater) => mutate(['/projects/getContracts', projectSlug, environmentSubId, identity?.uid], updater),
-    [projectSlug, environmentSubId, identity?.uid],
-  );
-  function onContractDelete(contract: Contract) {
-    mutateContracts((contracts) => {
-      return contracts?.filter((c) => c.slug !== contract.slug) || [];
-    });
-  }
-  function onContractAdd(contract: Contract) {
-    setAddContractIsOpen(false);
-    mutateContracts((contracts) => [...(contracts || []), contract]);
-  }
+  const onContractAdd = useCallback(() => setAddContractIsOpen(false), []);
 
   return (
     <>
@@ -92,13 +75,7 @@ const ListContracts: NextPageWithLayout = () => {
       </Section>
 
       <ContractsWrapper>
-        {({ contracts }) => (
-          <ContractsTable
-            contracts={contracts}
-            onDelete={onContractDelete}
-            setAddContractIsOpen={setAddContractIsOpen}
-          />
-        )}
+        {({ contracts }) => <ContractsTable contracts={contracts} setAddContractIsOpen={setAddContractIsOpen} />}
       </ContractsWrapper>
 
       <ContractsWrapper>
@@ -127,11 +104,9 @@ const ListContracts: NextPageWithLayout = () => {
 
 function ContractsTable({
   contracts,
-  onDelete,
   setAddContractIsOpen,
 }: {
   contracts?: Contract[];
-  onDelete: (contract: Contract) => void;
   setAddContractIsOpen: Dispatch<SetStateAction<boolean>>;
 }) {
   if (contracts?.length === 0) {
@@ -175,7 +150,7 @@ function ContractsTable({
             {!contracts && <Table.PlaceholderRows />}
 
             {contracts?.map((contract) => {
-              return <ContractTableRow contract={contract} onDelete={onDelete} key={contract.slug} />;
+              return <ContractTableRow contract={contract} key={contract.slug} />;
             })}
           </Table.Body>
         </Table.Root>
@@ -184,7 +159,7 @@ function ContractsTable({
   );
 }
 
-function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete: (contract: Contract) => void }) {
+function ContractTableRow({ contract }: { contract: Contract }) {
   const { metrics, error } = useContractMetrics(contract.address, contract.net);
   const url = `/contracts/${contract.slug}`;
   const router = useRouter();
@@ -266,12 +241,7 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
       </Table.Row>
 
       {!publicModeIsActive && (
-        <DeleteContractModal
-          contract={contract}
-          show={showDeleteModal}
-          setShow={setShowDeleteModal}
-          onDelete={onDelete}
-        />
+        <DeleteContractModal contract={contract} show={showDeleteModal} setShow={setShowDeleteModal} />
       )}
     </>
   );

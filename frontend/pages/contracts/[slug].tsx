@@ -2,8 +2,7 @@ import type { Api } from '@pc/common/types/api';
 import type { Projects } from '@pc/common/types/core';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
-import { mutate } from 'swr';
+import { useCallback, useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
@@ -15,9 +14,7 @@ import * as Tabs from '@/components/lib/Tabs';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
-import { useAuth } from '@/hooks/auth';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
-import { useMaybeProjectContext } from '@/hooks/project-context';
 import { usePublicMode } from '@/hooks/public';
 import { useRouteParam } from '@/hooks/route';
 import { ContractAbi } from '@/modules/contracts/components/ContractAbi';
@@ -65,19 +62,12 @@ const ViewContract: NextPageWithLayout = () => {
   const router = useRouter();
   const contractSlug = (useRouteParam('slug', '/contracts', true) || '') as Projects.ContractSlug;
   const activeTab = useRouteParam('tab', `/contracts/${contractSlug}?tab=details`, true);
-  const { identity } = useAuth();
-  const { projectSlug, environmentSubId } = useMaybeProjectContext();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // TODO: Pull in useSelectedProjectSync() to match [triggeredAlertId].tsx logic to sync env/proj to loaded contract.
   // TODO: Handle 404
 
-  function onDelete(contract: Contract) {
-    mutate(['/projects/getContracts', projectSlug, environmentSubId, identity?.uid], (contracts) => {
-      return contracts?.filter((c) => c.slug !== contract.slug) || [];
-    });
-    router.replace('/contracts');
-  }
+  const onDelete = useCallback(() => router.replace('/contracts'), [router]);
 
   function onSelectedContractChange(slug: string) {
     router.push(`/contracts/${slug}?tab=${activeTab}`);
