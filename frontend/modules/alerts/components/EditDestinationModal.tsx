@@ -14,11 +14,11 @@ import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { useMutation } from '@/hooks/mutation';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQueryCache } from '@/hooks/query-cache';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
 import type { MapDiscriminatedUnion } from '@/utils/types';
 
-import { useDestinations } from '../hooks/destinations';
 import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
 import { destinationTypes } from '../utils/constants';
 import { DeleteDestinationModal } from './DeleteDestinationModal';
@@ -110,10 +110,10 @@ function ModalContent<K extends DestinationType>({ closeModal, destination }: Mo
 
 const useUpdateDestination = (onVerify: () => void) => {
   const { projectSlug } = useSureProjectContext();
-  const { mutate } = useDestinations(projectSlug);
+  const destinationsCache = useQueryCache('/alerts/listDestinations');
   const updateMutation = useMutation('/alerts/updateDestination', {
     onSuccess: (result, variables) => {
-      mutate((destinations) => {
+      destinationsCache.update({ projectSlug }, (destinations) => {
         if (!destinations) {
           return;
         }
@@ -141,7 +141,7 @@ const useUpdateDestination = (onVerify: () => void) => {
       id: destination.id,
     }),
   });
-  useVerifyDestinationInterval(updateMutation.data, mutate, onVerify);
+  useVerifyDestinationInterval(updateMutation.data?.id, onVerify);
   return updateMutation;
 };
 

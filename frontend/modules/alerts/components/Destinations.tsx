@@ -1,5 +1,5 @@
 import type { Api } from '@pc/common/types/api';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -8,11 +8,10 @@ import { H1 } from '@/components/lib/Heading';
 import { Spinner } from '@/components/lib/Spinner';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
-import { openToast } from '@/components/lib/Toast';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
 import { EditDestinationModal } from '@/modules/alerts/components/EditDestinationModal';
 import { NewDestinationModal } from '@/modules/alerts/components/NewDestinationModal';
-import { useDestinations } from '@/modules/alerts/hooks/destinations';
 import { StableId } from '@/utils/stable-ids';
 
 import { DestinationTableRow } from './DestinationsTableRow';
@@ -21,15 +20,15 @@ type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 export function Destinations() {
   const { projectSlug } = useSureProjectContext();
-  const { destinations } = useDestinations(projectSlug);
+  const destinationsQuery = useQuery(['/alerts/listDestinations', { projectSlug }]);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
   const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
 
-  function openDestination(destination: Destination) {
+  const openDestination = useCallback((destination: Destination) => {
     setSelectedEditDestination(destination);
     setShowEditDestinationModal(true);
-  }
+  }, []);
 
   return (
     <>
@@ -44,13 +43,13 @@ export function Destinations() {
           </Button>
         </Flex>
 
-        {!destinations && <Spinner center />}
-
-        {destinations?.length === 0 && (
+        {destinationsQuery.status === 'loading' ? (
+          <Spinner center />
+        ) : destinationsQuery.status === 'error' ? (
+          <div>Error loading destinations</div>
+        ) : destinationsQuery.data.length === 0 ? (
           <Text>{`Your selected project doesn't have any destinations configured yet.`}</Text>
-        )}
-
-        {destinations && destinations?.length > 0 && (
+        ) : (
           <Table.Root>
             <Table.Head>
               <Table.Row>
@@ -63,26 +62,9 @@ export function Destinations() {
             </Table.Head>
 
             <Table.Body>
-              {!destinations && <Table.PlaceholderRows />}
-
-              {destinations?.map((row) => {
-                return (
-                  <DestinationTableRow
-                    destination={row}
-                    onClick={() => openDestination(row)}
-                    onDelete={() => {
-                      const name = row?.name;
-
-                      openToast({
-                        type: 'success',
-                        title: 'Destination Deleted',
-                        description: name ?? undefined,
-                      });
-                    }}
-                    key={row.id}
-                  />
-                );
-              })}
+              {destinationsQuery.data.map((row) => (
+                <DestinationTableRow destination={row} onClick={() => openDestination(row)} key={row.id} />
+              ))}
             </Table.Body>
           </Table.Root>
         )}

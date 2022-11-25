@@ -19,11 +19,11 @@ import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { usePagination } from '@/hooks/pagination';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
 import { useRouteParam } from '@/hooks/route';
 import { StableId } from '@/utils/stable-ids';
 import { truncateMiddle } from '@/utils/truncate-middle';
 
-import { useAlerts } from '../hooks/alerts';
 import { useTriggeredAlerts } from '../hooks/triggered-alerts';
 import { alertTypes } from '../utils/constants';
 
@@ -43,8 +43,8 @@ export function TriggeredAlerts() {
     { reset, ...pagination },
     filters,
   );
-  const { alerts } = useAlerts(projectSlug, environmentSubId);
-  const filteredAlert = alerts?.find((alert) => alert.id === filteredAlertId);
+  const alertsQuery = useQuery(['/alerts/listAlerts', { projectSlug, environmentSubId }]);
+  const filteredAlert = alertsQuery.data?.find((alert) => alert.id === filteredAlertId);
 
   useEffect(() => {
     pagination.updateItemCount(triggeredAlertsCount);
@@ -72,7 +72,7 @@ export function TriggeredAlerts() {
     setFilteredAlertId(parseInt(alertId) as Alerts.AlertId);
   }
 
-  if (alerts?.length === 0) {
+  if (alertsQuery.data?.length === 0) {
     return (
       <Card>
         <Flex stack align="center">
@@ -120,7 +120,7 @@ export function TriggeredAlerts() {
                           value={filteredAlert?.id?.toString()}
                           onValueChange={onSelectAlertFilter}
                         >
-                          {alerts?.map((a) => {
+                          {alertsQuery.data?.map((a) => {
                             const alertTypeOption = alertTypes[a.rule.type];
                             return (
                               <DropdownMenu.RadioItem

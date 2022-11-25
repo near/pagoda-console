@@ -1,5 +1,5 @@
 import type { Api } from '@pc/common/types/api';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { Button } from '@/components/lib/Button';
@@ -8,6 +8,7 @@ import { Flex } from '@/components/lib/Flex';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
+import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { StableId } from '@/utils/stable-ids';
 
@@ -16,17 +17,19 @@ import { DeleteDestinationModal } from './DeleteDestinationModal';
 
 type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
-export function DestinationTableRow({
-  destination,
-  onClick,
-  onDelete,
-}: {
-  destination: Destination;
-  onClick: () => void;
-  onDelete: () => void;
-}) {
+export function DestinationTableRow({ destination, onClick }: { destination: Destination; onClick: () => void }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const destinationType = destinationTypes[destination.type];
+
+  const onDelete = useCallback(
+    () =>
+      openToast({
+        type: 'success',
+        title: 'Destination Deleted',
+        description: destination.name ?? undefined,
+      }),
+    [destination.name],
+  );
 
   return (
     <>

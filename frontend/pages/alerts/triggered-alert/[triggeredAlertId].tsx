@@ -21,7 +21,7 @@ import { TextOverflow } from '@/components/lib/TextOverflow';
 import { withSelectedProject } from '@/components/with-selected-project';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { useSureProjectContext } from '@/hooks/project-context';
-import { useAlert } from '@/modules/alerts/hooks/alerts';
+import { useQuery } from '@/hooks/query';
 import { useTriggeredAlertDetails } from '@/modules/alerts/hooks/triggered-alerts';
 import { alertTypes } from '@/modules/alerts/utils/constants';
 import config from '@/utils/config';
@@ -69,16 +69,18 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
   const router = useRouter();
   const triggeredAlertId = router.query.triggeredAlertId as TriggeredAlerts.TriggeredAlertSlug;
   const { triggeredAlert, error } = useTriggeredAlertDetails(triggeredAlertId);
-  const { alert } = useAlert(triggeredAlert?.alertId);
+  const alertQuery = useQuery(['/alerts/getAlertDetails', { id: triggeredAlert?.alertId ?? -1 }], {
+    enabled: Boolean(triggeredAlert),
+  });
   const { environmentSubId, updateContext: updateProjectContext } = useSureProjectContext();
   const baseExplorerUrl = config.url.explorer[mapEnvironmentSubIdToNet(environmentSubId)];
 
   useEffect(() => {
-    if (!alert) {
+    if (!alertQuery.data) {
       return;
     }
-    updateProjectContext(alert.projectSlug, alert.environmentSubId);
-  }, [alert, updateProjectContext]);
+    updateProjectContext(alertQuery.data.projectSlug, alertQuery.data.environmentSubId);
+  }, [alertQuery.data, updateProjectContext]);
 
   function alertType(triggeredAlert: TriggeredAlerts.TriggeredAlert) {
     if (!triggeredAlert) return alertTypes.EVENT;
@@ -103,7 +105,7 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
           </TextLink>
         </Link>
 
-        {(triggeredAlert === undefined || alert === undefined) && error === undefined && <Spinner center />}
+        {(triggeredAlert === undefined || alertQuery.status === 'loading') && error === undefined && <Spinner center />}
 
         {error && (
           <Container size="m">
@@ -116,7 +118,7 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
           </Container>
         )}
 
-        {triggeredAlert && alert && !error && (
+        {triggeredAlert && alertQuery.status === 'success' && !error && (
           <Flex align="start">
             <Container size="m">
               <Card>
@@ -132,11 +134,11 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
                           {alertType(triggeredAlert).name}
                         </Badge>
                         <Text size="bodySmall" color="text3">
-                          {alertContract(alert)}{' '}
+                          {alertContract(alertQuery.data)}{' '}
                         </Text>
                       </Flex>
 
-                      <Link href={`/alerts/edit-alert/${alert.id}`} passHref>
+                      <Link href={`/alerts/edit-alert/${alertQuery.data.id}`} passHref>
                         <ButtonLink
                           stableId={StableId.TRIGGERED_ALERT_EDIT_LINK}
                           size="s"

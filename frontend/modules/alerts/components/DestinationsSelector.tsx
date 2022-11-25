@@ -11,7 +11,7 @@ import { Spinner } from '@/components/lib/Spinner';
 import { Switch } from '@/components/lib/Switch';
 import { Text } from '@/components/lib/Text';
 import { useSureProjectContext } from '@/hooks/project-context';
-import { useDestinations } from '@/modules/alerts/hooks/destinations';
+import { useQuery } from '@/hooks/query';
 import { destinationTypes } from '@/modules/alerts/utils/constants';
 import { StableId } from '@/utils/stable-ids';
 
@@ -28,7 +28,7 @@ interface Props {
 
 export function DestinationsSelector(props: Props) {
   const { projectSlug } = useSureProjectContext();
-  const { destinations } = useDestinations(projectSlug);
+  const destinationsQuery = useQuery(['/alerts/listDestinations', { projectSlug }]);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
   const [selectedEditDestination, setSelectedEditDestination] =
@@ -41,35 +41,37 @@ export function DestinationsSelector(props: Props) {
 
   return (
     <Flex stack>
-      {!destinations && <Spinner center />}
-
-      {destinations?.length === 0 && (
+      {destinationsQuery.status === 'loading' ? (
+        <Spinner center />
+      ) : destinationsQuery.status === 'error' ? (
+        <div>Error while loading destinations</div>
+      ) : destinationsQuery.data.length === 0 ? (
         <Text>{`Your selected project doesn't have any destinations configured yet.`}</Text>
+      ) : (
+        <Flex stack gap="s">
+          {destinationsQuery.data.map((destination) => {
+            return (
+              <DestinationCard
+                key={destination.id}
+                destination={destination}
+                openDestination={openDestination}
+                debounce={props.debounce}
+                checked={props.selectedIds.includes(destination.id)}
+                onChange={(nextChecked) => props.onChange(destination.id, nextChecked)}
+              />
+            );
+          })}
+
+          <Button
+            color="neutral"
+            onClick={() => setShowNewDestinationModal(true)}
+            stretch
+            stableId={StableId.DESTINATIONS_SELECTOR_OPEN_CREATE_MODAL_BUTTON}
+          >
+            <FeatherIcon icon="plus" color="primary" /> New Destination
+          </Button>
+        </Flex>
       )}
-
-      <Flex stack gap="s">
-        {destinations?.map((destination) => {
-          return (
-            <DestinationCard
-              key={destination.id}
-              destination={destination}
-              openDestination={openDestination}
-              debounce={props.debounce}
-              checked={props.selectedIds.includes(destination.id)}
-              onChange={(nextChecked) => props.onChange(destination.id, nextChecked)}
-            />
-          );
-        })}
-
-        <Button
-          color="neutral"
-          onClick={() => setShowNewDestinationModal(true)}
-          stretch
-          stableId={StableId.DESTINATIONS_SELECTOR_OPEN_CREATE_MODAL_BUTTON}
-        >
-          <FeatherIcon icon="plus" color="primary" /> New Destination
-        </Button>
-      </Flex>
 
       <NewDestinationModal
         onCreate={(destination) => props.onChange(destination.id, true)}
