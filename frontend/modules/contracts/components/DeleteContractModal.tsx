@@ -1,15 +1,14 @@
 import type { Api } from '@pc/common/types/api';
 import { useCallback } from 'react';
-import { mutate } from 'swr';
 
 import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useAuth } from '@/hooks/auth';
 import { useMutation } from '@/hooks/mutation';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQueryCache } from '@/hooks/query-cache';
 
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
@@ -22,11 +21,11 @@ interface Props {
 
 export function DeleteContractModal({ contract, show, setShow, onDelete }: Props) {
   const { projectSlug, environmentSubId } = useSureProjectContext();
-  const { identity } = useAuth();
+  const contractsCache = useQueryCache('/projects/getContracts');
   const removeContractMutation = useMutation('/projects/removeContract', {
     onSuccess: () => {
-      mutate<Contract[]>(
-        ['/projects/getContracts', projectSlug, environmentSubId, identity?.uid],
+      contractsCache.update(
+        { project: projectSlug, environment: environmentSubId },
         (contracts) => contracts && contracts.filter((lookupContract) => lookupContract.slug !== contract.slug),
       );
       openToast({

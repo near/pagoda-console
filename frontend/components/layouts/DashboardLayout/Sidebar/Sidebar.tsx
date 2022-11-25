@@ -8,8 +8,8 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { useAuth, useSignOut } from '@/hooks/auth';
 import { useMaybeProjectContext } from '@/hooks/project-context';
-import { useMaybeProject } from '@/hooks/projects';
 import { usePublicMode } from '@/hooks/public';
+import { useQuery } from '@/hooks/query';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
 import apisEntries from '@/modules/apis/sidebar-entries';
 import contractsEntries from '@/modules/contracts/sidebar-entries';
@@ -29,12 +29,14 @@ function useProjectPages(): SidebarEntry[] {
   const { authStatus } = useAuth();
 
   const { projectSlug } = useMaybeProjectContext();
-  const { project } = useMaybeProject(projectSlug);
+  const projectQuery = useQuery(['/projects/getDetails', { slug: projectSlug || 'unknown' }], {
+    enabled: Boolean(projectSlug),
+  });
 
   return useMemo(
     () =>
       [
-        project?.tutorial === 'NFT_MARKET'
+        projectQuery.data?.tutorial === 'NFT_MARKET'
           ? {
               display: 'Tutorial',
               route: '/tutorials/nfts/introduction',
@@ -70,7 +72,7 @@ function useProjectPages(): SidebarEntry[] {
           }
           return true;
         }),
-    [project, authStatus, publicModeIsActive],
+    [projectQuery.data, authStatus, publicModeIsActive],
   );
 }
 

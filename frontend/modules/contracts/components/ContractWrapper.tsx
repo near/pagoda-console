@@ -1,18 +1,16 @@
-import type { Api } from '@pc/common/types/api';
 import type { Projects } from '@pc/common/types/core';
 import type { ReactElement } from 'react';
 
 import { GetPublicModeWrapper } from '@/components/lib/PublicModeWrapper';
 import { withSelectedProject } from '@/components/with-selected-project';
-import { useContract } from '@/hooks/contracts';
+import type { UseQueryResult } from '@/hooks/query';
+import { useQuery } from '@/hooks/query';
+import { useRawQuery } from '@/hooks/raw-query';
 import { usePublicStore } from '@/stores/public';
 
-type Contract = Api.Query.Output<'/projects/getContract'>;
-
 type ChildrenProps = {
-  contract?: Contract;
+  contractQuery: UseQueryResult<'/projects/getContract'>;
   isPublicMode: boolean;
-  error?: unknown;
 };
 
 type Props = {
@@ -23,12 +21,21 @@ type Props = {
 const PublicContractWrapper = ({ slug, children }: Props) => {
   const contracts = usePublicStore((store) => store.contracts);
   const contract = contracts.find((contract) => contract.slug === slug);
-  return children({ contract, isPublicMode: true });
+  const contractQuery = useRawQuery(['public-contracts'], async () => {
+    if (!contract) {
+      throw new Error(`No contract found by slug ${slug}`);
+    }
+    return contract;
+  });
+  return children({
+    contractQuery,
+    isPublicMode: true,
+  });
 };
 
 const PrivateContractWrapper = withSelectedProject(({ slug, children }: Props) => {
-  const { contract, error } = useContract(slug);
-  return children({ contract, error, isPublicMode: false });
+  const contractQuery = useQuery(['/projects/getContract', { slug }]);
+  return children({ contractQuery, isPublicMode: false });
 });
 
 export const ContractWrapper = GetPublicModeWrapper<Props>(PublicContractWrapper, PrivateContractWrapper);

@@ -23,27 +23,30 @@ import type { NextPageWithLayout } from '@/utils/types';
 
 const ProjectAnalytics: NextPageWithLayout = () => (
   <ContractsWrapper>
-    {({ contracts }) => {
-      if (!contracts) {
+    {({ contractsQuery }) => {
+      if (contractsQuery.isLoading) {
         return <Spinner center />;
       }
+      if (contractsQuery.status === 'error') {
+        return null;
+      }
 
-      if (contracts.length === 0) {
+      if (contractsQuery.data.length === 0) {
         return <NoContractsNotice />;
       }
 
       return (
         <Section>
-          <AnalyticsIframe contracts={contracts} />
+          <AnalyticsIframe contracts={contractsQuery.data} />
         </Section>
       );
     }}
   </ContractsWrapper>
 );
 
-type Project = Api.Query.Output<'/projects/getContracts'>;
+type Contracts = Api.Query.Output<'/projects/getContracts'>;
 
-function AnalyticsIframe({ contracts }: { contracts: Project }) {
+function AnalyticsIframe({ contracts }: { contracts: Contracts }) {
   const { environmentSubId } = useSureProjectContext();
   const { activeTheme } = useTheme();
   const iframeId = 'analytics-iframe';

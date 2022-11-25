@@ -99,16 +99,16 @@ const ViewContract: NextPageWithLayout = () => {
                 >
                   <FeatherIcon icon="zap" color="primary" />
                   <ContractWrapper slug={contractSlug}>
-                    {({ contract }) => <TextOverflow>{contract?.address || '...'}</TextOverflow>}
+                    {({ contractQuery }) => <TextOverflow>{contractQuery.data?.address || '...'}</TextOverflow>}
                   </ContractWrapper>
                 </DropdownMenu.Button>
 
                 <DropdownMenu.Content align="start" width="trigger">
                   <DropdownMenu.RadioGroup value={contractSlug} onValueChange={onSelectedContractChange}>
                     <ContractsWrapper>
-                      {({ contracts }) => (
+                      {({ contractsQuery }) => (
                         <>
-                          {contracts?.map((c) => {
+                          {contractsQuery.data?.map((c) => {
                             return (
                               <DropdownMenu.RadioItem key={c.slug} value={c.slug.toString()}>
                                 {c.address}
@@ -137,8 +137,12 @@ const ViewContract: NextPageWithLayout = () => {
                   </Link>
 
                   <ContractWrapper slug={contractSlug}>
-                    {({ contract }) =>
-                      contract ? <ContractAbiLink activeTab={activeTab} contract={contract} /> : <Spinner />
+                    {({ contractQuery }) =>
+                      contractQuery.data ? (
+                        <ContractAbiLink activeTab={activeTab} contract={contractQuery.data} />
+                      ) : (
+                        <Spinner />
+                      )
                     }
                   </ContractWrapper>
                 </Tabs.List>
@@ -162,18 +166,18 @@ const ViewContract: NextPageWithLayout = () => {
         </Section>
 
         <ContractWrapper slug={contractSlug}>
-          {({ contract }) =>
-            contract ? (
+          {({ contractQuery }) =>
+            contractQuery.status === 'success' ? (
               <Section>
                 <Tabs.Content css={{ paddingTop: 0 }} value="details">
-                  <ContractDetails contract={contract} />
+                  <ContractDetails contract={contractQuery.data} />
                 </Tabs.Content>
 
                 <Tabs.Content css={{ paddingTop: 0 }} value="interact">
-                  <ContractInteract contract={contract} />
+                  <ContractInteract contract={contractQuery.data} />
                 </Tabs.Content>
 
-                <ContractAbiTab contract={contract} />
+                <ContractAbiTab contract={contractQuery.data} />
               </Section>
             ) : (
               <Spinner />
@@ -183,13 +187,13 @@ const ViewContract: NextPageWithLayout = () => {
       </Tabs.Root>
 
       <ContractWrapper slug={contractSlug}>
-        {({ contract }) => {
-          if (!contract) {
+        {({ contractQuery }) => {
+          if (!contractQuery.data) {
             return null;
           }
           return (
             <DeleteContractModal
-              contract={contract}
+              contract={contractQuery.data}
               show={showDeleteModal}
               setShow={setShowDeleteModal}
               onDelete={onDelete}

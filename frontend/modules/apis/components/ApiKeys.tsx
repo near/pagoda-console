@@ -13,8 +13,8 @@ import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useMutation } from '@/hooks/mutation';
-import { useApiKeys } from '@/hooks/new-api-keys';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
 import { CreateApiKeyForm } from '@/modules/apis/components/CreateApiKeyForm';
 import StarterGuide from '@/modules/core/components/StarterGuide';
 import analytics from '@/utils/analytics';
@@ -27,7 +27,7 @@ const ROTATION_WARNING =
 
 export function ApiKeys() {
   const { projectSlug } = useSureProjectContext();
-  const { keys, mutate: mutateKeys } = useApiKeys(projectSlug);
+  const keysQuery = useQuery(['/projects/getKeys', { project: projectSlug }]);
   const [showRotationModal, setShowRotationModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -40,7 +40,7 @@ export function ApiKeys() {
   const rotateKeyMutation = useMutation('/projects/rotateKey', {
     onMutate: (variables) => {
       setShowRotationModal(false);
-      mutateKeys((cachedKeys) =>
+      keysQuery.updateCache((cachedKeys) =>
         cachedKeys?.map((key) => {
           if (key.keySlug === variables.slug) {
             return { ...key, keySlug: '', key: '' };
@@ -50,7 +50,7 @@ export function ApiKeys() {
       );
     },
     onSuccess: (result, variables) => {
-      mutateKeys((cachedKeys) =>
+      keysQuery.updateCache((cachedKeys) =>
         cachedKeys?.map((key) => {
           if (key.keySlug === variables.slug) {
             return result;
@@ -98,8 +98,8 @@ export function ApiKeys() {
           </Table.Head>
 
           <Table.Body>
-            {keys &&
-              keys.map((apiKey, index) => {
+            {keysQuery.data &&
+              keysQuery.data.map((apiKey, index) => {
                 return (
                   <Table.Row key={index}>
                     <KeyRow

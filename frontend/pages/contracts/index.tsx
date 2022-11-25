@@ -49,8 +49,8 @@ const ListContracts: NextPageWithLayout = () => {
             </Flex>
 
             <ContractsWrapper>
-              {({ contracts }) =>
-                contracts && contracts.length > 0 ? (
+              {({ contractsQuery }) =>
+                contractsQuery.data && contractsQuery.data.length > 0 ? (
                   <Button
                     color="neutral"
                     stableId={StableId.CONTRACTS_OPEN_SHARE_CONTRACTS_MODAL_BUTTON}
@@ -75,16 +75,21 @@ const ListContracts: NextPageWithLayout = () => {
       </Section>
 
       <ContractsWrapper>
-        {({ contracts }) => <ContractsTable contracts={contracts} setAddContractIsOpen={setAddContractIsOpen} />}
+        {({ contractsQuery }) => (
+          <ContractsTable contracts={contractsQuery.data} setAddContractIsOpen={setAddContractIsOpen} />
+        )}
       </ContractsWrapper>
 
       <ContractsWrapper>
-        {({ contracts, isPublicMode }) => {
+        {({ contractsQuery, isPublicMode }) => {
           if (isPublicMode) {
+            if (contractsQuery.status !== 'success') {
+              return null;
+            }
             return (
               <Dialog.Root open={shareContractsIsOpen} onOpenChange={setShareContractsIsOpen}>
                 <Dialog.Content title="Share Contracts" size="s">
-                  <ShareContracts contracts={contracts} />
+                  <ShareContracts contracts={contractsQuery.data} />
                 </Dialog.Content>
               </Dialog.Root>
             );

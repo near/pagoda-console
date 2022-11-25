@@ -1,30 +1,24 @@
-import type { Api } from '@pc/common/types/api';
 import type { Projects } from '@pc/common/types/core';
 import { useCallback } from 'react';
-import { mutate } from 'swr';
 
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useAuth } from '@/hooks/auth';
 import { useMutation } from '@/hooks/mutation';
+import { useQueryCache } from '@/hooks/query-cache';
 
 interface Props {
   slug: Projects.ProjectSlug;
   name: string;
   show: boolean;
   setShow: (show: boolean) => void;
-  onDelete: () => void;
+  onDelete?: () => void;
 }
 
-type Projects = Api.Query.Output<'/projects/list'>;
-
 export default function DeleteProjectModal({ slug, name, show, setShow, onDelete }: Props) {
-  const { identity } = useAuth();
+  const projectsCache = useQueryCache('/projects/list');
   const deleteProjectMutation = useMutation('/projects/delete', {
     onSuccess: () => {
-      if (identity?.uid) {
-        mutate<Projects>(['/projects/list', identity.uid], (projects) => projects?.filter((p) => p.slug !== slug));
-      }
+      projectsCache.update(undefined, (projects) => projects?.filter((project) => project.slug !== slug));
       onDelete?.();
     },
     getAnalyticsSuccessData: () => ({ name }),

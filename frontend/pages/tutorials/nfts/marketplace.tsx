@@ -5,7 +5,7 @@ import { Button } from '@/components/lib/Button';
 import { withSelectedProject } from '@/components/with-selected-project';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSureProjectContext } from '@/hooks/project-context';
-import { useProject } from '@/hooks/projects';
+import { useQuery } from '@/hooks/query';
 import { EjectProjectModal } from '@/modules/core/components/modals/EjectProjectModal';
 import components from '@/modules/core/components/tutorials/components';
 import TableOfContents from '@/modules/core/components/tutorials/TableOfContents';
@@ -17,7 +17,7 @@ import type { NextPageWithLayout } from '@/utils/types';
 
 const Marketplace: NextPageWithLayout = () => {
   const { projectSlug } = useSureProjectContext();
-  const { project } = useProject(projectSlug);
+  const projectQuery = useQuery(['/projects/getDetails', { slug: projectSlug }]);
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
 
@@ -25,14 +25,14 @@ const Marketplace: NextPageWithLayout = () => {
     <>
       <TutorialPage sidebar={<TableOfContents />}>
         <Content components={components} />
-        {project && (
+        {projectQuery.data && (
           <TutorialFooter>
             <Button stableId={StableId.TUTORIAL_CONTENT_COMPLETE_BUTTON} onClick={() => setShowModal(true)}>
               Complete Tutorial
             </Button>
             <EjectProjectModal
-              slug={project.slug}
-              name={project.name}
+              slug={projectQuery.data.slug}
+              name={projectQuery.data.name}
               show={showModal}
               setShow={setShowModal}
               onEject={() => router.push('/contracts')}

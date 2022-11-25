@@ -3,7 +3,6 @@ import type { Explorer } from '@pc/common/types/core';
 import { useCallback, useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
-import { mutate } from 'swr';
 
 import { ContractTemplateDetails } from '@/components/contract-templates/ContractTemplateDetails';
 import { ContractTemplateList } from '@/components/contract-templates/ContractTemplateList';
@@ -15,10 +14,10 @@ import { HR } from '@/components/lib/HorizontalRule';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
-import { useAuth } from '@/hooks/auth';
 import type { ContractTemplate } from '@/hooks/contract-templates';
 import { useMutation } from '@/hooks/mutation';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQueryCache } from '@/hooks/query-cache';
 import { formRegex } from '@/utils/constants';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
 import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
@@ -42,16 +41,16 @@ export function AddContractForm({ onAdd }: Props) {
   const environmentTitle = environmentSubId === 1 ? 'Testnet' : 'Mainnet';
   const environmentTla = environmentSubId === 1 ? 'testnet' : 'near';
 
-  const { identity } = useAuth();
+  const contractsQuery = useQueryCache('/projects/getContracts');
   const onContractAdd = useCallback(
     (contract: Contract) => {
-      mutate<Contract[]>(
-        ['/projects/getContracts', projectSlug, environmentSubId, identity?.uid],
+      contractsQuery.update(
+        { project: projectSlug, environment: environmentSubId },
         (contracts) => contracts && [...contracts, contract],
       );
       onAdd?.();
     },
-    [identity?.uid, projectSlug, environmentSubId, onAdd],
+    [contractsQuery, projectSlug, environmentSubId, onAdd],
   );
 
   const deployContractMutation = useMutation('/projects/addContract', {

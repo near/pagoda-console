@@ -4,7 +4,7 @@ import type { Explorer, Projects } from '@pc/common/types/core';
 import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Badge } from '@/components/lib/Badge';
@@ -24,10 +24,10 @@ import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { withSelectedProject } from '@/components/with-selected-project';
-import { useContracts } from '@/hooks/contracts';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { useMutation } from '@/hooks/mutation';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQuery } from '@/hooks/query';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
 import { useAlerts } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
@@ -65,7 +65,7 @@ interface FormData {
   };
 }
 
-type Contract = Api.Query.Output<'/projects/getContracts'>[number];
+type Contracts = Api.Query.Output<'/projects/getContracts'>;
 
 const NewAlert: NextPageWithLayout = () => {
   const router = useRouter();
@@ -73,18 +73,14 @@ const NewAlert: NextPageWithLayout = () => {
   const { projectSlug, environmentSubId } = useSureProjectContext();
   const { mutate } = useAlerts(projectSlug, environmentSubId);
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<Alerts.DestinationId[]>([]);
-  const { contracts } = useContracts(projectSlug, environmentSubId);
-  const [contractComboboxItems, setContractComboboxItems] = useState<Contract[]>([]);
+  const contractsQuery = useQuery(['/projects/getContracts', { project: projectSlug, environment: environmentSubId }], {
+    onSuccess: () => setContractComboboxItems(contractsQuery.data),
+  });
+  const [contractComboboxItems, setContractComboboxItems] = useState<Contracts>([]);
 
   const acctBalRuleComparator = form.watch('acctBalRule.comparator');
   const acctBalNumRuleFrom = form.watch('acctBalNumRule.from');
   const acctBalPctRuleFrom = form.watch('acctBalPctRule.from');
-
-  useEffect(() => {
-    if (contracts) {
-      setContractComboboxItems(contracts);
-    }
-  }, [contracts]);
 
   const environmentTitle = environmentSubId === 1 ? 'Testnet' : 'Mainnet';
   const environmentTla = environmentSubId === 1 ? 'testnet' : 'near';
@@ -97,7 +93,7 @@ const NewAlert: NextPageWithLayout = () => {
     },
     onInputValueChange({ inputValue }) {
       const query = inputValue?.toLowerCase().trim();
-      const filtered = contracts?.filter((item) => !query || item.address.toLowerCase().includes(query));
+      const filtered = contractsQuery.data?.filter((item) => !query || item.address.toLowerCase().includes(query));
       setContractComboboxItems(filtered || []);
     },
     onSelectedItemChange() {
@@ -232,7 +228,7 @@ const NewAlert: NextPageWithLayout = () => {
               </Form.Group>
 
               <datalist id="contractsDatalist">
-                {contracts?.map((c) => {
+                {contractsQuery.data?.map((c) => {
                   return <option value={c.address} key={c.slug} />;
                 })}
               </datalist>
