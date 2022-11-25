@@ -1,12 +1,8 @@
-import type { Api } from '@pc/common/types/api';
 import type { Projects } from '@pc/common/types/core';
 import type { RpcStats } from '@pc/common/types/rpcstats';
 import type { DateTime, DateTimeUnit } from 'luxon';
-import { useEffect, useState } from 'react';
-import useSWR from 'swr';
 
-import { useAuth } from '@/hooks/auth';
-import { fetchApi } from '@/utils/http';
+import { useQuery } from '@/hooks/query';
 
 function timeRangeToDates(timeRangeValue: RpcStats.TimeRangeValue, endTime: DateTime): [DateTime, DateTime] {
   switch (timeRangeValue) {
@@ -115,90 +111,41 @@ function fillEmptyDateValues(
   return filledDateValues;
 }
 
-type EndpointMetrics = Api.Query.Output<'/rpcstats/endpointMetrics'>;
-
 export function useApiStats(
   environmentSubId: Projects.EnvironmentId,
   projectSlug: Projects.ProjectSlug,
   timeRangeValue: RpcStats.TimeRangeValue,
   rangeEndTime: DateTime,
 ) {
-  const { identity } = useAuth();
   const [startDateTime, endDateTime] = timeRangeToDates(timeRangeValue, rangeEndTime); // convert timeRangeValue to params for use in the API call
   const dateTimeResolution = resolutionForTimeRange(timeRangeValue);
-  const [dataByDate, setDataByDate] = useState<EndpointMetrics>();
-  const [dataByEndpoint, setDataByEndpoint] = useState<EndpointMetrics>();
 
-  const { data: dataByDateResponse } = useSWR(
-    identity && startDateTime && endDateTime
-      ? [
-          '/rpcstats/endpointMetrics' as const,
-          'date',
-          environmentSubId,
-          identity.uid,
-          startDateTime.toISO(),
-          endDateTime.toISO(),
-        ]
-      : null,
-    (key) => {
-      return fetchApi([
-        key,
-        {
-          environmentSubId,
-          projectSlug,
-          startDateTime: startDateTime.toString(),
-          endDateTime: endDateTime.toString(),
-          filter: {
-            type: 'date',
-            dateTimeResolution,
-          },
-        },
-      ]);
+  const dateMetricsQuery = useQuery([
+    '/rpcstats/endpointMetrics',
+    {
+      environmentSubId,
+      projectSlug,
+      startDateTime: startDateTime.toString(),
+      endDateTime: endDateTime.toString(),
+      filter: { type: 'date', dateTimeResolution },
     },
-  );
-
-  const { data: dataByEndpointResponse } = useSWR(
-    identity && startDateTime && endDateTime
-      ? [
-          '/rpcstats/endpointMetrics' as const,
-          'endpoint',
-          environmentSubId,
-          identity.uid,
-          startDateTime.toISO(),
-          endDateTime.toISO(),
-        ]
-      : null,
-    (key) => {
-      return fetchApi([
-        key,
-        {
-          environmentSubId,
-          projectSlug,
-          startDateTime: startDateTime.toString(),
-          endDateTime: endDateTime.toString(),
-          filter: { type: 'endpoint' },
-        },
-      ]);
+  ]);
+  const endpointMetricsQuery = useQuery([
+    '/rpcstats/endpointMetrics',
+    {
+      environmentSubId,
+      projectSlug,
+      startDateTime: startDateTime.toString(),
+      endDateTime: endDateTime.toString(),
+      filter: { type: 'endpoint' },
     },
-  );
+  ]);
 
-  useEffect(() => {
-    if (dataByDateResponse) setDataByDate(dataByDateResponse);
-    if (dataByEndpointResponse) setDataByEndpoint(dataByEndpointResponse);
-  }, [dataByDateResponse, dataByEndpointResponse]);
-
-  if (!dataByDate || !dataByEndpoint) {
+  if (dateMetricsQuery.status !== 'success' || endpointMetricsQuery.status !== 'success') {
     return undefined;
   }
 
-  const { successCount, errorCount, weightedTotalLatency } =
-    dataByDate && dataByDate.page
-      ? totalMetrics(dataByDate.page)
-      : {
-          successCount: 0,
-          errorCount: 0,
-          weightedTotalLatency: 0,
-        };
+  const { successCount, errorCount, weightedTotalLatency } = totalMetrics(dateMetricsQuery.data.page);
   const successRate = successCount / (successCount + errorCount);
 
   const chartData = {
@@ -210,7 +157,7 @@ export function useApiStats(
 
   return {
     ...chartData,
-    requestStatusPerMethod: dataByEndpoint?.page ?? [],
+    requestStatusPerMethod: endpointMetricsQuery.data.page,
 
     charts: {
       totalRequestsPerStatus: [
@@ -227,8 +174,13 @@ export function useApiStats(
           value: errorCount,
         },
       ],
-      totalRequestsPerMethod: endpointTotals(dataByEndpoint?.page ?? []),
-      totalRequestVolume: fillEmptyDateValues(dataByDate?.page || [], startDateTime, endDateTime, dateTimeResolution),
+      totalRequestsPerMethod: endpointTotals(endpointMetricsQuery.data.page),
+      totalRequestVolume: fillEmptyDateValues(
+        dateMetricsQuery.data.page || [],
+        startDateTime,
+        endDateTime,
+        dateTimeResolution,
+      ),
     },
   };
 }
