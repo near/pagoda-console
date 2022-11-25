@@ -11,11 +11,10 @@ import { HR } from '@/components/lib/HorizontalRule';
 import { Message } from '@/components/lib/Message';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
-import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
-import { useSignOut } from '@/hooks/auth';
-import { useAccount, useAuth } from '@/hooks/auth';
+import { useAuth } from '@/hooks/auth';
 import { useDashboardLayout } from '@/hooks/layouts';
+import { useQuery } from '@/hooks/query';
 import { useRawMutation } from '@/hooks/raw-mutation';
 import DeleteAccountModal from '@/modules/core/components/modals/DeleteAccountModal';
 import { formValidations } from '@/utils/constants';
@@ -29,10 +28,9 @@ interface SettingsFormData {
 const Settings: NextPageWithLayout = () => {
   const { register, handleSubmit, formState, setValue } = useForm<SettingsFormData>();
   const [isEditing, setIsEditing] = useState(false);
-  const { user, error, mutate } = useAccount();
+  const userQuery = useQuery(['/users/getAccountDetails']);
   const { identity } = useAuth();
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
-  const signOut = useSignOut();
   const updateDisplayNameMutation = useRawMutation<void, unknown, { displayName: string }>(
     async ({ displayName }) => {
       if (!identity) {
@@ -46,7 +44,7 @@ const Settings: NextPageWithLayout = () => {
           return;
         }
         void getIdToken(identity, true);
-        mutate((data) => {
+        userQuery.updateCache((data) => {
           if (data) {
             return {
               ...data,
@@ -60,25 +58,14 @@ const Settings: NextPageWithLayout = () => {
   );
 
   const edit = useCallback(() => {
-    setValue('displayName', user!.name!);
+    setValue('displayName', userQuery.data!.name!);
     setIsEditing(true);
-  }, [setValue, user]);
+  }, [setValue, userQuery.data]);
 
   const submitSettings: SubmitHandler<SettingsFormData> = useCallback(
     ({ displayName }) => updateDisplayNameMutation.mutate({ displayName }),
     [updateDisplayNameMutation],
   );
-
-  const onAccountDelete = async () => {
-    await signOut();
-    openToast({
-      type: 'success',
-      title: 'Account Deleted',
-      description: 'Your account has been deleted and you have been signed out.',
-    });
-  };
-
-  const isLoading = !user && !error;
 
   return (
     <>
@@ -106,7 +93,7 @@ const Settings: NextPageWithLayout = () => {
 
             <HR />
 
-            {error && <Message type="error" content="Could not fetch account data." />}
+            {userQuery.status === 'error' ? <Message type="error" content="Could not fetch account data." /> : null}
 
             <Form.HorizontalGroup>
               <Form.Label htmlFor="displayName">Display Name:</Form.Label>
@@ -122,12 +109,14 @@ const Settings: NextPageWithLayout = () => {
                     <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
                   </>
                 ) : (
-                  <>{isLoading ? <Spinner size="xs" /> : user?.name}</>
+                  <>{userQuery.isLoading ? <Spinner size="xs" /> : userQuery.data?.name}</>
                 )}
               </Form.Group>
 
               <Form.Label>Email:</Form.Label>
-              <Form.Group maxWidth="m">{isLoading ? <Spinner size="xs" /> : user?.email}</Form.Group>
+              <Form.Group maxWidth="m">
+                {userQuery.isLoading ? <Spinner size="xs" /> : userQuery.data?.email}
+              </Form.Group>
             </Form.HorizontalGroup>
           </Flex>
         </Form.Root>
@@ -145,11 +134,7 @@ const Settings: NextPageWithLayout = () => {
           </Button>
         </Flex>
       </Section>
-      <DeleteAccountModal
-        show={showDeleteAccountModal}
-        setShow={setShowDeleteAccountModal}
-        onDelete={onAccountDelete}
-      />
+      <DeleteAccountModal show={showDeleteAccountModal} setShow={setShowDeleteAccountModal} />
     </>
   );
 };
