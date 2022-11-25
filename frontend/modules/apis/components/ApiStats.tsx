@@ -27,7 +27,7 @@ type ApiStatsData = ReturnType<typeof useApiStats>;
 
 export function ApiStats() {
   const { projectSlug, environmentSubId } = useSureProjectContext();
-  // const { keys } = useApiKeys(project?.slug);  // for filtering
+  // const keysQuery = useQuery(['/projects/getKeys', { project: projectSlug }]); // for filtering
   const [selectedTimeRangeValue, setSelectedTimeRangeValue] = useState<RpcStats.TimeRangeValue>('30_DAYS');
   const [liveRefreshEnabled, setLiveRefreshEnabled] = useState(true);
   const selectedTimeRange = timeRanges.find((t) => t.value === selectedTimeRangeValue);

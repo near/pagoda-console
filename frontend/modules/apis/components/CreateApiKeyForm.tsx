@@ -6,8 +6,8 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { TextButton } from '@/components/lib/TextLink';
 import { useMutation } from '@/hooks/mutation';
-import { useApiKeys } from '@/hooks/new-api-keys';
 import { useSureProjectContext } from '@/hooks/project-context';
+import { useQueryCache } from '@/hooks/query-cache';
 import { styled } from '@/styles/stitches';
 import { StableId } from '@/utils/stable-ids';
 
@@ -25,13 +25,12 @@ const ButtonContainer = styled(Flex, {
 
 export const CreateApiKeyForm = ({ close }: Props) => {
   const { projectSlug } = useSureProjectContext();
-  const { mutate: mutateKeys } = useApiKeys(projectSlug);
+  const keysQueryCache = useQueryCache('/projects/getKeys');
   const { register, handleSubmit, formState } = useForm<NewKeyFormData>();
-
   const generateKeyMutation = useMutation('/projects/generateKey', {
     onMutate: close,
     onSuccess: (result) =>
-      mutateKeys((prevKeys) => {
+      keysQueryCache.update({ project: projectSlug }, (prevKeys) => {
         if (!prevKeys) {
           return;
         }
