@@ -6,8 +6,10 @@ import { FeatherIcon } from '../FeatherIcon';
 import { Flex } from '../Flex';
 import { Text } from '../Text';
 
+type OptionalKeys = 'updateItemCount' | 'reset';
+
 interface Props {
-  pagination: Pagination;
+  pagination: Omit<Pagination, OptionalKeys> & Partial<Pick<Pagination, OptionalKeys>>;
   totalCount?: number;
 }
 
