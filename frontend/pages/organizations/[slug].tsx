@@ -2,7 +2,7 @@ import type { Api } from '@pc/common/types/api';
 import type { Projects, Users } from '@pc/common/types/core';
 import type { OrgRole } from '@pc/database/clients/core';
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
@@ -22,15 +22,16 @@ import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useAuth } from '@/hooks/auth';
 import { useOrganizationsLayout } from '@/hooks/layouts';
+import { useMutation } from '@/hooks/mutation';
 import {
-  useChangeUserRoleInOrg,
-  useDeleteOrg,
-  useInviteMemberToOrg,
-  useLeaveOrg,
+  mutateOrganizationMembers,
+  mutateOrganizations,
+  openSuccessToast,
+  openUserErrorToast,
+  parseError,
   useOrganizations,
   useOrgMembers,
-  useRemoveOrgInvite,
-  useRemoveUserFromOrg,
+  UserError,
   useSelectedOrg,
 } from '@/hooks/organizations';
 import { useRouteParam } from '@/hooks/route';
@@ -68,6 +69,17 @@ const Trigger = styled('div', {
   },
 });
 
+const getRemoveInviteMessage = (code: UserError) => {
+  switch (code) {
+    case UserError.PERMISSION_DENIED:
+      return 'User does not have invite permissions';
+    case UserError.BAD_ORG:
+      return 'User invites do not exist on personal orgs';
+    case UserError.BAD_ORG_INVITE:
+      return 'Org invite not found';
+  }
+};
+
 type RemovingUserData =
   | {
       uid: Users.UserUid;
@@ -86,8 +98,28 @@ const RemoveUserDialog = ({
   userData: RemovingUserData;
   setUserData: (data?: RemovingUserData) => void;
 }) => {
-  const removeInviteMutation = useRemoveOrgInvite(orgSlug);
-  const removeUserMutation = useRemoveUserFromOrg(orgSlug);
+  const removeInviteMutation = useMutation('/users/removeOrgInvite', {
+    onSuccess: (_result, { email }) => {
+      mutateOrganizationMembers(
+        orgSlug,
+        (members) => members && members.filter((member) => member.user.email !== email),
+        { revalidate: false },
+      );
+      openSuccessToast(`${email}'s invite is revoked`);
+      setUserData(undefined);
+    },
+    onError: (error) => openUserErrorToast(parseError(error, getRemoveInviteMessage)),
+  });
+  const removeUserMutation = useMutation('/users/removeFromOrg', {
+    onSuccess: (_result, { user }) => {
+      mutateOrganizationMembers(orgSlug, (members) => members && members.filter((member) => member.user.uid !== user), {
+        revalidate: false,
+      });
+      openSuccessToast('User is removed from organization');
+      setUserData(undefined);
+    },
+    onError: (error) => openUserErrorToast(parseError(error, getRemoveInviteMessage)),
+  });
   const resetRemovingUserData = useCallback(() => setUserData(undefined), [setUserData]);
   const removeUser = useCallback(() => {
     if (!userData) {
@@ -103,11 +135,6 @@ const RemoveUserDialog = ({
     removeInviteMutation.reset();
     removeUserMutation.reset();
   }, [removeInviteMutation, removeUserMutation]);
-  useEffect(() => {
-    if (removeInviteMutation.status === 'success' || removeUserMutation.status === 'success') {
-      setUserData(undefined);
-    }
-  }, [removeInviteMutation.status, removeUserMutation.status, setUserData]);
 
   return (
     <ConfirmModal
@@ -130,6 +157,30 @@ const RemoveUserDialog = ({
 type Organization = Api.Query.Output<'/users/listOrgs'>[number];
 type OrgMember = Api.Query.Output<'/users/listOrgMembers'>[number];
 
+const getUserRoleChangeMessage = (code: UserError) => {
+  switch (code) {
+    case UserError.PERMISSION_DENIED:
+      return 'Non-admin attempted to change org role';
+    case UserError.BAD_ORG_PERSONAL:
+      return 'Roles cannot be managed on personal orgs';
+    case UserError.BAD_USER:
+      return 'UID invalid or user not a member of org';
+    case UserError.ORG_FINAL_ADMIN:
+      return 'Cannot change role of only admin';
+  }
+};
+
+const getRemoveFromOrgMessage = (code: UserError) => {
+  switch (code) {
+    case UserError.PERMISSION_DENIED:
+      return 'Non-admin attempted to remove another user';
+    case UserError.BAD_ORG:
+      return 'User cannot be removed from personal orgs';
+    case UserError.ORG_FINAL_ADMIN:
+      return 'Cannot remove only admin';
+  }
+};
+
 const OrganizationMemberView = ({
   organization,
   member,
@@ -142,9 +193,61 @@ const OrganizationMemberView = ({
   singleAdmin: boolean;
 }) => {
   const [leavingModalOpen, setLeavingModalOpen] = useState(false);
-  const leaveMutation = useLeaveOrg(organization.slug);
+  const leaveMutation = useMutation('/users/removeFromOrg', {
+    onSuccess: () => {
+      mutateOrganizations(
+        (organizations) => {
+          if (!organizations) {
+            return;
+          }
+          return organizations.filter((lookupOrganization) => lookupOrganization.slug !== organization.slug);
+        },
+        { revalidate: false },
+      );
+      openSuccessToast('Organization is left');
+    },
+    onError: (error) => openUserErrorToast(parseError(error, getRemoveFromOrgMessage)),
+  });
 
-  const changeRoleMutation = useChangeUserRoleInOrg(organization.slug);
+  const changeRoleMutation = useMutation('/users/changeOrgRole', {
+    onSuccess: (_result, { role }) => openSuccessToast(`Role changed to ${role}`),
+    onMutate: ({ user: userUid, role, org: orgSlug }) => {
+      let modifiedRole: OrgMember['role'] | undefined;
+      mutateOrganizationMembers(
+        orgSlug,
+        (prevMembers) => {
+          if (!prevMembers) {
+            return;
+          }
+          return prevMembers.map((member) => {
+            if (member.user.uid === userUid) {
+              modifiedRole = member.role;
+              return { ...member, role };
+            }
+            return member;
+          });
+        },
+        { revalidate: false },
+      );
+      return modifiedRole;
+    },
+    onError: (error, { user: userUid, org: orgSlug }, prevRole) => {
+      if (prevRole) {
+        mutateOrganizationMembers(orgSlug, (prevMembers) => {
+          if (!prevMembers) {
+            return;
+          }
+          return prevMembers.map((member) => {
+            if (member.user.uid === userUid) {
+              return { ...member, role: prevRole };
+            }
+            return member;
+          });
+        });
+      }
+      openUserErrorToast(parseError(error, getUserRoleChangeMessage));
+    },
+  });
 
   const [removingUserData, setRemovingUserData] = useState<RemovingUserData>();
   const setRemovingUser = useCallback(
@@ -267,6 +370,19 @@ const InviteFormRoleDropdown = ({ form }: { form: UseFormReturn<InviteForm> }) =
   );
 };
 
+const getInviteMemberMessage = (code: UserError) => {
+  switch (code) {
+    case UserError.PERMISSION_DENIED:
+      return 'User does not have invite permissions';
+    case UserError.BAD_ORG:
+      return 'Users cannot be invited to personal orgs';
+    case UserError.ORG_INVITE_DUPLICATE:
+      return 'An invite already exists for this org and email';
+    case UserError.ORG_INVITE_ALREADY_MEMBER:
+      return 'The user is already a member of the org';
+  }
+};
+
 const InviteUserDialog = ({
   orgSlug,
   modalOpen,
@@ -282,13 +398,31 @@ const InviteUserDialog = ({
       role: 'COLLABORATOR',
     },
   });
-  const inviteMutation = useInviteMemberToOrg(orgSlug);
-  useEffect(() => {
-    if (inviteMutation.status === 'success') {
+  const inviteMutation = useMutation('/users/inviteToOrg', {
+    onSuccess: (_result, { email, role }) => {
+      mutateOrganizationMembers(
+        orgSlug,
+        (members) =>
+          members && [
+            ...members,
+            {
+              isInvite: true,
+              orgSlug,
+              role,
+              user: {
+                uid: null,
+                email,
+              },
+            },
+          ],
+        { revalidate: false },
+      );
+      openSuccessToast(`User ${email} is invited as ${role}`);
       switchModal();
       form.reset();
-    }
-  }, [switchModal, inviteMutation.status, form]);
+    },
+    onError: (error) => openUserErrorToast(parseError(error, getInviteMemberMessage)),
+  });
   return (
     <Dialog.Root open={modalOpen} onOpenChange={switchModal}>
       <Dialog.Content>
@@ -346,6 +480,15 @@ const OrganizationsDropdown = ({ selectedOrganization }: { selectedOrganization?
   );
 };
 
+const getDeleteOrgMessage = (code: UserError) => {
+  switch (code) {
+    case UserError.BAD_ORG_PERSONAL:
+      return 'Personal orgs cannot be deleted';
+    case UserError.PERMISSION_DENIED:
+      return 'Non-admin user attempted to delete org';
+  }
+};
+
 const OrganizationView: NextPageWithLayout = () => {
   const router = useRouter();
   const orgSlug = (useRouteParam('slug', '/organizations', true) || '') as Projects.OrgSlug;
@@ -361,12 +504,17 @@ const OrganizationView: NextPageWithLayout = () => {
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const switchDeleteModalOpen = useCallback(() => setDeleteModalOpen((open) => !open), [setDeleteModalOpen]);
-  const deleteMutation = useDeleteOrg(orgSlug);
-  useEffect(() => {
-    if (deleteMutation.status === 'success') {
+  const deleteMutation = useMutation('/users/deleteOrg', {
+    onSuccess: (_result, { org }) => {
+      mutateOrganizationMembers(orgSlug);
+      mutateOrganizations((orgs) => orgs && orgs.filter((org) => org.slug !== orgSlug), {
+        revalidate: false,
+      });
+      openSuccessToast(`Organization "${org}" deleted`);
       router.replace('/organizations');
-    }
-  }, [router, deleteMutation.status]);
+    },
+    onError: (error) => openUserErrorToast(parseError(error, getDeleteOrgMessage)),
+  });
   const deleteOrganization = useCallback(() => {
     if (!selectedOrganization) {
       return;

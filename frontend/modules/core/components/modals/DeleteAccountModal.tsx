@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import React, { useCallback, useState } from 'react';
 
 import { List, ListItem } from '@/components/lib/List';
 import { Message } from '@/components/lib/Message';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { deleteAccount, useAuth } from '@/hooks/auth';
+import { useAuth } from '@/hooks/auth';
+import { useMutation } from '@/hooks/mutation';
 import { useOrgsWithOnlyAdmin } from '@/hooks/organizations';
 import { StableId } from '@/utils/stable-ids';
 
@@ -20,23 +20,13 @@ export default function DeleteAccountModal({
   onDelete: () => void;
 }) {
   const { identity } = useAuth();
-  const [errorText, setErrorText] = useState<string | undefined>();
-  const [isDeleting, setIsDeleting] = useState(false);
   const { organizations } = useOrgsWithOnlyAdmin();
 
-  async function onConfirm() {
-    setIsDeleting(true);
-
-    const success = await deleteAccount(identity?.uid);
-
-    if (success) {
-      onDelete();
-    } else {
-      setErrorText('Something went wrong while deleting an account.');
-      setIsDeleting(false);
-    }
-  }
-  const resetError = useCallback(() => setErrorText(''), [setErrorText]);
+  const deleteAccountMutation = useMutation('/users/deleteAccount', {
+    onSuccess: onDelete,
+    getAnalyticsSuccessData: () => ({ uid: identity?.uid }),
+    getAnalyticsErrorData: () => ({ uid: identity?.uid }),
+  });
 
   const isOnlyAdmin = organizations && organizations.length > 0;
 
@@ -44,10 +34,12 @@ export default function DeleteAccountModal({
     <ConfirmModal
       confirmColor="danger"
       confirmText="Delete"
-      errorText={errorText}
-      isProcessing={isDeleting}
-      onConfirm={onConfirm}
-      resetError={resetError}
+      errorText={
+        deleteAccountMutation.status === 'error' ? 'Something went wrong while deleting an account.' : undefined
+      }
+      isProcessing={deleteAccountMutation.isLoading}
+      onConfirm={deleteAccountMutation.mutate}
+      resetError={deleteAccountMutation.reset}
       setShow={setShow}
       show={show}
       disabled={isOnlyAdmin}

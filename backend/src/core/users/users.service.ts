@@ -333,6 +333,10 @@ export class UsersService implements OnModuleInit {
     return {
       ...created,
       isPersonal: false as const,
+      user: {
+        uid: callingUser.uid,
+        email: callingUser.email,
+      },
     };
   }
 

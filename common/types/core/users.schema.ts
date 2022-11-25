@@ -97,9 +97,15 @@ export const mutation = {
 
   outputs: {
     deleteAccount: z.void(),
-    createOrg: org
-      .pick({ name: true, slug: true })
-      .merge(z.strictObject({ isPersonal: z.literal(false) })),
+    createOrg: org.pick({ name: true, slug: true }).merge(
+      z.strictObject({
+        isPersonal: z.literal(false),
+        user: z.strictObject({
+          uid: userUid,
+          email: z.string().email(),
+        }),
+      }),
+    ),
     inviteToOrg: z.void(),
     acceptOrgInvite: org.pick({ name: true, slug: true }),
     deleteOrg: z.void(),
