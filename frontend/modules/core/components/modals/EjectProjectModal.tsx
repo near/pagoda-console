@@ -1,5 +1,5 @@
 import type { Projects } from '@pc/common/types/core';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
@@ -33,6 +33,7 @@ export const EjectProjectModal = ({ slug, name, show, setShow, onEject }: Props)
       setIsEjecting(false);
     }
   }
+  const resetError = useCallback(() => setErrorText(''), [setErrorText]);
 
   return (
     <ConfirmModal
@@ -40,7 +41,7 @@ export const EjectProjectModal = ({ slug, name, show, setShow, onEject }: Props)
       errorText={errorText}
       isProcessing={isEjecting}
       onConfirm={onConfirm}
-      setErrorText={setErrorText}
+      resetError={resetError}
       setShow={setShow}
       show={show}
       title={`Complete ${name}`}

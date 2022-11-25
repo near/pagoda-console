@@ -8,7 +8,7 @@ import {
 } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { SubmitErrorHandler, SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
@@ -138,6 +138,7 @@ export function RegisterForm() {
       });
     }
   };
+  const resetError = useCallback(() => setRegisterError(''), [setRegisterError]);
 
   return (
     <Section>
@@ -198,7 +199,7 @@ export function RegisterForm() {
             </Form.Group>
           </Flex>
 
-          <ErrorModal error={registerError} setError={setRegisterError} />
+          <ErrorModal error={registerError} resetError={resetError} />
 
           <Button stableId={StableId.REGISTER_SIGN_UP_BUTTON} stretch type="submit" loading={formState.isSubmitting}>
             Sign Up
