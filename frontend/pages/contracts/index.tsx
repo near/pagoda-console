@@ -189,7 +189,8 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
   const url = `/contracts/${contract.slug}`;
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { contractAbi } = useAnyAbi(contract);
+  const abis = useAnyAbi(contract);
+  const hasAbi = Boolean(abis.embeddedQuery.data?.abi || abis.privateQuery.data?.abi);
   const { publicModeIsActive } = usePublicMode();
 
   function ContractTableCellData({ children }: { children: ReactNode }) {
@@ -245,7 +246,7 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
               </Flex>
             </DropdownMenu.Item>
 
-            {contractAbi && (
+            {hasAbi && (
               <DropdownMenu.Item onClick={() => router.push(`/contracts/${contract.slug}?tab=abi`)}>
                 <Flex align="center">
                   <FeatherIcon icon="file-text" color="primary" /> Contract ABI

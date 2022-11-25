@@ -56,7 +56,7 @@ export async function inspectContract(net: Net, contract: string) {
   try {
     const decompressed = fzstd.decompress(response);
     const abi: AbiRoot = JSON.parse(Buffer.from(decompressed).toString());
-    return abi;
+    return { abi };
   } catch (e) {
     console.error('failed to decompress or parse embedded abi for contract', contract, e);
   }

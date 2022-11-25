@@ -1,5 +1,4 @@
 import type { Api } from '@pc/common/types/api';
-import type { Net } from '@pc/database/clients/core';
 import type { ChangeEvent } from 'react';
 import { useState } from 'react';
 
@@ -109,7 +108,7 @@ export function ShareContracts({ contracts }: Props) {
 
         <CheckboxGroup aria-label="Select contracts to share" css={{ width: '100%' }}>
           {contracts.map((c) => (
-            <ContractCheckbox key={c.address} contract={c} net={net} onChange={onCheckboxChange} />
+            <ContractCheckbox key={c.address} contract={c} onChange={onCheckboxChange} />
           ))}
         </CheckboxGroup>
       </Flex>
@@ -147,19 +146,17 @@ export function ShareContracts({ contracts }: Props) {
 
 function ContractCheckbox({
   contract,
-  net,
   onChange,
 }: {
   contract: Contract;
-  net: Net;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }) {
-  const { embeddedAbi } = useEmbeddedAbi(net, contract.address);
+  const abiQuery = useEmbeddedAbi(contract);
 
   function abiIconHover() {
     analytics.track('DC Share Contracts: ABI Icon Hover', {
       address: contract.address,
-      hasEmbeddedAbi: !!embeddedAbi,
+      hasEmbeddedAbi: Boolean(abiQuery.data),
     });
   }
 
@@ -175,7 +172,7 @@ function ContractCheckbox({
           {contract.address}
         </Text>
 
-        {embeddedAbi && (
+        {abiQuery.data && (
           <Tooltip content="Embedded ABI">
             <span>
               <FeatherIcon icon="file-text" color="primary" onMouseEnter={abiIconHover} />
@@ -183,7 +180,7 @@ function ContractCheckbox({
           </Tooltip>
         )}
 
-        {embeddedAbi === null && (
+        {abiQuery.data === null && (
           <Tooltip content="No embedded ABI">
             <span>
               <FeatherIcon icon="alert-circle" color="warning" onMouseEnter={abiIconHover} />

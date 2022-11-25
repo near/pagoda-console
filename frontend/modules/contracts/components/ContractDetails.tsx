@@ -20,11 +20,11 @@ import { useFinalityStatus, useRecentTransactions } from '../hooks/recent-transa
 type Contract = Api.Query.Output<'/projects/getContract'>;
 
 interface Props {
-  contract?: Contract;
+  contract: Contract;
 }
 
 export function ContractDetails({ contract }: Props) {
-  const { metrics, error } = useContractMetrics(contract?.address, contract?.net);
+  const { metrics, error } = useContractMetrics(contract.address, contract.net);
 
   function Metric({ label, value }: { label: string; value?: string }) {
     return (
@@ -65,12 +65,12 @@ export function ContractDetails({ contract }: Props) {
   );
 }
 
-function RecentTransactionList({ contract }: { contract?: Contract }) {
+function RecentTransactionList({ contract }: { contract: Contract }) {
   // NOTE: This component and following code is legacy and will soon be replaced by new explorer components.
 
   const net = mapEnvironmentSubIdToNet(useSureProjectContext().environmentSubId);
   const { finalityStatus } = useFinalityStatus(net);
-  const { transactions } = useRecentTransactions(contract?.address, net);
+  const { transactions } = useRecentTransactions(contract.address, net);
 
   return (
     <Flex stack>

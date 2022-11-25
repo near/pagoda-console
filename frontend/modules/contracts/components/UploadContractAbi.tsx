@@ -1,6 +1,7 @@
 import type { Projects } from '@pc/common/types/core';
 import type { ChangeEvent, DragEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
+import { mutate } from 'swr';
 
 import { Button, ButtonLink } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
@@ -13,19 +14,38 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { uploadContractAbi } from '@/modules/contracts/hooks/abi';
+import { useAuth } from '@/hooks/auth';
+import { useMutation } from '@/hooks/mutation';
 import { StableId } from '@/utils/stable-ids';
 
 const MAX_CODE_HEIGHT = '18rem';
 
 type Props = {
   contractSlug: Projects.ContractSlug;
-  setAbiUploaded: (arg0: boolean) => void;
 };
 
-export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
+export const UploadContractAbi = ({ contractSlug }: Props) => {
   const [showModal, setShowModal] = useState(true);
   const [previewAbi, setPreviewAbi] = useState<string | null>(null);
+  const { identity } = useAuth();
+  const uploadAbiMutation = useMutation('/abi/addContractAbi', {
+    onSuccess: (result) => {
+      openToast({
+        type: 'success',
+        title: 'ABI Uploaded.',
+      });
+      setShowModal(false);
+      mutate(['/abi/getContractAbi', contractSlug, identity?.uid], () => result);
+    },
+    onError: () => {
+      openToast({
+        type: 'error',
+        title: 'Failed to upload ABI.',
+      });
+    },
+    getAnalyticsSuccessData: ({ contract }) => ({ contract }),
+    getAnalyticsErrorData: ({ contract }) => ({ contract }),
+  });
 
   async function uploadAbi() {
     if (!previewAbi) {
@@ -35,22 +55,9 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
         title: 'Error on Contract ABI Upload',
         description: `${contractSlug}`,
       });
-      return null;
+      return;
     }
-    const uploaded = await uploadContractAbi(contractSlug, JSON.parse(previewAbi));
-    if (uploaded) {
-      setAbiUploaded(true);
-      setShowModal(false);
-      openToast({
-        type: 'success',
-        title: 'ABI Uploaded.',
-      });
-    } else {
-      openToast({
-        type: 'error',
-        title: 'Failed to upload ABI.',
-      });
-    }
+    uploadAbiMutation.mutate({ contract: contractSlug, abi: JSON.parse(previewAbi) });
   }
 
   function tryLoadPreview(content: any) {
