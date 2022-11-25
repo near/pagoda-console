@@ -6,6 +6,7 @@ import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
 import { usePublicMode } from '@/hooks/public';
+import { useRawQuery } from '@/hooks/raw-query';
 import config from '@/utils/config';
 import { fetchApi } from '@/utils/http';
 
@@ -17,8 +18,10 @@ type Contract = Api.Query.Output<'/projects/getContract'>;
 
 export const useEmbeddedAbi = (contract: Contract) => {
   const { publicModeIsActive } = usePublicMode();
-  return useSWR(publicModeIsActive ? null : ['inspect-contract', contract.net, contract.address], () =>
-    inspectContract(contract.net, contract.address),
+  return useRawQuery(
+    ['inspect-contract', contract.net, contract.address],
+    () => inspectContract(contract.net, contract.address),
+    { enabled: publicModeIsActive },
   );
 };
 
