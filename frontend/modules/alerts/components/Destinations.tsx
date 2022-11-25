@@ -21,7 +21,7 @@ type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 export function Destinations() {
   const { projectSlug } = useSureProjectContext();
-  const { destinations, mutate } = useDestinations(projectSlug);
+  const { destinations } = useDestinations(projectSlug);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
   const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
@@ -78,10 +78,6 @@ export function Destinations() {
                         title: 'Destination Deleted',
                         description: name ?? undefined,
                       });
-
-                      mutate(() => {
-                        return destinations?.filter((d) => d.id !== row.id);
-                      });
                     }}
                     key={row.id}
                   />
@@ -91,11 +87,7 @@ export function Destinations() {
           </Table.Root>
         )}
       </Flex>
-      <NewDestinationModal
-        projectSlug={projectSlug}
-        show={showNewDestinationModal}
-        setShow={setShowNewDestinationModal}
-      />
+      <NewDestinationModal show={showNewDestinationModal} setShow={setShowNewDestinationModal} />
 
       {selectedEditDestination && (
         <EditDestinationModal

@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ReactNode } from 'react';
 import { useCallback } from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import type { KeyedMutator } from 'swr';
 
 import { Button, ButtonLink } from '@/components/lib/Button';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -22,15 +23,12 @@ import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { withSelectedProject } from '@/components/with-selected-project';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
+import { useMutation } from '@/hooks/mutation';
+import { useSureProjectContext } from '@/hooks/project-context';
 import { DeleteAlertModal } from '@/modules/alerts/components/DeleteAlertModal';
-import type { OnDestinationSelectionChangeEvent } from '@/modules/alerts/components/DestinationsSelector';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
-import {
-  disableDestinationForAlert,
-  enableDestinationForAlert,
-  updateAlert,
-  useAlert,
-} from '@/modules/alerts/hooks/alerts';
+import { useAlert } from '@/modules/alerts/hooks/alerts';
+import { useDestinations } from '@/modules/alerts/hooks/destinations';
 import { alertTypes, amountComparators } from '@/modules/alerts/utils/constants';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatNumber } from '@/utils/format-number';
@@ -41,51 +39,246 @@ interface NameFormData {
   name: string;
 }
 
-async function update(alert: Api.Mutation.Input<'/alerts/updateAlert'>, data: { isPaused?: boolean; name?: string }) {
-  try {
-    await updateAlert({
-      id: alert.id,
-      ...data,
-    });
+const useUpdateAlertPausedMutation = (mutate: KeyedMutator<Api.Query.Output<'/alerts/getAlertDetails'>>) =>
+  useMutation('/alerts/updateAlert', {
+    onMutate: ({ isPaused }) => {
+      let prevPaused: boolean | undefined;
+      mutate((prev) => {
+        if (!prev) {
+          return;
+        }
+        prevPaused = prev.isPaused;
+        return { ...prev, isPaused: isPaused! };
+      });
+      return prevPaused;
+    },
+    onError: (_error, _variables, maybePrevPaused) => {
+      openToast({
+        type: 'error',
+        title: 'Update Error',
+        description: 'Failed to update alert.',
+      });
+      if (typeof maybePrevPaused !== 'boolean') {
+        return;
+      }
+      mutate((prev) => {
+        if (!prev) {
+          return;
+        }
+        return { ...prev, isPaused: maybePrevPaused };
+      });
+    },
+    onSuccess: ({ isPaused }) => {
+      openToast({
+        type: 'success',
+        title: 'Alert Updated',
+        description: !isPaused
+          ? `Alert has been activated. New events will be recorded.`
+          : `Alert has been paused. New events won't be recorded.`,
+      });
+    },
+    getAnalyticsSuccessData: (_, { name, id }) => ({ name, id }),
+    getAnalyticsErrorData: ({ name, id }) => ({ name, id }),
+  });
 
-    return true;
-  } catch (e: any) {
-    console.error('Failed to update alert', e);
+const useUpdateAlertNameMutation = (mutate: KeyedMutator<Api.Query.Output<'/alerts/getAlertDetails'>>) =>
+  useMutation('/alerts/updateAlert', {
+    onMutate: ({ name }) => {
+      let prevName: string | undefined;
+      mutate((prev) => {
+        if (!prev) {
+          return;
+        }
+        prevName = prev.name;
+        return { ...prev, name: name! };
+      });
+      return prevName;
+    },
+    onError: (_error, _variables, maybePrevName) => {
+      openToast({
+        type: 'error',
+        title: 'Update Error',
+        description: 'Failed to update alert.',
+      });
+      if (typeof maybePrevName !== 'boolean') {
+        return;
+      }
+      mutate((prev) => {
+        if (!prev) {
+          return;
+        }
+        return { ...prev, name: maybePrevName };
+      });
+    },
+    onSuccess: () => {
+      openToast({
+        type: 'success',
+        title: 'Alert Updated',
+        description: 'Alert name has been updated.',
+      });
+    },
+    getAnalyticsSuccessData: (_, { name, id }) => ({ name, id }),
+    getAnalyticsErrorData: ({ name, id }) => ({ name, id }),
+  });
 
-    openToast({
-      type: 'error',
-      title: 'Update Error',
-      description: 'Failed to update alert.',
-    });
+const useEnableDestinationMutation = (
+  mutate: KeyedMutator<Api.Query.Output<'/alerts/getAlertDetails'>>,
+  destinations?: Api.Query.Output<'/alerts/listDestinations'>,
+) =>
+  useMutation('/alerts/enableDestination', {
+    onMutate: (variables) => {
+      let matchedEnabledDestination:
+        | Api.Query.Output<'/alerts/getAlertDetails'>['enabledDestinations'][number]
+        | undefined;
+      mutate((prev) => {
+        if (!prev) {
+          return;
+        }
+        const matchedDestination = destinations?.find((destination) => destination.id === variables.destination);
+        matchedEnabledDestination = matchedDestination
+          ? {
+              id: matchedDestination.id,
+              name: matchedDestination.name,
+              config:
+                matchedDestination.type === 'EMAIL'
+                  ? { type: 'EMAIL', config: matchedDestination.config }
+                  : matchedDestination.type === 'WEBHOOK'
+                  ? { type: 'WEBHOOK', config: matchedDestination.config }
+                  : { type: 'TELEGRAM', config: matchedDestination.config },
+            }
+          : undefined;
+        if (!matchedEnabledDestination) {
+          return;
+        }
+        return {
+          ...prev,
+          enabledDestinations: [...prev.enabledDestinations, matchedEnabledDestination],
+        };
+      });
+      return matchedEnabledDestination;
+    },
+    onSuccess: (_result, _variables, context) => {
+      if (!context) {
+        return;
+      }
+      openToast({
+        type: 'success',
+        title: 'Alert Updated',
+        description: `Destination was enabled: ${context.name}`,
+      });
+    },
+    onError: (_error, variables) => {
+      openToast({
+        type: 'error',
+        title: 'Update Error',
+        description: 'Failed to update alert destination.',
+      });
+      mutate((prev) => {
+        if (!prev) {
+          return;
+        }
+        return {
+          ...prev,
+          enabledDestinations: prev.enabledDestinations.filter(
+            (destination) => destination.id !== variables.destination,
+          ),
+        };
+      });
+    },
+    getAnalyticsSuccessData: ({ alert, destination }) => ({ id: alert, destinationId: destination }),
+    getAnalyticsErrorData: ({ alert, destination }) => ({ id: alert, destinationId: destination }),
+  });
 
-    return false;
-  }
-}
+const useDisableDestinationMutation = (mutate: KeyedMutator<Api.Query.Output<'/alerts/getAlertDetails'>>) =>
+  useMutation('/alerts/disableDestination', {
+    onMutate: (variables) => {
+      let removedDestination: Api.Query.Output<'/alerts/getAlertDetails'>['enabledDestinations'][number] | undefined;
+      mutate((prev) => {
+        if (!prev) {
+          return;
+        }
+        const removedDestinationIndex = prev.enabledDestinations.findIndex(
+          (destination) => destination.id !== variables.destination,
+        );
+        if (removedDestinationIndex === -1) {
+          return;
+        }
+        removedDestination = prev.enabledDestinations[removedDestinationIndex];
+        return {
+          ...prev,
+          enabledDestinations: [
+            ...prev.enabledDestinations.slice(0, removedDestinationIndex),
+            ...prev.enabledDestinations.slice(removedDestinationIndex + 1),
+          ],
+        };
+      });
+      return removedDestination;
+    },
+    onSuccess: (_result, _variables, context) => {
+      if (!context) {
+        return;
+      }
+      openToast({
+        type: 'success',
+        title: 'Alert Updated',
+        description: `Destination was disabled: ${context.name}`,
+      });
+    },
+    onError: (_error, _variables, context) => {
+      openToast({
+        type: 'error',
+        title: 'Update Error',
+        description: 'Failed to update alert destination.',
+      });
+      mutate((prev) => {
+        if (!prev || !context) {
+          return;
+        }
+        return {
+          ...prev,
+          enabledDestinations: [...prev.enabledDestinations, context],
+        };
+      });
+    },
+    getAnalyticsSuccessData: ({ alert, destination }) => ({ id: alert, destinationId: destination }),
+    getAnalyticsErrorData: ({ alert, destination }) => ({ id: alert, destinationId: destination }),
+  });
 
 const EditAlert: NextPageWithLayout = () => {
   const router = useRouter();
+  const { projectSlug } = useSureProjectContext();
   const alertId = parseInt(router.query.alertId as string) as Alerts.AlertId;
   const nameForm = useForm<NameFormData>();
   const { alert, mutate } = useAlert(alertId);
+  const updateAlertPausedMutation = useUpdateAlertPausedMutation(mutate);
+  const updateAlertNameMutation = useUpdateAlertNameMutation(mutate);
+  const onDeleteAlert = useCallback(() => {
+    const name = alert?.name;
+    openToast({
+      type: 'success',
+      title: 'Alert Deleted',
+      description: name,
+    });
+    router.replace('/alerts');
+  }, [router, alert]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [alertIsActive, setAlertIsActive] = useState(true);
   const [isEditingName, setIsEditingName] = useState(false);
-  const [selectedDestinationIds, setSelectedDestinationIds] = useState<Alerts.DestinationId[]>([]);
+  const selectedDestinationIds = alert?.enabledDestinations.map(({ id }) => id) ?? [];
 
-  useEffect(() => {
-    const destinationIds: Alerts.DestinationId[] = [];
+  const { destinations } = useDestinations(projectSlug);
+  const enableDestinationMutation = useEnableDestinationMutation(mutate, destinations);
+  const disableDestinationMutation = useDisableDestinationMutation(mutate);
 
-    if (alert) {
-      setAlertIsActive(!alert.isPaused);
-      nameForm.setValue('name', alert.name);
-
-      alert.enabledDestinations?.forEach((destination) => {
-        destinationIds.push(destination.id);
-      });
-    }
-
-    setSelectedDestinationIds(destinationIds);
-  }, [alert, nameForm]);
+  const onSelectionChange = useCallback(
+    (destinationId: Alerts.DestinationId, selected: boolean) => {
+      if (selected) {
+        enableDestinationMutation.mutate({ alert: alertId, destination: destinationId });
+      } else {
+        disableDestinationMutation.mutate({ alert: alertId, destination: destinationId });
+      }
+    },
+    [enableDestinationMutation, disableDestinationMutation, alertId],
+  );
 
   function openNameForm() {
     setIsEditingName(true);
@@ -97,91 +290,13 @@ const EditAlert: NextPageWithLayout = () => {
     }, 100);
   }
 
-  function onDelete() {
-    const name = alert?.name;
-
-    openToast({
-      type: 'success',
-      title: 'Alert Deleted',
-      description: name,
-    });
-
-    router.replace('/alerts');
-  }
-
-  async function submitNameForm(data: NameFormData) {
-    if (!alert) return;
-
-    const wasUpdated = await update(alert, {
-      name: data.name,
-    });
-
-    mutate({
-      ...alert!,
-      name: data.name,
-    });
-
-    setIsEditingName(false);
-
-    if (wasUpdated) {
-      openToast({
-        type: 'success',
-        title: 'Alert Updated',
-        description: 'Alert name has been updated.',
-      });
-    }
-  }
-
-  const updateIsActive = useCallback(
-    async (isActive: boolean) => {
-      if (!alert) return;
-
-      setAlertIsActive(isActive);
-
-      const wasUpdated = await update(alert, {
-        isPaused: !isActive,
-      });
-
-      if (wasUpdated) {
-        openToast({
-          type: 'success',
-          title: 'Alert Updated',
-          description: isActive
-            ? `Alert has been activated. New events will be recorded.`
-            : `Alert has been paused. New events won't be recorded.`,
-        });
-      }
-    },
-    [alert],
+  const updateIsPaused = useCallback(
+    (isActive: boolean) => updateAlertPausedMutation.mutate({ id: alertId, isPaused: !isActive }),
+    [updateAlertPausedMutation, alertId],
   );
-
-  const updateSelectedDestination = useCallback(
-    async ({ isSelected, destination }: OnDestinationSelectionChangeEvent) => {
-      try {
-        if (isSelected) {
-          await enableDestinationForAlert(alert!.id, destination.id);
-        } else {
-          await disableDestinationForAlert(alert!.id, destination.id);
-        }
-
-        openToast({
-          type: 'success',
-          title: 'Alert Updated',
-          description: isSelected
-            ? `Destination was enabled: ${destination.name}`
-            : `Destination was disabled: ${destination.name}`,
-        });
-      } catch (e: any) {
-        console.error('Failed to enable/disable destination', e);
-
-        openToast({
-          type: 'error',
-          title: 'Update Error',
-          description: 'Failed to update alert destination.',
-        });
-      }
-    },
-    [alert],
+  const updateName = useCallback(
+    ({ name }: NameFormData) => updateAlertNameMutation.mutate({ id: alertId, name }),
+    [updateAlertNameMutation, alertId],
   );
 
   return (
@@ -219,7 +334,7 @@ const EditAlert: NextPageWithLayout = () => {
           <Spinner center />
         ) : (
           <Flex stack gap="l">
-            <Form.Root disabled={nameForm.formState.isSubmitting} onSubmit={nameForm.handleSubmit(submitNameForm)}>
+            <Form.Root disabled={updateAlertNameMutation.isLoading} onSubmit={nameForm.handleSubmit(updateName)}>
               <Flex stack>
                 <Flex justify="spaceBetween" gap="l">
                   {isEditingName && (
@@ -243,7 +358,7 @@ const EditAlert: NextPageWithLayout = () => {
                       <Button
                         stableId={StableId.ALERT_SAVE_ALERT_NAME_BUTTON}
                         aria-label="Save Alert Name"
-                        loading={nameForm.formState.isSubmitting}
+                        loading={updateAlertNameMutation.isLoading}
                         type="submit"
                         color="neutral"
                         css={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
@@ -272,13 +387,13 @@ const EditAlert: NextPageWithLayout = () => {
                   )}
 
                   <Flex align="center" css={{ width: 'auto', minHeight: 'var(--size-input-height-m)' }}>
-                    <Tooltip content={alertIsActive ? 'Pause this alert' : 'Activate this alert'}>
+                    <Tooltip content={!alert.isPaused ? 'Pause this alert' : 'Activate this alert'}>
                       <span>
                         <Switch
                           stableId={StableId.ALERT_ACTIVE_SWITCH}
                           aria-label="Alert Is Active"
-                          checked={alertIsActive}
-                          onCheckedChange={updateIsActive}
+                          checked={!alert.isPaused}
+                          onCheckedChange={updateIsPaused}
                           debounce={true}
                         >
                           <FeatherIcon icon="bell" size="xs" data-on />
@@ -350,14 +465,15 @@ const EditAlert: NextPageWithLayout = () => {
             <Flex stack>
               <H4>Destinations</H4>
 
-              <DestinationsSelector
-                onChange={updateSelectedDestination}
-                selectedIds={selectedDestinationIds}
-                setSelectedIds={setSelectedDestinationIds}
-              />
+              <DestinationsSelector onChange={onSelectionChange} selectedIds={selectedDestinationIds} />
             </Flex>
 
-            <DeleteAlertModal alert={alert} show={showDeleteModal} setShow={setShowDeleteModal} onDelete={onDelete} />
+            <DeleteAlertModal
+              alert={alert}
+              show={showDeleteModal}
+              setShow={setShowDeleteModal}
+              onDelete={onDeleteAlert}
+            />
           </Flex>
         )}
       </Flex>
