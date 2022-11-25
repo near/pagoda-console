@@ -10,6 +10,7 @@ import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { Section } from '@/components/lib/Section';
+import { Spinner } from '@/components/lib/Spinner';
 import * as Tabs from '@/components/lib/Tabs';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
@@ -29,23 +30,16 @@ import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
-type Contract = Api.Query.Output<'/projects/getContract'>;
+type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
-const ContractAbiLink = ({
-  contract,
-  contractSlug,
-  activeTab,
-}: {
-  contract: Contract | undefined;
-  contractSlug: string;
-  activeTab: string | null;
-}) => {
-  const { contractAbi } = useAnyAbi(contract);
-  if (!contractAbi) {
-    return null;
+const ContractAbiLink = ({ contract, activeTab }: { contract: Contract; activeTab: string | null }) => {
+  const abis = useAnyAbi(contract);
+  const abi = abis.embeddedQuery.data?.abi || abis.privateQuery.data?.abi;
+  if (!abi) {
+    return <Spinner />;
   }
   return (
-    <Link href={`/contracts/${contractSlug}?tab=abi`} passHref>
+    <Link href={`/contracts/${contract.slug}?tab=abi`} passHref>
       <Tabs.TriggerLink stableId={StableId.CONTRACT_TABS_ABI_LINK} active={activeTab === 'abi'}>
         <FeatherIcon icon="file-text" size="xs" /> Contract ABI
       </Tabs.TriggerLink>
@@ -53,10 +47,11 @@ const ContractAbiLink = ({
   );
 };
 
-const ContractAbiTab = ({ contract }: { contract: Contract | undefined }) => {
-  const { contractAbi } = useAnyAbi(contract);
-  if (!contractAbi) {
-    return null;
+const ContractAbiTab = ({ contract }: { contract: Contract }) => {
+  const abis = useAnyAbi(contract);
+  const abi = abis.embeddedQuery.data?.abi || abis.privateQuery.data?.abi;
+  if (!abi) {
+    return <Spinner />;
   }
   return (
     <Tabs.Content css={{ paddingTop: 0 }} value="abi">
@@ -152,9 +147,9 @@ const ViewContract: NextPageWithLayout = () => {
                   </Link>
 
                   <ContractWrapper slug={contractSlug}>
-                    {({ contract }) => (
-                      <ContractAbiLink contractSlug={contractSlug} activeTab={activeTab} contract={contract} />
-                    )}
+                    {({ contract }) =>
+                      contract ? <ContractAbiLink activeTab={activeTab} contract={contract} /> : <Spinner />
+                    }
                   </ContractWrapper>
                 </Tabs.List>
 
@@ -177,21 +172,23 @@ const ViewContract: NextPageWithLayout = () => {
         </Section>
 
         <ContractWrapper slug={contractSlug}>
-          {({ contract }) => (
-            <Section>
-              <Tabs.Content css={{ paddingTop: 0 }} value="details">
-                <ContractDetails contract={contract} />
-              </Tabs.Content>
+          {({ contract }) =>
+            contract ? (
+              <Section>
+                <Tabs.Content css={{ paddingTop: 0 }} value="details">
+                  <ContractDetails contract={contract} />
+                </Tabs.Content>
 
-              <Tabs.Content css={{ paddingTop: 0 }} value="interact">
-                <ContractInteract contract={contract} />
-              </Tabs.Content>
+                <Tabs.Content css={{ paddingTop: 0 }} value="interact">
+                  <ContractInteract contract={contract} />
+                </Tabs.Content>
 
-              <ContractWrapper slug={contractSlug}>
-                {({ contract }) => <ContractAbiTab contract={contract} />}
-              </ContractWrapper>
-            </Section>
-          )}
+                <ContractAbiTab contract={contract} />
+              </Section>
+            ) : (
+              <Spinner />
+            )
+          }
         </ContractWrapper>
       </Tabs.Root>
 

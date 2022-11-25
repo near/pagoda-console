@@ -122,7 +122,8 @@ const ContractTransaction = ({ contract }: Props) => {
 
   const [contractMethods, setContractMethods] = useState<AbiContract | null>(null);
 
-  const { contractAbi } = useAnyAbi(contract);
+  const abis = useAnyAbi(contract);
+  const contractAbi = abis.embeddedQuery.data?.abi || abis.privateQuery.data?.abi;
   useEffect(() => {
     if (!contractAbi) {
       return;
