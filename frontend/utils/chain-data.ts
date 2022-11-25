@@ -1,7 +1,7 @@
+import { useQuery as useRawQuery } from '@tanstack/react-query';
 import * as nearAPI from 'near-api-js';
 import type { AccountView } from 'near-api-js/lib/providers/provider';
 
-import { useRawQuery } from '@/hooks/raw-query';
 import config from '@/utils/config';
 
 const RPC_API_ENDPOINT = config.url.rpc.default.TESTNET;

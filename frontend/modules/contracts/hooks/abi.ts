@@ -1,11 +1,11 @@
 import type { Api } from '@pc/common/types/api';
+import { useQuery as useRawQuery } from '@tanstack/react-query';
 import type { AbiRoot, AnyContract } from 'near-abi-client-js';
 import { Contract as NearContract } from 'near-abi-client-js';
 import { connect, keyStores } from 'near-api-js';
 
 import { usePublicMode } from '@/hooks/public';
 import { useQuery } from '@/hooks/query';
-import { useRawQuery } from '@/hooks/raw-query';
 import config from '@/utils/config';
 
 import { inspectContract } from '../utils/embedded-abi';

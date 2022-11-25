@@ -1,3 +1,4 @@
+import { useQuery as useRawQuery } from '@tanstack/react-query';
 import type { ReactElement } from 'react';
 
 import { GetPublicModeWrapper } from '@/components/lib/PublicModeWrapper';
@@ -5,7 +6,6 @@ import { withSelectedProject } from '@/components/with-selected-project';
 import { useSureProjectContext } from '@/hooks/project-context';
 import type { UseQueryResult } from '@/hooks/query';
 import { useQuery } from '@/hooks/query';
-import { useRawQuery } from '@/hooks/raw-query';
 import { usePublicStore } from '@/stores/public';
 
 type ChildrenProps = {
@@ -17,7 +17,7 @@ type Props = { children: (props: ChildrenProps) => ReactElement | null };
 
 const PublicContractsWrapper = ({ children }: Props) => {
   const contracts = usePublicStore((store) => store.contracts);
-  const contractsQuery = useRawQuery(['public-contracts'], async () => contracts);
+  const contractsQuery = useRawQuery(['public-contracts'], () => contracts);
   return children({
     contractsQuery: contractsQuery,
     isPublicMode: true,

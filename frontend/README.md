@@ -93,7 +93,9 @@ export default NewPage;
 
 ## Data Fetching
 
-[SWR](https://swr.vercel.app/) is used heavily for data fetching. This library makes it easy to build a UI that melds quick loading from cached data with frequent revalidation fetches to make sure the UI stays up to date. It is highly recommended to read the SWR docs in their entirety and familiarize yourself with how it works and what options are available. Data fetchers are defined in [utils/fetchers.ts](utils/fetchers.ts)
+[react-query](https://tanstack.com/query/v4) is used heavily for data fetching. This library makes it easy to build a UI that melds quick loading from cached data with frequent revalidation fetches to make sure the UI stays up to date. It is highly recommended to read the `react-query` docs in their entirety and familiarize yourself with how it works and what options are available.
+
+API interaction is mostly encapsulated in `useQuery` / `useMutation` and `useQueryCache` hooks found under `hooks` dir.
 
 ## Path Alias
 

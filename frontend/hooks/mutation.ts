@@ -1,42 +1,28 @@
 import type { Api } from '@pc/common/types/api';
+import type { UseMutationOptions } from '@tanstack/react-query';
+import { useMutation as useRawMutation } from '@tanstack/react-query';
 
-import type {
-  MutationOptions as UseRawMutationOptions,
-  UseMutationResult as RawMutationResult,
-} from '@/hooks/raw-mutation';
-import { useRawMutation } from '@/hooks/raw-mutation';
 import analytics from '@/utils/analytics';
 import { fetchApi } from '@/utils/http';
 
-export type UseMutationResult<K extends Api.Mutation.Key> = RawMutationResult<
-  Api.Mutation.Output<K>,
-  Api.Mutation.Error<K>,
-  Api.Mutation.Input<K>
->;
-
-export type MutationOptions<K extends Api.Mutation.Key, C = unknown> = UseRawMutationOptions<
-  Api.Mutation.Output<K>,
-  Api.Mutation.Error<K>,
-  Api.Mutation.Input<K>,
-  C
-> & {
-  unauth?: boolean;
-  getAnalyticsSuccessData?: (input: Api.Mutation.Input<K>, output: Api.Mutation.Output<K>) => Record<string, unknown>;
-  getAnalyticsErrorData?: (input: Api.Mutation.Input<K>, error: Api.Mutation.Error<K>) => Record<string, unknown>;
-};
-
 export const useMutation = <K extends Api.Mutation.Key, C>(
   endpoint: K,
-  options: MutationOptions<K, C> = {},
-): UseMutationResult<K> =>
-  useRawMutation<Api.Mutation.Output<K>, Api.Mutation.Error<K>, Api.Mutation.Input<K>, C>(
-    ((variables) =>
-      fetchApi(
-        [endpoint, variables] as unknown as Parameters<typeof fetchApi>[0],
-        options.unauth,
-      )) as unknown as Api.Mutation.Input<K> extends void
-      ? () => Promise<Api.Mutation.Output<K>>
-      : (input: Api.Mutation.Input<K>) => Promise<Api.Mutation.Output<K>>,
+  options: {
+    unauth?: boolean;
+    getAnalyticsSuccessData?: (input: Api.Mutation.Input<K>, output: Api.Mutation.Output<K>) => Record<string, unknown>;
+    getAnalyticsErrorData?: (input: Api.Mutation.Input<K>, error: Api.Mutation.Error<K>) => Record<string, unknown>;
+  } & Omit<
+    UseMutationOptions<Api.Mutation.Output<K>, Api.Mutation.Error<K>, Api.Mutation.Input<K>, C>,
+    'mutationKey' | 'mutationFn'
+  > = {},
+) =>
+  useRawMutation(
+    [endpoint],
+    (input) =>
+      fetchApi<K>(
+        [endpoint, input] as Api.Mutation.Input<K> extends void ? [K, undefined] : [K, Api.Mutation.Input<K>],
+        !options.unauth,
+      ),
     {
       ...options,
       onSuccess: (result, variables, context) => {

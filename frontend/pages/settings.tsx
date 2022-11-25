@@ -1,3 +1,4 @@
+import { useMutation as useRawMutation } from '@tanstack/react-query';
 import { getIdToken, updateProfile } from 'firebase/auth';
 import { useCallback, useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
@@ -15,7 +16,6 @@ import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useAuth } from '@/hooks/auth';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useQuery } from '@/hooks/query';
-import { useRawMutation } from '@/hooks/raw-mutation';
 import DeleteAccountModal from '@/modules/core/components/modals/DeleteAccountModal';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';

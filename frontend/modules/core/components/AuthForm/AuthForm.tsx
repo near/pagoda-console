@@ -1,3 +1,4 @@
+import { useMutation as useRawMutation } from '@tanstack/react-query';
 import type { AuthError, AuthProvider, UserCredential } from 'firebase/auth';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import {
@@ -18,7 +19,6 @@ import { HR } from '@/components/lib/HorizontalRule';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useSignedInHandler } from '@/hooks/auth';
 import { usePublicMode } from '@/hooks/public';
-import { useRawMutation } from '@/hooks/raw-mutation';
 import GithubIconSvg from '@/public/images/icons/github.svg';
 import GoogleIconSvg from '@/public/images/icons/google.svg';
 import analytics from '@/utils/analytics';

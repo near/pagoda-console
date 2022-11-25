@@ -1,3 +1,4 @@
+import type { UseMutationResult } from '@tanstack/react-query';
 import type { AuthError, UserCredential } from 'firebase/auth';
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
@@ -7,7 +8,6 @@ import { Button, ButtonLink } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { TextButton } from '@/components/lib/TextLink';
-import type { UseMutationResult } from '@/hooks/raw-mutation';
 import { ForgotPasswordModal } from '@/modules/core/components/modals/ForgotPasswordModal';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';

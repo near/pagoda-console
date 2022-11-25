@@ -3,20 +3,18 @@ import type { Api } from '@pc/common/types/api';
 
 import config from '@/utils/config';
 
-export const fetchApi = async <K extends Api.Query.Key | Api.Mutation.Key>(
-  [endpoint, input]: K extends Api.Query.Key
-    ? Api.Query.Input<K> extends void
-      ? [K]
-      : [K, Api.Query.Input<K>]
-    : K extends Api.Mutation.Key
-    ? Api.Mutation.Input<K> extends void
-      ? [K]
-      : [K, Api.Mutation.Input<K>]
-    : never,
-  unauth?: boolean,
-): Promise<
-  K extends Api.Query.Key ? Api.Query.Output<K> : K extends Api.Mutation.Key ? Api.Mutation.Output<K> : never
-> => {
+type FetchFn = {
+  <K extends Api.Query.Key>(
+    [endpoint, input]: Api.Query.Input<K> extends void ? [K, undefined?] : [K, Api.Query.Input<K>],
+    unauth?: boolean,
+  ): Promise<Api.Query.Output<K>>;
+  <K extends Api.Mutation.Key>(
+    [endpoint, input]: Api.Mutation.Input<K> extends void ? [K, undefined?] : [K, Api.Mutation.Input<K>],
+    unauth?: boolean,
+  ): Promise<Api.Mutation.Output<K>>;
+};
+
+export const fetchApi = (async ([endpoint, input], unauth) => {
   let headers: HeadersInit = {
     'Content-Type': 'application/json',
   };
@@ -41,12 +39,8 @@ export const fetchApi = async <K extends Api.Query.Key | Api.Mutation.Key>(
     return json;
   } catch (e) {
     if (response.ok) {
-      return undefined as unknown as K extends Api.Query.Key
-        ? Api.Query.Output<K>
-        : K extends Api.Mutation.Key
-        ? Api.Mutation.Output<K>
-        : never;
+      return undefined as any;
     }
     throw new Error('Unknown JSON error');
   }
-};
+}) as FetchFn;

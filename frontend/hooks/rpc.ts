@@ -1,17 +1,23 @@
 import type * as RPC from '@pc/common/types/rpc';
 import type { Net } from '@pc/database/clients/core';
+import type { QueryKey, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
+import { useQuery as useRawQuery } from '@tanstack/react-query';
 
-import type { QueryOptions, UseQueryResult } from '@/hooks/raw-query';
-import { useRawQuery } from '@/hooks/raw-query';
 import config from '@/utils/config';
 
 export const useRpc = <K extends keyof RPC.ResponseMapping>(
   net: Net,
   handler: K,
   params: RPC.RequestMapping[K],
-  { archival, ...options }: QueryOptions<RPC.ResponseMapping[K], RPC.ErrorMapping[K]> & { archival?: boolean } = {},
+  {
+    archival,
+    ...options
+  }: Omit<
+    UseQueryOptions<RPC.ResponseMapping[K], RPC.ErrorMapping[K], RPC.ResponseMapping[K], QueryKey>,
+    'queryKey' | 'queryFn' | 'initialData'
+  > & { archival?: boolean } = {},
 ) => {
-  return useRawQuery<RPC.ResponseMapping[K], RPC.ErrorMapping[K]>(
+  return useRawQuery<RPC.ResponseMapping[K], RPC.ErrorMapping[K], RPC.ResponseMapping[K], QueryKey>(
     ['rpc', handler, params],
     async () => {
       const nets = config.url.rpc[archival ? 'archival' : 'default'];
@@ -43,7 +49,7 @@ export const useRpcQuery = <K extends keyof RPC.RpcQueryRequestTypeMapping>(
   requestType: K,
   params: Record<string, unknown>,
   options?: Omit<
-    QueryOptions<RPC.ResponseMapping['query'], RPC.ErrorMapping['query']>,
+    UseQueryOptions<RPC.ResponseMapping['query'], RPC.ErrorMapping['query'], RPC.ResponseMapping['query'], QueryKey>,
     'queryKey' | 'queryFn' | 'initialData'
   > & { archival?: boolean },
 ) =>

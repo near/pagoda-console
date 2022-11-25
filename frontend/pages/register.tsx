@@ -1,3 +1,4 @@
+import { useMutation as useRawMutation } from '@tanstack/react-query';
 import type { AuthError } from 'firebase/auth';
 import {
   createUserWithEmailAndPassword,
@@ -23,7 +24,6 @@ import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useSignedInHandler } from '@/hooks/auth';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { usePublicMode } from '@/hooks/public';
-import { useRawMutation } from '@/hooks/raw-mutation';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';

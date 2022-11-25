@@ -6,6 +6,7 @@ import '@/styles/enhanced-api.scss';
 import '@/styles/near-wallet-selector.scss';
 
 import * as FullStory from '@fullstory/browser';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { initializeApp } from 'firebase/app';
 import Gleap from 'gleap';
 import { withLDProvider } from 'launchdarkly-react-client-sdk';
@@ -13,10 +14,9 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { appWithTranslation } from 'next-i18next';
-import type { ComponentProps, ComponentType } from 'react';
+import type { ComponentType } from 'react';
 import { useState } from 'react';
 import { useEffect } from 'react';
-import { SWRConfig } from 'swr';
 
 import { SimpleLayout } from '@/components/layouts/SimpleLayout';
 import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
@@ -30,7 +30,7 @@ import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
 import config from '@/utils/config';
 import { hydrateAllStores } from '@/utils/hydrate-all-stores';
-import { getCustomErrorRetry } from '@/utils/query';
+import { getShouldRetry, retryDelay } from '@/utils/query';
 import type { NextPageWithLayout } from '@/utils/types';
 
 type AppPropsWithLayout = AppProps & {
@@ -50,6 +50,17 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   useAnalytics();
   const { identity } = useAuth();
   const router = useRouter();
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: getShouldRetry([400, 401, 403, 404]),
+            retryDelay: retryDelay,
+          },
+        },
+      }),
+  );
   const initializeCurrentUserSettings = useSettingsStore((store) => store.initializeCurrentUserSettings);
 
   useEffect(() => {
@@ -72,12 +83,8 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   const getLayout = Component.getLayout ?? ((page) => page);
 
-  const [swrConfig] = useState<ComponentProps<typeof SWRConfig>['value']>(() => ({
-    onErrorRetry: getCustomErrorRetry(),
-  }));
-
   return (
-    <SWRConfig value={swrConfig}>
+    <QueryClientProvider client={queryClient}>
       <Head>
         <title>Pagoda Developer Console</title>
         <meta
@@ -99,7 +106,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       ) : (
         getLayout(<Component {...pageProps} />)
       )}
-    </SWRConfig>
+    </QueryClientProvider>
   );
 }
 

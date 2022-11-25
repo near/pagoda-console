@@ -1,7 +1,7 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { getAuth, onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect } from 'react';
-import { useSWRConfig } from 'swr';
 
 import { useAuthStore } from '@/stores/auth';
 import type { AuthStore } from '@/stores/auth/types';
@@ -55,7 +55,7 @@ export function useSignedInHandler() {
 }
 
 export function useSignOut() {
-  const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
+  const queryClient = useQueryClient();
   const router = useRouter();
   const { deactivatePublicMode } = usePublicMode();
 
@@ -65,13 +65,13 @@ export function useSignOut() {
       await firebaseSignOut(auth);
       analytics.track('DC Logout');
       analytics.reset();
-      cache.clear();
+      queryClient.clear();
       deactivatePublicMode();
       router.push('/');
     } catch (e) {
       console.error(e);
     }
-  }, [deactivatePublicMode, cache, router]);
+  }, [deactivatePublicMode, queryClient, router]);
 
   return signOut;
 }

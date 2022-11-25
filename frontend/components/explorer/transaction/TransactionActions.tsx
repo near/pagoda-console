@@ -11,7 +11,7 @@ import { Text } from '@/components/lib/Text';
 import { useNet } from '@/hooks/net';
 import { useQuery } from '@/hooks/query';
 import { styled } from '@/styles/stitches';
-import { getCustomErrorRetry } from '@/utils/query';
+import { getShouldRetry } from '@/utils/query';
 import { StableId } from '@/utils/stable-ids';
 
 import { Button } from '../../lib/Button';
@@ -48,7 +48,7 @@ const TransactionActions: React.FC<Props> = React.memo(({ transactionHash }) => 
   const net = useNet();
 
   const transactionQuery = useQuery(['/explorer/transaction', { hash: transactionHash!, net }], {
-    onErrorRetry: getCustomErrorRetry([401, 403, 404]),
+    retry: getShouldRetry([401, 403, 404]),
     // TODO currently this is a quick hack to load TXs that may have pending receipts that are scheduled to execute in the next block. We could stop refreshing once we get the last receipt's execution outcome timestamp.
     refetchInterval: 3000,
     enabled: Boolean(transactionHash),

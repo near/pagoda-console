@@ -1,11 +1,11 @@
 import type { Projects } from '@pc/common/types/core';
+import { useQuery as useRawQuery } from '@tanstack/react-query';
 import type { ReactElement } from 'react';
 
 import { GetPublicModeWrapper } from '@/components/lib/PublicModeWrapper';
 import { withSelectedProject } from '@/components/with-selected-project';
 import type { UseQueryResult } from '@/hooks/query';
 import { useQuery } from '@/hooks/query';
-import { useRawQuery } from '@/hooks/raw-query';
 import { usePublicStore } from '@/stores/public';
 
 type ChildrenProps = {
@@ -21,7 +21,7 @@ type Props = {
 const PublicContractWrapper = ({ slug, children }: Props) => {
   const contracts = usePublicStore((store) => store.contracts);
   const contract = contracts.find((contract) => contract.slug === slug);
-  const contractQuery = useRawQuery(['public-contracts'], async () => {
+  const contractQuery = useRawQuery(['public-contracts'], () => {
     if (!contract) {
       throw new Error(`No contract found by slug ${slug}`);
     }
