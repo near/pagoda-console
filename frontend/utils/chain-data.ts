@@ -1,7 +1,7 @@
 import * as nearAPI from 'near-api-js';
 import type { AccountView } from 'near-api-js/lib/providers/provider';
-import useSWR from 'swr';
 
+import { useRawQuery } from '@/hooks/raw-query';
 import config from '@/utils/config';
 
 const RPC_API_ENDPOINT = config.url.rpc.default.TESTNET;
@@ -53,7 +53,7 @@ export interface TokenMetadata {
   reference_hash?: string | null; // Base64-encoded sha256 hash of JSON from reference field. Required if `reference` is included.
 }
 
-const nftMetaFetcher = async (_: any, contractAddress: any) => {
+const nftMetaFetcher = async (contractAddress: string) => {
   // have to cast contract to any so that we can call the dynamically generated methods on it
   const contract = new nearAPI.Contract(
     await near.account(''), // the account object that is connecting. None for now
@@ -157,12 +157,12 @@ export async function initializeNaj() {
 
 type ContractInfo = Partial<AccountView> & { codeDeployed?: boolean; accountExists?: boolean };
 export function useContractInfo(contractAddress: string | null) {
-  return useSWR(
-    contractAddress ? ['state', contractAddress] : null,
-    async (_, address) => {
+  return useRawQuery(
+    ['contract', contractAddress],
+    async () => {
       let contractInfo: ContractInfo;
       try {
-        const account = await near.account(address);
+        const account = await near.account(contractAddress!);
         contractInfo = await account.state();
       } catch (e: any) {
         if (e?.type === 'AccountDoesNotExist') {
@@ -178,8 +178,9 @@ export function useContractInfo(contractAddress: string | null) {
       return contractInfo;
     },
     {
+      enabled: Boolean(contractAddress),
       // TODO extract to environment variable
-      refreshInterval: 3000,
+      refetchInterval: 3000,
     },
   );
 }
@@ -188,9 +189,10 @@ export function useMetadata(contractType: 'NFT' | 'FT', contractAddress: string 
   if (contractType === 'FT') {
     throw new Error('FT not yet supported');
   }
-  return useSWR(contractAddress ? ['nftData', contractAddress] : null, nftMetaFetcher, {
+  return useRawQuery(['nftData', contractAddress], () => nftMetaFetcher(contractAddress!), {
+    enabled: Boolean(contractAddress),
     // TODO extract to environment variable
-    refreshInterval: 3000,
+    refetchInterval: 3000,
   });
 }
 

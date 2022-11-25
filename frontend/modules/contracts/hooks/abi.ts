@@ -2,10 +2,10 @@ import type { Api } from '@pc/common/types/api';
 import type { AbiRoot, AnyContract } from 'near-abi-client-js';
 import { Contract as NearContract } from 'near-abi-client-js';
 import { connect, keyStores } from 'near-api-js';
-import useSWR from 'swr';
 
 import { usePublicMode } from '@/hooks/public';
 import { useQuery } from '@/hooks/query';
+import { useRawQuery } from '@/hooks/raw-query';
 import config from '@/utils/config';
 
 import { inspectContract } from '../utils/embedded-abi';
@@ -16,8 +16,10 @@ type Contract = Api.Query.Output<'/projects/getContract'>;
 
 export const useEmbeddedAbi = (contract: Contract) => {
   const { publicModeIsActive } = usePublicMode();
-  return useSWR(publicModeIsActive ? null : ['inspect-contract', contract.net, contract.address], () =>
-    inspectContract(contract.net, contract.address),
+  return useRawQuery(
+    ['inspect-contract', contract.net, contract.address],
+    () => inspectContract(contract.net, contract.address),
+    { enabled: publicModeIsActive },
   );
 };
 
