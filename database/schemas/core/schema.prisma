@@ -196,6 +196,7 @@ model ApiKey {
   projectSlug   String
   orgSlug       String
   description   String
+  type          KeyType 
   /// If 'false', the record was soft-deleted by a user.
   active        Boolean   @default(true)
   createdAt     DateTime? @default(now()) @db.Timestamptz
@@ -206,6 +207,11 @@ model ApiKey {
   updatedAt     DateTime? @updatedAt @db.Timestamptz
   /// Reference to the user id who last updated the record.
   updatedBy     Int?
+}
+
+enum KeyType {
+  JWT
+  KEY
 }
 
 model Environment {
