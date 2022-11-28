@@ -339,13 +339,14 @@ export default function validate(config: Record<string, unknown>): AppConfig {
       },
     },
     metricsPort: config.METRICS_PORT,
-    rpcProvisioningService: config.MOCK_KEY_SERVICE
-      ? { mock: true }
-      : {
-          mock: false,
-          url: config.RPC_API_KEYS_URL,
-          apiKey: config.RPC_API_KEYS_API_KEY,
-        },
+    rpcProvisioningService:
+      config.MOCK_KEY_SERVICE === 'true'
+        ? { mock: true }
+        : {
+            mock: false,
+            url: config.RPC_API_KEYS_URL,
+            apiKey: config.RPC_API_KEYS_API_KEY,
+          },
   };
 
   // Joi.attempt will return the validated object with values
