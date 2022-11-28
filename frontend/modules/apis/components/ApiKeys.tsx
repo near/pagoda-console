@@ -38,6 +38,7 @@ export function ApiKeys({ project }: Props) {
     keySlug: '',
     description: '',
     key: '',
+    type: 'KEY',
   });
 
   async function rotateKey(keySlug: string) {

@@ -1,4 +1,4 @@
-import { User } from '@pc/database/clients/core';
+import { User, KeyType } from '@pc/database/clients/core';
 import { Injectable } from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
 import { VError } from 'verror';
@@ -31,6 +31,7 @@ export class ApiKeysService {
           projectSlug,
           orgSlug,
           description,
+          type: 'KEY',
           createdBy: userId,
           updatedBy: userId,
         },
@@ -71,6 +72,73 @@ export class ApiKeysService {
       throw new VError(
         e,
         'Failed while generating key in provisioning service',
+      );
+    }
+  }
+
+  async addJwtKey(
+    userId: User['id'],
+    orgSlug: string,
+    projectSlug: string,
+    description: string,
+    issuer: string,
+    publicKey: string,
+  ) {
+    const slug = nanoid();
+    const kongConsumerName = await this.getKongConsumerName(orgSlug);
+
+    try {
+      await this.prisma.apiKey.create({
+        data: {
+          slug,
+          projectSlug,
+          orgSlug,
+          description,
+          type: 'JWT',
+          createdBy: userId,
+          updatedBy: userId,
+        },
+      });
+    } catch (e: any) {
+      throw new VError(e, 'Failed while adding JWT key');
+    }
+
+    try {
+      // creating kong consumer object if it's the first time the org is creating a key
+      const kongConsumerObj = await this.provisioningService.getOrganization(
+        kongConsumerName,
+      );
+      if (!kongConsumerObj) {
+        await this.provisioningService.createOrganization(
+          kongConsumerName,
+          orgSlug,
+        );
+      }
+      await this.provisioningService.addJwt(
+        kongConsumerName,
+        slug,
+        issuer,
+        publicKey,
+      );
+
+      return await this.getKey(slug);
+    } catch (e: any) {
+      //rolling back if failed to generate keys in the provisioning service
+      try {
+        await this.prisma.apiKey.delete({
+          where: {
+            slug,
+          },
+        });
+      } catch (e: any) {
+        throw new VError(
+          e,
+          'Failed while rolling back after failing to add JWT key',
+        );
+      }
+      throw new VError(
+        e,
+        'Failed while adding JWT key in provisioning service',
       );
     }
   }
@@ -170,6 +238,7 @@ export class ApiKeysService {
         select: {
           slug: true,
           description: true,
+          type: true,
           id: true,
           orgSlug: true,
         },
@@ -186,6 +255,7 @@ export class ApiKeysService {
         id: number;
         keySlug: string;
         description: string;
+        type: KeyType;
         key: string;
         kongConsumerName: string;
       }[] = [];
@@ -197,6 +267,7 @@ export class ApiKeysService {
               id: el.id,
               keySlug: el.slug,
               description: el.description,
+              type: el.type,
               key,
               kongConsumerName,
             });
@@ -223,6 +294,7 @@ export class ApiKeysService {
         },
         select: {
           description: true,
+          type: true,
         },
       });
     } catch (e: any) {
@@ -238,6 +310,7 @@ export class ApiKeysService {
       return {
         keySlug: slug,
         description: keyDetails.description,
+        type: keyDetails.type,
         key,
       };
     } catch (e: any) {

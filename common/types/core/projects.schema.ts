@@ -5,6 +5,7 @@ import {
   ProjectTutorial,
   ApiKey,
   Environment,
+  KeyType,
 } from '@pc/database/clients/core';
 
 export namespace Query {
@@ -35,6 +36,8 @@ export namespace Query {
     export type GetKeys = (Pick<ApiKey, 'description'> & {
       keySlug: ApiKey['slug'];
       key: string;
+      description: string;
+      type: KeyType;
     })[];
   }
 
@@ -64,7 +67,15 @@ export namespace Mutation {
     };
     export type RemoveContract = { slug: string };
     export type RotateKey = { slug: string };
-    export type GenerateKey = { project: string; description: string };
+    export type GenerateKey =
+      | { type: 'KEY'; project: string; description: string }
+      | {
+          type: 'JWT';
+          project: string;
+          description: string;
+          publicKey: string;
+          issuer: string;
+        };
     export type DeleteKey = { slug: string };
   }
 
@@ -81,6 +92,8 @@ export namespace Mutation {
     export type GenerateKey = Pick<ApiKey, 'description'> & {
       keySlug: ApiKey['slug'];
       key: string;
+      description: string;
+      type: KeyType;
     };
     export type DeleteKey = void;
   }

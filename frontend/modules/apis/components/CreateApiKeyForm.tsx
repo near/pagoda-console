@@ -41,6 +41,7 @@ export const CreateApiKeyForm = ({ show, setShow, project }: Props) => {
         const newKey = await authenticatedPost('/projects/generateKey', {
           description,
           project: project.slug,
+          type: 'KEY',
         });
         analytics.track('DC Create API Key', {
           status: 'success',

@@ -23,6 +23,15 @@ export class ApiKeysMockProvisioningService
   async generate(kongConsumer: string, keySlug: string) {
     return this.MOCK_KEY;
   }
+  async addJwt(
+    kongConsumer: string,
+    keySlug: string,
+    issuer: string,
+    publicKey: string,
+    algorithm = 'RS256',
+  ) {
+    return this.MOCK_KEY;
+  }
   async rotate(kongConsumer: string, keySlug: string) {
     return this.MOCK_KEY;
   }

@@ -1006,6 +1006,47 @@ export class ProjectsService {
     }
   }
 
+  async addJwtKey(
+    callingUser: User,
+    projectSlug: Project['slug'],
+    description: ApiKey['description'],
+    issuer: string,
+    publicKey: string,
+  ) {
+    const projectWhereUnique = {
+      slug: projectSlug,
+    };
+
+    await this.checkUserPermission({
+      userId: callingUser.id,
+      projectWhereUnique,
+    });
+
+    let project: Project;
+    try {
+      project = await this.getActiveProject(projectWhereUnique);
+    } catch (e: any) {
+      throw new VError(e, 'Failed while checking that project is active');
+    }
+
+    if (!project) {
+      throw new VError({ info: { code: 'BAD_PROJECT' } }, 'Project not found');
+    }
+
+    try {
+      return await this.apiKeys.addJwtKey(
+        callingUser.id,
+        project.orgSlug,
+        projectSlug,
+        description,
+        issuer,
+        publicKey,
+      );
+    } catch (e: any) {
+      throw new VError(e, `Failed to add JWT key for project ${projectSlug}`);
+    }
+  }
+
   async deleteKey(callingUser: User, keySlug: ApiKey['slug']) {
     let keyRelatedSlugs;
     try {

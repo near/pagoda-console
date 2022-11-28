@@ -230,13 +230,25 @@ export class ProjectsController {
   async generateKey(
     @Request() req,
     @Body()
-    { project, description }: Api.Mutation.Input<'/projects/generateKey'>,
+    key: Api.Mutation.Input<'/projects/generateKey'>,
   ): Promise<Api.Mutation.Output<'/projects/generateKey'>> {
     try {
-      return await this.projectsService.generateKey(
+      const { project, description } = key;
+      if (key.type === 'KEY') {
+        return await this.projectsService.generateKey(
+          req.user,
+          project,
+          description,
+        );
+      }
+
+      const { issuer, publicKey } = key;
+      return await this.projectsService.addJwtKey(
         req.user,
         project,
         description,
+        issuer,
+        publicKey,
       );
     } catch (e: any) {
       throw mapError(e);

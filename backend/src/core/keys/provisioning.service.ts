@@ -64,6 +64,31 @@ export class ApiKeysProvisioningService
     }
   }
 
+  async addJwt(
+    kongConsumer: string,
+    keySlug: string,
+    issuer: string,
+    publicKey: string,
+    algorithm = 'RS256',
+  ) {
+    const keyName = this.getKeyName(keySlug);
+    const body: SecretBody = {
+      kongCredType: SecretBodyKongCredTypeEnum.Jwt,
+      name: keyName,
+      key: issuer, // TODO is this where I store the issuer?
+      rsaPublicKey: publicKey,
+      algorithm,
+    };
+    try {
+      await this.secretClient.createConsumerSecret(
+        body,
+        this.getConsumerName(kongConsumer),
+      );
+    } catch (e: any) {
+      throw new VError(e, 'Failed while adding JWT key');
+    }
+  }
+
   async rotate(kongConsumer: string, keySlug: string) {
     try {
       await this.delete(kongConsumer, keySlug);
@@ -97,7 +122,9 @@ export class ApiKeysProvisioningService
   async fetch(keySlug: string): Promise<string> {
     try {
       const keyName = this.getKeyName(keySlug);
-      return (await this.secretClient.getSecret(keyName)).data.api_token;
+      // TODO the types from the swagger client are not correct. Create a PR on the devops project (search for it on Github). The getSecet and getConsumerSecrets API routes response needs to be updated.
+      const data = (await this.secretClient.getSecret(keyName)).data as any;
+      return data.api_token || data.rsaPublicKey;
     } catch (e: any) {
       throw new VError(e, 'Failed while fetching a key');
     }
@@ -108,7 +135,11 @@ export class ApiKeysProvisioningService
       const res = await this.secretClient.getConsumerSecrets(
         this.getConsumerName(kongConsumer),
       );
-      return res.data.keys?.map((el) => el.api_token);
+      // TODO the types from the swagger client are not correct. Create a PR on the devops project (search for it on Github). The getSecet and getConsumerSecrets API routes response needs to be updated.
+      return res.data.keys?.map((el) => {
+        const data = el as any;
+        return data.api_token || data.rsaPublicKey;
+      });
     } catch (e: any) {
       throw new VError(e, 'Failed while fetching keys');
     }

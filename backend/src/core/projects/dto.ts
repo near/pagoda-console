@@ -101,13 +101,20 @@ export const RotateKeySchema = Joi.object<
 });
 
 // generate key
-export const GenerateKeySchema = Joi.object<
-  Api.Mutation.Input<'/projects/generateKey'>,
-  true
->({
-  project: Joi.string().required(),
-  description: Joi.string().required(),
-});
+export const GenerateKeySchema = Joi.alternatives().try(
+  Joi.object<Api.Mutation.Input<'/projects/generateKey'>, true>({
+    project: Joi.string().required(),
+    description: Joi.string().required(),
+    type: Joi.string().valid('KEY').required(),
+  }),
+  Joi.object<Api.Mutation.Input<'/projects/generateKey'>, true>({
+    project: Joi.string().required(),
+    description: Joi.string().required(),
+    type: Joi.string().valid('JWT').required(),
+    issuer: Joi.string().required(),
+    publicKey: Joi.string().required(),
+  }),
+);
 
 // delete key
 export const DeleteKeySchema = Joi.object<
