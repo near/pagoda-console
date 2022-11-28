@@ -12,6 +12,7 @@ import { ApiKeys } from '@/modules/apis/components/ApiKeys';
 import { ApisMarketing } from '@/modules/apis/components/ApisMarketing';
 import { ApiStats } from '@/modules/apis/components/ApiStats';
 import EnhancedApi from '@/modules/apis/components/EnhancedApi';
+import { JwtAuth } from '@/modules/apis/components/JwtAuth';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -30,6 +31,12 @@ function ListApis() {
           <Link href="?tab=keys" passHref>
             <Tabs.TriggerLink stableId={StableId.APIS_TABS_KEYS_LINK} active={activeTab === 'keys'}>
               <FeatherIcon icon="key" /> Keys
+            </Tabs.TriggerLink>
+          </Link>
+
+          <Link href="?tab=jwt" passHref>
+            <Tabs.TriggerLink stableId={StableId.APIS_TABS_JWT_LINK} active={activeTab === 'jwt'}>
+              <FeatherIcon icon="key" /> JWT
             </Tabs.TriggerLink>
           </Link>
 
@@ -55,6 +62,10 @@ function ListApis() {
 
         <Tabs.Content value="keys">
           <ApiKeys project={project} />
+        </Tabs.Content>
+
+        <Tabs.Content value="jwt">
+          <JwtAuth project={project} />
         </Tabs.Content>
 
         <Tabs.Content value="statistics">
