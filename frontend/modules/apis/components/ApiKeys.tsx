@@ -14,7 +14,7 @@ import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useApiKeys } from '@/hooks/new-api-keys';
 import { CreateApiKeyForm } from '@/modules/apis/components/CreateApiKeyForm';
-import StarterGuide from '@/modules/core/components/StarterGuide';
+import StarterGuide from '@/modules/apis/components/StarterGuide';
 import analytics from '@/utils/analytics';
 import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
