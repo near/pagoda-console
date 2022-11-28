@@ -3,10 +3,10 @@ import { styled } from '@/styles/stitches';
 export const Card = styled('div', {
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'space-between',
+  justifyContent: 'end',
   width: '100%',
-  maxWidth: '21rem',
-  height: '21rem',
+  maxWidth: '18rem',
+  height: '18rem',
   borderRadius: 'var(--border-radius-xl)',
   background: 'var(--color-surface-2)',
   padding: 'var(--space-l)',
@@ -23,6 +23,12 @@ export const Card = styled('div', {
     },
   },
 
+  '@tablet': {
+    height: 'auto',
+    maxWidth: '100%',
+    borderRadius: 'var(--border-radius-l)',
+  },
+
   variants: {
     disabled: {
       true: {
@@ -34,9 +40,7 @@ export const Card = styled('div', {
   },
 });
 
-export const CardTop = styled('div', {});
-
-export const CardBottom = styled('div', {
+export const Content = styled('div', {
   display: 'flex',
   flexDirection: 'column',
   gap: 'var(--space-m)',

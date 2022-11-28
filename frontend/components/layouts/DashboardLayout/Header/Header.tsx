@@ -1,8 +1,8 @@
 import type { ComponentProps } from '@stitches/react';
 import Link from 'next/link';
 
+import { UserFullDropdown } from '@/components/layouts/UserFullDropdown';
 import { TextLink } from '@/components/lib/TextLink';
-import { UserFullDropdown } from '@/components/lib/UserFullDropdown';
 import { useAuth } from '@/hooks/auth';
 import { usePublicMode } from '@/hooks/public';
 import { StableId } from '@/utils/stable-ids';

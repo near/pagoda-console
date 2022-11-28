@@ -2,11 +2,11 @@ import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import Link from 'next/link';
 import type { ReactElement } from 'react';
 
+import { UserFullDropdown } from '@/components/layouts/UserFullDropdown';
 import { ButtonLink } from '@/components/lib/Button';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H3 } from '@/components/lib/Heading';
-import { UserFullDropdown } from '@/components/lib/UserFullDropdown';
 import { StableId } from '@/utils/stable-ids';
 
 import { Footer } from '../Footer';

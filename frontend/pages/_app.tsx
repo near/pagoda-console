@@ -25,7 +25,6 @@ import { useAnalytics } from '@/hooks/analytics';
 import { useAuth, useAuthSync } from '@/hooks/auth';
 import { useSelectedProjectRouteParamSync } from '@/hooks/selected-project';
 import { DowntimeMode } from '@/modules/core/components/DowntimeMode';
-import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
 import { useSettingsStore } from '@/stores/settings';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
@@ -91,7 +90,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       </Head>
 
       <FeatherIconSheet />
-      <SmallScreenNotice />
       <Toaster />
 
       {config.downtimeMode ? (

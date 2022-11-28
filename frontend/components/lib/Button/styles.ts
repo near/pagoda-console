@@ -16,7 +16,7 @@ export const Button = styled('button', {
   borderRadius: 'var(--border-radius-s)',
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--space-m)',
+  gap: 'var(--space-s)',
   justifyContent: 'center',
   cursor: 'pointer',
   fontWeight: 500,

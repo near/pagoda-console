@@ -30,4 +30,8 @@ export const Header = styled('header', {
   borderBottom: '1px solid var(--color-surface-1)',
   boxShadow: 'var(--shadow-softer)',
   zIndex: 500,
+
+  '@tablet': {
+    padding: 'var(--space-s)',
+  },
 });

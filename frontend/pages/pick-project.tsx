@@ -57,7 +57,7 @@ const PickProject: NextPageWithLayout = () => {
 
   return (
     <Section>
-      <Flex stack gap="xl">
+      <Flex stack gap={{ '@initial': 'xl', '@tablet': 'l' }}>
         <Flex stack>
           {!isOnboarding && (
             <Link href="/projects" passHref>
@@ -79,7 +79,7 @@ const PickProject: NextPageWithLayout = () => {
           )}
         </Flex>
 
-        <Flex>
+        <Flex wrap>
           {projects.map((project) => (
             <ProjectCard
               key={project.id}
