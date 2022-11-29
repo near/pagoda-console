@@ -45,26 +45,27 @@ export function JwtAuth({ project }: Props) {
           </Dialog.Content>
         </Dialog.Root>
 
-        <Table.Root>
-          <Table.Head css={{ top: 0 }}>
-            <Table.Row>
-              <Table.HeaderCell>Public Key</Table.HeaderCell>
-              <Table.HeaderCell>Description</Table.HeaderCell>
-              <Table.HeaderCell></Table.HeaderCell>
-            </Table.Row>
-          </Table.Head>
+        {keys && (
+          <Table.Root>
+            <Table.Head css={{ top: 0 }}>
+              <Table.Row>
+                <Table.HeaderCell>Public Key</Table.HeaderCell>
+                <Table.HeaderCell>Description</Table.HeaderCell>
+                <Table.HeaderCell></Table.HeaderCell>
+              </Table.Row>
+            </Table.Head>
 
-          <Table.Body>
-            {keys &&
-              keys.map((apiKey, index) => {
+            <Table.Body>
+              {keys.map((apiKey, index) => {
                 return (
                   <Table.Row key={index}>
                     <KeyRow publicKey={apiKey.key} description={apiKey.description} />
                   </Table.Row>
                 );
               })}
-          </Table.Body>
-        </Table.Root>
+            </Table.Body>
+          </Table.Root>
+        )}
       </Flex>
 
       <JwtStarterGuide />
