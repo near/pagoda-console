@@ -14,6 +14,7 @@ import {
   contract,
   environment,
   apiKey,
+  keyType,
 } from './types';
 
 export const query = {
@@ -73,6 +74,7 @@ export const query = {
         z.strictObject({
           keySlug: apiKey.shape.slug,
           key: z.string(),
+          type: keyType,
         }),
       ),
     ),
@@ -152,6 +154,7 @@ export const mutation = {
       z.strictObject({
         keySlug: apiKey.shape.slug,
         key: z.string(),
+        type: keyType,
       }),
     ),
     deleteKey: z.void(),

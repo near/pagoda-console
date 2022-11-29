@@ -4,6 +4,7 @@ import {
   ProjectTutorial,
   Net,
   UserActionType,
+  KeyType,
 } from '@pc/database/clients/core';
 import { flavored, Flavored } from '../utils';
 
@@ -139,11 +140,14 @@ export const environment = z.strictObject({
   updatedBy: z.number().or(z.null()),
 });
 
+export const keyType: z.ZodType<KeyType> = z.enum(['KEY', 'JWT']);
+export { KeyType };
 export const apiKey = z.strictObject({
   id: z.number(),
   slug: apiKeySlug,
   projectSlug,
   orgSlug,
+  type: keyType,
   description: z.string(),
   active: z.boolean(),
   createdAt: z.date().or(z.null()),
