@@ -13,22 +13,8 @@ import {
 import { BearerAuthGuard } from '../auth/bearer-auth.guard';
 import { ProjectsService } from './projects.service';
 import { VError } from 'verror';
-import {
-  AddContractSchema,
-  CreateProjectSchema,
-  DeleteKeySchema,
-  DeleteProjectSchema,
-  EjectTutorialProjectSchema,
-  GenerateKeySchema,
-  GetContractSchema,
-  GetContractsSchema,
-  GetEnvironmentsSchema,
-  GetKeysSchema,
-  GetProjectDetailsSchema,
-  RemoveContractSchema,
-  RotateKeySchema,
-} from './dto';
-import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
+import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
+import { Projects } from '@pc/common/types/core';
 import { Api } from '@pc/common/types/api';
 
 @Controller('projects')
@@ -37,7 +23,7 @@ export class ProjectsController {
 
   @Post('create')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(CreateProjectSchema))
+  @UsePipes(new ZodValidationPipe(Projects.mutation.inputs.create))
   async create(
     @Request() req,
     @Body() { org, name, tutorial }: Api.Mutation.Input<'/projects/create'>,
@@ -57,7 +43,7 @@ export class ProjectsController {
   @Post('ejectTutorial')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(EjectTutorialProjectSchema))
+  @UsePipes(new ZodValidationPipe(Projects.mutation.inputs.ejectTutorial))
   async ejectTutorial(
     @Request() req,
     @Body() { slug }: Api.Mutation.Input<'/projects/ejectTutorial'>,
@@ -72,7 +58,7 @@ export class ProjectsController {
   @Post('delete')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(DeleteProjectSchema))
+  @UsePipes(new ZodValidationPipe(Projects.mutation.inputs.delete))
   async delete(
     @Request() req,
     @Body() { slug }: Api.Mutation.Input<'/projects/delete'>,
@@ -86,7 +72,7 @@ export class ProjectsController {
 
   @Post('getDetails')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(GetProjectDetailsSchema))
+  @UsePipes(new ZodValidationPipe(Projects.query.inputs.getDetails))
   async getDetails(
     @Request() req,
     @Body() { slug }: Api.Query.Input<'/projects/getDetails'>,
@@ -100,7 +86,7 @@ export class ProjectsController {
 
   @Post('addContract')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(AddContractSchema))
+  @UsePipes(new ZodValidationPipe(Projects.mutation.inputs.addContract))
   async addContract(
     @Request() req,
     @Body()
@@ -125,7 +111,7 @@ export class ProjectsController {
   @Post('removeContract')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(RemoveContractSchema))
+  @UsePipes(new ZodValidationPipe(Projects.mutation.inputs.removeContract))
   async removeContract(
     @Request() req,
     @Body() { slug }: Api.Mutation.Input<'/projects/removeContract'>,
@@ -141,7 +127,7 @@ export class ProjectsController {
 
   @Post('getContracts')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(GetContractsSchema))
+  @UsePipes(new ZodValidationPipe(Projects.query.inputs.getContracts))
   async getContracts(
     @Request() req,
     @Body() { project, environment }: Api.Query.Input<'/projects/getContracts'>,
@@ -159,7 +145,7 @@ export class ProjectsController {
 
   @Post('getContract')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(GetContractSchema))
+  @UsePipes(new ZodValidationPipe(Projects.query.inputs.getContract))
   async getContract(
     @Request() req,
     @Body() { slug }: Api.Query.Input<'/projects/getContract'>,
@@ -173,6 +159,7 @@ export class ProjectsController {
 
   @Post('list')
   @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(Projects.query.inputs.list))
   async list(
     @Request() req,
     @Body() _: Api.Query.Input<'/projects/list'>,
@@ -182,7 +169,7 @@ export class ProjectsController {
 
   @Post('getEnvironments')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(GetEnvironmentsSchema))
+  @UsePipes(new ZodValidationPipe(Projects.query.inputs.getEnvironments))
   async getEnvironments(
     @Request() req,
     @Body() { project }: Api.Query.Input<'/projects/getEnvironments'>,
@@ -198,7 +185,7 @@ export class ProjectsController {
 
   @Post('getKeys')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(GetKeysSchema))
+  @UsePipes(new ZodValidationPipe(Projects.query.inputs.getKeys))
   async getKeys(
     @Request() req,
     @Body() { project }: Api.Query.Input<'/projects/getKeys'>,
@@ -212,7 +199,7 @@ export class ProjectsController {
 
   @Post('rotateKey')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(RotateKeySchema))
+  @UsePipes(new ZodValidationPipe(Projects.mutation.inputs.rotateKey))
   async rotateKey(
     @Request() req,
     @Body() { slug }: Api.Mutation.Input<'/projects/rotateKey'>,
@@ -226,7 +213,7 @@ export class ProjectsController {
 
   @Post('generateKey')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(GenerateKeySchema))
+  @UsePipes(new ZodValidationPipe(Projects.mutation.inputs.generateKey))
   async generateKey(
     @Request() req,
     @Body()
@@ -258,7 +245,7 @@ export class ProjectsController {
   @Post('deleteKey')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(DeleteKeySchema))
+  @UsePipes(new ZodValidationPipe(Projects.mutation.inputs.deleteKey))
   async deleteKey(
     @Request() req,
     @Body() { slug }: Api.Mutation.Input<'/projects/deleteKey'>,

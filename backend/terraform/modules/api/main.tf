@@ -68,11 +68,6 @@ resource "google_cloud_run_service" "console_api" {
           }
         }
 
-        env {
-          name  = "TELEGRAM_ENABLE_WEBHOOK"
-          value = "true"
-        }
-
         # TODO remove this once it's replaced by EMAIL_ALERTS_NO_REPLY
         env {
           name  = "EMAIL_VERIFICATION_FROM"
