@@ -1,4 +1,5 @@
 import type { Net } from '@pc/database/clients/core';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import * as Accordion from '@/components/lib/Accordion';
@@ -97,10 +98,14 @@ export default function StarterGuide() {
         <H4>Using Your API Keys</H4>
 
         <Text>
-          Use your API key to access Pagoda API (in Beta) to use RPC and Enhanced APIs. Unlock insights from the
-          Statistics Page into your RPC usage and performance (e.g. latency, success%), subscribe to updates from Status
-          page to get notified and react when incidents happened, and upgrade your data query experiences with instant
-          access to balances and more with Enhanced APIs.
+          Use your API key to access Pagoda API (in Beta) to use RPC and Enhanced APIs from your backend. If you require
+          client-side access, we recommend using{' '}
+          <Link href="/apis?tab=jwt" passHref>
+            <TextLink stableId={StableId.STARTER_GUIDE_JWTS_LINK}>JWTs</TextLink>
+          </Link>{' '}
+          in production. Unlock insights from the Statistics Page into your RPC usage and performance (e.g. latency,
+          success%), subscribe to updates from Status page to get notified and react when incidents happened, and
+          upgrade your data query experiences with instant access to balances and more with Enhanced APIs.
         </Text>
         <Text weight="semibold">Quick Endpoint Setup</Text>
         <List as="ul">
