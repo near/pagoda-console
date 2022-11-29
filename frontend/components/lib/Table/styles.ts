@@ -12,31 +12,22 @@ const flashRowAnimation = keyframes({
   },
 });
 
-export const Root = styled('div', {
-  minWidth: '100%',
-  borderRadius: 'var(--border-radius-m)',
-  background: 'var(--color-surface-2)',
-
-  variants: {
-    padding: {
-      m: {
-        padding: '0 var(--space-s) var(--space-s)',
-      },
-      l: {
-        padding:
-          'calc(var(--space-l) - (var(--space-s) * 2)) calc(var(--space-l) - var(--space-s)) calc(var(--space-l) - var(--space-s))',
-      },
-    },
-  },
-
-  defaultVariants: {
-    padding: 'm',
-  },
-});
-
 export const Table = styled('table', {
   borderCollapse: 'collapse',
-  width: '100%',
+
+  /*
+    The following CSS is a creative way to achieve a "padding + border radius effect"
+    on <table> elements (which don't support the "padding" or "borderRadius" properties).
+    We also can't use the "overflow" property because that breaks "position: sticky"
+    for all elements inside the table.
+  */
+
+  width: 'calc(100% - (var(--space-s) * 2))',
+  margin: '0 var(--space-s) var(--space-s) var(--space-s)',
+  background: 'var(--color-surface-2)',
+  outline: 'var(--space-s) solid var(--color-surface-2)',
+  clipPath:
+    'inset(0 calc(var(--space-s) * -1) calc(var(--space-s) * -1) calc(var(--space-s) * -1) round var(--border-radius-m))',
 });
 
 export const Head = styled('thead', {

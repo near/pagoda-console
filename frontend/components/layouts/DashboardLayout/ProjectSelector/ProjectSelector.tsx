@@ -96,7 +96,7 @@ export function ProjectSelector(props: Props) {
             onSelect={() => onSelectNewProject()}
             css={{ color: 'var(--color-primary)', width: '100%' }}
           >
-            <FeatherIcon icon="plus-circle" />
+            <FeatherIcon icon="plus" />
             Create New Project
           </DropdownMenu.Item>
         </Flex>

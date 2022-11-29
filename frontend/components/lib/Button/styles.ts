@@ -109,6 +109,25 @@ export const Button = styled('button', {
       },
     },
 
+    hideText: {
+      mobile: {
+        '@mobile': {
+          fontSize: 0,
+          [`${Content}`]: {
+            gap: 0,
+          },
+        },
+      },
+      tablet: {
+        '@tablet': {
+          fontSize: 0,
+          [`${Content}`]: {
+            gap: 0,
+          },
+        },
+      },
+    },
+
     loading: {
       true: {
         pointerEvents: 'none',

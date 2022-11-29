@@ -16,19 +16,20 @@ export const Main = styled('main', {
 export const Header = styled('header', {
   flexShrink: 0,
   padding: 'var(--space-m)',
-  position: 'sticky',
-  top: 0,
   borderBottom: '1px solid var(--color-surface-5)',
-  zIndex: 500,
+
+  '@tablet': {
+    padding: 'var(--space-s)',
+  },
 });
 
 export const Title = styled('div', {
   display: 'flex',
   alignItems: 'center',
-  gap: 'var(--space-l)',
+  gap: 'var(--space-m)',
 });
 
 export const Controls = styled('div', {
   display: 'flex',
-  gap: 'var(--space-l)',
+  gap: 'var(--space-m)',
 });
