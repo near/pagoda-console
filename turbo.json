@@ -18,8 +18,13 @@
     "start": {
       "dependsOn": ["build"]
     },
+    "build:cms": {
+      "dependsOn": [],
+      "inputs": ["config/**", "public/**", "src/**", "tsconfig.json"],
+      "outputs": ["dist/**", ".cache/**"]
+    },
     "serve:cms": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build:cms"]
     },
     "lint:check": {
       "outputs": []
