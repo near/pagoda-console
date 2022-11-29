@@ -5,8 +5,8 @@
   "description": "A Strapi application",
   "scripts": {
     "dev:cms": "strapi ts:generate-types --verbose && strapi develop",
+    "build:cms": "strapi build",
     "serve:cms": "strapi start",
-    "build": "strapi build",
     "strapi": "strapi"
   },
   "devDependencies": {},
