@@ -41,9 +41,9 @@ export const UploadJwtForm = ({ show, setShow, project }: Props) => {
     try {
       await mutateKeys(async (cachedKeys) => {
         const newKey = await authenticatedPost('/projects/generateKey', {
-          description,
-          issuer,
-          publicKey,
+          description: description.trim(),
+          issuer: issuer.trim(),
+          publicKey: publicKey.trim(),
           project: project.slug,
           type: 'JWT',
         });
@@ -76,19 +76,21 @@ export const UploadJwtForm = ({ show, setShow, project }: Props) => {
         />
         <Form.Feedback>{formState.errors.description?.message}</Form.Feedback>
 
-        <Form.Label htmlFor="description">Issuer</Form.Label>
+        <Form.Label htmlFor="issuer">Issuer</Form.Label>
         <Form.Input
           id="issuer"
           isInvalid={!!formState.errors.issuer}
+          placeholder="https://jwt.issuer"
           {...register('issuer', {
             required: 'You must enter an issuer.',
           })}
         />
         <Form.Feedback>{formState.errors.issuer?.message}</Form.Feedback>
 
-        <Form.Label htmlFor="description">Public Key</Form.Label>
-        <Form.Input
+        <Form.Label htmlFor="publicKey">Public Key</Form.Label>
+        <Form.Textarea
           id="publicKey"
+          placeholder={`-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----`}
           isInvalid={!!formState.errors.publicKey}
           {...register('publicKey', {
             required: 'You must enter a public key.',

@@ -30,7 +30,7 @@ interface Props {
 }
 
 export function ApiKeys({ project }: Props) {
-  const { keys, mutate: mutateKeys } = useApiKeys(project?.slug);
+  const { keys: allKeys, mutate: mutateKeys } = useApiKeys(project?.slug);
   const [showRotationModal, setShowRotationModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -40,6 +40,8 @@ export function ApiKeys({ project }: Props) {
     key: '',
     type: 'KEY',
   });
+
+  const keys = allKeys?.filter((k) => k.type === 'KEY') || [];
 
   async function rotateKey(keySlug: string) {
     showRotationModal && setShowRotationModal(false);
