@@ -103,14 +103,21 @@ function KeyRow(props: { publicKey: string; description: string }) {
     }, 2000);
   }
 
+  function displayKey(key: string) {
+    // Nobody should upload a key this small but just in case.
+    if (key.length < 16) {
+      return key;
+    }
+    let temp = key;
+    temp = temp.replace(/-----(BEGIN|END) (CERTIFICATE|PUBLIC KEY)-----/g, '');
+    temp = temp.replace(/\\n/g, '');
+    return `${temp.substring(0, 6)}...${temp.substring(temp.length - 6)}`;
+  }
+
   return (
     <>
       <Table.Cell css={{ width: '400px' }}>
-        <Badge size="s">
-          {props.publicKey.substring(28, 38) +
-            '...' +
-            props.publicKey.substring(props.publicKey.length - 37, props.publicKey.length - 26)}
-        </Badge>
+        <Badge size="s">{displayKey(props.publicKey)}</Badge>
       </Table.Cell>
       <Table.Cell css={{ maxWidth: '500px', whiteSpace: 'normal' }}>{props.description}</Table.Cell>
       <Table.Cell css={{ width: '1px' }}>
