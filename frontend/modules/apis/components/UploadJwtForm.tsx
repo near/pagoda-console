@@ -65,39 +65,43 @@ export const UploadJwtForm = ({ show, setShow, project }: Props) => {
 
   return (
     <Form.Root onSubmit={handleSubmit(({ description, issuer, publicKey }) => addKey(description, issuer, publicKey))}>
-      <Form.Group>
-        <Form.Label htmlFor="description">Key Description</Form.Label>
-        <Form.Input
-          id="description"
-          isInvalid={!!formState.errors.description}
-          {...register('description', {
-            required: 'You must enter a description.',
-          })}
-        />
-        <Form.Feedback>{formState.errors.description?.message}</Form.Feedback>
-
-        <Form.Label htmlFor="issuer">Issuer</Form.Label>
-        <Form.Input
-          id="issuer"
-          isInvalid={!!formState.errors.issuer}
-          placeholder="https://jwt.issuer"
-          {...register('issuer', {
-            required: 'You must enter an issuer.',
-          })}
-        />
-        <Form.Feedback>{formState.errors.issuer?.message}</Form.Feedback>
-
-        <Form.Label htmlFor="publicKey">Public Key</Form.Label>
-        <Form.Textarea
-          id="publicKey"
-          placeholder={`-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----`}
-          isInvalid={!!formState.errors.publicKey}
-          {...register('publicKey', {
-            required: 'You must enter a public key.',
-          })}
-        />
-        <Form.Feedback>{formState.errors.publicKey?.message}</Form.Feedback>
-      </Form.Group>
+      <Flex stack>
+        <Form.Group>
+          <Form.Label htmlFor="description">Key Description</Form.Label>
+          <Form.Input
+            id="description"
+            isInvalid={!!formState.errors.description}
+            {...register('description', {
+              required: 'You must enter a description.',
+            })}
+          />
+          <Form.Feedback>{formState.errors.description?.message}</Form.Feedback>
+        </Form.Group>
+        <Form.Group>
+          <Form.Label htmlFor="issuer">Issuer</Form.Label>
+          <Form.Input
+            id="issuer"
+            isInvalid={!!formState.errors.issuer}
+            placeholder="https://jwt.issuer"
+            {...register('issuer', {
+              required: 'You must enter an issuer.',
+            })}
+          />
+          <Form.Feedback>{formState.errors.issuer?.message}</Form.Feedback>
+        </Form.Group>
+        <Form.Group>
+          <Form.Label htmlFor="publicKey">Public Key</Form.Label>
+          <Form.Textarea
+            id="publicKey"
+            placeholder={`-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----`}
+            isInvalid={!!formState.errors.publicKey}
+            {...register('publicKey', {
+              required: 'You must enter a public key.',
+            })}
+          />
+          <Form.Feedback>{formState.errors.publicKey?.message}</Form.Feedback>
+        </Form.Group>
+      </Flex>
       <ButtonContainer justify="spaceBetween" align="center">
         <Button
           stableId={StableId.ADD_JWT_KEY_FORM_CONFIRM_BUTTON}
