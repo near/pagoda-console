@@ -82,7 +82,7 @@ export default function StarterGuide() {
           supported? Leave feedback or suggest new features by{' '}
           <TextLink onClick={() => Gleap.open()} stableId={StableId.JWT_STARTER_GUIDE_FEEDBACK}>
             clicking the button
-          </TextLink>
+          </TextLink>{' '}
           in the bottom right corner.
         </Text>
         <Text>
