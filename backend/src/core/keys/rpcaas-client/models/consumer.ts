@@ -30,12 +30,6 @@ export interface Consumer {
    */
   custom_id: string;
   /**
-   * Name of KongConsumer
-   * @type {string}
-   * @memberof Consumer
-   */
-  name?: string;
-  /**
    * Specifies the rate limiting policy to apply to the consumer.
    * @type {string}
    * @memberof Consumer

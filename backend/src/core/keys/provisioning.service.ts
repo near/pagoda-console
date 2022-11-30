@@ -5,7 +5,6 @@ import { AppConfig } from '../../config/validate';
 import { ApiKeysProvisioningServiceInterface } from './interfaces';
 import {
   Configuration,
-  Consumer,
   ConsumerApi,
   ConsumerRateLimitingPolicyEnum,
   SecretApi,
@@ -13,6 +12,7 @@ import {
   SecretBodyKongCredTypeEnum,
 } from './rpcaas-client';
 import { VError } from 'verror';
+import { ApiConsumer } from './types';
 
 @Injectable()
 export class ApiKeysProvisioningService
@@ -145,10 +145,13 @@ export class ApiKeysProvisioningService
     }
   }
 
-  async getOrganization(kongConsumer: string): Promise<Consumer | null> {
+  async getOrganization(kongConsumer: string): Promise<ApiConsumer | null> {
     try {
       const res = await this.consumerClient.getConsumer(kongConsumer);
-      return res.data;
+      return {
+        ...res.data,
+        name: kongConsumer,
+      };
     } catch (e: any) {
       if (e.response.status === 404) return null;
       else throw new VError(e, 'Failed while getting organization');
@@ -157,7 +160,7 @@ export class ApiKeysProvisioningService
 
   private async createConsumer(kongConsumer: string, orgSlug: string) {
     const username = this.getConsumerName(kongConsumer);
-    const consumer: Consumer = {
+    const consumer: ApiConsumer = {
       custom_id: orgSlug,
       name: username,
       rate_limiting_policy: ConsumerRateLimitingPolicyEnum.Developer,

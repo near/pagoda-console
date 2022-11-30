@@ -20,12 +20,6 @@ import { ApiResponseMetadata } from './api-response-metadata';
 export interface ApiResponse {
   /**
    *
-   * @type {string}
-   * @memberof ApiResponse
-   */
-  algorithm?: string;
-  /**
-   *
    * @type {Array<string>}
    * @memberof ApiResponse
    */
@@ -38,22 +32,10 @@ export interface ApiResponse {
   custom_id?: string;
   /**
    *
-   * @type {string}
-   * @memberof ApiResponse
-   */
-  key?: string;
-  /**
-   *
    * @type {ApiResponseMetadata}
    * @memberof ApiResponse
    */
   metadata?: ApiResponseMetadata;
-  /**
-   *
-   * @type {string}
-   * @memberof ApiResponse
-   */
-  rsa_public_key?: string;
   /**
    *
    * @type {string}

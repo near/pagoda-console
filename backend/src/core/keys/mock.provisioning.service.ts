@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { ApiKeysProvisioningServiceInterface } from './interfaces';
-import { Consumer, ConsumerRateLimitingPolicyEnum } from './rpcaas-client';
+import { ConsumerRateLimitingPolicyEnum } from './rpcaas-client';
+import { ApiConsumer } from './types';
 
 @Injectable()
 export class ApiKeysMockProvisioningService
@@ -9,7 +10,7 @@ export class ApiKeysMockProvisioningService
 {
   private MOCK_KEY = 'mockkey1-2884-439e-880b-a73c8a7bf42d';
 
-  async getOrganization(kongConsumer: string): Promise<Consumer> {
+  async getOrganization(kongConsumer: string): Promise<ApiConsumer> {
     return {
       custom_id: kongConsumer,
       name: kongConsumer,
