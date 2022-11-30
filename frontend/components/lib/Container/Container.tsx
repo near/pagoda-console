@@ -18,8 +18,14 @@ export const Container = styled('div', {
       m: {
         maxWidth: 'var(--size-max-container-width-m)',
       },
+      ml: {
+        maxWidth: 'var(--size-max-container-width-ml)',
+      },
       l: {
         maxWidth: 'var(--size-max-container-width-l)',
+      },
+      xl: {
+        maxWidth: 'var(--size-max-container-width-xl)',
       },
     },
   },
