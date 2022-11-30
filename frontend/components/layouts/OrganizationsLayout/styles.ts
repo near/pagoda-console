@@ -14,7 +14,10 @@ export const Main = styled('main', {
 });
 
 export const Header = styled('header', {
-  flexShrink: 0,
+  display: 'flex',
+  alignItems: 'stretch',
+  justifyContent: 'space-between',
+  gap: 'var(--space-m)',
   padding: 'var(--space-m)',
   borderBottom: '1px solid var(--color-surface-5)',
 
@@ -32,4 +35,9 @@ export const Title = styled('div', {
 export const Controls = styled('div', {
   display: 'flex',
   gap: 'var(--space-m)',
+});
+
+export const BackLink = styled('a', {
+  display: 'flex',
+  align: 'center',
 });
