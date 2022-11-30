@@ -122,9 +122,8 @@ export class ApiKeysProvisioningService
   async fetch(keySlug: string): Promise<string> {
     try {
       const keyName = this.getKeyName(keySlug);
-      // TODO the types from the swagger client are not correct. Create a PR on the devops project (search for it on Github). The getSecet and getConsumerSecrets API routes response needs to be updated.
-      const data = (await this.secretClient.getSecret(keyName)).data as any;
-      return data.api_token || data.rsaPublicKey;
+      const data = (await this.secretClient.getSecret(keyName)).data;
+      return data.api_token || data.rsaPublicKey!;
     } catch (e: any) {
       throw new VError(e, 'Failed while fetching a key');
     }
@@ -135,10 +134,9 @@ export class ApiKeysProvisioningService
       const res = await this.secretClient.getConsumerSecrets(
         this.getConsumerName(kongConsumer),
       );
-      // TODO the types from the swagger client are not correct. Create a PR on the devops project (search for it on Github). The getSecet and getConsumerSecrets API routes response needs to be updated.
       return res.data.keys?.map((el) => {
-        const data = el as any;
-        return data.api_token || data.rsaPublicKey;
+        const data = el;
+        return data.api_token || data.rsaPublicKey!;
       });
     } catch (e: any) {
       throw new VError(e, 'Failed while fetching keys');

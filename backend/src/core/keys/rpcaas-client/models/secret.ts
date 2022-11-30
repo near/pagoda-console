@@ -22,11 +22,17 @@ export interface Secret {
    * @type {string}
    * @memberof Secret
    */
-  api_token: string;
+  api_token?: string;
   /**
    *
    * @type {string}
    * @memberof Secret
    */
   name?: string;
+  /**
+   * PEM format public key for use in JWT validation
+   * @type {string}
+   * @memberof Secret
+   */
+  rsaPublicKey?: string;
 }
