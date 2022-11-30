@@ -15,4 +15,9 @@ export const Header = styled('header', {
   boxShadow: 'var(--shadow-softer)',
   zIndex: 500,
   overflowX: 'clip',
+
+  '@tablet': {
+    padding: 'var(--space-s)',
+    paddingLeft: 'calc(var(--size-sidebar-width-collapsed) + var(--space-m))',
+  },
 });

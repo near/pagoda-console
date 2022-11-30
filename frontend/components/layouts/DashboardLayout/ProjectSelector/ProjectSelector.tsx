@@ -45,11 +45,23 @@ export function ProjectSelector(props: Props) {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button stableId={StableId.PROJECT_SELECTOR_DROPDOWN} css={{ width: '22rem', height: 'auto' }}>
+      <DropdownMenu.Button
+        stableId={StableId.PROJECT_SELECTOR_DROPDOWN}
+        css={{
+          height: 'auto',
+          padding: '0 var(--space-s)',
+          width: '20rem',
+          '@tablet': {
+            width: 'auto',
+          },
+        }}
+        hideText="tablet"
+      >
+        <FeatherIcon icon="box" />
         <TextOverflow>{project?.name || '...'}</TextOverflow>
       </DropdownMenu.Button>
 
-      <DropdownMenu.Content width="trigger" innerCss={{ padding: 0, borderRadius: 'inherit' }}>
+      <DropdownMenu.Content innerCss={{ padding: 0, borderRadius: 'inherit' }}>
         {projectGroups && projectGroups.length > 0 && (
           <Flex
             css={{
@@ -68,10 +80,11 @@ export function ProjectSelector(props: Props) {
                       {orgName}
                     </Text>
                   </DropdownMenu.ContentItem>
-                  {projects.map((project) => (
-                    <DropdownMenu.Item key={project.slug} onSelect={() => onSelectProject(project)}>
-                      {project.name}
-                      {project.tutorial && <Badge size="s">Tutorial</Badge>}
+                  {projects.map((p) => (
+                    <DropdownMenu.Item key={p.slug} onSelect={() => onSelectProject(p)}>
+                      {project?.slug === p.slug && <FeatherIcon icon="check" size="s" />}
+                      {p.name}
+                      {p.tutorial && <Badge size="s">Tutorial</Badge>}
                     </DropdownMenu.Item>
                   ))}
                 </div>

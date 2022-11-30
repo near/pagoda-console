@@ -2,7 +2,7 @@ import type { ComponentProps } from '@stitches/react';
 import Link from 'next/link';
 
 import { UserFullDropdown } from '@/components/layouts/UserFullDropdown';
-import { TextLink } from '@/components/lib/TextLink';
+import { ButtonLink } from '@/components/lib/Button';
 import { useAuth } from '@/hooks/auth';
 import { usePublicMode } from '@/hooks/public';
 import { StableId } from '@/utils/stable-ids';
@@ -28,9 +28,14 @@ export function Header({ redirect, ...props }: Props) {
 
       {authStatus === 'UNAUTHENTICATED' && (
         <Link href="/">
-          <TextLink stableId={StableId.HEADER_SIGN_IN_LINK} css={{ marginRight: 'var(--space-m)' }}>
+          <ButtonLink
+            stableId={StableId.HEADER_SIGN_IN_LINK}
+            size="s"
+            color="primaryBorder"
+            css={{ alignSelf: 'center' }}
+          >
             Sign In
-          </TextLink>
+          </ButtonLink>
         </Link>
       )}
     </S.Header>

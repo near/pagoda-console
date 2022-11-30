@@ -20,8 +20,15 @@ export const Sidebar = styled('nav', {
   transition: 'width var(--animation-speed) ease',
 });
 
-export const LogoContainer = styled('div', {
+export const LogoWrapper = styled('button', {
+  cursor: 'pointer',
+  margin: '0 calc(var(--space-m) * -1)',
+  padding: '0 var(--space-m)',
+});
+
+export const Logo = styled('span', {
   display: 'flex',
+  width: '100%',
   alignItems: 'center',
   height: 'var(--size-header-height)',
   padding: '0 0.35rem',
@@ -38,7 +45,7 @@ export const NavItem = styled('li', {
   display: 'block',
 });
 
-export const CollapseButton = styled('button', {
+export const CollapseIcon = styled('span', {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -64,6 +71,18 @@ export const CollapseButton = styled('button', {
   '&:focus': {
     outline: 'var(--focus-outline)',
     outlineOffset: 'var(--focus-outline-offset)',
+  },
+
+  '@tablet': {
+    width: '1rem',
+    height: '1rem',
+    top: '1.35rem',
+    left: 'calc(var(--sidebar-width) - 0.5rem)',
+
+    svg: {
+      width: '0.7rem',
+      height: '0.7rem',
+    },
   },
 });
 
@@ -115,6 +134,7 @@ export const NavLinkLabel = styled('span', {
   display: 'flex',
   alignItems: 'center',
   gap: 'var(--space-s)',
+  whiteSpace: 'nowrap',
 });
 
 export const Root = styled('div', {
@@ -123,6 +143,11 @@ export const Root = styled('div', {
   height: '100%',
   paddingLeft: 'var(--size-sidebar-width-expanded)',
   transition: 'padding-left var(--animation-speed) ease',
+
+  '@tablet': {
+    paddingLeft: 0,
+    '--sidebar-width': '100vw',
+  },
 
   variants: {
     sidebarCollapsed: {
@@ -133,42 +158,30 @@ export const Root = styled('div', {
         [`${NavLinkLabel}`]: {
           display: 'none',
         },
+
+        [`${CollapseIcon}`]: {
+          svg: {
+            transform: 'rotate(180deg)',
+          },
+        },
+
+        '@tablet': {
+          paddingLeft: 0,
+
+          [`${Sidebar}`]: {
+            height: 'var(--size-header-height)',
+            overflow: 'hidden',
+          },
+        },
       },
-    },
 
-    sidebarHoverExpand: {
-      true: {
-        paddingLeft: 'var(--size-sidebar-width-collapsed)',
-
-        [`${Sidebar}`]: {
-          boxShadow: ' 0 2px 20px rgba(0, 0, 0, 0.5)',
+      false: {
+        '@tablet': {
+          [`${CollapseIcon}`]: {
+            left: 'calc(var(--sidebar-width) - 2.5rem)',
+          },
         },
       },
     },
   },
-
-  compoundVariants: [
-    {
-      sidebarCollapsed: true,
-      sidebarHoverExpand: false,
-      css: {
-        [`${CollapseButton}`]: {
-          '[data-collapse-icon]': {
-            transform: 'rotate(180deg)',
-          },
-        },
-      },
-    },
-    {
-      sidebarCollapsed: false,
-      sidebarHoverExpand: true,
-      css: {
-        [`${CollapseButton}`]: {
-          '[data-collapse-icon]': {
-            transform: 'rotate(180deg)',
-          },
-        },
-      },
-    },
-  ],
 });

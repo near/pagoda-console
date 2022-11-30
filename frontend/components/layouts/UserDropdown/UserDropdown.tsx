@@ -15,7 +15,7 @@ export const UserDropdown = ({ children }: { children: ReactNode }) => {
         aria-label="User Settings"
         stableId={StableId.USER_DROPDOWN}
         color="transparent"
-        css={{ height: 'auto' }}
+        css={{ height: 'auto', padding: '0 var(--space-s)' }}
       >
         <FeatherIcon icon="user" />
         <Text

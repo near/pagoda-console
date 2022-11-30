@@ -474,7 +474,7 @@ const OrganizationsDropdown = ({ selectedOrganization }: { selectedOrganization?
           stableId={StableId.ORGANIZATION_SELECT}
         />
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content width="trigger">
+      <DropdownMenu.Content>
         <DropdownMenu.RadioGroup value={selectedOrganization?.slug} onValueChange={changeOrganization}>
           {organizations?.map((organization) => (
             <DropdownMenu.RadioItem key={organization.slug} value={organization.slug}>

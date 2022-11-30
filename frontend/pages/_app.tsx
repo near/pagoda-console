@@ -81,6 +81,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     <SWRConfig value={swrConfig}>
       <Head>
         <title>Pagoda Developer Console</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
         <meta
           name="description"
           content="Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics."

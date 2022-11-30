@@ -112,17 +112,17 @@ export const Button = styled('button', {
     hideText: {
       mobile: {
         '@mobile': {
-          fontSize: 0,
+          fontSize: '0 !important',
           [`${Content}`]: {
-            gap: 0,
+            gap: '0 !important',
           },
         },
       },
       tablet: {
         '@tablet': {
-          fontSize: 0,
+          fontSize: '0 !important',
           [`${Content}`]: {
-            gap: 0,
+            gap: '0 !important',
           },
         },
       },

@@ -21,6 +21,10 @@ pre {
   white-space: pre;
 }
 
+.sidebar-open {
+  overflow: hidden;
+}
+
 /* Gleap fixed icon override hacks: */
 
 .bb-feedback-button-icon {
