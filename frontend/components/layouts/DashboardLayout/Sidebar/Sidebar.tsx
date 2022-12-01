@@ -92,19 +92,13 @@ export function Sidebar({ children, ...props }: Props) {
       }
     }
 
-    if (!sidebarCollapsed) {
-      document.body.classList.add('sidebar-expanded');
-
-      if (isSmallScreen) {
-        document.body.style.overflow = 'hidden';
-      }
+    if (!sidebarCollapsed && isSmallScreen) {
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.classList.remove('sidebar-expanded');
       document.body.style.overflow = '';
     }
 
     return () => {
-      document.body.classList.remove('sidebar-expanded');
       document.body.style.overflow = '';
     };
   }, [isSmallScreen, sidebarCollapsed]);
