@@ -1,5 +1,6 @@
 import JSBI from 'jsbi';
-import type { AnyContract as AbiContract } from 'near-abi-client-js';
+import type { Contract as AbiContract } from 'near-abi-client-js';
+import { AbiFunctionKind } from 'near-abi-client-js';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -103,14 +104,14 @@ const TxForm = ({ contract, onTxResult, onTxError }: TxFormProps) => {
 
   const submitForm = async (params: TxFormData) => {
     // Asserts that contract exists and selected function is valid
-    const contractFn = contractMethods![selectedFunction!.name];
+    const contractFn = contractMethods?.methods![selectedFunction!.name];
     let call;
 
     setContractInteractForm(params);
 
     if (selectedFunction?.params) {
       try {
-        const fieldParams = selectedFunction.params.map((p) => {
+        const fieldParams = selectedFunction.params.args.map((p) => {
           const value = params[p.name];
           const schema_ty = resolveAbiDefinition(abi!, p.type_schema);
           if (schema_ty === 'integer') {
@@ -122,7 +123,7 @@ const TxForm = ({ contract, onTxResult, onTxError }: TxFormProps) => {
             return JSON.parse(value);
           }
         });
-        call = contractFn(...fieldParams);
+        call = contractFn!(...fieldParams);
       } catch (e) {
         console.error(e);
         openToast({
@@ -133,13 +134,13 @@ const TxForm = ({ contract, onTxResult, onTxError }: TxFormProps) => {
         return;
       }
     } else {
-      call = contractFn();
+      call = contractFn!();
     }
 
     let res;
 
     try {
-      if (!selectedFunction?.is_view) {
+      if (selectedFunction?.kind === AbiFunctionKind.Call) {
         // Pull gas/deposit from fields or default. This default will be done by the abi client
         // library, but doing it here to have more control and ensure no hidden bugs.
 
@@ -148,7 +149,7 @@ const TxForm = ({ contract, onTxResult, onTxError }: TxFormProps) => {
           : JSBI.BigInt(10_000_000_000_000).toString();
         const attachedDeposit = params.deposit ? convertNearDeposit(params.deposit, nearFormat).toString() : '0';
 
-        res = await call.callFrom(await selector?.wallet(), {
+        res = await call.transact(await selector?.wallet(), {
           gas,
           attachedDeposit,
           // TODO might want to set this when testing the redirect flow (deposit sending txs)
@@ -188,8 +189,8 @@ const TxForm = ({ contract, onTxResult, onTxError }: TxFormProps) => {
   };
 
   const functionIsSelected = selectedFunction;
-  const functionIsView = selectedFunction?.is_view;
-  const functionIsTx = selectedFunction && !selectedFunction.is_view;
+  const functionIsView = selectedFunction?.kind === AbiFunctionKind.View;
+  const functionIsTx = selectedFunction?.kind === AbiFunctionKind.Call;
 
   return (
     // TODO should this be disabled if the contract is null? Seems like there can be a race
