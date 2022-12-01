@@ -10,7 +10,6 @@ import { Placeholder } from '@/components/lib/Placeholder';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { useNet } from '@/hooks/net';
-import { styled } from '@/styles/stitches';
 import { fetchApi } from '@/utils/http';
 import { getCustomErrorRetry } from '@/utils/query';
 import { StableId } from '@/utils/stable-ids';
@@ -22,28 +21,15 @@ type Props = {
   transactionHash: string | null;
 };
 
-type ToogleReceipt = {
+type ToggleReceipt = {
   id: string;
   active: boolean;
 };
 
 type TransactionReceiptContext = {
-  selectedReceipts: ToogleReceipt[];
+  selectedReceipts: ToggleReceipt[];
   toggleReceipts: (id: string) => void;
 };
-
-const Wrapper = styled('div', {
-  display: 'flex',
-  flexDirection: 'column',
-  width: '100%',
-});
-
-const TitleWrapper = styled('div', {
-  display: 'flex',
-  justifyContent: 'space-between',
-  width: '100%',
-  marginBottom: 30,
-});
 
 const TransactionActions: React.FC<Props> = React.memo(({ transactionHash }) => {
   const net = useNet();
@@ -108,7 +94,7 @@ export const TransactionReceiptContext = React.createContext<TransactionReceiptC
 
 const TransactionActionsList: React.FC<ListProps> = React.memo(({ transaction }) => {
   const preCollectedReceipts = React.useMemo(() => {
-    const receipts = [] as ToogleReceipt[];
+    const receipts = [] as ToggleReceipt[];
     const collectReceiptHashes: any = (receipt: Explorer.Transaction['receipt']) => {
       const id = receipt.id;
       receipts.push({ id, active: false });
@@ -170,23 +156,25 @@ const TransactionActionsList: React.FC<ListProps> = React.memo(({ transaction })
 
   return (
     <TransactionReceiptContext.Provider value={{ selectedReceipts: activeReceipts, toggleReceipts }}>
-      <Wrapper>
-        <TitleWrapper>
+      <Flex stack gap="l">
+        <Flex justify="spaceBetween">
           <div>
             <H4>Execution Plan</H4>
             <span>Processed in {pending}</span>
           </div>
+
           <Button stableId={StableId.TRANSACTION_ACTIONS_RESPONSE_EXPAND_BUTTON} size="s" onClick={toggleAllReceipts}>
             {toggleType === 'toggle' ? 'Collapse all -' : 'Expand All + '}
           </Button>
-        </TitleWrapper>
+        </Flex>
+
         <TransactionReceipt
           receipt={transaction.receipt}
           fellowOutgoingReceipts={[]}
           className=""
           convertionReceipt={true}
         />
-      </Wrapper>
+      </Flex>
     </TransactionReceiptContext.Provider>
   );
 });

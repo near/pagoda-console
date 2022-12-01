@@ -22,7 +22,12 @@ const TxResultHash = ({ result }: TxResultHashProps) => {
     <Flex stack>
       <ResultTitle>Result</ResultTitle>
       {net && (
-        <Card padding="l">
+        <Card
+          padding={{
+            '@initial': 'l',
+            '@mobile': 'm',
+          }}
+        >
           <Box>
             <NetContext.Provider value={net}>
               <TransactionActions transactionHash={hash} />

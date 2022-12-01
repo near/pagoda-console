@@ -51,8 +51,8 @@ const ViewContract: NextPageWithLayout = () => {
   return (
     <>
       <Tabs.Root value={activeTab || ''}>
-        <Section>
-          <Flex stack>
+        <Section background="surface2">
+          <Flex stack gap="l">
             <Link href="/contracts" passHref>
               <TextLink stableId={StableId.CONTRACT_BACK_TO_CONTRACTS_LINK}>
                 <FeatherIcon icon="arrow-left" /> Contracts
@@ -106,7 +106,7 @@ const ViewContract: NextPageWithLayout = () => {
                   {contractAbi && (
                     <Link href={`/contracts/${contractSlug}?tab=abi`} passHref>
                       <Tabs.TriggerLink stableId={StableId.CONTRACT_TABS_ABI_LINK} active={activeTab === 'abi'}>
-                        <FeatherIcon icon="file-text" size="xs" /> Contract ABI
+                        <FeatherIcon icon="file-text" size="xs" /> ABI
                       </Tabs.TriggerLink>
                     </Link>
                   )}

@@ -180,7 +180,7 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
           To generate an ABI
         </TextLink>
 
-        <Flex align="center">
+        <Flex align="center" stack={{ '@tablet': true }}>
           <DragAndDropLabel
             css={{ flexGrow: 1 }}
             stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_CHOOSE_FILE_BUTTON}
