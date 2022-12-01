@@ -23,7 +23,7 @@ const TextItalic = styled(Text, {
 });
 
 const TxResultBanner = () => (
-  <Card padding="xl">
+  <Card>
     <Flex>
       <Box>
         <SvgIcon size="xl" color="success" icon={TxList} />
