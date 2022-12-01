@@ -92,11 +92,21 @@ export function Sidebar({ children, ...props }: Props) {
       }
     }
 
-    if (sidebarCollapsed) {
-      document.body.classList.remove('sidebar-open');
+    if (!sidebarCollapsed) {
+      document.body.classList.add('sidebar-expanded');
+
+      if (isSmallScreen) {
+        document.body.style.overflow = 'hidden';
+      }
     } else {
-      document.body.classList.add('sidebar-open');
+      document.body.classList.remove('sidebar-expanded');
+      document.body.style.overflow = '';
     }
+
+    return () => {
+      document.body.classList.remove('sidebar-expanded');
+      document.body.style.overflow = '';
+    };
   }, [isSmallScreen, sidebarCollapsed]);
 
   function clickHandler() {

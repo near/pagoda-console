@@ -17,7 +17,7 @@ export const Sidebar = styled('nav', {
   overflowX: 'hidden',
   scrollBehavior: 'smooth',
   boxShadow: 'var(--shadow-softer)',
-  transition: 'width var(--animation-speed) ease',
+  transition: 'width var(--sidebar-animation-speed) ease',
 });
 
 export const LogoWrapper = styled('button', {
@@ -58,10 +58,10 @@ export const CollapseIcon = styled('span', {
   position: 'fixed',
   left: 'calc(var(--sidebar-width) - 0.75rem)',
   top: '1.15rem',
-  transition: 'left var(--animation-speed) ease',
+  transition: 'left var(--sidebar-animation-speed) ease',
 
   svg: {
-    transition: 'transform var(--animation-speed)',
+    transition: 'transform var(--sidebar-animation-speed)',
   },
 
   '&:hover': {
@@ -138,11 +138,10 @@ export const NavLinkLabel = styled('span', {
 });
 
 export const Root = styled('div', {
-  '--animation-speed': '300ms',
   '--sidebar-width': 'var(--size-sidebar-width-expanded)',
   height: '100%',
   paddingLeft: 'var(--size-sidebar-width-expanded)',
-  transition: 'padding-left var(--animation-speed) ease',
+  transition: 'padding-left var(--sidebar-animation-speed) ease',
 
   '@tablet': {
     paddingLeft: 0,

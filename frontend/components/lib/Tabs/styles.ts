@@ -73,7 +73,7 @@ export const TriggerLink = styled('a', {
 
 export const List = styled(TabsPrimitive.List, {
   '--border-radius': 'var(--border-radius-m)',
-  '--border-size': '-2px',
+  '--border-size': '-1px',
   '--trigger-padding': 'var(--space-m)',
   display: 'flex',
   width: '100%',

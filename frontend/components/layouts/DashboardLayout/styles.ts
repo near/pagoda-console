@@ -11,4 +11,5 @@ export const Main = styled('main', {
   display: 'flex',
   flexDirection: 'column',
   flex: '1 0 auto',
+  paddingTop: 'var(--size-header-height)',
 });

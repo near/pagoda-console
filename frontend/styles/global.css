@@ -1,5 +1,5 @@
 html {
-  font-size: 100%;
+  font-size: var(--font-size-root);
   height: 100%;
 }
 
@@ -19,10 +19,6 @@ body {
 
 pre {
   white-space: pre;
-}
-
-.sidebar-open {
-  overflow: hidden;
 }
 
 /* Gleap fixed icon override hacks: */
