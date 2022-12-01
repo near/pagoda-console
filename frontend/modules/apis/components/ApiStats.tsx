@@ -381,7 +381,7 @@ function RequestStatusChart({ stats }: { stats?: ApiStatsData }) {
 
 function RequestsTable({ stats }: { stats?: ApiStatsData }) {
   return (
-    <Table.Root>
+    <Table.Root padding="l">
       <Table.Head header={<H4>Endpoint Metrics</H4>}>
         <Table.Row>
           <Table.HeaderCell>Method</Table.HeaderCell>

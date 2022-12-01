@@ -1,3 +1,4 @@
+import type { VariantProps } from '@stitches/react';
 import Link from 'next/link';
 import type { ComponentProps, HTMLAttributeAnchorTarget, ReactNode } from 'react';
 import { forwardRef } from 'react';
@@ -5,7 +6,7 @@ import { forwardRef } from 'react';
 import { Placeholder } from '../Placeholder';
 import * as S from './styles';
 
-type RootProps = ComponentProps<typeof S.Table>;
+type RootProps = ComponentProps<typeof S.Table> & VariantProps<typeof S.Root>;
 type HeadProps = ComponentProps<typeof S.Head> & {
   header?: ReactNode;
 };
@@ -19,11 +20,13 @@ export const Body = S.Body;
 export const Foot = S.Foot;
 export const HeaderCell = S.HeaderCell;
 
-export const Root = forwardRef<HTMLTableElement, RootProps>(({ children, ...props }, ref) => {
+export const Root = forwardRef<HTMLTableElement, RootProps>(({ children, padding, ...props }, ref) => {
   return (
-    <S.Table ref={ref} {...props}>
-      {children}
-    </S.Table>
+    <S.Root padding={padding}>
+      <S.Table ref={ref} {...props}>
+        {children}
+      </S.Table>
+    </S.Root>
   );
 });
 Root.displayName = 'Root';
