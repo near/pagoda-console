@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 import { AuthStatusRenderer } from '@/components/AuthStatusRenderer';
 import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -27,27 +25,21 @@ function ListApis() {
   return (
     <Section>
       <Tabs.Root value={activeTab || ''}>
-        <Tabs.List tabIndex={-1}>
-          <Link href="?tab=keys" passHref>
-            <Tabs.TriggerLink stableId={StableId.APIS_TABS_KEYS_LINK} active={activeTab === 'keys'}>
-              <FeatherIcon icon="key" /> Keys
-            </Tabs.TriggerLink>
-          </Link>
+        <Tabs.List>
+          <Tabs.Trigger value="keys" href="?tab=keys" stableId={StableId.APIS_TABS_KEYS_LINK}>
+            <FeatherIcon icon="key" /> Keys
+          </Tabs.Trigger>
 
-          <Link href="?tab=statistics" passHref>
-            <Tabs.TriggerLink stableId={StableId.APIS_TABS_STATISTICS_LINK} active={activeTab === 'statistics'}>
-              <FeatherIcon icon="activity" /> Statistics
-            </Tabs.TriggerLink>
-          </Link>
+          <Tabs.Trigger value="statistics" href="?tab=statistics" stableId={StableId.APIS_TABS_STATISTICS_LINK}>
+            <FeatherIcon icon="activity" /> Statistics
+          </Tabs.Trigger>
 
-          <Link href="?tab=enhancedApi" passHref>
-            <Tabs.TriggerLink stableId={StableId.APIS_TABS_ENHANCED_API_LINK} active={activeTab === 'enhancedApi'}>
-              <FeatherIcon icon="zap" />
-              Enhanced API
-            </Tabs.TriggerLink>
-          </Link>
+          <Tabs.Trigger value="enhancedApi" href="?tab=enhancedApi" stableId={StableId.APIS_TABS_ENHANCED_API_LINK}>
+            <FeatherIcon icon="zap" />
+            Enhanced API
+          </Tabs.Trigger>
 
-          <Tabs.Trigger stableId={StableId.APIS_TABS_EXPLORER_LINK} value="explorer" disabled>
+          <Tabs.Trigger value="explorer" disabled stableId={StableId.APIS_TABS_EXPLORER_LINK}>
             <FeatherIcon icon="search" />
             Explorer
             <Badge size="s">Soon</Badge>
