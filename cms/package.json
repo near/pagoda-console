@@ -6,7 +6,7 @@
   "scripts": {
     "dev:cms": "strapi ts:generate-types --verbose && strapi develop",
     "build:cms": "strapi build",
-    "serve:cms": "strapi start",
+    "start:cms": "strapi start",
     "strapi": "strapi"
   },
   "devDependencies": {},
@@ -14,7 +14,8 @@
     "@strapi/strapi": "4.5.0",
     "@strapi/plugin-users-permissions": "4.5.0",
     "@strapi/plugin-i18n": "4.5.0",
-    "better-sqlite3": "7.4.6"
+    "better-sqlite3": "7.4.6",
+    "pg": "8.6.0"
   },
   "strapi": {
     "uuid": "2824f8b0-3975-4bca-a31c-f25a8a979e50"

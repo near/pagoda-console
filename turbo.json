@@ -23,7 +23,7 @@
       "inputs": ["config/**", "public/**", "src/**", "tsconfig.json"],
       "outputs": ["dist/**", ".cache/**"]
     },
-    "serve:cms": {
+    "start:cms": {
       "dependsOn": ["build:cms"]
     },
     "lint:check": {

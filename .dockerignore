@@ -1,5 +1,5 @@
 node_modules
-dbData
-.turbo
-ignore
 out
+ignore
+.*
+.env
