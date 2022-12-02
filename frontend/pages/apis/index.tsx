@@ -12,6 +12,7 @@ import { ApiKeys } from '@/modules/apis/components/ApiKeys';
 import { ApisMarketing } from '@/modules/apis/components/ApisMarketing';
 import { ApiStats } from '@/modules/apis/components/ApiStats';
 import EnhancedApi from '@/modules/apis/components/EnhancedApi';
+import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -62,7 +63,9 @@ function ListApis() {
         </Tabs.Content>
 
         <Tabs.Content value="enhancedApi">
-          <EnhancedApi />
+          <SmallScreenNotice>
+            <EnhancedApi />
+          </SmallScreenNotice>
         </Tabs.Content>
       </Tabs.Root>
     </Section>

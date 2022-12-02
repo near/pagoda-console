@@ -66,53 +66,64 @@ export function ApiStats({ environment, project }: Props) {
           alignSelf: 'stretch',
           background: 'linear-gradient(var(--color-surface-3) 75%, transparent)',
           zIndex: 100,
+
+          '@tablet': {
+            position: 'static',
+          },
         }}
       >
-        <Flex gap="l" align="center">
-          <H2 css={{ marginRight: 'auto' }}>RPC Statistics</H2>
-          <Tooltip align="end" content={liveRefreshTooltipTitle}>
-            <span>
-              <Switch
-                stableId={StableId.API_STATS_LIVE_UPDATES_SWITCH}
-                aria-label="Live Updates"
-                checked={liveRefreshEnabled}
-                onCheckedChange={setLiveRefreshEnabled}
-              >
-                <FeatherIcon icon="refresh-cw" size="xs" data-on />
-                <FeatherIcon icon="pause" size="xs" data-off />
-              </Switch>
-            </span>
-          </Tooltip>
+        <Flex gap="l" stack={{ '@tablet': true }}>
+          <Flex stack autoWidth gap="none" css={{ marginRight: 'auto' }}>
+            <H2 css={{ marginRight: 'auto' }}>RPC Statistics</H2>
+            <Text color="text2" size="bodySmall">
+              Stats are for all projects in the organization.
+            </Text>
+          </Flex>
 
-          <DropdownMenu.Root>
-            <DropdownMenu.Button stableId={StableId.API_STATS_TIME_RANGE_DROPDOWN} css={{ width: '15rem' }}>
-              <FeatherIcon icon="clock" color="primary" />
-              {selectedTimeRange?.label}
-            </DropdownMenu.Button>
+          <Flex align="center" gap="l" autoWidth>
+            <Tooltip align="end" content={liveRefreshTooltipTitle}>
+              <span>
+                <Switch
+                  stableId={StableId.API_STATS_LIVE_UPDATES_SWITCH}
+                  aria-label="Live Updates"
+                  checked={liveRefreshEnabled}
+                  onCheckedChange={setLiveRefreshEnabled}
+                >
+                  <FeatherIcon icon="refresh-cw" size="xs" data-on />
+                  <FeatherIcon icon="pause" size="xs" data-off />
+                </Switch>
+              </span>
+            </Tooltip>
 
-            <DropdownMenu.Content width="trigger">
-              <DropdownMenu.RadioGroup
-                value={selectedTimeRangeValue}
-                onValueChange={(value) => setSelectedTimeRangeValue(value as RpcStats.TimeRangeValue)}
-              >
-                {timeRanges?.map((range) => {
-                  return (
-                    <DropdownMenu.RadioItem key={range.value} value={range.value}>
-                      {range.label}
-                    </DropdownMenu.RadioItem>
-                  );
-                })}
-              </DropdownMenu.RadioGroup>
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
+            <DropdownMenu.Root>
+              <DropdownMenu.Button stableId={StableId.API_STATS_TIME_RANGE_DROPDOWN} css={{ width: '12rem' }}>
+                <FeatherIcon icon="clock" color="primary" />
+                {selectedTimeRange?.label}
+              </DropdownMenu.Button>
+
+              <DropdownMenu.Content width="trigger">
+                <DropdownMenu.RadioGroup
+                  value={selectedTimeRangeValue}
+                  onValueChange={(value) => setSelectedTimeRangeValue(value as RpcStats.TimeRangeValue)}
+                >
+                  {timeRanges?.map((range) => {
+                    return (
+                      <DropdownMenu.RadioItem key={range.value} value={range.value}>
+                        {range.label}
+                      </DropdownMenu.RadioItem>
+                    );
+                  })}
+                </DropdownMenu.RadioGroup>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
+          </Flex>
         </Flex>
-        <Text color="text2">Stats are for all projects in the organization</Text>
       </Box>
 
       {stats?.totalRequestVolume === 0 ? (
         <>
           <Card>
-            <Text>No Data for the selected time range.</Text>
+            <Text>No data for the selected time range.</Text>
           </Card>
         </>
       ) : (
@@ -126,7 +137,10 @@ export function ApiStats({ environment, project }: Props) {
               display: 'grid',
               width: '100%',
               gap: 'var(--space-l)',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(30em, 1fr))',
+              gridTemplateColumns: '1fr 1fr',
+              '@laptop': {
+                gridTemplateColumns: '1fr',
+              },
             }}
           >
             {/* NOTE: Flex layout wasn't behaving with Rechart's <ResponsiveContainer /> component so we're using grid instead. */}
@@ -220,7 +234,7 @@ function TopLevelStats({ stats }: { stats?: ApiStatsData }) {
 
 function TotalRequestVolumeChart({ stats }: { stats?: ApiStatsData }) {
   return (
-    <Card>
+    <Card padding={{ '@initial': 'l', '@tablet': 'm' }} css={{ overflow: 'auto' }}>
       <Flex stack gap="l">
         <H4>Total Request Volume</H4>
 
@@ -233,7 +247,7 @@ function TotalRequestVolumeChart({ stats }: { stats?: ApiStatsData }) {
                 dataKey="windowStart"
                 stroke="var(--color-text-2)"
                 fontFamily="var(--font-heading)"
-                fontSize="var(--font-size-body-small)"
+                fontSize="10px"
                 tickFormatter={(value: string) => DateTime.fromISO(value).toLocaleString(DateTime.DATETIME_SHORT)}
               />
 
@@ -241,8 +255,8 @@ function TotalRequestVolumeChart({ stats }: { stats?: ApiStatsData }) {
                 dataKey="successCount"
                 stroke="var(--color-text-2)"
                 fontFamily="var(--font-number)"
-                fontSize="var(--font-size-body-small)"
-                width={120}
+                fontSize="10px"
+                width={100}
                 tickFormatter={(value: number) => formatNumber(value)}
               />
 
@@ -278,7 +292,7 @@ function TotalRequestVolumeChart({ stats }: { stats?: ApiStatsData }) {
 
 function MethodBreakdownChart({ stats }: { stats?: ApiStatsData }) {
   return (
-    <Card>
+    <Card padding={{ '@initial': 'l', '@tablet': 'm' }} css={{ overflow: 'auto' }}>
       <Flex stack gap="l">
         <H4>Method Breakdown</H4>
 
@@ -292,17 +306,17 @@ function MethodBreakdownChart({ stats }: { stats?: ApiStatsData }) {
                 type="number"
                 stroke="var(--color-text-2)"
                 fontFamily="var(--font-number)"
-                fontSize="var(--font-size-body-small)"
+                fontSize="10px"
                 tickFormatter={(value: number) => formatNumber(value)}
               />
 
               <Charts.YAxis
                 dataKey="endpointMethod"
                 type="category"
-                width={120}
+                width={100}
                 stroke="var(--color-text-2)"
                 fontFamily="var(--font-heading)"
-                fontSize="var(--font-size-body-small)"
+                fontSize="10px"
               />
 
               <Charts.Tooltip
@@ -341,7 +355,7 @@ function RequestStatusChart({ stats }: { stats?: ApiStatsData }) {
   };
 
   return (
-    <Card>
+    <Card padding={{ '@initial': 'l', '@tablet': 'm' }} css={{ overflow: 'auto' }}>
       <Flex stack gap="l">
         <H4>Request Status</H4>
 
@@ -354,7 +368,7 @@ function RequestStatusChart({ stats }: { stats?: ApiStatsData }) {
                 data={stats.charts.totalRequestsPerStatus}
                 label={(data) => formatNumber(data.payload.value)}
                 fontFamily="var(--font-number)"
-                fontSize="var(--font-size-body-small)"
+                fontSize="10px"
                 isAnimationActive={false}
                 stroke="var(--color-border-1)"
               >
@@ -381,7 +395,7 @@ function RequestStatusChart({ stats }: { stats?: ApiStatsData }) {
 
 function RequestsTable({ stats }: { stats?: ApiStatsData }) {
   return (
-    <Table.Root padding="l">
+    <Table.Root padding={{ '@initial': 'l', '@tablet': 'm' }}>
       <Table.Head header={<H4>Endpoint Metrics</H4>}>
         <Table.Row>
           <Table.HeaderCell>Method</Table.HeaderCell>
