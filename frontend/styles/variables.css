@@ -12,7 +12,7 @@
   --font-code: 'IBM Plex Mono', monospace;
   --font-number: 'IBM Plex Mono', monospace;
 
-  --font-size-root: 100%;
+  --font-size-root: 100%; /* Equal to 16px while also respecting browser font size override based on user settings */
   --font-size-body: 1rem;
   --font-size-body-small: 0.8rem;
   --font-size-h1: 2.5rem;
@@ -21,7 +21,7 @@
   --font-size-h4: 1.5rem;
   --font-size-h5: 1.25rem;
   --font-size-h6: 1rem;
-  --font-size-input: 16px; /* 16px meets iOS minimum font size requirement */
+  --font-size-input: 16px; /* 16px meets iOS minimum font size requirement to prevent auto-zoom */
 
   --line-height-body: 1.5;
   --line-height-body-small: 1.5;
