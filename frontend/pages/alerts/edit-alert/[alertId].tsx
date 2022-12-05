@@ -219,7 +219,7 @@ const EditAlert: NextPageWithLayout = () => {
           <Flex stack gap="l">
             <Form.Root disabled={nameForm.formState.isSubmitting} onSubmit={nameForm.handleSubmit(submitNameForm)}>
               <Flex stack>
-                <Flex justify="spaceBetween" gap="l">
+                <Flex justify="spaceBetween" stack={{ '@mobile': true }}>
                   {isEditingName && (
                     <Flex gap="none">
                       <Form.Group>
