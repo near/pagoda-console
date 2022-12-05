@@ -5,10 +5,18 @@ import {
   AbiSerializationType,
 } from 'near-abi-client-js';
 
-// Upgrades an ABI to latest version (currently v0.3.0)
-export function upgradeAbi(abi: any): AbiRoot {
-  if (abi?.schema_version === '0.3.0') return abi;
-  if (abi?.schema_version !== '0.1.0') throw 'ABI schema version not supported';
+import { AbiRoot as AbiRootV1, AbiType as AbiTypeV1 } from './abi.v1';
+
+// ABI client v0.3.0 is not backwards compatible with version v0.1.0 and
+// so all v0.1.0 on-chain and in our DB will need to be upgraded
+// to at least v0.3.0.
+// Newer ABI clients should be backwards compatible with version v0.3.0.
+export function upgradeAbi(anyAbi: AbiRootV1 | AbiRoot | any): AbiRoot {
+  if (anyAbi?.schema_version === '0.3.0') return anyAbi as AbiRoot;
+  if (anyAbi?.schema_version !== '0.1.0')
+    throw 'ABI schema version not supported';
+
+  const abi = anyAbi as AbiRootV1;
 
   return {
     schema_version: abi.schema_version,
@@ -74,15 +82,15 @@ export function upgradeAbi(abi: any): AbiRoot {
   };
 }
 
-function convertAbiType(t) {
+function convertAbiType(abiType: AbiTypeV1) {
   return {
-    type_schema: t.type_schema,
-    serialization_type: convertSerializationType(t.serialization_type),
+    type_schema: abiType.type_schema,
+    serialization_type: convertSerializationType(abiType.serialization_type),
   };
 }
 
-function convertSerializationType(type) {
-  if (type === 'json') return AbiSerializationType.Json;
-  if (type === 'borsh') return AbiSerializationType.Borsh;
-  throw `Unrecognized serialization type of '${type}'`;
+function convertSerializationType(serType: string) {
+  if (serType === 'json') return AbiSerializationType.Json;
+  if (serType === 'borsh') return AbiSerializationType.Borsh;
+  throw `Unrecognized serialization type of '${serType}'`;
 }
