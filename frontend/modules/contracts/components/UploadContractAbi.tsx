@@ -1,3 +1,5 @@
+import { upgradeAbi } from '@pc/abi/upgrade';
+import type { AbiRoot } from 'near-abi-client-js';
 import type { ChangeEvent, DragEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -8,6 +10,7 @@ import { DragAndDropLabel } from '@/components/lib/DragAndDrop';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
+import { Message } from '@/components/lib/Message';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
@@ -24,7 +27,8 @@ type Props = {
 
 export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
   const [showModal, setShowModal] = useState(true);
-  const [previewAbi, setPreviewAbi] = useState<string | null>(null);
+  const [previewAbi, setPreviewAbi] = useState<AbiRoot | null>(null);
+  const [showUpgradeText, setShowUpgradeText] = useState(false);
 
   async function uploadAbi() {
     if (!previewAbi) {
@@ -36,7 +40,7 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
       });
       return null;
     }
-    const uploaded = await uploadContractAbi(contractSlug, JSON.parse(previewAbi));
+    const uploaded = await uploadContractAbi(contractSlug, previewAbi);
     if (uploaded) {
       setAbiUploaded(true);
       setShowModal(false);
@@ -54,8 +58,15 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
 
   function tryLoadPreview(content: any) {
     try {
-      JSON.parse(content);
-      setPreviewAbi(content);
+      const parsedAbi = JSON.parse(content);
+
+      if (parsedAbi.schema_version === '0.1.0') {
+        setShowUpgradeText(true);
+        setPreviewAbi(upgradeAbi(parsedAbi));
+      } else {
+        setShowUpgradeText(false);
+        setPreviewAbi(parsedAbi);
+      }
     } catch {
       openToast({
         type: 'error',
@@ -207,8 +218,15 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
           </Button>
         </Flex>
 
+        {showUpgradeText && (
+          <Message
+            type="info"
+            content="We upgraded this ABI to the latest schema version (v0.3.0). Please review below."
+          />
+        )}
+
         <CodeBlock css={{ maxHeight: MAX_CODE_HEIGHT }} language="json">
-          {!previewAbi ? '{}' : JSON.stringify(JSON.parse(previewAbi), null, 2)}
+          {!previewAbi ? '{}' : JSON.stringify(previewAbi, null, 2)}
         </CodeBlock>
       </ConfirmModal>
     </>
