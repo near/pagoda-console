@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "prepare": "husky install",
-    "postinstall": "npm install turbo -D && npm run -w database build && npm run -w eslint-rules build",
+    "postinstall": "npm install turbo -D",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start"
