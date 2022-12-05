@@ -106,7 +106,7 @@ coverage
 # Strapi
 ############################
 
-.env
+#.env # we do not gitignore .env so it can be used for simple local development
 license.txt
 exports
 *.cache

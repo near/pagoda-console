@@ -18,15 +18,20 @@ export default ({ env }) => {
       },
     };
   } else if (env("CMS_DB_TYPE") === "POSTGRES") {
+    const connectionString = env("DATABASE_CONNECTION_STRING");
+    if (typeof connectionString !== "string") {
+      throw new Error("Please provide a DATABASE_CONNECTION_STRING");
+    }
+    if (!/postgresql:\/\/.+:.+@.+\/cms($|\?.+)/.test(connectionString)) {
+      throw new Error(
+        "Safeguard: Connection string must target database `cms` to protect against accidental conflict with other Console data"
+      );
+    }
     return {
       connection: {
         client: "postgres",
         connection: {
-          host: env("DATABASE_HOST"),
-          port: env.int("DATABASE_PORT", 5432),
-          database: "cms", // hardcode this to CMS so we never accidentally conflict with other data
-          user: env("DATABASE_USERNAME"),
-          password: env("DATABASE_PASSWORD"),
+          connectionString,
           ssl: false,
         },
         debug: false,
