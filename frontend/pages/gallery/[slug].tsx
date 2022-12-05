@@ -27,7 +27,7 @@ const BackToTemplatesLink = styled(Flex, {
 });
 
 const CustomBox = styled(Box, {
-  paddingTop: '110px',
+  paddingTop: '6.875rem',
   background:
     'url(/images/gallery/curve-three.svg) no-repeat right top, url(/images/gallery/curve-four.svg) no-repeat right top',
 });

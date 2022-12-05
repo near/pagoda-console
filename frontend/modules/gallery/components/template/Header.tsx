@@ -14,18 +14,18 @@ const IconSharedDarkCustom = styled(IconSharedDark, {
 });
 
 const LogoCircle = styled(Flex, {
-  width: '40px',
-  height: '40px',
+  width: '2.5rem',
+  height: '2.5rem',
   border: '1px solid #9BA1A6',
   borderRadius: '100%',
-  padding: '8px',
+  padding: '0.5rem',
 });
 
 const UseTemplateButton = styled(Button, {
-  padding: '0 28px',
+  padding: '0 1.75rem',
 
   '& div': {
-    height: '30px',
+    height: '1.875rem',
     borderRight: '1px solid #55B467',
   },
 

@@ -11,25 +11,25 @@ import { styled } from '@/styles/stitches';
 import { StableId } from '@/utils/stable-ids';
 
 const CustomDiv = styled('div', {
-  height: '458px',
+  height: '26.625rem',
   backgroundColor: '#BABACB',
-  margin: '120px 0 200px',
+  margin: '7.5rem 0 12.5rem',
 });
 
 const BannerText = styled(Flex, {
-  padding: '80px 0 0 100px',
+  padding: '5rem 0 0 6.25rem',
   width: '45%',
 
   [`& ${Text}`]: {
     color: '#151718',
-    marginBottom: '16px',
+    marginBottom: '1rem',
   },
 });
 
 const CustomBox = styled(Box, {
   position: 'absolute',
-  top: '160px',
-  right: '0px',
+  top: '10rem',
+  right: 0,
 });
 
 const CustomContainer = styled(Container, {

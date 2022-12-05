@@ -6,13 +6,13 @@ import { styled } from '@/styles/stitches';
 
 const FilterSection = styled(Flex, {
   borderBottom: '1px solid #313538',
-  marginBottom: '24px',
-  paddingBottom: '24px',
+  marginBottom: '1.5rem',
+  paddingBottom: '1.5rem',
 });
 
 const Template = styled('div', {
   width: '100%',
-  height: '153px',
+  height: '9.5rem',
   position: 'relative',
 });
 

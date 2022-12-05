@@ -9,16 +9,16 @@ import { StableId } from '@/utils/stable-ids';
 
 const RunExampleImage = styled(Box, {
   width: '100%',
-  height: '382px',
+  height: '23.875rem',
   position: 'relative',
   overflow: 'hidden',
-  borderTopLeftRadius: '40px',
-  margin: '60px 0',
+  borderTopLeftRadius: '2.5rem',
+  margin: '3.75rem 0',
 
   '& button': {
     position: 'absolute',
-    top: '24px',
-    right: '24px',
+    top: '1.5rem',
+    right: '1.5rem',
   },
 });
 

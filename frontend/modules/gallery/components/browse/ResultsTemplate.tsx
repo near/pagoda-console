@@ -10,7 +10,7 @@ import Shared from '@/public/images/gallery/shared.svg';
 import { styled } from '@/styles/stitches';
 
 const TemplateTitle = styled(Flex, {
-  marginBottom: '20px',
+  marginBottom: '1.25rem',
 });
 
 const TemplateGradient = styled('div', {
@@ -22,11 +22,11 @@ const TemplateGradient = styled('div', {
 });
 
 const TemplateGradientIcon = styled(Flex, {
-  width: '40px',
-  height: '40px',
+  width: '2.5rem',
+  height: '2.5rem',
   position: 'absolute',
-  top: '16px',
-  right: '16px',
+  top: '1rem',
+  right: '1rem',
   background: '#fff',
   borderRadius: '100%',
   opacity: 0,
@@ -50,13 +50,13 @@ const Template = styled('div', {
 
 const TemplateImage = styled('div', {
   width: '100%',
-  height: '148px',
+  height: '9.25rem',
   position: 'relative',
   overflow: 'hidden',
-  marginBottom: '30px',
+  marginBottom: '1.875rem',
 
   '& span': {
-    borderTopLeftRadius: '40px',
+    borderTopLeftRadius: '2.5rem',
   },
 });
 

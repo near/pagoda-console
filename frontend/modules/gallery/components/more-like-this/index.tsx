@@ -14,8 +14,8 @@ const ResultsTop = styled(Flex, {
 const Templates = styled('div', {
   display: 'grid',
   gridTemplateColumns: '1fr 1fr 1fr 1fr',
-  columnGap: '40px',
-  rowGap: '60px',
+  columnGap: '2.5rem',
+  rowGap: '3.75rem',
 });
 
 const SeeAllTemplate = styled('span', {

@@ -15,16 +15,16 @@ import Step from './Step';
 
 const Header = styled(Flex, {
   background: 'url(/images/gallery/build.png) no-repeat right center',
-  height: '500px',
+  height: '31.25rem',
 
   [`& ${Text}`]: {
-    paddingBottom: '30px',
-    width: '540px',
+    paddingBottom: '1.875rem',
+    width: '33.75rem',
   },
 });
 
 const CustomBox = styled(Box, {
-  paddingTop: '110px',
+  paddingTop: '6.875rem',
   background:
     'url(/images/gallery/curve-one.svg) no-repeat left top, url(/images/gallery/curve-two.svg) no-repeat left top',
 });

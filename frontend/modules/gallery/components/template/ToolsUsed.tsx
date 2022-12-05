@@ -7,8 +7,8 @@ import type { Options } from '../browse/types';
 
 const FilterSection = styled(Flex, {
   borderBottom: '1px solid #313538',
-  marginBottom: '24px',
-  paddingBottom: '24px',
+  marginBottom: '1.5rem',
+  paddingBottom: '1.5rem',
 });
 
 const ToolsUsed = () => {

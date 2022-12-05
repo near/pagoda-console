@@ -5,10 +5,10 @@ import Filters from './Filters';
 import Results from './Results';
 
 const CustomContainer = styled(Container, {
-  marginBottom: '200px',
+  marginBottom: '12.5rem',
   display: 'grid',
   gridTemplateColumns: '1fr 3fr',
-  columnGap: '40px',
+  columnGap: '2.5rem',
 });
 
 const Browse = () => {

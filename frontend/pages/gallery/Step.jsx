@@ -7,11 +7,11 @@ const StepFlex = styled(Flex, {
 });
 
 const IconBackground = styled(Flex, {
-  width: '80px',
-  height: '80px',
+  width: '5rem',
+  height: '5rem',
   backgroundColor: '#26292B',
-  borderRadius: '32px',
-  marginBottom: '12px',
+  borderRadius: '2rem',
+  marginBottom: '0.75rem',
 });
 
 const Step = ({ icon, header, text }) => (

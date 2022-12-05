@@ -14,7 +14,7 @@ const Grid = styled('div', {
 });
 
 const Details = styled('div', {
-  paddingLeft: '40px',
+  paddingLeft: '2.5rem',
 });
 
 const CustomUL = styled('ul', {
@@ -22,7 +22,7 @@ const CustomUL = styled('ul', {
   padding: '2rem 0',
 
   '& li': {
-    margin: '0 0 10px 20px',
+    margin: '0 0 0.625rem 1.25rem',
   },
 });
 
