@@ -1,7 +1,7 @@
 import { Box } from '@/components/lib/Box';
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
-import Line from '@/components/lib/Line';
+import { HR } from '@/components/lib/HorizontalRule';
 import { Text } from '@/components/lib/Text';
 import { useGalleryLayout } from '@/hooks/layouts';
 import Browse from '@/modules/gallery/components/browse';
@@ -61,7 +61,7 @@ const Gallery: NextPageWithLayout = () => {
           />
         </Flex>
       </Container>
-      <Line />
+      <HR color="border2" margin="xl" />
       <Browse />
     </CustomBox>
   );

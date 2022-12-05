@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Box } from '@/components/lib/Box';
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
-import Line from '@/components/lib/Line';
+import { HR } from '@/components/lib/HorizontalRule';
 import { Text } from '@/components/lib/Text';
 import { useGalleryLayout } from '@/hooks/layouts';
 import MoreLikeThis from '@/modules/gallery/components/more-like-this';
@@ -48,7 +48,7 @@ const ViewGallery: NextPageWithLayout = () => {
         </BackToTemplatesLink>
         <TemplateDetails />
       </Container>
-      <Line />
+      <HR color="border2" margin="xl" />
       <MoreLikeThis />
       <Banner />
     </CustomBox>
