@@ -7,12 +7,12 @@
 
 const axios = require('axios');
 
-const CMS_CHECK_ENDPOINT = `${process.env.CMS_URL}/_health`;
-
 if (!process.env.CI) {
   console.log('Local build, loading dotenv files');
   require('dotenv').config();
 }
+
+const CMS_CHECK_ENDPOINT = `${process.env.CMS_URL}/templates`;
 
 let attempts = 0;
 const attemptLimit = 60;
@@ -26,7 +26,7 @@ async function main() {
 async function check() {
   try {
     await axios({
-      method: 'HEAD',
+      method: 'GET',
       url: CMS_CHECK_ENDPOINT,
       headers: {
         Authorization: `Bearer ${process.env.CMS_API_KEY}`,
