@@ -3,6 +3,7 @@ import {
   AbiFunctionKind,
   AbiFunctionModifier,
   AbiSerializationType,
+  AbiFunction,
 } from 'near-abi-client-js';
 
 import { AbiRoot as AbiRootV1, AbiType as AbiTypeV1 } from './abi.v1';
@@ -18,16 +19,16 @@ export function upgradeAbi(anyAbi: AbiRootV1 | AbiRoot | any): AbiRoot {
 
   const abi = anyAbi as AbiRootV1;
 
-  return {
-    schema_version: abi.schema_version,
-    metadata: {
-      name: abi.metadata?.name,
-      version: abi.metadata?.version,
-      authors: abi.metadata?.authors,
-    },
+  let upgradedAbi: AbiRoot = {
+    schema_version: '0.3.0',
     body: {
       root_schema: abi.body.root_schema,
       functions: abi.body.functions.map((func) => {
+        let upgradedFunc: AbiFunction = {
+          name: func.name,
+          kind: func.is_view ? AbiFunctionKind.View : AbiFunctionKind.Call,
+        };
+
         let modifiers: AbiFunctionModifier[] = [];
 
         if (func.is_init) {
@@ -40,31 +41,32 @@ export function upgradeAbi(anyAbi: AbiRootV1 | AbiRoot | any): AbiRoot {
           modifiers.push(AbiFunctionModifier.Payable);
         }
 
-        let callbacks;
+        if (modifiers.length) {
+          upgradedFunc.modifiers = modifiers;
+        }
+
         if (func.callbacks) {
-          callbacks = func.callbacks.map((c) => convertAbiType(c));
+          upgradedFunc.callbacks = func.callbacks.map((c) => convertAbiType(c));
         }
 
-        let callbacks_vec;
         if (func.callbacks_vec) {
-          callbacks_vec = convertAbiType(func.callbacks_vec);
+          upgradedFunc.callbacks_vec = convertAbiType(func.callbacks_vec);
         }
 
-        let result;
         if (func.result) {
-          result = convertAbiType(func.result);
+          upgradedFunc.result = convertAbiType(func.result);
         }
 
-        return {
-          name: func.name,
-          doc: func.doc,
-          kind: func.is_view ? AbiFunctionKind.View : AbiFunctionKind.Call,
-          modifiers,
-          params: {
-            serialization_type: func.params?.length
-              ? convertSerializationType(func.params[0].serialization_type)
-              : AbiSerializationType.Json,
-            args: func.params?.length
+        if (func.doc) {
+          upgradedFunc.doc = func.doc;
+        }
+
+        if (func.params?.length) {
+          upgradedFunc.params = {
+            serialization_type: convertSerializationType(
+              func.params[0].serialization_type,
+            ),
+            args: func.params.length
               ? func.params.map((p) => {
                   return {
                     name: p.name,
@@ -72,14 +74,27 @@ export function upgradeAbi(anyAbi: AbiRootV1 | AbiRoot | any): AbiRoot {
                   };
                 })
               : [],
-          },
-          ...callbacks,
-          ...callbacks_vec,
-          ...result,
-        };
+          };
+        }
+
+        return upgradedFunc;
       }),
     },
   };
+
+  upgradedAbi.metadata = {};
+
+  if (abi.metadata?.name) {
+    upgradedAbi.metadata.name = abi.metadata.name;
+  }
+  if (abi.metadata?.version) {
+    upgradedAbi.metadata.version = abi.metadata.version;
+  }
+  if (abi.metadata?.authors) {
+    upgradedAbi.metadata.authors = abi.metadata.authors;
+  }
+
+  return upgradedAbi;
 }
 
 function convertAbiType(abiType: AbiTypeV1) {
