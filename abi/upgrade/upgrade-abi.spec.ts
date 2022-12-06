@@ -1,4 +1,4 @@
-import { upgradeAbi } from '@pc/abi/upgrade';
+import { upgradeAbi } from './index';
 
 const HELLO_NEAR_V_0_1_0 = {
   schema_version: '0.1.0',
