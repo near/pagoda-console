@@ -38,6 +38,6 @@ export const Section = styled('section', {
   },
 
   defaultVariants: {
-    background: 'surface1',
+    background: 'surface3',
   },
 });

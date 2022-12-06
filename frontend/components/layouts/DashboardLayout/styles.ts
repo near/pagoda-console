@@ -5,6 +5,7 @@ export const Wrapper = styled('div', {
   flexDirection: 'column',
   minHeight: '100%',
   width: '100%',
+  background: 'var(--color-surface-3)',
 });
 
 export const Main = styled('main', {
