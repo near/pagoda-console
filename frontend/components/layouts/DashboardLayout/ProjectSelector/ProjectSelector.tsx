@@ -82,7 +82,8 @@ export function ProjectSelector(props: Props) {
                   </DropdownMenu.ContentItem>
                   {projects.map((p) => (
                     <DropdownMenu.Item key={p.slug} onSelect={() => onSelectProject(p)}>
-                      {project?.slug === p.slug && <FeatherIcon icon="check" size="s" />}
+                      {project?.slug === p.slug && <FeatherIcon icon="check-circle" size="xs" color="primary" />}
+                      {project?.slug !== p.slug && <FeatherIcon icon="circle" size="xs" color="text3" />}
                       {p.name}
                       {p.tutorial && <Badge size="s">Tutorial</Badge>}
                     </DropdownMenu.Item>
