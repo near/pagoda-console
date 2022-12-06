@@ -15,12 +15,12 @@ test(`create blank project test`, async ({ page }) => {
   await login(page);
 
   // If there are no other projects, the user will be rerouted to
-  await clickAndWaitForNavigation(page, 'button:has-text("Create")', 'pick-project');
+  await clickAndWaitForNavigation(page, '[data-stable-id="PROJECTS_CREATE_PROJECT_LINK"]', 'pick-project');
   await page.locator('text=New Project').waitFor({ state: 'visible' });
   // Click on "Blank" project button.
   await clickAndWaitForNavigation(page, '#blank', 'new-project');
   await page.fill('[placeholder="Cool New Project"]', project);
-  await clickAndWaitForNavigation(page, 'text=Create Project', 'apis?tab=keys');
+  await clickAndWaitForNavigation(page, '[data-stable-id="NEW_PROJECT_CREATE_BUTTON"]', 'apis?tab=keys');
 
   await removeProject(page);
 });
@@ -35,20 +35,24 @@ test(`create tutorial project test`, async ({ page }) => {
 
   await login(page);
 
-  await page.click('text=Create');
+  await clickAndWaitForNavigation(page, '[data-stable-id="PROJECTS_CREATE_PROJECT_LINK"]', 'pick-project');
   await page.locator('text=New Project').waitFor({ state: 'visible' });
   await clickAndWaitForNavigation(page, '#tutorial', 'pick-tutorial');
   await clickAndWaitForNavigation(page, '#nft-market', 'new-nft-tutorial');
   await page.fill('[placeholder="Cool New Project"]', project);
-  await clickAndWaitForNavigation(page, 'text=Create Project', 'tutorials/nfts/introduction');
+  await clickAndWaitForNavigation(
+    page,
+    '[data-stable-id="NEW_NFT_TUTORIAL_CREATE_BUTTON"]',
+    'tutorials/nfts/introduction',
+  );
 
   await removeProject(page);
 });
 
 async function removeProject(page: Page) {
-  await clickAndWaitForNavigation(page, 'a:has-text("Settings")', 'project-settings');
-  await page.click('button:has-text("Remove Project")');
+  await clickAndWaitForNavigation(page, '[data-stable-id="SIDEBAR_PROJECT_SETTINGS_LINK"]', 'project-settings');
+  await page.click('[data-stable-id="PROJECT_SETTINGS_OPEN_DELETE_PROJECT_MODAL"]');
   // The user might land on the /pick-project screen if there are no other projects listed on the /projects page.
   // We'll assume there are other projects on the user for now.
-  await clickAndWaitForNavigation(page, 'div[role="dialog"] button:has-text("Remove")', 'projects');
+  await clickAndWaitForNavigation(page, '[data-stable-id="CONFIRM_MODAL_CONFIRM_BUTTON"]', 'projects');
 }
