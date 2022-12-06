@@ -2,13 +2,13 @@ import { useRouter } from 'next/router';
 
 import { Box } from '@/components/lib/Box';
 import { Container } from '@/components/lib/Container';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Text } from '@/components/lib/Text';
 import { useGalleryLayout } from '@/hooks/layouts';
 import MoreLikeThis from '@/modules/gallery/components/more-like-this';
 import TemplateDetails from '@/modules/gallery/components/template';
-import IconArrowLeft from '@/public/images/gallery/arrow-left.svg';
 import { styled } from '@/styles/stitches';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -41,7 +41,7 @@ const ViewGallery: NextPageWithLayout = () => {
     <CustomBox>
       <Container size="ml">
         <BackToTemplatesLink wrap justify="start" align="center">
-          <IconArrowLeft />
+          <FeatherIcon icon="arrow-left" color="text3" size="s" />
           <Text color="text3" onClick={backToTemplates}>
             Back to Templates
           </Text>

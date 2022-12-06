@@ -1,15 +1,13 @@
 import { Box } from '@/components/lib/Box';
 import { Button } from '@/components/lib/Button';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
 import LogoIconSvg from '@/public/images/brand/pagoda-icon.svg';
-import Liked from '@/public/images/gallery/liked.svg';
-import IconSharedDark from '@/public/images/gallery/shared-dark.svg';
-import IconSource from '@/public/images/gallery/source.svg';
 import { styled } from '@/styles/stitches';
 import { StableId } from '@/utils/stable-ids';
 
-const IconSharedDarkCustom = styled(IconSharedDark, {
+const IconShare = styled(FeatherIcon, {
   transform: 'rotate(-90deg)',
 });
 
@@ -27,10 +25,6 @@ const UseTemplateButton = styled(Button, {
   '& div': {
     height: '1.875rem',
     borderRight: '1px solid #55B467',
-  },
-
-  '& svg': {
-    stroke: '#fff',
   },
 });
 
@@ -73,7 +67,7 @@ const Header = () => {
       <Flex stack autoWidth>
         <Flex justify="end">
           <UseTemplateButton stableId={StableId.GALLERY_USE_TEMPLATE}>
-            <IconSharedDarkCustom />
+            <IconShare icon="share-2" size="s" />
             Use Template
             <Box />
             28.4 k
@@ -81,11 +75,11 @@ const Header = () => {
         </Flex>
         <Flex justify="end">
           <Button color="neutral" stableId={StableId.GALLERY_LIKE}>
-            <Liked />
+            <FeatherIcon icon="heart" color="danger" size="s" />
             319
           </Button>
           <Button color="neutral" stableId={StableId.GALLERY_VIEW_SOURCE}>
-            <IconSource />
+            <FeatherIcon icon="github" size="s" />
             View Source
           </Button>
         </Flex>

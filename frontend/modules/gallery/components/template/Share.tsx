@@ -1,8 +1,6 @@
 import { Button } from '@/components/lib/Button';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
-import IconFacebook from '@/public/images/gallery/facebook.svg';
-import IconShare from '@/public/images/gallery/share.svg';
-import IconTwitter from '@/public/images/gallery/twitter.svg';
 import { styled } from '@/styles/stitches';
 import { StableId } from '@/utils/stable-ids';
 
@@ -22,7 +20,7 @@ const ShareButtons = styled(Flex, {
   },
 });
 
-const IconShareCustom = styled(IconShare, {
+const IconShareCustom = styled(FeatherIcon, {
   transform: 'rotate(-45deg)',
 });
 
@@ -32,13 +30,13 @@ const TemplateArchitecture = () => {
       Share
       <ShareButtons>
         <Button color="neutral" stableId={StableId.GALLERY_FILTER_TOOLS}>
-          <IconShareCustom />
+          <IconShareCustom icon="link-2" size="s" color="text2" />
         </Button>
         <Button color="neutral" stableId={StableId.GALLERY_FILTER_TOOLS}>
-          <IconTwitter />
+          <FeatherIcon icon="twitter" size="s" color="text2" />
         </Button>
         <Button color="neutral" stableId={StableId.GALLERY_FILTER_TOOLS}>
-          <IconFacebook />
+          <FeatherIcon icon="facebook" size="s" color="text2" />
         </Button>
       </ShareButtons>
     </FilterSection>

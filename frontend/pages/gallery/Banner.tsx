@@ -3,9 +3,9 @@ import Image from 'next/image';
 import { Box } from '@/components/lib/Box';
 import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
-import IconArrowRightTop from '@/public/images/gallery/arrow-right-top.svg';
 import ImageBanner from '@/public/images/gallery/banner.png';
 import { styled } from '@/styles/stitches';
 import { StableId } from '@/utils/stable-ids';
@@ -47,7 +47,7 @@ const Banner = () => {
           <Text>We&apos;re always open to suggestions from our community.</Text>
           <Button color="input" stableId={StableId.GALLERY_REQUEST_A_TEMPLATE}>
             Request a Template
-            <IconArrowRightTop />
+            <FeatherIcon icon="arrow-up-right" size="s" />
           </Button>
         </BannerText>
         <CustomBox>
