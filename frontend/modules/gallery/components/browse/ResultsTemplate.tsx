@@ -1,12 +1,10 @@
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
-import FullScreen from '@/public/images/gallery/full-screen.svg';
-import Liked from '@/public/images/gallery/liked.svg';
 import PlaceholderImage from '@/public/images/gallery/placeholder.png';
-import Shared from '@/public/images/gallery/shared.svg';
 import { styled } from '@/styles/stitches';
 
 const TemplateTitle = styled(Flex, {
@@ -60,7 +58,7 @@ const TemplateImage = styled('div', {
   },
 });
 
-const TemplateShared = styled(Shared, {
+const TemplateShared = styled(FeatherIcon, {
   transform: 'rotate(-90deg)',
 });
 
@@ -73,15 +71,15 @@ const ResultsTemplate = () => {
         <Image layout="fill" src={PlaceholderImage} alt="" />
         <TemplateGradient />
         <TemplateGradientIcon align="center" justify="center">
-          <FullScreen />
+          <FeatherIcon icon="maximize-2" color="ctaPrimaryText" size="s" />
         </TemplateGradientIcon>
       </TemplateImage>
 
       <TemplateTitle>Loyalty Program with NEAR Fungible Tokens (FT)</TemplateTitle>
       <Flex align="center">
-        <TemplateShared />
+        <TemplateShared icon="share-2" color="text3" size="s" />
         <Text color="text3">28.4k</Text>
-        <Liked />
+        <FeatherIcon icon="heart" color="text3" size="s" />
         <Text color="text3">3.4k</Text>
       </Flex>
     </Template>
