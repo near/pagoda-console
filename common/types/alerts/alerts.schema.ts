@@ -353,12 +353,12 @@ const destination = z.union([
 export type Destination = z.infer<typeof destination>;
 
 const tgChat = z.union([
-  z.strictObject({
+  z.object({
     type: z.literal('private'),
     id: z.number(),
     username: z.string().optional(),
   }),
-  z.strictObject({
+  z.object({
     type: z.enum(['group', 'supergroup', 'channel']),
     id: z.number(),
     title: z.string().optional(),
@@ -428,10 +428,10 @@ export const mutation = {
     verifyEmailDestination: z.strictObject({
       token: z.string(),
     }),
-    telegramWebhook: z.strictObject({
+    telegramWebhook: z.object({
       update_id: z.number(),
       message: z
-        .strictObject({
+        .object({
           chat: tgChat,
           text: z.string().optional(),
         })
