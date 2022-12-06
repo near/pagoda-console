@@ -44,7 +44,7 @@ export function CodeBlock({ children, css, customStyle, ...passedProps }: Props)
         position: 'relative',
         width: '100%',
         borderRadius: 'var(--border-radius-m)',
-        background: 'var(--color-surface-1)',
+        background: 'var(--color-surface-2)',
         overflow: 'auto',
         ...css,
       }}
@@ -56,7 +56,6 @@ export function CodeBlock({ children, css, customStyle, ...passedProps }: Props)
           borderRadius: 'var(--border-radius-m)',
           padding: '1rem 3rem 1rem 1.2rem',
           background: 'none',
-          border: '1px solid var(--color-border-1)',
           ...customStyle,
         }}
         {...passedProps}

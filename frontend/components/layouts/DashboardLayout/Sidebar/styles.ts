@@ -16,7 +16,7 @@ export const Sidebar = styled('nav', {
   overflowY: 'auto',
   overflowX: 'hidden',
   scrollBehavior: 'smooth',
-  boxShadow: 'var(--shadow-softer)',
+  boxShadow: 'var(--shadow-soft)',
   transition: 'width var(--sidebar-animation-speed) ease',
 });
 

@@ -130,7 +130,7 @@
   --color-surface-overlay: #ffffff;
   --color-surface-1: #f6f7f9;
   --color-surface-2: #e8e9eb;
-  --color-surface-3: #d5d7d9;
+  --color-surface-3: #dddfe1;
   --color-surface-4: #cbcdcf;
   --color-surface-5: #bbbdbf;
 
@@ -141,7 +141,7 @@
   --color-cta-neutral-highlight: #bbbdbf;
   --color-cta-neutral-text: #242625;
 
-  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.3);
+  --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.15);
   --shadow-softer: 0 2px 10px rgba(0, 0, 0, 0.075);
 }
 
