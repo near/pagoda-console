@@ -17,8 +17,11 @@ export const HR = styled('hr', {
       zero: {
         margin: '0',
       },
+      m: {
+        margin: '1.5rem 0',
+      },
       xl: {
-        margin: '80px 0',
+        margin: '5rem 0',
       },
     },
   },

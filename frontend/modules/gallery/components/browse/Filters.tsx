@@ -1,4 +1,5 @@
 import { Box } from '@/components/lib/Box';
+import { HR } from '@/components/lib/HorizontalRule';
 
 import FiltersButtons from './FiltersButtons';
 import FiltersCheckboxes from './FiltersCheckboxes';
@@ -57,7 +58,9 @@ const Filters = () => {
   return (
     <Box>
       <FiltersCheckboxes title="Categories" options={categoriesOptions} name="categories" />
+      <HR color="border2" margin="m" />
       <FiltersCheckboxes title="Languages" options={languagesOptions} name="languages" />
+      <HR color="border2" margin="m" />
       <FiltersButtons title="Tools Used" options={toolsUsedOptions} name="tools-used" />
     </Box>
   );
