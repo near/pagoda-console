@@ -82,7 +82,8 @@
       "ts"
     ],
     "roots": [
-      "<rootDir>"
+      "<rootDir>",
+      "../abi/"
     ],
     "modulePaths": [
       "<rootDir>",
