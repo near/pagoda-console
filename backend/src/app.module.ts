@@ -5,6 +5,7 @@ import validate from './config/validate';
 import { ConfigModule } from '@nestjs/config';
 import { CoreModule } from './core/core.module';
 import { ModulesModule } from './modules/modules.module';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
@@ -17,6 +18,14 @@ import { ModulesModule } from './modules/modules.module';
     }),
     CoreModule,
     ModulesModule,
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport:
+          process.env.NODE_ENV?.toLowerCase() !== 'production'
+            ? { target: 'pino-pretty' }
+            : undefined,
+      },
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
