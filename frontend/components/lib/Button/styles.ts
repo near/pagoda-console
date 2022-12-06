@@ -58,11 +58,11 @@ export const Button = styled('button', {
         },
       },
       dangerBorder: {
-        background: 'transparent',
+        background: 'var(--color-surface-1)',
         boxShadow: 'inset 0 0 0 1px currentColor',
         color: 'var(--color-danger)',
         '&:hover': {
-          background: 'var(--color-surface-1)',
+          background: 'var(--color-surface-2)',
         },
       },
       input: {
@@ -85,26 +85,26 @@ export const Button = styled('button', {
         },
       },
       primaryBorder: {
-        background: 'transparent',
+        background: 'var(--color-surface-1)',
         boxShadow: 'inset 0 0 0 1px currentColor',
         color: 'var(--color-primary)',
         '&:hover': {
-          background: 'var(--color-surface-1)',
+          background: 'var(--color-surface-2)',
         },
       },
       neutral: {
-        background: 'transparent',
+        background: 'var(--color-surface-1)',
         boxShadow: 'inset 0 0 0 1px var(--color-surface-5)',
         color: 'var(--color-text-1)',
         '&:hover': {
-          background: 'var(--color-surface-1)',
+          background: 'var(--color-surface-2)',
         },
       },
       transparent: {
         background: 'transparent',
         color: 'var(--color-text-1)',
         '&:hover': {
-          background: 'var(--color-surface-1)',
+          background: 'var(--color-surface-2)',
         },
       },
     },

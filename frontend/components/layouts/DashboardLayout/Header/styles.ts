@@ -12,7 +12,7 @@ export const Header = styled('header', {
   top: 0,
   left: 0,
   right: 0,
-  background: 'var(--color-surface-2)',
+  background: 'var(--color-surface-3)',
   borderBottom: '1px solid var(--color-surface-1)',
   boxShadow: 'var(--shadow-softer)',
   zIndex: 500,

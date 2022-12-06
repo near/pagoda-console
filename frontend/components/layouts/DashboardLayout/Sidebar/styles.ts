@@ -12,7 +12,7 @@ export const Sidebar = styled('nav', {
   left: 0,
   bottom: 0,
   padding: '0 var(--space-m) var(--space-m)',
-  background: 'var(--color-surface-1)',
+  background: 'var(--color-surface-2)',
   overflowY: 'auto',
   overflowX: 'hidden',
   scrollBehavior: 'smooth',

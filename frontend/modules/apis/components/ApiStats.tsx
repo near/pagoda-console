@@ -64,7 +64,7 @@ export function ApiStats({ environment, project }: Props) {
           position: 'sticky',
           top: 'var(--size-header-height)',
           alignSelf: 'stretch',
-          background: 'linear-gradient(var(--color-surface-3) 75%, transparent)',
+          background: 'linear-gradient(var(--color-surface-1) 75%, transparent)',
           zIndex: 100,
 
           '@tablet': {

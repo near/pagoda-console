@@ -66,7 +66,7 @@ const Block = styled('div', {
   alignItems: 'center',
   width: '15rem',
   height: '3rem',
-  background: 'var(--color-surface-1)',
+  background: 'var(--color-surface-3)',
   borderRadius: 'var(--border-radius-m)',
 
   variants: {
