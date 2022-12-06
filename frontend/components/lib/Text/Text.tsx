@@ -51,6 +51,10 @@ export const Text = styled('p', {
         fontWeight: 400,
         fontFamily: 'var(--font-number)',
       },
+      sprint: {
+        fontWeight: 400,
+        fontFamily: 'var(--font-gallery-header)',
+      },
     },
 
     hasTooltip: {

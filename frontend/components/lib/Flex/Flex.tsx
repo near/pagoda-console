@@ -45,6 +45,9 @@ export const Flex = styled('div', {
       xl: {
         gap: 'var(--space-xl)',
       },
+      xxl: {
+        gap: 'var(--space-xxl)',
+      },
     },
 
     inline: {
