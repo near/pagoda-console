@@ -14,11 +14,17 @@ interface Props {
 
 export const ContractAbi = ({ contract }: Props) => {
   const { contractAbi, embedded } = useAnyAbi(contract);
+  const upgraded = true; // TODO
 
   return (
     <Flex gap="l" stack="true" autoWidth>
       {!contractAbi && <Spinner size="m" center />}
       {embedded && <Message type="info" content="This contract has an embedded ABI." />}
+      {upgraded && (
+        <Message type="info">
+          This contract&#39;s ABI was automatically upgraded to the latest schema version (v0.3.0).
+        </Message>
+      )}
       {contractAbi && <CodeBlock language="json">{JSON.stringify(contractAbi, null, 2)}</CodeBlock>}
     </Flex>
   );
