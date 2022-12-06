@@ -15,6 +15,7 @@ COPY tsconfig.json ./
 
 COPY ./database/package.json ./database/package.json
 COPY ./common/package.json ./common/package.json
+COPY ./abi/package.json ./abi/package.json
 COPY ./backend/package.json ./backend/package.json
 COPY ./frontend/package.json ./frontend/package.json
 
@@ -29,6 +30,7 @@ RUN npm ci
 
 COPY ./backend ./backend
 COPY ./common ./common
+COPY ./abi ./abi
 COPY ./database ./database
 
 # This will also build any other packages in the repo which backend depends on
