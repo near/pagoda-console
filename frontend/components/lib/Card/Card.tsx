@@ -2,7 +2,7 @@ import { styled } from '@/styles/stitches';
 
 export const Card = styled('div', {
   width: '100%',
-  background: 'var(--color-surface-3)',
+  background: 'var(--color-surface-2)',
   transition: 'var(--transitions)',
 
   '&:disabled': {
@@ -38,7 +38,7 @@ export const Card = styled('div', {
         cursor: 'pointer',
 
         '&:hover': {
-          background: 'var(--color-surface-2)',
+          background: 'var(--color-surface-3)',
         },
 
         '&:focus': {

@@ -101,7 +101,7 @@ export function ProjectSelector(props: Props) {
             padding: 'var(--space-s)',
 
             '&:not(:first-child)': {
-              borderTop: 'solid 1px var(--color-border-1)',
+              borderTop: 'solid 1px var(--color-border-2)',
             },
           }}
         >
