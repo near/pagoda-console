@@ -8,7 +8,7 @@ export const Card = styled('div', {
   maxWidth: '18rem',
   height: '18rem',
   borderRadius: 'var(--border-radius-xl)',
-  background: 'var(--color-surface-2)',
+  background: 'var(--color-surface-3)',
   padding: 'var(--space-l)',
   transition: 'var(--transitions)',
 
@@ -19,7 +19,7 @@ export const Card = styled('div', {
       outlineOffset: 'var(--focus-outline-offset)',
     },
     '&:hover': {
-      background: 'var(--color-surface-1)',
+      background: 'var(--color-surface-2)',
     },
   },
 
