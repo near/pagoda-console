@@ -474,6 +474,7 @@ const OrganizationsDropdown = ({ selectedOrganization }: { selectedOrganization?
           stableId={StableId.ORGANIZATION_SELECT}
         />
       </DropdownMenu.Trigger>
+
       <DropdownMenu.Content>
         <DropdownMenu.RadioGroup value={selectedOrganization?.slug} onValueChange={changeOrganization}>
           {organizations?.map((organization) => (
@@ -483,13 +484,12 @@ const OrganizationsDropdown = ({ selectedOrganization }: { selectedOrganization?
           )) ?? []}
         </DropdownMenu.RadioGroup>
 
-        <DropdownMenu.Item
-          onSelect={() => onSelectNewOrganization()}
-          css={{ color: 'var(--color-primary)', width: '100%' }}
-        >
-          <FeatherIcon icon="plus" />
-          Create New Organization
-        </DropdownMenu.Item>
+        <DropdownMenu.ContentStickyFooter>
+          <DropdownMenu.Item color="primary" onSelect={() => onSelectNewOrganization()}>
+            <FeatherIcon icon="plus" />
+            Create New Organization
+          </DropdownMenu.Item>
+        </DropdownMenu.ContentStickyFooter>
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   );

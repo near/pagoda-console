@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import { Badge } from '@/components/lib/Badge';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
-import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { useProjectGroups } from '@/hooks/projects';
@@ -61,17 +60,9 @@ export function ProjectSelector(props: Props) {
         <TextOverflow>{project?.name || '...'}</TextOverflow>
       </DropdownMenu.Button>
 
-      <DropdownMenu.Content innerCss={{ padding: 0, borderRadius: 'inherit' }}>
+      <DropdownMenu.Content>
         {projectGroups && projectGroups.length > 0 && (
-          <Flex
-            css={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'stretch',
-              gap: 'var(--space-m)',
-              padding: 'var(--space-s)',
-            }}
-          >
+          <>
             {projectGroups?.map(([orgName, projects]) => {
               return (
                 <div key={orgName}>
@@ -91,29 +82,15 @@ export function ProjectSelector(props: Props) {
                 </div>
               );
             })}
-          </Flex>
+          </>
         )}
 
-        <Flex
-          css={{
-            position: 'sticky',
-            bottom: 0,
-            background: 'var(--background-color)',
-            padding: 'var(--space-s)',
-
-            '&:not(:first-child)': {
-              borderTop: 'solid 1px var(--color-border-2)',
-            },
-          }}
-        >
-          <DropdownMenu.Item
-            onSelect={() => onSelectNewProject()}
-            css={{ color: 'var(--color-primary)', width: '100%' }}
-          >
+        <DropdownMenu.ContentStickyFooter>
+          <DropdownMenu.Item color="primary" onSelect={() => onSelectNewProject()}>
             <FeatherIcon icon="plus" />
             Create New Project
           </DropdownMenu.Item>
-        </Flex>
+        </DropdownMenu.ContentStickyFooter>
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   );
