@@ -38,7 +38,7 @@ const Gallery: NextPageWithLayout = () => {
             <Text size="h1" family="sprint">
               Build fast, learn fast with templates.
             </Text>
-            <Text color="text3">
+            <Text color="text2">
               This is a subheading to tell the user more about what this page is and how it should be used.
             </Text>
           </Flex>

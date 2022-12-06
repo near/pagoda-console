@@ -29,7 +29,7 @@ const Results = () => {
     <Box>
       <ResultsTop align="center">
         <Flex>
-          <Text color="text3">12 Results</Text>•<ResetLink>Reset</ResetLink>
+          <Text color="text2">12 Results</Text>•<ResetLink>Reset</ResetLink>
         </Flex>
         <Flex justify="end">
           <ResultsSortBy />

@@ -18,7 +18,7 @@ const FiltersCheckboxes = ({ title, options, name }: FilterButtonsProps) => {
       <Flex stack>
         {options.map(({ option, value }: Options) => (
           <Checkbox key={option} value={value} name={name}>
-            <Text color="text3">{option}</Text>
+            <Text color="text2">{option}</Text>
           </Checkbox>
         ))}
       </Flex>

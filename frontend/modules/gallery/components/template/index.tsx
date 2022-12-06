@@ -27,7 +27,7 @@ const CustomUL = styled('ul', {
 });
 
 const CustomBox = styled(Box, {
-  color: 'var(--color-text-3)',
+  color: 'var(--color-text-2)',
 });
 
 const TemplateDetails = () => {
