@@ -1,5 +1,5 @@
 import { getIdToken, updateProfile } from 'firebase/auth';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
@@ -11,9 +11,7 @@ import { HR } from '@/components/lib/HorizontalRule';
 import { Message } from '@/components/lib/Message';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
-import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
-import { useSignOut } from '@/hooks/auth';
 import { useAccount, useAuth } from '@/hooks/auth';
 import { useDashboardLayout } from '@/hooks/layouts';
 import DeleteAccountModal from '@/modules/core/components/modals/DeleteAccountModal';
@@ -32,7 +30,6 @@ const Settings: NextPageWithLayout = () => {
   const { identity } = useAuth();
   const [updateError, setUpdateError] = useState('');
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
-  const signOut = useSignOut();
 
   function edit() {
     setValue('displayName', user!.name!);
@@ -64,22 +61,14 @@ const Settings: NextPageWithLayout = () => {
       setIsEditing(false);
     }
   };
-
-  const onAccountDelete = async () => {
-    await signOut();
-    openToast({
-      type: 'success',
-      title: 'Account Deleted',
-      description: 'Your account has been deleted and you have been signed out.',
-    });
-  };
+  const resetError = useCallback(() => setUpdateError(''), [setUpdateError]);
 
   const isLoading = !user && !error;
 
   return (
     <>
       <Section>
-        <ErrorModal error={updateError} setError={setUpdateError} />
+        <ErrorModal error={updateError} resetError={resetError} />
 
         <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitSettings)}>
           <Flex stack gap="l">
@@ -138,11 +127,7 @@ const Settings: NextPageWithLayout = () => {
           </Button>
         </Flex>
       </Section>
-      <DeleteAccountModal
-        show={showDeleteAccountModal}
-        setShow={setShowDeleteAccountModal}
-        onDelete={onAccountDelete}
-      />
+      <DeleteAccountModal show={showDeleteAccountModal} setShow={setShowDeleteAccountModal} />
     </>
   );
 };

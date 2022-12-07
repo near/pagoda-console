@@ -12,54 +12,36 @@ import { Section } from '@/components/lib/Section';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
+import { useMutation } from '@/hooks/mutation';
 import { ProjectCard } from '@/modules/core/components/ProjectCard';
-import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
-import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 interface NewProjectFormData {
   projectName: string;
 }
+const PATH = '/tutorials/nfts/introduction';
+const TUTORIAL = 'NFT_MARKET';
 
 const NewNftTutorial: NextPageWithLayout = () => {
-  const { register, handleSubmit, formState, setError } = useForm<NewProjectFormData>();
+  const { register, handleSubmit, formState } = useForm<NewProjectFormData>();
   const router = useRouter();
+  const createProjectMutation = useMutation('/projects/create', {
+    onMutate: () => router.prefetch(PATH),
+    onSuccess: (result) => router.push(`${PATH}?project=${result.slug}&environment=1`),
+    getAnalyticsSuccessData: (variables) => ({ name: variables.name }),
+    getAnalyticsErrorData: (variables) => ({ name: variables.name }),
+  });
+  const mutationError =
+    createProjectMutation.status === 'error'
+      ? (createProjectMutation.error as any).statusCode === 409
+        ? 'Project name is already in use'
+        : 'Something went wrong'
+      : undefined;
 
-  // Project name is tutorial name. Path is the mdx file for the tutorial.
-  const createProject: SubmitHandler<NewProjectFormData> = async ({ projectName }) => {
-    const path = '/tutorials/nfts/introduction';
-    const tutorial = 'NFT_MARKET';
-    const name = projectName;
-
-    try {
-      router.prefetch(path);
-      const project = await authenticatedPost('/projects/create', {
-        name,
-        tutorial,
-      });
-      analytics.track('DC Create New NFT Tutorial Project', {
-        status: 'success',
-        name,
-      });
-      router.push(`${path}?project=${project.slug}&environment=1`);
-    } catch (e: any) {
-      analytics.track('DC Create New NFT Tutorial Project', {
-        status: 'failure',
-        name,
-        error: e.message,
-      });
-      if (e.statusCode === 409) {
-        setError('projectName', {
-          message: 'Project name is already in use',
-        });
-      } else {
-        setError('projectName', {
-          message: 'Something went wrong',
-        });
-      }
-    }
+  const createProject: SubmitHandler<NewProjectFormData> = ({ projectName }) => {
+    createProjectMutation.mutate({ name: projectName, tutorial: TUTORIAL });
   };
 
   return (
@@ -85,7 +67,7 @@ const NewNftTutorial: NextPageWithLayout = () => {
               }
             </Text>
 
-            <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(createProject)}>
+            <Form.Root disabled={createProjectMutation.isLoading} onSubmit={handleSubmit(createProject)}>
               <Flex stack align="end">
                 <Form.Group>
                   <Form.Label htmlFor="projectName">Project Name</Form.Label>
@@ -95,13 +77,13 @@ const NewNftTutorial: NextPageWithLayout = () => {
                     placeholder="Cool New Project"
                     {...register('projectName', formValidations.projectName)}
                   />
-                  <Form.Feedback>{formState.errors.projectName?.message}</Form.Feedback>
+                  <Form.Feedback>{mutationError || formState.errors.projectName?.message}</Form.Feedback>
                 </Form.Group>
 
                 <Button
                   stableId={StableId.NEW_NFT_TUTORIAL_CREATE_BUTTON}
                   type="submit"
-                  loading={formState.isSubmitting}
+                  loading={createProjectMutation.isLoading}
                 >
                   Create Project
                 </Button>

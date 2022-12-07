@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/auth';
 import { usePublicMode } from '@/hooks/public';
 import analytics from '@/utils/analytics';
 import config from '@/utils/config';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 import { inspectContract } from '../utils/embedded-abi';
 
@@ -62,7 +62,7 @@ export const useContractAbi = (contract: string | undefined) => {
   } = useSWR(
     identity && contract ? ['/abi/getContractAbi' as const, contract, identity.uid] : null,
     (key, contract) => {
-      return authenticatedPost(key, { contract });
+      return fetchApi([key, { contract }]);
     },
   );
 
@@ -71,10 +71,7 @@ export const useContractAbi = (contract: string | undefined) => {
 
 export const uploadContractAbi = async (contractSlug: string, abi: AbiRoot) => {
   try {
-    await authenticatedPost('/abi/addContractAbi', {
-      contract: contractSlug,
-      abi,
-    });
+    await fetchApi(['/abi/addContractAbi', { contract: contractSlug, abi }]);
 
     analytics.track('DC Upload Contract ABI', {
       status: 'success',

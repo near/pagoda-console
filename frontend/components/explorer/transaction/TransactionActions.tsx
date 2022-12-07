@@ -3,7 +3,6 @@ import type { DurationLikeObject } from 'luxon';
 import { Duration, Interval } from 'luxon';
 import * as React from 'react';
 import useSWR from 'swr';
-import type { BareFetcher, PublicConfiguration, Revalidator, RevalidatorOptions } from 'swr/dist/types';
 
 import { Flex } from '@/components/lib/Flex';
 import { H4 } from '@/components/lib/Heading';
@@ -12,7 +11,8 @@ import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { useNet } from '@/hooks/net';
 import { styled } from '@/styles/stitches';
-import { unauthenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
+import { getCustomErrorRetry } from '@/utils/query';
 import { StableId } from '@/utils/stable-ids';
 
 import { Button } from '../../lib/Button';
@@ -45,46 +45,14 @@ const TitleWrapper = styled('div', {
   marginBottom: 30,
 });
 
-// Differs from the global error retry by retrying on 400 errors.
-function customErrorRetry(
-  err: any,
-  __: string,
-  config: Readonly<PublicConfiguration<Explorer.Transaction, any, BareFetcher<Explorer.Transaction>>>,
-  revalidate: Revalidator,
-  opts: Required<RevalidatorOptions>,
-): void {
-  switch (err.statusCode) {
-    case 401:
-    case 403:
-    case 404:
-      console.log(`breaking for status code of ${err.status}`);
-      return;
-  }
-
-  const maxRetryCount = config.errorRetryCount;
-  const currentRetryCount = opts.retryCount;
-
-  const timeout = ~~((Math.random() + 0.5) * (1 << (currentRetryCount < 8 ? currentRetryCount : 8))) + 1500;
-
-  if (maxRetryCount !== undefined && currentRetryCount > maxRetryCount) {
-    return;
-  }
-
-  setTimeout(revalidate, timeout, opts);
-}
-
 const TransactionActions: React.FC<Props> = React.memo(({ transactionHash }) => {
   const net = useNet();
 
   const query = useSWR(
     transactionHash ? ['explorer/transaction', transactionHash, net] : null,
-    () =>
-      unauthenticatedPost('/explorer/transaction', {
-        hash: transactionHash!,
-        net,
-      }),
+    () => fetchApi(['/explorer/transaction', { hash: transactionHash!, net }], true),
     {
-      onErrorRetry: customErrorRetry,
+      onErrorRetry: getCustomErrorRetry([401, 403, 404]),
       // TODO currently this is a quick hack to load TXs that may have pending receipts that are scheduled to execute in the next block. We could stop refreshing once we get the last receipt's execution outcome timestamp.
       refreshInterval: 3000,
     },

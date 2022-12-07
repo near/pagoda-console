@@ -5,13 +5,11 @@ import useSWR from 'swr';
 import { openToast } from '@/components/lib/Toast';
 import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 import type { MapDiscriminatedUnion } from '@/utils/types';
 
 export async function createDestination(data: Api.Mutation.Input<'/alerts/createDestination'>) {
-  const destination = await authenticatedPost('/alerts/createDestination', {
-    ...data,
-  });
+  const destination = await fetchApi(['/alerts/createDestination', { ...data }]);
 
   analytics.track('DC Create New Destination', {
     status: 'success',
@@ -24,7 +22,7 @@ export async function createDestination(data: Api.Mutation.Input<'/alerts/create
 
 export async function deleteDestination(destination: Api.Mutation.Input<'/alerts/deleteDestination'>) {
   try {
-    await authenticatedPost('/alerts/deleteDestination', { id: destination.id });
+    await fetchApi(['/alerts/deleteDestination', { id: destination.id }]);
     analytics.track('DC Remove Destination', {
       status: 'success',
       name: destination.id,
@@ -45,9 +43,7 @@ export async function deleteDestination(destination: Api.Mutation.Input<'/alerts
 export async function updateDestination<K extends Alerts.Destination['type']>(
   data: Api.Mutation.Input<'/alerts/updateDestination'>,
 ) {
-  const destination = await authenticatedPost('/alerts/updateDestination', {
-    ...data,
-  });
+  const destination = await fetchApi(['/alerts/updateDestination', { ...data }]);
 
   analytics.track('DC Update Destination', {
     status: 'success',
@@ -69,7 +65,7 @@ export function useDestinations(projectSlug: string | undefined) {
   } = useSWR(
     identity && projectSlug ? ['/alerts/listDestinations' as const, projectSlug, identity.uid] : null,
     (key) => {
-      return authenticatedPost(key, { projectSlug: projectSlug! });
+      return fetchApi([key, { projectSlug: projectSlug! }]);
     },
   );
 
@@ -78,7 +74,7 @@ export function useDestinations(projectSlug: string | undefined) {
 
 export async function resendEmailVerification(destinationId: number) {
   try {
-    await authenticatedPost('/alerts/resendEmailVerification', { destinationId });
+    await fetchApi(['/alerts/resendEmailVerification', { destinationId }]);
 
     analytics.track('DC Resend Email Verification for Email Destination', {
       status: 'success',
@@ -108,10 +104,8 @@ export async function resendEmailVerification(destinationId: number) {
   }
 }
 
-export async function rotateWebhookDestinationSecret(destinationId: number) {
-  const destination = await authenticatedPost('/alerts/rotateWebhookDestinationSecret', {
-    destinationId,
-  });
+export async function rotateWebhookDestinationSecret(destinationId: Alerts.DestinationId) {
+  const destination = await fetchApi(['/alerts/rotateWebhookDestinationSecret', { destinationId }]);
 
   analytics.track('DC Rotate Webhook Destination Secret', {
     status: 'success',

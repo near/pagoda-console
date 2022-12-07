@@ -10,10 +10,10 @@ import { Text } from '../lib/Text';
 
 interface Props {
   error?: string | null;
-  setError: (error: string) => void;
+  resetError: () => void;
 }
 
-export const ErrorModal = ({ error, setError }: Props) => {
+export const ErrorModal = ({ error, resetError }: Props) => {
   const [errorCopy, setErrorCopy] = useState('');
 
   useEffect(() => {
@@ -21,17 +21,13 @@ export const ErrorModal = ({ error, setError }: Props) => {
     // This copy is needed so the modal doesn't jump while closing due to the error disappearing
   }, [error, errorCopy]);
 
-  function close() {
-    setError('');
-  }
-
   return (
     <Dialog.Root open={!!error}>
       <Dialog.Content size="s">
         <Flex stack gap="l" align="center">
           <FeatherIcon icon="alert-circle" color="danger" size="l" />
           <Text size="h5">{errorCopy}</Text>
-          <Button stableId={StableId.ERROR_MODAL_DISMISS_BUTTON} color="neutral" onClick={close}>
+          <Button stableId={StableId.ERROR_MODAL_DISMISS_BUTTON} color="neutral" onClick={resetError}>
             Dismiss
           </Button>
         </Flex>

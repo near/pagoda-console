@@ -3,7 +3,7 @@ import type { Api } from '@pc/common/types/api';
 import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Badge } from '@/components/lib/Badge';
@@ -133,6 +133,7 @@ const NewAlert: NextPageWithLayout = () => {
       setCreateError('Failed to create alert.');
     }
   }
+  const resetError = useCallback(() => setCreateError(''), [setCreateError]);
 
   return (
     <Section>
@@ -555,7 +556,7 @@ const NewAlert: NextPageWithLayout = () => {
         </Form.Root>
       </Flex>
 
-      <ErrorModal error={createError} setError={setCreateError} />
+      <ErrorModal error={createError} resetError={resetError} />
     </Section>
   );
 };
