@@ -5,46 +5,20 @@ import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
 import { usePublicStore } from '@/stores/public';
-import analytics from '@/utils/analytics';
 import config from '@/utils/config';
 import { fetchApi } from '@/utils/http';
 
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
-export async function deleteContract(contract: Contract) {
-  try {
-    await fetchApi(['/projects/removeContract', { slug: contract.slug }]);
-    analytics.track('DC Remove Contract', {
-      status: 'success',
-      contractId: contract.address,
-    });
-    return true;
-  } catch (e: any) {
-    analytics.track('DC Remove Contract', {
-      status: 'failure',
-      contractId: contract.address,
-      error: e.message,
-    });
-    console.error(e);
-    return false;
-  }
-}
-
 export function useContracts(project: string | undefined, environment: number | undefined) {
-  const { identity } = useAuth();
-
-  const {
-    data: contracts,
-    error,
-    mutate,
-  } = useSWR(
-    identity && project && environment ? ['/projects/getContracts' as const, project, environment, identity.uid] : null,
+  const { data: contracts, error } = useSWR(
+    project && environment ? ['/projects/getContracts' as const, project, environment] : null,
     (key, project, environment) => {
       return fetchApi([key, { project, environment }]);
     },
   );
 
-  return { contracts, error, mutate };
+  return { contracts, error };
 }
 
 export function useContract(slug: string | undefined) {

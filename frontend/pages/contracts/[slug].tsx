@@ -1,7 +1,6 @@
-import type { Api } from '@pc/common/types/api';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
@@ -27,15 +26,13 @@ import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
-type Contract = Api.Query.Output<'/projects/getContract'>;
-
 const ViewContract: NextPageWithLayout = () => {
   const { publicModeIsActive } = usePublicMode();
   const router = useRouter();
   const contractSlug = useRouteParam('slug', '/contracts', true) || undefined;
   const { project } = useSelectedProject();
   const { environment } = useCurrentEnvironment();
-  const { contracts: privateContracts, mutate: mutateContracts } = useContracts(project?.slug, environment?.subId);
+  const { contracts: privateContracts } = useContracts(project?.slug, environment?.subId);
   const { contracts } = usePublicOrPrivateContracts(privateContracts);
   const { contract } = usePublicOrPrivateContract(contractSlug);
   const activeTab = useRouteParam('tab', `/contracts/${contractSlug}?tab=details`, true);
@@ -45,12 +42,7 @@ const ViewContract: NextPageWithLayout = () => {
   // TODO: Pull in useSelectedProjectSync() to match [triggeredAlertId].tsx logic to sync env/proj to loaded contract.
   // TODO: Handle 404
 
-  function onDelete(contract: Contract) {
-    mutateContracts((contracts) => {
-      return contracts?.filter((c) => c.slug !== contract.slug) || [];
-    });
-    router.replace('/contracts');
-  }
+  const onDelete = useCallback(() => router.replace('/contracts'), [router]);
 
   function onSelectedContractChange(slug: string) {
     router.push(`/contracts/${slug}?tab=${activeTab}`);

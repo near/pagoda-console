@@ -1,8 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { ChangeEvent } from 'react';
-import { useState } from 'react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
@@ -18,12 +17,11 @@ import { Section } from '@/components/lib/Section';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
+import { useMutation } from '@/hooks/mutation';
 import { useOrganizations } from '@/hooks/organizations';
 import { useRouteParam } from '@/hooks/route';
 import { usePublicStore } from '@/stores/public';
-import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
-import { fetchApi } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -35,11 +33,10 @@ interface NewProjectFormData {
 }
 
 const NewProject: NextPageWithLayout = () => {
-  const { register, handleSubmit, formState, setError, getValues, watch, setValue } = useForm<NewProjectFormData>();
+  const { register, handleSubmit, formState, getValues, watch, setValue } = useForm<NewProjectFormData>();
   const router = useRouter();
   const isOnboarding = useRouteParam('onboarding');
   const publicModeContracts = usePublicStore((store) => store.contracts);
-  const setPublicModeContracts = usePublicStore((store) => store.setContracts);
   const [selectedAddresses, setSelectedAddresses] = useState<string[]>([]);
   const { organizations = [] } = useOrganizations(false);
 
@@ -51,59 +48,37 @@ const NewProject: NextPageWithLayout = () => {
     }
   }, [organizations, getValues, setValue]);
 
-  useEffect(() => {
-    const addresses = publicModeContracts.map((contract) => contract.address);
-    setSelectedAddresses(addresses);
-  }, [publicModeContracts]);
+  const createProjectMutation = useMutation('/projects/create', {
+    onMutate: () => router.prefetch('/apis?tab=keys'),
+    onSuccess: (result) => router.push(`/apis?tab=keys&project=${result.slug}`),
+    getAnalyticsSuccessData: (variables) => ({
+      name: variables.name,
+      publicMode: publicModeContracts.length > 0,
+      includedPublicModeAddresses: selectedAddresses,
+    }),
+    getAnalyticsErrorData: (variables) => ({ name: variables.name }),
+  });
+  const mutationError =
+    createProjectMutation.status === 'error'
+      ? (createProjectMutation.error as any).statusCode === 409
+        ? 'Project name is already in use'
+        : 'Something went wrong'
+      : undefined;
+
+  const addContractMutation = useMutation('/projects/addContract', {
+    getAnalyticsSuccessData: (variables) => ({ includedPublicModeAddresses: variables.address }),
+  });
 
   const createProject: SubmitHandler<NewProjectFormData> = async ({ projectName, projectOrg }) => {
-    try {
-      router.prefetch('/apis?tab=keys');
-
-      const project = await fetchApi(['/projects/create', { name: projectName, org: projectOrg }]);
-
-      selectedAddresses.forEach((address) => {
-        const contract = publicModeContracts.find((c) => c.address === address);
-
-        if (contract) {
-          fetchApi([
-            '/projects/addContract',
-            {
-              project: project.slug,
-              environment: contract.net === 'TESTNET' ? 1 : 2,
-              address: contract.address,
-            },
-          ]).catch((e) => console.error(e));
-        }
+    const project = await createProjectMutation.mutateAsync({ name: projectName, org: projectOrg });
+    selectedAddresses.forEach((address) => {
+      const contract = publicModeContracts.find((c) => c.address === address)!;
+      addContractMutation.mutate({
+        project: project.slug,
+        environment: contract.net === 'TESTNET' ? 1 : 2,
+        address: contract.address,
       });
-
-      analytics.track('DC Create New Project', {
-        status: 'success',
-        name: projectName,
-        publicMode: publicModeContracts.length > 0,
-        includedPublicModeAddresses: selectedAddresses,
-      });
-
-      setPublicModeContracts([]);
-
-      await router.push(`/apis?tab=keys&project=${project.slug}`);
-    } catch (e: any) {
-      analytics.track('DC Create New Project', {
-        status: 'failure',
-        name: projectName,
-        error: e.message,
-      });
-
-      if (e.statusCode === 409) {
-        setError('projectName', {
-          message: 'Project name is already in use',
-        });
-      } else {
-        setError('projectName', {
-          message: 'Something went wrong',
-        });
-      }
-    }
+    });
   };
 
   const setProjectOrg = useCallback((value: string) => setValue('projectOrg', value), [setValue]);
@@ -149,7 +124,7 @@ const NewProject: NextPageWithLayout = () => {
             </Text>
           )}
 
-          <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(createProject)}>
+          <Form.Root disabled={createProjectMutation.isLoading} onSubmit={handleSubmit(createProject)}>
             <Flex stack align="end" gap="l">
               <Flex stack>
                 <Form.Group>
@@ -160,7 +135,7 @@ const NewProject: NextPageWithLayout = () => {
                     placeholder="Cool New Project"
                     {...register('projectName', formValidations.projectName)}
                   />
-                  <Form.Feedback>{formState.errors.projectName?.message}</Form.Feedback>
+                  <Form.Feedback>{mutationError || formState.errors.projectName?.message}</Form.Feedback>
                 </Form.Group>
 
                 {organizations.length > 1 ? (
@@ -213,7 +188,11 @@ const NewProject: NextPageWithLayout = () => {
                 </Flex>
               )}
 
-              <Button stableId={StableId.NEW_PROJECT_CREATE_BUTTON} loading={formState.isSubmitting} type="submit">
+              <Button
+                stableId={StableId.NEW_PROJECT_CREATE_BUTTON}
+                loading={createProjectMutation.isLoading}
+                type="submit"
+              >
                 Create Project
               </Button>
             </Flex>

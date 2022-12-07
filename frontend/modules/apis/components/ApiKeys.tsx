@@ -1,6 +1,6 @@
 import type { Api } from '@pc/common/types/api';
 import { Root as VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { Button } from '@/components/lib/Button';
@@ -12,11 +12,11 @@ import * as Popover from '@/components/lib/Popover';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { useMutation } from '@/hooks/mutation';
 import { useApiKeys } from '@/hooks/new-api-keys';
 import { CreateApiKeyForm } from '@/modules/apis/components/CreateApiKeyForm';
 import StarterGuide from '@/modules/core/components/StarterGuide';
 import analytics from '@/utils/analytics';
-import { fetchApi } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
@@ -40,42 +40,32 @@ export function ApiKeys({ project }: Props) {
     key: '',
   });
 
-  async function rotateKey(keySlug: string) {
-    showRotationModal && setShowRotationModal(false);
-    try {
-      mutateKeys((cachedKeys) => {
-        return cachedKeys?.map((key) => {
-          if (key.keySlug === keySlug) {
-            key.keySlug = '';
-            key.key = '';
+  const rotateKeyMutation = useMutation('/projects/rotateKey', {
+    onMutate: (variables) => {
+      setShowRotationModal(false);
+      mutateKeys((cachedKeys) =>
+        cachedKeys?.map((key) => {
+          if (key.keySlug === variables.slug) {
+            return { ...key, keySlug: '', key: '' };
           }
           return key;
-        });
-      });
-      await mutateKeys(async (cachedKeys) => {
-        const { keySlug: newKeySlug, key: newKey } = await fetchApi(['/projects/rotateKey', { slug: keySlug }]);
-
-        analytics.track('DC Rotate API Key', {
-          status: 'success',
-          description: keyToRotate.description,
-        });
-        return cachedKeys?.map((key: ApiKey) => {
-          if (key.keySlug === keyToRotate.keySlug) {
-            key.keySlug = newKeySlug;
-            key.key = newKey;
+        }),
+      );
+    },
+    onSuccess: (result, variables) => {
+      mutateKeys((cachedKeys) =>
+        cachedKeys?.map((key) => {
+          if (key.keySlug === variables.slug) {
+            return result;
           }
           return key;
-        });
-      });
-    } catch (e: any) {
-      analytics.track('DC Rotate API Key', {
-        status: 'failure',
-        description: keyToRotate.description,
-        error: e.message,
-      });
-      throw new Error('Failed to rotate key');
-    }
-  }
+        }),
+      );
+    },
+    getAnalyticsSuccessData: () => ({ description: keyToRotate.description }),
+    getAnalyticsErrorData: () => ({ description: keyToRotate.description }),
+  });
+  const closeCreateModal = useCallback(() => setShowCreateModal(false), []);
 
   return (
     <Flex stack gap="l">
@@ -89,12 +79,12 @@ export function ApiKeys({ project }: Props) {
       <Flex stack>
         <Dialog.Root open={showCreateModal} onOpenChange={setShowCreateModal}>
           <Dialog.Content title="Create New Key" size="s">
-            <CreateApiKeyForm setShow={setShowCreateModal} show={showCreateModal} project={project} />
+            <CreateApiKeyForm close={closeCreateModal} />
           </Dialog.Content>
         </Dialog.Root>
         <ConfirmModal
           confirmText="Rotate"
-          onConfirm={() => rotateKey(keyToRotate.keySlug)}
+          onConfirm={() => rotateKeyMutation.mutate({ slug: keyToRotate.keySlug })}
           setShow={setShowRotationModal}
           show={showRotationModal}
           title="Rotate Key?"
