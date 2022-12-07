@@ -2,59 +2,13 @@ import type { Api } from '@pc/common/types/api';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import useSWR from 'swr';
-import { mutate } from 'swr';
 
 import { useAuth } from '@/hooks/auth';
-import analytics from '@/utils/analytics';
 import { fetchApi } from '@/utils/http';
 
 import { useProjectSelector } from './selected-project';
 
-export async function ejectTutorial(slug: string, name: string) {
-  try {
-    await fetchApi(['/projects/ejectTutorial', { slug }]);
-    analytics.track('DC Eject Tutorial Project', {
-      status: 'success',
-      name,
-    });
-    return true;
-  } catch (e: any) {
-    analytics.track('DC Eject Tutorial Project', {
-      status: 'failure',
-      name,
-      error: e.message,
-    });
-    // TODO
-    console.error('Failed to eject tutorial project');
-  }
-  return false;
-}
-
 type Projects = Api.Query.Output<'/projects/list'>;
-
-export async function deleteProject(userId: string | undefined, slug: string, name: string) {
-  try {
-    await fetchApi(['/projects/delete', { slug }]);
-    analytics.track('DC Remove Project', {
-      status: 'success',
-      name,
-    });
-    // Update the SWR cache before a refetch for better UX.
-    mutate<Projects>(userId ? ['/projects/list', userId] : null, async (projects) => {
-      return projects?.filter((p) => p.slug !== slug);
-    });
-    return true;
-  } catch (e: any) {
-    analytics.track('DC Remove Project', {
-      status: 'failure',
-      name,
-      error: e.message,
-    });
-    // TODO
-    console.error('Failed to delete project');
-  }
-  return false;
-}
 
 export function useProject(projectSlug: string | undefined) {
   const router = useRouter();
