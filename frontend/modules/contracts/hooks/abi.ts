@@ -30,7 +30,7 @@ export const useAnyAbi = (contract: Contract | undefined) => {
 
   // There is an embedded ABI in the wasm.
   if (embeddedAbi !== null) {
-    return { contractAbi: embeddedAbi, embedded: true };
+    return { contractAbi: embeddedAbi.abiRoot, upgraded: embeddedAbi.upgraded, embedded: true };
   }
 
   // There is no embedded ABI for public mode.
@@ -39,7 +39,7 @@ export const useAnyAbi = (contract: Contract | undefined) => {
   }
 
   // There is no embedded ABI.
-  return { contractAbi, error };
+  return { contractAbi: contractAbi?.abi, upgraded: contractAbi?.upgraded, error };
 };
 
 export const useEmbeddedAbi = (net: Net | undefined, address: string | undefined) => {
@@ -66,7 +66,7 @@ export const useContractAbi = (contract: string | undefined) => {
     },
   );
 
-  return { contractAbi: contractAbi?.abi, error, mutate };
+  return { contractAbi, error, mutate };
 };
 
 export const uploadContractAbi = async (contractSlug: string, abi: AbiRoot) => {

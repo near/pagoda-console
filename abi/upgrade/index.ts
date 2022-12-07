@@ -12,8 +12,12 @@ import { AbiRoot as AbiRootV1, AbiType as AbiTypeV1 } from './abi.v1';
 // so all v0.1.0 on-chain and in our DB will need to be upgraded
 // to at least v0.3.0.
 // Newer ABI clients should be backwards compatible with version v0.3.0.
-export function upgradeAbi(anyAbi: AbiRootV1 | AbiRoot | any): AbiRoot {
-  if (anyAbi?.schema_version === '0.3.0') return anyAbi as AbiRoot;
+export function upgradeAbi(anyAbi: AbiRootV1 | AbiRoot | any): {
+  upgraded: boolean;
+  abiRoot: AbiRoot;
+} {
+  if (anyAbi?.schema_version === '0.3.0')
+    return { upgraded: false, abiRoot: anyAbi as AbiRoot };
   if (anyAbi?.schema_version !== '0.1.0')
     throw 'ABI schema version not supported';
 
@@ -94,7 +98,7 @@ export function upgradeAbi(anyAbi: AbiRootV1 | AbiRoot | any): AbiRoot {
     upgradedAbi.metadata.authors = abi.metadata.authors;
   }
 
-  return upgradedAbi;
+  return { upgraded: true, abiRoot: upgradedAbi };
 }
 
 function convertAbiType(abiType: AbiTypeV1) {

@@ -79,9 +79,11 @@ export class AbiService {
       );
     }
 
+    const upgradedAbi = upgradeAbi(abi.abi);
     return {
       contractSlug: abi.contractSlug,
-      abi: upgradeAbi(abi.abi),
+      abi: upgradedAbi.abiRoot,
+      upgraded: upgradedAbi.upgraded,
     };
   }
 }

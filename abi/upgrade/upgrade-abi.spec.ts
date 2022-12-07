@@ -1043,5 +1043,5 @@ test.each([
   [HELLO_NEAR_V_0_1_0, HELLO_NEAR_V_0_3_0],
   [NFT_NEAR_V_0_1_0, NFT_NEAR_V_0_3_0],
 ])('should upgrade ABI correctly', (input, expected) => {
-  expect(upgradeAbi(input)).toStrictEqual(expected);
+  expect(upgradeAbi(input).abiRoot).toStrictEqual(expected);
 });

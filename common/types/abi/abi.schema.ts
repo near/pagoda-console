@@ -92,7 +92,7 @@ export const query = {
   outputs: {
     getContractAbi: abi
       .pick({ contractSlug: true })
-      .merge(z.strictObject({ abi: abiRoot })),
+      .merge(z.strictObject({ abi: abiRoot, upgraded: z.boolean() })),
   },
 
   errors: {

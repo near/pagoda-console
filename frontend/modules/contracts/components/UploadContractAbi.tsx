@@ -59,14 +59,9 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
   function tryLoadPreview(content: any) {
     try {
       const parsedAbi = JSON.parse(content);
-
-      if (parsedAbi.schema_version === '0.1.0') {
-        setShowUpgradeText(true);
-        setPreviewAbi(upgradeAbi(parsedAbi));
-      } else {
-        setShowUpgradeText(false);
-        setPreviewAbi(parsedAbi);
-      }
+      const upgradedAbi = upgradeAbi(parsedAbi);
+      setPreviewAbi(upgradedAbi.abiRoot);
+      setShowUpgradeText(upgradedAbi.upgraded);
     } catch {
       openToast({
         type: 'error',
