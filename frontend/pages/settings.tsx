@@ -11,9 +11,7 @@ import { HR } from '@/components/lib/HorizontalRule';
 import { Message } from '@/components/lib/Message';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
-import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
-import { useSignOut } from '@/hooks/auth';
 import { useAccount, useAuth } from '@/hooks/auth';
 import { useDashboardLayout } from '@/hooks/layouts';
 import DeleteAccountModal from '@/modules/core/components/modals/DeleteAccountModal';
@@ -32,7 +30,6 @@ const Settings: NextPageWithLayout = () => {
   const { identity } = useAuth();
   const [updateError, setUpdateError] = useState('');
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
-  const signOut = useSignOut();
 
   function edit() {
     setValue('displayName', user!.name!);
@@ -65,15 +62,6 @@ const Settings: NextPageWithLayout = () => {
     }
   };
   const resetError = useCallback(() => setUpdateError(''), [setUpdateError]);
-
-  const onAccountDelete = async () => {
-    await signOut();
-    openToast({
-      type: 'success',
-      title: 'Account Deleted',
-      description: 'Your account has been deleted and you have been signed out.',
-    });
-  };
 
   const isLoading = !user && !error;
 
@@ -139,11 +127,7 @@ const Settings: NextPageWithLayout = () => {
           </Button>
         </Flex>
       </Section>
-      <DeleteAccountModal
-        show={showDeleteAccountModal}
-        setShow={setShowDeleteAccountModal}
-        onDelete={onAccountDelete}
-      />
+      <DeleteAccountModal show={showDeleteAccountModal} setShow={setShowDeleteAccountModal} />
     </>
   );
 };
