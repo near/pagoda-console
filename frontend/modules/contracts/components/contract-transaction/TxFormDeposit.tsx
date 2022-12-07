@@ -2,6 +2,7 @@ import { Controller } from 'react-hook-form';
 
 import * as Form from '@/components/lib/Form';
 import { NearInput } from '@/components/lib/NearInput';
+import { StableId } from '@/utils/stable-ids';
 import { validateInteger, validateMaxNearU128, validateMaxYoctoU128 } from '@/utils/validations';
 
 import type { TxFormDepositProps } from './types';
@@ -29,6 +30,7 @@ const TxFormDeposit = ({ form, nearFormat }: TxFormDepositProps) => {
             label="Deposit:"
             field={field}
             isInvalid={!!form.formState.errors.deposit}
+            stableId={StableId.TX_FORM_DEPOSIT_INPUT}
           />
         )}
       />

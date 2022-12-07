@@ -170,6 +170,7 @@ export function AddContractForm({ onAdd, project, environment }: Props) {
                   label={`${environmentTitle} Address`}
                   isInvalid={!!formState.errors.contractAddress}
                   placeholder={`pagoda.${environmentTla}`}
+                  stableId={StableId.ADD_CONTRACT_FORM_ADDRESS_INPUT}
                   {...register('contractAddress', {
                     required: 'Address field is required',
                     minLength: {

@@ -227,6 +227,7 @@ const EditAlert: NextPageWithLayout = () => {
                           label="Alert Name"
                           isInvalid={!!nameForm.formState.errors.name}
                           css={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+                          stableId={StableId.ALERT_EDIT_ALERT_NAME_INPUT}
                           {...nameForm.register('name', {
                             required: 'Please enter an alert name',
                             maxLength: {

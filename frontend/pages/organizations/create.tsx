@@ -64,6 +64,7 @@ const CreateOrganization: NextPageWithLayout = () => {
               <Form.FloatingLabelInput
                 label="Organization name"
                 isInvalid={!!form.formState.errors.name}
+                stableId={StableId.CREATE_ORGANIZATION_NAME_INPUT}
                 {...form.register('name', {
                   required: 'Please enter organization name',
                   minLength: 3,

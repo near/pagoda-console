@@ -105,6 +105,7 @@ export function NftInfoCard() {
                 <Form.Input
                   isInvalid={!!formState.errors.contractAddress}
                   placeholder="contract.testnet"
+                  stableId={StableId.NFT_INFO_CARD_ADDRESS_INPUT}
                   {...register('contractAddress', {
                     required: 'Address field is required',
                     pattern: {

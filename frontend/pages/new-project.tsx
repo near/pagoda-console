@@ -133,6 +133,7 @@ const NewProject: NextPageWithLayout = () => {
                     id="projectName"
                     isInvalid={!!formState.errors.projectName}
                     placeholder="Cool New Project"
+                    stableId={StableId.NEW_PROJECT_NAME_INPUT}
                     {...register('projectName', formValidations.projectName)}
                   />
                   <Form.Feedback>{mutationError || formState.errors.projectName?.message}</Form.Feedback>
@@ -145,8 +146,9 @@ const NewProject: NextPageWithLayout = () => {
                         <Form.FloatingLabelSelect
                           label="Organization"
                           isInvalid={!!formState.errors.projectOrg}
-                          {...register('projectOrg')}
                           selection={selectedOrganizationName}
+                          stableId={StableId.NEW_PROJECT_ORGANIZATION_SELECT}
+                          {...register('projectOrg')}
                         />
                       </DropdownMenu.Trigger>
 

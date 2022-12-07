@@ -249,6 +249,7 @@ const AccountActivitySection = () => {
           id="contractId"
           placeholder="eg: app.near"
           isInvalid={!!form.formState.errors.contractId}
+          stableId={StableId.UI_DOCS_EXAMPLE}
           {...form.register('contractId', { required: true })}
         />
         <Button stableId={StableId.UI_DOCS_EXAMPLE} onClick={() => setAddress(form.getValues('contractId'))}>
@@ -276,6 +277,7 @@ const TransactionSection = () => {
               : 'EYEY9BbRxxSD6mr9U3usCZLKLLgoMB76WJFUmkoVvf2p'
           }`}
           isInvalid={!!form.formState.errors.transactionHash}
+          stableId={StableId.UI_DOCS_EXAMPLE}
           {...form.register('transactionHash', { required: true })}
         />
         <Button stableId={StableId.UI_DOCS_EXAMPLE} onClick={() => setHash(form.getValues('transactionHash'))}>
@@ -796,7 +798,13 @@ const Settings: NextPageWithLayout = () => {
         >
           <FeatherIcon color="primary" size="s" icon="upload" />
           Choose or drop a file
-          <Form.Input type="file" file tabIndex={-1} onChange={(e) => console.log(e)} />
+          <Form.Input
+            type="file"
+            file
+            tabIndex={-1}
+            onChange={(e) => console.log(e)}
+            stableId={StableId.UI_DOCS_EXAMPLE}
+          />
         </DragAndDropLabel>
       </DocSection>
 
@@ -2174,6 +2182,7 @@ function DocSectionForm() {
               id="displayName"
               placeholder="eg: John Smith"
               isInvalid={!!form.formState.errors.displayName}
+              stableId={StableId.UI_DOCS_EXAMPLE}
               {...form.register('displayName', formValidations.displayName)}
             />
             <Form.Feedback>{form.formState.errors.displayName?.message}</Form.Feedback>
@@ -2191,6 +2200,7 @@ function DocSectionForm() {
               id="email"
               type="email"
               isInvalid={!!form.formState.errors.email}
+              stableId={StableId.UI_DOCS_EXAMPLE}
               {...form.register('email', formValidations.email)}
             />
             <Form.Feedback>{form.formState.errors.email?.message}</Form.Feedback>
@@ -2208,6 +2218,7 @@ function DocSectionForm() {
               id="longDescription1"
               isInvalid={!!form.formState.errors.longDescription1}
               placeholder="Write a really cool description..."
+              stableId={StableId.UI_DOCS_EXAMPLE}
               {...form.register('longDescription1', {
                 required: 'Please enter a description',
               })}
@@ -2240,6 +2251,7 @@ function DocSectionForm() {
                     onBlur={field.onBlur}
                     onInput={field.onChange}
                     ref={field.ref}
+                    stableId={StableId.UI_DOCS_EXAMPLE}
                     placeholder={`{
     "myObject": {
         "value1": "abc",
@@ -2270,6 +2282,7 @@ function DocSectionForm() {
               type="number"
               label="Age - Floating Label"
               isInvalid={!!form.formState.errors.age}
+              stableId={StableId.UI_DOCS_EXAMPLE}
               {...form.register('age', {
                 valueAsNumber: true,
                 required: 'Please enter your age',
@@ -2283,7 +2296,12 @@ function DocSectionForm() {
           </Form.Group>
 
           <Form.Group>
-            <Form.FloatingLabelInput type="number" label="Age - Floating Label + Placeholder" placeholder="eg: 35" />
+            <Form.FloatingLabelInput
+              type="number"
+              label="Age - Floating Label + Placeholder"
+              placeholder="eg: 35"
+              stableId={StableId.UI_DOCS_EXAMPLE}
+            />
           </Form.Group>
 
           <Controller
@@ -2304,6 +2322,7 @@ function DocSectionForm() {
                         isInvalid={!!form.formState.errors.favoriteWeather}
                         onBlur={field.onBlur}
                         ref={field.ref}
+                        stableId={StableId.UI_DOCS_EXAMPLE}
                         selection={
                           favoriteWeather && (
                             <>
@@ -2353,7 +2372,12 @@ function DocSectionForm() {
                 },
               }}
               render={({ field }) => (
-                <NearInput label="Amount" field={field} isInvalid={!!form.formState.errors.nearAmount} />
+                <NearInput
+                  label="Amount"
+                  field={field}
+                  isInvalid={!!form.formState.errors.nearAmount}
+                  stableId={StableId.UI_DOCS_EXAMPLE}
+                />
               )}
             />
 
@@ -2371,7 +2395,13 @@ function DocSectionForm() {
                 },
               }}
               render={({ field }) => (
-                <NearInput yocto label="Amount" field={field} isInvalid={!!form.formState.errors.yoctoNearAmount} />
+                <NearInput
+                  yocto
+                  label="Amount"
+                  field={field}
+                  isInvalid={!!form.formState.errors.yoctoNearAmount}
+                  stableId={StableId.UI_DOCS_EXAMPLE}
+                />
               )}
             />
 
@@ -2392,6 +2422,7 @@ function DocSectionForm() {
                   label="Favorite Book"
                   labelProps={{ ...comboxbox.getLabelProps() }}
                   isInvalid={!!form.formState.errors.favoriteBook}
+                  stableId={StableId.UI_DOCS_EXAMPLE}
                   {...mergeInputProps(
                     comboxbox.getInputProps(),
                     form.register('favoriteBook', {
@@ -2436,7 +2467,7 @@ function DocSectionForm() {
 
           <Form.Group>
             <Form.Label>Disabled</Form.Label>
-            <Form.Input disabled />
+            <Form.Input disabled stableId={StableId.UI_DOCS_EXAMPLE} />
           </Form.Group>
 
           <HR />
@@ -2532,18 +2563,18 @@ function DocSectionForm() {
         <Form.HorizontalGroup>
           <Form.Label>Horizontal</Form.Label>
           <Form.Group>
-            <Form.Input />
+            <Form.Input stableId={StableId.UI_DOCS_EXAMPLE} />
           </Form.Group>
 
           <Form.Label>Horizontal Field Two</Form.Label>
           <Form.Group maxWidth="m">
-            <Form.Input />
+            <Form.Input stableId={StableId.UI_DOCS_EXAMPLE} />
             <Form.Feedback type="neutral">Here is some feedback.</Form.Feedback>
           </Form.Group>
 
           <Form.Label>Horizontal Field With a Really Long Label</Form.Label>
           <Form.Group maxWidth="s">
-            <Form.Input />
+            <Form.Input stableId={StableId.UI_DOCS_EXAMPLE} />
           </Form.Group>
         </Form.HorizontalGroup>
       </Form.Root>
@@ -2556,27 +2587,27 @@ function DocSectionForm() {
         <Flex stack>
           <Form.Group maxWidth="xxs">
             <Form.Label>XXS</Form.Label>
-            <Form.Input />
+            <Form.Input stableId={StableId.UI_DOCS_EXAMPLE} />
           </Form.Group>
 
           <Form.Group maxWidth="xs">
             <Form.Label>XS</Form.Label>
-            <Form.Input />
+            <Form.Input stableId={StableId.UI_DOCS_EXAMPLE} />
           </Form.Group>
 
           <Form.Group maxWidth="s">
             <Form.Label>S</Form.Label>
-            <Form.Input />
+            <Form.Input stableId={StableId.UI_DOCS_EXAMPLE} />
           </Form.Group>
 
           <Form.Group maxWidth="m">
             <Form.Label>M</Form.Label>
-            <Form.Input />
+            <Form.Input stableId={StableId.UI_DOCS_EXAMPLE} />
           </Form.Group>
 
           <Form.Group maxWidth="l">
             <Form.Label>L</Form.Label>
-            <Form.Input />
+            <Form.Input stableId={StableId.UI_DOCS_EXAMPLE} />
           </Form.Group>
         </Flex>
       </Form.Root>

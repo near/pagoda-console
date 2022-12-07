@@ -90,6 +90,7 @@ export function EmailForm({ isAuthenticating, setIsAuthenticating }: Props) {
                 type="email"
                 placeholder="name@example.com"
                 isInvalid={!!formState.errors.email}
+                stableId={StableId.AUTHENTICATION_EMAIL_FORM_EMAIL_INPUT}
                 {...register('email', formValidations.email)}
               />
               <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
@@ -102,6 +103,7 @@ export function EmailForm({ isAuthenticating, setIsAuthenticating }: Props) {
                 type="password"
                 placeholder="Password"
                 isInvalid={!!formState.errors.password}
+                stableId={StableId.AUTHENTICATION_EMAIL_FORM_PASSWORD_INPUT}
                 {...register('password', formValidations.password)}
               />
               <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
