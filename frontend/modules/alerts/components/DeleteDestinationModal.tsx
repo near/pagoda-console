@@ -1,5 +1,5 @@
 import type { Api } from '@pc/common/types/api';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Card } from '@/components/lib/Card';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -53,6 +53,7 @@ export function DeleteDestinationModal({ destination, show, setShow, onDelete }:
       setIsDeleting(false);
     }
   }
+  const resetError = useCallback(() => setErrorText(''), [setErrorText]);
 
   return (
     <ConfirmModal
@@ -61,7 +62,7 @@ export function DeleteDestinationModal({ destination, show, setShow, onDelete }:
       errorText={errorText}
       isProcessing={isDeleting}
       onConfirm={onConfirm}
-      setErrorText={setErrorText}
+      resetError={resetError}
       setShow={setShow}
       show={show}
       title={`Delete Destination`}

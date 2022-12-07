@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { List, ListItem } from '@/components/lib/List';
 import { Message } from '@/components/lib/Message';
@@ -36,6 +36,7 @@ export default function DeleteAccountModal({
       setIsDeleting(false);
     }
   }
+  const resetError = useCallback(() => setErrorText(''), [setErrorText]);
 
   const isOnlyAdmin = organizations && organizations.length > 0;
 
@@ -46,7 +47,7 @@ export default function DeleteAccountModal({
       errorText={errorText}
       isProcessing={isDeleting}
       onConfirm={onConfirm}
-      setErrorText={setErrorText}
+      resetError={resetError}
       setShow={setShow}
       show={show}
       disabled={isOnlyAdmin}
