@@ -116,7 +116,7 @@ const RemoveUserDialog = ({
       errorText={(removeUserMutation.error as any)?.description || (removeInviteMutation.error as any)?.description}
       isProcessing={removeUserMutation.isLoading || removeInviteMutation.isLoading}
       onConfirm={removeUser}
-      setErrorText={resetError}
+      resetError={resetError}
       setShow={resetRemovingUserData}
       show={Boolean(userData)}
       title={`Are you sure you want to remove ${userData.email}?`}
@@ -213,7 +213,7 @@ const OrganizationMemberView = ({
         errorText={(leaveMutation.error as any)?.description}
         isProcessing={leaveMutation.isLoading}
         onConfirm={() => leaveMutation.mutate({ org: organization.slug, user: self.user.uid! })}
-        setErrorText={leaveMutation.reset}
+        resetError={leaveMutation.reset}
         setShow={setLeavingModalOpen}
         show={leavingModalOpen}
         title={`Are you sure you want to leave ${organization.name}?`}
@@ -404,7 +404,7 @@ const OrganizationView: NextPageWithLayout = () => {
                 errorText={(deleteMutation.error as any)?.description}
                 isProcessing={deleteMutation.isLoading}
                 onConfirm={deleteOrganization}
-                setErrorText={deleteMutation.reset}
+                resetError={deleteMutation.reset}
                 setShow={setDeleteModalOpen}
                 show={deleteModalOpen}
                 title={`Are you sure you want to delete ${selectedOrganization?.name ?? 'organization'}?`}

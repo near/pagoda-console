@@ -9,7 +9,7 @@ import {
 import { GithubAuthProvider, GoogleAuthProvider } from 'firebase/auth';
 import { useRouter } from 'next/router';
 // import { useTranslation } from 'next-i18next';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
@@ -147,6 +147,7 @@ export function AuthForm({ onSignIn }: Props) {
       }
     }
   }
+  const resetError = useCallback(() => setAuthError(''), [setAuthError]);
 
   return (
     <Flex gap="l" stack>
@@ -165,7 +166,7 @@ export function AuthForm({ onSignIn }: Props) {
         ))}
       </Flex>
 
-      <ErrorModal error={authError} setError={setAuthError} />
+      <ErrorModal error={authError} resetError={resetError} />
     </Flex>
   );
 }

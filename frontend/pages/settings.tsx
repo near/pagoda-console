@@ -1,5 +1,5 @@
 import { getIdToken, updateProfile } from 'firebase/auth';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
@@ -64,6 +64,7 @@ const Settings: NextPageWithLayout = () => {
       setIsEditing(false);
     }
   };
+  const resetError = useCallback(() => setUpdateError(''), [setUpdateError]);
 
   const onAccountDelete = async () => {
     await signOut();
@@ -79,7 +80,7 @@ const Settings: NextPageWithLayout = () => {
   return (
     <>
       <Section>
-        <ErrorModal error={updateError} setError={setUpdateError} />
+        <ErrorModal error={updateError} resetError={resetError} />
 
         <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitSettings)}>
           <Flex stack gap="l">

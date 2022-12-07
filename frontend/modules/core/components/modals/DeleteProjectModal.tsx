@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
@@ -32,6 +32,7 @@ export default function DeleteProjectModal({ slug, name, show, setShow, onDelete
       setIsDeleting(false);
     }
   }
+  const resetError = useCallback(() => setErrorText(''), [setErrorText]);
 
   return (
     <ConfirmModal
@@ -40,7 +41,7 @@ export default function DeleteProjectModal({ slug, name, show, setShow, onDelete
       errorText={errorText}
       isProcessing={isDeleting}
       onConfirm={onConfirm}
-      setErrorText={setErrorText}
+      resetError={resetError}
       setShow={setShow}
       show={show}
       title={`Remove ${name}`}

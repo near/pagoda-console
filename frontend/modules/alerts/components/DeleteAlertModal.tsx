@@ -1,5 +1,5 @@
 import type { Api } from '@pc/common/types/api';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
@@ -32,6 +32,7 @@ export function DeleteAlertModal({ alert, show, setShow, onDelete }: Props) {
       setIsDeleting(false);
     }
   }
+  const resetError = useCallback(() => setErrorText(''), [setErrorText]);
 
   return (
     <ConfirmModal
@@ -40,7 +41,7 @@ export function DeleteAlertModal({ alert, show, setShow, onDelete }: Props) {
       errorText={errorText}
       isProcessing={isDeleting}
       onConfirm={onConfirm}
-      setErrorText={setErrorText}
+      resetError={resetError}
       setShow={setShow}
       show={show}
       title={`Delete Alert`}
