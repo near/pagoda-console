@@ -18,7 +18,7 @@ import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project
 import analytics from '@/utils/analytics';
 import { formRegex } from '@/utils/constants';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
@@ -53,11 +53,14 @@ export function AddContractForm(props: Props) {
 
       const deployResult = await deployContractTemplate(template);
 
-      const contract = await authenticatedPost('/projects/addContract', {
-        project: props.project.slug,
-        environment: deployResult.subId,
-        address: deployResult.address,
-      });
+      const contract = await fetchApi([
+        '/projects/addContract',
+        {
+          project: props.project.slug,
+          environment: deployResult.subId,
+          address: deployResult.address,
+        },
+      ]);
 
       analytics.track('DC Deploy Contract Template', {
         status: 'success',
@@ -93,11 +96,14 @@ export function AddContractForm(props: Props) {
   const submitForm: SubmitHandler<FormData> = async ({ contractAddress }) => {
     const contractAddressValue = contractAddress.trim();
     try {
-      const contract = await authenticatedPost('/projects/addContract', {
-        project: props.project.slug,
-        environment: props.environment.subId,
-        address: contractAddressValue,
-      });
+      const contract = await fetchApi([
+        '/projects/addContract',
+        {
+          project: props.project.slug,
+          environment: props.environment.subId,
+          address: contractAddressValue,
+        },
+      ]);
 
       analytics.track('DC Add Contract', {
         status: 'success',

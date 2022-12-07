@@ -6,13 +6,13 @@ import { mutate } from 'swr';
 
 import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 import { useProjectSelector } from './selected-project';
 
 export async function ejectTutorial(slug: string, name: string) {
   try {
-    await authenticatedPost('/projects/ejectTutorial', { slug });
+    await fetchApi(['/projects/ejectTutorial', { slug }]);
     analytics.track('DC Eject Tutorial Project', {
       status: 'success',
       name,
@@ -34,7 +34,7 @@ type Projects = Api.Query.Output<'/projects/list'>;
 
 export async function deleteProject(userId: string | undefined, slug: string, name: string) {
   try {
-    await authenticatedPost('/projects/delete', { slug });
+    await fetchApi(['/projects/delete', { slug }]);
     analytics.track('DC Remove Project', {
       status: 'success',
       name,
@@ -62,10 +62,8 @@ export function useProject(projectSlug: string | undefined) {
   const { selectProject } = useProjectSelector();
 
   const { data: project, error } = useSWR(
-    identity && projectSlug ? ['/projects/getDetails' as const, projectSlug, identity.uid] : null,
-    (key, projectSlug) => {
-      return authenticatedPost(key, { slug: projectSlug });
-    },
+    projectSlug ? ['/projects/getDetails' as const, projectSlug] : null,
+    (key, projectSlug) => fetchApi([key, { slug: projectSlug }]),
   );
 
   useEffect(() => {
@@ -93,7 +91,7 @@ export function useProjects() {
     mutate,
     isValidating,
   } = useSWR(identity ? ['/projects/list' as const, identity.uid] : null, (key) => {
-    return authenticatedPost(key);
+    return fetchApi([key]);
   });
 
   return { projects, error, mutate, isValidating };

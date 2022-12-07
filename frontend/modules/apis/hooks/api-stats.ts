@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
 type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
@@ -143,16 +143,19 @@ export function useApiStats(
         ]
       : null,
     (key) => {
-      return authenticatedPost(key, {
-        environmentSubId: environment!.subId,
-        projectSlug: project!.slug,
-        startDateTime: startDateTime.toString(),
-        endDateTime: endDateTime.toString(),
-        filter: {
-          type: 'date',
-          dateTimeResolution,
+      return fetchApi([
+        key,
+        {
+          environmentSubId: environment!.subId,
+          projectSlug: project!.slug,
+          startDateTime: startDateTime.toString(),
+          endDateTime: endDateTime.toString(),
+          filter: {
+            type: 'date',
+            dateTimeResolution,
+          },
         },
-      });
+      ]);
     },
   );
 
@@ -168,13 +171,16 @@ export function useApiStats(
         ]
       : null,
     (key) => {
-      return authenticatedPost(key, {
-        environmentSubId: environment!.subId,
-        projectSlug: project!.slug,
-        startDateTime: startDateTime.toString(),
-        endDateTime: endDateTime.toString(),
-        filter: { type: 'endpoint' },
-      });
+      return fetchApi([
+        key,
+        {
+          environmentSubId: environment!.subId,
+          projectSlug: project!.slug,
+          startDateTime: startDateTime.toString(),
+          endDateTime: endDateTime.toString(),
+          filter: { type: 'endpoint' },
+        },
+      ]);
     },
   );
 

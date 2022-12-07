@@ -16,7 +16,7 @@ import { useApiKeys } from '@/hooks/new-api-keys';
 import { CreateApiKeyForm } from '@/modules/apis/components/CreateApiKeyForm';
 import StarterGuide from '@/modules/core/components/StarterGuide';
 import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
@@ -53,9 +53,7 @@ export function ApiKeys({ project }: Props) {
         });
       });
       await mutateKeys(async (cachedKeys) => {
-        const { keySlug: newKeySlug, key: newKey } = await authenticatedPost('/projects/rotateKey' as const, {
-          slug: keySlug,
-        });
+        const { keySlug: newKeySlug, key: newKey } = await fetchApi(['/projects/rotateKey', { slug: keySlug }]);
 
         analytics.track('DC Rotate API Key', {
           status: 'success',
