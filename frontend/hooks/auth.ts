@@ -7,7 +7,7 @@ import useSWR from 'swr';
 
 import { useAuthStore } from '@/stores/auth';
 import analytics from '@/utils/analytics';
-import { authenticatedPost, unauthenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 import { usePublicMode } from './public';
 
@@ -18,7 +18,7 @@ export function useAccount() {
     error,
     mutate,
   } = useSWR(identity ? ['/users/getAccountDetails' as const, identity.uid] : null, (key) => {
-    return authenticatedPost(key);
+    return fetchApi([key]);
   });
 
   return {
@@ -97,7 +97,7 @@ export function useSignOut() {
 
 export async function deleteAccount(uid: string | undefined) {
   try {
-    await authenticatedPost('/users/deleteAccount');
+    await fetchApi(['/users/deleteAccount']);
     analytics.track('Delete account', {
       status: 'success',
       uid,
@@ -116,5 +116,5 @@ export async function deleteAccount(uid: string | undefined) {
 }
 
 export async function resetPassword(email: string) {
-  await unauthenticatedPost('/users/resetPassword', { email });
+  await fetchApi(['/users/resetPassword', { email }], true);
 }

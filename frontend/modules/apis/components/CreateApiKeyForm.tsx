@@ -8,7 +8,7 @@ import { TextButton } from '@/components/lib/TextLink';
 import { useApiKeys } from '@/hooks/new-api-keys';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
@@ -38,10 +38,7 @@ export const CreateApiKeyForm = ({ show, setShow, project }: Props) => {
     show && setShow(false);
     try {
       await mutateKeys(async (cachedKeys) => {
-        const newKey = await authenticatedPost('/projects/generateKey', {
-          description,
-          project: project.slug,
-        });
+        const newKey = await fetchApi(['/projects/generateKey', { description, project: project.slug }]);
         analytics.track('DC Create API Key', {
           status: 'success',
           description,

@@ -23,7 +23,7 @@ import { useRouteParam } from '@/hooks/route';
 import { usePublicStore } from '@/stores/public';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -60,17 +60,20 @@ const NewProject: NextPageWithLayout = () => {
     try {
       router.prefetch('/apis?tab=keys');
 
-      const project = await authenticatedPost('/projects/create', { name: projectName, org: projectOrg });
+      const project = await fetchApi(['/projects/create', { name: projectName, org: projectOrg }]);
 
       selectedAddresses.forEach((address) => {
         const contract = publicModeContracts.find((c) => c.address === address);
 
         if (contract) {
-          authenticatedPost('/projects/addContract', {
-            project: project.slug,
-            environment: contract.net === 'TESTNET' ? 1 : 2,
-            address: contract.address,
-          }).catch((e) => console.error(e));
+          fetchApi([
+            '/projects/addContract',
+            {
+              project: project.slug,
+              environment: contract.net === 'TESTNET' ? 1 : 2,
+              address: contract.address,
+            },
+          ]).catch((e) => console.error(e));
         }
       });
 

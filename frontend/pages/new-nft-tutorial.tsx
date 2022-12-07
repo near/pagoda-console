@@ -15,7 +15,7 @@ import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { ProjectCard } from '@/modules/core/components/ProjectCard';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -35,10 +35,7 @@ const NewNftTutorial: NextPageWithLayout = () => {
 
     try {
       router.prefetch(path);
-      const project = await authenticatedPost('/projects/create', {
-        name,
-        tutorial,
-      });
+      const project = await fetchApi(['/projects/create', { name, tutorial }]);
       analytics.track('DC Create New NFT Tutorial Project', {
         status: 'success',
         name,
