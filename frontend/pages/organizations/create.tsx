@@ -17,12 +17,12 @@ const CreateOrganization: NextPageWithLayout = () => {
   const router = useRouter();
   const closeDialog = useCallback(() => router.replace('/organizations'), [router]);
   const form = useForm<{ name: string }>();
-  const { mutate: createOrganization, loading, result } = useCreateOrg();
+  const { mutate: createOrganization, isLoading, data } = useCreateOrg();
   useEffect(() => {
-    if (result) {
-      router.replace(`/organizations/${result.slug}`);
+    if (data) {
+      router.replace(`/organizations/${data.slug}`);
     }
-  }, [result, router]);
+  }, [data, router]);
 
   return (
     <Flex stack gap="l" justify="center" align="center" css={{ flex: 1 }}>
@@ -46,12 +46,12 @@ const CreateOrganization: NextPageWithLayout = () => {
             <Flex>
               <Button
                 stableId={StableId.CREATE_ORGANIZATION_SAVE_BUTTON}
-                loading={loading}
+                loading={isLoading}
                 onClick={form.handleSubmit(createOrganization)}
               >
                 Save
               </Button>
-              {loading ? null : (
+              {isLoading ? null : (
                 <Button
                   stableId={StableId.CREATE_ORGANIZATION_CANCEL_SAVE_BUTTON}
                   onClick={closeDialog}
