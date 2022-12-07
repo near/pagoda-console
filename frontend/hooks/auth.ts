@@ -94,27 +94,3 @@ export function useSignOut() {
 
   return signOut;
 }
-
-export async function deleteAccount(uid: string | undefined) {
-  try {
-    await fetchApi(['/users/deleteAccount']);
-    analytics.track('Delete account', {
-      status: 'success',
-      uid,
-    });
-    return true;
-  } catch (e: any) {
-    analytics.track('Delete account', {
-      status: 'failure',
-      uid,
-      error: e.message,
-    });
-    // TODO
-    console.error('Failed to delete account');
-  }
-  return false;
-}
-
-export async function resetPassword(email: string) {
-  await fetchApi(['/users/resetPassword', { email }], true);
-}
