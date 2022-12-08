@@ -222,4 +222,6 @@ export function RegisterForm() {
   );
 }
 
+Register.getLayout = useSimpleLayout;
+
 export default Register;
