@@ -251,6 +251,7 @@ function WebhookDestinationForm(props: FormProps<'WEBHOOK'>) {
               label="Webhook URL"
               placeholder="https://example.com/webhook"
               isInvalid={!!form.formState.errors.url}
+              stableId={StableId.NEW_DESTINATION_MODAL_WEBHOOK_URL_INPUT}
               {...form.register('url', formValidations.url)}
             />
             <Form.Feedback>{form.formState.errors.url?.message}</Form.Feedback>
@@ -310,6 +311,7 @@ function EmailDestinationForm(props: FormProps<'EMAIL'>) {
               label="Email address"
               placeholder="myawesomeemail@pagoda.com"
               isInvalid={!!form.formState.errors.email}
+              stableId={StableId.NEW_DESTINATION_MODAL_EMAIL_INPUT}
               {...form.register('email', formValidations.email)}
             />
             <Form.Feedback>{form.formState.errors.email?.message}</Form.Feedback>

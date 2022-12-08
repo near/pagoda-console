@@ -336,6 +336,7 @@ const InviteFormEmailInput = ({ form }: { form: UseFormReturn<InviteForm> }) => 
         label="Email"
         type="email"
         isInvalid={!!form.formState.errors.email}
+        stableId={StableId.ORGANIZATION_INVITE_EMAIL_INPUT}
         {...form.register('email', formValidations.email)}
       />
       <Form.Feedback>{form.formState.errors.email?.message}</Form.Feedback>
@@ -351,8 +352,9 @@ const InviteFormRoleDropdown = ({ form }: { form: UseFormReturn<InviteForm> }) =
         <Form.FloatingLabelSelect
           label="Role"
           isInvalid={!!form.formState.errors.role}
-          {...form.register('role')}
           selection={ROLE_NAMES[role]}
+          stableId={StableId.ORGANIZATION_INVITE_ROLE_SELECT}
+          {...form.register('role')}
         />
       </DropdownMenu.Trigger>
 
@@ -464,6 +466,7 @@ const OrganizationsDropdown = ({ selectedOrganization }: { selectedOrganization?
           selection={
             organizations ? (organizations.length ? selectedOrganization?.name ?? '-' : 'No organizations') : '...'
           }
+          stableId={StableId.ORGANIZATION_SELECT}
         />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content width="trigger">

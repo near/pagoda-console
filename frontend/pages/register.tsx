@@ -152,6 +152,7 @@ export function RegisterForm() {
                 type="email"
                 isInvalid={!!formState.errors.email}
                 placeholder="name@example.com"
+                stableId={StableId.REGISTER_EMAIL_INPUT}
                 {...register('email', formValidations.email)}
               />
               <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
@@ -164,6 +165,7 @@ export function RegisterForm() {
                 type="password"
                 isInvalid={!!formState.errors.password}
                 placeholder="6+ characters"
+                stableId={StableId.REGISTER_PASSWORD_INPUT}
                 {...register('password', formValidations.password)}
               />
               <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
@@ -175,6 +177,7 @@ export function RegisterForm() {
                 id="confirmPassword"
                 type="password"
                 isInvalid={!!formState.errors.passwordConfirm}
+                stableId={StableId.REGISTER_CONFIRM_PASSWORD_INPUT}
                 {...register('passwordConfirm', {
                   required: 'Please confirm your password',
                   validate: (value) => {
@@ -193,6 +196,7 @@ export function RegisterForm() {
                 id="displayName"
                 isInvalid={!!formState.errors.displayName}
                 placeholder="John Nearian"
+                stableId={StableId.REGISTER_DISPLAY_NAME_INPUT}
                 {...register('displayName', formValidations.displayName)}
               />
               <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>

@@ -188,7 +188,14 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
           >
             <FeatherIcon color="primary" size="s" icon="upload" />
             Choose or drop a file
-            <Form.Input type="file" onChange={handleUpload} file tabIndex={-1} accept="application/JSON" />
+            <Form.Input
+              type="file"
+              onChange={handleUpload}
+              file
+              tabIndex={-1}
+              accept="application/JSON"
+              stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_CHOOSE_FILE_INPUT}
+            />
           </DragAndDropLabel>
 
           <Text color="text3" size="bodySmall">

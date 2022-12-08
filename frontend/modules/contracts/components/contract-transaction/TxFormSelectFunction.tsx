@@ -2,6 +2,7 @@ import { Controller } from 'react-hook-form';
 
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import * as Form from '@/components/lib/Form';
+import { StableId } from '@/utils/stable-ids';
 
 import type { TxFormSelectFunctionProps } from './types';
 
@@ -26,6 +27,7 @@ const TxFormSelectFunction = ({ form, functionItems }: TxFormSelectFunctionProps
                   onBlur={field.onBlur}
                   ref={field.ref}
                   selection={contractFunction && contractFunction.name}
+                  stableId={StableId.TX_FORM_FUNCTION_SELECT}
                 />
               </DropdownMenu.Trigger>
 

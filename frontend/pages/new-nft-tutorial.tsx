@@ -75,6 +75,7 @@ const NewNftTutorial: NextPageWithLayout = () => {
                     id="projectName"
                     isInvalid={!!formState.errors.projectName}
                     placeholder="Cool New Project"
+                    stableId={StableId.NEW_NFT_TUTORIAL_PROJECT_NAME_INPUT}
                     {...register('projectName', formValidations.projectName)}
                   />
                   <Form.Feedback>{mutationError || formState.errors.projectName?.message}</Form.Feedback>

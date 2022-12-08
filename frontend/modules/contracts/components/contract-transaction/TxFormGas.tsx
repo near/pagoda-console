@@ -43,6 +43,7 @@ const TxFormGas = ({ form, gasFormat, gas }: TxFormGasProps) => {
           type="string"
           label="Gas:"
           isInvalid={!!form.formState.errors.gas}
+          stableId={StableId.TX_FORM_GAS_INPUT}
           onInput={(event) => {
             numberInputHandler(event, { allowComma: false, allowDecimal: false, allowNegative: false });
           }}

@@ -8,14 +8,13 @@ _If the current props and Stitches style overrides aren't enough to cover your u
 
 ```tsx
 import * as Tabs from '@/components/lib/Tabs';
-import { StableId } from '@/utils/stable-ids';
 
 ...
 
 <Tabs.Root defaultValue="alerts">
   <Tabs.List>
-    <Tabs.Trigger stableId={StableId.MY_TABS_ALERTS_TRIGGER} value="alerts">Alerts</Tabs.Trigger>
-    <Tabs.Trigger stableId={StableId.MY_TABS_HISTORY_TRIGGER} value="history">History</Tabs.Trigger>
+    <Tabs.Trigger value="alerts">Alerts</Tabs.Trigger>
+    <Tabs.Trigger value="history">History</Tabs.Trigger>
   </Tabs.List>
 
   <Tabs.Content value="alerts">
@@ -27,10 +26,6 @@ import { StableId } from '@/utils/stable-ids';
   </Tabs.Content>
 </Tabs.Root>
 ```
-
-## Stable ID
-
-Please refer to the [Stable ID Documentation](../Button/README.md) in the `Button` component.
 
 ## Inline
 
@@ -59,11 +54,11 @@ const activeTab = useRouteParam('tab', '?tab=section-1', true);
 <Tabs.Root value={activeTab || ''}>
   <Tabs.List tabIndex={-1}>
     <Link href="?tab=section-1" passHref>
-      <Tabs.TriggerLink stableId={StableId.MY_TABS_SECTION_1_LINK} active={activeTab === 'section-1'}>Section 1</Tabs.TriggerLink>
+      <Tabs.TriggerLink active={activeTab === 'section-1'}>Section 1</Tabs.TriggerLink>
     </Link>
 
     <Link href="?tab=section-2" passHref>
-      <Tabs.TriggerLink stableId={StableId.MY_TABS_SECTION_2_LINK} active={activeTab === 'section-2'}>Section 2</Tabs.TriggerLink>
+      <Tabs.TriggerLink active={activeTab === 'section-2'}>Section 2</Tabs.TriggerLink>
     </Link>
   </Tabs.List>
 

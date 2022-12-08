@@ -99,6 +99,7 @@ const Settings: NextPageWithLayout = () => {
                       id="displayName"
                       isInvalid={!!formState.errors.displayName}
                       placeholder="John Nearian"
+                      stableId={StableId.USER_SETTINGS_DISPLAY_NAME_INPUT}
                       {...register('displayName', formValidations.displayName)}
                     />
                     <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
