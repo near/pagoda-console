@@ -72,7 +72,7 @@ const Settings: NextPageWithLayout = () => {
 
         <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitSettings)}>
           <Flex stack gap="l">
-            <Flex justify="spaceBetween">
+            <Flex justify="spaceBetween" align="center">
               <H1>User Settings</H1>
               {isEditing && (
                 <Button stableId={StableId.USER_SETTINGS_SAVE_BUTTON} type="submit">

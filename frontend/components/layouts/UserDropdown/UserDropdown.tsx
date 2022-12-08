@@ -11,9 +11,24 @@ export const UserDropdown = ({ children }: { children: ReactNode }) => {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button stableId={StableId.USER_DROPDOWN} color="transparent" css={{ height: 'auto' }}>
+      <DropdownMenu.Button
+        aria-label="User Settings"
+        stableId={StableId.USER_DROPDOWN}
+        color="transparent"
+        css={{ height: 'auto', padding: '0 var(--space-s)' }}
+      >
         <FeatherIcon icon="user" />
-        <Text as="span" color="text1" family="body" weight="semibold">
+        <Text
+          as="span"
+          color="text1"
+          family="body"
+          weight="semibold"
+          css={{
+            '@tablet': {
+              display: 'none',
+            },
+          }}
+        >
           {user?.name}
         </Text>
       </DropdownMenu.Button>

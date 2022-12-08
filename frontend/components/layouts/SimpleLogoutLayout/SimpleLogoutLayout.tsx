@@ -2,12 +2,12 @@ import type { ReactElement } from 'react';
 
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
-import { UserDropdown } from '@/components/lib/UserDropdown';
 import { useSignOut } from '@/hooks/auth';
 import { useAuth } from '@/hooks/auth';
 import LogoSvg from '@/public/images/brand/pagoda-logo.svg';
 
 import { Footer } from '../Footer';
+import { UserDropdown } from '../UserDropdown';
 import * as S from './styles';
 
 export function SimpleLogoutLayout({ children }: { children: ReactElement }) {

@@ -29,7 +29,7 @@ export function PublicHeader() {
   }
 
   return (
-    <Flex align="center" gap="m" autoWidth>
+    <Flex gap="none" autoWidth stack>
       <Text size="bodySmall" color="text3" css={{ whiteSpace: 'nowrap' }}>
         Viewing contracts on:
       </Text>

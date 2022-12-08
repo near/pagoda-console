@@ -25,7 +25,6 @@ import { useAnalytics } from '@/hooks/analytics';
 import { useAuth, useAuthSync } from '@/hooks/auth';
 import { useSelectedProjectRouteParamSync } from '@/hooks/selected-project';
 import { DowntimeMode } from '@/modules/core/components/DowntimeMode';
-import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
 import { useSettingsStore } from '@/stores/settings';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
@@ -82,6 +81,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     <SWRConfig value={swrConfig}>
       <Head>
         <title>Pagoda Developer Console</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
         <meta
           name="description"
           content="Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics."
@@ -91,7 +91,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       </Head>
 
       <FeatherIconSheet />
-      <SmallScreenNotice />
       <Toaster />
 
       {config.downtimeMode ? (

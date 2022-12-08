@@ -273,7 +273,7 @@ const OrganizationMemberView = ({
         ) : (
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild disabled={!member.user.uid || (singleAdmin && member.role === 'ADMIN')}>
-              <DropdownMenu.Button stableId={StableId.ORGANIZATION_MEMBER_ROLE_DROPDOWN} css={{ width: '100%' }}>
+              <DropdownMenu.Button stableId={StableId.ORGANIZATION_MEMBER_ROLE_DROPDOWN} size="s">
                 {ROLE_NAMES[member.role]}
               </DropdownMenu.Button>
             </DropdownMenu.Trigger>
@@ -427,13 +427,13 @@ const InviteUserDialog = ({
   return (
     <Dialog.Root open={modalOpen} onOpenChange={switchModal}>
       <Dialog.Content>
-        <Flex stack>
+        <Flex stack gap="l">
           <H1>Add user</H1>
-          <Flex>
+          <Flex align="stretch" stack={{ '@tablet': true }}>
             <InviteFormEmailInput form={form} />
             <InviteFormRoleDropdown form={form} />
           </Flex>
-          <Flex>
+          <Flex justify="spaceBetween">
             <Button
               stableId={StableId.ORGANIZATION_ADD_USER_BUTTON}
               loading={inviteMutation.isLoading}
@@ -457,19 +457,25 @@ const OrganizationsDropdown = ({ selectedOrganization }: { selectedOrganization?
   const router = useRouter();
   const { organizations } = useOrganizations(true);
   const changeOrganization = useCallback((slug: string) => router.push(`/organizations/${slug}`), [router]);
+
+  function onSelectNewOrganization() {
+    router.push('/organizations/create');
+  }
+
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <Form.FloatingLabelSelect
-          css={{ minWidth: 400, flex: 'initial' }}
           label="Organization"
+          css={{ marginRight: 'auto', maxWidth: '25rem' }}
           selection={
             organizations ? (organizations.length ? selectedOrganization?.name ?? '-' : 'No organizations') : '...'
           }
           stableId={StableId.ORGANIZATION_SELECT}
         />
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content width="trigger">
+
+      <DropdownMenu.Content>
         <DropdownMenu.RadioGroup value={selectedOrganization?.slug} onValueChange={changeOrganization}>
           {organizations?.map((organization) => (
             <DropdownMenu.RadioItem key={organization.slug} value={organization.slug}>
@@ -477,6 +483,13 @@ const OrganizationsDropdown = ({ selectedOrganization }: { selectedOrganization?
             </DropdownMenu.RadioItem>
           )) ?? []}
         </DropdownMenu.RadioGroup>
+
+        <DropdownMenu.ContentStickyFooter>
+          <DropdownMenu.Item color="primary" onSelect={() => onSelectNewOrganization()}>
+            <FeatherIcon icon="plus" />
+            Create New Organization
+          </DropdownMenu.Item>
+        </DropdownMenu.ContentStickyFooter>
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   );
@@ -527,16 +540,19 @@ const OrganizationView: NextPageWithLayout = () => {
   return (
     <Section>
       <Flex stack gap="l" align="stretch" css={{ height: '100%' }}>
-        <Flex justify="spaceBetween">
+        <Flex>
           <OrganizationsDropdown selectedOrganization={selectedOrganization} />
+
           {self?.role === 'ADMIN' ? (
-            <Flex justify="end">
+            <>
               <Button
                 stableId={StableId.ORGANIZATION_OPEN_ADD_MEMBER_MODAL_BUTTON}
                 color="primaryBorder"
                 onClick={switchInviteModalOpen}
+                hideText="tablet"
               >
-                <FeatherIcon icon="user-plus" /> Add member
+                <FeatherIcon icon="user-plus" />
+                Add Member
               </Button>
 
               <Button
@@ -562,7 +578,7 @@ const OrganizationView: NextPageWithLayout = () => {
               >
                 <Text>You cannot undo this action. You will lose all access to the org.</Text>
               </ConfirmModal>
-            </Flex>
+            </>
           ) : null}
         </Flex>
 

@@ -31,12 +31,14 @@ import type { NextPageWithLayout } from '@/utils/types';
 
 const Register: NextPageWithLayout = () => {
   return (
-    <Container size="xs">
-      <Flex stack gap="l">
-        <H2>Sign Up</H2>
-        <RegisterForm />
-      </Flex>
-    </Container>
+    <Section>
+      <Container size="xs">
+        <Flex stack gap="l">
+          <H2>Sign Up</H2>
+          <RegisterForm />
+        </Flex>
+      </Container>
+    </Section>
   );
 };
 
@@ -141,84 +143,82 @@ export function RegisterForm() {
   const resetError = useCallback(() => setRegisterError(''), [setRegisterError]);
 
   return (
-    <Section>
-      <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(signUpWithEmail, handleInvalidSubmit)}>
-        <Flex stack gap="l">
-          <Flex stack>
-            <Form.Group>
-              <Form.Label htmlFor="email">Email address</Form.Label>
-              <Form.Input
-                id="email"
-                type="email"
-                isInvalid={!!formState.errors.email}
-                placeholder="name@example.com"
-                stableId={StableId.REGISTER_EMAIL_INPUT}
-                {...register('email', formValidations.email)}
-              />
-              <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
-            </Form.Group>
+    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(signUpWithEmail, handleInvalidSubmit)}>
+      <Flex stack gap="l">
+        <Flex stack>
+          <Form.Group>
+            <Form.Label htmlFor="email">Email address</Form.Label>
+            <Form.Input
+              id="email"
+              type="email"
+              isInvalid={!!formState.errors.email}
+              placeholder="name@example.com"
+              stableId={StableId.REGISTER_EMAIL_INPUT}
+              {...register('email', formValidations.email)}
+            />
+            <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
+          </Form.Group>
 
-            <Form.Group>
-              <Form.Label htmlFor="password">Password</Form.Label>
-              <Form.Input
-                id="password"
-                type="password"
-                isInvalid={!!formState.errors.password}
-                placeholder="6+ characters"
-                stableId={StableId.REGISTER_PASSWORD_INPUT}
-                {...register('password', formValidations.password)}
-              />
-              <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
-            </Form.Group>
+          <Form.Group>
+            <Form.Label htmlFor="password">Password</Form.Label>
+            <Form.Input
+              id="password"
+              type="password"
+              isInvalid={!!formState.errors.password}
+              placeholder="6+ characters"
+              stableId={StableId.REGISTER_PASSWORD_INPUT}
+              {...register('password', formValidations.password)}
+            />
+            <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
+          </Form.Group>
 
-            <Form.Group>
-              <Form.Label htmlFor="confirmPassword">Confirm Password</Form.Label>
-              <Form.Input
-                id="confirmPassword"
-                type="password"
-                isInvalid={!!formState.errors.passwordConfirm}
-                stableId={StableId.REGISTER_CONFIRM_PASSWORD_INPUT}
-                {...register('passwordConfirm', {
-                  required: 'Please confirm your password',
-                  validate: (value) => {
-                    if (watch('password') !== value) {
-                      return 'Passwords do not match';
-                    }
-                  },
-                })}
-              />
-              <Form.Feedback>{formState.errors.passwordConfirm?.message}</Form.Feedback>
-            </Form.Group>
+          <Form.Group>
+            <Form.Label htmlFor="confirmPassword">Confirm Password</Form.Label>
+            <Form.Input
+              id="confirmPassword"
+              type="password"
+              isInvalid={!!formState.errors.passwordConfirm}
+              stableId={StableId.REGISTER_CONFIRM_PASSWORD_INPUT}
+              {...register('passwordConfirm', {
+                required: 'Please confirm your password',
+                validate: (value) => {
+                  if (watch('password') !== value) {
+                    return 'Passwords do not match';
+                  }
+                },
+              })}
+            />
+            <Form.Feedback>{formState.errors.passwordConfirm?.message}</Form.Feedback>
+          </Form.Group>
 
-            <Form.Group>
-              <Form.Label htmlFor="displayName">Display Name</Form.Label>
-              <Form.Input
-                id="displayName"
-                isInvalid={!!formState.errors.displayName}
-                placeholder="John Nearian"
-                stableId={StableId.REGISTER_DISPLAY_NAME_INPUT}
-                {...register('displayName', formValidations.displayName)}
-              />
-              <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
-            </Form.Group>
-          </Flex>
-
-          <ErrorModal error={registerError} resetError={resetError} />
-
-          <Button stableId={StableId.REGISTER_SIGN_UP_BUTTON} stretch type="submit" loading={formState.isSubmitting}>
-            Sign Up
-          </Button>
-
-          <HR />
-
-          <Link href="/" passHref>
-            <TextLink stableId={StableId.REGISTER_SIGN_IN_LINK} color="neutral" css={{ margin: '0 auto' }}>
-              I already have an account
-            </TextLink>
-          </Link>
+          <Form.Group>
+            <Form.Label htmlFor="displayName">Display Name</Form.Label>
+            <Form.Input
+              id="displayName"
+              isInvalid={!!formState.errors.displayName}
+              placeholder="John Nearian"
+              stableId={StableId.REGISTER_DISPLAY_NAME_INPUT}
+              {...register('displayName', formValidations.displayName)}
+            />
+            <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
+          </Form.Group>
         </Flex>
-      </Form.Root>
-    </Section>
+
+        <ErrorModal error={registerError} resetError={resetError} />
+
+        <Button stableId={StableId.REGISTER_SIGN_UP_BUTTON} stretch type="submit" loading={formState.isSubmitting}>
+          Sign Up
+        </Button>
+
+        <HR />
+
+        <Link href="/" passHref>
+          <TextLink stableId={StableId.REGISTER_SIGN_IN_LINK} color="neutral" css={{ margin: '0 auto' }}>
+            I already have an account
+          </TextLink>
+        </Link>
+      </Flex>
+    </Form.Root>
   );
 }
 

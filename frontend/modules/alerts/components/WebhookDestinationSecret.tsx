@@ -64,15 +64,14 @@ export function WebhookDestinationSecret({ destination, onRotate }: Props) {
         </Text>
 
         <Card padding="m" borderRadius="m" border>
-          <Flex justify="stretch" align="center">
+          <Flex justify="stretch" align="center" wrap>
             <Text family="code">Authorization:</Text>
-            <Text family="code" color="text1" weight="semibold">
+            <Text family="code" color="text1" weight="semibold" css={{ flexGrow: 1 }}>
               {authorizationHeader}
             </Text>
             <CopyButton
               stableId={StableId.WEBHOOK_DESTINATION_SECRET_COPY_SECRET_BUTTON}
               value={authorizationHeader}
-              css={{ marginLeft: 'auto' }}
               color="transparent"
             />
             {onRotate && (

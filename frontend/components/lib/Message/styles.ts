@@ -6,7 +6,7 @@ export const Container = styled('div', {
   width: '100%',
   padding: 'var(--space-m)',
   borderRadius: 'var(--border-radius-m)',
-  background: 'var(--color-surface-2)',
+  background: 'var(--color-surface-3)',
   textAlign: 'left',
 
   variants: {

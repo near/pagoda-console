@@ -33,11 +33,12 @@ export function Destinations({ project }: { project?: Project }) {
   return (
     <>
       <Flex stack gap="l">
-        <Flex justify="spaceBetween">
+        <Flex justify="spaceBetween" align="center">
           <H1>Destinations</H1>
           <Button
             stableId={StableId.DESTINATIONS_OPEN_CREATE_MODAL_BUTTON}
             onClick={() => setShowNewDestinationModal(true)}
+            hideText="mobile"
           >
             <FeatherIcon icon="plus" /> New Destination
           </Button>

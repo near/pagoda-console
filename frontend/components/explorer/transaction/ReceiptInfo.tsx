@@ -13,7 +13,7 @@ type Props = {
 
 const ReceiptInfo: React.FC<Props> = React.memo(({ receipt }) => {
   return (
-    <Tabs.Root defaultValue="output" css={{ paddingLeft: 40, paddingRight: 40 }}>
+    <Tabs.Root defaultValue="output">
       <Tabs.List>
         <Tabs.Trigger stableId={StableId.RECEIPT_INFO_TABS_OUTPUT_TRIGGER} value="output">
           Output

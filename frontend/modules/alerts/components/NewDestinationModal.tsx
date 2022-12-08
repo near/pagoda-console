@@ -15,6 +15,7 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H5 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
+import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
@@ -123,6 +124,9 @@ function ModalContent(props: Props<DestinationType>) {
               display: 'grid',
               gap: 'var(--space-m)',
               gridTemplateColumns: 'repeat(3, 1fr)',
+              '@mobile': {
+                gridTemplateColumns: '1fr',
+              },
             }}
           >
             {destinationTypeOptions.map((option) => {
@@ -188,7 +192,7 @@ function TelegramDestinationForm(props: FormProps<'TELEGRAM'>) {
           <span style={{ whiteSpace: 'nowrap' }}>Telegram bot.</span>
         </Text>
 
-        <Flex>
+        <Flex justify="spaceBetween" align="center">
           <Button
             loading={form.formState.isSubmitting}
             type="submit"
@@ -196,13 +200,13 @@ function TelegramDestinationForm(props: FormProps<'TELEGRAM'>) {
           >
             Create
           </Button>
-          <Button
+          <TextButton
             onClick={() => props.setShow(false)}
             color="neutral"
             stableId={StableId.NEW_DESTINATION_MODAL_CANCEL_BUTTON}
           >
             Cancel
-          </Button>
+          </TextButton>
         </Flex>
       </Flex>
     </Form.Root>
@@ -258,7 +262,7 @@ function WebhookDestinationForm(props: FormProps<'WEBHOOK'>) {
           </Form.Group>
         </Flex>
 
-        <Flex>
+        <Flex justify="spaceBetween" align="center">
           <Button
             loading={form.formState.isSubmitting}
             type="submit"
@@ -266,13 +270,13 @@ function WebhookDestinationForm(props: FormProps<'WEBHOOK'>) {
           >
             Create
           </Button>
-          <Button
+          <TextButton
             onClick={() => props.setShow(false)}
             color="neutral"
             stableId={StableId.NEW_DESTINATION_MODAL_CANCEL_BUTTON}
           >
             Cancel
-          </Button>
+          </TextButton>
         </Flex>
       </Flex>
     </Form.Root>
@@ -318,7 +322,7 @@ function EmailDestinationForm(props: FormProps<'EMAIL'>) {
           </Form.Group>
         </Flex>
 
-        <Flex>
+        <Flex justify="spaceBetween" align="center">
           <Button
             loading={form.formState.isSubmitting}
             type="submit"
@@ -326,13 +330,13 @@ function EmailDestinationForm(props: FormProps<'EMAIL'>) {
           >
             Create
           </Button>
-          <Button
+          <TextButton
             onClick={() => props.setShow(false)}
             color="neutral"
             stableId={StableId.NEW_DESTINATION_MODAL_CANCEL_BUTTON}
           >
             Cancel
-          </Button>
+          </TextButton>
         </Flex>
       </Flex>
     </Form.Root>

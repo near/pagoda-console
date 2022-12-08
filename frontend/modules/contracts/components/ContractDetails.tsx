@@ -55,7 +55,7 @@ export function ContractDetails({ contract, environment }: Props) {
   return (
     <Flex stack gap="l">
       <Card padding="m" borderRadius="m">
-        <Flex justify="spaceEvenly">
+        <Flex gap="l" justify={{ '@initial': 'spaceEvenly', '@mobile': 'start' }} wrap>
           <Metric label="Balance" value={metrics && convertYoctoToNear(metrics.amount, true)} />
           <Metric label="Storage" value={metrics && formatBytes(metrics.storage_usage)} />
         </Flex>
@@ -84,26 +84,13 @@ function RecentTransactionList({ contract, net }: { contract?: Contract; net?: N
         {transactions &&
           transactions.map((t) => {
             return (
-              <Flex key={t.hash}>
-                <Box css={{ flexGrow: 1 }}>
-                  {net && (
-                    <NetContext.Provider value={net}>
-                      <TransactionAction transaction={t} net={net} finalityStatus={finalityStatus} />
-                    </NetContext.Provider>
-                  )}
-                </Box>
-
-                <Text
-                  css={{
-                    marginTop: 'auto',
-                    marginBottom: 'auto',
-                    color: 'var(--color-text-2)',
-                    paddingLeft: 'var(--space-m)',
-                  }}
-                >
-                  {t.sourceContract}
-                </Text>
-              </Flex>
+              <Box css={{ flexGrow: 1 }} key={t.hash}>
+                {net && (
+                  <NetContext.Provider value={net}>
+                    <TransactionAction transaction={t} net={net} finalityStatus={finalityStatus} />
+                  </NetContext.Provider>
+                )}
+              </Box>
             );
           })}
       </Box>

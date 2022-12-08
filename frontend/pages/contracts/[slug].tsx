@@ -51,8 +51,8 @@ const ViewContract: NextPageWithLayout = () => {
   return (
     <>
       <Tabs.Root value={activeTab || ''}>
-        <Section>
-          <Flex stack>
+        <Section background="surface2">
+          <Flex stack gap="l">
             <Link href="/contracts" passHref>
               <TextLink stableId={StableId.CONTRACT_BACK_TO_CONTRACTS_LINK}>
                 <FeatherIcon icon="arrow-left" /> Contracts
@@ -90,25 +90,31 @@ const ViewContract: NextPageWithLayout = () => {
               </DropdownMenu.Root>
 
               <Flex gap="l" css={{ width: 'auto', flexGrow: 1 }}>
-                <Tabs.List tabIndex={-1} inline css={{ marginRight: 'auto' }}>
-                  <Link href={`/contracts/${contractSlug}?tab=details`} passHref>
-                    <Tabs.TriggerLink stableId={StableId.CONTRACT_TABS_DETAILS_LINK} active={activeTab === 'details'}>
-                      <FeatherIcon icon="list" size="xs" /> Details
-                    </Tabs.TriggerLink>
-                  </Link>
+                <Tabs.List inline css={{ marginRight: 'auto' }}>
+                  <Tabs.Trigger
+                    value="details"
+                    href={`/contracts/${contractSlug}?tab=details`}
+                    stableId={StableId.CONTRACT_TABS_DETAILS_LINK}
+                  >
+                    <FeatherIcon icon="list" size="xs" /> Details
+                  </Tabs.Trigger>
 
-                  <Link href={`/contracts/${contractSlug}?tab=interact`} passHref>
-                    <Tabs.TriggerLink stableId={StableId.CONTRACT_TABS_INTERACT_LINK} active={activeTab === 'interact'}>
-                      <FeatherIcon icon="terminal" size="xs" /> Interact
-                    </Tabs.TriggerLink>
-                  </Link>
+                  <Tabs.Trigger
+                    value="interact"
+                    href={`/contracts/${contractSlug}?tab=interact`}
+                    stableId={StableId.CONTRACT_TABS_INTERACT_LINK}
+                  >
+                    <FeatherIcon icon="terminal" size="xs" /> Interact
+                  </Tabs.Trigger>
 
                   {contractAbi && (
-                    <Link href={`/contracts/${contractSlug}?tab=abi`} passHref>
-                      <Tabs.TriggerLink stableId={StableId.CONTRACT_TABS_ABI_LINK} active={activeTab === 'abi'}>
-                        <FeatherIcon icon="file-text" size="xs" /> Contract ABI
-                      </Tabs.TriggerLink>
-                    </Link>
+                    <Tabs.Trigger
+                      value="abi"
+                      href={`/contracts/${contractSlug}?tab=abi`}
+                      stableId={StableId.CONTRACT_TABS_ABI_LINK}
+                    >
+                      <FeatherIcon icon="file-text" size="xs" /> ABI
+                    </Tabs.Trigger>
                   )}
                 </Tabs.List>
 

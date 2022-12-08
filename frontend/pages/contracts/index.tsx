@@ -48,29 +48,33 @@ const ListContracts: NextPageWithLayout = () => {
       <Section>
         <Flex stack gap="l">
           <Flex align="center">
-            <Flex align="center">
-              <FeatherIcon icon="zap" size="l" />
+            <Flex align="center" autoWidth css={{ marginRight: 'auto' }}>
+              <FeatherIcon icon="zap" size="m" />
               <H1>Contracts</H1>
             </Flex>
 
-            {contracts && contracts.length > 0 && (
-              <Button
-                color="neutral"
-                stableId={StableId.CONTRACTS_OPEN_SHARE_CONTRACTS_MODAL_BUTTON}
-                onClick={() => setShareContractsIsOpen(true)}
-              >
-                <FeatherIcon icon="share" /> Share
-              </Button>
-            )}
+            <Flex autoWidth>
+              {contracts && contracts.length > 0 && (
+                <Button
+                  color="neutral"
+                  stableId={StableId.CONTRACTS_OPEN_SHARE_CONTRACTS_MODAL_BUTTON}
+                  onClick={() => setShareContractsIsOpen(true)}
+                  hideText="tablet"
+                >
+                  <FeatherIcon icon="share" /> Share
+                </Button>
+              )}
 
-            {!publicModeIsActive && (
-              <Button
-                stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON}
-                onClick={() => setAddContractIsOpen(true)}
-              >
-                <FeatherIcon icon="plus" /> Add Contract
-              </Button>
-            )}
+              {!publicModeIsActive && (
+                <Button
+                  stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON}
+                  onClick={() => setAddContractIsOpen(true)}
+                  hideText="tablet"
+                >
+                  <FeatherIcon icon="plus" /> Add Contract
+                </Button>
+              )}
+            </Flex>
           </Flex>
         </Flex>
       </Section>
@@ -182,7 +186,7 @@ function ContractTableRow({ contract }: { contract: Contract }) {
   return (
     <>
       <Table.Row>
-        <Table.Cell href={url} wrap css={{ width: '50%' }}>
+        <Table.Cell href={url} wrap css={{ width: '50%', minWidth: '12rem' }}>
           {contract.address}
         </Table.Cell>
 

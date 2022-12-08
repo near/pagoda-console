@@ -83,7 +83,14 @@ export function NftInfoCard() {
   }
 
   return (
-    <S.Root open={showQuickInfo}>
+    <S.Root
+      open={showQuickInfo}
+      css={{
+        '@tablet': {
+          display: 'none',
+        },
+      }}
+    >
       <S.Header onClick={toggleQuickInfo}>
         <H3 css={{ marginRight: 'auto' }}>Live Contract Data</H3>
         {(basicsError || nftError) && <ErrorIndicator />}

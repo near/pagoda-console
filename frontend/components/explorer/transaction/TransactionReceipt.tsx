@@ -1,6 +1,7 @@
 import type { Explorer } from '@pc/common/types/core';
 import * as React from 'react';
 
+import { Flex } from '@/components/lib/Flex';
 import { styled } from '@/styles/stitches';
 
 import AccountLink from '../utils/AccountLink';
@@ -39,12 +40,11 @@ const ActionItems = styled('div', {
   position: 'relative',
   borderLeft: '.5px solid var(--color-text-2)',
   marginLeft: 8.5,
-  padding: '4px 0 4px 14px',
+  padding: '4px 0 4px var(--space-m)',
 });
 
 const ReceiptWrapper = styled('div', {
-  marginTop: 10,
-  marginLeft: 8.5,
+  width: '100%',
   paddingLeft: 33,
   borderLeft: '.5px solid var(--color-text-2)',
 
@@ -98,6 +98,7 @@ const Avatar = styled('div', {
 const ReceiptInfoWrapper = styled('div', {
   borderLeft: '.5px solid var(--color-text-2)',
   marginLeft: 8.5,
+  paddingLeft: 14,
 });
 
 const TransactionReceiptView: React.FC<Props> = React.memo(
@@ -124,7 +125,7 @@ const TransactionReceiptView: React.FC<Props> = React.memo(
       return receiptContext.selectedReceipts[index]?.active ?? false;
     }, [receipt.id, receiptContext.selectedReceipts]);
     return (
-      <>
+      <Flex stack gap="s">
         <ReceiptWrapper convertionReceipt={convertionReceipt} className={className}>
           {convertionReceipt ? (
             <Predecessor>
@@ -170,7 +171,7 @@ const TransactionReceiptView: React.FC<Props> = React.memo(
             className="lastNonRefundReceipt"
           />
         ) : null}
-      </>
+      </Flex>
     );
   },
 );

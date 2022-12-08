@@ -64,3 +64,21 @@ A `ReactNode` can also be passed if you want to use a custom set of elements for
   ...
 </Tooltip>
 ```
+
+## Disabled
+
+Sometimes you might need to temporarily disable the tooltip from appearing. You can use the `disabled` prop to prevent the tooltip from showing while still letting the child element be interacted with:
+
+```tsx
+<Tooltip content="I am the tooltip message." disabled={shouldDisableTooltip}>
+  <Button>Curious Button</Button>
+</Tooltip>
+```
+
+You can also disable the tooltip for touch screens:
+
+```tsx
+<Tooltip content="I will not show on touch screen devices." disabledTouchScreen>
+  <Button>Curious Button</Button>
+</Tooltip>
+```

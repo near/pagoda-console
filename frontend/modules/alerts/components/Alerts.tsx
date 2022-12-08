@@ -22,10 +22,10 @@ export function Alerts({ environment, project }: { environment?: Environment; pr
 
   return (
     <Flex stack gap="l">
-      <Flex justify="spaceBetween">
+      <Flex justify="spaceBetween" align="center">
         <H1>Alerts</H1>
         <Link href="/alerts/new-alert" passHref>
-          <ButtonLink stableId={StableId.ALERTS_NEW_ALERT_LINK}>
+          <ButtonLink stableId={StableId.ALERTS_NEW_ALERT_LINK} hideText="mobile">
             <FeatherIcon icon="plus" /> New Alert
           </ButtonLink>
         </Link>
