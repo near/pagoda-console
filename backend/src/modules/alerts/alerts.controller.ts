@@ -15,26 +15,10 @@ import { ConfigService } from '@nestjs/config';
 import { BearerAuthGuard } from 'src/core/auth/bearer-auth.guard';
 import { AppConfig } from 'src/config/validate';
 import { assertUnreachable } from 'src/helpers';
-import { JoiValidationPipe } from 'src/pipes/JoiValidationPipe';
+import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
 import { VError } from 'verror';
 import { AlertsService } from './alerts.service';
-import {
-  CreateAlertSchema,
-  DeleteAlertSchema,
-  ListAlertSchema,
-  UpdateAlertSchema,
-  GetAlertDetailsSchema,
-  ListDestinationSchema,
-  DeleteDestinationSchema,
-  CreateDestinationSchema,
-  DisableDestinationSchema,
-  EnableDestinationSchema,
-  UpdateDestinationSchema,
-  VerifyEmailSchema,
-  ResendEmailVerificationSchema,
-  UnsubscribeFromEmailAlertSchema,
-  RotateWebhookDestinationSecretSchema,
-} from './dto';
+import { Alerts } from '@pc/common/types/alerts';
 import { TooManyRequestsException } from './exception/tooManyRequestsException';
 import { TelegramService } from './telegram/telegram.service';
 import { Api } from '@pc/common/types/api';
@@ -55,7 +39,7 @@ export class AlertsController {
 
   @Post('createAlert')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(CreateAlertSchema))
+  @UsePipes(new ZodValidationPipe(Alerts.mutation.inputs.createAlert))
   async createAlert(
     @Request() req,
     @Body() dto: Api.Mutation.Input<'/alerts/createAlert'>,
@@ -108,7 +92,7 @@ export class AlertsController {
 
   @Post('updateAlert')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(UpdateAlertSchema))
+  @UsePipes(new ZodValidationPipe(Alerts.mutation.inputs.updateAlert))
   async updateAlert(
     @Request() req,
     @Body() { id, name, isPaused }: Api.Mutation.Input<'/alerts/updateAlert'>,
@@ -122,7 +106,7 @@ export class AlertsController {
 
   @Post('listAlerts')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(ListAlertSchema))
+  @UsePipes(new ZodValidationPipe(Alerts.query.inputs.listAlerts))
   async listAlerts(
     @Request() req,
     @Body()
@@ -142,7 +126,7 @@ export class AlertsController {
   @Post('deleteAlert')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(DeleteAlertSchema))
+  @UsePipes(new ZodValidationPipe(Alerts.mutation.inputs.deleteAlert))
   async deleteAlert(
     @Request() req,
     @Body() { id }: Api.Mutation.Input<'/alerts/deleteAlert'>,
@@ -156,7 +140,7 @@ export class AlertsController {
 
   @Post('getAlertDetails')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(GetAlertDetailsSchema))
+  @UsePipes(new ZodValidationPipe(Alerts.query.inputs.getAlertDetails))
   async getAlertDetails(
     @Request() req,
     @Body() { id }: Api.Query.Input<'/alerts/getAlertDetails'>,
@@ -170,7 +154,7 @@ export class AlertsController {
 
   @Post('createDestination')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(CreateDestinationSchema))
+  @UsePipes(new ZodValidationPipe(Alerts.mutation.inputs.createDestination))
   async createDestination(
     @Request() req,
     @Body() dto: Api.Mutation.Input<'/alerts/createDestination'>,
@@ -212,7 +196,7 @@ export class AlertsController {
   @Post('deleteDestination')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(DeleteDestinationSchema))
+  @UsePipes(new ZodValidationPipe(Alerts.mutation.inputs.deleteDestination))
   async deleteDestination(
     @Request() req,
     @Body() { id }: Api.Mutation.Input<'/alerts/deleteDestination'>,
@@ -226,7 +210,7 @@ export class AlertsController {
 
   @Post('listDestinations')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(ListDestinationSchema))
+  @UsePipes(new ZodValidationPipe(Alerts.query.inputs.listDestinations))
   async listDestinations(
     @Request() req,
     @Body() { projectSlug }: Api.Query.Input<'/alerts/listDestinations'>,
@@ -241,7 +225,7 @@ export class AlertsController {
   @Post('enableDestination')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(EnableDestinationSchema))
+  @UsePipes(new ZodValidationPipe(Alerts.mutation.inputs.enableDestination))
   async enableDestination(
     @Request() req,
     @Body()
@@ -261,7 +245,7 @@ export class AlertsController {
   @Post('disableDestination')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(DisableDestinationSchema))
+  @UsePipes(new ZodValidationPipe(Alerts.mutation.inputs.disableDestination))
   async disableDestination(
     @Request() req,
     @Body()
@@ -280,7 +264,7 @@ export class AlertsController {
 
   @Post('updateDestination')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(UpdateDestinationSchema))
+  @UsePipes(new ZodValidationPipe(Alerts.mutation.inputs.updateDestination))
   async updateDestination(
     @Request() req,
     @Body() dto: Api.Mutation.Input<'/alerts/updateDestination'>,
@@ -320,7 +304,9 @@ export class AlertsController {
 
   @Post('verifyEmailDestination')
   @HttpCode(204)
-  @UsePipes(new JoiValidationPipe(VerifyEmailSchema))
+  @UsePipes(
+    new ZodValidationPipe(Alerts.mutation.inputs.verifyEmailDestination),
+  )
   async verifyEmailDestination(
     @Body() { token }: Api.Mutation.Input<'/alerts/verifyEmailDestination'>,
   ): Promise<Api.Mutation.Output<'/alerts/verifyEmailDestination'>> {
@@ -334,6 +320,7 @@ export class AlertsController {
   // * Handler for Telegram bot, this is not an endpoint for the DevConsole frontend
   @Post('telegramWebhook')
   @HttpCode(200)
+  @UsePipes(new ZodValidationPipe(Alerts.mutation.inputs.telegramWebhook))
   async start(
     @Headers('X-Telegram-Bot-Api-Secret-Token') secret: string,
     @Body() body: Api.Mutation.Input<'/alerts/telegramWebhook'>,
@@ -400,7 +387,9 @@ export class AlertsController {
   @Post('resendEmailVerification')
   @HttpCode(204)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(ResendEmailVerificationSchema))
+  @UsePipes(
+    new ZodValidationPipe(Alerts.mutation.inputs.resendEmailVerification),
+  )
   async resendEmailVerification(
     @Request() req,
     @Body()
@@ -418,7 +407,9 @@ export class AlertsController {
 
   @Post('unsubscribeFromEmailAlert')
   @HttpCode(204)
-  @UsePipes(new JoiValidationPipe(UnsubscribeFromEmailAlertSchema))
+  @UsePipes(
+    new ZodValidationPipe(Alerts.mutation.inputs.unsubscribeFromEmailAlert),
+  )
   async unsubscribeFromEmailAlert(
     @Body() { token }: Api.Mutation.Input<'/alerts/unsubscribeFromEmailAlert'>,
   ): Promise<Api.Mutation.Output<'/alerts/unsubscribeFromEmailAlert'>> {
@@ -432,7 +423,11 @@ export class AlertsController {
   @Post('rotateWebhookDestinationSecret')
   @HttpCode(200)
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(RotateWebhookDestinationSecretSchema))
+  @UsePipes(
+    new ZodValidationPipe(
+      Alerts.mutation.inputs.rotateWebhookDestinationSecret,
+    ),
+  )
   async rotateWebhookDestinationSecret(
     @Request() req,
     @Body()

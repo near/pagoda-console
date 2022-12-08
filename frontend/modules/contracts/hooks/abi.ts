@@ -5,10 +5,11 @@ import { Contract as NearContract } from 'near-abi-client-js';
 import { connect, keyStores } from 'near-api-js';
 import useSWR from 'swr';
 
-import { useIdentity } from '@/hooks/user';
+import { useAuth } from '@/hooks/auth';
+import { usePublicMode } from '@/hooks/public';
 import analytics from '@/utils/analytics';
 import config from '@/utils/config';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 import { inspectContract } from '../utils/embedded-abi';
 
@@ -18,8 +19,9 @@ type Contract = Api.Query.Output<'/projects/getContract'>;
 
 // Prefers an embedded ABI in the wasm, if there is one, else returns any manually uploaded ABI.
 export const useAnyAbi = (contract: Contract | undefined) => {
+  const { publicModeIsActive } = usePublicMode();
   const { embeddedAbi } = useEmbeddedAbi(contract?.net, contract?.address);
-  const { contractAbi, error } = useContractAbi(contract?.slug);
+  const { contractAbi, error } = useContractAbi(publicModeIsActive ? undefined : contract?.slug);
 
   // We haven't determined if there is an embedded ABI yet, so let's return nothing for now.
   if (embeddedAbi === undefined) {
@@ -29,6 +31,11 @@ export const useAnyAbi = (contract: Contract | undefined) => {
   // There is an embedded ABI in the wasm.
   if (embeddedAbi !== null) {
     return { contractAbi: embeddedAbi, embedded: true };
+  }
+
+  // There is no embedded ABI for public mode.
+  if (publicModeIsActive) {
+    return { error: new Error('ABI_NOT_FOUND') };
   }
 
   // There is no embedded ABI.
@@ -47,7 +54,7 @@ export const useEmbeddedAbi = (net: Net | undefined, address: string | undefined
 };
 
 export const useContractAbi = (contract: string | undefined) => {
-  const identity = useIdentity();
+  const { identity } = useAuth();
   const {
     data: contractAbi,
     error,
@@ -55,7 +62,7 @@ export const useContractAbi = (contract: string | undefined) => {
   } = useSWR(
     identity && contract ? ['/abi/getContractAbi' as const, contract, identity.uid] : null,
     (key, contract) => {
-      return authenticatedPost(key, { contract });
+      return fetchApi([key, { contract }]);
     },
   );
 
@@ -64,10 +71,7 @@ export const useContractAbi = (contract: string | undefined) => {
 
 export const uploadContractAbi = async (contractSlug: string, abi: AbiRoot) => {
   try {
-    await authenticatedPost('/abi/addContractAbi', {
-      contract: contractSlug,
-      abi,
-    });
+    await fetchApi(['/abi/addContractAbi', { contract: contractSlug, abi }]);
 
     analytics.track('DC Upload Contract ABI', {
       status: 'success',

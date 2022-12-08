@@ -1,135 +1,58 @@
-import { noop } from 'lodash-es';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import type { Api } from '@pc/common/types/api';
 
+import type {
+  MutationOptions as UseRawMutationOptions,
+  UseMutationResult as RawMutationResult,
+} from '@/hooks/raw-mutation';
+import { useRawMutation } from '@/hooks/raw-mutation';
 import analytics from '@/utils/analytics';
+import { fetchApi } from '@/utils/http';
 
-type MutationLoadingResult = {
-  loading: true;
-  status: 'loading';
-  result: undefined;
-  error: null;
+export type UseMutationResult<K extends Api.Mutation.Key> = RawMutationResult<
+  Api.Mutation.Output<K>,
+  Api.Mutation.Error<K>,
+  Api.Mutation.Input<K>
+>;
+
+export type MutationOptions<K extends Api.Mutation.Key, C = unknown> = UseRawMutationOptions<
+  Api.Mutation.Output<K>,
+  Api.Mutation.Error<K>,
+  Api.Mutation.Input<K>,
+  C
+> & {
+  unauth?: boolean;
+  getAnalyticsSuccessData?: (input: Api.Mutation.Input<K>, output: Api.Mutation.Output<K>) => Record<string, unknown>;
+  getAnalyticsErrorData?: (input: Api.Mutation.Input<K>, error: Api.Mutation.Error<K>) => Record<string, unknown>;
 };
 
-type MutationErrorResult<Error> = {
-  loading: false;
-  status: 'error';
-  result: undefined;
-  error: Error;
-};
-
-type MutationSuccessResult<Result> = {
-  loading: false;
-  status: 'success';
-  result: Result;
-  error: null;
-};
-
-type MutationIdleResult = {
-  loading: false;
-  status: 'idle';
-  result: undefined;
-  error: null;
-};
-
-export type MutationResult<Input = void, Result = void, E = unknown> = (
-  | MutationLoadingResult
-  | MutationSuccessResult<Result>
-  | MutationErrorResult<E>
-  | MutationIdleResult
-) & {
-  mutate: Input extends void ? () => Promise<void> : (input: Input) => Promise<void>;
-  mutateAsync: Input extends void ? () => Promise<Result> : (input: Input) => Promise<Result>;
-  reset: () => void;
-};
-
-export type MutationOptions<Input = void, Result = void, M = unknown, E = unknown> = {
-  eventName: string;
-  mutate: Input extends void ? () => Result | Promise<Result> : (input: Input) => Result | Promise<Result>;
-  onSuccess?: (result: Result, input: Input, cache: M) => void;
-  onError?: (error: E, input: Input, cache?: M) => void;
-  onMutate?: (input: Input) => M;
-};
-
-export const useMutation = <Input = void, Result = void, M = unknown, E = unknown>({
-  eventName,
-  mutate: originalMutate,
-  onMutate,
-  onSuccess,
-  onError,
-}: MutationOptions<Input, Result, M, E>): MutationResult<Input, Result, E> => {
-  const [, setCounter] = useState(0);
-  const forceRefresh = useCallback(() => setCounter((c) => c + 1), [setCounter]);
-
-  const mutationRef = useRef<MutationResult<Input, Result, E>>({
-    loading: false,
-    error: null,
-    result: undefined,
-    status: 'idle',
-    mutateAsync: noop as MutationResult<Input, Result, E>['mutateAsync'],
-    mutate: noop as MutationResult<Input, Result, E>['mutate'],
-    reset: noop,
-  });
-
-  // see https://github.com/facebook/react/issues/19742
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const mutateAsync = useCallback<MutationResult<Input, Result, E>['mutateAsync']>(
-    (async (input) => {
-      mutationRef.current.error = null;
-      mutationRef.current.result = undefined;
-      mutationRef.current.loading = true;
-      mutationRef.current.status = 'loading';
-      forceRefresh();
-      let cache: M | undefined;
-      try {
-        cache = onMutate?.(input);
-        const result = await originalMutate(input);
-        analytics.track(`DC ${eventName}`, {
+export const useMutation = <K extends Api.Mutation.Key, C>(
+  endpoint: K,
+  options: MutationOptions<K, C> = {},
+): UseMutationResult<K> =>
+  useRawMutation<Api.Mutation.Output<K>, Api.Mutation.Error<K>, Api.Mutation.Input<K>, C>(
+    ((variables) =>
+      fetchApi(
+        [endpoint, variables] as unknown as Parameters<typeof fetchApi>[0],
+        options.unauth,
+      )) as unknown as Api.Mutation.Input<K> extends void
+      ? () => Promise<Api.Mutation.Output<K>>
+      : (input: Api.Mutation.Input<K>) => Promise<Api.Mutation.Output<K>>,
+    {
+      ...options,
+      onSuccess: (result, variables, context) => {
+        analytics.track(`DC ${endpoint}`, {
           status: 'success',
-          ...input,
+          ...options.getAnalyticsSuccessData?.(variables, result),
         });
-        mutationRef.current.result = result;
-        mutationRef.current.status = 'success';
-        mutationRef.current.loading = false;
-        forceRefresh();
-        onSuccess?.(result, input, cache!);
-        return result;
-      } catch (e: any) {
-        analytics.track(`DC ${eventName}`, {
+        options.onSuccess?.(result, variables, context);
+      },
+      onError: (error, variables, context) => {
+        analytics.track(`DC ${endpoint}`, {
           status: 'failure',
-          error: e.message,
-          ...input,
+          error: String(error),
+          ...options.getAnalyticsErrorData?.(variables, error),
         });
-        mutationRef.current.error = e;
-        mutationRef.current.status = 'error';
-        mutationRef.current.loading = false;
-        forceRefresh();
-        onError?.(e, input, cache);
-        throw e;
-      }
-    }) as MutationResult<Input, Result, E>['mutateAsync'],
-    [eventName, onSuccess, onError, onMutate, originalMutate],
+        options.onError?.(error, variables, context);
+      },
+    },
   );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const mutate = useCallback<MutationResult<Input, Result, E>['mutate']>(
-    ((input) => {
-      mutateAsync(input).catch(noop);
-    }) as MutationResult<Input, Result, E>['mutate'],
-    [mutateAsync],
-  );
-  const reset = useCallback(() => {
-    mutationRef.current.error = null;
-    mutationRef.current.result = undefined;
-    mutationRef.current.loading = false;
-    mutationRef.current.status = 'idle';
-    forceRefresh();
-  }, [mutationRef, forceRefresh]);
-
-  useEffect(() => {
-    mutationRef.current.mutateAsync = mutateAsync;
-    mutationRef.current.mutate = mutate;
-    mutationRef.current.reset = reset;
-    forceRefresh();
-  }, [mutateAsync, mutate, reset, forceRefresh]);
-
-  return mutationRef.current;
-};

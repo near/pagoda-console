@@ -1,41 +1,34 @@
 import Link from 'next/link';
-import React, { useState } from 'react';
 
 import { List, ListItem } from '@/components/lib/List';
 import { Message } from '@/components/lib/Message';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
+import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { useAuth } from '@/hooks/auth';
+import { useSignOut } from '@/hooks/auth';
+import { useMutation } from '@/hooks/mutation';
 import { useOrgsWithOnlyAdmin } from '@/hooks/organizations';
-import { deleteAccount, useIdentity } from '@/hooks/user';
 import { StableId } from '@/utils/stable-ids';
 
-export default function DeleteAccountModal({
-  show,
-  setShow,
-  onDelete,
-}: {
-  show: boolean;
-  setShow: (show: boolean) => void;
-  onDelete: () => void;
-}) {
-  const identity = useIdentity();
-  const [errorText, setErrorText] = useState<string | undefined>();
-  const [isDeleting, setIsDeleting] = useState(false);
+export default function DeleteAccountModal({ show, setShow }: { show: boolean; setShow: (show: boolean) => void }) {
+  const { identity } = useAuth();
   const { organizations } = useOrgsWithOnlyAdmin();
+  const signOut = useSignOut();
 
-  async function onConfirm() {
-    setIsDeleting(true);
-
-    const success = await deleteAccount(identity?.uid);
-
-    if (success) {
-      onDelete();
-    } else {
-      setErrorText('Something went wrong while deleting an account.');
-      setIsDeleting(false);
-    }
-  }
+  const deleteAccountMutation = useMutation('/users/deleteAccount', {
+    onSuccess: () => {
+      openToast({
+        type: 'success',
+        title: 'Account Deleted',
+        description: 'Your account has been deleted and you have been signed out.',
+      });
+      void signOut();
+    },
+    getAnalyticsSuccessData: () => ({ uid: identity?.uid }),
+    getAnalyticsErrorData: () => ({ uid: identity?.uid }),
+  });
 
   const isOnlyAdmin = organizations && organizations.length > 0;
 
@@ -43,10 +36,12 @@ export default function DeleteAccountModal({
     <ConfirmModal
       confirmColor="danger"
       confirmText="Delete"
-      errorText={errorText}
-      isProcessing={isDeleting}
-      onConfirm={onConfirm}
-      setErrorText={setErrorText}
+      errorText={
+        deleteAccountMutation.status === 'error' ? 'Something went wrong while deleting an account.' : undefined
+      }
+      isProcessing={deleteAccountMutation.isLoading}
+      onConfirm={deleteAccountMutation.mutate}
+      resetError={deleteAccountMutation.reset}
       setShow={setShow}
       show={show}
       disabled={isOnlyAdmin}

@@ -5,22 +5,24 @@ type DatabaseAddKey = {
   kind: 'ADD_KEY';
   args: {
     public_key: string;
-    access_key: {
-      nonce: number;
-      permission:
-        | {
-            permission_kind: 'FUNCTION_CALL';
-            permission_details: {
-              allowance: string;
-              receiver_id: string;
-              method_names: string[];
-            };
-          }
-        | {
-            permission_kind: 'FULL_ACCESS';
-          };
-    };
+    access_key: DatabaseAccessKey;
   };
+};
+
+export type DatabaseAccessKey = {
+  nonce: number;
+  permission:
+    | {
+        permission_kind: 'FUNCTION_CALL';
+        permission_details: {
+          allowance: string;
+          receiver_id: string;
+          method_names: string[];
+        };
+      }
+    | {
+        permission_kind: 'FULL_ACCESS';
+      };
 };
 
 type DatabaseCreateAccount = {

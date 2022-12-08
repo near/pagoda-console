@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
@@ -9,8 +9,7 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
-import { resetPassword } from '@/hooks/user';
-import analytics from '@/utils/analytics';
+import { useMutation } from '@/hooks/mutation';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
 
@@ -24,42 +23,23 @@ interface Props {
 }
 
 const ModalContent = ({ setShow }: Props) => {
-  const { register, handleSubmit, formState, setError } = useForm<ForgotPasswordFormData>();
-  const [hasSent, setHasSent] = useState(false);
+  const { register, handleSubmit, formState } = useForm<ForgotPasswordFormData>();
+  const resetPasswordMutation = useMutation('/users/resetPassword', { unauth: true });
 
-  const sendPasswordReset: SubmitHandler<ForgotPasswordFormData> = async ({ email }) => {
-    try {
-      await resetPassword(email);
-      analytics.track('DC Forgot Password', {
-        status: 'success',
-      });
-      setHasSent(true);
-    } catch (e: any) {
-      console.error(e);
-
-      analytics.track('DC Forgot Password', {
-        status: 'failure',
-        error: e.code,
-      });
-
-      switch (e.code) {
-        case 400:
-          setError('email', {
-            message: 'Please enter a valid email address',
-          });
-          break;
-        default:
-          setError('email', {
-            message: 'Something went wrong',
-          });
-          break;
-      }
-    }
-  };
+  const resetPasswordError =
+    resetPasswordMutation.status === 'error'
+      ? (resetPasswordMutation.error as any).code === 400
+        ? 'Please enter a valid email address'
+        : 'Something went wrong'
+      : undefined;
+  const resetPassword = useCallback<SubmitHandler<ForgotPasswordFormData>>(
+    (form) => resetPasswordMutation.mutate(form),
+    [resetPasswordMutation],
+  );
 
   return (
-    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(sendPasswordReset)}>
-      {hasSent ? (
+    <Form.Root disabled={resetPasswordMutation.isLoading} onSubmit={handleSubmit(resetPassword)}>
+      {resetPasswordMutation.status === 'success' ? (
         <Flex stack align="center" css={{ textAlign: 'center' }}>
           <FeatherIcon icon="check-circle" color="success" size="l" />
 
@@ -82,7 +62,7 @@ const ModalContent = ({ setShow }: Props) => {
               isInvalid={!!formState.errors.email}
               {...register('email', formValidations.email)}
             />
-            <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
+            <Form.Feedback>{resetPasswordError ?? formState.errors.email?.message}</Form.Feedback>
           </Form.Group>
 
           <Flex justify="spaceBetween" align="center">

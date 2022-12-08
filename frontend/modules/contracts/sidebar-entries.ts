@@ -1,4 +1,4 @@
-import type { SidebarEntry } from '@/shared/utils/types';
+import type { SidebarEntry } from '@/components/layouts/DashboardLayout/Sidebar';
 import { StableId } from '@/utils/stable-ids';
 
 const entries: SidebarEntry[] = [
@@ -8,6 +8,7 @@ const entries: SidebarEntry[] = [
     routeMatchPattern: '/contracts',
     icon: 'zap',
     stableId: StableId.SIDEBAR_CONTRACTS_LINK,
+    visibleForAuthPublicMode: true,
   },
 ];
 

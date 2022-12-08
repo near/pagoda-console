@@ -1,5 +1,5 @@
 import { getIdToken, updateProfile } from 'firebase/auth';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
@@ -11,12 +11,10 @@ import { HR } from '@/components/lib/HorizontalRule';
 import { Message } from '@/components/lib/Message';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
-import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
+import { useAccount, useAuth } from '@/hooks/auth';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { useAccount, useIdentity } from '@/hooks/user';
 import DeleteAccountModal from '@/modules/core/components/modals/DeleteAccountModal';
-import { logOut } from '@/utils/auth';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -29,7 +27,7 @@ const Settings: NextPageWithLayout = () => {
   const { register, handleSubmit, formState, setValue } = useForm<SettingsFormData>();
   const [isEditing, setIsEditing] = useState(false);
   const { user, error, mutate } = useAccount();
-  const identity = useIdentity();
+  const { identity } = useAuth();
   const [updateError, setUpdateError] = useState('');
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
 
@@ -63,22 +61,14 @@ const Settings: NextPageWithLayout = () => {
       setIsEditing(false);
     }
   };
-
-  const onAccountDelete = async () => {
-    await logOut();
-    openToast({
-      type: 'success',
-      title: 'Account Deleted',
-      description: 'Your account has been deleted and you have been signed out.',
-    });
-  };
+  const resetError = useCallback(() => setUpdateError(''), [setUpdateError]);
 
   const isLoading = !user && !error;
 
   return (
     <>
       <Section>
-        <ErrorModal error={updateError} setError={setUpdateError} />
+        <ErrorModal error={updateError} resetError={resetError} />
 
         <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitSettings)}>
           <Flex stack gap="l">
@@ -137,11 +127,7 @@ const Settings: NextPageWithLayout = () => {
           </Button>
         </Flex>
       </Section>
-      <DeleteAccountModal
-        show={showDeleteAccountModal}
-        setShow={setShowDeleteAccountModal}
-        onDelete={onAccountDelete}
-      />
+      <DeleteAccountModal show={showDeleteAccountModal} setShow={setShowDeleteAccountModal} />
     </>
   );
 };

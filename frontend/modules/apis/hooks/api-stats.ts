@@ -4,8 +4,8 @@ import type { DateTime, DateTimeUnit } from 'luxon';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
-import { useIdentity } from '@/hooks/user';
-import { authenticatedPost } from '@/utils/http';
+import { useAuth } from '@/hooks/auth';
+import { fetchApi } from '@/utils/http';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
 type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
@@ -125,7 +125,7 @@ export function useApiStats(
   timeRangeValue: RpcStats.TimeRangeValue,
   rangeEndTime: DateTime,
 ) {
-  const identity = useIdentity();
+  const { identity } = useAuth();
   const [startDateTime, endDateTime] = timeRangeToDates(timeRangeValue, rangeEndTime); // convert timeRangeValue to params for use in the API call
   const dateTimeResolution = resolutionForTimeRange(timeRangeValue);
   const [dataByDate, setDataByDate] = useState<EndpointMetrics>();
@@ -143,16 +143,19 @@ export function useApiStats(
         ]
       : null,
     (key) => {
-      return authenticatedPost(key, {
-        environmentSubId: environment!.subId,
-        projectSlug: project!.slug,
-        startDateTime: startDateTime.toString(),
-        endDateTime: endDateTime.toString(),
-        filter: {
-          type: 'date',
-          dateTimeResolution,
+      return fetchApi([
+        key,
+        {
+          environmentSubId: environment!.subId,
+          projectSlug: project!.slug,
+          startDateTime: startDateTime.toString(),
+          endDateTime: endDateTime.toString(),
+          filter: {
+            type: 'date',
+            dateTimeResolution,
+          },
         },
-      });
+      ]);
     },
   );
 
@@ -168,13 +171,16 @@ export function useApiStats(
         ]
       : null,
     (key) => {
-      return authenticatedPost(key, {
-        environmentSubId: environment!.subId,
-        projectSlug: project!.slug,
-        startDateTime: startDateTime.toString(),
-        endDateTime: endDateTime.toString(),
-        filter: { type: 'endpoint' },
-      });
+      return fetchApi([
+        key,
+        {
+          environmentSubId: environment!.subId,
+          projectSlug: project!.slug,
+          startDateTime: startDateTime.toString(),
+          endDateTime: endDateTime.toString(),
+          filter: { type: 'endpoint' },
+        },
+      ]);
     },
   );
 

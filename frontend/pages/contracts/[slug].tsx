@@ -1,7 +1,6 @@
-import type { Api } from '@pc/common/types/api';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
@@ -12,8 +11,11 @@ import * as Tabs from '@/components/lib/Tabs';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
-import { useContract, useContracts } from '@/hooks/contracts';
+import { useContracts } from '@/hooks/contracts';
+import { usePublicOrPrivateContract, usePublicOrPrivateContracts } from '@/hooks/contracts';
+import { useCurrentEnvironment } from '@/hooks/environments';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
+import { usePublicMode } from '@/hooks/public';
 import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { ContractAbi } from '@/modules/contracts/components/ContractAbi';
@@ -24,14 +26,15 @@ import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
-type Contract = Api.Query.Output<'/projects/getContract'>;
-
 const ViewContract: NextPageWithLayout = () => {
+  const { publicModeIsActive } = usePublicMode();
   const router = useRouter();
   const contractSlug = useRouteParam('slug', '/contracts', true) || undefined;
-  const { environment, project } = useSelectedProject();
-  const { contracts, mutate: mutateContracts } = useContracts(project?.slug, environment?.subId);
-  const { contract } = useContract(contractSlug);
+  const { project } = useSelectedProject();
+  const { environment } = useCurrentEnvironment();
+  const { contracts: privateContracts } = useContracts(project?.slug, environment?.subId);
+  const { contracts } = usePublicOrPrivateContracts(privateContracts);
+  const { contract } = usePublicOrPrivateContract(contractSlug);
   const activeTab = useRouteParam('tab', `/contracts/${contractSlug}?tab=details`, true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { contractAbi } = useAnyAbi(contract);
@@ -39,12 +42,7 @@ const ViewContract: NextPageWithLayout = () => {
   // TODO: Pull in useSelectedProjectSync() to match [triggeredAlertId].tsx logic to sync env/proj to loaded contract.
   // TODO: Handle 404
 
-  function onDelete(contract: Contract) {
-    mutateContracts((contracts) => {
-      return contracts?.filter((c) => c.slug !== contract.slug) || [];
-    });
-    router.replace('/contracts');
-  }
+  const onDelete = useCallback(() => router.replace('/contracts'), [router]);
 
   function onSelectedContractChange(slug: string) {
     router.push(`/contracts/${slug}?tab=${activeTab}`);
@@ -114,17 +112,19 @@ const ViewContract: NextPageWithLayout = () => {
                   )}
                 </Tabs.List>
 
-                <Tooltip content="Remove this contract">
-                  <Button
-                    stableId={StableId.CONTRACT_OPEN_REMOVE_MODAL_BUTTON}
-                    color="neutral"
-                    aria-label="Remove Contract"
-                    size="s"
-                    onClick={() => setShowDeleteModal(true)}
-                  >
-                    <FeatherIcon icon="trash-2" size="xs" color="text2" />
-                  </Button>
-                </Tooltip>
+                {!publicModeIsActive && (
+                  <Tooltip content="Remove this contract">
+                    <Button
+                      stableId={StableId.CONTRACT_OPEN_REMOVE_MODAL_BUTTON}
+                      color="neutral"
+                      aria-label="Remove Contract"
+                      size="s"
+                      onClick={() => setShowDeleteModal(true)}
+                    >
+                      <FeatherIcon icon="trash-2" size="xs" color="text2" />
+                    </Button>
+                  </Tooltip>
+                )}
               </Flex>
             </Flex>
           </Flex>

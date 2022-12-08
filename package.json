@@ -11,7 +11,8 @@
     "./backend",
     "database",
     "common",
-    "eslint-rules"
+    "eslint-rules",
+    "./test"
   ],
   "scripts": {
     "prepare": "husky install",

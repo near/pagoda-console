@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
+import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { useSimpleLayout } from '@/hooks/layouts';
-import { unauthenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Unsubscribe: NextPageWithLayout = () => {
@@ -29,9 +30,7 @@ const Unsubscribe: NextPageWithLayout = () => {
 
   async function sendUnsubscribeRequest(token: string) {
     try {
-      await unauthenticatedPost('/alerts/unsubscribeFromEmailAlert', {
-        token,
-      });
+      await fetchApi(['/alerts/unsubscribeFromEmailAlert', { token }], true);
       setUnsubscribeMessage('You have successfully unsubscribed from this email alert. You may close this window.');
     } catch (e) {
       console.error(e);
@@ -40,13 +39,15 @@ const Unsubscribe: NextPageWithLayout = () => {
   }
 
   return (
-    <Container size="s">
-      <Flex stack align="center">
-        {!unsubscribeMessage && !error && <Spinner size="m" />}
-        {error && <Message content={error} type="error" />}
-        {unsubscribeMessage && <Message content={unsubscribeMessage} type="success" />}
-      </Flex>
-    </Container>
+    <Section>
+      <Container size="s">
+        <Flex stack align="center">
+          {!unsubscribeMessage && !error && <Spinner size="m" />}
+          {error && <Message content={error} type="error" />}
+          {unsubscribeMessage && <Message content={unsubscribeMessage} type="success" />}
+        </Flex>
+      </Container>
+    </Section>
   );
 };
 

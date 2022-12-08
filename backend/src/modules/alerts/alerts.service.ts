@@ -169,7 +169,10 @@ export class AlertsService {
       ...alert,
       name: alert.name || defaultName,
     };
-    const matchingRule = this.ruleSerializer.toAcctBalJson(rule);
+    const matchingRule =
+      rule.type === 'ACCT_BAL_NUM'
+        ? this.ruleSerializer.toAcctBalNumJson(rule)
+        : this.ruleSerializer.toAcctBalPctJson(rule);
 
     return this.createAlertRuleWithContract(user, alert, rule, matchingRule);
   }
@@ -191,15 +194,29 @@ export class AlertsService {
       this.checkAddressExists(chainId, address),
     ]);
 
-    const alertInput = await this.buildCreateAlertInput(
-      user,
-      chainId,
-      alert,
-      AlertRuleKind.ACTIONS,
-      matchingRule,
-    );
+    const { name, projectSlug, environmentSubId, destinations } = alert;
 
-    return this.createAlert(alertInput);
+    return this.createAlert({
+      name: name!,
+      alertRuleKind: AlertRuleKind.ACTIONS,
+      matchingRule: matchingRule as unknown as Prisma.InputJsonValue,
+      projectSlug,
+      environmentSubId,
+      chainId,
+      createdBy: user.id,
+      updatedBy: user.id,
+      enabledDestinations: {
+        createMany: {
+          data: destinations
+            ? destinations.map((el) => ({
+                destinationId: el,
+                createdBy: user.id,
+                updatedBy: user.id,
+              }))
+            : [],
+        },
+      },
+    });
   }
 
   // Checks if the alert's address exists on the Near blockchain.
@@ -225,40 +242,6 @@ export class AlertsService {
         'Alert address not found',
       );
     }
-  }
-
-  private async buildCreateAlertInput(
-    user: User,
-    chainId: ChainId,
-    alert: Alerts.CreateAlertBaseInput,
-    alertRuleKind: AlertRuleKind,
-    matchingRule,
-  ): Promise<Prisma.AlertCreateInput> {
-    const { name, projectSlug, environmentSubId, destinations } = alert;
-
-    const alertInput: Prisma.AlertCreateInput = {
-      name: name!,
-      alertRuleKind,
-      matchingRule,
-      projectSlug,
-      environmentSubId,
-      chainId,
-      createdBy: user.id,
-      updatedBy: user.id,
-      enabledDestinations: {
-        createMany: {
-          data: destinations
-            ? destinations.map((el) => ({
-                destinationId: el,
-                createdBy: user.id,
-                updatedBy: user.id,
-              }))
-            : [],
-        },
-      },
-    };
-
-    return alertInput;
   }
 
   private async createAlert(data: Prisma.AlertCreateInput) {

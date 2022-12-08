@@ -1,72 +1,69 @@
-import { Net } from '@pc/database/clients/core';
+import { z } from 'zod';
+import { environmentId, net, projectSlug } from '../core/types';
+import { stringifiedDate } from '../schemas';
 
-export type DateTimeResolution =
-  | 'FIFTEEN_SECONDS'
-  | 'ONE_MINUTE'
-  | 'ONE_HOUR'
-  | 'ONE_DAY';
+export const dateTimeResolution = z.enum([
+  'FIFTEEN_SECONDS',
+  'ONE_MINUTE',
+  'ONE_HOUR',
+  'ONE_DAY',
+]);
+export type DateTimeResolution = z.infer<typeof dateTimeResolution>;
 
-export type TimeRangeValue =
-  | '15_MINS'
-  | '1_HRS'
-  | '24_HRS'
-  | '7_DAYS'
-  | '30_DAYS';
+export const timeRangeValue = z.enum([
+  '15_MINS',
+  '1_HRS',
+  '24_HRS',
+  '7_DAYS',
+  '30_DAYS',
+]);
+export type TimeRangeValue = z.infer<typeof timeRangeValue>;
 
-export type MetricGroupBy = 'date' | 'endpoint';
+const metrics = z.strictObject({
+  apiKeyIdentifier: z.string(),
+  endpointGroup: z.string().optional(),
+  endpointMethod: z.string(),
+  network: net,
+  windowStart: stringifiedDate.optional(),
+  windowEnd: stringifiedDate.optional(),
+  successCount: z.number(),
+  errorCount: z.number(),
+  minLatency: z.number(),
+  maxLatency: z.number(),
+  meanLatency: z.number(),
+});
+export type Metrics = z.infer<typeof metrics>;
 
-export type BaseEndpointMetric = {
-  endpointMethod: string;
-  successCount: number;
-  errorCount: number;
-  totalCount: number;
+export const query = {
+  inputs: {
+    endpointMetrics: z.strictObject({
+      projectSlug,
+      environmentSubId: environmentId,
+      startDateTime: stringifiedDate,
+      endDateTime: stringifiedDate,
+      skip: z.number().int().min(0).optional(),
+      take: z.number().int().min(0).max(100).optional(),
+      pagingDateTime: stringifiedDate.optional(),
+      filter: z.discriminatedUnion('type', [
+        z.strictObject({
+          type: z.literal('date'),
+          dateTimeResolution,
+        }),
+        z.strictObject({
+          type: z.literal('endpoint'),
+        }),
+      ]),
+    }),
+  },
+
+  outputs: {
+    endpointMetrics: z.strictObject({
+      count: z.number(),
+      page: metrics.array(),
+    }),
+  },
+
+  errors: {
+    endpointMetrics: z.unknown(),
+  },
 };
-
-export type Metrics = {
-  apiKeyIdentifier: string;
-  endpointGroup?: string;
-  endpointMethod: string;
-  network: Net;
-  windowStart?: string;
-  windowEnd?: string;
-  successCount: number;
-  errorCount: number;
-  minLatency: number;
-  maxLatency: number;
-  meanLatency: number;
-};
-
-export type MetricsPage = {
-  count: number;
-  page: Metrics[];
-};
-
-export namespace Query {
-  export namespace Inputs {
-    export type EndpointMetrics = {
-      projectSlug: string;
-      environmentSubId: number;
-      startDateTime: string;
-      endDateTime: string;
-      skip?: number;
-      take?: number;
-      pagingDateTime?: string;
-      filter:
-        | {
-            type: 'date';
-            dateTimeResolution: DateTimeResolution;
-          }
-        | {
-            type: 'endpoint';
-          };
-    };
-  }
-
-  export namespace Outputs {
-    export type EndpointMetrics = MetricsPage;
-  }
-
-  export namespace Errors {
-    export type EndpointMetrics = unknown;
-  }
-}

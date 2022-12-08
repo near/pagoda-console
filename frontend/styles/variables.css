@@ -12,7 +12,7 @@
   --color-text-3: #888e98;
 
   --color-surface-overlay: #101110;
-  --color-surface-1: #242625;
+  --color-surface-1: #151718;
   --color-surface-2: #2b2c2b;
   --color-surface-3: #323232;
   --color-surface-4: #383838;
@@ -50,6 +50,7 @@
   --focus-outline-offset: 3px;
 
   --font-heading: 'NB International Pro', sans-serif;
+  --font-gallery-header: 'New Sprint Light', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-action: 'IBM Plex Mono', monospace;
   --font-code: 'IBM Plex Mono', monospace;
@@ -89,7 +90,9 @@
   --size-max-container-width-xs: 20rem;
   --size-max-container-width-s: 30rem;
   --size-max-container-width-m: 50rem;
+  --size-max-container-width-ml: 62rem;
   --size-max-container-width-l: 75rem;
+  --size-max-container-width-xl: 82rem;
   --size-max-dropdown-height: 30rem;
   --size-max-input-width-xxs: 5rem;
   --size-max-input-width-xs: 10rem;
@@ -104,6 +107,7 @@
   --space-m: 1rem;
   --space-l: 2rem;
   --space-xl: 4rem;
+  --space-xxl: 6rem;
 
   --transition-speed: 150ms;
   --transitions: color var(--transition-speed), border-color var(--transition-speed),

@@ -3,23 +3,18 @@ import type { Net } from '@pc/database/clients/core';
 import JSBI from 'jsbi';
 import useSWR from 'swr';
 
-import { useIdentity } from '@/hooks/user';
 import config from '@/utils/config';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 export function useRecentTransactions(contract: string | undefined, net: Net | undefined) {
-  const identity = useIdentity();
   // TODO (P2+) look into whether using contracts as part of the SWR key will cause a large
   // amount of unnecessary caching, since every modification to the contract set will be a
   // separate key
 
   const { data: transactions, error } = useSWR(
-    identity && contract && net ? ['/explorer/getTransactions' as const, contract, net, identity.uid] : null,
+    contract && net ? ['/explorer/getTransactions' as const, contract, net] : null,
     (key, contracts, net) => {
-      return authenticatedPost(key, {
-        contracts: contracts.split(','),
-        net,
-      });
+      return fetchApi([key, { contracts: contracts.split(','), net }], true);
     },
   );
 
