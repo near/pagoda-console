@@ -1,7 +1,6 @@
 import type { Explorer } from '@pc/common/types/core';
 import JSBI from 'jsbi';
 
-import type { FinalityStatus } from '@/modules/contracts/hooks/recent-transactions';
 import BatchTransactionIcon from '@/public/static/images/icon-m-batch.svg';
 
 import ActionRow from './ActionRow';
@@ -16,19 +15,25 @@ interface Props {
   viewMode?: ViewMode;
   title: string;
   icon?: React.ReactElement;
-  finalityStatus?: FinalityStatus;
+  finalBlockTimestampNanosecond?: JSBI;
 }
 
-const ActionGroup = ({ actionGroup, detailsLink, status, viewMode, title, icon, finalityStatus }: Props) => {
-  // const { finalityStatus } = useContext(DatabaseContext);
-
+const ActionGroup = ({
+  actionGroup,
+  detailsLink,
+  status,
+  viewMode,
+  title,
+  icon,
+  finalBlockTimestampNanosecond,
+}: Props) => {
   if (!actionGroup?.actions) return null;
 
   const isFinal =
-    typeof finalityStatus?.finalBlockTimestampNanosecond !== 'undefined'
+    typeof finalBlockTimestampNanosecond !== 'undefined'
       ? JSBI.lessThanOrEqual(
           JSBI.BigInt(actionGroup.blockTimestamp),
-          JSBI.divide(finalityStatus.finalBlockTimestampNanosecond, JSBI.BigInt(10 ** 6)),
+          JSBI.divide(finalBlockTimestampNanosecond, JSBI.BigInt(10 ** 6)),
         )
       : undefined;
 

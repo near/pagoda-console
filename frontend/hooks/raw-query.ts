@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { BareFetcher, Key, Middleware } from 'swr';
 import useSWR, { mutate } from 'swr';
 import type { PublicConfiguration } from 'swr/dist/types';
@@ -38,7 +38,7 @@ export type QueryOptions<Data, Error> = Partial<{
   refetchInterval: number;
   keepPreviousData: boolean;
   enabled: boolean;
-  retry: boolean;
+  retry: boolean | ((failureCount: number, error: Error) => boolean);
 }> &
   Partial<Pick<PublicConfiguration<Data, Error, BareFetcher<Data>>, 'onErrorRetry' | 'onSuccess' | 'onError'>>;
 
@@ -60,15 +60,27 @@ const withPreviousData: Middleware = (useSWRNext) => {
 export const useRawQuery = <Data, Error>(
   key: Key,
   fetch: () => Promise<Data>,
-  options: QueryOptions<Data, Error> = {},
+  { retry, ...options }: QueryOptions<Data, Error> = {},
 ): UseQueryResult<Data, Error> => {
+  const [failureCount, setFailureCount] = useState(0);
   const query = useSWR(options.enabled ? key : null, fetch, {
     refreshInterval: options.refetchInterval,
     use: options.keepPreviousData ? [withPreviousData] : undefined,
-    onSuccess: options.onSuccess,
-    onError: options.onError,
+    onSuccess: (data, key, config) => {
+      setFailureCount(0);
+      options.onSuccess?.(data, key, config);
+    },
+    onError: (error, key, config) => {
+      setFailureCount((x) => x + 1);
+      options.onError?.(error, key, config);
+    },
     onErrorRetry: options.onErrorRetry,
-    shouldRetryOnError: options.retry,
+    shouldRetryOnError:
+      typeof retry === 'undefined'
+        ? undefined
+        : typeof retry === 'boolean'
+        ? retry
+        : (error) => retry(failureCount, error),
   });
   const updateCache = useCallback<UseQueryResult<Data, Error>['updateCache']>(
     (updater) => mutate<Data>(key, updater),

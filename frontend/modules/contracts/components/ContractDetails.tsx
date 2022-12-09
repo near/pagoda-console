@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import JSBI from 'jsbi';
 
 import TransactionAction from '@/components/explorer/transactions/TransactionAction';
 import { NetContext } from '@/components/explorer/utils/NetContext';
@@ -9,11 +10,11 @@ import { H2 } from '@/components/lib/Heading';
 import { Placeholder } from '@/components/lib/Placeholder';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
-import { useContractMetrics } from '@/hooks/contracts';
+import { useRpc, useRpcQuery } from '@/hooks/rpc';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatBytes } from '@/utils/format-bytes';
 
-import { useFinalityStatus, useRecentTransactions } from '../hooks/recent-transactions';
+import { useRecentTransactions } from '../hooks/recent-transactions';
 
 type Contract = Api.Query.Output<'/projects/getContract'>;
 
@@ -22,14 +23,27 @@ interface Props {
 }
 
 export function ContractDetails({ contract }: Props) {
-  const { metrics, error } = useContractMetrics(contract?.address, contract?.net);
+  const metricsQuery = useRpcQuery(
+    contract?.net ?? 'TESTNET',
+    'view_account',
+    { finality: 'final', account_id: contract?.address },
+    { retry: false, enabled: Boolean(contract) },
+  );
 
   return (
     <Flex stack gap="l">
       <Card padding="m" borderRadius="m">
         <Flex gap="l" justify={{ '@initial': 'spaceEvenly', '@mobile': 'start' }} wrap>
-          <Metric label="Balance" value={metrics && convertYoctoToNear(metrics.amount, true)} error={error} />
-          <Metric label="Storage" value={metrics && formatBytes(metrics.storage_usage)} error={error} />
+          <Metric
+            label="Balance"
+            value={metricsQuery.status === 'success' ? convertYoctoToNear(metricsQuery.data.amount, true) : undefined}
+            error={metricsQuery.error}
+          />
+          <Metric
+            label="Storage"
+            value={metricsQuery.status === 'success' ? formatBytes(metricsQuery.data.storage_usage) : undefined}
+            error={metricsQuery.error}
+          />
         </Flex>
       </Card>
 
@@ -65,8 +79,15 @@ function Metric({ label, value, error }: { label: string; value?: string; error?
 
 function RecentTransactionList({ contract }: { contract?: Contract }) {
   // NOTE: This component and following code is legacy and will soon be replaced by new explorer components.
-
-  const { finalityStatus } = useFinalityStatus(contract?.net);
+  const blockFinalityQuery = useRpc(
+    contract?.net ?? 'TESTNET',
+    'block',
+    { finality: 'final' },
+    { enabled: Boolean(contract) },
+  );
+  const finalBlockTimestampNanosecond = blockFinalityQuery.data
+    ? JSBI.BigInt(blockFinalityQuery.data.header.timestamp_nanosec)
+    : undefined;
   const { transactions } = useRecentTransactions(contract?.address, contract?.net);
 
   return (
@@ -84,7 +105,11 @@ function RecentTransactionList({ contract }: { contract?: Contract }) {
               <Box css={{ flexGrow: 1 }} key={t.hash}>
                 {contract && (
                   <NetContext.Provider value={contract.net}>
-                    <TransactionAction transaction={t} net={contract.net} finalityStatus={finalityStatus} />
+                    <TransactionAction
+                      transaction={t}
+                      net={contract.net}
+                      finalBlockTimestampNanosecond={finalBlockTimestampNanosecond}
+                    />
                   </NetContext.Provider>
                 )}
               </Box>
