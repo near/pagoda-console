@@ -12,8 +12,7 @@ import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
-import { useContracts } from '@/hooks/contracts';
-import { usePublicOrPrivateContracts } from '@/hooks/contracts';
+import { usePublicOrPrivateContractsQuery } from '@/hooks/contracts';
 import { useCurrentEnvironment } from '@/hooks/environments';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
@@ -25,20 +24,22 @@ import type { NextPageWithLayout } from '@/utils/types';
 const ProjectAnalytics: NextPageWithLayout = () => {
   const { project } = useSelectedProject();
   const { environment } = useCurrentEnvironment();
-  const { contracts: privateContracts } = useContracts(project?.slug, environment?.subId);
-  const { contracts } = usePublicOrPrivateContracts(privateContracts);
+  const contractsQuery = usePublicOrPrivateContractsQuery(project?.slug, environment?.subId);
 
-  if (!environment || !contracts) {
+  if (!environment || contractsQuery.status === 'loading') {
     return <Spinner center />;
   }
+  if (contractsQuery.status === 'error') {
+    return null;
+  }
 
-  if (contracts.length === 0) {
+  if (contractsQuery.data.length === 0) {
     return <NoContractsNotice />;
   }
 
   return (
     <Section>
-      <AnalyticsIframe environment={environment} contracts={contracts} />
+      <AnalyticsIframe environment={environment} contracts={contractsQuery.data} />
     </Section>
   );
 };

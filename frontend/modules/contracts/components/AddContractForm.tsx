@@ -2,7 +2,6 @@ import type { Api } from '@pc/common/types/api';
 import { useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
-import { mutate } from 'swr';
 
 import { ContractTemplateDetails } from '@/components/contract-templates/ContractTemplateDetails';
 import { ContractTemplateList } from '@/components/contract-templates/ContractTemplateList';
@@ -16,6 +15,7 @@ import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import type { ContractTemplate } from '@/hooks/contract-templates';
 import { useMutation } from '@/hooks/mutation';
+import { useQueryCache } from '@/hooks/query-cache';
 import { useRawMutation } from '@/hooks/raw-mutation';
 import { useProjectSelector } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
@@ -26,7 +26,6 @@ import { StableId } from '@/utils/stable-ids';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
 type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
-type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
 interface Props {
   project: Project;
@@ -46,6 +45,7 @@ export function AddContractForm({ onAdd, project, environment }: Props) {
   const environmentTitle = environment?.net === 'TESTNET' ? 'Testnet' : 'Mainnet';
   const environmentTla = environment?.net === 'TESTNET' ? 'testnet' : 'near';
 
+  const contractsQuery = useQueryCache('/projects/getContracts');
   const addContractMutation = useMutation('/projects/addContract', {
     onSuccess: (contract) => {
       openToast({
@@ -54,8 +54,8 @@ export function AddContractForm({ onAdd, project, environment }: Props) {
         description: contract.address,
       });
       selectEnvironment(project!.slug, 1); // Make sure TESTNET is selected if they happened to currently be on MAINNET
-      mutate<Contract[]>(
-        ['/projects/getContracts', project.slug, environment.subId],
+      contractsQuery.update(
+        { project: project.slug, environment: environment.subId },
         (contracts) => contracts && [...contracts, contract],
       );
       onAdd?.();

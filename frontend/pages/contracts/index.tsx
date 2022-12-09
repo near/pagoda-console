@@ -15,8 +15,8 @@ import { Section } from '@/components/lib/Section';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
-import { useContractMetrics, useContracts } from '@/hooks/contracts';
-import { usePublicOrPrivateContracts } from '@/hooks/contracts';
+import { useContractMetrics } from '@/hooks/contracts';
+import { usePublicOrPrivateContractsQuery } from '@/hooks/contracts';
 import { useCurrentEnvironment } from '@/hooks/environments';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { usePublicMode } from '@/hooks/public';
@@ -36,8 +36,7 @@ const ListContracts: NextPageWithLayout = () => {
   const { publicModeIsActive } = usePublicMode();
   const { project } = useSelectedProject();
   const { environment } = useCurrentEnvironment();
-  const { contracts: privateContracts } = useContracts(project?.slug, environment?.subId);
-  const { contracts } = usePublicOrPrivateContracts(privateContracts);
+  const contractsQuery = usePublicOrPrivateContractsQuery(project?.slug, environment?.subId);
   const [addContractIsOpen, setAddContractIsOpen] = useState(false);
   const [shareContractsIsOpen, setShareContractsIsOpen] = useState(false);
 
@@ -54,7 +53,7 @@ const ListContracts: NextPageWithLayout = () => {
             </Flex>
 
             <Flex autoWidth>
-              {contracts && contracts.length > 0 && (
+              {contractsQuery.data && contractsQuery.data.length > 0 && (
                 <Button
                   color="neutral"
                   stableId={StableId.CONTRACTS_OPEN_SHARE_CONTRACTS_MODAL_BUTTON}
@@ -79,7 +78,7 @@ const ListContracts: NextPageWithLayout = () => {
         </Flex>
       </Section>
 
-      <ContractsTable contracts={contracts} setAddContractIsOpen={setAddContractIsOpen} />
+      <ContractsTable contracts={contractsQuery.data} setAddContractIsOpen={setAddContractIsOpen} />
 
       {!publicModeIsActive && project && environment && (
         <Dialog.Root open={addContractIsOpen} onOpenChange={setAddContractIsOpen}>
@@ -89,10 +88,10 @@ const ListContracts: NextPageWithLayout = () => {
         </Dialog.Root>
       )}
 
-      {contracts && environment && (
+      {contractsQuery.data && environment && (
         <Dialog.Root open={shareContractsIsOpen} onOpenChange={setShareContractsIsOpen}>
           <Dialog.Content title="Share Contracts" size="s">
-            <ShareContracts contracts={contracts} environment={environment} />
+            <ShareContracts contracts={contractsQuery.data} environment={environment} />
           </Dialog.Content>
         </Dialog.Root>
       )}

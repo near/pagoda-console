@@ -13,24 +13,23 @@ import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useMutation } from '@/hooks/mutation';
-import { useApiKeys } from '@/hooks/new-api-keys';
+import { useQuery } from '@/hooks/query';
+import { useSelectedProject } from '@/hooks/selected-project';
 import { CreateApiKeyForm } from '@/modules/apis/components/CreateApiKeyForm';
 import StarterGuide from '@/modules/core/components/StarterGuide';
 import analytics from '@/utils/analytics';
 import { StableId } from '@/utils/stable-ids';
 
-type Project = Api.Query.Output<'/projects/getDetails'>;
 type ApiKey = Api.Query.Output<'/projects/getKeys'>[number];
 
 const ROTATION_WARNING =
   'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';
 
-interface Props {
-  project?: Project;
-}
-
-export function ApiKeys({ project }: Props) {
-  const { keys, mutate: mutateKeys } = useApiKeys(project?.slug);
+export function ApiKeys() {
+  const { project } = useSelectedProject();
+  const keysQuery = useQuery(['/projects/getKeys', { project: project?.slug || 'unknown' }], {
+    enabled: Boolean(project),
+  });
   const [showRotationModal, setShowRotationModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -43,7 +42,7 @@ export function ApiKeys({ project }: Props) {
   const rotateKeyMutation = useMutation('/projects/rotateKey', {
     onMutate: (variables) => {
       setShowRotationModal(false);
-      mutateKeys((cachedKeys) =>
+      keysQuery.updateCache((cachedKeys) =>
         cachedKeys?.map((key) => {
           if (key.keySlug === variables.slug) {
             return { ...key, keySlug: '', key: '' };
@@ -53,7 +52,7 @@ export function ApiKeys({ project }: Props) {
       );
     },
     onSuccess: (result, variables) => {
-      mutateKeys((cachedKeys) =>
+      keysQuery.updateCache((cachedKeys) =>
         cachedKeys?.map((key) => {
           if (key.keySlug === variables.slug) {
             return result;
@@ -101,8 +100,8 @@ export function ApiKeys({ project }: Props) {
           </Table.Head>
 
           <Table.Body>
-            {keys &&
-              keys.map((apiKey, index) => {
+            {keysQuery.data &&
+              keysQuery.data.map((apiKey, index) => {
                 return (
                   <Table.Row key={index}>
                     <KeyRow

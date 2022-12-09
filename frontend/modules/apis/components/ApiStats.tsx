@@ -1,5 +1,4 @@
 // import { useApiKeys } from '@/hooks/api-keys';
-import type { Api } from '@pc/common/types/api';
 import type { RpcStats } from '@pc/common/types/rpcstats';
 import { DateTime } from 'luxon';
 import { useEffect, useState } from 'react';
@@ -16,6 +15,7 @@ import { Switch } from '@/components/lib/Switch';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { useSelectedProject } from '@/hooks/selected-project';
 import config from '@/utils/config';
 import { formatNumber } from '@/utils/format-number';
 import { StableId } from '@/utils/stable-ids';
@@ -23,17 +23,11 @@ import { StableId } from '@/utils/stable-ids';
 import { useApiStats } from '../hooks/api-stats';
 import { timeRanges } from '../utils/constants';
 
-type Project = Api.Query.Output<'/projects/getDetails'>;
-type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 type ApiStatsData = ReturnType<typeof useApiStats>;
 
-interface Props {
-  environment?: Environment;
-  project?: Project;
-}
-
-export function ApiStats({ environment, project }: Props) {
-  // const { keys } = useApiKeys(project?.slug);  // for filtering
+export function ApiStats() {
+  const { project, environment } = useSelectedProject();
+  // const keysQuery = useQuery(['/projects/getKeys', { project: project?.slug }]); // for filtering
   const [selectedTimeRangeValue, setSelectedTimeRangeValue] = useState<RpcStats.TimeRangeValue>('30_DAYS');
   const [liveRefreshEnabled, setLiveRefreshEnabled] = useState(true);
   const selectedTimeRange = timeRanges.find((t) => t.value === selectedTimeRangeValue);

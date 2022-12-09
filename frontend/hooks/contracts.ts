@@ -1,39 +1,12 @@
-import type { Api } from '@pc/common/types/api';
 import type * as RPC from '@pc/common/types/rpc';
 import type { Net } from '@pc/database/clients/core';
 import useSWR from 'swr';
 
-import { useAuth } from '@/hooks/auth';
 import { usePublicStore } from '@/stores/public';
 import config from '@/utils/config';
-import { fetchApi } from '@/utils/http';
 
-type Contract = Api.Query.Output<'/projects/getContracts'>[number];
-
-export function useContracts(project: string | undefined, environment: number | undefined) {
-  const { data: contracts, error } = useSWR(
-    project && environment ? ['/projects/getContracts' as const, project, environment] : null,
-    (key, project, environment) => {
-      return fetchApi([key, { project, environment }]);
-    },
-  );
-
-  return { contracts, error };
-}
-
-export function useContract(slug: string | undefined) {
-  const { identity } = useAuth();
-
-  const {
-    data: contract,
-    error,
-    mutate,
-  } = useSWR(identity && slug ? ['/projects/getContract' as const, slug, identity.uid] : null, (key, slug) => {
-    return fetchApi([key, { slug }]);
-  });
-
-  return { contract, error, mutate };
-}
+import { useQuery } from './query';
+import { useRawQuery } from './raw-query';
 
 export function useContractMetrics(address: string | undefined, net: Net | undefined) {
   const { data, error, mutate } = useSWR(
@@ -72,26 +45,36 @@ export function useContractMetrics(address: string | undefined, net: Net | undef
   };
 }
 
-export function usePublicOrPrivateContract(slug: string | undefined) {
+export function usePublicOrPrivateContractQuery(slug: string | undefined) {
   const publicModeHasHydrated = usePublicStore((store) => store.hasHydrated);
   const publicModeIsActive = usePublicStore((store) => store.publicModeIsActive);
   const publicContracts = usePublicStore((store) => store.contracts);
-  const { contract: privateContract, error } = useContract(
-    publicModeHasHydrated && !publicModeIsActive ? slug : undefined,
-  );
-  const publicContract = publicContracts.find((c) => c.slug === slug);
+  const contractSlug = publicModeHasHydrated && !publicModeIsActive ? slug : undefined;
+  const privateContractQuery = useQuery(['/projects/getContract', { slug: contractSlug || 'unknown' }], {
+    enabled: Boolean(contractSlug),
+  });
+  const publicContractQuery = useRawQuery(['public-contract'], async () => {
+    const contract = publicContracts.find((c) => c.slug === slug);
+    if (!contract) {
+      throw new Error(`No contract found by slug ${slug}`);
+    }
+    return contract;
+  });
 
-  return {
-    contract: publicModeIsActive ? publicContract : privateContract,
-    error,
-  };
+  return publicModeIsActive ? publicContractQuery : privateContractQuery;
 }
 
-export function usePublicOrPrivateContracts(privateContracts: Contract[] | undefined) {
+export function usePublicOrPrivateContractsQuery(
+  projectSlug: string | undefined,
+  environmentSubId: number | undefined,
+) {
   const publicModeIsActive = usePublicStore((store) => store.publicModeIsActive);
   const publicContracts = usePublicStore((store) => store.contracts);
+  const publicContractsQuery = useRawQuery(['public-contracts'], async () => publicContracts);
+  const privateContractsQuery = useQuery(
+    ['/projects/getContracts', { project: projectSlug ?? 'unknown', environment: environmentSubId ?? -1 }],
+    { enabled: Boolean(projectSlug) && environmentSubId !== undefined },
+  );
 
-  return {
-    contracts: publicModeIsActive ? publicContracts : privateContracts,
-  };
+  return publicModeIsActive ? publicContractsQuery : privateContractsQuery;
 }

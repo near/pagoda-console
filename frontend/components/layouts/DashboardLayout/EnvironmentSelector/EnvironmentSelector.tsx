@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function EnvironmentSelector(props: Props) {
-  const { environment, environments, project } = useSelectedProject({ enforceSelectedProject: false });
+  const { environment, environmentsQuery, project } = useSelectedProject({ enforceSelectedProject: false });
   const { selectEnvironment } = useProjectSelector();
 
   function onSelectEnvironment(environment: Environment) {
@@ -53,7 +53,7 @@ export function EnvironmentSelector(props: Props) {
       </DropdownMenu.Button>
 
       <DropdownMenu.Content>
-        {environments?.map((e) => {
+        {environmentsQuery.data?.map((e) => {
           return (
             <DropdownMenu.Item key={e.subId} onSelect={() => onSelectEnvironment(e)}>
               <SubnetIcon net={e.net} />

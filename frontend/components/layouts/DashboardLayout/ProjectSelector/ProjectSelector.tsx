@@ -5,9 +5,10 @@ import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
-import { useProjectGroups } from '@/hooks/projects';
+import { useQuery } from '@/hooks/query';
 import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
+import { getProjectGroups } from '@/utils/projects';
 import { StableId } from '@/utils/stable-ids';
 
 interface Props {
@@ -17,7 +18,8 @@ interface Props {
 export function ProjectSelector(props: Props) {
   const { project } = useSelectedProject({ enforceSelectedProject: false });
   const { selectProject } = useProjectSelector();
-  const { projectGroups } = useProjectGroups();
+  const projectsQuery = useQuery(['/projects/list']);
+  const projectGroups = projectsQuery.data ? getProjectGroups(projectsQuery.data) : [];
   const router = useRouter();
 
   function onSelectProject(project: NonNullable<typeof projectGroups>[number][1][number]) {

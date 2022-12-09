@@ -5,7 +5,7 @@ import { Flex } from '@/components/lib/Flex';
 import { SvgIcon } from '@/components/lib/SvgIcon';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
-import { useContract } from '@/hooks/contracts';
+import { useQuery } from '@/hooks/query';
 import { useRouteParam } from '@/hooks/route';
 import WalletIcon from '@/public/images/icons/wallet.svg';
 import { styled } from '@/styles/stitches';
@@ -20,7 +20,10 @@ const ButtonWallet = styled(Button, {
 
 const TxFormWalletLogin = ({ onBeforeLogIn }: TxFormWalletLoginProps) => {
   const contractSlug = useRouteParam('slug', '/contracts', true) || undefined;
-  const { contract: { address: contractId } = {} } = useContract(contractSlug);
+  const contractQuery = useQuery(['/projects/getContract', { slug: contractSlug || 'unknown' }], {
+    enabled: Boolean(contractSlug),
+  });
+  const contractId = contractQuery.data?.address;
   const { accountId, signOut, modal } = useWalletSelector(contractId);
 
   const walletSignOut = async () => await signOut(contractId);

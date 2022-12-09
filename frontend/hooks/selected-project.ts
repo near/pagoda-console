@@ -1,16 +1,15 @@
 import type { Api } from '@pc/common/types/api';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { usePublicStore } from '@/stores/public';
 import { useSettingsStore } from '@/stores/settings';
 import config from '@/utils/config';
 
 import { useAuth } from './auth';
-import { useEnvironments } from './environments';
 import { usePreviousValue } from './previous-value';
-import { useProject } from './projects';
 import { usePublicMode } from './public';
+import { useQuery } from './query';
 import { useRouteParam } from './route';
 
 type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
@@ -27,24 +26,46 @@ export function useSelectedProject(
   const router = useRouter();
   const projectSlugRouteParam = useRouteParam('project');
   const settings = useSettingsStore((store) => store.currentUser);
-  const { project } = useProject(settings?.selectedProjectSlug);
-  const { environments } = useEnvironments(settings?.selectedProjectSlug);
-  const [environment, setEnvironment] = useState<Environment>();
+  const { selectProject } = useProjectSelector();
+
+  const projectQuery = useQuery(['/projects/getDetails', { slug: settings?.selectedProjectSlug || 'unknown' }], {
+    enabled: Boolean(settings?.selectedProjectSlug),
+  });
+
+  useEffect(() => {
+    router.prefetch('/projects');
+  }, [router]);
+
+  useEffect(() => {
+    if (router.pathname !== '/projects') {
+      if ([400, 403].includes((projectQuery.error as any)?.statusCode)) {
+        selectProject(undefined);
+        window.sessionStorage.setItem('redirected', 'true');
+        router.push('/projects');
+      }
+    }
+  }, [projectQuery, router, selectProject]);
+  const environmentsQuery = useQuery(
+    ['/projects/getEnvironments', { project: settings?.selectedProjectSlug || 'unknown' }],
+    {
+      enabled: Boolean(settings?.selectedProjectSlug),
+    },
+  );
   const publicModeIsActive = usePublicStore((store) => store.publicModeIsActive);
   const publicModeHasHydrated = usePublicStore((store) => store.hasHydrated);
 
   // Compute the currently selected environment:
 
-  useEffect(() => {
-    if (settings && project) {
-      const projectSettings = settings.projects[project.slug];
-      const env = environments?.find((e) => e.subId === projectSettings?.selectedEnvironmentSubId) || environments?.[0];
-
-      if (env) {
-        setEnvironment(env);
-      }
+  const environment = useMemo(() => {
+    if (!settings || projectQuery.status !== 'success' || environmentsQuery.status !== 'success') {
+      return undefined;
     }
-  }, [environments, project, settings]);
+    const projectSettings = settings.projects[projectQuery.data.slug];
+    return (
+      environmentsQuery.data.find((e) => e.subId === projectSettings?.selectedEnvironmentSubId) ||
+      environmentsQuery.data[0]
+    );
+  }, [environmentsQuery, projectQuery, settings]);
 
   // Conditionally redirect to force user to select project:
 
@@ -73,8 +94,8 @@ export function useSelectedProject(
 
   return {
     environment,
-    environments,
-    project,
+    environmentsQuery,
+    project: projectQuery.data,
   };
 }
 

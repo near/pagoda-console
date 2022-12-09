@@ -15,9 +15,10 @@ import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
-import { useProjectGroups } from '@/hooks/projects';
+import { useQuery } from '@/hooks/query';
 import DeleteProjectModal from '@/modules/core/components/modals/DeleteProjectModal';
 import { ProjectsMarketing } from '@/modules/projects/components/ProjectsMarketing';
+import { getProjectGroups } from '@/utils/projects';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -27,7 +28,8 @@ const ProjectsPage: NextPageWithLayout = () => {
 
 function Projects() {
   const router = useRouter();
-  const { projectGroups, error, isValidating, mutate: refetchProjects } = useProjectGroups();
+  const projectsQuery = useQuery(['/projects/list']);
+  const projectGroups = projectsQuery.data ? getProjectGroups(projectsQuery.data) : undefined;
   const [isEditing, setIsEditing] = useState(false);
   const [showRedirectAlert, setShowRedirectAlert] = useState(false);
 
@@ -41,10 +43,15 @@ function Projects() {
   }, [router]);
 
   useEffect(() => {
-    if (!error && projectGroups && projectGroups.length === 0 && !isValidating && !showRedirectAlert) {
+    if (
+      projectsQuery.status !== 'error' &&
+      projectGroups?.length === 0 &&
+      !projectsQuery.isLoading &&
+      !showRedirectAlert
+    ) {
       router.push('/pick-project?onboarding=true');
     }
-  }, [router, error, projectGroups, isValidating, showRedirectAlert]);
+  }, [router, projectsQuery, projectGroups?.length, showRedirectAlert]);
 
   return (
     <Section>
@@ -76,7 +83,7 @@ function Projects() {
             </Button>
           </Flex>
 
-          {error && <Message type="error" content="An error occurred." />}
+          {projectsQuery.status === 'error' ? <Message type="error" content="An error occurred." /> : null}
 
           {showRedirectAlert && (
             <Message
@@ -96,13 +103,7 @@ function Projects() {
 
                   <Flex stack>
                     {projects.map((project) => (
-                      <ProjectRow
-                        key={project.slug}
-                        project={project}
-                        showDelete={isEditing}
-                        isTop={i === 0}
-                        onDelete={() => refetchProjects()}
-                      />
+                      <ProjectRow key={project.slug} project={project} showDelete={isEditing} isTop={i === 0} />
                     ))}
                   </Flex>
                 </div>
@@ -119,7 +120,7 @@ function Projects() {
 
 type Project = Api.Query.Output<'/projects/list'>[number];
 
-function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boolean; onDelete: () => void }) {
+function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boolean }) {
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -131,13 +132,7 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
         padding: 'var(--space-m) 0',
       }}
     >
-      <DeleteProjectModal
-        slug={props.project.slug}
-        name={props.project.name}
-        show={showModal}
-        setShow={setShowModal}
-        onDelete={props.onDelete}
-      />
+      <DeleteProjectModal slug={props.project.slug} name={props.project.name} show={showModal} setShow={setShowModal} />
 
       <Link href={`/contracts?project=${props.project.slug}`} passHref>
         <H4

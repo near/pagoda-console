@@ -11,8 +11,7 @@ import * as Tabs from '@/components/lib/Tabs';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
-import { useContracts } from '@/hooks/contracts';
-import { usePublicOrPrivateContract, usePublicOrPrivateContracts } from '@/hooks/contracts';
+import { usePublicOrPrivateContractQuery, usePublicOrPrivateContractsQuery } from '@/hooks/contracts';
 import { useCurrentEnvironment } from '@/hooks/environments';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { usePublicMode } from '@/hooks/public';
@@ -32,12 +31,11 @@ const ViewContract: NextPageWithLayout = () => {
   const contractSlug = useRouteParam('slug', '/contracts', true) || undefined;
   const { project } = useSelectedProject();
   const { environment } = useCurrentEnvironment();
-  const { contracts: privateContracts } = useContracts(project?.slug, environment?.subId);
-  const { contracts } = usePublicOrPrivateContracts(privateContracts);
-  const { contract } = usePublicOrPrivateContract(contractSlug);
+  const contractsQuery = usePublicOrPrivateContractsQuery(project?.slug, environment?.subId);
+  const contractQuery = usePublicOrPrivateContractQuery(contractSlug);
   const activeTab = useRouteParam('tab', `/contracts/${contractSlug}?tab=details`, true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const abis = useAnyAbi(contract);
+  const abis = useAnyAbi(contractQuery.data);
   const abi = abis.embeddedQuery.data?.abi || abis.privateQuery.data?.abi;
 
   // TODO: Pull in useSelectedProjectSync() to match [triggeredAlertId].tsx logic to sync env/proj to loaded contract.
@@ -74,12 +72,12 @@ const ViewContract: NextPageWithLayout = () => {
                   }}
                 >
                   <FeatherIcon icon="zap" color="primary" />
-                  <TextOverflow>{contract?.address || '...'}</TextOverflow>
+                  <TextOverflow>{contractQuery.data?.address || '...'}</TextOverflow>
                 </DropdownMenu.Button>
 
                 <DropdownMenu.Content align="start" width="trigger">
                   <DropdownMenu.RadioGroup value={contractSlug} onValueChange={onSelectedContractChange}>
-                    {contracts?.map((c) => {
+                    {contractsQuery.data?.map((c) => {
                       return (
                         <DropdownMenu.RadioItem key={c.slug} value={c.slug.toString()}>
                           {c.address}
@@ -139,24 +137,24 @@ const ViewContract: NextPageWithLayout = () => {
 
         <Section>
           <Tabs.Content css={{ paddingTop: 0 }} value="details">
-            <ContractDetails contract={contract} />
+            <ContractDetails contract={contractQuery.data} />
           </Tabs.Content>
 
           <Tabs.Content css={{ paddingTop: 0 }} value="interact">
-            <ContractInteract contract={contract} />
+            <ContractInteract contract={contractQuery.data} />
           </Tabs.Content>
 
           {abi && (
             <Tabs.Content css={{ paddingTop: 0 }} value="abi">
-              <ContractAbi contract={contract} />
+              <ContractAbi contract={contractQuery.data} />
             </Tabs.Content>
           )}
         </Section>
       </Tabs.Root>
 
-      {contract && (
+      {contractQuery.data && (
         <DeleteContractModal
-          contract={contract}
+          contract={contractQuery.data}
           show={showDeleteModal}
           setShow={setShowDeleteModal}
           onDelete={onDelete}

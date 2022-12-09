@@ -5,7 +5,6 @@ import { Section } from '@/components/lib/Section';
 import * as Tabs from '@/components/lib/Tabs';
 import { useDashboardLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
-import { useSelectedProject } from '@/hooks/selected-project';
 import { ApiKeys } from '@/modules/apis/components/ApiKeys';
 import { ApisMarketing } from '@/modules/apis/components/ApisMarketing';
 import { ApiStats } from '@/modules/apis/components/ApiStats';
@@ -19,7 +18,6 @@ const ListApisPage: NextPageWithLayout = () => {
 };
 
 function ListApis() {
-  const { environment, project } = useSelectedProject();
   const activeTab = useRouteParam('tab', '?tab=keys', true);
 
   return (
@@ -47,11 +45,11 @@ function ListApis() {
         </Tabs.List>
 
         <Tabs.Content value="keys">
-          <ApiKeys project={project} />
+          <ApiKeys />
         </Tabs.Content>
 
         <Tabs.Content value="statistics">
-          <ApiStats project={project} environment={environment} />
+          <ApiStats />
         </Tabs.Content>
 
         <Tabs.Content value="enhancedApi">

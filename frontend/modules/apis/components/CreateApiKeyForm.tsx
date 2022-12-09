@@ -7,7 +7,8 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { TextButton } from '@/components/lib/TextLink';
 import { useMutation } from '@/hooks/mutation';
-import { useApiKeys } from '@/hooks/new-api-keys';
+import { useQueryCache } from '@/hooks/query-cache';
+import { useSelectedProject } from '@/hooks/selected-project';
 import { styled } from '@/styles/stitches';
 import { StableId } from '@/utils/stable-ids';
 
@@ -26,14 +27,14 @@ const ButtonContainer = styled(Flex, {
   marginTop: '24px',
 });
 
-export const CreateApiKeyForm = ({ close, project }: Props) => {
-  const { mutate: mutateKeys } = useApiKeys(project?.slug);
+export const CreateApiKeyForm = ({ close }: Props) => {
+  const { project } = useSelectedProject();
+  const keysQueryCache = useQueryCache('/projects/getKeys');
   const { register, handleSubmit, formState } = useForm<NewKeyFormData>();
-
   const generateKeyMutation = useMutation('/projects/generateKey', {
     onMutate: close,
-    onSuccess: (result) =>
-      mutateKeys((prevKeys) => {
+    onSuccess: (result, { project }) =>
+      keysQueryCache.update({ project }, (prevKeys) => {
         if (!prevKeys) {
           return;
         }
