@@ -1,24 +1,19 @@
-import { getAuth, getIdToken } from 'firebase/auth';
+import type { ComponentProps } from 'react';
 
 import LogoIconSvg from '@/public/images/brand/pagoda-icon.svg';
 import LogoSvg from '@/public/images/brand/pagoda-logo.svg';
-import config from '@/utils/config';
 
 import * as S from './styles';
 
-export function Logo({ collapsed }: { collapsed?: boolean }) {
-  function clickHandler() {
-    if (config.deployEnv === 'LOCAL' || config.deployEnv === 'DEVELOPMENT') {
-      getIdToken(getAuth().currentUser!).then((token) =>
-        navigator.clipboard.writeText(token).then(() => alert('Copied token to clipboard')),
-      );
-    }
-  }
+type Props = ComponentProps<typeof S.Logo> & {
+  collapsed?: boolean;
+};
 
+export function Logo({ collapsed, ...props }: Props) {
   return (
-    <S.LogoContainer onClick={clickHandler}>
+    <S.Logo {...props}>
       {!collapsed && <LogoSvg style={{ height: '1.75rem', overflow: 'visible' }} />}
       {collapsed && <LogoIconSvg style={{ height: '1.75rem', overflow: 'visible' }}></LogoIconSvg>}
-    </S.LogoContainer>
+    </S.Logo>
   );
 }

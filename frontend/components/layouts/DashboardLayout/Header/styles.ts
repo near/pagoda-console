@@ -10,9 +10,15 @@ export const Header = styled('header', {
   padding: 'var(--space-s) var(--space-m) var(--space-s) var(--space-l)',
   position: 'sticky',
   top: 0,
-  background: 'var(--color-surface-2)',
-  borderBottom: '1px solid var(--color-surface-1)',
+  left: 0,
+  right: 0,
+  background: 'var(--color-surface-3)',
   boxShadow: 'var(--shadow-softer)',
   zIndex: 500,
   overflowX: 'clip',
+
+  '@tablet': {
+    padding: 'var(--space-s)',
+    paddingLeft: 'calc(var(--size-sidebar-width-collapsed) + var(--space-m))',
+  },
 });

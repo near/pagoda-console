@@ -11,6 +11,7 @@
       "dependsOn": ["build"]
     },
     "lint:check": {
+      "dependsOn": ["@pc/eslint-rules#build"],
       "outputs": []
     },
     "format:check": {

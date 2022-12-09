@@ -4,17 +4,13 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import { forwardRef } from 'react';
 
-import type { StitchesCSS } from '@/styles/stitches';
-
 import { ButtonDropdown } from '../Button';
 import { FeatherIcon } from '../FeatherIcon';
 import { Flex } from '../Flex';
 import * as S from './styles';
 
 type ButtonProps = ComponentProps<typeof ButtonDropdown>;
-type ContentProps = ComponentProps<typeof S.Content> & {
-  innerCss?: StitchesCSS;
-};
+type ContentProps = ComponentProps<typeof S.Content>;
 type CheckboxItemProps = ComponentProps<typeof S.CheckboxItem> & {
   indicator?: ReactNode | null;
 };
@@ -31,6 +27,7 @@ export const Root = DropdownMenuPrimitive.Root;
 export const Separator = S.Separator;
 export const Trigger = DropdownMenuPrimitive.Trigger;
 export const ContentItem = S.ContentItem;
+export const ContentStickyFooter = S.ContentStickyFooter;
 export const Portal = DropdownMenuPrimitive.Portal;
 export const Sub = DropdownMenuPrimitive.Sub;
 
@@ -45,7 +42,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ children, ..
 });
 Button.displayName = 'Button';
 
-export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, innerCss, ...props }, ref) => {
+export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, ...props }, ref) => {
   const alignOffset = props.alignOffset || 0;
   const sideOffset = props.sideOffset || 6;
   const containerRef = useRef<HTMLDivElement>();
@@ -84,7 +81,7 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(({ children, inn
         sideOffset={sideOffset}
         {...props}
       >
-        <S.ContentInner css={innerCss}>{children}</S.ContentInner>
+        <S.ContentInner>{children}</S.ContentInner>
         <S.Arrow />
       </S.Content>
     </DropdownMenuPrimitive.Portal>

@@ -42,7 +42,7 @@ const Login: NextPageWithLayout = () => {
         </Container>
       </Section>
 
-      <Section noBorder background="surface1" css={{ display: 'flex', alignItems: 'center' }}>
+      <Section noBorder background="surface2" css={{ display: 'flex', alignItems: 'center' }}>
         <Container css={{ maxWidth: '32.5rem' }}>
           <Flex stack gap="l">
             <Flex stack>

@@ -10,20 +10,19 @@ You can allow multiple sections being open at once.
 
 ```tsx
 import * as Accordion from '@/components/lib/Accordion';
-import { StableId } from '@/utils/stable-ids';
 
 ...
 
 <Accordion.Root type="multiple" defaultValue={['item-1']}>
   <Accordion.Item value="item-1">
-    <Accordion.Trigger stableId={StableId.MY_ACCORDION_CRAZY_SECTION_TRIGGER}>Crazy Section</Accordion.Trigger>
+    <Accordion.Trigger>Crazy Section</Accordion.Trigger>
     <Accordion.Content>
       <Text>Crazy section content.</Text>
     </Accordion.Content>
   </Accordion.Item>
 
   <Accordion.Item value="item-2">
-    <Accordion.Trigger stableId={StableId.MY_ACCORDION_INSANE_SECTION_TRIGGER}>Insane Section</Accordion.Trigger>
+    <Accordion.Trigger>Insane Section</Accordion.Trigger>
     <Accordion.Content>
       <Text>Insane section content.</Text>
     </Accordion.Content>
@@ -38,10 +37,6 @@ Or you can allow only one section being open at once
 ```tsx
 <Accordion.Root type="single">...</Accordion.Root>
 ```
-
-## Stable ID
-
-Please refer to the [Stable ID Documentation](../Button/README.md) in the `Button` component.
 
 ## Disable a Trigger
 

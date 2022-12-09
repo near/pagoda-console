@@ -31,11 +31,11 @@ export function DestinationTableRow({
   return (
     <>
       <Table.Row>
-        <Table.Cell onClick={onClick}>
+        <Table.Cell clickable onClick={onClick}>
           <FeatherIcon icon={destinationType.icon} color="primary" size="m" />
         </Table.Cell>
 
-        <Table.Cell onClick={onClick} wrap css={{ width: '100%' }}>
+        <Table.Cell clickable onClick={onClick} wrap css={{ width: '100%' }}>
           <Flex stack gap="none" css={{ minWidth: 0 }}>
             <Text color="text1" css={{ width: '100%' }}>
               <TextOverflow>{destination.name}</TextOverflow>
@@ -50,13 +50,13 @@ export function DestinationTableRow({
           </Flex>
         </Table.Cell>
 
-        <Table.Cell onClick={onClick}>
+        <Table.Cell clickable onClick={onClick}>
           <Badge size="s" css={{ marginLeft: 'auto' }}>
             {destinationType.name}
           </Badge>
         </Table.Cell>
 
-        <Table.Cell onClick={onClick}>
+        <Table.Cell clickable onClick={onClick}>
           {!destination.isValid && (
             <Badge size="s" color="warning">
               <FeatherIcon icon="alert-triangle" size="xs" />

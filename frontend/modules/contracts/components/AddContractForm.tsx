@@ -1,5 +1,5 @@
 import type { Api } from '@pc/common/types/api';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import { mutate } from 'swr';
@@ -16,7 +16,9 @@ import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import type { ContractTemplate } from '@/hooks/contract-templates';
 import { useMutation } from '@/hooks/mutation';
+import { useRawMutation } from '@/hooks/raw-mutation';
 import { useProjectSelector } from '@/hooks/selected-project';
+import analytics from '@/utils/analytics';
 import { formRegex } from '@/utils/constants';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
 import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
@@ -44,40 +46,6 @@ export function AddContractForm({ onAdd, project, environment }: Props) {
   const environmentTitle = environment?.net === 'TESTNET' ? 'Testnet' : 'Mainnet';
   const environmentTla = environment?.net === 'TESTNET' ? 'testnet' : 'near';
 
-  const onContractAdd = useCallback(
-    (contract: Contract) => {
-      if (!project) {
-        return;
-      }
-      mutate<Contract[]>(
-        ['/projects/getContracts', project.slug, environment.subId],
-        (contracts) => contracts && [...contracts, contract],
-      );
-      onAdd?.();
-    },
-    [project, environment, onAdd],
-  );
-
-  const deployContractMutation = useMutation('/projects/addContract', {
-    onSuccess: (result, variables) => {
-      openToast({
-        type: 'success',
-        title: 'Contract Deployed',
-        description: variables.address,
-      });
-      selectEnvironment(project.slug, 1); // Make sure TESTNET is selected if they happened to currently be on MAINNET
-      onContractAdd(result);
-    },
-    onError: () => {
-      openToast({
-        type: 'error',
-        title: 'Failed to deploy example contract.',
-      });
-    },
-    getAnalyticsSuccessData: (variables) => ({ address: variables.address }),
-    getAnalyticsErrorData: (variables) => ({ address: variables.address }),
-  });
-
   const addContractMutation = useMutation('/projects/addContract', {
     onSuccess: (contract) => {
       openToast({
@@ -85,7 +53,12 @@ export function AddContractForm({ onAdd, project, environment }: Props) {
         title: 'Contract Added',
         description: contract.address,
       });
-      onContractAdd(contract);
+      selectEnvironment(project!.slug, 1); // Make sure TESTNET is selected if they happened to currently be on MAINNET
+      mutate<Contract[]>(
+        ['/projects/getContracts', project.slug, environment.subId],
+        (contracts) => contracts && [...contracts, contract],
+      );
+      onAdd?.();
     },
     onError: (e, variables) => {
       switch ((e as any).message) {
@@ -131,17 +104,39 @@ export function AddContractForm({ onAdd, project, environment }: Props) {
     });
   };
 
-  const deployContract = useCallback(
-    async (template: ContractTemplate) => {
-      const { environmentSubId, address } = await deployContractTemplate(template);
-      deployContractMutation.mutate({
-        address,
+  const deployContractMutation = useRawMutation<
+    Awaited<ReturnType<typeof deployContractTemplate>>,
+    unknown,
+    ContractTemplate
+  >(deployContractTemplate, {
+    onSuccess: async (deployResult, template) => {
+      openToast({
+        type: 'success',
+        title: 'Contract Deployed',
+        description: deployResult.address,
+      });
+      analytics.track('DC Deploy Contract Template', {
+        status: 'success',
+        name: template.title,
+      });
+      addContractMutation.mutate({
+        address: deployResult.address,
         project: project.slug,
-        environment: environmentSubId,
+        environment: deployResult.environmentSubId,
       });
     },
-    [deployContractMutation, project.slug],
-  );
+    onError: (_error, template) => {
+      analytics.track('DC Deploy Contract Template', {
+        status: 'failure',
+        name: template.title,
+      });
+
+      openToast({
+        type: 'error',
+        title: 'Failed to deploy example contract.',
+      });
+    },
+  });
 
   return (
     <Flex stack gap="l">
@@ -155,7 +150,7 @@ export function AddContractForm({ onAdd, project, environment }: Props) {
           </TextButton>
           <ContractTemplateDetails
             template={selectedContractTemplate}
-            onSelect={deployContract}
+            onSelect={deployContractMutation.mutate}
             isDeploying={deployContractMutation.isLoading}
           />
         </>
@@ -170,6 +165,7 @@ export function AddContractForm({ onAdd, project, environment }: Props) {
                   label={`${environmentTitle} Address`}
                   isInvalid={!!formState.errors.contractAddress}
                   placeholder={`pagoda.${environmentTla}`}
+                  stableId={StableId.ADD_CONTRACT_FORM_ADDRESS_INPUT}
                   {...register('contractAddress', {
                     required: 'Address field is required',
                     minLength: {

@@ -1,7 +1,7 @@
 /*
   Generates mock RPC stats data.
   Run by (globally) installing ts-node then run
-    SEED_API_KEY=<A KEY TO USE> SEED_CONSUMER_NAME=<a consumer name> SEED_ORG_SLUG=<an org slug> SEED_CONSUMER_ID=foo ts-node rpcstats.seed.ts
+    SEED_API_KEY=<A VALID API KEY> SEED_CONSUMER_NAME=<A VALID KONG CONSUMER NAME> SEED_ORG_SLUG=<A VALID ORG SLUG> SEED_CONSUMER_ID=foo ts-node rpcstats.seed.ts
 
   Creates 100 records with a 1ms delay between records. To create more, change ROWS_TO_CREATE.
 */
@@ -58,10 +58,10 @@ async function createRow(iteration: number) {
   try {
     const row = await prisma.apikeyEndpointMetricsPerBaseWindow.create({
       data: {
-        apiKeyIdentifier: process.env.SEED_API_KEY,
-        apiKeyConsumerName: process.env.SEED_CONSUMER_NAME,
-        apiKeyOrgSlug: process.env.SEED_ORG_SLUG,
-        apiKeyConsumerId: process.env.SEED_CONSUMER_ID,
+        apiKeyIdentifier: process.env.SEED_API_KEY!,
+        apiKeyConsumerName: process.env.SEED_CONSUMER_NAME!,
+        apiKeyOrgSlug: process.env.SEED_ORG_SLUG!,
+        apiKeyConsumerId: process.env.SEED_CONSUMER_ID!,
         successCount: Math.ceil(randomNumber(1, 100)),
         errorCount: Math.floor(randomNumber(1, 3)),
         network: 'TESTNET',
@@ -86,6 +86,8 @@ async function createRow(iteration: number) {
         quarterMinute: windowStartTime.second / 15,
       },
     });
+
+    console.log('Created: ', { row });
   } catch (e) {
     // console.error(e);
     console.error(
@@ -96,7 +98,6 @@ async function createRow(iteration: number) {
       windowStartTime.second,
     );
   }
-  // console.log('Created: ', { row });
 }
 
 async function main() {

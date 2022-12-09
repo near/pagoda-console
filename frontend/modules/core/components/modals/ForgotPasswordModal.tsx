@@ -60,6 +60,7 @@ const ModalContent = ({ setShow }: Props) => {
               type="email"
               placeholder="name@example.com"
               isInvalid={!!formState.errors.email}
+              stableId={StableId.FORGOT_PASSWORD_MODAL_EMAIL_INPUT}
               {...register('email', formValidations.email)}
             />
             <Form.Feedback>{resetPasswordError ?? formState.errors.email?.message}</Form.Feedback>

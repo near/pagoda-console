@@ -1,15 +1,12 @@
 import JSBI from 'jsbi';
-import type { Contract as AbiContract } from 'near-abi-client-js';
 import { AbiFunctionKind } from 'near-abi-client-js';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H5 } from '@/components/lib/Heading';
-import { openToast } from '@/components/lib/Toast';
-import { initContractMethods, useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { useWalletSelector } from '@/modules/contracts/hooks/wallet-selector';
 import * as gasUtils from '@/modules/contracts/utils/convert-gas';
 import { styled } from '@/styles/stitches';
@@ -17,7 +14,6 @@ import analytics from '@/utils/analytics';
 import { StableId } from '@/utils/stable-ids';
 
 import convertNearDeposit from '../utils/convertNearDeposit';
-import resolveAbiDefinition from '../utils/resolveAbiDefinition';
 import TxFormDeposit from './TxFormDeposit';
 import TxFormDepositFormat from './TxFormDepositFormat';
 import TxFormFunctionParams from './TxFormFunctionParams';
@@ -31,20 +27,17 @@ const SectionTitle = styled(H5, {
   userSelect: 'none',
 });
 
-const TxForm = ({ contract, onTxResult, onTxError }: TxFormProps) => {
-  // TODO: simplify the whole logic below
-
-  const { accountId, selector } = useWalletSelector(contract.address);
-  const [contractMethods, setContractMethods] = useState<AbiContract | null>(null);
+const TxForm = ({ contract, mutation, methods }: TxFormProps) => {
+  const { accountId } = useWalletSelector(contract.address);
   const form = useForm<TxFormData>({
     defaultValues: {
-      gas: '300',
+      gasValue: '300',
       gasFormat: 'Tgas',
-      deposit: '0',
-      nearFormat: 'yoctoⓃ',
+      depositValue: '0',
+      depositFormat: 'yoctoⓃ',
+      params: {},
     },
   });
-  const { contractAbi } = useAnyAbi(contract);
 
   useEffect(() => {
     if (accountId) {
@@ -52,33 +45,19 @@ const TxForm = ({ contract, onTxResult, onTxError }: TxFormProps) => {
     }
   }, [accountId, contract.address]);
 
-  const nearFormat = form.watch('nearFormat');
+  const depositFormat = form.watch('depositFormat');
   const gasFormat = form.watch('gasFormat');
-  const gas = form.watch('gas');
-  const abi = contractMethods?.abi;
+  const gas = form.watch('gasValue');
+  const abi = methods?.abi;
   const functionItems = abi?.body.functions;
   const selectedFunctionName = form.watch('contractFunction');
   const selectedFunction = functionItems?.find((option) => option.name === selectedFunctionName);
 
-  const setContractInteractForm = (params: TxFormData = form.getValues()) =>
-    sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params));
-
-  const initMethods = useCallback(async () => {
-    try {
-      if (!contractAbi) {
-        return;
-      }
-
-      const methods = await initContractMethods(contract.net.toLowerCase(), contract.address, contractAbi);
-      setContractMethods(methods);
-    } catch (error) {
-      console.error(error);
-    }
-  }, [contract.address, contract.net, contractAbi]);
-
-  useEffect(() => {
-    initMethods();
-  }, [initMethods]);
+  const setContractInteractForm = useCallback(
+    (params: TxFormData = form.getValues()) =>
+      sessionStorage.setItem(`contractInteractForm:${contract.slug}`, JSON.stringify(params)),
+    [contract.slug, form],
+  );
 
   useEffect(() => {
     const paramsRaw = sessionStorage.getItem(`contractInteractForm:${contract.slug}`);
@@ -88,7 +67,7 @@ const TxForm = ({ contract, onTxResult, onTxError }: TxFormProps) => {
         const params = JSON.parse(paramsRaw);
 
         for (const param in params) {
-          form.setValue(param, params[param]);
+          form.setValue(`params.${param}`, params[param]);
         }
 
         sessionStorage.removeItem(`contractInteractForm:${contract.slug}`);
@@ -100,92 +79,22 @@ const TxForm = ({ contract, onTxResult, onTxError }: TxFormProps) => {
 
   useEffect(() => {
     form.clearErrors();
-  }, [nearFormat, gasFormat, form]);
+  }, [depositFormat, gasFormat, form]);
 
-  const submitForm = async (params: TxFormData) => {
-    // Asserts that contract exists and selected function is valid
-    const contractFn = contractMethods?.methods![selectedFunction!.name];
-    let call;
-
-    setContractInteractForm(params);
-
-    if (selectedFunction?.params) {
-      try {
-        const fieldParams = selectedFunction.params.args.map((p) => {
-          const value = params[p.name];
-          const schema_ty = resolveAbiDefinition(abi!, p.type_schema);
-          if (schema_ty === 'integer') {
-            return parseInt(value);
-          } else if (schema_ty === 'string') {
-            // Return value as is, already a string.
-            return value;
-          } else {
-            return JSON.parse(value);
-          }
-        });
-        call = contractFn!(...fieldParams);
-      } catch (e) {
-        console.error(e);
-        openToast({
-          type: 'error',
-          title: 'Invalid Params',
-          description: 'Please check your function parameters and try again.',
-        });
-        return;
-      }
-    } else {
-      call = contractFn!();
-    }
-
-    let res;
-
-    try {
-      if (selectedFunction?.kind === AbiFunctionKind.Call) {
-        // Pull gas/deposit from fields or default. This default will be done by the abi client
-        // library, but doing it here to have more control and ensure no hidden bugs.
-
-        const gas = params.gas
-          ? gasUtils.convertGasByFormat(params.gas, gasFormat).toString()
-          : JSBI.BigInt(10_000_000_000_000).toString();
-        const attachedDeposit = params.deposit ? convertNearDeposit(params.deposit, nearFormat).toString() : '0';
-
-        res = await call.transact(await selector?.wallet(), {
-          gas,
-          attachedDeposit,
-          // TODO might want to set this when testing the redirect flow (deposit sending txs)
-          walletCallbackUrl: undefined,
-          signer: accountId,
-        });
-      } else {
-        res = await call.view();
-      }
-      onTxResult(res);
-      openToast({
-        type: 'success',
-        title: 'Transaction sent successfully',
-      });
-      analytics.track('DC Contract Interact', {
-        status: 'success',
-        accountId,
-        contract: contract.address,
-        function: selectedFunctionName,
-      });
-    } catch (e: any) {
-      console.error(e);
-      onTxError(e);
-      openToast({
-        type: 'error',
-        title: 'Failed to send transaction',
-      });
-      analytics.track('DC Contract Interact', {
-        status: 'failure',
-        accountId,
-        contract: contract.address,
-        function: selectedFunctionName,
-        error: e.message,
-      });
-    }
-    return null;
+  const submitForm = async (form: TxFormData) => {
+    setContractInteractForm(form);
+    // Pull gas/deposit from fields or default. This default will be done by the abi client
+    // library, but doing it here to have more control and ensure no hidden bugs.
+    mutation.mutate({
+      gas: form.gasValue
+        ? gasUtils.convertGasByFormat(form.gasValue, form.gasFormat).toString()
+        : JSBI.BigInt(10_000_000_000_000).toString(),
+      deposit: form.depositValue ? convertNearDeposit(form.depositValue, form.depositFormat).toString() : '0',
+      selectedFunction,
+      params: form.params,
+      methods,
+      abi,
+    });
   };
 
   const functionIsSelected = selectedFunction;
@@ -217,18 +126,13 @@ const TxForm = ({ contract, onTxResult, onTxError }: TxFormProps) => {
             </Flex>
 
             <Flex inline>
-              <TxFormDeposit form={form} nearFormat={nearFormat} />
-              <TxFormDepositFormat nearFormat={nearFormat} form={form} />
+              <TxFormDeposit form={form} nearFormat={depositFormat} />
+              <TxFormDepositFormat nearFormat={depositFormat} form={form} />
             </Flex>
           </Flex>
         )}
 
-        <Button
-          stableId={StableId.CONTRACT_TRANSACTION_SEND_BUTTON}
-          type="submit"
-          loading={form.formState.isSubmitting}
-          stretch
-        >
+        <Button stableId={StableId.CONTRACT_TRANSACTION_SEND_BUTTON} type="submit" loading={mutation.isLoading} stretch>
           {functionIsView ? 'View Call' : 'Send Transaction'}
         </Button>
       </Flex>

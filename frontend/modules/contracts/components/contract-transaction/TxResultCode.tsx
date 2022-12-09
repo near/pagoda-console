@@ -14,7 +14,12 @@ const ResultTitle = styled(H5, {
 const TxResultCode = ({ result }: TxResultCodeProps) => (
   <Flex stack>
     <ResultTitle>Result</ResultTitle>
-    <Card padding="l">
+    <Card
+      padding={{
+        '@initial': 'l',
+        '@mobile': 'm',
+      }}
+    >
       <Box>
         <CodeBlock>{JSON.stringify(result, null, 2)}</CodeBlock>
       </Box>

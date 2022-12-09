@@ -59,6 +59,7 @@ export const CreateApiKeyForm = ({ close, project }: Props) => {
         <Form.Input
           id="description"
           isInvalid={!!formState.errors.description}
+          stableId={StableId.CREATE_API_KEY_FORM_DESCRIPTION_INPUT}
           {...register('description', {
             required: 'You must enter a description.',
           })}

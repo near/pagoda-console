@@ -47,7 +47,7 @@ const NewNftTutorial: NextPageWithLayout = () => {
   return (
     <Section>
       <Container size="m">
-        <Flex gap="l">
+        <Flex gap="l" stack={{ '@tablet': true }}>
           <ProjectCard
             title="NFT Market"
             description="Start by minting an NFT using a pre-deployed contract, then build up to a fully-fledged NFT marketplace."
@@ -75,6 +75,7 @@ const NewNftTutorial: NextPageWithLayout = () => {
                     id="projectName"
                     isInvalid={!!formState.errors.projectName}
                     placeholder="Cool New Project"
+                    stableId={StableId.NEW_NFT_TUTORIAL_PROJECT_NAME_INPUT}
                     {...register('projectName', formValidations.projectName)}
                   />
                   <Form.Feedback>{mutationError || formState.errors.projectName?.message}</Form.Feedback>
