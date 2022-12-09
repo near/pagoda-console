@@ -93,29 +93,30 @@ export function AuthForm({ onSignIn }: Props) {
   }, [onSignIn, router, signedInHandler]);
 
   const [alternativeMethods, setAlternativeMethods] = useState<string[]>([]);
-  const signInViaProviderMutation = useRawMutation<UserCredential, unknown, { provider: AuthProvider }>(
-    ({ provider }) => signInWithPopup(getAuth(), provider),
-    {
-      onSuccess: (result, { provider }) => {
-        const additional = getAdditionalUserInfo(result);
-        if (additional?.isNewUser) {
-          analytics.track(`DC Signed up with ${provider.providerId.split('.')[0].toUpperCase()}`);
+  const signInViaProviderMutation = useRawMutation<
+    UserCredential,
+    unknown,
+    { provider: AuthProvider; publicModeIsActive: boolean }
+  >(({ provider }) => signInWithPopup(getAuth(), provider), {
+    onSuccess: (result, { provider, publicModeIsActive }) => {
+      const additional = getAdditionalUserInfo(result);
+      if (additional?.isNewUser) {
+        analytics.track(`DC Signed up with ${provider.providerId.split('.')[0].toUpperCase()}`);
 
-          if (publicModeIsActive) {
-            analytics.track(`DC Public Mode Sign Up`);
-          }
-        } else {
-          analytics.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);
+        if (publicModeIsActive) {
+          analytics.track(`DC Public Mode Sign Up`);
         }
-      },
-      onError: async (error: any) => {
-        const auth = getAuth();
-        const email = error?.email || error?.customData?.email;
-        const methods = await fetchSignInMethodsForEmail(auth, email);
-        return setAlternativeMethods(methods);
-      },
+      } else {
+        analytics.track(`DC Login via ${provider.providerId.split('.')[0].toUpperCase()}`);
+      }
     },
-  );
+    onError: async (error: any) => {
+      const auth = getAuth();
+      const email = error?.email || error?.customData?.email;
+      const methods = await fetchSignInMethodsForEmail(auth, email);
+      return setAlternativeMethods(methods);
+    },
+  });
   const signInViaEmailMutation = useRawMutation<UserCredential, AuthError, { email: string; password: string }>(
     async ({ email, password }) => {
       const auth = getAuth();
@@ -168,8 +169,8 @@ export function AuthForm({ onSignIn }: Props) {
   }, [signInViaProviderMutation, alternativeMethods]);
 
   const socialSignIn = useCallback(
-    (provider: AuthProvider) => signInViaProviderMutation.mutate({ provider }),
-    [signInViaProviderMutation],
+    (provider: AuthProvider) => signInViaProviderMutation.mutate({ provider, publicModeIsActive }),
+    [signInViaProviderMutation, publicModeIsActive],
   );
 
   return (
