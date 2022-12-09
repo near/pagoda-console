@@ -18,7 +18,7 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useMutation } from '@/hooks/mutation';
-import { useOrganizations } from '@/hooks/organizations';
+import { useQuery } from '@/hooks/query';
 import { useRouteParam } from '@/hooks/route';
 import { usePublicStore } from '@/stores/public';
 import { formValidations } from '@/utils/constants';
@@ -38,15 +38,19 @@ const NewProject: NextPageWithLayout = () => {
   const isOnboarding = useRouteParam('onboarding');
   const publicModeContracts = usePublicStore((store) => store.contracts);
   const [selectedAddresses, setSelectedAddresses] = useState<string[]>([]);
-  const { organizations = [] } = useOrganizations(false);
+  const organizationsQuery = useQuery(['/users/listOrgs']);
 
   useEffect(() => {
+    const organizations = organizationsQuery.data;
+    if (!organizations) {
+      return;
+    }
     if (organizations.length !== 0 && !getValues('projectOrg')) {
       const personalOrg = organizations.find((organization) => organization.isPersonal);
       const selectedOrg = personalOrg || organizations[0];
       setValue('projectOrg', selectedOrg.slug);
     }
-  }, [organizations, getValues, setValue]);
+  }, [organizationsQuery.data, getValues, setValue]);
 
   const createProjectMutation = useMutation('/projects/create', {
     onMutate: () => router.prefetch('/apis?tab=keys'),
@@ -84,7 +88,9 @@ const NewProject: NextPageWithLayout = () => {
   const setProjectOrg = useCallback((value: string) => setValue('projectOrg', value), [setValue]);
 
   const selectedOrganizationSlug = watch('projectOrg');
-  const selectedOrganization = organizations.find((organization) => organization.slug === selectedOrganizationSlug);
+  const selectedOrganization = organizationsQuery.data?.find(
+    (organization) => organization.slug === selectedOrganizationSlug,
+  );
   const selectedOrganizationName = selectedOrganization
     ? selectedOrganization.isPersonal
       ? PERSONAL_ORGANIZATION_NAME
@@ -139,7 +145,7 @@ const NewProject: NextPageWithLayout = () => {
                   <Form.Feedback>{mutationError || formState.errors.projectName?.message}</Form.Feedback>
                 </Form.Group>
 
-                {organizations.length > 1 ? (
+                {organizationsQuery.data && organizationsQuery.data.length > 1 ? (
                   <Form.Group>
                     <DropdownMenu.Root>
                       <DropdownMenu.Trigger asChild>
@@ -154,7 +160,7 @@ const NewProject: NextPageWithLayout = () => {
 
                       <DropdownMenu.Content width="trigger">
                         <DropdownMenu.RadioGroup value={selectedOrganizationName} onValueChange={setProjectOrg}>
-                          {organizations.map((organization) => (
+                          {organizationsQuery.data.map((organization) => (
                             <DropdownMenu.RadioItem
                               value={organization.slug}
                               key={organization.slug}

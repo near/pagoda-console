@@ -22,17 +22,9 @@ import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useAuth } from '@/hooks/auth';
 import { useOrganizationsLayout } from '@/hooks/layouts';
 import { useMutation } from '@/hooks/mutation';
-import {
-  mutateOrganizationMembers,
-  mutateOrganizations,
-  openSuccessToast,
-  openUserErrorToast,
-  parseError,
-  useOrganizations,
-  useOrgMembers,
-  UserError,
-  useSelectedOrg,
-} from '@/hooks/organizations';
+import { openSuccessToast, openUserErrorToast, parseError, UserError } from '@/hooks/organizations';
+import { useQuery } from '@/hooks/query';
+import { useQueryCache } from '@/hooks/query-cache';
 import { useRouteParam } from '@/hooks/route';
 import { styled } from '@/styles/stitches';
 import { formValidations } from '@/utils/constants';
@@ -97,12 +89,12 @@ const RemoveUserDialog = ({
   userData: RemovingUserData;
   setUserData: (data?: RemovingUserData) => void;
 }) => {
+  const orgMembersCache = useQueryCache('/users/listOrgMembers');
   const removeInviteMutation = useMutation('/users/removeOrgInvite', {
-    onSuccess: (_result, { email }) => {
-      mutateOrganizationMembers(
-        orgSlug,
+    onSuccess: (_result, { email, org: orgSlug }) => {
+      orgMembersCache.update(
+        { org: orgSlug },
         (members) => members && members.filter((member) => member.user.email !== email),
-        { revalidate: false },
       );
       openSuccessToast(`${email}'s invite is revoked`);
       setUserData(undefined);
@@ -110,10 +102,11 @@ const RemoveUserDialog = ({
     onError: (error) => openUserErrorToast(parseError(error, getRemoveInviteMessage)),
   });
   const removeUserMutation = useMutation('/users/removeFromOrg', {
-    onSuccess: (_result, { user }) => {
-      mutateOrganizationMembers(orgSlug, (members) => members && members.filter((member) => member.user.uid !== user), {
-        revalidate: false,
-      });
+    onSuccess: (_result, { user, org: orgSlug }) => {
+      orgMembersCache.update(
+        { org: orgSlug },
+        (members) => members && members.filter((member) => member.user.uid !== user),
+      );
       openSuccessToast('User is removed from organization');
       setUserData(undefined);
     },
@@ -192,47 +185,42 @@ const OrganizationMemberView = ({
   singleAdmin: boolean;
 }) => {
   const [leavingModalOpen, setLeavingModalOpen] = useState(false);
+  const orgsCache = useQueryCache('/users/listOrgs');
   const leaveMutation = useMutation('/users/removeFromOrg', {
-    onSuccess: () => {
-      mutateOrganizations(
-        (organizations) => {
-          if (!organizations) {
-            return;
-          }
-          return organizations.filter((lookupOrganization) => lookupOrganization.slug !== organization.slug);
-        },
-        { revalidate: false },
-      );
+    onSuccess: (_result, variables) => {
+      orgsCache.update(undefined, (organizations) => {
+        if (!organizations) {
+          return;
+        }
+        return organizations.filter((organization) => organization.slug !== variables.org);
+      });
       openSuccessToast('Organization is left');
     },
     onError: (error) => openUserErrorToast(parseError(error, getRemoveFromOrgMessage)),
   });
 
+  const orgMembersCache = useQueryCache('/users/listOrgMembers');
   const changeRoleMutation = useMutation('/users/changeOrgRole', {
     onSuccess: (_result, { role }) => openSuccessToast(`Role changed to ${role}`),
     onMutate: ({ user: userUid, role, org: orgSlug }) => {
-      let modifiedRole: OrgMember['role'] | undefined;
-      mutateOrganizationMembers(
-        orgSlug,
-        (prevMembers) => {
-          if (!prevMembers) {
-            return;
+      let modifiedRole;
+      orgMembersCache.update({ org: orgSlug }, (prevMembers) => {
+        if (!prevMembers) {
+          return;
+        }
+        return prevMembers.map((member) => {
+          if (member.user.uid === userUid) {
+            modifiedRole = member.role;
+            return { ...member, role };
           }
-          return prevMembers.map((member) => {
-            if (member.user.uid === userUid) {
-              modifiedRole = member.role;
-              return { ...member, role };
-            }
-            return member;
-          });
-        },
-        { revalidate: false },
-      );
+          return member;
+        });
+      });
       return modifiedRole;
     },
     onError: (error, { user: userUid, org: orgSlug }, prevRole) => {
       if (prevRole) {
-        mutateOrganizationMembers(orgSlug, (prevMembers) => {
+        orgMembersCache.update({ org: orgSlug }, (prevMembers) => {
           if (!prevMembers) {
             return;
           }
@@ -399,10 +387,11 @@ const InviteUserDialog = ({
       role: 'COLLABORATOR',
     },
   });
+  const orgMembersCache = useQueryCache('/users/listOrgMembers');
   const inviteMutation = useMutation('/users/inviteToOrg', {
-    onSuccess: (_result, { email, role }) => {
-      mutateOrganizationMembers(
-        orgSlug,
+    onSuccess: (_result, { email, role, org: orgSlug }) => {
+      orgMembersCache.update(
+        { org: orgSlug },
         (members) =>
           members && [
             ...members,
@@ -416,7 +405,6 @@ const InviteUserDialog = ({
               },
             },
           ],
-        { revalidate: false },
       );
       openSuccessToast(`User ${email} is invited as ${role}`);
       switchModal();
@@ -455,7 +443,8 @@ const InviteUserDialog = ({
 
 const OrganizationsDropdown = ({ selectedOrganization }: { selectedOrganization?: Organization }) => {
   const router = useRouter();
-  const { organizations } = useOrganizations(true);
+  const orgsQuery = useQuery(['/users/listOrgs']);
+  const nonPersonalOrgs = orgsQuery.status === 'success' ? orgsQuery.data.filter((org) => !org.isPersonal) : [];
   const changeOrganization = useCallback((slug: string) => router.push(`/organizations/${slug}`), [router]);
 
   function onSelectNewOrganization() {
@@ -469,7 +458,11 @@ const OrganizationsDropdown = ({ selectedOrganization }: { selectedOrganization?
           label="Organization"
           css={{ marginRight: 'auto', maxWidth: '25rem' }}
           selection={
-            organizations ? (organizations.length ? selectedOrganization?.name ?? '-' : 'No organizations') : '...'
+            orgsQuery.status === 'success'
+              ? nonPersonalOrgs.length
+                ? selectedOrganization?.name ?? '-'
+                : 'No organizations'
+              : '...'
           }
           stableId={StableId.ORGANIZATION_SELECT}
         />
@@ -477,11 +470,11 @@ const OrganizationsDropdown = ({ selectedOrganization }: { selectedOrganization?
 
       <DropdownMenu.Content>
         <DropdownMenu.RadioGroup value={selectedOrganization?.slug} onValueChange={changeOrganization}>
-          {organizations?.map((organization) => (
+          {nonPersonalOrgs.map((organization) => (
             <DropdownMenu.RadioItem key={organization.slug} value={organization.slug}>
               {organization.name}
             </DropdownMenu.RadioItem>
-          )) ?? []}
+          ))}
         </DropdownMenu.RadioGroup>
 
         <DropdownMenu.ContentStickyFooter>
@@ -507,25 +500,24 @@ const getDeleteOrgMessage = (code: UserError) => {
 const OrganizationView: NextPageWithLayout = () => {
   const router = useRouter();
   const orgSlug = useRouteParam('slug', '/organizations', true) || '';
-  const { members, error, mutate: refetchOrganization } = useOrgMembers(orgSlug);
+  const orgsQuery = useQuery(['/users/listOrgs']);
+  const membersQuery = useQuery(['/users/listOrgMembers', { org: orgSlug }]);
   const { identity } = useAuth();
-  const self = members?.find((member) => member.user.uid === identity?.uid);
-  const adminsQuantity = members?.filter((member) => member.role === 'ADMIN' && !member.isInvite).length ?? 0;
+  const self = membersQuery.data?.find((member) => member.user.uid === identity?.uid);
+  const adminsQuantity = membersQuery.data?.filter((member) => member.role === 'ADMIN' && !member.isInvite).length ?? 0;
 
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const switchInviteModalOpen = useCallback(() => setInviteModalOpen((open) => !open), [setInviteModalOpen]);
 
-  const selectedOrganization = useSelectedOrg(orgSlug, true);
+  const selectedOrganization = orgsQuery.data?.find((org) => org.slug === orgSlug);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const switchDeleteModalOpen = useCallback(() => setDeleteModalOpen((open) => !open), [setDeleteModalOpen]);
   const deleteMutation = useMutation('/users/deleteOrg', {
-    onSuccess: (_result, { org }) => {
-      mutateOrganizationMembers(orgSlug);
-      mutateOrganizations((orgs) => orgs && orgs.filter((org) => org.slug !== orgSlug), {
-        revalidate: false,
-      });
-      openSuccessToast(`Organization "${org}" deleted`);
+    onSuccess: (_result, { org: orgSlug }) => {
+      openSuccessToast(`Organization "${selectedOrganization?.name}" deleted`);
+      membersQuery.invalidateCache();
+      orgsQuery.updateCache((orgs) => orgs && orgs.filter((org) => org.slug !== orgSlug));
       router.replace('/organizations');
     },
     onError: (error) => openUserErrorToast(parseError(error, getDeleteOrgMessage)),
@@ -534,7 +526,7 @@ const OrganizationView: NextPageWithLayout = () => {
     if (!selectedOrganization) {
       return;
     }
-    deleteMutation.mutate({ org: selectedOrganization.name });
+    deleteMutation.mutate({ org: selectedOrganization.slug });
   }, [deleteMutation, selectedOrganization]);
 
   return (
@@ -584,7 +576,7 @@ const OrganizationView: NextPageWithLayout = () => {
 
         <InviteUserDialog modalOpen={inviteModalOpen} switchModal={switchInviteModalOpen} orgSlug={orgSlug} />
 
-        {members ? (
+        {membersQuery.status === 'success' ? (
           self === undefined || !selectedOrganization ? (
             <Message type="error" content="You are not a part of this organization." />
           ) : (
@@ -598,7 +590,7 @@ const OrganizationView: NextPageWithLayout = () => {
               </Table.Head>
 
               <Table.Body>
-                {members.map((member) => (
+                {membersQuery.data.map((member) => (
                   <OrganizationMemberView
                     key={member.user.email}
                     organization={selectedOrganization}
@@ -610,10 +602,10 @@ const OrganizationView: NextPageWithLayout = () => {
               </Table.Body>
             </Table.Root>
           )
-        ) : error ? (
+        ) : membersQuery.status === 'error' ? (
           <>
             <Message type="error" content="An error occurred." />{' '}
-            <Button stableId={StableId.ORGANIZATION_REFETCH_BUTTON} onClick={() => refetchOrganization()}>
+            <Button stableId={StableId.ORGANIZATION_REFETCH_BUTTON} onClick={() => orgsQuery.invalidateCache()}>
               Refetch
             </Button>
           </>

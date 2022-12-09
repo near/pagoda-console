@@ -1,5 +1,4 @@
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
@@ -8,32 +7,34 @@ import { Message } from '@/components/lib/Message';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { useOrganizationsLayout } from '@/hooks/layouts';
-import { useOrganizations } from '@/hooks/organizations';
+import { useQuery } from '@/hooks/query';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Organizations: NextPageWithLayout = () => {
   const router = useRouter();
-  const { organizations, error, mutate: refetchOrganizations } = useOrganizations(true);
-
-  useEffect(() => {
-    if (organizations) {
-      if (organizations.length === 0) {
+  const organizationsQuery = useQuery(['/users/listOrgs'], {
+    onSuccess: (result) => {
+      const filteredOrgs = result.filter((org) => !org.isPersonal);
+      if (filteredOrgs.length === 0) {
         router.replace('/organizations/create/');
       } else {
-        router.replace(`/organizations/${organizations[0].slug}/`);
+        router.replace(`/organizations/${filteredOrgs[0].slug}/`);
       }
-    }
-  }, [router, organizations]);
+    },
+  });
 
   return (
     <Section>
       <Container size="s">
         <Flex stack gap="l" align="center">
-          {error ? (
+          {organizationsQuery.status === 'error' ? (
             <>
               <Message type="error" content="An error occurred." />{' '}
-              <Button stableId={StableId.ORGANIZATIONS_REFETCH_BUTTON} onClick={() => refetchOrganizations()}>
+              <Button
+                stableId={StableId.ORGANIZATIONS_REFETCH_BUTTON}
+                onClick={() => organizationsQuery.invalidateCache()}
+              >
                 Refetch
               </Button>
             </>

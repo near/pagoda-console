@@ -3,30 +3,11 @@ import { getAuth, onAuthStateChanged, signOut as firebaseSignOut } from 'firebas
 import { useRouter } from 'next/router';
 import { useCallback, useEffect } from 'react';
 import { useSWRConfig } from 'swr';
-import useSWR from 'swr';
 
 import { useAuthStore } from '@/stores/auth';
 import analytics from '@/utils/analytics';
-import { fetchApi } from '@/utils/http';
 
 import { usePublicMode } from './public';
-
-export function useAccount() {
-  const { identity } = useAuth();
-  const {
-    data: user,
-    error,
-    mutate,
-  } = useSWR(identity ? ['/users/getAccountDetails' as const, identity.uid] : null, (key) => {
-    return fetchApi([key]);
-  });
-
-  return {
-    error,
-    mutate,
-    user,
-  };
-}
 
 export function useAuth() {
   const authStatus = useAuthStore((store) => store.status);

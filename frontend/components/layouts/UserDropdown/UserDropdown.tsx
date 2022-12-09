@@ -3,11 +3,11 @@ import type { ReactNode } from 'react';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Text } from '@/components/lib/Text';
-import { useAccount } from '@/hooks/auth';
+import { useQuery } from '@/hooks/query';
 import { StableId } from '@/utils/stable-ids';
 
 export const UserDropdown = ({ children }: { children: ReactNode }) => {
-  const { user } = useAccount();
+  const userQuery = useQuery(['/users/getAccountDetails']);
 
   return (
     <DropdownMenu.Root>
@@ -29,7 +29,7 @@ export const UserDropdown = ({ children }: { children: ReactNode }) => {
             },
           }}
         >
-          {user?.name}
+          {userQuery.data?.name}
         </Text>
       </DropdownMenu.Button>
 
