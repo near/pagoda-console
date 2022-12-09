@@ -38,7 +38,7 @@ const ViewContract: NextPageWithLayout = () => {
   const activeTab = useRouteParam('tab', `/contracts/${contractSlug}?tab=details`, true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const abis = useAnyAbi(contract);
-  const abi = abis.embeddedQuery.data?.abi || abis.privateQuery.data?.abi;
+  const abi = abis.embeddedQuery.data?.abiRoot || abis.privateQuery.data?.abi;
 
   // TODO: Pull in useSelectedProjectSync() to match [triggeredAlertId].tsx logic to sync env/proj to loaded contract.
   // TODO: Handle 404

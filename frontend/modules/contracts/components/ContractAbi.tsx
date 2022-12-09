@@ -14,7 +14,7 @@ interface Props {
 
 export const ContractAbi = ({ contract }: Props) => {
   const { embeddedQuery, privateQuery } = useAnyAbi(contract);
-  const abi = embeddedQuery.data?.abi || privateQuery.data?.abi;
+  const abi = embeddedQuery.data?.abiRoot || privateQuery.data?.abi;
   const upgraded = embeddedQuery.data?.upgraded || privateQuery.data?.upgraded;
 
   return (
