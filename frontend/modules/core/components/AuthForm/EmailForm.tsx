@@ -1,22 +1,21 @@
-import type { AuthError } from 'firebase/auth';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import type { AuthError, UserCredential } from 'firebase/auth';
 import Link from 'next/link';
-import { useState } from 'react';
-import type { SubmitHandler } from 'react-hook-form';
+import { useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button, ButtonLink } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { TextButton } from '@/components/lib/TextLink';
+import type { UseMutationResult } from '@/hooks/raw-mutation';
 import { ForgotPasswordModal } from '@/modules/core/components/modals/ForgotPasswordModal';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
 
 interface Props {
-  isAuthenticating: boolean;
-  setIsAuthenticating: (isAuthenticating: boolean) => void;
+  mutation: UseMutationResult<UserCredential, AuthError, { email: string; password: string }>;
+  externalLoading: boolean;
 }
 
 interface EmailAuthFormData {
@@ -24,63 +23,41 @@ interface EmailAuthFormData {
   password: string;
 }
 
-export function EmailForm({ isAuthenticating, setIsAuthenticating }: Props) {
-  const { register, handleSubmit, formState, setError } = useForm<EmailAuthFormData>();
+export function EmailForm({ mutation: signInViaEmailMutation, externalLoading }: Props) {
+  const { register, handleSubmit, formState } = useForm<EmailAuthFormData>();
   const [showResetModal, setShowResetModal] = useState(false);
 
-  const signInWithEmail: SubmitHandler<EmailAuthFormData> = async ({ email, password }) => {
-    const auth = getAuth();
-    setIsAuthenticating(true);
-
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      analytics.track('DC Login using name + password', {
-        status: 'success',
-      });
-    } catch (e) {
-      setIsAuthenticating(false);
-
-      const error = e as AuthError;
-      const errorCode = error.code;
-
-      analytics.track('DC Login using name + password', {
-        status: 'failure',
-        error: errorCode,
-      });
-
-      switch (errorCode) {
-        case 'auth/user-not-found':
-          setError('email', {
-            message: 'User not found',
-          });
-          break;
-        case 'auth/wrong-password':
-          setError('password', {
-            message: 'Incorrect password',
-          });
-          break;
-        case 'auth/too-many-requests':
-          // hardcode message from Firebase for the time being
-          setError('password', {
-            message:
-              'Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later.',
-          });
-          break;
-        default:
-          // TODO
-          setError('password', {
-            message: 'Something went wrong',
-          });
-          break;
-      }
+  const signInViaEmailError = useMemo(() => {
+    if (signInViaEmailMutation.status !== 'error') {
+      return null;
     }
-  };
+    const error = signInViaEmailMutation.error;
 
-  const isSubmitting = formState.isSubmitting || isAuthenticating;
+    switch (error.code) {
+      case 'auth/user-not-found':
+        return 'User not found';
+      case 'auth/wrong-password':
+        return 'Incorrect password';
+      case 'auth/too-many-requests':
+        // hardcode message from Firebase for the time being
+        return 'Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later.';
+      default:
+        // TODO
+        return 'Something went wrong';
+    }
+  }, [signInViaEmailMutation]);
+
+  const signInWithEmail = useCallback(
+    ({ email, password }) => signInViaEmailMutation.mutate({ email, password }),
+    [signInViaEmailMutation],
+  );
 
   return (
     <>
-      <Form.Root disabled={isSubmitting} onSubmit={handleSubmit(signInWithEmail)}>
+      <Form.Root
+        disabled={signInViaEmailMutation.isLoading || externalLoading}
+        onSubmit={handleSubmit(signInWithEmail)}
+      >
         <Flex stack gap="l" align="center">
           <Flex stack gap="m">
             <Form.Group>
@@ -93,7 +70,9 @@ export function EmailForm({ isAuthenticating, setIsAuthenticating }: Props) {
                 stableId={StableId.AUTHENTICATION_EMAIL_FORM_EMAIL_INPUT}
                 {...register('email', formValidations.email)}
               />
-              <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
+              <Form.Feedback>
+                {signInViaEmailError === 'User not found' ? signInViaEmailError : formState.errors.email?.message}
+              </Form.Feedback>
             </Form.Group>
 
             <Form.Group>
@@ -106,14 +85,17 @@ export function EmailForm({ isAuthenticating, setIsAuthenticating }: Props) {
                 stableId={StableId.AUTHENTICATION_EMAIL_FORM_PASSWORD_INPUT}
                 {...register('password', formValidations.password)}
               />
-              <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
+              <Form.Feedback>
+                {(signInViaEmailError === 'User not found' ? undefined : signInViaEmailError) ||
+                  formState.errors.password?.message}
+              </Form.Feedback>
             </Form.Group>
 
             <Button
               stableId={StableId.AUTHENTICATION_EMAIL_FORM_SIGN_IN_BUTTON}
               type="submit"
               stretch
-              loading={formState.isSubmitting}
+              loading={signInViaEmailMutation.isLoading}
             >
               Continue
             </Button>

@@ -42,12 +42,12 @@ const TxFormGas = ({ form, gasFormat, gas }: TxFormGasProps) => {
         <Form.FloatingLabelInput
           type="string"
           label="Gas:"
-          isInvalid={!!form.formState.errors.gas}
+          isInvalid={!!form.formState.errors.gasValue}
           stableId={StableId.TX_FORM_GAS_INPUT}
           onInput={(event) => {
             numberInputHandler(event, { allowComma: false, allowDecimal: false, allowNegative: false });
           }}
-          {...form.register(`gas`, {
+          {...form.register(`gasValue`, {
             setValueAs: (value) => sanitizeNumber(value),
             validate: {
               minValue: (value: string) =>
@@ -63,13 +63,13 @@ const TxFormGas = ({ form, gasFormat, gas }: TxFormGasProps) => {
         />
       </Tooltip>
 
-      <Form.Feedback>{form.formState.errors.gas?.message}</Form.Feedback>
+      <Form.Feedback>{form.formState.errors.gasValue?.message}</Form.Feedback>
 
       <UseMaxButton
         stableId={StableId.CONTRACT_TRANSACTION_MAX_GAS_BUTTON}
         color="transparent"
         onClick={() => {
-          form.setValue('gas', '300');
+          form.setValue('gasValue', '300');
           form.setValue('gasFormat', 'Tgas');
         }}
         hidden={Boolean(gas)}

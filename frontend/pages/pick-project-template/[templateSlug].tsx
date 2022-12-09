@@ -11,10 +11,13 @@ import { Section } from '@/components/lib/Section';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { useAuth } from '@/hooks/auth';
+import type { ContractTemplate } from '@/hooks/contract-templates';
 import { useContractTemplate } from '@/hooks/contract-templates';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
 import { useMutation } from '@/hooks/mutation';
+import { useRawMutation } from '@/hooks/raw-mutation';
 import { useRouteParam } from '@/hooks/route';
+import analytics from '@/utils/analytics';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
 import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
@@ -35,7 +38,7 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
     [],
   );
   const addContractMutation = useMutation('/projects/addContract', {
-    onSuccess: (_, { project }) => router.push(`/contracts?project=${project}&environment=1`),
+    onSuccess: (_, { project, environment }) => router.push(`/contracts?project=${project}&environment=${environment}`),
     onError,
   });
   const createProjectMutation = useMutation('/projects/create', {
@@ -48,18 +51,33 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
     getAnalyticsErrorData: ({ name }) => ({ name, slug: template?.slug }),
   });
 
-  const createProject = useCallback(async () => {
-    if (!template) return;
-
-    const date = DateTime.now().toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
-    const projectName = `${template.title}, ${date}`;
-    const { address, environmentSubId } = await deployContractTemplate(template!);
-    if (authStatus === 'AUTHENTICATED') {
-      createProjectMutation.mutate({ name: projectName });
-    } else {
-      router.push(`/public/contracts?addresses=${address}&net=${mapEnvironmentSubIdToNet(environmentSubId)}`);
-    }
-  }, [router, template, createProjectMutation, authStatus]);
+  const deployContractMutation = useRawMutation<
+    Awaited<ReturnType<typeof deployContractTemplate>>,
+    unknown,
+    ContractTemplate
+  >(deployContractTemplate, {
+    onSuccess: async (deployResult, template) => {
+      const date = DateTime.now().toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
+      const projectName = `${template.title}, ${date}`;
+      if (authStatus === 'AUTHENTICATED') {
+        createProjectMutation.mutate({ name: projectName });
+      } else {
+        router.push(
+          `/public/contracts?addresses=${deployResult.address}&net=${mapEnvironmentSubIdToNet(
+            deployResult.environmentSubId,
+          )}`,
+        );
+      }
+    },
+    onError: (error, template) => {
+      analytics.track('DC Create New Example Project', {
+        status: 'failure',
+        slug: template.slug,
+        error: (error as any).message,
+      });
+      onError();
+    },
+  });
 
   if (!template) return null;
 
@@ -75,7 +93,11 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
             </TextLink>
           </Link>
 
-          <ContractTemplateDetails template={template} onSelect={createProject} isDeploying={isLoading} />
+          <ContractTemplateDetails
+            template={template}
+            onSelect={deployContractMutation.mutate}
+            isDeploying={isLoading}
+          />
         </Flex>
       </Container>
     </Section>
