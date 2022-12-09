@@ -11,7 +11,7 @@ const TxFormDeposit = ({ form, nearFormat }: TxFormDepositProps) => {
   return (
     <Form.Group>
       <Controller
-        name="deposit"
+        name="depositValue"
         control={form.control}
         rules={{
           validate:
@@ -29,13 +29,13 @@ const TxFormDeposit = ({ form, nearFormat }: TxFormDepositProps) => {
             yocto={nearFormat === 'yoctoⓃ'}
             label="Deposit:"
             field={field}
-            isInvalid={!!form.formState.errors.deposit}
+            isInvalid={!!form.formState.errors.depositValue}
             stableId={StableId.TX_FORM_DEPOSIT_INPUT}
           />
         )}
       />
 
-      <Form.Feedback>{form.formState.errors.deposit?.message}</Form.Feedback>
+      <Form.Feedback>{form.formState.errors.depositValue?.message}</Form.Feedback>
     </Form.Group>
   );
 };

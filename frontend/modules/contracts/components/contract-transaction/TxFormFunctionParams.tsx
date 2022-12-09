@@ -38,7 +38,7 @@ const TxFormFunctionParams = ({ selectedFunction, form, abi }: TxFormFunctionPar
             type={param.type}
             label={param.label}
             stableId={StableId.TX_FORM_FUNCTION_PARAMS_INPUT}
-            {...form.register(param.name)}
+            {...form.register(`params.${param.name}`)}
           />
         </Form.Group>
       ))}
