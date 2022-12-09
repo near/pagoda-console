@@ -1,7 +1,7 @@
 import type { Api } from '@pc/common/types/api';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { Card } from '@/components/lib/Card';
@@ -17,13 +17,14 @@ import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { usePagination } from '@/hooks/pagination';
+import { useQuery } from '@/hooks/query';
 import { useRouteParam } from '@/hooks/route';
 import { useOnSelectedProjectChange } from '@/hooks/selected-project';
+import config from '@/utils/config';
 import { StableId } from '@/utils/stable-ids';
 import { truncateMiddle } from '@/utils/truncate-middle';
 
 import { useAlerts } from '../hooks/alerts';
-import { useTriggeredAlerts } from '../hooks/triggered-alerts';
 import { alertTypes } from '../utils/constants';
 
 type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
@@ -32,27 +33,36 @@ type TriggeredAlert = Api.Query.Output<'/triggeredAlerts/listTriggeredAlerts'>['
 
 export function TriggeredAlerts({ environment, project }: { environment?: Environment; project?: Project }) {
   const queryParamAlertFilter = useRouteParam('alertId');
-  const pagination = usePagination();
-  const [filteredAlertId, setFilteredAlertId] = useState(
+  const { reset, updateItemCount, ...pagination } = usePagination();
+  const [filteredAlertId, setFilteredAlertId] = useState<number | undefined>(
     queryParamAlertFilter ? parseInt(queryParamAlertFilter) : undefined,
   );
   const filters = { alertId: filteredAlertId };
-  const { triggeredAlertsCount, triggeredAlerts } = useTriggeredAlerts(
-    project?.slug,
-    environment?.subId,
-    pagination,
-    filters,
+
+  const triggeredAlertsQuery = useQuery(
+    [
+      '/triggeredAlerts/listTriggeredAlerts',
+      {
+        environmentSubId: environment?.subId ?? -1,
+        projectSlug: project?.slug ?? 'unknown',
+        take: pagination.state.pageSize,
+        skip: (pagination.state.currentPage - 1) * pagination.state.pageSize,
+        pagingDateTime: pagination.state.pagingDateTime?.toISOString(),
+        alertId: filters.alertId,
+      },
+    ],
+    {
+      refetchInterval: config.defaultLiveDataRefreshIntervalMs,
+      keepPreviousData: true,
+      enabled: Boolean(environment && project),
+    },
   );
   const { alerts } = useAlerts(project?.slug, environment?.subId);
   const filteredAlert = alerts?.find((alert) => alert.id === filteredAlertId);
 
   useEffect(() => {
-    pagination.updateItemCount(triggeredAlertsCount);
-  });
-
-  useOnSelectedProjectChange(() => {
-    clearAlertFilter();
-  });
+    updateItemCount(triggeredAlertsQuery.data?.count);
+  }, [triggeredAlertsQuery.data?.count, updateItemCount]);
 
   function shouldFlashRow(alert: TriggeredAlert) {
     let result = false;
@@ -65,15 +75,18 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
     return result;
   }
 
-  function onSelectAlertFilter(alertId: string) {
-    pagination.reset();
-    setFilteredAlertId(parseInt(alertId));
-  }
-
-  function clearAlertFilter() {
-    pagination.reset();
+  const onSelectAlertFilter = useCallback(
+    (alertId: string) => {
+      reset();
+      setFilteredAlertId(parseInt(alertId));
+    },
+    [reset],
+  );
+  const clearAlertFilter = useCallback(() => {
+    reset();
     setFilteredAlertId(undefined);
-  }
+  }, [reset]);
+  useOnSelectedProjectChange(clearAlertFilter);
 
   if (alerts?.length === 0) {
     return (
@@ -96,9 +109,9 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
           header={
             <Flex align={{ '@initial': 'center', '@tablet': 'start' }} stack={{ '@tablet': true }}>
               <Flex align={{ '@initial': 'center', '@tablet': 'start' }} stack={{ '@tablet': true }}>
-                {triggeredAlertsCount === undefined ? (
+                {triggeredAlertsQuery.status === 'loading' ? (
                   <Placeholder css={{ width: '15rem', height: '1.5rem' }} />
-                ) : (
+                ) : triggeredAlertsQuery.status === 'error' ? null : (
                   <>
                     <DropdownMenu.Root>
                       <DropdownMenu.Button
@@ -111,7 +124,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
 
                       <DropdownMenu.Content align="start">
                         {filteredAlert && (
-                          <DropdownMenu.Item key={'clear'} onSelect={() => clearAlertFilter()}>
+                          <DropdownMenu.Item key={'clear'} onSelect={clearAlertFilter}>
                             <FeatherIcon icon="x" size="s" color="text3" />
                             <Text color="text3">Clear Filter</Text>
                           </DropdownMenu.Item>
@@ -136,7 +149,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
                         </DropdownMenu.RadioGroup>
                       </DropdownMenu.Content>
                     </DropdownMenu.Root>
-                    <Text>{triggeredAlertsCount} Triggered Alerts</Text>
+                    <Text>{triggeredAlertsQuery.data.count} Triggered Alerts</Text>
                   </>
                 )}
               </Flex>
@@ -176,47 +189,49 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
         </Table.Head>
 
         <Table.Body>
-          {!triggeredAlerts && <Table.PlaceholderRows />}
+          {triggeredAlertsQuery.status === 'loading' ? (
+            <Table.PlaceholderRows />
+          ) : triggeredAlertsQuery.status === 'error' ? null : (
+            triggeredAlertsQuery.data.page.map((row) => {
+              const url = `/alerts/triggered-alert/${row.slug}`;
+              const alertTypeOption = alertTypes[row.type];
 
-          {triggeredAlerts?.map((row) => {
-            const url = `/alerts/triggered-alert/${row.slug}`;
-            const alertTypeOption = alertTypes[row.type];
-
-            return (
-              <Table.Row flash={shouldFlashRow(row)} key={row.slug}>
-                <Table.Cell href={url} wrap css={{ minWidth: '10rem' }}>
-                  {row.name}
-                </Table.Cell>
-                <Table.Cell href={url}>
-                  <Badge size="s">
-                    <FeatherIcon icon={alertTypeOption.icon} size="xs" />
-                    {alertTypeOption.name}
-                  </Badge>
-                </Table.Cell>
-                <Table.Cell href={url}>
-                  <Text family="number" color="text3" size="current">
-                    {row.triggeredInTransactionHash ? truncateMiddle(row.triggeredInTransactionHash) : null}
-                  </Text>
-                </Table.Cell>
-                <Table.Cell href={url}>
-                  <Text family="number" color="text3" size="current">
-                    {truncateMiddle(row.slug)}
-                  </Text>
-                </Table.Cell>
-                <Table.Cell href={url}>
-                  <Text family="number" color="text3" size="current">
-                    {DateTime.fromISO(row.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS)}
-                  </Text>
-                </Table.Cell>
-              </Table.Row>
-            );
-          })}
+              return (
+                <Table.Row flash={shouldFlashRow(row)} key={row.slug}>
+                  <Table.Cell href={url} wrap css={{ minWidth: '10rem' }}>
+                    {row.name}
+                  </Table.Cell>
+                  <Table.Cell href={url}>
+                    <Badge size="s">
+                      <FeatherIcon icon={alertTypeOption.icon} size="xs" />
+                      {alertTypeOption.name}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell href={url}>
+                    <Text family="number" color="text3" size="current">
+                      {row.triggeredInTransactionHash ? truncateMiddle(row.triggeredInTransactionHash) : null}
+                    </Text>
+                  </Table.Cell>
+                  <Table.Cell href={url}>
+                    <Text family="number" color="text3" size="current">
+                      {truncateMiddle(row.slug)}
+                    </Text>
+                  </Table.Cell>
+                  <Table.Cell href={url}>
+                    <Text family="number" color="text3" size="current">
+                      {DateTime.fromISO(row.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS)}
+                    </Text>
+                  </Table.Cell>
+                </Table.Row>
+              );
+            })
+          )}
         </Table.Body>
 
         <Table.Foot>
           <Table.Row>
             <Table.Cell colSpan={100}>
-              <Pagination pagination={pagination} totalCount={triggeredAlertsCount} />
+              <Pagination pagination={pagination} totalCount={triggeredAlertsQuery.data?.count} />
             </Table.Cell>
           </Table.Row>
         </Table.Foot>

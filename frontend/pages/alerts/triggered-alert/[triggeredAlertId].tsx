@@ -18,11 +18,12 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
+import { useQuery } from '@/hooks/query';
 import { useSelectedProject, useSelectedProjectSync } from '@/hooks/selected-project';
 import { useAlert } from '@/modules/alerts/hooks/alerts';
-import { useTriggeredAlertDetails } from '@/modules/alerts/hooks/triggered-alerts';
 import { alertTypes } from '@/modules/alerts/utils/constants';
 import config from '@/utils/config';
+import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -65,10 +66,10 @@ function LabelAndValue(props: {
 const ViewTriggeredAlert: NextPageWithLayout = () => {
   const router = useRouter();
   const triggeredAlertId = router.query.triggeredAlertId as string;
-  const { triggeredAlert, error } = useTriggeredAlertDetails(triggeredAlertId);
-  const { alert } = useAlert(triggeredAlert?.alertId);
+  const triggeredAlertQuery = useQuery(['/triggeredAlerts/getTriggeredAlertDetails', { slug: triggeredAlertId }]);
+  const { alert } = useAlert(triggeredAlertQuery.data?.alertId);
   const { environment } = useSelectedProject();
-  const baseExplorerUrl = environment && config.url.explorer[environment?.net];
+  const baseExplorerUrl = environment ? config.url.explorer[mapEnvironmentSubIdToNet(environment?.subId)] : 'unknown';
 
   useSelectedProjectSync(alert?.environmentSubId, alert?.projectSlug);
 
@@ -81,9 +82,10 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
     return alert?.rule?.contract;
   }
 
-  const triggeredAtDateFormatted = triggeredAlert
-    ? DateTime.fromISO(triggeredAlert.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS)
-    : '';
+  const triggeredAtDateFormatted =
+    triggeredAlertQuery.status === 'success'
+      ? DateTime.fromISO(triggeredAlertQuery.data.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS)
+      : '';
 
   return (
     <Section>
@@ -95,9 +97,9 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
           </TextLink>
         </Link>
 
-        {(triggeredAlert === undefined || alert === undefined) && error === undefined && <Spinner center />}
-
-        {error && (
+        {triggeredAlertQuery.status === 'loading' || alert === undefined ? (
+          <Spinner center />
+        ) : triggeredAlertQuery.status === 'error' ? (
           <Container size="m">
             <Card>
               <Flex stack align="center">
@@ -106,9 +108,7 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
               </Flex>
             </Card>
           </Container>
-        )}
-
-        {triggeredAlert && alert && !error && (
+        ) : triggeredAlertQuery.status === 'success' && alert ? (
           <Flex align="start">
             <Container size="m">
               <Card>
@@ -118,10 +118,10 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
                       <FeatherIcon icon="bell" size="m" />
 
                       <Flex stack gap="xs">
-                        <Text color="text1">{triggeredAlert.name}</Text>
+                        <Text color="text1">{triggeredAlertQuery.data.name}</Text>
                         <Badge size="s">
-                          <FeatherIcon icon={alertType(triggeredAlert).icon} size="xs" />
-                          {alertType(triggeredAlert).name}
+                          <FeatherIcon icon={alertType(triggeredAlertQuery.data).icon} size="xs" />
+                          {alertType(triggeredAlertQuery.data).name}
                         </Badge>
                         <Text size="bodySmall" color="text3">
                           {alertContract(alert)}{' '}
@@ -145,21 +145,21 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
 
                   <LabelAndValue label="Alert Triggered at" value={triggeredAtDateFormatted} />
 
-                  {triggeredAlert.triggeredInTransactionHash ? (
+                  {triggeredAlertQuery.data.triggeredInTransactionHash ? (
                     <LabelAndValue
                       label="Transaction Hash"
-                      value={triggeredAlert.triggeredInTransactionHash}
-                      linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlert.triggeredInTransactionHash}`}
+                      value={triggeredAlertQuery.data.triggeredInTransactionHash}
+                      linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlertQuery.data.triggeredInTransactionHash}`}
                       copyButtonStableId={StableId.TRIGGERED_ALERT_COPY_TRANSACTION_HASH_BUTTON}
                       explorerLinkStableId={StableId.TRIGGERED_ALERT_TRANSACTION_HASH_LINK}
                     />
                   ) : null}
 
-                  {triggeredAlert.triggeredInReceiptId ? (
+                  {triggeredAlertQuery.data.triggeredInReceiptId ? (
                     <LabelAndValue
                       label="Receipt ID"
-                      value={triggeredAlert.triggeredInReceiptId}
-                      linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlert.triggeredInTransactionHash}#${triggeredAlert.triggeredInReceiptId}`}
+                      value={triggeredAlertQuery.data.triggeredInReceiptId}
+                      linkToExplorer={`${baseExplorerUrl}/transactions/${triggeredAlertQuery.data.triggeredInTransactionHash}#${triggeredAlertQuery.data.triggeredInReceiptId}`}
                       copyButtonStableId={StableId.TRIGGERED_ALERT_COPY_RECEIPT_ID_BUTTON}
                       explorerLinkStableId={StableId.TRIGGERED_ALERT_RECEIPT_ID_LINK}
                     />
@@ -167,27 +167,29 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
 
                   <LabelAndValue
                     label="Block Hash"
-                    value={triggeredAlert.triggeredInBlockHash}
-                    linkToExplorer={`${baseExplorerUrl}/blocks/${triggeredAlert.triggeredInBlockHash}`}
+                    value={triggeredAlertQuery.data.triggeredInBlockHash}
+                    linkToExplorer={`${baseExplorerUrl}/blocks/${triggeredAlertQuery.data.triggeredInBlockHash}`}
                     copyButtonStableId={StableId.TRIGGERED_ALERT_COPY_BLOCK_HASH_BUTTON}
                     explorerLinkStableId={StableId.TRIGGERED_ALERT_BLOCK_HASH_LINK}
                   />
 
-                  <LabelAndValue label="Triggered Alert ID" value={triggeredAlert.slug} />
-                  {triggeredAlert.extraData && (
+                  <LabelAndValue label="Triggered Alert ID" value={triggeredAlertQuery.data.slug} />
+                  {triggeredAlertQuery.data.extraData && (
                     <>
                       <HR />
                       <Text size="bodySmall" color="text1">
                         Event Data
                       </Text>
-                      <CodeBlock language="json">{JSON.stringify(triggeredAlert.extraData, null, 2)}</CodeBlock>
+                      <CodeBlock language="json">
+                        {JSON.stringify(triggeredAlertQuery.data.extraData, null, 2)}
+                      </CodeBlock>
                     </>
                   )}
                 </Flex>
               </Card>
             </Container>
           </Flex>
-        )}
+        ) : null}
       </Flex>
     </Section>
   );
