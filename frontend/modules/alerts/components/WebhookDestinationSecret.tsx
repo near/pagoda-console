@@ -1,6 +1,5 @@
 import type { Api } from '@pc/common/types/api';
 import { useCallback, useState } from 'react';
-import { mutate } from 'swr';
 
 import { Button } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
@@ -10,6 +9,7 @@ import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useMutation } from '@/hooks/mutation';
+import { useQueryCache } from '@/hooks/query-cache';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { StableId } from '@/utils/stable-ids';
 import type { MapDiscriminatedUnion } from '@/utils/types';
@@ -29,10 +29,11 @@ const ROTATION_WARNING =
 
 export function WebhookDestinationSecret({ destination, viaConfirm }: Props) {
   const { project } = useSelectedProject();
+  const listDestinationsCache = useQueryCache('/alerts/listDestinations');
   const [showRotateConfirmModal, setShowRotateConfirmModal] = useState(false);
   const rotateWebhookDestinationSecretMutation = useMutation('/alerts/rotateWebhookDestinationSecret', {
     onSuccess: (result) => {
-      mutate(['/alerts/listDestinations', project!.slug], (destinations) => {
+      listDestinationsCache.update({ projectSlug: project!.slug }, (destinations) => {
         if (!destinations) {
           return;
         }

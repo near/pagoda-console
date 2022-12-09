@@ -25,9 +25,9 @@ import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useContracts } from '@/hooks/contracts';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { useMutation } from '@/hooks/mutation';
+import { useQueryCache } from '@/hooks/query-cache';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
-import { useAlerts } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
 import { formRegex } from '@/utils/constants';
 import { convertNearToYocto } from '@/utils/convert-near';
@@ -71,7 +71,7 @@ const NewAlert: NextPageWithLayout = () => {
   const router = useRouter();
   const form = useForm<FormData>();
   const { project, environment } = useSelectedProject();
-  const { mutate } = useAlerts(project?.slug, environment?.subId);
+  const alertsCache = useQueryCache('/alerts/listAlerts');
   const [selectedDestinationIds, setSelectedDestinationIds] = useState<Alerts.DestinationId[]>([]);
   const { contracts } = useContracts(project?.slug, environment?.subId);
   const [contractComboboxItems, setContractComboboxItems] = useState<Contract[]>([]);
@@ -108,8 +108,11 @@ const NewAlert: NextPageWithLayout = () => {
   const selectedAlertType = form.watch('type');
 
   const createAlertMutation = useMutation('/alerts/createAlert', {
-    onSuccess: (result) => {
-      mutate((alerts) => alerts && [...alerts, result]);
+    onSuccess: (result, variables) => {
+      alertsCache.update(
+        { projectSlug: variables.projectSlug, environmentSubId: variables.environmentSubId },
+        (alerts) => alerts && [...alerts, result],
+      );
       openToast({
         type: 'success',
         title: 'Alert was created.',

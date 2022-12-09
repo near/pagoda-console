@@ -1,39 +1,27 @@
-import { useEffect } from 'react';
-import type { KeyedMutator } from 'swr';
+import { useEffect, useState } from 'react';
 
 import { openToast } from '@/components/lib/Toast';
+import { useQuery } from '@/hooks/query';
+import { useSelectedProject } from '@/hooks/selected-project';
 
-export function useVerifyDestinationInterval<D extends { id: number; isValid: boolean }>(
-  destination: D | undefined,
-  mutate: KeyedMutator<D[]>,
-  onVerify: (destination: D) => void,
-) {
-  useEffect(() => {
-    if (!destination || destination.isValid) {
-      return;
-    }
-
-    const interval = setInterval(async () => {
-      const nextDestinations = await mutate();
-      if (!nextDestinations) {
-        return;
+export function useVerifyDestinationInterval(destinationId: number | undefined, onDone: () => void) {
+  const { project } = useSelectedProject();
+  const [refetchEnabled, setRefetchEnabled] = useState(true);
+  useEffect(() => setRefetchEnabled(true), [destinationId]);
+  return useQuery(['/alerts/listDestinations', { projectSlug: project?.slug ?? 'unknown' }], {
+    enabled: Boolean(destinationId && project),
+    onSuccess: (destinations) => {
+      const destination = destinations.find((lookupDestination) => lookupDestination.id === destinationId);
+      if (destination) {
+        onDone();
+        setRefetchEnabled(true);
+        openToast({
+          type: 'success',
+          title: 'Destination Verified',
+          description: 'Your destination is ready to go.',
+        });
       }
-      const nextDestination = nextDestinations.find((lookupDestination) => lookupDestination.id === destination.id);
-      if (!nextDestination || !nextDestination.isValid) {
-        return;
-      }
-
-      clearInterval(interval);
-
-      openToast({
-        type: 'success',
-        title: 'Destination Verified',
-        description: 'Your destination is ready to go.',
-      });
-
-      onVerify(nextDestination);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [destination, mutate, onVerify]);
+    },
+    refetchInterval: refetchEnabled ? 1000 : undefined,
+  });
 }

@@ -9,8 +9,8 @@ import { Flex } from '@/components/lib/Flex';
 import { Spinner } from '@/components/lib/Spinner';
 import { Switch } from '@/components/lib/Switch';
 import { Text } from '@/components/lib/Text';
+import { useQuery } from '@/hooks/query';
 import { useSelectedProject } from '@/hooks/selected-project';
-import { useDestinations } from '@/modules/alerts/hooks/destinations';
 import { destinationTypes } from '@/modules/alerts/utils/constants';
 import { StableId } from '@/utils/stable-ids';
 
@@ -27,7 +27,9 @@ interface Props {
 
 export function DestinationsSelector(props: Props) {
   const { project } = useSelectedProject();
-  const { destinations } = useDestinations(project?.slug);
+  const destinationsQuery = useQuery(['/alerts/listDestinations', { projectSlug: project?.slug ?? 'unknown' }], {
+    enabled: Boolean(project),
+  });
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [selectedEditDestination, setSelectedEditDestination] = useState<
     Api.Query.Output<'/alerts/listDestinations'>[number] | undefined
@@ -36,35 +38,35 @@ export function DestinationsSelector(props: Props) {
 
   return (
     <Flex stack>
-      {!destinations && <Spinner center />}
-
-      {destinations?.length === 0 && (
+      {destinationsQuery.status === 'loading' ? (
+        <Spinner center />
+      ) : destinationsQuery.status === 'error' ? null : destinationsQuery.data.length === 0 ? (
         <Text>{`Your selected project doesn't have any destinations configured yet.`}</Text>
+      ) : (
+        <Flex stack gap="s">
+          {destinationsQuery.data.map((destination) => {
+            return (
+              <DestinationCard
+                key={destination.id}
+                destination={destination}
+                openDestination={setSelectedEditDestination}
+                debounce={props.debounce}
+                checked={props.selectedIds.includes(destination.id)}
+                onChange={(nextChecked) => props.onChange(destination.id, nextChecked)}
+              />
+            );
+          })}
+
+          <Button
+            color="neutral"
+            onClick={() => setShowNewDestinationModal(true)}
+            stretch
+            stableId={StableId.DESTINATIONS_SELECTOR_OPEN_CREATE_MODAL_BUTTON}
+          >
+            <FeatherIcon icon="plus" color="primary" /> New Destination
+          </Button>
+        </Flex>
       )}
-
-      <Flex stack gap="s">
-        {destinations?.map((destination) => {
-          return (
-            <DestinationCard
-              key={destination.id}
-              destination={destination}
-              openDestination={setSelectedEditDestination}
-              debounce={props.debounce}
-              checked={props.selectedIds.includes(destination.id)}
-              onChange={(nextChecked) => props.onChange(destination.id, nextChecked)}
-            />
-          );
-        })}
-
-        <Button
-          color="neutral"
-          onClick={() => setShowNewDestinationModal(true)}
-          stretch
-          stableId={StableId.DESTINATIONS_SELECTOR_OPEN_CREATE_MODAL_BUTTON}
-        >
-          <FeatherIcon icon="plus" color="primary" /> New Destination
-        </Button>
-      </Flex>
 
       <NewDestinationModal
         onCreate={(destination) => props.onChange(destination.id, true)}

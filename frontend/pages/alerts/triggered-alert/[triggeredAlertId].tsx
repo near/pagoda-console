@@ -18,11 +18,12 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
-import { useSelectedProject, useSelectedProjectSync } from '@/hooks/selected-project';
-import { useAlert } from '@/modules/alerts/hooks/alerts';
+import { useQuery } from '@/hooks/query';
+import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project';
 import { useTriggeredAlertDetails } from '@/modules/alerts/hooks/triggered-alerts';
 import { alertTypes } from '@/modules/alerts/utils/constants';
 import config from '@/utils/config';
+import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -66,11 +67,16 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
   const router = useRouter();
   const triggeredAlertId = router.query.triggeredAlertId as string;
   const { triggeredAlert, error } = useTriggeredAlertDetails(triggeredAlertId);
-  const { alert } = useAlert(triggeredAlert?.alertId);
+  const { selectProject, selectEnvironment } = useProjectSelector();
+  const alertQuery = useQuery(['/alerts/getAlertDetails', { id: triggeredAlert?.alertId ?? -1 }], {
+    enabled: Boolean(triggeredAlert),
+    onSuccess: (response) => {
+      selectProject(response.projectSlug);
+      selectEnvironment(response.projectSlug, response.environmentSubId);
+    },
+  });
   const { environment } = useSelectedProject();
-  const baseExplorerUrl = environment && config.url.explorer[environment?.net];
-
-  useSelectedProjectSync(alert?.environmentSubId, alert?.projectSlug);
+  const baseExplorerUrl = environment ? config.url.explorer[mapEnvironmentSubIdToNet(environment.subId)] : undefined;
 
   function alertType(triggeredAlert: TriggeredAlerts.TriggeredAlert) {
     if (!triggeredAlert) return alertTypes.EVENT;
@@ -95,7 +101,7 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
           </TextLink>
         </Link>
 
-        {(triggeredAlert === undefined || alert === undefined) && error === undefined && <Spinner center />}
+        {(triggeredAlert === undefined || alertQuery.status === 'loading') && error === undefined && <Spinner center />}
 
         {error && (
           <Container size="m">
@@ -108,7 +114,7 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
           </Container>
         )}
 
-        {triggeredAlert && alert && !error && (
+        {triggeredAlert && alertQuery.status === 'success' && !error && (
           <Flex align="start">
             <Container size="m">
               <Card>
@@ -124,11 +130,11 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
                           {alertType(triggeredAlert).name}
                         </Badge>
                         <Text size="bodySmall" color="text3">
-                          {alertContract(alert)}{' '}
+                          {alertContract(alertQuery.data)}{' '}
                         </Text>
                       </Flex>
 
-                      <Link href={`/alerts/edit-alert/${alert.id}`} passHref>
+                      <Link href={`/alerts/edit-alert/${alertQuery.data.id}`} passHref>
                         <ButtonLink
                           stableId={StableId.TRIGGERED_ALERT_EDIT_LINK}
                           size="s"

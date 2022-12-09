@@ -13,12 +13,12 @@ import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { useMutation } from '@/hooks/mutation';
+import { useQueryCache } from '@/hooks/query-cache';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
 import type { MapDiscriminatedUnion } from '@/utils/types';
 
-import { useDestinations } from '../hooks/destinations';
 import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
 import { destinationTypes } from '../utils/constants';
 import { DeleteDestinationModal } from './DeleteDestinationModal';
@@ -108,10 +108,10 @@ function ModalContent<K extends DestinationType>({ closeEditModal, destination }
 
 const useUpdateDestination = (onVerify: () => void) => {
   const { project } = useSelectedProject();
-  const { mutate } = useDestinations(project?.slug);
+  const destinationsCache = useQueryCache('/alerts/listDestinations');
   const updateMutation = useMutation('/alerts/updateDestination', {
     onSuccess: (result, variables) => {
-      mutate((destinations) => {
+      destinationsCache.update({ projectSlug: project!.slug }, (destinations) => {
         if (!destinations) {
           return;
         }
@@ -139,7 +139,7 @@ const useUpdateDestination = (onVerify: () => void) => {
       id: destination.id,
     }),
   });
-  useVerifyDestinationInterval(updateMutation.data, mutate, onVerify);
+  useVerifyDestinationInterval(updateMutation.data?.id, onVerify);
   return updateMutation;
 };
 

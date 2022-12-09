@@ -8,10 +8,10 @@ import { H1 } from '@/components/lib/Heading';
 import { Spinner } from '@/components/lib/Spinner';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
+import { useQuery } from '@/hooks/query';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { EditDestinationModal } from '@/modules/alerts/components/EditDestinationModal';
 import { NewDestinationModal } from '@/modules/alerts/components/NewDestinationModal';
-import { useDestinations } from '@/modules/alerts/hooks/destinations';
 import { StableId } from '@/utils/stable-ids';
 
 import { DestinationTableRow } from './DestinationsTableRow';
@@ -20,7 +20,9 @@ type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 export function Destinations() {
   const { project } = useSelectedProject();
-  const { destinations } = useDestinations(project?.slug);
+  const destinationsQuery = useQuery(['/alerts/listDestinations', { projectSlug: project?.slug ?? 'unknown' }], {
+    enabled: Boolean(project),
+  });
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
   const resetDestination = useCallback(() => setSelectedEditDestination(undefined), [setSelectedEditDestination]);
@@ -39,13 +41,11 @@ export function Destinations() {
           </Button>
         </Flex>
 
-        {!destinations && <Spinner center />}
-
-        {destinations?.length === 0 && (
+        {destinationsQuery.status === 'loading' ? (
+          <Spinner center />
+        ) : destinationsQuery.status === 'error' ? null : destinationsQuery.data.length === 0 ? (
           <Text>{`Your selected project doesn't have any destinations configured yet.`}</Text>
-        )}
-
-        {destinations && destinations?.length > 0 && (
+        ) : (
           <Table.Root>
             <Table.Head>
               <Table.Row>
@@ -58,7 +58,7 @@ export function Destinations() {
             </Table.Head>
 
             <Table.Body>
-              {destinations.map((row) => (
+              {destinationsQuery.data.map((row) => (
                 <DestinationTableRow destination={row} onClick={() => setSelectedEditDestination(row)} key={row.id} />
               ))}
             </Table.Body>

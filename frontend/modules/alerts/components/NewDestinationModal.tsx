@@ -17,12 +17,12 @@ import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { useMutation } from '@/hooks/mutation';
+import { useQueryCache } from '@/hooks/query-cache';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
 import type { MapDiscriminatedUnion } from '@/utils/types';
 
-import { useDestinations } from '../hooks/destinations';
 import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
 import { destinationTypeOptions } from '../utils/constants';
 import { EmailDestinationVerification } from './EmailDestinationVerification';
@@ -48,11 +48,11 @@ function useCreateDestinationMutation<K extends DestinationType>(
   onVerify: () => void,
 ) {
   const { project } = useSelectedProject();
-  const { mutate } = useDestinations(project?.slug);
+  const destinationsCache = useQueryCache('/alerts/listDestinations');
 
   const createDestinationMutation = useMutation('/alerts/createDestination', {
     onSuccess: (result) => {
-      mutate((destinations) => {
+      destinationsCache.update({ projectSlug: project!.slug }, (destinations) => {
         if (!destinations) {
           return;
         }
@@ -69,7 +69,7 @@ function useCreateDestinationMutation<K extends DestinationType>(
     getAnalyticsSuccessData: (_, result) => ({ name: result.name, id: result.id }),
   });
 
-  useVerifyDestinationInterval(createDestinationMutation.data, mutate, onVerify);
+  useVerifyDestinationInterval(createDestinationMutation.data?.id, onVerify);
 
   return createDestinationMutation;
 }

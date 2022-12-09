@@ -17,12 +17,12 @@ import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { usePagination } from '@/hooks/pagination';
+import { useQuery } from '@/hooks/query';
 import { useRouteParam } from '@/hooks/route';
 import { useOnSelectedProjectChange } from '@/hooks/selected-project';
 import { StableId } from '@/utils/stable-ids';
 import { truncateMiddle } from '@/utils/truncate-middle';
 
-import { useAlerts } from '../hooks/alerts';
 import { useTriggeredAlerts } from '../hooks/triggered-alerts';
 import { alertTypes } from '../utils/constants';
 
@@ -43,8 +43,11 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
     pagination,
     filters,
   );
-  const { alerts } = useAlerts(project?.slug, environment?.subId);
-  const filteredAlert = alerts?.find((alert) => alert.id === filteredAlertId);
+  const alertsQuery = useQuery(
+    ['/alerts/listAlerts', { projectSlug: project?.slug ?? 'unknown', environmentSubId: environment?.subId ?? -1 }],
+    { enabled: Boolean(project && environment) },
+  );
+  const filteredAlert = alertsQuery.data?.find((alert) => alert.id === filteredAlertId);
 
   useEffect(() => {
     pagination.updateItemCount(triggeredAlertsCount);
@@ -75,7 +78,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
     setFilteredAlertId(undefined);
   }
 
-  if (alerts?.length === 0) {
+  if (alertsQuery.data?.length === 0) {
     return (
       <Card>
         <Flex stack align="center">
@@ -121,7 +124,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
                           value={filteredAlert?.id?.toString()}
                           onValueChange={onSelectAlertFilter}
                         >
-                          {alerts?.map((a) => {
+                          {alertsQuery.data?.map((a) => {
                             const alertTypeOption = alertTypes[a.rule.type];
                             return (
                               <DropdownMenu.RadioItem

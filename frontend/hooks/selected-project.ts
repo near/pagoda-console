@@ -126,40 +126,6 @@ export function useOnSelectedProjectChange(onChange: () => void) {
   });
 }
 
-export function useSelectedProjectSync(
-  selectedEnvironmentSubId: Environment['subId'] | undefined,
-  selectedProjectSlug: string | undefined,
-) {
-  const settings = useSettingsStore((store) => store.currentUser);
-  const { environment, project } = useSelectedProject();
-  const [hasSelectedProjectSyncRun, setHasSelectedProjectSyncRun] = useState(false);
-  const { selectEnvironment, selectProject } = useProjectSelector();
-
-  useEffect(() => {
-    if (!environment || !project || !selectedProjectSlug || !selectedEnvironmentSubId || hasSelectedProjectSyncRun)
-      return;
-
-    setHasSelectedProjectSyncRun(true);
-
-    if (selectedProjectSlug !== project.slug) {
-      selectProject(selectedProjectSlug);
-    }
-
-    if (selectedEnvironmentSubId !== environment.subId) {
-      selectEnvironment(selectedProjectSlug, selectedEnvironmentSubId);
-    }
-  }, [
-    environment,
-    hasSelectedProjectSyncRun,
-    project,
-    selectEnvironment,
-    selectProject,
-    selectedEnvironmentSubId,
-    selectedProjectSlug,
-    settings,
-  ]);
-}
-
 export function useSelectedProjectRouteParamSync() {
   const { deactivatePublicMode } = usePublicMode();
   const hasInitialized = useSettingsStore((store) => store.hasInitialized);

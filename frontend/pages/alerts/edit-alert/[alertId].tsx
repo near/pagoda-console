@@ -5,7 +5,6 @@ import type { ReactNode } from 'react';
 import { useCallback } from 'react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import type { KeyedMutator } from 'swr';
 
 import { Button, ButtonLink } from '@/components/lib/Button';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -22,11 +21,10 @@ import { openToast } from '@/components/lib/Toast';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { useMutation } from '@/hooks/mutation';
+import { useQuery } from '@/hooks/query';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { DeleteAlertModal } from '@/modules/alerts/components/DeleteAlertModal';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
-import { useAlert } from '@/modules/alerts/hooks/alerts';
-import { useDestinations } from '@/modules/alerts/hooks/destinations';
 import { alertTypes, amountComparators } from '@/modules/alerts/utils/constants';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatNumber } from '@/utils/format-number';
@@ -37,11 +35,11 @@ interface NameFormData {
   name: string;
 }
 
-const useUpdateAlertPausedMutation = (mutate: KeyedMutator<Api.Query.Output<'/alerts/getAlertDetails'>>) =>
+const useUpdateAlertPausedMutation = (alertQuery: ReturnType<typeof useQuery<'/alerts/getAlertDetails'>>) =>
   useMutation('/alerts/updateAlert', {
     onMutate: ({ isPaused }) => {
       let prevPaused: boolean | undefined;
-      mutate((prev) => {
+      alertQuery.updateCache((prev) => {
         if (!prev) {
           return;
         }
@@ -59,7 +57,7 @@ const useUpdateAlertPausedMutation = (mutate: KeyedMutator<Api.Query.Output<'/al
       if (typeof maybePrevPaused !== 'boolean') {
         return;
       }
-      mutate((prev) => {
+      alertQuery.updateCache((prev) => {
         if (!prev) {
           return;
         }
@@ -79,11 +77,11 @@ const useUpdateAlertPausedMutation = (mutate: KeyedMutator<Api.Query.Output<'/al
     getAnalyticsErrorData: ({ name, id }) => ({ name, id }),
   });
 
-const useUpdateAlertNameMutation = (mutate: KeyedMutator<Api.Query.Output<'/alerts/getAlertDetails'>>) =>
+const useUpdateAlertNameMutation = (alertQuery: ReturnType<typeof useQuery<'/alerts/getAlertDetails'>>) =>
   useMutation('/alerts/updateAlert', {
     onMutate: ({ name }) => {
       let prevName: string | undefined;
-      mutate((prev) => {
+      alertQuery.updateCache((prev) => {
         if (!prev) {
           return;
         }
@@ -101,7 +99,7 @@ const useUpdateAlertNameMutation = (mutate: KeyedMutator<Api.Query.Output<'/aler
       if (typeof maybePrevName !== 'boolean') {
         return;
       }
-      mutate((prev) => {
+      alertQuery.updateCache((prev) => {
         if (!prev) {
           return;
         }
@@ -120,19 +118,21 @@ const useUpdateAlertNameMutation = (mutate: KeyedMutator<Api.Query.Output<'/aler
   });
 
 const useEnableDestinationMutation = (
-  mutate: KeyedMutator<Api.Query.Output<'/alerts/getAlertDetails'>>,
-  destinations?: Api.Query.Output<'/alerts/listDestinations'>,
+  alertQuery: ReturnType<typeof useQuery<'/alerts/getAlertDetails'>>,
+  destinationsQuery: ReturnType<typeof useQuery<'/alerts/listDestinations'>>,
 ) =>
   useMutation('/alerts/enableDestination', {
     onMutate: (variables) => {
       let matchedEnabledDestination:
         | Api.Query.Output<'/alerts/getAlertDetails'>['enabledDestinations'][number]
         | undefined;
-      mutate((prev) => {
+      alertQuery.updateCache((prev) => {
         if (!prev) {
           return;
         }
-        const matchedDestination = destinations?.find((destination) => destination.id === variables.destination);
+        const matchedDestination = destinationsQuery.data?.find(
+          (destination) => destination.id === variables.destination,
+        );
         matchedEnabledDestination = matchedDestination
           ? {
               id: matchedDestination.id,
@@ -171,7 +171,7 @@ const useEnableDestinationMutation = (
         title: 'Update Error',
         description: 'Failed to update alert destination.',
       });
-      mutate((prev) => {
+      alertQuery.updateCache((prev) => {
         if (!prev) {
           return;
         }
@@ -187,11 +187,11 @@ const useEnableDestinationMutation = (
     getAnalyticsErrorData: ({ alert, destination }) => ({ id: alert, destinationId: destination }),
   });
 
-const useDisableDestinationMutation = (mutate: KeyedMutator<Api.Query.Output<'/alerts/getAlertDetails'>>) =>
+const useDisableDestinationMutation = (alertQuery: ReturnType<typeof useQuery<'/alerts/getAlertDetails'>>) =>
   useMutation('/alerts/disableDestination', {
     onMutate: (variables) => {
       let removedDestination: Api.Query.Output<'/alerts/getAlertDetails'>['enabledDestinations'][number] | undefined;
-      mutate((prev) => {
+      alertQuery.updateCache((prev) => {
         if (!prev) {
           return;
         }
@@ -228,7 +228,7 @@ const useDisableDestinationMutation = (mutate: KeyedMutator<Api.Query.Output<'/a
         title: 'Update Error',
         description: 'Failed to update alert destination.',
       });
-      mutate((prev) => {
+      alertQuery.updateCache((prev) => {
         if (!prev || !context) {
           return;
         }
@@ -246,18 +246,20 @@ const EditAlert: NextPageWithLayout = () => {
   const router = useRouter();
   const alertId = parseInt(router.query.alertId as string);
   const nameForm = useForm<NameFormData>();
-  const { alert, mutate } = useAlert(alertId);
-  const updateAlertPausedMutation = useUpdateAlertPausedMutation(mutate);
-  const updateAlertNameMutation = useUpdateAlertNameMutation(mutate);
+  const alertQuery = useQuery(['/alerts/getAlertDetails', { id: alertId }]);
+  const updateAlertPausedMutation = useUpdateAlertPausedMutation(alertQuery);
+  const updateAlertNameMutation = useUpdateAlertNameMutation(alertQuery);
   const onDeleteAlert = useCallback(() => router.replace('/alerts'), [router]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
-  const selectedDestinationIds = alert?.enabledDestinations.map(({ id }) => id) ?? [];
+  const selectedDestinationIds = alertQuery.data?.enabledDestinations.map(({ id }) => id) ?? [];
 
   const { project } = useSelectedProject();
-  const { destinations } = useDestinations(project?.slug);
-  const enableDestinationMutation = useEnableDestinationMutation(mutate, destinations);
-  const disableDestinationMutation = useDisableDestinationMutation(mutate);
+  const destinationsQuery = useQuery(['/alerts/listDestinations', { projectSlug: project?.slug ?? 'unknown' }], {
+    enabled: Boolean(project),
+  });
+  const enableDestinationMutation = useEnableDestinationMutation(alertQuery, destinationsQuery);
+  const disableDestinationMutation = useDisableDestinationMutation(alertQuery);
 
   const onSelectionChange = useCallback(
     (destinationId: number, selected: boolean) => {
@@ -320,9 +322,9 @@ const EditAlert: NextPageWithLayout = () => {
           </Link>
         </Flex>
 
-        {!alert ? (
+        {alertQuery.status === 'loading' ? (
           <Spinner center />
-        ) : (
+        ) : alertQuery.status === 'error' ? null : (
           <Flex stack gap="l">
             <Form.Root disabled={updateAlertNameMutation.isLoading} onSubmit={nameForm.handleSubmit(updateName)}>
               <Flex stack>
@@ -378,12 +380,12 @@ const EditAlert: NextPageWithLayout = () => {
                   )}
 
                   <Flex align="center" css={{ width: 'auto', minHeight: 'var(--size-input-height-m)' }}>
-                    <Tooltip content={!alert.isPaused ? 'Pause this alert' : 'Activate this alert'}>
+                    <Tooltip content={!alertQuery.data.isPaused ? 'Pause this alert' : 'Activate this alert'}>
                       <span>
                         <Switch
                           stableId={StableId.ALERT_ACTIVE_SWITCH}
                           aria-label="Alert Is Active"
-                          checked={!alert.isPaused}
+                          checked={!alertQuery.data.isPaused}
                           onCheckedChange={updateIsPaused}
                           debounce={true}
                         >
@@ -395,7 +397,7 @@ const EditAlert: NextPageWithLayout = () => {
 
                     <Tooltip content="View alert activity">
                       <span>
-                        <Link href={`/alerts?tab=activity&alertId=${alert.id}`} passHref>
+                        <Link href={`/alerts?tab=activity&alertId=${alertQuery.data.id}`} passHref>
                           <ButtonLink
                             stableId={StableId.ALERT_ACTIVITY_LINK}
                             size="s"
@@ -431,7 +433,7 @@ const EditAlert: NextPageWithLayout = () => {
 
               <Flex align="center">
                 <FeatherIcon icon="zap" color="text3" />
-                <H6>{alert.rule.contract}</H6>
+                <H6>{alertQuery.data.rule.contract}</H6>
               </Flex>
             </Flex>
 
@@ -441,14 +443,14 @@ const EditAlert: NextPageWithLayout = () => {
               <H4>Condition</H4>
 
               <Flex align="center">
-                <FeatherIcon icon={alertTypes[alert.rule.type].icon} color="text3" />
+                <FeatherIcon icon={alertTypes[alertQuery.data.rule.type].icon} color="text3" />
                 <Flex stack gap="none">
-                  <H6>{alertTypes[alert.rule.type].name}</H6>
-                  <Text>{alertTypes[alert.rule.type].description}</Text>
+                  <H6>{alertTypes[alertQuery.data.rule.type].name}</H6>
+                  <Text>{alertTypes[alertQuery.data.rule.type].description}</Text>
                 </Flex>
               </Flex>
 
-              <AlertSettings alert={alert} />
+              <AlertSettings alert={alertQuery.data} />
             </Flex>
 
             <HR />
@@ -460,7 +462,7 @@ const EditAlert: NextPageWithLayout = () => {
             </Flex>
 
             <DeleteAlertModal
-              alert={alert}
+              alert={alertQuery.data}
               show={showDeleteModal}
               setShow={setShowDeleteModal}
               onDelete={onDeleteAlert}
