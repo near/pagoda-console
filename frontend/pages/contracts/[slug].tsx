@@ -37,7 +37,8 @@ const ViewContract: NextPageWithLayout = () => {
   const { contract } = usePublicOrPrivateContract(contractSlug);
   const activeTab = useRouteParam('tab', `/contracts/${contractSlug}?tab=details`, true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { contractAbi } = useAnyAbi(contract);
+  const abis = useAnyAbi(contract);
+  const abi = abis.embeddedQuery.data?.abi || abis.privateQuery.data?.abi;
 
   // TODO: Pull in useSelectedProjectSync() to match [triggeredAlertId].tsx logic to sync env/proj to loaded contract.
   // TODO: Handle 404
@@ -107,7 +108,7 @@ const ViewContract: NextPageWithLayout = () => {
                     <FeatherIcon icon="terminal" size="xs" /> Interact
                   </Tabs.Trigger>
 
-                  {contractAbi && (
+                  {abi && (
                     <Tabs.Trigger
                       value="abi"
                       href={`/contracts/${contractSlug}?tab=abi`}
@@ -138,14 +139,14 @@ const ViewContract: NextPageWithLayout = () => {
 
         <Section>
           <Tabs.Content css={{ paddingTop: 0 }} value="details">
-            <ContractDetails contract={contract} environment={environment} />
+            <ContractDetails contract={contract} />
           </Tabs.Content>
 
           <Tabs.Content css={{ paddingTop: 0 }} value="interact">
             <ContractInteract contract={contract} />
           </Tabs.Content>
 
-          {contractAbi && (
+          {abi && (
             <Tabs.Content css={{ paddingTop: 0 }} value="abi">
               <ContractAbi contract={contract} />
             </Tabs.Content>

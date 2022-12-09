@@ -43,7 +43,8 @@ const TxForm = ({ contract, onTxResult, onTxError }: TxFormProps) => {
       nearFormat: 'yoctoⓃ',
     },
   });
-  const { contractAbi } = useAnyAbi(contract);
+  const abis = useAnyAbi(contract);
+  const contractAbi = abis.embeddedQuery.data?.abi || abis.privateQuery.data?.abi;
 
   useEffect(() => {
     if (accountId) {
