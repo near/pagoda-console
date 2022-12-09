@@ -8,7 +8,6 @@ import { H1 } from '@/components/lib/Heading';
 import { Spinner } from '@/components/lib/Spinner';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
-import { openToast } from '@/components/lib/Toast';
 import { StableId } from '@/utils/stable-ids';
 
 import { useAlerts } from '../hooks/alerts';
@@ -18,7 +17,7 @@ type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 type Project = Api.Query.Output<'/projects/getDetails'>;
 
 export function Alerts({ environment, project }: { environment?: Environment; project?: Project }) {
-  const { alerts, mutate } = useAlerts(project?.slug, environment?.subId);
+  const { alerts } = useAlerts(project?.slug, environment?.subId);
 
   return (
     <Flex stack gap="l">
@@ -48,29 +47,9 @@ export function Alerts({ environment, project }: { environment?: Environment; pr
           </Table.Head>
 
           <Table.Body>
-            {!alerts && <Table.PlaceholderRows />}
-
-            {alerts?.map((row) => {
-              return (
-                <AlertTableRow
-                  alert={row}
-                  onDelete={() => {
-                    const name = row?.name;
-
-                    openToast({
-                      type: 'success',
-                      title: 'Alert Deleted',
-                      description: name,
-                    });
-
-                    mutate(() => {
-                      return alerts?.filter((a) => a.id !== row.id);
-                    });
-                  }}
-                  key={row.id}
-                />
-              );
-            })}
+            {alerts.map((row) => (
+              <AlertTableRow alert={row} key={row.id} />
+            ))}
           </Table.Body>
         </Table.Root>
       )}

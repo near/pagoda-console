@@ -1,102 +1,27 @@
-import type { Api } from '@pc/common/types/api';
 import useSWR from 'swr';
 
-import { useAuth } from '@/hooks/auth';
-import analytics from '@/utils/analytics';
 import { fetchApi } from '@/utils/http';
 
-export async function createAlert(data: Api.Mutation.Input<'/alerts/createAlert'>) {
-  const alert = await fetchApi(['/alerts/createAlert', { ...data }]);
-
-  analytics.track('DC Create New Alert', {
-    status: 'success',
-    name: alert.name,
-    id: alert.id,
-  });
-
-  return alert;
-}
-
-export async function deleteAlert(alert: Api.Mutation.Input<'/alerts/deleteAlert'>) {
-  try {
-    await fetchApi(['/alerts/deleteAlert', { id: alert.id }]);
-    analytics.track('DC Remove Alert', {
-      status: 'success',
-      name: alert.id,
-    });
-    return true;
-  } catch (e: any) {
-    analytics.track('DC Remove Alert', {
-      status: 'failure',
-      name,
-      error: e.message,
-    });
-    // TODO
-    console.error('Failed to delete alert');
-  }
-  return false;
-}
-
-export async function disableDestinationForAlert(alertId: number, destinationId: number) {
-  await fetchApi(['/alerts/disableDestination', { alert: alertId, destination: destinationId }]);
-
-  analytics.track('DC Disable Destination for Alert', {
-    status: 'success',
-    id: alertId,
-    destinationId: destinationId,
-  });
-}
-
-export async function enableDestinationForAlert(alertId: number, destinationId: number) {
-  await fetchApi(['/alerts/enableDestination', { alert: alertId, destination: destinationId }]);
-
-  analytics.track('DC Enable Destination for Alert', {
-    status: 'success',
-    id: alertId,
-    destinationId: destinationId,
-  });
-}
-
-export async function updateAlert(data: Api.Mutation.Input<'/alerts/updateAlert'>) {
-  const alert = await fetchApi(['/alerts/updateAlert', { ...data }]);
-
-  analytics.track('DC Update Alert', {
-    status: 'success',
-    name: alert.name,
-    id: alert.id,
-  });
-
-  return alert;
-}
-
 export function useAlert(alertId: number | undefined) {
-  const { identity } = useAuth();
-
   const {
     data: alert,
     error,
     mutate,
-  } = useSWR(
-    identity && alertId ? ['/alerts/getAlertDetails' as const, alertId, identity.uid] : null,
-    async (key, alertId) => {
-      return fetchApi([key, { id: alertId }]);
-    },
-  );
+  } = useSWR(alertId ? ['/alerts/getAlertDetails' as const, alertId] : null, async (key, alertId) => {
+    return fetchApi([key, { id: alertId }]);
+  });
 
   return { alert, error, mutate };
 }
 
 export function useAlerts(projectSlug: string | undefined, environmentSubId: number | undefined) {
-  const { identity } = useAuth();
   const {
     data: alerts,
     error,
     mutate,
     isValidating,
   } = useSWR(
-    identity && projectSlug && environmentSubId
-      ? ['/alerts/listAlerts' as const, projectSlug, environmentSubId, identity.uid]
-      : null,
+    projectSlug && environmentSubId ? ['/alerts/listAlerts' as const, projectSlug, environmentSubId] : null,
     (key) => {
       return fetchApi([key, { environmentSubId: environmentSubId!, projectSlug: projectSlug! }]);
     },

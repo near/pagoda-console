@@ -3,7 +3,7 @@ import type { Api } from '@pc/common/types/api';
 import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Badge } from '@/components/lib/Badge';
@@ -24,9 +24,10 @@ import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useContracts } from '@/hooks/contracts';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
+import { useMutation } from '@/hooks/mutation';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
-import { createAlert, useAlerts } from '@/modules/alerts/hooks/alerts';
+import { useAlerts } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
 import { formRegex } from '@/utils/constants';
 import { convertNearToYocto } from '@/utils/convert-near';
@@ -71,8 +72,7 @@ const NewAlert: NextPageWithLayout = () => {
   const form = useForm<FormData>();
   const { project, environment } = useSelectedProject();
   const { mutate } = useAlerts(project?.slug, environment?.subId);
-  const [createError, setCreateError] = useState('');
-  const [selectedDestinationIds, setSelectedDestinationIds] = useState<number[]>([]);
+  const [selectedDestinationIds, setSelectedDestinationIds] = useState<Alerts.DestinationId[]>([]);
   const { contracts } = useContracts(project?.slug, environment?.subId);
   const [contractComboboxItems, setContractComboboxItems] = useState<Contract[]>([]);
 
@@ -107,33 +107,38 @@ const NewAlert: NextPageWithLayout = () => {
 
   const selectedAlertType = form.watch('type');
 
-  async function submitForm(data: FormData) {
-    try {
-      const body = returnNewAlertBody(data, selectedDestinationIds, project, environment);
-      const alert = await createAlert(body);
-
-      mutate((alerts) => {
-        return [...(alerts || []), alert];
-      });
-
+  const createAlertMutation = useMutation('/alerts/createAlert', {
+    onSuccess: (result) => {
+      mutate((alerts) => alerts && [...alerts, result]);
       openToast({
         type: 'success',
         title: 'Alert was created.',
       });
-
-      await router.push('/alerts');
-    } catch (e: any) {
-      if (e.message === 'ADDRESS_NOT_FOUND') {
-        const net = environmentTitle.toLowerCase();
-        setCreateError(`Address ${data.contract} was not found on ${net}.`);
+      router.push('/alerts');
+    },
+    getAnalyticsSuccessData: (_variables, result) => ({
+      name: result.name,
+      id: result.id,
+    }),
+  });
+  const submitForm = useCallback(
+    (data: FormData) => {
+      if (!project || !environment) {
         return;
       }
-
-      console.error('Failed to create alert', e);
-      setCreateError('Failed to create alert.');
+      createAlertMutation.mutate(returnNewAlertBody(data, selectedDestinationIds, project, environment));
+    },
+    [createAlertMutation, project, environment, selectedDestinationIds],
+  );
+  const createAlertError = useMemo(() => {
+    if (createAlertMutation.error === undefined) {
+      return;
     }
-  }
-  const resetError = useCallback(() => setCreateError(''), [setCreateError]);
+    if ((createAlertMutation.error as any).message === 'ADDRESS_NOT_FOUND') {
+      return `Address ${form.getValues('contract')} was not found on ${environmentTitle.toLowerCase()}.`;
+    }
+    return 'Failed to create alert';
+  }, [createAlertMutation.error, form, environmentTitle]);
 
   return (
     <Section>
@@ -163,7 +168,7 @@ const NewAlert: NextPageWithLayout = () => {
           </Link>
         </Flex>
 
-        <Form.Root disabled={form.formState.isSubmitting} onSubmit={form.handleSubmit(submitForm)}>
+        <Form.Root disabled={createAlertMutation.isLoading} onSubmit={form.handleSubmit(submitForm)}>
           <Flex stack gap="l">
             <Flex stack>
               <H4>
@@ -546,14 +551,20 @@ const NewAlert: NextPageWithLayout = () => {
               <DestinationsSelector
                 debounce={false}
                 selectedIds={selectedDestinationIds}
-                setSelectedIds={setSelectedDestinationIds}
+                onChange={(destinationId, selected) => {
+                  if (selected) {
+                    setSelectedDestinationIds((prev) => [...prev, destinationId]);
+                  } else {
+                    setSelectedDestinationIds((prev) => prev.filter((id) => id !== destinationId));
+                  }
+                }}
               />
             </Flex>
 
             <HR />
 
             <Flex justify="spaceBetween" align="center">
-              <Button type="submit" loading={form.formState.isSubmitting} stableId={StableId.NEW_ALERT_CREATE_BUTTON}>
+              <Button type="submit" loading={createAlertMutation.isLoading} stableId={StableId.NEW_ALERT_CREATE_BUTTON}>
                 <FeatherIcon icon="bell" /> Create Alert
               </Button>
 
@@ -567,7 +578,7 @@ const NewAlert: NextPageWithLayout = () => {
         </Form.Root>
       </Flex>
 
-      <ErrorModal error={createError} resetError={resetError} />
+      <ErrorModal error={createAlertError} resetError={createAlertMutation.reset} />
     </Section>
   );
 };

@@ -48,7 +48,7 @@ function ListAlerts() {
         </Tabs.Content>
 
         <Tabs.Content value="destinations">
-          <Destinations project={project} />
+          <Destinations />
         </Tabs.Content>
       </Tabs.Root>
     </Section>

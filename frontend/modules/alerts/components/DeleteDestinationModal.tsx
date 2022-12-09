@@ -1,5 +1,6 @@
 import type { Api } from '@pc/common/types/api';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo } from 'react';
+import { mutate } from 'swr';
 
 import { Card } from '@/components/lib/Card';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -7,62 +8,65 @@ import { Flex } from '@/components/lib/Flex';
 import { H5 } from '@/components/lib/Heading';
 import { List, ListItem } from '@/components/lib/List';
 import { Text } from '@/components/lib/Text';
+import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { useMutation } from '@/hooks/mutation';
 import { useSelectedProject } from '@/hooks/selected-project';
 
 import { useAlerts } from '../hooks/alerts';
-import { deleteDestination } from '../hooks/destinations';
 
 type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
-type Alerts = Api.Query.Output<'/alerts/listAlerts'>;
 
 interface Props {
   destination: Destination;
   show: boolean;
   setShow: (show: boolean) => void;
-  onDelete: () => void;
+  onDelete?: () => void;
 }
 
 export function DeleteDestinationModal({ destination, show, setShow, onDelete }: Props) {
-  const [errorText, setErrorText] = useState<string | undefined>();
-  const [isDeleting, setIsDeleting] = useState(false);
   const { environment, project } = useSelectedProject();
   const { alerts } = useAlerts(project?.slug, environment?.subId);
-  const [enabledAlerts, setEnabledAlerts] = useState<Alerts>([]);
-
-  useEffect(() => {
-    const result = alerts?.filter((alert) => {
-      const enabledDestination = alert.enabledDestinations.find((d) => d.id === destination.id);
-      return !!enabledDestination;
-    });
-
-    setEnabledAlerts(result || []);
-  }, [alerts, destination]);
-
-  async function onConfirm() {
-    setIsDeleting(true);
-    setErrorText('');
-
-    const success = await deleteDestination(destination);
-
-    if (success) {
-      onDelete();
+  const deleteDestinationMutation = useMutation('/alerts/deleteDestination', {
+    onSuccess: (_result, variables) => {
+      mutate(['/alerts/listDestinations', project!.slug], (prev) => {
+        if (!prev) {
+          return;
+        }
+        return prev.filter((destination) => destination.id !== variables.id);
+      });
+      openToast({
+        type: 'success',
+        title: 'Destination Deleted',
+        description: destination.name ?? undefined,
+      });
       setShow(false);
-    } else {
-      setErrorText('Something went wrong.');
-      setIsDeleting(false);
-    }
-  }
-  const resetError = useCallback(() => setErrorText(''), [setErrorText]);
+      onDelete?.();
+    },
+    getAnalyticsSuccessData: (variables) => ({ name: variables.id }),
+    getAnalyticsErrorData: (variables) => ({ name: variables.id }),
+  });
+  const enabledAlerts = useMemo(
+    () =>
+      alerts?.filter((alert) =>
+        alert.enabledDestinations.some((lookupDestination) => destination.id === lookupDestination.id),
+      ) ?? [],
+    [alerts, destination.id],
+  );
+
+  const onConfirm = useCallback(
+    () => deleteDestinationMutation.mutate({ id: destination.id }),
+    [deleteDestinationMutation, destination.id],
+  );
 
   return (
     <ConfirmModal
       confirmColor="danger"
       confirmText="Delete"
-      errorText={errorText}
-      isProcessing={isDeleting}
+      errorText={deleteDestinationMutation.status === 'error' ? 'Something went wrong' : undefined}
+      isProcessing={deleteDestinationMutation.isLoading}
       onConfirm={onConfirm}
-      resetError={resetError}
+      resetError={deleteDestinationMutation.reset}
       setShow={setShow}
       show={show}
       title={`Delete Destination`}

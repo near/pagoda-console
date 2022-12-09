@@ -1,6 +1,5 @@
 import type { Api } from '@pc/common/types/api';
-import type { Dispatch, SetStateAction } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { Button } from '@/components/lib/Button';
@@ -20,70 +19,20 @@ import { NewDestinationModal } from './NewDestinationModal';
 
 type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
-export interface OnDestinationSelectionChangeEvent {
-  destination: Destination;
-  isSelected: boolean;
-  selectedIds: number[];
-}
-
 interface Props {
   debounce?: boolean;
-  onChange?: (event: OnDestinationSelectionChangeEvent) => void;
+  onChange: (destinationId: number, selected: boolean) => void;
   selectedIds: number[];
-  setSelectedIds: Dispatch<SetStateAction<number[]>>;
-}
-
-function toggleDestination(
-  isSelected: boolean,
-  destination: Destination,
-  setSelectedIds: Dispatch<SetStateAction<number[]>>,
-  onChange?: (event: OnDestinationSelectionChangeEvent) => void,
-) {
-  if (!destination.isValid) return;
-
-  let ids: number[] = [];
-
-  setSelectedIds((value) => {
-    ids = value.filter((id) => id !== destination.id);
-    if (isSelected) {
-      ids.push(destination.id);
-    }
-    return ids;
-  });
-
-  if (onChange) {
-    onChange({
-      destination,
-      isSelected,
-      selectedIds: ids,
-    });
-  }
 }
 
 export function DestinationsSelector(props: Props) {
   const { project } = useSelectedProject();
   const { destinations } = useDestinations(project?.slug);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
-  const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
-  const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
-  const previousDestinations = useRef<Destination[]>([]);
-
-  useEffect(() => {
-    destinations?.forEach((current) => {
-      const previous = previousDestinations.current.find((p) => p.id === current.id);
-
-      if (current.isValid && previous && !previous.isValid) {
-        toggleDestination(true, current, props.setSelectedIds, props.onChange);
-      }
-    });
-
-    previousDestinations.current = [...(destinations || [])];
-  }, [destinations, props]);
-
-  function openDestination(destination: Destination) {
-    setSelectedEditDestination(destination);
-    setShowEditDestinationModal(true);
-  }
+  const [selectedEditDestination, setSelectedEditDestination] = useState<
+    Api.Query.Output<'/alerts/listDestinations'>[number] | undefined
+  >();
+  const resetDestination = useCallback(() => setSelectedEditDestination(undefined), [setSelectedEditDestination]);
 
   return (
     <Flex stack>
@@ -97,10 +46,12 @@ export function DestinationsSelector(props: Props) {
         {destinations?.map((destination) => {
           return (
             <DestinationCard
-              destination={destination}
-              openDestination={openDestination}
-              {...props}
               key={destination.id}
+              destination={destination}
+              openDestination={setSelectedEditDestination}
+              debounce={props.debounce}
+              checked={props.selectedIds.includes(destination.id)}
+              onChange={(nextChecked) => props.onChange(destination.id, nextChecked)}
             />
           );
         })}
@@ -115,62 +66,41 @@ export function DestinationsSelector(props: Props) {
         </Button>
       </Flex>
 
-      {project && (
-        <NewDestinationModal
-          onCreate={(destination) => toggleDestination(true, destination, props.setSelectedIds, props.onChange)}
-          onVerify={(destination) => toggleDestination(true, destination, props.setSelectedIds, props.onChange)}
-          projectSlug={project.slug}
-          show={showNewDestinationModal}
-          setShow={setShowNewDestinationModal}
-        />
-      )}
+      <NewDestinationModal
+        onCreate={(destination) => props.onChange(destination.id, true)}
+        show={showNewDestinationModal}
+        setShow={setShowNewDestinationModal}
+      />
 
       {selectedEditDestination && (
-        <EditDestinationModal
-          destination={selectedEditDestination}
-          show={showEditDestinationModal}
-          setShow={setShowEditDestinationModal}
-        />
+        <EditDestinationModal destination={selectedEditDestination} resetDestination={resetDestination} />
       )}
     </Flex>
   );
 }
 
-type DestinationCardProps = Props & {
+type DestinationCardProps = Pick<Props, 'debounce'> & {
+  checked: boolean;
+  onChange: (nextChecked: boolean) => void;
   destination: Destination;
   openDestination: (destination: Destination) => void;
 };
 
-function DestinationCard({
-  destination,
-  debounce = true,
-  openDestination,
-  onChange,
-  selectedIds,
-  setSelectedIds,
-}: DestinationCardProps) {
+function DestinationCard({ destination, debounce = true, openDestination, onChange, checked }: DestinationCardProps) {
   const destinationType = destinationTypes[destination.type];
-  const isChecked = !!selectedIds.find((id) => id === destination.id);
-
-  const onCheckedChange = useCallback(
-    (isSelected: boolean) => {
-      toggleDestination(isSelected, destination, setSelectedIds, onChange);
-    },
-    [destination, onChange, setSelectedIds],
-  );
 
   return (
     <Card padding="m" borderRadius="m">
       <Flex align="center">
         <Switch
           stableId={StableId.DESTINATIONS_SELECTOR_SELECTED_SWITCH}
-          checked={isChecked}
-          onCheckedChange={onCheckedChange}
+          checked={checked}
+          onCheckedChange={onChange}
           debounce={debounce}
           aria-label={`Destination: ${destination.name}`}
           disabled={!destination.isValid}
         />
-        <FeatherIcon icon={destinationType.icon} color={isChecked ? 'primary' : 'text3'} size="m" />
+        <FeatherIcon icon={destinationType.icon} color={checked ? 'primary' : 'text3'} size="m" />
         <Flex stack gap="none">
           <Text color="text1" weight="semibold">
             {destination.name}

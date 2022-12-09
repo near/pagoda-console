@@ -15,7 +15,7 @@ import { DeleteAlertModal } from './DeleteAlertModal';
 
 type Alert = Api.Query.Output<'/alerts/listAlerts'>[number];
 
-export function AlertTableRow({ alert, onDelete }: { alert: Alert; onDelete: () => void }) {
+export function AlertTableRow({ alert }: { alert: Alert }) {
   const alertType = alertTypes[alert.rule.type];
   const url = `/alerts/edit-alert/${alert.id}`;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -65,7 +65,7 @@ export function AlertTableRow({ alert, onDelete }: { alert: Alert; onDelete: () 
         </Table.Cell>
       </Table.Row>
 
-      <DeleteAlertModal alert={alert} show={showDeleteModal} setShow={setShowDeleteModal} onDelete={onDelete} />
+      <DeleteAlertModal alert={alert} show={showDeleteModal} setShow={setShowDeleteModal} />
     </>
   );
 }

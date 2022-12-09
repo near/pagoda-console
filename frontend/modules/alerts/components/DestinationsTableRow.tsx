@@ -16,15 +16,7 @@ import { DeleteDestinationModal } from './DeleteDestinationModal';
 
 type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
-export function DestinationTableRow({
-  destination,
-  onClick,
-  onDelete,
-}: {
-  destination: Destination;
-  onClick: () => void;
-  onDelete: () => void;
-}) {
+export function DestinationTableRow({ destination, onClick }: { destination: Destination; onClick: () => void }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const destinationType = destinationTypes[destination.type];
 
@@ -80,12 +72,7 @@ export function DestinationTableRow({
         </Table.Cell>
       </Table.Row>
 
-      <DeleteDestinationModal
-        destination={destination}
-        show={showDeleteModal}
-        setShow={setShowDeleteModal}
-        onDelete={onDelete}
-      />
+      <DeleteDestinationModal destination={destination} show={showDeleteModal} setShow={setShowDeleteModal} />
     </>
   );
 }
