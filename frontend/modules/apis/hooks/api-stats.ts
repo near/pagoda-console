@@ -1,11 +1,8 @@
 import type { Api } from '@pc/common/types/api';
 import type { RpcStats } from '@pc/common/types/rpcstats';
 import type { DateTime, DateTimeUnit } from 'luxon';
-import { useEffect, useState } from 'react';
-import useSWR from 'swr';
 
-import { useAuth } from '@/hooks/auth';
-import { fetchApi } from '@/utils/http';
+import { useQuery } from '@/hooks/query';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
 type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
@@ -117,90 +114,47 @@ function fillEmptyDateValues(
   return filledDateValues;
 }
 
-type EndpointMetrics = Api.Query.Output<'/rpcstats/endpointMetrics'>;
-
 export function useApiStats(
   environment: Environment | undefined,
   project: Project | undefined,
   timeRangeValue: RpcStats.TimeRangeValue,
   rangeEndTime: DateTime,
 ) {
-  const { identity } = useAuth();
   const [startDateTime, endDateTime] = timeRangeToDates(timeRangeValue, rangeEndTime); // convert timeRangeValue to params for use in the API call
   const dateTimeResolution = resolutionForTimeRange(timeRangeValue);
-  const [dataByDate, setDataByDate] = useState<EndpointMetrics>();
-  const [dataByEndpoint, setDataByEndpoint] = useState<EndpointMetrics>();
 
-  const { data: dataByDateResponse } = useSWR(
-    identity && environment && project && startDateTime && endDateTime
-      ? [
-          '/rpcstats/endpointMetrics' as const,
-          'date',
-          environment.subId,
-          identity.uid,
-          startDateTime.toISO(),
-          endDateTime.toISO(),
-        ]
-      : null,
-    (key) => {
-      return fetchApi([
-        key,
-        {
-          environmentSubId: environment!.subId,
-          projectSlug: project!.slug,
-          startDateTime: startDateTime.toString(),
-          endDateTime: endDateTime.toString(),
-          filter: {
-            type: 'date',
-            dateTimeResolution,
-          },
-        },
-      ]);
-    },
+  const dateMetricsQuery = useQuery(
+    [
+      '/rpcstats/endpointMetrics',
+      {
+        environmentSubId: environment?.subId ?? -1,
+        projectSlug: project?.slug ?? 'unknown',
+        startDateTime: startDateTime.toString(),
+        endDateTime: endDateTime.toString(),
+        filter: { type: 'date', dateTimeResolution },
+      },
+    ],
+    { enabled: Boolean(environment && project) },
+  );
+  const endpointMetricsQuery = useQuery(
+    [
+      '/rpcstats/endpointMetrics',
+      {
+        environmentSubId: environment?.subId ?? -1,
+        projectSlug: project?.slug ?? 'unknown',
+        startDateTime: startDateTime.toString(),
+        endDateTime: endDateTime.toString(),
+        filter: { type: 'endpoint' },
+      },
+    ],
+    { enabled: Boolean(environment && project) },
   );
 
-  const { data: dataByEndpointResponse } = useSWR(
-    identity && environment && project && startDateTime && endDateTime
-      ? [
-          '/rpcstats/endpointMetrics' as const,
-          'endpoint',
-          environment.subId,
-          identity.uid,
-          startDateTime.toISO(),
-          endDateTime.toISO(),
-        ]
-      : null,
-    (key) => {
-      return fetchApi([
-        key,
-        {
-          environmentSubId: environment!.subId,
-          projectSlug: project!.slug,
-          startDateTime: startDateTime.toString(),
-          endDateTime: endDateTime.toString(),
-          filter: { type: 'endpoint' },
-        },
-      ]);
-    },
-  );
-
-  useEffect(() => {
-    if (dataByDateResponse) setDataByDate(dataByDateResponse);
-    if (dataByEndpointResponse) setDataByEndpoint(dataByEndpointResponse);
-  }, [dataByDateResponse, dataByEndpointResponse]);
-
-  if (!dataByDate || !dataByEndpoint) {
+  if (dateMetricsQuery.status !== 'success' || endpointMetricsQuery.status !== 'success') {
     return undefined;
   }
 
-  const { successCount, errorCount, weightedTotalLatency } =
-    dataByDate && dataByDate.page
-      ? totalMetrics(dataByDate.page)
-      : {
-          successCount: 0,
-          errorCount: 0,
-          weightedTotalLatency: 0,
-        };
+  const { successCount, errorCount, weightedTotalLatency } = totalMetrics(dateMetricsQuery.data.page);
   const successRate = successCount / (successCount + errorCount);
 
   const chartData = {
@@ -212,7 +166,7 @@ export function useApiStats(
 
   return {
     ...chartData,
-    requestStatusPerMethod: dataByEndpoint?.page ?? [],
+    requestStatusPerMethod: endpointMetricsQuery.data.page,
 
     charts: {
       totalRequestsPerStatus: [
@@ -229,8 +183,13 @@ export function useApiStats(
           value: errorCount,
         },
       ],
-      totalRequestsPerMethod: endpointTotals(dataByEndpoint?.page ?? []),
-      totalRequestVolume: fillEmptyDateValues(dataByDate?.page || [], startDateTime, endDateTime, dateTimeResolution),
+      totalRequestsPerMethod: endpointTotals(endpointMetricsQuery.data.page),
+      totalRequestVolume: fillEmptyDateValues(
+        dateMetricsQuery.data.page || [],
+        startDateTime,
+        endDateTime,
+        dateTimeResolution,
+      ),
     },
   };
 }
