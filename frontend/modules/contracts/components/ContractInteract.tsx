@@ -35,7 +35,7 @@ export const ContractInteract = ({ contract }: Props) => {
     }
   }, [error]);
 
-  if (!contract || embeddedQuery.isValidating) {
+  if (!contract || embeddedQuery.isLoading) {
     return (
       <Container size="s">
         <Flex stack align="center">
