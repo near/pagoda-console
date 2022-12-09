@@ -1,6 +1,5 @@
 import type { ChangeEvent, DragEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import { mutate } from 'swr';
 
 import { Button, ButtonLink } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
@@ -14,6 +13,7 @@ import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useMutation } from '@/hooks/mutation';
+import { useQueryCache } from '@/hooks/query-cache';
 import { StableId } from '@/utils/stable-ids';
 
 const MAX_CODE_HEIGHT = '18rem';
@@ -25,6 +25,7 @@ type Props = {
 export const UploadContractAbi = ({ contractSlug }: Props) => {
   const [showModal, setShowModal] = useState(true);
   const [previewAbi, setPreviewAbi] = useState<string | null>(null);
+  const contractCache = useQueryCache('/abi/getContractAbi');
   const uploadAbiMutation = useMutation('/abi/addContractAbi', {
     onSuccess: (result) => {
       openToast({
@@ -32,7 +33,7 @@ export const UploadContractAbi = ({ contractSlug }: Props) => {
         title: 'ABI Uploaded.',
       });
       setShowModal(false);
-      mutate(['/abi/getContractAbi', contractSlug], () => result);
+      contractCache.update({ contract: contractSlug }, () => result);
     },
     onError: () => {
       openToast({
@@ -44,7 +45,7 @@ export const UploadContractAbi = ({ contractSlug }: Props) => {
     getAnalyticsErrorData: ({ contract }) => ({ contract }),
   });
 
-  async function uploadAbi() {
+  function uploadAbi() {
     if (!previewAbi) {
       // TODO this should be implemented as form validation error message instead.
       openToast({
