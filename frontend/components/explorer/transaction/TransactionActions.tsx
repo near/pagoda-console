@@ -2,7 +2,6 @@ import type { Explorer } from '@pc/common/types/core';
 import type { DurationLikeObject } from 'luxon';
 import { Duration, Interval } from 'luxon';
 import * as React from 'react';
-import useSWR from 'swr';
 
 import { Flex } from '@/components/lib/Flex';
 import { H4 } from '@/components/lib/Heading';
@@ -10,7 +9,7 @@ import { Placeholder } from '@/components/lib/Placeholder';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { useNet } from '@/hooks/net';
-import { fetchApi } from '@/utils/http';
+import { useQuery } from '@/hooks/query';
 import { getCustomErrorRetry } from '@/utils/query';
 import { StableId } from '@/utils/stable-ids';
 
@@ -34,20 +33,17 @@ type TransactionReceiptContext = {
 const TransactionActions: React.FC<Props> = React.memo(({ transactionHash }) => {
   const net = useNet();
 
-  const query = useSWR(
-    transactionHash ? ['explorer/transaction', transactionHash, net] : null,
-    () => fetchApi(['/explorer/transaction', { hash: transactionHash!, net }], true),
-    {
-      onErrorRetry: getCustomErrorRetry([401, 403, 404]),
-      // TODO currently this is a quick hack to load TXs that may have pending receipts that are scheduled to execute in the next block. We could stop refreshing once we get the last receipt's execution outcome timestamp.
-      refreshInterval: 3000,
-    },
-  );
+  const transactionQuery = useQuery(['/explorer/transaction', { hash: transactionHash!, net }], {
+    onErrorRetry: getCustomErrorRetry([401, 403, 404]),
+    // TODO currently this is a quick hack to load TXs that may have pending receipts that are scheduled to execute in the next block. We could stop refreshing once we get the last receipt's execution outcome timestamp.
+    refetchInterval: 3000,
+    enabled: Boolean(transactionHash),
+  });
 
   if (!transactionHash) {
     return <div>No transaction hash</div>;
   }
-  if (!query.data) {
+  if (transactionQuery.status === 'loading') {
     return (
       <Flex stack gap="l" align="center">
         <Spinner center />
@@ -55,7 +51,10 @@ const TransactionActions: React.FC<Props> = React.memo(({ transactionHash }) => 
       </Flex>
     );
   }
-  return <TransactionActionsList transaction={query.data} />;
+  if (transactionQuery.status === 'error') {
+    return null;
+  }
+  return <TransactionActionsList transaction={transactionQuery.data} />;
 });
 
 TransactionActions.displayName = 'TransactionActions';

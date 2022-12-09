@@ -2,14 +2,13 @@ import type { Explorer } from '@pc/common/types/core';
 import JSBI from 'jsbi';
 import { DateTime } from 'luxon';
 import * as React from 'react';
-import useSWR from 'swr';
 
 import { Spinner } from '@/components/lib/Spinner';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { useNet } from '@/hooks/net';
+import { useQuery } from '@/hooks/query';
 import { styled } from '@/styles/stitches';
 import * as BI from '@/utils/bigint';
-import { fetchApi } from '@/utils/http';
 
 import AccountLink from '../utils/AccountLink';
 import BlockLink from '../utils/BlockLink';
@@ -209,15 +208,16 @@ type Props = {
 
 const AccountActivityView: React.FC<Props> = ({ accountId }) => {
   const net = useNet();
-  const query = useSWR(accountId ? ['explorer/activity', accountId, net] : null, () =>
-    fetchApi(['/explorer/activity', { contractId: accountId, net }], true),
-  );
+  const query = useQuery(['/explorer/activity', { contractId: accountId, net }]);
 
   if (!accountId) {
     return <div>No account id</div>;
   }
-  if (!query.data) {
+  if (query.status === 'loading') {
     return <Spinner />;
+  }
+  if (query.status === 'error') {
+    return null;
   }
 
   return (
