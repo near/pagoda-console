@@ -14,25 +14,29 @@ import { useAuth } from '@/hooks/auth';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { usePublicStore } from '@/stores/public';
 import analytics from '@/utils/analytics';
+import { assertUnreachable } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 import type { NetOption, NextPageWithLayout } from '@/utils/types';
 import { netOptions } from '@/utils/types';
 
 type Contract = Api.Query.Output<'/projects/getContract'>;
 
+const validRedirectPageNames = ['analytics', 'contracts', 'contract-details', 'contract-interact'] as const;
+export type RedirectPageName = typeof validRedirectPageNames[number];
+
 const Public: NextPageWithLayout = () => {
   const { authStatus } = useAuth();
   const activatePublicMode = usePublicStore((store) => store.activatePublicMode);
   const setContracts = usePublicStore((store) => store.setContracts);
   const router = useRouter();
-  const redirectPageNameParam = router.query.redirectPageName as string;
+  const redirectPageNameParam = router.query.redirectPageName as RedirectPageName;
   const addressesParam = router.query.addresses as string;
   const sharedParam = router.query.shared as string;
   const netParam = router.query.net as NetOption;
   const addresses = addressesParam ? addressesParam.split(',') : [];
   const addressesAreValid = addresses.length > 0;
   const netIsValid = netOptions.includes(netParam);
-  const routeNameIsValid = ['analytics', 'contracts'].includes(redirectPageNameParam);
+  const routeNameIsValid = validRedirectPageNames.includes(redirectPageNameParam);
   const hasRedirected = useRef(false);
   const [isValidUrl, setIsValidUrl] = useState<boolean>();
 
@@ -66,7 +70,26 @@ const Public: NextPageWithLayout = () => {
       url: window.location.pathname + window.location.search,
     });
 
-    router.replace(`/${redirectPageNameParam}`);
+    let url = '';
+
+    switch (redirectPageNameParam) {
+      case 'analytics':
+        url = `/analytics`;
+        break;
+      case 'contracts':
+        url = `/contracts`;
+        break;
+      case 'contract-details':
+        url = `/contracts/${contracts[0].slug}?tab=details`;
+        break;
+      case 'contract-interact':
+        url = `/contracts/${contracts[0].slug}?tab=interact`;
+        break;
+      default:
+        assertUnreachable(redirectPageNameParam);
+    }
+
+    router.replace(url);
   });
 
   return (
