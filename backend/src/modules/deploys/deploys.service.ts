@@ -263,13 +263,52 @@ export class DeploysService {
   /**
    * Sets Frontend Deploy Url
    */
-  async setFrontendDeployUrl({ repoDeploymentSlug, frontendDeployUrl }) {
-    return this.prisma.repoDeployment.update({
-      where: {
-        slug: repoDeploymentSlug,
+  async addFrontend({
+    repositorySlug,
+    frontendDeployUrl,
+    cid,
+    packageName,
+    repoDeploymentSlug,
+  }) {
+    let frontendDeployConfig = await this.prisma.frontendDeployConfig.findFirst(
+      {
+        where: {
+          repositorySlug,
+          packageName,
+        },
       },
+    );
+
+    if (!frontendDeployConfig) {
+      frontendDeployConfig = await this.prisma.frontendDeployConfig.create({
+        data: {
+          slug: nanoid(),
+          repositorySlug,
+          packageName,
+        },
+      });
+    }
+
+    const existingFrontend = await this.prisma.frontendDeployment.findFirst({
+      where: {
+        repoDeploymentSlug,
+        frontendDeployConfigSlug: frontendDeployConfig.slug,
+      },
+    });
+
+    if (existingFrontend) {
+      throw new BadRequestException(
+        `Package ${packageName} already added for repo deployment ${repoDeploymentSlug}`,
+      );
+    }
+
+    return this.prisma.frontendDeployment.create({
       data: {
-        frontendDeployUrl,
+        slug: nanoid(),
+        url: frontendDeployUrl,
+        cid,
+        frontendDeployConfigSlug: frontendDeployConfig.slug,
+        repoDeploymentSlug,
       },
     });
   }

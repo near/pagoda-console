@@ -2,14 +2,12 @@ import {
   BadRequestException,
   Body,
   Controller,
-  Patch,
   Post,
   Req,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
   UsePipes,
-  ForbiddenException,
 } from '@nestjs/common';
 import { DeploysService } from './deploys.service';
 import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
@@ -41,10 +39,21 @@ const deployWasmInput = z.strictObject({
 const wasmFilesInput = z.array(
   z.object({ mimetype: z.string().startsWith('application/wasm') }),
 );
-const patchDeploymentFrontendUrlInput = z.strictObject({
-  repoDeploymentSlug: z.string(),
-  frontendDeployUrl: z.string().url(),
-});
+const patchDeploymentFrontendUrlInput = z
+  .strictObject({
+    repoDeploymentSlug: z.string(),
+    packageName: z.string(),
+    frontendDeployUrl: z.string().url(),
+    cid: z.string(),
+  })
+  .partial({
+    frontendDeployUrl: true,
+    cid: true,
+  })
+  .refine(
+    (data) => !!data.frontendDeployUrl || !!data.cid,
+    'Either frontendDeployUrl or cid should be filled in.',
+  );
 
 // TODO
 // add GET endpoints to view this data
@@ -70,6 +79,7 @@ export class DeploysController {
 
   @Post('deployWasm')
   @UseInterceptors(AnyFilesInterceptor())
+  @UseGuards(BearerAuthGuard)
   async deployWasm(
     @Req() req: Request,
     @UploadedFiles() files: Array<Express.Multer.File>,
@@ -86,25 +96,6 @@ export class DeploysController {
     }
     const { githubRepoFullName, commitHash, commitMessage } = body;
 
-    // auth guard code
-    const setTag = await fetch(
-      `https://api.github.com/repos/${githubRepoFullName}/git/tags`,
-      {
-        method: 'POST',
-        headers: { Authorization: req.headers['x-github-token'] as string },
-        body: JSON.stringify({
-          tag: 'console-tag',
-          message: 'Pagoda console deployment tag',
-          object: commitHash,
-          type: 'commit',
-        }),
-      },
-    );
-    if (setTag.status !== 201) {
-      throw new ForbiddenException('Unauthorized github token');
-    }
-    //
-
     // called from Console frontend to initialize a new repo for deployment
     return this.deploysService.deployRepository({
       githubRepoFullName,
@@ -114,17 +105,19 @@ export class DeploysController {
     });
   }
 
-  @Patch('setFrontendDeployUrl')
+  @Post('addFrontend')
   @UsePipes(new ZodValidationPipe(patchDeploymentFrontendUrlInput))
-  async setFrontendDeployUrl(
+  @UseGuards(BearerAuthGuard)
+  async addFrontend(
     @Req() req: Request,
     @Body()
     {
       repoDeploymentSlug,
       frontendDeployUrl,
+      cid,
+      packageName,
     }: z.infer<typeof patchDeploymentFrontendUrlInput>,
   ) {
-    // auth guard code
     const repoDeployment = await this.deploysService.getRepoDeploymentBySlug(
       repoDeploymentSlug,
     );
@@ -133,27 +126,13 @@ export class DeploysController {
         `RepoDeployment slug ${repoDeploymentSlug} not found`,
       );
     }
-    const setTag = await fetch(
-      `https://api.github.com/repos/${repoDeployment.repository.githubRepoFullName}/git/tags`,
-      {
-        method: 'POST',
-        headers: { Authorization: req.headers['x-github-token'] as string },
-        body: JSON.stringify({
-          tag: 'console-tag',
-          message: 'Pagoda console deployment tag',
-          object: repoDeployment.commitHash,
-          type: 'commit',
-        }),
-      },
-    );
-    if (setTag.status !== 201) {
-      throw new ForbiddenException('Unauthorized github token');
-    }
-    //
 
-    return this.deploysService.setFrontendDeployUrl({
-      repoDeploymentSlug,
+    return this.deploysService.addFrontend({
+      repositorySlug: repoDeployment.repositorySlug,
       frontendDeployUrl,
+      cid,
+      packageName,
+      repoDeploymentSlug,
     });
   }
 }
