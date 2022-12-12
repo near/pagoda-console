@@ -43,7 +43,6 @@ model FrontendDeployConfig {
   repository         Repository           @relation(fields: [repositorySlug], references: [slug])
   repositorySlug     String
   packageName        String
-  url                String
   FrontendDeployment FrontendDeployment[]
 }
 
@@ -73,6 +72,8 @@ model ContractDeployment {
 // an executed deployment action on a single FrontendDeployConfig
 model FrontendDeployment {
   slug                     String               @unique
+  url                      String?
+  cid                      String?
   repoDeployment           RepoDeployment       @relation(fields: [repoDeploymentSlug], references: [slug])
   repoDeploymentSlug       String
   frontendDeployConfig     FrontendDeployConfig @relation(fields: [frontendDeployConfigSlug], references: [slug])
