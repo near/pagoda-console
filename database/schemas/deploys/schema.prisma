@@ -54,7 +54,6 @@ model RepoDeployment {
   repositorySlug     String
   commitHash         String
   commitMessage      String
-  frontendDeployUrl  String?
   ContractDeployment ContractDeployment[]
   FrontendDeployment FrontendDeployment[]
 }
