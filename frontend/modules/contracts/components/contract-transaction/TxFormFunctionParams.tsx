@@ -7,8 +7,8 @@ import resolveAbiDefinition from '../utils/resolveAbiDefinition';
 import type { paramInputs, TxFormFunctionParamsProps } from './types';
 
 const TxFormFunctionParams = ({ selectedFunction, form, abi }: TxFormFunctionParamsProps) => {
-  const params = selectedFunction?.params;
-  const paramsInputs = params?.args.map((param: AbiJsonParameter | AbiBorshParameter) => {
+  const params = selectedFunction?.params?.args || [];
+  const paramsInputs = params.map((param: AbiJsonParameter | AbiBorshParameter) => {
     const resolved = resolveAbiDefinition(abi!, param.type_schema);
     let type;
     let inputTy;
@@ -32,7 +32,7 @@ const TxFormFunctionParams = ({ selectedFunction, form, abi }: TxFormFunctionPar
 
   return (
     <>
-      {paramsInputs?.map((param: paramInputs) => (
+      {paramsInputs.map((param: paramInputs) => (
         <Form.Group key={param.name}>
           <Form.FloatingLabelInput
             type={param.type}
