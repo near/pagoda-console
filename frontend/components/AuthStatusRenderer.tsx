@@ -1,4 +1,6 @@
+import { useRouter } from 'next/router';
 import type { ReactElement } from 'react';
+import { useEffect } from 'react';
 
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
@@ -15,6 +17,13 @@ interface Props {
 
 export function AuthStatusRenderer(props: Props) {
   const { authStatus } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (authStatus === 'UNAUTHENTICATED') {
+      sessionStorage.setItem('signInRedirectUrl', router.asPath);
+    }
+  }, [authStatus, router.asPath]);
 
   switch (authStatus) {
     case 'AUTHENTICATED':
