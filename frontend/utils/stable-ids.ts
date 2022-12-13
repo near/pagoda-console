@@ -1,13 +1,13 @@
 /*
   A stable identifier (`stableId` prop) provides a unique query selector for actionable DOM elements.
-  This is helpful for tracking DOM events via FullStory as well as assisting in E2E testing. It's important 
+  This is helpful for tracking DOM events via FullStory as well as assisting in E2E testing. It's important
   that each `stableId` be unique throughout the app. This is accomplished using the following enum.
-  
-  Whenever using a component that requires a `stableId` prop, create a new enum entry for your component 
+
+  Whenever using a component that requires a `stableId` prop, create a new enum entry for your component
   (please take care to alphabetize your new entry properly).
 
-  For example: if you're working on a component named `DeleteProjectModal.tsx` and you're rendering a 
-  `Button` component that deletes the project once clicked, you could create a `StableId` enum value for 
+  For example: if you're working on a component named `DeleteProjectModal.tsx` and you're rendering a
+  `Button` component that deletes the project once clicked, you could create a `StableId` enum value for
   `DELETE_PROJECT_MODAL_CONFIRM_BUTTON`.
 */
 
@@ -91,6 +91,7 @@ export const enum StableId {
   ERROR_MODAL_DISMISS_BUTTON = 'ERROR_MODAL_DISMISS_BUTTON',
   FOOTER_COPY_AUTH_TOKEN = 'FOOTER_COPY_AUTH_TOKEN',
   FOOTER_PAGODA_STATUS_LINK = 'FOOTER_PAGODA_STATUS_LINK',
+  FOOTER_PAGODA_DOCS_LINK = 'FOOTER_PAGODA_DOCS_LINK',
   FOOTER_PRIVACY_POLICY_LINK = 'FOOTER_PRIVACY_POLICY_LINK',
   FOOTER_TERMS_OF_USE_LINK = 'FOOTER_TERMS_OF_USE_LINK',
   FORGOT_PASSWORD_MODAL_CANCEL_BUTTON = 'FORGOT_PASSWORD_MODAL_CANCEL_BUTTON',

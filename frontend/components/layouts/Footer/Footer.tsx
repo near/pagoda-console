@@ -53,6 +53,17 @@ export function Footer(props: Props) {
           Pagoda Status
         </TextLink>
 
+        <TextLink
+          stableId={StableId.FOOTER_PAGODA_DOCS_LINK}
+          size="s"
+          color="neutral"
+          href="https://docs.pagoda.co"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Pagoda Docs
+        </TextLink>
+
         {(config.deployEnv === 'LOCAL' || config.deployEnv === 'DEVELOPMENT') && (
           <TextButton stableId={StableId.FOOTER_COPY_AUTH_TOKEN} size="s" color="neutral" onClick={copyUserAuthToken}>
             Auth Token
