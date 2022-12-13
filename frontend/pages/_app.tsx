@@ -77,15 +77,24 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     onErrorRetry: getCustomErrorRetry(),
   }));
 
+  const metaTitle = 'Pagoda Developer Console';
+  const metaDescription =
+    'Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics.';
+
   return (
     <SWRConfig value={swrConfig}>
       <Head>
-        <title>Pagoda Developer Console</title>
+        <title>{metaTitle}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-        <meta
-          name="description"
-          content="Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics."
-        />
+        <meta name="description" content={metaDescription} />
+        <meta content={metaTitle} property="og:title" />
+        <meta content={metaDescription} property="og:description" />
+        <meta content={`${config.url.host}/images/og__pagoda_image.png`} property="og:image" />
+        <meta content={metaTitle} property="twitter:title" />
+        <meta content={metaDescription} property="twitter:description" />
+        <meta content={`${config.url.host}/images/og__pagoda_image.png`} property="twitter:image" />
+        <meta content="website" property="og:type" />
+        <meta content="summary_large_image" name="twitter:card" />
         <link rel="icon" href="/favicon.ico" />
         <link href="/favicon-256x256.png" rel="apple-touch-icon" />
       </Head>
