@@ -89,10 +89,10 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         <meta name="description" content={metaDescription} />
         <meta content={metaTitle} property="og:title" />
         <meta content={metaDescription} property="og:description" />
-        <meta content={`/images/og__pagoda_image.png`} property="og:image" />
+        <meta content={`${config.url.host}/images/og__pagoda_image.png`} property="og:image" />
         <meta content={metaTitle} property="twitter:title" />
         <meta content={metaDescription} property="twitter:description" />
-        <meta content={`/images/og__pagoda_image.png`} property="twitter:image" />
+        <meta content={`${config.url.host}/images/og__pagoda_image.png`} property="twitter:image" />
         <meta content="website" property="og:type" />
         <meta content="summary_large_image" name="twitter:card" />
         <link rel="icon" href="/favicon.ico" />
