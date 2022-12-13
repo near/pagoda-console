@@ -29,16 +29,18 @@ export function PublicHeader() {
   }
 
   return (
-    <Flex gap="none" autoWidth stack>
-      <Text size="bodySmall" color="text3" css={{ whiteSpace: 'nowrap' }}>
-        Viewing contracts on:
-      </Text>
-
-      <Flex align="center" gap="xs" autoWidth>
-        <SubnetIcon net={environment?.net} size="xs" />
-        <Text family="code" color="text1" weight="semibold" size="bodySmall">
-          {environment?.name}
+    <Flex align="center" autoWidth>
+      <Flex gap="none" autoWidth stack>
+        <Text size="bodySmall" color="text3" css={{ whiteSpace: 'nowrap' }}>
+          Viewing contracts on:
         </Text>
+
+        <Flex align="center" gap="xs" autoWidth>
+          <SubnetIcon net={environment?.net} size="xs" />
+          <Text family="code" color="text1" weight="semibold" size="bodySmall">
+            {environment?.name}
+          </Text>
+        </Flex>
       </Flex>
 
       {authStatus === 'AUTHENTICATED' && (
