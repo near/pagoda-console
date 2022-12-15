@@ -1,9 +1,11 @@
 import { Box } from '@/components/lib/Box';
-import { Button } from '@/components/lib/Button';
+import { Button, ButtonLink } from '@/components/lib/Button';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
 import LogoIconSvg from '@/public/images/brand/pagoda-icon.svg';
+import { useGalleryStore } from '@/stores/gallery';
+import { selectTemplateAttributes, selectTemplateTools } from '@/stores/gallery/gallery';
 import { styled } from '@/styles/stitches';
 import { StableId } from '@/utils/stable-ids';
 
@@ -29,31 +31,19 @@ const UseTemplateButton = styled(Button, {
 });
 
 const Header = () => {
-  const tags = [
-    {
-      option: 'DeFi',
-      value: '',
-    },
-    {
-      option: 'Tokens',
-      value: '',
-    },
-    {
-      option: 'Web2 Integration',
-      value: '',
-    },
-  ];
+  const { name, githubUrl } = useGalleryStore(selectTemplateAttributes);
+  const { allUsed } = useGalleryStore(selectTemplateTools);
 
   return (
     <Flex>
       <Flex stack>
         <Text size="h3" family="sprint">
-          Loyalty Program with NEAR Fungible Tokens (FT)
+          {name}
         </Text>
         <Flex>
-          {tags.map(({ option }) => (
-            <Button key={option} size="s" color="input" stableId={StableId.GALLERY_TAGS}>
-              {option}
+          {allUsed.map(({ name, id }) => (
+            <Button key={id} size="s" color="input" stableId={StableId.GALLERY_TAGS}>
+              {name}
             </Button>
           ))}
         </Flex>
@@ -78,10 +68,10 @@ const Header = () => {
             <FeatherIcon icon="heart" color="danger" size="s" />
             319
           </Button>
-          <Button color="neutral" stableId={StableId.GALLERY_VIEW_SOURCE}>
+          <ButtonLink href={githubUrl} color="neutral" stableId={StableId.GALLERY_VIEW_SOURCE}>
             <FeatherIcon icon="github" size="s" />
             View Source
-          </Button>
+          </ButtonLink>
         </Flex>
       </Flex>
     </Flex>

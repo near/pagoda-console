@@ -1,3 +1,6 @@
+import type { GetStaticProps } from 'next';
+import { useEffect } from 'react';
+
 import { Box } from '@/components/lib/Box';
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
@@ -8,8 +11,10 @@ import Browse from '@/modules/gallery/components/browse';
 import IconOne from '@/public/images/gallery/icon-1.svg';
 import IconTwo from '@/public/images/gallery/icon-2.svg';
 import IconThree from '@/public/images/gallery/icon-3.svg';
+import { useGalleryStore } from '@/stores/gallery';
+import type { FiltersDB, Templates } from '@/stores/gallery/gallery';
 import { styled } from '@/styles/stitches';
-import type { NextPageWithLayout } from '@/utils/types';
+import { fetchFromCMS } from '@/utils/cms';
 
 import Step from './Step';
 
@@ -29,7 +34,43 @@ const CustomBox = styled(Box, {
     'url(/images/gallery/curve-one.svg) no-repeat left top, url(/images/gallery/curve-two.svg) no-repeat left top',
 });
 
-const Gallery: NextPageWithLayout = () => {
+export const getStaticProps: GetStaticProps = async (_) => ({
+  props: {
+    templates: await fetchFromCMS({ url: '/templates?populate[0]=tools&populate[1]=categories' }),
+    filters: {
+      categories: await fetchFromCMS({ url: '/categories' }),
+      tools: await fetchFromCMS({ url: '/tools' }),
+      // --- TODO: to be switched when languages will be available
+      // languages: await fetchFromCMS({ url: '/languages' }),
+      languages: [
+        {
+          id: 1,
+          attributes: { name: 'JavaScript' },
+        },
+        {
+          id: 0,
+          attributes: { name: 'Rust' },
+        },
+      ],
+      // ---
+    },
+  },
+});
+
+interface GalleryProps {
+  templates: Templates;
+  filters: FiltersDB;
+}
+
+const Gallery = ({ templates, filters }: GalleryProps) => {
+  const setFilters = useGalleryStore((store) => store.setFilters);
+  const setTemplates = useGalleryStore((store) => store.setTemplates);
+
+  useEffect(() => {
+    setFilters(filters);
+    setTemplates(templates);
+  }, [filters, setFilters, setTemplates, templates]);
+
   return (
     <CustomBox>
       <Container size="ml">

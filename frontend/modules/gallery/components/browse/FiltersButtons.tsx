@@ -1,18 +1,27 @@
-import { Button } from '@/components/lib/Button';
+import { Checkbox } from '@/components/lib/Checkbox';
 import { Flex } from '@/components/lib/Flex';
-import { StableId } from '@/utils/stable-ids';
+import { Text } from '@/components/lib/Text';
+import { useGalleryStore } from '@/stores/gallery';
 
-import type { FilterButtonsProps, Options } from './types';
+import type { FilterButtonsProps } from './types';
 
-const FiltersButtons = ({ title, options }: FilterButtonsProps) => {
+const FiltersButtons = ({ title, options, name }: FilterButtonsProps) => {
+  const switchFilter = useGalleryStore((state) => state.switchFilter);
+
   return (
     <Flex stack>
       {title}
-      <Flex wrap>
-        {options.map(({ option }: Options) => (
-          <Button key={option} size="s" color="neutral" stableId={StableId.GALLERY_FILTER_TOOLS}>
-            {option}
-          </Button>
+      <Flex stack>
+        {options?.map(({ option, value, checked }) => (
+          <Checkbox
+            checked={!!checked}
+            key={option}
+            value={value}
+            name={name}
+            onChange={() => switchFilter(value, name)}
+          >
+            <Text color="text2">{option}</Text>
+          </Checkbox>
         ))}
       </Flex>
     </Flex>
