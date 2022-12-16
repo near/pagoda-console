@@ -7,6 +7,7 @@ import { Button, ButtonLink } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { TextButton } from '@/components/lib/TextLink';
+import { ErrorModal } from '@/components/modals/ErrorModal';
 import type { UseMutationResult } from '@/hooks/raw-mutation';
 import { ForgotPasswordModal } from '@/modules/core/components/modals/ForgotPasswordModal';
 import analytics from '@/utils/analytics';
@@ -27,25 +28,23 @@ export function EmailForm({ mutation: signInViaEmailMutation, externalLoading }:
   const { register, handleSubmit, formState } = useForm<EmailAuthFormData>();
   const [showResetModal, setShowResetModal] = useState(false);
 
-  const signInViaEmailError = useMemo(() => {
-    if (signInViaEmailMutation.status !== 'error') {
-      return null;
+  const signInError = useMemo(() => {
+    if (!signInViaEmailMutation.error) {
+      return undefined;
     }
-    const error = signInViaEmailMutation.error;
 
-    switch (error.code) {
+    switch (signInViaEmailMutation.error.code) {
       case 'auth/user-not-found':
-        return 'User not found';
       case 'auth/wrong-password':
-        return 'Incorrect password';
+        return 'Incorrect email or password.';
       case 'auth/too-many-requests':
         // hardcode message from Firebase for the time being
         return 'Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later.';
       default:
         // TODO
-        return 'Something went wrong';
+        return 'Something went wrong.';
     }
-  }, [signInViaEmailMutation]);
+  }, [signInViaEmailMutation.error]);
 
   const signInWithEmail = useCallback(
     ({ email, password }) => signInViaEmailMutation.mutate({ email, password }),
@@ -70,9 +69,7 @@ export function EmailForm({ mutation: signInViaEmailMutation, externalLoading }:
                 stableId={StableId.AUTHENTICATION_EMAIL_FORM_EMAIL_INPUT}
                 {...register('email', formValidations.email)}
               />
-              <Form.Feedback>
-                {signInViaEmailError === 'User not found' ? signInViaEmailError : formState.errors.email?.message}
-              </Form.Feedback>
+              <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
             </Form.Group>
 
             <Form.Group>
@@ -85,10 +82,7 @@ export function EmailForm({ mutation: signInViaEmailMutation, externalLoading }:
                 stableId={StableId.AUTHENTICATION_EMAIL_FORM_PASSWORD_INPUT}
                 {...register('password', formValidations.password)}
               />
-              <Form.Feedback>
-                {(signInViaEmailError === 'User not found' ? undefined : signInViaEmailError) ||
-                  formState.errors.password?.message}
-              </Form.Feedback>
+              <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
             </Form.Group>
 
             <Button
@@ -124,6 +118,8 @@ export function EmailForm({ mutation: signInViaEmailMutation, externalLoading }:
       </Form.Root>
 
       <ForgotPasswordModal show={showResetModal} setShow={setShowResetModal} />
+
+      <ErrorModal error={signInError} resetError={signInViaEmailMutation.reset} />
     </>
   );
 }
