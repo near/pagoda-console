@@ -1,5 +1,5 @@
 import type { Api } from '@pc/common/types/api';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Card } from '@/components/lib/Card';
 import { Container } from '@/components/lib/Container';
@@ -23,19 +23,29 @@ interface Props {
 
 export const ContractInteract = ({ contract }: Props) => {
   const { publicModeIsActive } = usePublicMode();
+  const [abiUploaded, setAbiUploaded] = useState<boolean | undefined>(undefined);
   const { embeddedQuery, privateQuery } = useAnyAbi(contract);
   const error = embeddedQuery.error || privateQuery.error;
+  const abi = embeddedQuery.data || privateQuery.data;
 
   useEffect(() => {
-    if (error && (error as any).message && ['Failed to fetch', 'ABI_NOT_FOUND'].indexOf((error as any).message) < 0) {
-      openToast({
-        type: 'error',
-        title: 'Failed to retrieve ABI.',
-      });
+    if (abi) {
+      setAbiUploaded(true);
+    } else if (error?.message === 'ABI_NOT_FOUND') {
+      setAbiUploaded(false);
+    } else {
+      setAbiUploaded(undefined);
     }
-  }, [error]);
+  }, [contract, abi, error]);
 
-  if (!contract || embeddedQuery.isValidating) {
+  if (error && error.message && ['Failed to fetch', 'ABI_NOT_FOUND'].indexOf(error.message) < 0) {
+    openToast({
+      type: 'error',
+      title: 'Failed to retrieve ABI.',
+    });
+  }
+
+  if (!contract || abiUploaded === undefined) {
     return (
       <Container size="s">
         <Flex stack align="center">
@@ -45,7 +55,7 @@ export const ContractInteract = ({ contract }: Props) => {
     );
   }
 
-  if (embeddedQuery.data || privateQuery.data) {
+  if (abiUploaded) {
     return <ContractTransaction contract={contract} />;
   }
   if (publicModeIsActive) {
