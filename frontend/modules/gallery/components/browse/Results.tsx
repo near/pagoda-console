@@ -29,8 +29,6 @@ const ResetLink = styled('span', {
   cursor: 'pointer',
   position: 'relative',
 
-  pointerEvents: 'none',
-
   variants: {
     loader: {
       true: {
@@ -50,6 +48,15 @@ const ResetLink = styled('span', {
         '&:before': {
           opacity: 0,
         },
+      },
+    },
+    default: {
+      [`& span`]: {
+        opacity: 1,
+      },
+
+      '&:before': {
+        opacity: 0,
       },
     },
   },
