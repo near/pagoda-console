@@ -43,6 +43,7 @@ export interface FilterCustomData {
   option: string;
   value: number;
   checked: boolean;
+  loader: boolean;
 }
 
 export interface FiltersCustom {
@@ -52,6 +53,7 @@ export interface FiltersCustom {
 }
 
 export interface GalleryStore {
+  dbLoader: boolean;
   filters: FiltersCustom;
   templates: Templates;
   templatesFiltered: Templates;
@@ -68,10 +70,6 @@ export interface GalleryStore {
 export interface Template {
   id: number;
   attributes: TemplateAttributes;
-  // id: number | null;
-  // tools: {
-  //   allUsed: [] | any;
-  // };
 }
 
 const filterState = {
@@ -79,8 +77,6 @@ const filterState = {
 };
 
 const templateInitialState = {
-  // attributes: {},
-  // id: null,
   tools: {
     allUsed: [],
   },
@@ -93,6 +89,7 @@ const filtersInitialState = {
 };
 
 const initialState = {
+  dbLoader: false,
   filters: filtersInitialState,
   templates: [],
   templatesFiltered: [],
@@ -158,6 +155,8 @@ export const useGalleryStore = create<GalleryStore>((set, get: () => GalleryStor
       produce((state: GalleryStore) => {
         const dataObject = selectFiltersDataObject(state, filter)[id];
         dataObject.checked = !dataObject.checked;
+        dataObject.loader = true;
+        state.dbLoader = true;
       }),
     );
 
@@ -171,6 +170,14 @@ export const useGalleryStore = create<GalleryStore>((set, get: () => GalleryStor
     const templatesFiltered = await fetchFromCMS({ url });
 
     set({ templatesFiltered });
+
+    set(
+      produce((state: GalleryStore) => {
+        const dataObject = selectFiltersDataObject(state, filter)[id];
+        dataObject.loader = false;
+        state.dbLoader = false;
+      }),
+    );
   },
   resetFilters: () => {
     set(
