@@ -55,7 +55,7 @@ export type ParsedError = {
 
 export const parseError = (e: any, messageParser: (code: UserError) => string | undefined) => {
   const userError = isUserError(e.message) ? e.message : UserError.SERVER_ERROR;
-  throw { code: userError, message: messageParser(userError) || DEFAULT_ERROR_MESSAGE };
+  return { code: userError, message: messageParser(userError) || DEFAULT_ERROR_MESSAGE };
 };
 
 export const openSuccessToast = (message: string) =>
