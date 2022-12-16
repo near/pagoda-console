@@ -20,8 +20,6 @@ function ListAlerts() {
   const { environment, project } = useSelectedProject();
   const activeTab = useRouteParam('tab', '?tab=alerts', true);
 
-  console.log(activeTab);
-
   return (
     <Section>
       <Tabs.Root value={activeTab || ''}>
