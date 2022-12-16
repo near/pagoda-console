@@ -255,3 +255,6 @@ export const selectTemplate = (state: GalleryStore) => state.template;
 export const selectTemplateAttributes = (state: GalleryStore) => selectTemplate(state).attributes || {};
 
 export const selectTemplateTools = (state: GalleryStore) => selectTemplate(state).tools || [];
+
+// SELECTORS - dbLoader
+export const selectDbLoader = (state: GalleryStore) => state.dbLoader || false;
