@@ -27,16 +27,17 @@ export const ContractInteract = ({ contract }: Props) => {
   const { embeddedQuery, privateQuery } = useAnyAbi(contract);
   const error = embeddedQuery.error || privateQuery.error;
   const abi = embeddedQuery.data || privateQuery.data;
+  const isValidating = embeddedQuery.isValidating || privateQuery.isValidating;
 
   useEffect(() => {
     if (abi) {
       setAbiUploaded(true);
-    } else if (error?.message === 'ABI_NOT_FOUND') {
+    } else if (!isValidating && error?.message === 'ABI_NOT_FOUND') {
       setAbiUploaded(false);
     } else {
       setAbiUploaded(undefined);
     }
-  }, [contract, abi, error]);
+  }, [abi, isValidating, error]);
 
   if (error && error.message && ['Failed to fetch', 'ABI_NOT_FOUND'].indexOf(error.message) < 0) {
     openToast({
@@ -44,6 +45,8 @@ export const ContractInteract = ({ contract }: Props) => {
       title: 'Failed to retrieve ABI.',
     });
   }
+
+  console.log(contract, abiUploaded);
 
   if (!contract || abiUploaded === undefined) {
     return (
