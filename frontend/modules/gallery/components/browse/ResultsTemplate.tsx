@@ -17,6 +17,7 @@ const TemplateGradient = styled('div', {
   position: 'absolute',
   background: 'radial-gradient(85.56% 284.74% at 85.56% 25.68%, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 100%)',
   opacity: 0,
+  transition: 'opacity var(--transition-speed)',
 });
 
 const TemplateGradientIcon = styled(Flex, {
@@ -28,6 +29,7 @@ const TemplateGradientIcon = styled(Flex, {
   background: '#fff',
   borderRadius: '100%',
   opacity: 0,
+  transition: 'opacity var(--transition-speed)',
 });
 
 const Template = styled('div', {
