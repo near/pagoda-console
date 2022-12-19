@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "prepare": "husky install",
-    "postinstall": "npm install turbo -D",
+    "postinstall": "npm install turbo -D && && npm run -w database build",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start"
