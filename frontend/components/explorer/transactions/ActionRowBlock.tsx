@@ -122,7 +122,7 @@ class ActionRowBlock extends Component<Props> {
             }
 
             .action-sparse-row .action-row-img {
-              margin: 10px;
+              margin: 10px 0;
               display: inline;
               height: 20px;
               width: 20px;

@@ -88,8 +88,21 @@ function useGlobalClickTracker() {
       ].find((el) => el?.hasAttribute('data-stable-id'));
 
       if (element) {
-        const componentType = element.tagName.toLowerCase() === 'a' ? 'Link' : 'Button';
+        const tagName = element.tagName.toLowerCase();
         const stableId = element.getAttribute('data-stable-id');
+        let componentType = '';
+
+        switch (tagName) {
+          case 'a':
+            componentType = 'Link';
+            break;
+          case 'input':
+          case 'label':
+            componentType = 'Input';
+            break;
+          default:
+            componentType = 'Button';
+        }
 
         analytics.track(`DC ${componentType} Clicked`, {
           stableId,

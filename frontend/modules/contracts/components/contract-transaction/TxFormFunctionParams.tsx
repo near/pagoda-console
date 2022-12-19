@@ -1,6 +1,7 @@
 import type { AbiParameter } from 'near-abi-client-js';
 
 import * as Form from '@/components/lib/Form';
+import { StableId } from '@/utils/stable-ids';
 
 import resolveAbiDefinition from '../utils/resolveAbiDefinition';
 import type { paramInputs, TxFormFunctionParamsProps } from './types';
@@ -33,7 +34,12 @@ const TxFormFunctionParams = ({ selectedFunction, form, abi }: TxFormFunctionPar
     <>
       {paramsInputs.map((param: paramInputs) => (
         <Form.Group key={param.name}>
-          <Form.FloatingLabelInput type={param.type} label={param.label} {...form.register(param.name)} />
+          <Form.FloatingLabelInput
+            type={param.type}
+            label={param.label}
+            stableId={StableId.TX_FORM_FUNCTION_PARAMS_INPUT}
+            {...form.register(`params.${param.name}`)}
+          />
         </Form.Group>
       ))}
     </>

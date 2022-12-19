@@ -55,10 +55,29 @@ export const Content = styled(DropdownMenuPrimitive.Content, {
 });
 
 export const ContentInner = styled('div', {
-  padding: 'var(--space-s)',
+  padding: 'var(--space-s) var(--space-s) 0',
   maxHeight: 'min(60vh, var(--size-max-dropdown-height))',
   overflow: 'auto',
   scrollBehavior: 'smooth',
+
+  '> *:last-child': { marginBottom: 'var(--space-s)' },
+});
+
+export const ContentStickyFooter = styled('div', {
+  position: 'sticky',
+  bottom: '0',
+  background: 'var(--background-color)',
+  padding: 'var(--space-s)',
+  margin: 'var(--space-s) calc(var(--space-s) * -1) 0',
+  marginBottom: '0 !important',
+  width: 'auto',
+  borderTop: 'solid 1px var(--color-border-2)',
+  borderRadius: '0 0 var(--border-radius-s) var(--border-radius-s)',
+
+  '&:first-child': {
+    borderTop: 'none',
+    marginTop: 'none',
+  },
 });
 
 export const ItemSelectedIndicator = styled('div', {
@@ -118,6 +137,21 @@ export const dropdownItemStyles: StitchesCSS = {
 export const Item = styled(DropdownMenuPrimitive.Item, {
   ...dropdownItemStyles,
   gap: 'var(--space-s)',
+
+  variants: {
+    color: {
+      primary: {
+        color: 'var(--color-primary)',
+      },
+      text1: {
+        color: 'var(--color-text-1)',
+      },
+    },
+  },
+
+  defaultVariants: {
+    color: 'text1',
+  },
 });
 
 export const SubContent = styled(DropdownMenuPrimitive.SubContent, {

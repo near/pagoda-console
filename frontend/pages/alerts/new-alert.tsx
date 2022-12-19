@@ -190,6 +190,7 @@ const NewAlert: NextPageWithLayout = () => {
                       labelProps={{ ...contractCombobox.getLabelProps() }}
                       isInvalid={!!form.formState.errors.contract}
                       placeholder="Enter any address..."
+                      stableId={StableId.NEW_ALERT_ADDRESS_INPUT}
                       {...mergeInputProps(
                         contractCombobox.getInputProps({
                           onFocus: () => !contractCombobox.isOpen && contractCombobox.openMenu(),
@@ -270,6 +271,7 @@ const NewAlert: NextPageWithLayout = () => {
                             isInvalid={!!form.formState.errors.type}
                             onBlur={field.onBlur}
                             ref={field.ref}
+                            stableId={StableId.NEW_ALERT_CONDITION_SELECT}
                             selection={
                               selection && (
                                 <>
@@ -325,6 +327,7 @@ const NewAlert: NextPageWithLayout = () => {
                                 isInvalid={!!form.formState.errors.acctBalRule?.comparator}
                                 onBlur={field.onBlur}
                                 ref={field.ref}
+                                stableId={StableId.NEW_ALERT_COMPARATOR_SELECT}
                                 selection={selection?.name}
                               />
                             </DropdownMenu.Trigger>
@@ -377,6 +380,7 @@ const NewAlert: NextPageWithLayout = () => {
                               field={field}
                               isInvalid={!!form.formState.errors.acctBalNumRule?.from}
                               onInput={() => form.clearErrors('acctBalNumRule.to')}
+                              stableId={StableId.NEW_ALERT_ACCT_BAL_NUM_FROM_INPUT}
                             />
                           )}
                         />
@@ -404,6 +408,7 @@ const NewAlert: NextPageWithLayout = () => {
                                 placeholder="eg: 3"
                                 field={field}
                                 isInvalid={!!form.formState.errors.acctBalNumRule?.to}
+                                stableId={StableId.NEW_ALERT_ACCT_BAL_NUM_TO_INPUT}
                               />
                             )}
                           />
@@ -422,6 +427,7 @@ const NewAlert: NextPageWithLayout = () => {
                           placeholder="eg: 30"
                           isInvalid={!!form.formState.errors.acctBalPctRule?.from}
                           isNumber
+                          stableId={StableId.NEW_ALERT_ACCT_BAL_PCT_FROM_INPUT}
                           onInput={(event) => {
                             numberInputHandler(event);
                             form.clearErrors('acctBalPctRule.to');
@@ -445,6 +451,7 @@ const NewAlert: NextPageWithLayout = () => {
                             placeholder="eg: 60"
                             isInvalid={!!form.formState.errors.acctBalPctRule?.to}
                             isNumber
+                            stableId={StableId.NEW_ALERT_ACCT_BAL_PCT_TO_INPUT}
                             onInput={numberInputHandler}
                             {...form.register('acctBalPctRule.to', {
                               setValueAs: (value) => Number(sanitizeNumber(value)),
@@ -473,6 +480,7 @@ const NewAlert: NextPageWithLayout = () => {
                       label="Event Name"
                       placeholder="eg: nft_buy, nft_*"
                       isInvalid={!!form.formState.errors.eventRule?.event}
+                      stableId={StableId.NEW_ALERT_EVENT_NAME_INPUT}
                       {...form.register('eventRule.event', {
                         required: 'Please enter an event name',
                       })}
@@ -485,6 +493,7 @@ const NewAlert: NextPageWithLayout = () => {
                       label="Standard"
                       placeholder="eg: nep171, nep*"
                       isInvalid={!!form.formState.errors.eventRule?.standard}
+                      stableId={StableId.NEW_ALERT_EVENT_STANDARD_INPUT}
                       {...form.register('eventRule.standard', {
                         required: 'Please enter a standard',
                       })}
@@ -497,6 +506,7 @@ const NewAlert: NextPageWithLayout = () => {
                       label="Version"
                       placeholder="eg: 1.0.2, 1.0.*"
                       isInvalid={!!form.formState.errors.eventRule?.version}
+                      stableId={StableId.NEW_ALERT_EVENT_VERSION_INPUT}
                       {...form.register('eventRule.version', {
                         required: 'Please enter a version',
                       })}
@@ -512,6 +522,7 @@ const NewAlert: NextPageWithLayout = () => {
                     <Form.FloatingLabelInput
                       label="Function Name"
                       isInvalid={!!form.formState.errors.fnCallRule?.function}
+                      stableId={StableId.NEW_ALERT_FN_CALL_FUNCTION_NAME_INPUT}
                       {...form.register('fnCallRule.function', {
                         required: 'Please enter a function name',
                       })}

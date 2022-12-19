@@ -19,11 +19,11 @@ type Props = {
 
 const Table = styled('table', {
   width: '100%',
-  margin: '24px 0',
+  margin: '0 0 var(--space-l)',
 });
 
 const TableElement = styled('td', {
-  fontSize: 14,
+  fontSize: 'var(--font-size-body-small)',
   lineHeight: '175%',
 });
 

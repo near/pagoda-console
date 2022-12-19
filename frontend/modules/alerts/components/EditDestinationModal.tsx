@@ -225,6 +225,7 @@ function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps<'
             <Form.FloatingLabelInput
               label="Destination Name"
               isInvalid={!!formState.errors.name}
+              stableId={StableId.EDIT_DESTINATION_MODAL_NAME_INPUT}
               {...register('name', {
                 required: 'Please enter a destination name',
                 maxLength: {
@@ -310,6 +311,7 @@ function WebhookDestinationForm({ destination, onUpdate, setShow, onSecretRotate
             <Form.FloatingLabelInput
               label="Destination Name"
               isInvalid={!!formState.errors.name}
+              stableId={StableId.EDIT_DESTINATION_MODAL_NAME_INPUT}
               {...register('name', {
                 required: 'Please enter a destination name',
                 maxLength: {
@@ -326,6 +328,7 @@ function WebhookDestinationForm({ destination, onUpdate, setShow, onSecretRotate
               label="Webhook URL"
               placeholder="https://example.com/webhook"
               isInvalid={!!formState.errors.url}
+              stableId={StableId.EDIT_DESTINATION_MODAL_WEBHOOK_URL_INPUT}
               {...register('url', formValidations.url)}
             />
             <Form.Feedback>{formState.errors.url?.message}</Form.Feedback>
@@ -405,6 +408,7 @@ function EmailDestinationForm({ destination, onUpdate, setShow }: FormProps<'EMA
             <Form.FloatingLabelInput
               label="Destination Name"
               isInvalid={!!formState.errors.name}
+              stableId={StableId.EDIT_DESTINATION_MODAL_NAME_INPUT}
               {...register('name', {
                 required: 'Please enter a destination name',
                 maxLength: {

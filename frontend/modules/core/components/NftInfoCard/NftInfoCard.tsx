@@ -83,7 +83,14 @@ export function NftInfoCard() {
   }
 
   return (
-    <S.Root open={showQuickInfo}>
+    <S.Root
+      open={showQuickInfo}
+      css={{
+        '@tablet': {
+          display: 'none',
+        },
+      }}
+    >
       <S.Header onClick={toggleQuickInfo}>
         <H3 css={{ marginRight: 'auto' }}>Live Contract Data</H3>
         {(basicsError || nftError) && <ErrorIndicator />}
@@ -105,6 +112,7 @@ export function NftInfoCard() {
                 <Form.Input
                   isInvalid={!!formState.errors.contractAddress}
                   placeholder="contract.testnet"
+                  stableId={StableId.NFT_INFO_CARD_ADDRESS_INPUT}
                   {...register('contractAddress', {
                     required: 'Address field is required',
                     pattern: {
