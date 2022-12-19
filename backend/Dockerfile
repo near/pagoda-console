@@ -32,7 +32,7 @@ COPY ./common ./common
 COPY ./database ./database
 
 # This will also build any other packages in the repo which backend depends on
-RUN npx turbo build --filter=backend
+RUN npx turbo build --filter=backend --filter=database
 
 FROM --platform=linux/amd64 node:16-alpine as runner
 
