@@ -1,5 +1,6 @@
 import type { Api } from '@pc/common/types/api';
-import type { AnyContract as AbiContract } from 'near-abi-client-js';
+import type { Contract as AbiContract } from 'near-abi-client-js';
+import { AbiFunctionKind } from 'near-abi-client-js';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -32,10 +33,10 @@ const ContractParams = styled(Box, {
 
 const getCall = (variables: MutateInput) => {
   // Asserts that contract exists and selected function is valid
-  const contractFn = variables.methods![variables.selectedFunction!.name];
+  const contractFn = variables.methods!.methods![variables.selectedFunction!.name];
   if (variables.selectedFunction?.params) {
     try {
-      const fieldParams = variables.selectedFunction.params.map((p) => {
+      const fieldParams = variables.selectedFunction.params.args.map((p) => {
         const value = variables.params[p.name];
         const schema_ty = resolveAbiDefinition(variables.abi!, p.type_schema);
         if (schema_ty === 'integer') {
@@ -79,8 +80,9 @@ const ContractTransaction = ({ contract }: Props) => {
   const sendTransactionMutation = useRawMutation<TransactionData, unknown, MutateInput>(
     async (params) => {
       const call = getCall(params);
-      if (!params.selectedFunction?.is_view) {
-        return call.callFrom(await selector?.wallet(), {
+      if (!call) return;
+      if (params.selectedFunction?.kind === AbiFunctionKind.Call) {
+        return call.transact!(await selector!.wallet(), {
           gas: params.gas,
           attachedDeposit: params.deposit,
           // TODO might want to set this when testing the redirect flow (deposit sending txs)
@@ -88,7 +90,7 @@ const ContractTransaction = ({ contract }: Props) => {
           signer: accountId,
         });
       } else {
-        return call.view();
+        return call.view!();
       }
     },
     {
@@ -123,7 +125,7 @@ const ContractTransaction = ({ contract }: Props) => {
   const [contractMethods, setContractMethods] = useState<AbiContract | null>(null);
 
   const abis = useAnyAbi(contract);
-  const contractAbi = abis.embeddedQuery.data?.abi || abis.privateQuery.data?.abi;
+  const contractAbi = abis.embeddedQuery.data?.abiRoot || abis.privateQuery.data?.abi;
   useEffect(() => {
     if (!contractAbi) {
       return;

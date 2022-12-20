@@ -1,5 +1,5 @@
 import type { Api } from '@pc/common/types/api';
-import type { AbiRoot, AnyContract } from 'near-abi-client-js';
+import type { AbiRoot } from 'near-abi-client-js';
 import { Contract as NearContract } from 'near-abi-client-js';
 import { connect, keyStores } from 'near-api-js';
 import useSWR from 'swr';
@@ -39,7 +39,7 @@ export const initContractMethods = async (
   networkId: string,
   contractId: string,
   abi: AbiRoot,
-): Promise<AnyContract> => {
+): Promise<NearContract> => {
   const keyStore = new keyStores.InMemoryKeyStore();
   const config = {
     networkId,

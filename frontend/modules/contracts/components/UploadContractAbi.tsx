@@ -1,3 +1,5 @@
+import { upgradeAbi } from '@pc/abi/upgrade';
+import type { AbiRoot } from 'near-abi-client-js';
 import type { ChangeEvent, DragEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { mutate } from 'swr';
@@ -9,6 +11,7 @@ import { DragAndDropLabel } from '@/components/lib/DragAndDrop';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
+import { Message } from '@/components/lib/Message';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
@@ -24,7 +27,9 @@ type Props = {
 
 export const UploadContractAbi = ({ contractSlug }: Props) => {
   const [showModal, setShowModal] = useState(true);
-  const [previewAbi, setPreviewAbi] = useState<string | null>(null);
+  const [showUpgradeText, setShowUpgradeText] = useState(false);
+  const [previewAbi, setPreviewAbi] = useState<AbiRoot | null>(null);
+
   const uploadAbiMutation = useMutation('/abi/addContractAbi', {
     onSuccess: (result) => {
       openToast({
@@ -54,13 +59,15 @@ export const UploadContractAbi = ({ contractSlug }: Props) => {
       });
       return;
     }
-    uploadAbiMutation.mutate({ contract: contractSlug, abi: JSON.parse(previewAbi) });
+    uploadAbiMutation.mutate({ contract: contractSlug, abi: previewAbi });
   }
 
   function tryLoadPreview(content: any) {
     try {
-      JSON.parse(content);
-      setPreviewAbi(content);
+      const parsedAbi = JSON.parse(content);
+      const upgradedAbi = upgradeAbi(parsedAbi);
+      setPreviewAbi(upgradedAbi.abiRoot);
+      setShowUpgradeText(upgradedAbi.upgraded);
     } catch {
       openToast({
         type: 'error',
@@ -219,8 +226,15 @@ export const UploadContractAbi = ({ contractSlug }: Props) => {
           </Button>
         </Flex>
 
+        {showUpgradeText && (
+          <Message
+            type="info"
+            content="We upgraded this ABI to the latest schema version (v0.3.0). Please review below."
+          />
+        )}
+
         <CodeBlock css={{ maxHeight: MAX_CODE_HEIGHT }} language="json">
-          {!previewAbi ? '{}' : JSON.stringify(JSON.parse(previewAbi), null, 2)}
+          {!previewAbi ? '{}' : JSON.stringify(previewAbi, null, 2)}
         </CodeBlock>
       </ConfirmModal>
     </>

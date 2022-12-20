@@ -163,7 +163,7 @@ function ContractTableRow({ contract }: { contract: Contract }) {
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const abis = useAnyAbi(contract);
-  const hasAbi = Boolean(abis.embeddedQuery.data?.abi || abis.privateQuery.data?.abi);
+  const hasAbi = Boolean(abis.embeddedQuery.data?.abiRoot || abis.privateQuery.data?.abi);
   const { publicModeIsActive } = usePublicMode();
 
   function ContractTableCellData({ children }: { children: ReactNode }) {

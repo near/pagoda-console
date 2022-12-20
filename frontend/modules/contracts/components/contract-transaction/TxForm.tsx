@@ -1,4 +1,5 @@
 import JSBI from 'jsbi';
+import { AbiFunctionKind } from 'near-abi-client-js';
 import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -97,8 +98,8 @@ const TxForm = ({ contract, mutation, methods }: TxFormProps) => {
   };
 
   const functionIsSelected = selectedFunction;
-  const functionIsView = selectedFunction?.is_view;
-  const functionIsTx = selectedFunction && !selectedFunction.is_view;
+  const functionIsView = selectedFunction?.kind === AbiFunctionKind.View;
+  const functionIsTx = selectedFunction?.kind === AbiFunctionKind.Call;
 
   return (
     // TODO should this be disabled if the contract is null? Seems like there can be a race

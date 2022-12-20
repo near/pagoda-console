@@ -1,5 +1,5 @@
 import type { Api } from '@pc/common/types/api';
-import type { AbiFunction, AbiParameter, AbiRoot, AnyContract as AbiContract } from 'near-abi-client-js';
+import type { AbiFunction, AbiRoot, Contract as AbiContract } from 'near-abi-client-js';
 import type { UseFormReturn } from 'react-hook-form';
 
 import type { UseMutationResult } from '@/hooks/raw-mutation';
@@ -42,7 +42,8 @@ export interface TxFormDepositFormatProps {
   nearFormat: string;
 }
 
-export interface paramInputs extends AbiParameter {
+export interface paramInputs {
+  name: string;
   type: string;
   label: string;
 }
