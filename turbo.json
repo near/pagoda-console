@@ -9,7 +9,8 @@
     },
     "build:ready": {
       "dependsOn": [],
-      "outputs": []
+      "outputs": [],
+      "cache": false
     },
     "build": {
       "dependsOn": ["^build", "build:ready"],
