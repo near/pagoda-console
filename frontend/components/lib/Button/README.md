@@ -70,3 +70,25 @@ import * as Form from '@/components/lib/Form';
   />
 </ButtonLabel>
 ```
+
+## Hide Text
+
+When a button has both icon and text, sometimes it makes sense to hide the text and only show the icon on smaller screens. You can accomplish this using the `hideText` prop:
+
+```tsx
+import { Button } from '@/components/lib/Button';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
+import { StableId } from '@/utils/stable-ids';
+
+...
+
+<Button hideText="mobile">
+  <FeatherIcon icon="plus" />
+  New Project
+</Button>
+
+<Button hideText="tablet">
+  <FeatherIcon icon="plus" />
+  New Environment
+</Button>
+```

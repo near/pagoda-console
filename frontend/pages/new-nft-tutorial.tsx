@@ -47,7 +47,7 @@ const NewNftTutorial: NextPageWithLayout = () => {
   return (
     <Section>
       <Container size="m">
-        <Flex gap="l">
+        <Flex gap="l" stack={{ '@tablet': true }}>
           <ProjectCard
             title="NFT Market"
             description="Start by minting an NFT using a pre-deployed contract, then build up to a fully-fledged NFT marketplace."

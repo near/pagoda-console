@@ -28,6 +28,7 @@
       "dependsOn": ["build:cms"]
     },
     "lint:check": {
+      "dependsOn": ["@pc/eslint-rules#build"],
       "outputs": []
     },
     "format:check": {

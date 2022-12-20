@@ -4,9 +4,11 @@ import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
+import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
-import { H1 } from '@/components/lib/Heading';
+import { H2 } from '@/components/lib/Heading';
+import { Section } from '@/components/lib/Section';
 import { Text } from '@/components/lib/Text';
 import { useOrganizationsLayout } from '@/hooks/layouts';
 import { useMutation } from '@/hooks/mutation';
@@ -54,34 +56,37 @@ const CreateOrganization: NextPageWithLayout = () => {
   });
 
   return (
-    <Flex stack gap="l" justify="center" align="center" css={{ flex: 1 }}>
-      <Card css={{ width: 'initial' }}>
-        <Form.Root onSubmit={form.handleSubmit(createOrgMutation.mutate)}>
-          <Flex stack>
-            <H1>Add Organization</H1>
-            <Text>This will allow you to collaborate with other users on multiple projects.</Text>
-            <Form.Group>
-              <Form.FloatingLabelInput
-                label="Organization name"
-                isInvalid={!!form.formState.errors.name}
-                stableId={StableId.CREATE_ORGANIZATION_NAME_INPUT}
-                {...form.register('name', {
-                  required: 'Please enter organization name',
-                  minLength: 3,
-                  maxLength: 255,
-                })}
-              />
-              <Form.Feedback>{form.formState.errors.name?.message}</Form.Feedback>
-            </Form.Group>
-            <Flex>
-              <Button
-                stableId={StableId.CREATE_ORGANIZATION_SAVE_BUTTON}
-                loading={createOrgMutation.isLoading}
-                onClick={form.handleSubmit(createOrgMutation.mutate)}
-              >
-                Save
-              </Button>
-              {createOrgMutation.isLoading ? null : (
+    <Section css={{ margin: 'auto' }}>
+      <Container size="s">
+        <Card>
+          <Form.Root onSubmit={form.handleSubmit(createOrgMutation.mutate)}>
+            <Flex stack>
+              <H2>Add Organization</H2>
+              <Text>This will allow you to collaborate with other users on multiple projects.</Text>
+
+              <Form.Group>
+                <Form.FloatingLabelInput
+                  label="Organization name"
+                  isInvalid={!!form.formState.errors.name}
+                  stableId={StableId.CREATE_ORGANIZATION_NAME_INPUT}
+                  {...form.register('name', {
+                    required: 'Please enter organization name',
+                    minLength: 3,
+                    maxLength: 255,
+                  })}
+                />
+                <Form.Feedback>{form.formState.errors.name?.message}</Form.Feedback>
+              </Form.Group>
+
+              <Flex justify="spaceBetween">
+                <Button
+                  stableId={StableId.CREATE_ORGANIZATION_SAVE_BUTTON}
+                  loading={createOrgMutation.isLoading}
+                  onClick={form.handleSubmit(createOrgMutation.mutate)}
+                >
+                  Save
+                </Button>
+
                 <Button
                   stableId={StableId.CREATE_ORGANIZATION_CANCEL_SAVE_BUTTON}
                   onClick={closeDialog}
@@ -89,12 +94,12 @@ const CreateOrganization: NextPageWithLayout = () => {
                 >
                   Cancel
                 </Button>
-              )}
+              </Flex>
             </Flex>
-          </Flex>
-        </Form.Root>
-      </Card>
-    </Flex>
+          </Form.Root>
+        </Card>
+      </Container>
+    </Section>
   );
 };
 

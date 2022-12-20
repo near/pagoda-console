@@ -47,7 +47,7 @@ export const Overlay = styled(DialogPrimitive.Overlay, {
 });
 
 export const Content = styled(DialogPrimitive.Content, {
-  backgroundColor: 'var(--color-surface-3)',
+  backgroundColor: 'var(--color-surface-1)',
   borderRadius: 'var(--border-radius-l)',
   boxShadow: 'var(--shadow-soft)',
   width: '100%',
@@ -97,8 +97,8 @@ export const Header = styled('div', {
   zIndex: 100,
   gap: 'var(--space-m)',
   padding: 'var(--space-m) var(--space-l)',
-  background: 'var(--color-surface-3)',
-  borderBottom: '1px solid var(--color-surface-5)',
+  background: 'var(--color-surface-1)',
+  borderBottom: '1px solid var(--color-border-1)',
   boxShadow: 'var(--shadow-softer)',
   wordBreak: 'break-word',
 

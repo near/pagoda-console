@@ -1,5 +1,5 @@
 html {
-  font-size: 100%;
+  font-size: var(--font-size-root);
   height: 100%;
 }
 

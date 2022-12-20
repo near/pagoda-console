@@ -36,12 +36,23 @@ export function EnvironmentSelector(props: Props) {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button stableId={StableId.ENVIRONMENT_SELECTOR_DROPDOWN} css={{ width: '11rem', height: 'auto' }}>
+      <DropdownMenu.Button
+        stableId={StableId.ENVIRONMENT_SELECTOR_DROPDOWN}
+        css={{
+          height: 'auto',
+          padding: '0 var(--space-s)',
+          width: '10rem',
+          '@tablet': {
+            width: 'auto',
+          },
+        }}
+        hideText="tablet"
+      >
         <SubnetIcon net={environment?.net} />
         {environment?.name || '...'}
       </DropdownMenu.Button>
 
-      <DropdownMenu.Content width="trigger">
+      <DropdownMenu.Content>
         {environments?.map((e) => {
           return (
             <DropdownMenu.Item key={e.subId} onSelect={() => onSelectEnvironment(e)}>

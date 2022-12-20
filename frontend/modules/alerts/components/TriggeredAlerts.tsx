@@ -94,8 +94,8 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
       <Table.Root>
         <Table.Head
           header={
-            <Flex align="center">
-              <Flex align="center">
+            <Flex align={{ '@initial': 'center', '@tablet': 'start' }} stack={{ '@tablet': true }}>
+              <Flex align={{ '@initial': 'center', '@tablet': 'start' }} stack={{ '@tablet': true }}>
                 {triggeredAlertsCount === undefined ? (
                   <Placeholder css={{ width: '15rem', height: '1.5rem' }} />
                 ) : (
@@ -103,12 +103,10 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
                     <DropdownMenu.Root>
                       <DropdownMenu.Button
                         stableId={StableId.TRIGGERED_ALERTS_ALERT_FILTER_DROPDOWN}
-                        css={{ minWidth: '15rem', maxWidth: '30rem' }}
+                        css={{ width: '20rem' }}
                         size="s"
                       >
-                        <Text color={filteredAlert ? 'text1' : 'text3'} as="span">
-                          <TextOverflow> {filteredAlert?.name || 'Filter by an Alert...'}</TextOverflow>
-                        </Text>
+                        <TextOverflow>{filteredAlert?.name || 'All Alerts'}</TextOverflow>
                       </DropdownMenu.Button>
 
                       <DropdownMenu.Content align="start">
@@ -186,7 +184,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
 
             return (
               <Table.Row flash={shouldFlashRow(row)} key={row.slug}>
-                <Table.Cell href={url} wrap>
+                <Table.Cell href={url} wrap css={{ minWidth: '10rem' }}>
                   {row.name}
                 </Table.Cell>
                 <Table.Cell href={url}>

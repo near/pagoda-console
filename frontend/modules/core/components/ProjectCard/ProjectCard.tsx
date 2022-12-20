@@ -26,16 +26,20 @@ export function ProjectCard({ isComingSoon, title, description, icon, readonly, 
       role={isButton ? 'button' : undefined}
       tabIndex={isButton ? 0 : undefined}
     >
-      <S.CardTop>{isComingSoon && <Badge>Coming Soon</Badge>}</S.CardTop>
-
-      <S.CardBottom>
+      <S.Content>
         <Flex justify="spaceBetween" align="center">
           <H3>{title}</H3>
           {isButton && <FeatherIcon icon={icon || 'chevrons-right'} size="m" color="primary" />}
         </Flex>
 
         <Text>{description}</Text>
-      </S.CardBottom>
+
+        {isComingSoon && (
+          <span>
+            <Badge>Coming Soon</Badge>
+          </span>
+        )}
+      </S.Content>
     </S.Card>
   );
 }

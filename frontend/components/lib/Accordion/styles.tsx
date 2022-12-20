@@ -110,6 +110,7 @@ export const Root = styled(AccordionPrimitive.Root, {
         [`${Item}`]: {
           padding: 'var(--space-m) 0',
           background: 'none',
+          border: 'none',
           borderBottom: '1px solid var(--color-border-1)',
         },
 

@@ -49,7 +49,7 @@ export const LabelDescription = S.LabelDescription;
 
 export const Root = forwardRef<HTMLFormElement, FormProps>(({ children, noValidate = true, ...props }, ref) => {
   return (
-    <S.Form noValidate={noValidate} ref={ref} {...props}>
+    <S.Form noValidate={noValidate} autoCorrect="off" autoCapitalize="off" ref={ref} {...props}>
       {children}
     </S.Form>
   );

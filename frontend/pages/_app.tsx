@@ -25,7 +25,6 @@ import { useAnalytics } from '@/hooks/analytics';
 import { useAuth, useAuthSync } from '@/hooks/auth';
 import { useSelectedProjectRouteParamSync } from '@/hooks/selected-project';
 import { DowntimeMode } from '@/modules/core/components/DowntimeMode';
-import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
 import { useSettingsStore } from '@/stores/settings';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
@@ -78,20 +77,29 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     onErrorRetry: getCustomErrorRetry(),
   }));
 
+  const metaTitle = 'Pagoda Developer Console';
+  const metaDescription =
+    'Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics.';
+
   return (
     <SWRConfig value={swrConfig}>
       <Head>
-        <title>Pagoda Developer Console</title>
-        <meta
-          name="description"
-          content="Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics."
-        />
+        <title>{metaTitle}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+        <meta name="description" content={metaDescription} />
+        <meta content={metaTitle} property="og:title" />
+        <meta content={metaDescription} property="og:description" />
+        <meta content={`${config.url.host}/images/og__pagoda_image.png`} property="og:image" />
+        <meta content={metaTitle} property="twitter:title" />
+        <meta content={metaDescription} property="twitter:description" />
+        <meta content={`${config.url.host}/images/og__pagoda_image.png`} property="twitter:image" />
+        <meta content="website" property="og:type" />
+        <meta content="summary_large_image" name="twitter:card" />
         <link rel="icon" href="/favicon.ico" />
         <link href="/favicon-256x256.png" rel="apple-touch-icon" />
       </Head>
 
       <FeatherIconSheet />
-      <SmallScreenNotice />
       <Toaster />
 
       {config.downtimeMode ? (
