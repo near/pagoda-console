@@ -18,19 +18,6 @@ If you need to expose your API beyond your local machine—e.g. to test the fron
 
 More details [here](https://nearinc.atlassian.net/wiki/spaces/DEVCONSOLE/pages/36438083/Onboarding)
 
-### Update models
-
-Whenever models are changed, even locally, a new Prisma client must be generated
-
-```
-npx prisma generate
-```
-
-> The `prisma generate` command reads your Prisma schema and updates the generated Prisma Client library inside `node_modules/@prisma/client`.
->
-> This results in the imported Prisma Client having proper TypeScript support for
-> your schema.
-
 ## Running the app
 
 ### VS Code
