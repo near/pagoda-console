@@ -89,7 +89,11 @@ export function ProjectSelector(props: Props) {
         )}
 
         <DropdownMenu.ContentStickyFooter>
-          <DropdownMenu.Item color="primary" onSelect={() => onSelectNewProject()}>
+          <DropdownMenu.Item
+            color="primary"
+            onSelect={() => onSelectNewProject()}
+            stableId={StableId.PROJECT_SELECTOR_CREATE_NEW_PROJECT_BUTTON}
+          >
             <FeatherIcon icon="plus" />
             Create New Project
           </DropdownMenu.Item>

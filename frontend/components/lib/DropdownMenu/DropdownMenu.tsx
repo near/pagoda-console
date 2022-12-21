@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import { forwardRef } from 'react';
 
+import type { StableId } from '@/utils/stable-ids';
+
 import { ButtonDropdown } from '../Button';
 import { FeatherIcon } from '../FeatherIcon';
 import { Flex } from '../Flex';
@@ -20,7 +22,20 @@ type RadioItemProps = ComponentProps<typeof S.RadioItem> & {
 type SubContentProps = ComponentProps<typeof S.SubContent>;
 type SubTriggerProps = ComponentProps<typeof S.SubTrigger>;
 
-export const Item = S.Item;
+type ItemProps = ComponentProps<typeof S.Item> & {
+  // Most of the time it may not make sense to have a stableId set for a Dropdown.Item
+  stableId?: StableId;
+};
+
+export const Item = forwardRef<HTMLDivElement, ItemProps>(({ children, stableId, ...props }, ref) => {
+  return (
+    <S.Item ref={ref} data-stable-id={stableId} {...props}>
+      {children}
+    </S.Item>
+  );
+});
+Item.displayName = 'Item';
+
 export const Label = S.Label;
 export const RadioGroup = DropdownMenuPrimitive.RadioGroup;
 export const Root = DropdownMenuPrimitive.Root;
