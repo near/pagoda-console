@@ -17,6 +17,7 @@ const TemplateGradient = styled('div', {
   position: 'absolute',
   background: 'radial-gradient(85.56% 284.74% at 85.56% 25.68%, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 100%)',
   opacity: 0,
+  transition: 'opacity var(--transition-speed)',
 });
 
 const TemplateGradientIcon = styled(Flex, {
@@ -28,6 +29,7 @@ const TemplateGradientIcon = styled(Flex, {
   background: '#fff',
   borderRadius: '100%',
   opacity: 0,
+  transition: 'opacity var(--transition-speed)',
 });
 
 const Template = styled('div', {
@@ -62,11 +64,12 @@ const TemplateShared = styled(FeatherIcon, {
   transform: 'rotate(-90deg)',
 });
 
-const ResultsTemplate = () => {
+const ResultsTemplate = ({ template }) => {
   const router = useRouter();
+  const onClick = () => router.push(`/gallery/${template.attributes.nameSlug}`);
 
   return (
-    <Template onClick={() => router.push(`/gallery/example`)}>
+    <Template onClick={onClick}>
       <TemplateImage>
         <Image layout="fill" src={PlaceholderImage} alt="" />
         <TemplateGradient />
@@ -75,7 +78,7 @@ const ResultsTemplate = () => {
         </TemplateGradientIcon>
       </TemplateImage>
 
-      <TemplateTitle>Loyalty Program with NEAR Fungible Tokens (FT)</TemplateTitle>
+      <TemplateTitle>{template.attributes.name}</TemplateTitle>
       <Flex align="center">
         <TemplateShared icon="share-2" color="text3" size="s" />
         <Text color="text3">28.4k</Text>
