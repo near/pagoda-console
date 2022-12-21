@@ -93,8 +93,6 @@ const ViewGallery = ({ template, moreLikeThis }: ViewGalleryProps) => {
   const setTemplate = useGalleryStore((store) => store.setTemplate);
   const setMoreLikeThis = useGalleryStore((store) => store.setMoreLikeThis);
 
-  console.log('template', template);
-
   useEffect(() => {
     setTemplate(template);
     setMoreLikeThis(moreLikeThis);

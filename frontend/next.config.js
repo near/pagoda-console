@@ -4,10 +4,6 @@ const { withSentryConfig } = require('@sentry/nextjs');
 
 /** @type {import('next').NextConfig} */
 const moduleExports = {
-  env: {
-    CMS_URL: process.env.CMS_URL,
-    CMS_API_KEY: process.env.CMS_API_KEY,
-  },
   sentry: {
     hideSourceMaps: false, // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#use-hidden-source-map
   },
