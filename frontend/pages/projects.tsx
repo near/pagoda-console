@@ -59,11 +59,20 @@ function Projects() {
               Projects
             </H1>
 
-            <Button stableId={StableId.PROJECTS_CREATE_PROJECT_LINK} onClick={() => router.push('/pick-project')}>
-              Create
+            <Button
+              aria-label="Create Project"
+              stableId={StableId.PROJECTS_CREATE_PROJECT_LINK}
+              onClick={() => router.push('/pick-project')}
+            >
+              <FeatherIcon icon="plus" />
             </Button>
-            <Button stableId={StableId.PROJECTS_EDIT_TOGGLE_BUTTON} onClick={() => setIsEditing(!isEditing)}>
-              {!isEditing ? 'Edit' : 'Done'}
+            <Button
+              color="neutral"
+              aria-label={!isEditing ? 'Edit Projects' : 'Finish Editing'}
+              stableId={StableId.PROJECTS_EDIT_TOGGLE_BUTTON}
+              onClick={() => setIsEditing(!isEditing)}
+            >
+              {!isEditing ? <FeatherIcon icon="edit-2" /> : <FeatherIcon icon="check" />}
             </Button>
           </Flex>
 
@@ -78,11 +87,14 @@ function Projects() {
           )}
 
           {projectGroups ? (
-            <Flex stack gap="none" align="stretch">
+            <Flex stack gap="l" align="stretch">
               {projectGroups.map(([orgName, projects], i) => (
                 <div key={orgName}>
-                  <Text css={{ padding: '12px 0', borderBottom: '1px solid var(--color-surface-5)' }}>{orgName}</Text>
-                  <Flex stack css={{ paddingLeft: 12 }}>
+                  <Text css={{ padding: 'var(--space-s) 0', borderBottom: '1px solid var(--color-surface-5)' }}>
+                    {orgName}
+                  </Text>
+
+                  <Flex stack>
                     {projects.map((project) => (
                       <ProjectRow
                         key={project.slug}
@@ -149,7 +161,7 @@ function ProjectRow(props: { project: Project; showDelete: boolean; isTop: boole
               {props.project.tutorial && <Badge>Tutorial</Badge>}
             </Flex>
 
-            {!props.showDelete && <FeatherIcon icon="chevrons-right" size="m" />}
+            {!props.showDelete && <FeatherIcon icon="chevron-right" size="m" />}
           </Flex>
         </H4>
       </Link>

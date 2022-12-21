@@ -33,7 +33,6 @@ const Description = styled('div', {
 
 const ArgsWrapper = styled('div', {
   padding: '10px 0',
-  marginLeft: 25,
 });
 
 const ExpandSign = styled('span', {

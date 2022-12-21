@@ -96,7 +96,7 @@ export const LabelDescription = styled('p', {
 });
 
 const placeholderStyles: StitchesCSS = {
-  fontSize: 'var(--font-size-body)',
+  fontSize: 'var(--font-size-input)',
   color: 'var(--color-text-3)',
 };
 
@@ -105,7 +105,7 @@ const inputStyles: StitchesCSS = {
   color: 'var(--color-text-1)',
   background: 'var(--color-surface-2)',
   border: '1px solid var(--color-border-2)',
-  fontSize: 'var(--font-size-body)',
+  fontSize: 'var(--font-size-input)',
   fontFamily: 'var(--font-body)',
   fontWeight: 400,
   height: 'var(--size-input-height-m)',
@@ -296,7 +296,7 @@ export const FloatingLabel = styled('span', {
   color: 'var(--color-text-3)',
   fontFamily: 'var(--font-body)',
   fontWeight: 400,
-  fontSize: 'var(--font-size-body)',
+  fontSize: 'var(--font-size-input)',
   lineHeight: 1,
   transition: 'top var(--transition-speed), font-size var(--transition-speed)',
   pointerEvents: 'none',

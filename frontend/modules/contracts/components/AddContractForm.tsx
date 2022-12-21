@@ -2,6 +2,7 @@ import type { Api } from '@pc/common/types/api';
 import { useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
+import { mutate } from 'swr';
 
 import { ContractTemplateDetails } from '@/components/contract-templates/ContractTemplateDetails';
 import { ContractTemplateList } from '@/components/contract-templates/ContractTemplateList';
@@ -14,11 +15,13 @@ import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import type { ContractTemplate } from '@/hooks/contract-templates';
-import { useProjectSelector, useSelectedProject } from '@/hooks/selected-project';
+import { useMutation } from '@/hooks/mutation';
+import { useRawMutation } from '@/hooks/raw-mutation';
+import { useProjectSelector } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
 import { formRegex } from '@/utils/constants';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
-import { authenticatedPost } from '@/utils/http';
+import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
@@ -28,123 +31,112 @@ type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 interface Props {
   project: Project;
   environment: Environment;
-  onAdd: (contract: Contract) => void;
+  onAdd: () => void;
 }
 
 interface FormData {
   contractAddress: string;
 }
 
-export function AddContractForm(props: Props) {
+export function AddContractForm({ onAdd, project, environment }: Props) {
   const { register, handleSubmit, formState, setValue } = useForm<FormData>();
-  const [isDeployingContract, setIsDeployingContract] = useState(false);
   const [selectedContractTemplate, setSelectedContractTemplate] = useState<ContractTemplate | undefined>();
-  const { project } = useSelectedProject();
   const { selectEnvironment } = useProjectSelector();
 
-  const environmentTitle = props.environment?.net === 'TESTNET' ? 'Testnet' : 'Mainnet';
-  const environmentTla = props.environment?.net === 'TESTNET' ? 'testnet' : 'near';
+  const environmentTitle = environment?.net === 'TESTNET' ? 'Testnet' : 'Mainnet';
+  const environmentTla = environment?.net === 'TESTNET' ? 'testnet' : 'near';
 
-  async function deployContract(template: ContractTemplate) {
-    if (!project) return;
-
-    try {
-      setIsDeployingContract(true);
-
-      const deployResult = await deployContractTemplate(template);
-
-      const contract = await authenticatedPost('/projects/addContract', {
-        project: props.project.slug,
-        environment: deployResult.subId,
-        address: deployResult.address,
-      });
-
-      analytics.track('DC Deploy Contract Template', {
-        status: 'success',
-        name: template.title,
-      });
-
-      openToast({
-        type: 'success',
-        title: 'Contract Deployed',
-        description: contract.address,
-      });
-
-      selectEnvironment(project.slug, 1); // Make sure TESTNET is selected if they happened to currently be on MAINNET
-
-      props.onAdd(contract);
-    } catch (e: any) {
-      setIsDeployingContract(false);
-
-      analytics.track('DC Deploy Contract Template', {
-        status: 'failure',
-        name: template.title,
-      });
-
-      console.error(e);
-
-      openToast({
-        type: 'error',
-        title: 'Failed to deploy example contract.',
-      });
-    }
-  }
-
-  const submitForm: SubmitHandler<FormData> = async ({ contractAddress }) => {
-    const contractAddressValue = contractAddress.trim();
-    try {
-      const contract = await authenticatedPost('/projects/addContract', {
-        project: props.project.slug,
-        environment: props.environment.subId,
-        address: contractAddressValue,
-      });
-
-      analytics.track('DC Add Contract', {
-        status: 'success',
-        contractId: contractAddressValue,
-        net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
-      });
-
+  const addContractMutation = useMutation('/projects/addContract', {
+    onSuccess: (contract) => {
       openToast({
         type: 'success',
         title: 'Contract Added',
         description: contract.address,
       });
-
-      props.onAdd(contract);
-    } catch (e: any) {
-      if (e.message === 'DUPLICATE_CONTRACT_ADDRESS') {
-        openToast({
-          type: 'error',
-          title: 'Duplicate Contract',
-          description: 'This contract has already been saved to your project.',
-        });
-        return;
+      selectEnvironment(project!.slug, 1); // Make sure TESTNET is selected if they happened to currently be on MAINNET
+      mutate<Contract[]>(
+        ['/projects/getContracts', project.slug, environment.subId],
+        (contracts) => contracts && [...contracts, contract],
+      );
+      onAdd?.();
+    },
+    onError: (e, variables) => {
+      switch ((e as any).message) {
+        case 'DUPLICATE_CONTRACT_ADDRESS':
+          openToast({
+            type: 'error',
+            title: 'Duplicate Contract',
+            description: 'This contract has already been saved to your project.',
+          });
+          break;
+        case 'ADDRESS_NOT_FOUND':
+          openToast({
+            type: 'error',
+            title: 'Contract not found',
+            description: `Contract ${variables.address} was not found on ${mapEnvironmentSubIdToNet(
+              variables.environment,
+            ).toLowerCase()}.`,
+          });
+          break;
+        default:
+          openToast({
+            type: 'error',
+            title: 'Failed to add contract.',
+          });
       }
+    },
+    getAnalyticsSuccessData: (variables) => ({
+      contractId: variables.address,
+      net: mapEnvironmentSubIdToNet(variables.environment),
+    }),
+    getAnalyticsErrorData: (variables, error) => ({
+      error: (error as any).message,
+      contractId: variables.address,
+      net: mapEnvironmentSubIdToNet(variables.environment),
+    }),
+  });
 
-      if (e.message === 'ADDRESS_NOT_FOUND') {
-        const net = props.environment.net.toLowerCase();
-        openToast({
-          type: 'error',
-          title: 'Contract not found',
-          description: `Contract ${contractAddressValue} was not found on ${net}.`,
-        });
-        return;
-      }
-      console.error(e);
-      analytics.track('DC Add Contract', {
+  const submitForm: SubmitHandler<FormData> = ({ contractAddress }) => {
+    addContractMutation.mutate({
+      address: contractAddress.trim(),
+      project: project.slug,
+      environment: environment.subId,
+    });
+  };
+
+  const deployContractMutation = useRawMutation<
+    Awaited<ReturnType<typeof deployContractTemplate>>,
+    unknown,
+    ContractTemplate
+  >(deployContractTemplate, {
+    onSuccess: async (deployResult, template) => {
+      openToast({
+        type: 'success',
+        title: 'Contract Deployed',
+        description: deployResult.address,
+      });
+      analytics.track('DC Deploy Contract Template', {
+        status: 'success',
+        name: template.title,
+      });
+      addContractMutation.mutate({
+        address: deployResult.address,
+        project: project.slug,
+        environment: deployResult.environmentSubId,
+      });
+    },
+    onError: (_error, template) => {
+      analytics.track('DC Deploy Contract Template', {
         status: 'failure',
-        error: e.message,
-        contractId: contractAddressValue,
-        net: props.environment.subId === 2 ? 'MAINNET' : 'TESTNET',
+        name: template.title,
       });
 
       openToast({
         type: 'error',
-        title: 'Failed to add contract.',
+        title: 'Failed to deploy example contract.',
       });
-    }
-  };
+    },
+  });
 
   return (
     <Flex stack gap="l">
@@ -158,21 +150,22 @@ export function AddContractForm(props: Props) {
           </TextButton>
           <ContractTemplateDetails
             template={selectedContractTemplate}
-            onSelect={deployContract}
-            isDeploying={isDeployingContract}
+            onSelect={deployContractMutation.mutate}
+            isDeploying={deployContractMutation.isLoading}
           />
         </>
       ) : (
         <>
           <Text>Enter a contract address, or select an example contract from the list below.</Text>
 
-          <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
+          <Form.Root disabled={addContractMutation.isLoading} onSubmit={handleSubmit(submitForm)}>
             <Flex stack>
               <Form.Group maxWidth="m">
                 <Form.FloatingLabelInput
                   label={`${environmentTitle} Address`}
                   isInvalid={!!formState.errors.contractAddress}
                   placeholder={`pagoda.${environmentTla}`}
+                  stableId={StableId.ADD_CONTRACT_FORM_ADDRESS_INPUT}
                   {...register('contractAddress', {
                     required: 'Address field is required',
                     minLength: {
@@ -196,7 +189,7 @@ export function AddContractForm(props: Props) {
               <Button
                 stableId={StableId.ADD_CONTRACT_FORM_CONFIRM_BUTTON}
                 type="submit"
-                loading={formState.isSubmitting}
+                loading={addContractMutation.isLoading}
                 stretch
               >
                 Add

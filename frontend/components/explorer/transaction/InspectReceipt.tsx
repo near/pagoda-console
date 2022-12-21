@@ -6,7 +6,7 @@ import useSWR from 'swr';
 import { useNet } from '@/hooks/net';
 import { styled } from '@/styles/stitches';
 import * as BI from '@/utils/bigint';
-import { unauthenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 import AccountLink from '../utils/AccountLink';
 import BlockLink from '../utils/BlockLink';
@@ -19,11 +19,11 @@ type Props = {
 
 const Table = styled('table', {
   width: '100%',
-  margin: '24px 0',
+  margin: '0 0 var(--space-l)',
 });
 
 const TableElement = styled('td', {
-  fontSize: 14,
+  fontSize: 'var(--font-size-body-small)',
   lineHeight: '175%',
 });
 
@@ -63,11 +63,10 @@ const getGasAttached = (actions: Explorer.Action[]): JSBI => {
 const InspectReceipt: React.FC<Props> = React.memo(({ receipt: { id, ...receipt } }) => {
   const net = useNet();
   const query = useSWR(['explorer/balanceChanges', net, receipt.predecessorId, receipt.receiverId], () =>
-    unauthenticatedPost(`/explorer/balanceChanges`, {
-      net,
-      receiptId: id,
-      accountIds: [receipt.predecessorId, receipt.receiverId],
-    }),
+    fetchApi(
+      [`/explorer/balanceChanges`, { net, receiptId: id, accountIds: [receipt.predecessorId, receipt.receiverId] }],
+      true,
+    ),
   );
   const predecessorBalance = query.data?.[0];
   const receiverBalance = query.data?.[0];

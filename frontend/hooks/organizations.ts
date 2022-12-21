@@ -1,18 +1,13 @@
 import type { Api } from '@pc/common/types/api';
-import { noop } from 'lodash-es';
 import { useMemo } from 'react';
 import type { MutatorCallback, MutatorOptions } from 'swr';
 import useSWR, { mutate } from 'swr';
 
 import { openToast } from '@/components/lib/Toast';
-import { useAccount, useAuth } from '@/hooks/auth';
-import type { MutationOptions } from '@/hooks/mutation';
-import { useMutation } from '@/hooks/mutation';
-import { authenticatedPost } from '@/utils/http';
+import { useAuth } from '@/hooks/auth';
+import { fetchApi } from '@/utils/http';
 
-type User = Api.Query.Output<'/users/getAccountDetails'>;
-
-enum UserError {
+export enum UserError {
   SERVER_ERROR = 'SERVER_ERROR',
   PERMISSION_DENIED = 'PERMISSION_DENIED',
   BAD_ORG = 'BAD_ORG',
@@ -58,13 +53,15 @@ export type ParsedError = {
   message: string;
 };
 
-const parseError = (e: any, messageParser: (code: UserError) => string | undefined) => {
+export const parseError = (e: any, messageParser: (code: UserError) => string | undefined) => {
   const userError = isUserError(e.message) ? e.message : UserError.SERVER_ERROR;
-  throw { code: userError, message: messageParser(userError) || DEFAULT_ERROR_MESSAGE };
+  return { code: userError, message: messageParser(userError) || DEFAULT_ERROR_MESSAGE };
 };
 
-const openSuccessToast = (message: string) => openToast({ type: 'success', title: 'Success', description: message });
-const openUserErrorToast = (error: Api.Mutation.Error<'/users/acceptOrgInvite'>) => {
+export const openSuccessToast = (message: string) =>
+  openToast({ type: 'success', title: 'Success', description: message });
+
+export const openUserErrorToast = (error: unknown) => {
   const castedError = error as ParsedError;
   return openToast({ type: 'error', title: getErrorTitle(castedError.code), description: castedError.message });
 };
@@ -104,20 +101,13 @@ const getErrorTitle = (error: UserError) => {
   }
 };
 
-type OrgsMutationOptions<Key extends Api.Mutation.Key, M = unknown> = MutationOptions<
-  Api.Mutation.Input<Key>,
-  Api.Mutation.Output<Key>,
-  M,
-  Api.Mutation.Error<Key>
->;
-
 const getOrgMembersKey = (orgSlug: string | undefined) => ['/users/listOrgMembers', orgSlug] as const;
 const getOrgsKey = () => ['/users/listOrgs'] as const;
 
 export const useOrgMembers = (slug: string) => {
   const { identity } = useAuth();
   const { data, error, mutate, isValidating } = useSWR(identity ? getOrgMembersKey(slug) : null, (path) =>
-    authenticatedPost(path, { org: slug }),
+    fetchApi([path, { org: slug }]),
   );
 
   return { members: data, error, mutate, isValidating };
@@ -125,9 +115,7 @@ export const useOrgMembers = (slug: string) => {
 
 export const useOrganizations = (filterPersonal: boolean) => {
   const { identity } = useAuth();
-  const { data, error, mutate, isValidating } = useSWR(identity ? getOrgsKey() : null, (path) =>
-    authenticatedPost(path),
-  );
+  const { data, error, mutate, isValidating } = useSWR(identity ? getOrgsKey() : null, (path) => fetchApi([path]));
   const filteredOrgs = useMemo(
     () => (filterPersonal ? data?.filter((org) => !org.isPersonal) : data),
     [data, filterPersonal],
@@ -140,12 +128,12 @@ type MutationData<T> = T | Promise<T> | MutatorCallback<T>;
 
 type Orgs = Api.Query.Output<'/users/listOrgs'>;
 
-const mutateOrganizations = (data?: MutationData<Orgs>, opts?: boolean | MutatorOptions<Orgs>) =>
+export const mutateOrganizations = (data?: MutationData<Orgs>, opts?: boolean | MutatorOptions<Orgs>) =>
   mutate<Orgs>(getOrgsKey(), data, opts);
 
 type OrgMembers = Api.Query.Output<'/users/listOrgMembers'>;
 
-const mutateOrganizationMembers = (
+export const mutateOrganizationMembers = (
   orgSlug: string,
   data?: MutationData<OrgMembers>,
   opts?: boolean | MutatorOptions<OrgMembers>,
@@ -155,296 +143,11 @@ export const useOrgsWithOnlyAdmin = () => {
   const { identity } = useAuth();
   const { data, error, mutate, isValidating } = useSWR(
     identity ? ['/users/listOrgsWithOnlyAdmin' as const, identity.uid] : null,
-    (key) => authenticatedPost<'/users/listOrgsWithOnlyAdmin'>(key),
+    (key) => fetchApi([key]),
   );
 
   return { organizations: data, error, mutate, isValidating };
 };
-
-const getCreateOrgMessage = (code: UserError) => {
-  switch (code) {
-    case UserError.MISSING_ORG_NAME:
-      return 'A name must be provided when creating a shared org';
-    case UserError.NAME_CONFLICT:
-      return 'An org with this name already exists';
-  }
-};
-
-const createOrgMutationOptions = (user?: User): OrgsMutationOptions<'/users/createOrg'> => ({
-  eventName: 'Create organization',
-  mutate: ({ name }) =>
-    authenticatedPost('/users/createOrg', { name }).catch((e) => parseError(e, getCreateOrgMessage)),
-  onSuccess: (createdOrg: Api.Mutation.Output<'/users/createOrg'>) => {
-    if (user && user.uid && user.email) {
-      mutateOrganizationMembers(createdOrg.slug, [
-        {
-          role: 'ADMIN',
-          orgSlug: createdOrg.slug,
-          isInvite: false,
-          user: {
-            uid: user.uid,
-            email: user.email,
-          },
-        },
-      ]);
-    }
-    mutateOrganizations((organizations) => organizations && [...organizations, createdOrg], {
-      revalidate: false,
-    });
-    openSuccessToast(`Organization "${createdOrg.name}" created`);
-  },
-  onError: openUserErrorToast,
-});
-
-export const useCreateOrg = () => {
-  const account = useAccount();
-  return useMutation(useMemo(() => createOrgMutationOptions(account.user), [account.user]));
-};
-
-const updateOrgMembersCache = (orgSlug: string, uid: string, role: OrgMembers[number]['role']) => {
-  let prevRole: OrgMembers[number]['role'] | undefined;
-  mutate<OrgMembers>(
-    getOrgMembersKey(orgSlug),
-    (members) => {
-      if (!members) {
-        return;
-      }
-      const matchedMemberIndex = members.findIndex((member) => member.user.uid === uid);
-      if (matchedMemberIndex === -1) {
-        return;
-      }
-      prevRole = members[matchedMemberIndex].role;
-      return [
-        ...members.slice(0, matchedMemberIndex),
-        { ...members[matchedMemberIndex], role },
-        ...members.slice(matchedMemberIndex + 1),
-      ];
-    },
-    { revalidate: false },
-  );
-  return prevRole;
-};
-
-const getUserRoleChangeMessage = (code: UserError) => {
-  switch (code) {
-    case UserError.PERMISSION_DENIED:
-      return 'Non-admin attempted to change org role';
-    case UserError.BAD_ORG_PERSONAL:
-      return 'Roles cannot be managed on personal orgs';
-    case UserError.BAD_USER:
-      return 'UID invalid or user not a member of org';
-    case UserError.ORG_FINAL_ADMIN:
-      return 'Cannot change role of only admin';
-  }
-};
-
-const createChangeUserRoleMutationOptions = (
-  orgSlug: string,
-): OrgsMutationOptions<'/users/changeOrgRole', OrgMembers[number]['role'] | undefined> => ({
-  eventName: 'Change user role in organization',
-  mutate: ({ user, role }) =>
-    authenticatedPost('/users/changeOrgRole', { org: orgSlug, user, role }).catch((e) =>
-      parseError(e, getUserRoleChangeMessage),
-    ),
-  onSuccess: (_result, { role }) => openSuccessToast(`Role changed to ${role}`),
-  onMutate: ({ user, role }) => updateOrgMembersCache(orgSlug, user, role),
-  onError: (error, { user }, prevRole) => {
-    if (prevRole) {
-      updateOrgMembersCache(orgSlug, user, prevRole);
-    }
-    openUserErrorToast(error);
-  },
-});
-
-export const useChangeUserRoleInOrg = (orgSlug: string) =>
-  useMutation(useMemo(() => createChangeUserRoleMutationOptions(orgSlug), [orgSlug]));
-
-const getRemoveFromOrgMessage = (code: UserError) => {
-  switch (code) {
-    case UserError.PERMISSION_DENIED:
-      return 'Non-admin attempted to remove another user';
-    case UserError.BAD_ORG:
-      return 'User cannot be removed from personal orgs';
-    case UserError.ORG_FINAL_ADMIN:
-      return 'Cannot remove only admin';
-  }
-};
-
-const createLeaveOrgMutationOptions = (
-  orgSlug: string,
-  selfUid?: string,
-): OrgsMutationOptions<'/users/removeFromOrg'> => ({
-  eventName: 'Leave from organization',
-  mutate: selfUid
-    ? () =>
-        authenticatedPost('/users/removeFromOrg', { org: orgSlug, user: selfUid }).catch((e) =>
-          parseError(e, getRemoveFromOrgMessage),
-        )
-    : noop,
-  onSuccess: () => {
-    mutateOrganizations(
-      (organizations) => {
-        if (!organizations) {
-          return;
-        }
-        return organizations.filter((organization) => organization.slug !== orgSlug);
-      },
-      { revalidate: false },
-    );
-    openSuccessToast('Organization is left');
-  },
-  onError: openUserErrorToast,
-});
-
-export const useLeaveOrg = (orgSlug: string) => {
-  const { identity } = useAuth();
-  const selfUid = identity?.uid;
-  return useMutation(useMemo(() => createLeaveOrgMutationOptions(orgSlug, selfUid), [orgSlug, selfUid]));
-};
-
-const getInviteMemberMessage = (code: UserError) => {
-  switch (code) {
-    case UserError.PERMISSION_DENIED:
-      return 'User does not have invite permissions';
-    case UserError.BAD_ORG:
-      return 'Users cannot be invited to personal orgs';
-    case UserError.ORG_INVITE_DUPLICATE:
-      return 'An invite already exists for this org and email';
-    case UserError.ORG_INVITE_ALREADY_MEMBER:
-      return 'The user is already a member of the org';
-  }
-};
-
-const createInviteUserMutationOptions = (orgSlug: string): OrgsMutationOptions<'/users/inviteToOrg'> => ({
-  eventName: 'Invite user to organization',
-  mutate: ({ email, role }) =>
-    authenticatedPost('/users/inviteToOrg', { org: orgSlug, email, role }).catch((e) =>
-      parseError(e, getInviteMemberMessage),
-    ),
-  onSuccess: (_result, { email, role }) => {
-    mutateOrganizationMembers(
-      orgSlug,
-      (members) =>
-        members && [
-          ...members,
-          {
-            isInvite: true,
-            orgSlug,
-            role,
-            user: {
-              uid: null,
-              email,
-            },
-          },
-        ],
-      { revalidate: false },
-    );
-    openSuccessToast(`User ${email} is invited as ${role}`);
-  },
-  onError: openUserErrorToast,
-});
-
-export const useInviteMemberToOrg = (orgSlug: string) =>
-  useMutation(useMemo(() => createInviteUserMutationOptions(orgSlug), [orgSlug]));
-
-const getRemoveInviteMessage = (code: UserError) => {
-  switch (code) {
-    case UserError.PERMISSION_DENIED:
-      return 'User does not have invite permissions';
-    case UserError.BAD_ORG:
-      return 'User invites do not exist on personal orgs';
-    case UserError.BAD_ORG_INVITE:
-      return 'Org invite not found';
-  }
-};
-
-const createRekoveInviteMutationOptions = (orgSlug: string): OrgsMutationOptions<'/users/removeOrgInvite'> => ({
-  eventName: 'Revoke organization invite',
-  mutate: ({ email }) =>
-    authenticatedPost('/users/removeOrgInvite', { org: orgSlug, email }).catch((e) =>
-      parseError(e, getRemoveInviteMessage),
-    ),
-  onSuccess: (_result, { email }) => {
-    mutateOrganizationMembers(
-      orgSlug,
-      (members) => members && members.filter((member) => member.user.email !== email),
-      { revalidate: false },
-    );
-    openSuccessToast(`${email}'s invite is revoked`);
-  },
-  onError: openUserErrorToast,
-});
-
-export const useRemoveOrgInvite = (orgSlug: string) =>
-  useMutation(useMemo(() => createRekoveInviteMutationOptions(orgSlug), [orgSlug]));
-
-const createRemoveUserMutationOptions = (orgSlug: string): OrgsMutationOptions<'/users/removeFromOrg'> => ({
-  eventName: 'Remove user from organization',
-  mutate: ({ user }) =>
-    authenticatedPost('/users/removeFromOrg', { org: orgSlug, user }).catch((e) =>
-      parseError(e, getRemoveInviteMessage),
-    ),
-  onSuccess: (_result, { user }) => {
-    mutateOrganizationMembers(orgSlug, (members) => members && members.filter((member) => member.user.uid !== user), {
-      revalidate: false,
-    });
-    openSuccessToast('User is removed from organization');
-  },
-  onError: openUserErrorToast,
-});
-
-export const useRemoveUserFromOrg = (orgSlug: string) =>
-  useMutation(useMemo(() => createRemoveUserMutationOptions(orgSlug), [orgSlug]));
-
-const getDeleteOrgMessage = (code: UserError) => {
-  switch (code) {
-    case UserError.BAD_ORG_PERSONAL:
-      return 'Personal orgs cannot be deleted';
-    case UserError.PERMISSION_DENIED:
-      return 'Non-admin user attempted to delete org';
-  }
-};
-
-const createDeleteOrgMutationOptions = (orgSlug: string): OrgsMutationOptions<'/users/deleteOrg'> => ({
-  eventName: 'Delete organization',
-  mutate: () =>
-    authenticatedPost('/users/deleteOrg', { org: orgSlug }).catch((e) => parseError(e, getDeleteOrgMessage)),
-  onSuccess: (_result, { org }) => {
-    mutateOrganizationMembers(orgSlug);
-    mutateOrganizations((orgs) => orgs && orgs.filter((org) => org.slug !== orgSlug), {
-      revalidate: false,
-    });
-    openSuccessToast(`Organization "${org}" deleted`);
-  },
-  onError: openUserErrorToast,
-});
-
-export const useDeleteOrg = (orgSlug: string) =>
-  useMutation(useMemo(() => createDeleteOrgMutationOptions(orgSlug), [orgSlug]));
-
-const getInviteErrorMessage = (code: UserError) => {
-  switch (code) {
-    case UserError.ORG_INVITE_BAD_TOKEN:
-      return 'This invitation does not exist.';
-    case UserError.ORG_INVITE_EMAIL_MISMATCH:
-      return 'This invitation belongs to a different email address.';
-    case UserError.ORG_INVITE_EXPIRED:
-      return 'This invitation has expired.';
-    case UserError.BAD_ORG:
-      return 'The organization has been deleted.';
-    case UserError.ORG_INVITE_ALREADY_MEMBER:
-      return 'The user is already a member of the organization.';
-  }
-};
-
-const acceptOrgInviteOptions: OrgsMutationOptions<'/users/acceptOrgInvite'> = {
-  eventName: 'Accept organization invite',
-  mutate: ({ token }) =>
-    authenticatedPost('/users/acceptOrgInvite', { token }).catch((e) => parseError(e, getInviteErrorMessage)),
-  onSuccess: () => mutateOrganizations(),
-};
-
-export const useAcceptOrgInvite = () => useMutation(acceptOrgInviteOptions);
 
 export const useSelectedOrg = (orgSlug: string, filterPersonal: boolean) => {
   const { organizations } = useOrganizations(filterPersonal);

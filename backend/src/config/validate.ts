@@ -35,6 +35,8 @@ const rpcSchema = z.strictObject({
   url: z.string().url(),
 });
 
+const processBool = (val) => val === 'true';
+
 const appConfigSchema = z.strictObject({
   deployEnv: z.enum(['LOCAL', 'DEVELOPMENT', 'STAGING', 'PRODUCTION']),
   port: z.preprocess(Number, z.number().int()),
@@ -64,8 +66,8 @@ const appConfigSchema = z.strictObject({
     clientConfig: z.string(),
   }),
   log: z.strictObject({
-    queries: z.preprocess(Boolean, z.boolean()),
-    indexer: z.preprocess(Boolean, z.boolean()),
+    queries: z.preprocess(processBool, z.boolean()),
+    indexer: z.preprocess(processBool, z.boolean()),
   }),
   orgs: z.strictObject({
     inviteTokenExpiryMinutes: z.number(),

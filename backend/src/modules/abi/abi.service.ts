@@ -5,6 +5,7 @@ import type { AbiRoot } from 'near-abi-client-js';
 import { PrismaService } from './prisma.service';
 import { PermissionsService as ProjectPermissionsService } from '../../core/projects/permissions.service';
 import { VError } from 'verror';
+import { upgradeAbi } from '@pc/abi/upgrade';
 
 @Injectable()
 export class AbiService {
@@ -78,9 +79,11 @@ export class AbiService {
       );
     }
 
+    const upgradedAbi = upgradeAbi(abi.abi);
     return {
       contractSlug: abi.contractSlug,
-      abi: abi.abi as unknown as AbiRoot,
+      abi: upgradedAbi.abiRoot,
+      upgraded: upgradedAbi.upgraded,
     };
   }
 }

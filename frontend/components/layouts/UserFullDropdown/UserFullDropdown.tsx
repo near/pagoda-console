@@ -3,8 +3,9 @@ import { useCallback } from 'react';
 
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
-import { UserDropdown } from '@/components/lib/UserDropdown';
 import { useSignOut } from '@/hooks/auth';
+
+import { UserDropdown } from '../UserDropdown';
 
 export const UserFullDropdown = () => {
   const router = useRouter();

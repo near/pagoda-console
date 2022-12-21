@@ -3,7 +3,7 @@ import type { KeyedMutator } from 'swr';
 import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 type Keys = Api.Query.Output<'/projects/getKeys'>;
 
@@ -15,7 +15,7 @@ export function useApiKeys(project: string | undefined) {
     error,
     mutate,
   } = useSWR(identity && project ? ['/projects/getKeys' as const, project, identity.uid] : null, (key, project) => {
-    return authenticatedPost(key, { project });
+    return fetchApi([key, { project: project! }]);
   });
 
   return { keys, error, mutate: mutate as KeyedMutator<Keys> };

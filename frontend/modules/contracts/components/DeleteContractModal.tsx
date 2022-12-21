@@ -1,12 +1,13 @@
 import type { Api } from '@pc/common/types/api';
-import { useState } from 'react';
+import { mutate } from 'swr';
 
 import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { deleteContract } from '@/hooks/contracts';
+import { useMutation } from '@/hooks/mutation';
+import { useSelectedProject } from '@/hooks/selected-project';
 
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
@@ -14,40 +15,40 @@ interface Props {
   contract: Contract;
   show: boolean;
   setShow: (show: boolean) => void;
-  onDelete?: (contract: Contract) => void;
+  onDelete?: () => void;
 }
 
 export function DeleteContractModal({ contract, show, setShow, onDelete }: Props) {
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  async function onConfirm() {
-    setIsDeleting(true);
-
-    const success = await deleteContract(contract);
-
-    if (success) {
-      onDelete && onDelete(contract);
-      setShow(false);
+  const { environment, project } = useSelectedProject();
+  const removeContractMutation = useMutation('/projects/removeContract', {
+    onSuccess: () => {
+      mutate<Contract[]>(
+        ['/projects/getContracts', project?.slug, environment?.subId],
+        (contracts) => contracts && contracts.filter((lookupContract) => lookupContract.slug !== contract.slug),
+      );
       openToast({
         type: 'success',
         title: 'Contract Removed',
         description: `${contract.address}`,
       });
-    } else {
-      setIsDeleting(false);
+      onDelete?.();
+    },
+    onError: () =>
       openToast({
         type: 'error',
         title: 'Remove Error',
         description: 'Failed to remove contract.',
-      });
-    }
-  }
+      }),
+    getAnalyticsSuccessData: () => ({ contractId: contract.address }),
+    getAnalyticsErrorData: () => ({ contractId: contract.address }),
+  });
+  const onConfirm = () => removeContractMutation.mutate({ slug: contract.slug });
 
   return (
     <ConfirmModal
       confirmColor="danger"
       confirmText="Remove"
-      isProcessing={isDeleting}
+      isProcessing={removeContractMutation.isLoading}
       onConfirm={onConfirm}
       setShow={setShow}
       show={show}

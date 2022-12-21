@@ -7,7 +7,7 @@ import useSWR from 'swr';
 
 import { useAuthStore } from '@/stores/auth';
 import analytics from '@/utils/analytics';
-import { authenticatedPost, unauthenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 import { usePublicMode } from './public';
 
@@ -18,7 +18,7 @@ export function useAccount() {
     error,
     mutate,
   } = useSWR(identity ? ['/users/getAccountDetails' as const, identity.uid] : null, (key) => {
-    return authenticatedPost(key);
+    return fetchApi([key]);
   });
 
   return {
@@ -93,28 +93,4 @@ export function useSignOut() {
   }, [deactivatePublicMode, cache, router]);
 
   return signOut;
-}
-
-export async function deleteAccount(uid: string | undefined) {
-  try {
-    await authenticatedPost('/users/deleteAccount');
-    analytics.track('Delete account', {
-      status: 'success',
-      uid,
-    });
-    return true;
-  } catch (e: any) {
-    analytics.track('Delete account', {
-      status: 'failure',
-      uid,
-      error: e.message,
-    });
-    // TODO
-    console.error('Failed to delete account');
-  }
-  return false;
-}
-
-export async function resetPassword(email: string) {
-  await unauthenticatedPost('/users/resetPassword', { email });
 }

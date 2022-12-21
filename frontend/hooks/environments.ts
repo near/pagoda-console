@@ -3,7 +3,7 @@ import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
 import { usePublicStore } from '@/stores/public';
-import { authenticatedPost } from '@/utils/http';
+import { fetchApi } from '@/utils/http';
 
 import { useSelectedProject } from './selected-project';
 
@@ -42,9 +42,7 @@ export function useEnvironments(project: string | undefined) {
     error,
     mutate,
   } = useSWR(identity && project && ['/projects/getEnvironments' as const, project, identity.uid], (key, project) => {
-    return authenticatedPost(key, {
-      project,
-    });
+    return fetchApi([key, { project }]);
   });
 
   return { environments, error, mutate };

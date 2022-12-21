@@ -219,7 +219,7 @@ const EditAlert: NextPageWithLayout = () => {
           <Flex stack gap="l">
             <Form.Root disabled={nameForm.formState.isSubmitting} onSubmit={nameForm.handleSubmit(submitNameForm)}>
               <Flex stack>
-                <Flex justify="spaceBetween" gap="l">
+                <Flex justify="spaceBetween" stack={{ '@mobile': true }}>
                   {isEditingName && (
                     <Flex gap="none">
                       <Form.Group>
@@ -227,6 +227,7 @@ const EditAlert: NextPageWithLayout = () => {
                           label="Alert Name"
                           isInvalid={!!nameForm.formState.errors.name}
                           css={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+                          stableId={StableId.ALERT_EDIT_ALERT_NAME_INPUT}
                           {...nameForm.register('name', {
                             required: 'Please enter an alert name',
                             maxLength: {

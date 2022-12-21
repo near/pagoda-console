@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useCallback } from 'react';
 
 import { ContractTemplateDetails } from '@/components/contract-templates/ContractTemplateDetails';
 import { Container } from '@/components/lib/Container';
@@ -11,12 +11,15 @@ import { Section } from '@/components/lib/Section';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { useAuth } from '@/hooks/auth';
+import type { ContractTemplate } from '@/hooks/contract-templates';
 import { useContractTemplate } from '@/hooks/contract-templates';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
+import { useMutation } from '@/hooks/mutation';
+import { useRawMutation } from '@/hooks/raw-mutation';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
-import { authenticatedPost } from '@/utils/http';
+import { mapEnvironmentSubIdToNet } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -25,64 +28,60 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
   const slug = useRouteParam('templateSlug');
   const template = useContractTemplate(slug);
   const { authStatus } = useAuth();
-  const [isDeploying, setIsDeploying] = useState(false);
 
-  async function createProject() {
-    if (!template) return;
-
-    const date = DateTime.now().toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
-    const projectName = `${template.title}, ${date}`;
-
-    try {
-      setIsDeploying(true);
-
-      const deployResult = await deployContractTemplate(template);
-
-      if (authStatus === 'AUTHENTICATED') {
-        const project = await authenticatedPost('/projects/create', {
-          name: projectName,
-        });
-
-        await authenticatedPost('/projects/addContract', {
-          project: project.slug,
-          environment: deployResult.subId,
-          address: deployResult.address,
-        });
-
-        analytics.track('DC Create New Example Project', {
-          status: 'success',
-          name: projectName,
-          slug: template.slug,
-        });
-
-        await router.push(`/contracts?project=${project.slug}&environment=1`);
-      } else {
-        analytics.track('DC Create New Example Project (Guest)', {
-          status: 'success',
-          slug: template.slug,
-        });
-
-        await router.push(`/public/contracts?addresses=${deployResult.address}&net=TESTNET`);
-      }
-    } catch (e: any) {
-      setIsDeploying(false);
-
-      analytics.track('DC Create New Example Project', {
-        status: 'failure',
-        slug: template.slug,
-        error: e.message,
-      });
-
-      console.log(e);
-
+  const onError = useCallback(
+    () =>
       openToast({
         type: 'error',
         title: 'Failed to create example project.',
+      }),
+    [],
+  );
+  const addContractMutation = useMutation('/projects/addContract', {
+    onSuccess: (_, { project, environment }) => router.push(`/contracts?project=${project}&environment=${environment}`),
+    onError,
+  });
+  const createProjectMutation = useMutation('/projects/create', {
+    onSuccess: async (project) => {
+      const { environmentSubId, address } = await deployContractTemplate(template!);
+      addContractMutation.mutate({ project: project.slug, environment: environmentSubId, address });
+    },
+    onError,
+    getAnalyticsSuccessData: ({ name }) => ({ name, slug: template?.slug }),
+    getAnalyticsErrorData: ({ name }) => ({ name, slug: template?.slug }),
+  });
+
+  const deployContractMutation = useRawMutation<
+    Awaited<ReturnType<typeof deployContractTemplate>>,
+    unknown,
+    ContractTemplate
+  >(deployContractTemplate, {
+    onSuccess: async (deployResult, template) => {
+      const date = DateTime.now().toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
+      const projectName = `${template.title}, ${date}`;
+      if (authStatus === 'AUTHENTICATED') {
+        createProjectMutation.mutate({ name: projectName });
+      } else {
+        router.push(
+          `/public/contracts?addresses=${deployResult.address}&net=${mapEnvironmentSubIdToNet(
+            deployResult.environmentSubId,
+          )}`,
+        );
+      }
+    },
+    onError: (error, template) => {
+      analytics.track('DC Create New Example Project', {
+        status: 'failure',
+        slug: template.slug,
+        error: (error as any).message,
       });
-    }
-  }
+      onError();
+    },
+  });
 
   if (!template) return null;
+
+  const isLoading = createProjectMutation.isLoading || addContractMutation.isLoading;
 
   return (
     <Section>
@@ -94,7 +93,11 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
             </TextLink>
           </Link>
 
-          <ContractTemplateDetails template={template} onSelect={createProject} isDeploying={isDeploying} />
+          <ContractTemplateDetails
+            template={template}
+            onSelect={deployContractMutation.mutate}
+            isDeploying={isLoading}
+          />
         </Flex>
       </Container>
     </Section>
