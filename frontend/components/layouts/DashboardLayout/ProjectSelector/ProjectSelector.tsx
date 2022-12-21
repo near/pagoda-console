@@ -92,7 +92,7 @@ export function ProjectSelector(props: Props) {
           <DropdownMenu.Item
             color="primary"
             onSelect={() => onSelectNewProject()}
-            stableId={StableId.NEW_PROJECT_CREATE_BUTTON}
+            stableId={StableId.PROJECT_SELECTOR_CREATE_NEW_PROJECT_BUTTON}
           >
             <FeatherIcon icon="plus" />
             Create New Project
