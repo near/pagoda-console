@@ -1,5 +1,4 @@
 import type { Api } from '@pc/common/types/api';
-import { useCallback } from 'react';
 import { mutate } from 'swr';
 
 import { Flex } from '@/components/lib/Flex';
@@ -43,7 +42,7 @@ export function DeleteContractModal({ contract, show, setShow, onDelete }: Props
     getAnalyticsSuccessData: () => ({ contractId: contract.address }),
     getAnalyticsErrorData: () => ({ contractId: contract.address }),
   });
-  const onConfirm = useCallback(() => removeContractMutation.mutate(contract), [removeContractMutation, contract]);
+  const onConfirm = () => removeContractMutation.mutate({ slug: contract.slug });
 
   return (
     <ConfirmModal
