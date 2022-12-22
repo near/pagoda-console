@@ -79,7 +79,7 @@ export function ApiKeys({ project }: Props) {
       <Flex stack>
         <Dialog.Root open={showCreateModal} onOpenChange={setShowCreateModal}>
           <Dialog.Content title="Create New Key" size="s">
-            <CreateApiKeyForm close={closeCreateModal} />
+            <CreateApiKeyForm close={closeCreateModal} project={project} />
           </Dialog.Content>
         </Dialog.Root>
         <ConfirmModal
