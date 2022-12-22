@@ -1,5 +1,4 @@
 import type { Api } from '@pc/common/types/api';
-import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
@@ -42,15 +41,12 @@ export const CreateApiKeyForm = ({ close, project }: Props) => {
     getAnalyticsSuccessData: (variables) => ({ description: variables.description }),
     getAnalyticsErrorData: (variables) => ({ description: variables.description }),
   });
-  const submit = useCallback(
-    ({ description }: NewKeyFormData) => {
-      if (!project) {
-        return;
-      }
-      generateKeyMutation.mutate({ description, project: project.slug, type: 'KEY' });
-    },
-    [generateKeyMutation, project],
-  );
+  const submit = ({ description }: NewKeyFormData) => {
+    if (!project) {
+      return;
+    }
+    generateKeyMutation.mutate({ description, project: project.slug });
+  };
 
   return (
     <Form.Root onSubmit={handleSubmit(submit)}>

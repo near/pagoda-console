@@ -5,10 +5,9 @@ import { Button } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { TextButton } from '@/components/lib/TextLink';
+import { useMutation } from '@/hooks/mutation';
 import { useApiKeys } from '@/hooks/new-api-keys';
 import { styled } from '@/styles/stitches';
-import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
@@ -20,8 +19,7 @@ interface NewKeyFormData {
 }
 
 interface Props {
-  show: boolean;
-  setShow: (show: boolean) => void;
+  close: () => void;
   project?: Project;
 }
 
@@ -29,47 +27,38 @@ const ButtonContainer = styled(Flex, {
   marginTop: '24px',
 });
 
-export const UploadJwtForm = ({ show, setShow, project }: Props) => {
+export const UploadJwtForm = ({ close, project }: Props) => {
   const { mutate: mutateKeys } = useApiKeys(project?.slug);
   const { register, handleSubmit, formState } = useForm<NewKeyFormData>();
 
-  async function addKey(description: string, issuer: string, publicKey: string) {
+  const addJwtKeyMutation = useMutation('/projects/addJwtKey', {
+    onMutate: close,
+    onSuccess: (result) =>
+      mutateKeys((prevKeys) => {
+        if (!prevKeys) {
+          return;
+        }
+        return [...prevKeys, result];
+      }),
+    getAnalyticsSuccessData: (variables) => ({ description: variables.description }),
+    getAnalyticsErrorData: (variables) => ({ description: variables.description }),
+  });
+
+  const submit = async ({ description, issuer, publicKey }: NewKeyFormData) => {
     if (!project) {
       return;
     }
-    show && setShow(false);
-    try {
-      await mutateKeys(async (cachedKeys) => {
-        const newKey = await authenticatedPost('/projects/generateKey', {
-          description: description.trim(),
-          issuer: issuer.trim(),
-          publicKey: publicKey.trim(),
-          project: project.slug,
-          type: 'JWT',
-        });
-        analytics.track('DC Add JWT Public Key', {
-          status: 'success',
-          description,
-        });
-        return cachedKeys ? [...cachedKeys, newKey] : [newKey];
-      });
-    } catch (e: any) {
-      analytics.track('DC Add JWT Public Key', {
-        status: 'failure',
-        description,
-        error: e.message,
-      });
-      throw new Error('Failed to add JWT public key');
-    }
-  }
+    addJwtKeyMutation.mutate({ description, project: project.slug, issuer, publicKey });
+  };
 
   return (
-    <Form.Root onSubmit={handleSubmit(({ description, issuer, publicKey }) => addKey(description, issuer, publicKey))}>
+    <Form.Root onSubmit={handleSubmit(submit)}>
       <Flex stack>
         <Form.Group>
           <Form.Label htmlFor="description">Key Description</Form.Label>
           <Form.Input
             id="description"
+            stableId={StableId.ADD_JWT_KEY_FORM_DESCRIPTION_INPUT}
             isInvalid={!!formState.errors.description}
             {...register('description', {
               required: 'You must enter a description.',
@@ -81,6 +70,7 @@ export const UploadJwtForm = ({ show, setShow, project }: Props) => {
           <Form.Label htmlFor="issuer">Issuer</Form.Label>
           <Form.Input
             id="issuer"
+            stableId={StableId.ADD_JWT_KEY_FORM_ISSUER_INPUT}
             isInvalid={!!formState.errors.issuer}
             placeholder="https://jwt.issuer"
             {...register('issuer', {
@@ -93,8 +83,9 @@ export const UploadJwtForm = ({ show, setShow, project }: Props) => {
           <Form.Label htmlFor="publicKey">Public Key</Form.Label>
           <Form.Textarea
             id="publicKey"
-            placeholder={`-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----`}
+            stableId={StableId.ADD_JWT_KEY_FORM_PUBLIC_KEY_INPUT}
             isInvalid={!!formState.errors.publicKey}
+            placeholder={`-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----`}
             {...register('publicKey', {
               required: 'You must enter a public key.',
             })}
@@ -103,21 +94,11 @@ export const UploadJwtForm = ({ show, setShow, project }: Props) => {
         </Form.Group>
       </Flex>
       <ButtonContainer justify="spaceBetween" align="center">
-        <Button
-          stableId={StableId.ADD_JWT_KEY_FORM_CONFIRM_BUTTON}
-          onClick={handleSubmit(({ description, issuer, publicKey }) => addKey(description, issuer, publicKey))}
-          color={'primary'}
-        >
+        <Button stableId={StableId.ADD_JWT_KEY_FORM_CONFIRM_BUTTON} onClick={handleSubmit(submit)} color={'primary'}>
           Confirm
         </Button>
 
-        <TextButton
-          stableId={StableId.ADD_JWT_KEY_FORM_CANCEL_BUTTON}
-          color="neutral"
-          onClick={() => {
-            setShow(false);
-          }}
-        >
+        <TextButton stableId={StableId.ADD_JWT_KEY_FORM_CANCEL_BUTTON} color="neutral" onClick={close}>
           Cancel
         </TextButton>
       </ButtonContainer>

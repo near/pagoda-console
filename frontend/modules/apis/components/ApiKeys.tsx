@@ -1,6 +1,6 @@
 import type { Api } from '@pc/common/types/api';
 import { Root as VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { Badge } from '@/components/lib/Badge';
 import { Button } from '@/components/lib/Button';
@@ -68,7 +68,6 @@ export function ApiKeys({ project }: Props) {
     getAnalyticsSuccessData: () => ({ description: keyToRotate.description }),
     getAnalyticsErrorData: () => ({ description: keyToRotate.description }),
   });
-  const closeCreateModal = useCallback(() => setShowCreateModal(false), []);
 
   return (
     <Flex stack gap="l">
@@ -82,7 +81,7 @@ export function ApiKeys({ project }: Props) {
       <Flex stack>
         <Dialog.Root open={showCreateModal} onOpenChange={setShowCreateModal}>
           <Dialog.Content title="Create New Key" size="s">
-            <CreateApiKeyForm close={closeCreateModal} />
+            <CreateApiKeyForm close={() => setShowCreateModal(false)} project={project} />
           </Dialog.Content>
         </Dialog.Root>
         <ConfirmModal

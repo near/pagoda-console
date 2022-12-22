@@ -173,6 +173,11 @@ export namespace Api {
         output: z.infer<typeof Projects.mutation.outputs.generateKey>;
         error: z.infer<typeof Projects.mutation.errors.generateKey>;
       };
+      '/projects/addJwtKey': {
+        input: z.infer<typeof Projects.mutation.inputs.addJwtKey>;
+        output: z.infer<typeof Projects.mutation.outputs.addJwtKey>;
+        error: z.infer<typeof Projects.mutation.errors.addJwtKey>;
+      };
       '/projects/deleteKey': {
         input: z.infer<typeof Projects.mutation.inputs.deleteKey>;
         output: z.infer<typeof Projects.mutation.outputs.deleteKey>;

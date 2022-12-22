@@ -217,19 +217,33 @@ export class ProjectsController {
   async generateKey(
     @Request() req,
     @Body()
-    key: Api.Mutation.Input<'/projects/generateKey'>,
+    { project, description }: Api.Mutation.Input<'/projects/generateKey'>,
   ): Promise<Api.Mutation.Output<'/projects/generateKey'>> {
     try {
-      const { project, description } = key;
-      if (key.type === 'KEY') {
-        return await this.projectsService.generateKey(
-          req.user,
-          project,
-          description,
-        );
-      }
+      return await this.projectsService.generateKey(
+        req.user,
+        project,
+        description,
+      );
+    } catch (e: any) {
+      throw mapError(e);
+    }
+  }
 
-      const { issuer, publicKey } = key;
+  @Post('addJwtKey')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(Projects.mutation.inputs.addJwtKey))
+  async addJwtKey(
+    @Request() req,
+    @Body()
+    {
+      project,
+      description,
+      issuer,
+      publicKey,
+    }: Api.Mutation.Input<'/projects/addJwtKey'>,
+  ): Promise<Api.Mutation.Output<'/projects/addJwtKey'>> {
+    try {
       return await this.projectsService.addJwtKey(
         req.user,
         project,

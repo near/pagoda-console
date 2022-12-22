@@ -42,7 +42,7 @@ export function JwtAuth({ project }: Props) {
       <Flex stack>
         <Dialog.Root open={showJwtModal} onOpenChange={setShowJwtModal}>
           <Dialog.Content title="Add JWT Public Key" size="m">
-            <UploadJwtForm setShow={setShowJwtModal} show={showJwtModal} project={project} />
+            <UploadJwtForm close={() => setShowJwtModal(false)} project={project} />
           </Dialog.Content>
         </Dialog.Root>
 

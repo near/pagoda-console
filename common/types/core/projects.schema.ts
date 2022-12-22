@@ -114,20 +114,16 @@ export const mutation = {
     rotateKey: z.strictObject({
       slug: apiKeySlug,
     }),
-    generateKey: z.discriminatedUnion('type', [
-      z.strictObject({
-        type: z.literal('KEY'),
-        project: projectSlug,
-        description: z.string(),
-      }),
-      z.strictObject({
-        type: z.literal('JWT'),
-        project: projectSlug,
-        description: z.string(),
-        publicKey: z.string(),
-        issuer: z.string(),
-      }),
-    ]),
+    generateKey: z.strictObject({
+      project: projectSlug,
+      description: z.string(),
+    }),
+    addJwtKey: z.strictObject({
+      project: projectSlug,
+      description: z.string(),
+      publicKey: z.string(),
+      issuer: z.string(),
+    }),
     deleteKey: z.strictObject({
       slug: apiKeySlug,
     }),
@@ -148,9 +144,17 @@ export const mutation = {
       z.strictObject({
         keySlug: apiKey.shape.slug,
         key: z.string(),
+        type: keyType,
       }),
     ),
     generateKey: apiKey.pick({ description: true }).merge(
+      z.strictObject({
+        keySlug: apiKey.shape.slug,
+        key: z.string(),
+        type: keyType,
+      }),
+    ),
+    addJwtKey: apiKey.pick({ description: true }).merge(
       z.strictObject({
         keySlug: apiKey.shape.slug,
         key: z.string(),
@@ -168,6 +172,7 @@ export const mutation = {
     removeContract: z.unknown(),
     rotateKey: z.unknown(),
     generateKey: z.unknown(),
+    addJwtKey: z.unknown(),
     deleteKey: z.unknown(),
   },
 };
