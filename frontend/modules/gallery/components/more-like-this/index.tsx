@@ -3,6 +3,8 @@ import { useRouter } from 'next/router';
 import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
+import { useGalleryStore } from '@/stores/gallery';
+import { selectMoreLikeThis } from '@/stores/gallery/gallery';
 import { styled } from '@/styles/stitches';
 
 import ResultsTemplate from '../browse/ResultsTemplate';
@@ -24,9 +26,8 @@ const SeeAllTemplate = styled('span', {
 });
 
 const MoreLikeThis = () => {
-  const templates = [1, 2, 3, 4];
   const router = useRouter();
-
+  const moreLikeThis = useGalleryStore(selectMoreLikeThis);
   const seeAllTemplates = () => router.push('/gallery');
 
   return (
@@ -42,8 +43,8 @@ const MoreLikeThis = () => {
         </Flex>
       </ResultsTop>
       <Templates>
-        {templates.map((t) => (
-          <ResultsTemplate key={t} />
+        {moreLikeThis.map((template, i) => (
+          <ResultsTemplate key={i} template={template} />
         ))}
       </Templates>
     </Container>

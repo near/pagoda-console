@@ -1,0 +1,25 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tools",
+  "info": {
+    "singularName": "tool",
+    "pluralName": "tools",
+    "displayName": "tool"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "templates": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::template.template",
+      "mappedBy": "tools"
+    }
+  }
+}

@@ -78,8 +78,14 @@ export const useWalletSelector = (contractId: string | undefined) => {
     selector = await setupWalletSelector({
       network: network as NetworkId,
       modules: [
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         setupMyNearWallet({ iconUrl: myNearWalletIconUrl.src }),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         setupSender({ iconUrl: senderIconUrl.src }),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         setupNearWallet({ iconUrl: nearWalletIconUrl.src }),
       ],
       storage: {

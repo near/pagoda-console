@@ -1,10 +1,7 @@
+import type { FilterCustomData } from '@/stores/gallery/gallery';
+
 export interface FilterButtonsProps {
   title: string;
-  options: Array<Options>;
+  options: Array<FilterCustomData>;
   name: string;
-}
-
-export interface Options {
-  option: string;
-  value: string;
 }
