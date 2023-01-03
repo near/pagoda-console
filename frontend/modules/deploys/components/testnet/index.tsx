@@ -62,7 +62,7 @@ const Testnet = () => {
             </Text>
           </FlexTop>
           <FlexTop>
-            <Button stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON} size="s" color="neutral">
+            <Button stableId={StableId.DEPLOYS_TESTNET_REPO} size="s" color="neutral">
               <FeatherIcon size="xs" icon="external-link" /> frontend.github.io
             </Button>
           </FlexTop>
@@ -79,13 +79,13 @@ const Testnet = () => {
         <HR color="warning" />
         <Box padding="m">
           <Flex justify="end">
-            <Button stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON} size="s" color="neutral">
+            <Button stableId={StableId.DEPLOYS_TESTNET_ALERTS} size="s" color="neutral">
               <FeatherIcon size="xs" icon="bell" /> Alerts
             </Button>
-            <Button stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON} size="s" color="neutral">
+            <Button stableId={StableId.DEPLOYS_TESTNET_INTERACT} size="s" color="neutral">
               <FeatherIcon size="xs" icon="terminal" /> Interact
             </Button>
-            <Button stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON} size="s" color="neutral">
+            <Button stableId={StableId.DEPLOYS_TESTNET_MORE} size="s" color="neutral">
               <FeatherIcon size="xs" icon="more-vertical" />
             </Button>
           </Flex>

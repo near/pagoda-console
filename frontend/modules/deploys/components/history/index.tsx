@@ -25,12 +25,7 @@ const History = () => {
           <Table.HeaderCell></Table.HeaderCell>
           <Table.HeaderCell textTransform="none">
             <Flex justify="end">
-              <Button
-                stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON}
-                hideText="tablet"
-                size="s"
-                color="primaryBorder"
-              >
+              <Button stableId={StableId.DEPLOYS_HISTORY_FILTER} hideText="tablet" size="s" color="primaryBorder">
                 <FeatherIcon size="xs" icon="sliders" /> Filter
               </Button>
             </Flex>
@@ -84,12 +79,7 @@ const History = () => {
             </Table.Cell>
             <Table.Cell>
               <Flex justify="end">
-                <Button
-                  stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON}
-                  hideText="tablet"
-                  size="s"
-                  color="neutral"
-                >
+                <Button stableId={StableId.DEPLOYS_HISTORY_RECORD} hideText="tablet" size="s" color="neutral">
                   <FeatherIcon size="xs" icon="zap" />
                 </Button>
               </Flex>

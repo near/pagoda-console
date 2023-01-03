@@ -15,11 +15,11 @@ const PageHeader = () => (
         </Flex>
 
         <Flex justify="end">
-          <Button color="neutral" stableId={StableId.CONTRACTS_OPEN_SHARE_CONTRACTS_MODAL_BUTTON} hideText="tablet">
+          <Button color="neutral" stableId={StableId.DEPLOYS_GITHUB_REPO} hideText="tablet">
             <FeatherIcon icon="share" /> GitHub Repo
           </Button>
 
-          <Button stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON} hideText="tablet">
+          <Button stableId={StableId.DEPLOYS_CODE} hideText="tablet">
             <FeatherIcon icon="code" /> Code
           </Button>
         </Flex>
