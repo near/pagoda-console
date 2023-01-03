@@ -50,6 +50,9 @@ export const Card = styled('div', {
     },
 
     padding: {
+      none: {
+        padding: '0rem',
+      },
       s: {
         padding: 'var(--space-s)',
       },
