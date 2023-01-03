@@ -12,7 +12,7 @@ const Arrow = styled(Flex, {
     borderRadius: '100%',
     background: 'var(--color-surface-3)',
     position: 'absolute',
-    top: '1rem',
+    top: 'var(--space-m)',
   },
 });
 
