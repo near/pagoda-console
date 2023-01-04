@@ -115,6 +115,9 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
 export default withLDProvider({
   clientSideID: config.launchDarklyEnv,
+  user: {
+    key: 'anonymous-placeholder-id',
+  },
   reactOptions: {
     useCamelCaseFlagKeys: false,
   },
