@@ -130,6 +130,10 @@ function ModalContent<K extends DestinationType>(props: Props<K>) {
                 {props.destination.type === 'TELEGRAM' && (props as Props<'TELEGRAM'>).destination.config.chatTitle}
                 {props.destination.type === 'WEBHOOK' && (props as Props<'WEBHOOK'>).destination.config.url}
                 {props.destination.type === 'EMAIL' && (props as Props<'EMAIL'>).destination.config.email}
+                {props.destination.type === 'AGGREGATION' &&
+                  (props as Props<'AGGREGATION'>).destination.config.contractName}
+                {props.destination.type === 'AGGREGATION' &&
+                  (props as Props<'AGGREGATION'>).destination.config.functionName}
               </Text>
             </Flex>
           </Flex>
@@ -160,6 +164,12 @@ function ModalContent<K extends DestinationType>(props: Props<K>) {
         )}
         {props.destination.type === 'EMAIL' && (
           <EmailDestinationForm onUpdate={onUpdate as FormProps<'EMAIL'>['onUpdate']} {...(props as Props<'EMAIL'>)} />
+        )}
+        {props.destination.type === 'AGGREGATION' && (
+          <AggregationDestinationForm
+            onUpdate={onUpdate as FormProps<'AGGREGATION'>['onUpdate']}
+            {...(props as Props<'AGGREGATION'>)}
+          />
         )}
       </Flex>
 
@@ -414,6 +424,111 @@ function EmailDestinationForm({ destination, onUpdate, setShow }: FormProps<'EMA
               })}
             />
             <Form.Feedback>{formState.errors.name?.message}</Form.Feedback>
+          </Form.Group>
+        </Flex>
+
+        <Flex justify="spaceBetween" align="center">
+          <Button
+            stableId={StableId.EDIT_DESTINATION_MODAL_UPDATE_BUTTON}
+            type="submit"
+            loading={formState.isSubmitting}
+          >
+            Update
+          </Button>
+          <TextButton
+            stableId={StableId.EDIT_DESTINATION_MODAL_CANCEL_BUTTON}
+            color="neutral"
+            onClick={() => setShow(false)}
+          >
+            Cancel
+          </TextButton>
+        </Flex>
+      </Flex>
+    </Form.Root>
+  );
+}
+
+interface AggregationFormData {
+  name: string;
+  contractName: string;
+  functionName: string;
+}
+
+function AggregationDestinationForm({ destination, onUpdate, setShow }: AggregationFormProps) {
+  if (destination.type !== 'AGGREGATION') throw new Error('Invalid destination for AggregationDestinationForm');
+
+  const { formState, setValue, register, handleSubmit } = useForm<AggregationFormData>();
+
+  useEffect(() => {
+    if (destination.name) {
+      setValue('name', destination.name);
+    }
+    setValue('contractName', destination.config.contractName);
+    setValue('functionName', destination.config.functionName);
+  }, [setValue, destination]);
+
+  async function submitForm(data: AggregationFormData) {
+    try {
+      const updated = await updateDestination<'AGGREGATION'>({
+        id: destination.id,
+        name: data.name,
+        config: {
+          type: 'AGGREGATION',
+          contractName: data.contractName,
+          functionName: data.functionName,
+        },
+      });
+
+      onUpdate(updated);
+    } catch (e: any) {
+      console.error('Failed to update destination', e);
+
+      openToast({
+        type: 'error',
+        title: 'Update Error',
+        description: 'Failed to update destination.',
+      });
+    }
+  }
+
+  return (
+    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
+      <Flex stack gap="l">
+        <HR />
+
+        <Flex stack>
+          <Form.Group>
+            <Form.FloatingLabelInput
+              label="Destination Name"
+              isInvalid={!!formState.errors.name}
+              {...register('name', {
+                required: 'Please enter a destination name',
+                maxLength: {
+                  value: 100,
+                  message: 'Destination name must be 100 characters or less',
+                },
+              })}
+            />
+            <Form.Feedback>{formState.errors.name?.message}</Form.Feedback>
+          </Form.Group>
+
+          <Form.Group>
+            <Form.FloatingLabelInput
+              label="Aggregation Contract Name"
+              placeholder="aggregations.buildnear.testnet"
+              isInvalid={!!formState.errors.contractName}
+              {...register('contractName')}
+            />
+            <Form.Feedback>{formState.errors.contractName?.message}</Form.Feedback>
+          </Form.Group>
+          <Form.Group>
+            <Form.FloatingLabelInput
+              label="Aggregation Function Name"
+              placeholder="aggregate_best_greetings"
+              isInvalid={!!formState.errors.functionName}
+              {...register('functionName')}
+            />
+            <Form.Feedback>{formState.errors.functionName?.message}</Form.Feedback>
           </Form.Group>
         </Flex>
 

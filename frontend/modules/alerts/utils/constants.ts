@@ -119,6 +119,17 @@ export const destinationTypes: Record<DestinationType, DestinationTypeOption> = 
     name: 'Webhook',
     value: 'WEBHOOK',
   },
+  AGGREGATION: {
+    description: 'Call an aggregation function.',
+    icon: 'table',
+    name: 'Aggregation',
+    value: 'AGGREGATION',
+  },
 };
 
-export const destinationTypeOptions = [destinationTypes.TELEGRAM, destinationTypes.WEBHOOK, destinationTypes.EMAIL];
+export const destinationTypeOptions = [
+  destinationTypes.TELEGRAM,
+  destinationTypes.WEBHOOK,
+  destinationTypes.EMAIL,
+  destinationTypes.AGGREGATION,
+];

@@ -165,6 +165,14 @@ const TelegramDestinationSchema = Joi.object<
 >({
   type: Joi.string().valid('TELEGRAM').required(),
 });
+const AggregationDestinationSchema = Joi.object<
+  Alerts.CreateAggregationDestinationConfig,
+  true
+>({
+  type: Joi.string().valid('AGGREGATION').required(),
+  contractName: Joi.string().required(),
+  functionName: Joi.string().required(),
+});
 export const CreateDestinationSchema = Joi.object<
   Api.Mutation.Input<'/alerts/createDestination'>,
   true
@@ -175,6 +183,7 @@ export const CreateDestinationSchema = Joi.object<
     WebhookDestinationSchema,
     EmailDestinationSchema,
     TelegramDestinationSchema,
+    AggregationDestinationSchema,
   ])
     // TODO: fix any
     .required() as any,
@@ -228,6 +237,14 @@ const UpdateTelegramDestinationSchema = Joi.object<
 >({
   type: Joi.string().valid('TELEGRAM').required(),
 });
+const UpdateAggregationDestinationSchema = Joi.object<
+  Alerts.UpdateAggregationDestinationConfig,
+  true
+>({
+  type: Joi.string().valid('AGGREGATION').required(),
+  contractName: Joi.string(),
+  functionName: Joi.string(),
+});
 export const UpdateDestinationSchema = Joi.object<
   Api.Mutation.Input<'/alerts/updateDestination'>,
   true
@@ -238,6 +255,7 @@ export const UpdateDestinationSchema = Joi.object<
     UpdateWebhookDestinationSchema,
     UpdateEmailDestinationSchema,
     UpdateTelegramDestinationSchema,
+    UpdateAggregationDestinationSchema,
   ]) as any,
 });
 

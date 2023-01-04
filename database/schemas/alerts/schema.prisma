@@ -92,6 +92,7 @@ model Destination {
   webhookDestination  WebhookDestination?
   emailDestination    EmailDestination?
   telegramDestination TelegramDestination?
+  aggregationDestination AggregationDestination?
 
   TriggeredAlertDestination TriggeredAlertDestination[]
 
@@ -162,10 +163,27 @@ model TelegramDestination {
   @@map("telegram_destinations")
 }
 
+model AggregationDestination {
+  id            Int         @id @default(autoincrement())
+  destination   Destination @relation(fields: [destinationId], references: [id])
+  destinationId Int         @unique @map("destination_id")
+  contractName  String		@map("contract_name")
+  functionName  String		@map("function_name")
+  createdAt     DateTime?   @default(now()) @map("created_at") @db.Timestamptz
+  /// Reference to the user id who created the record.
+  createdBy     Int?        @map("created_by")
+  updatedAt     DateTime?   @updatedAt @map("updated_at") @db.Timestamptz
+  /// Reference to the user id who last updated the record.
+  updatedBy     Int?        @map("updated_by")
+
+  @@map("aggregation_destinations")
+}
+
 enum DestinationType {
   WEBHOOK
   EMAIL
   TELEGRAM
+  AGGREGATION
 
   @@map("destination_type")
 }

@@ -4,6 +4,7 @@ import {
   EmailDestination as EmailDestinationDatabase,
   TelegramDestination as TelegramDestinationDatabase,
   WebhookDestination as WebhookDestinationDatabase,
+  AggregationDestination as AggregationDestinationDatabase,
 } from '@pc/database/clients/alerts';
 
 export type RuleType =
@@ -97,12 +98,17 @@ export type CreateEmailDestinationConfig = {
 export type CreateTelegramDestinationConfig = {
   type: 'TELEGRAM';
 };
-
+export type CreateAggregationDestinationConfig = {
+  type: 'AGGREGATION';
+  contractName: string;
+  functionName: string;
+};
 export type CreateDestinationInput = CreateBaseDestinationInput & {
   config:
     | CreateWebhookDestinationConfig
     | CreateEmailDestinationConfig
-    | CreateTelegramDestinationConfig;
+    | CreateTelegramDestinationConfig
+    | CreateAggregationDestinationConfig;
 };
 
 type BaseDestination = Pick<
@@ -125,10 +131,15 @@ export type TelegramDestination = BaseDestination & {
   config: Pick<TelegramDestinationDatabase, 'startToken' | 'chatTitle'>;
 };
 
+export type AggregationDestination = BaseDestination & {
+  type: 'AGGREGATION';
+  config: Pick<AggregationDestinationDatabase, 'contractName' | 'functionName'>;
+};
 export type Destination =
   | WebhookDestination
   | EmailDestination
-  | TelegramDestination;
+  | TelegramDestination
+  | AggregationDestination;
 
 export type UpdateDestinationBaseInput = {
   id: number;
@@ -144,12 +155,18 @@ export type UpdateEmailDestinationConfig = {
 export type UpdateTelegramDestinationConfig = {
   type: 'TELEGRAM';
 };
+export type UpdateAggregationDestinationConfig = {
+  type: 'AGGREGATION';
+  contractName: string;
+  functionName: string;
+};
 
 export type UpdateDestinationInput = UpdateDestinationBaseInput & {
   config:
     | UpdateWebhookDestinationConfig
     | UpdateEmailDestinationConfig
-    | UpdateTelegramDestinationConfig;
+    | UpdateTelegramDestinationConfig
+    | UpdateAggregationDestinationConfig;
 };
 
 type EnabledDestination = Pick<DestinationDatabase, 'id' | 'name'> & {
@@ -159,6 +176,10 @@ type EnabledDestination = Pick<DestinationDatabase, 'id' | 'name'> & {
     | ({ type: 'TELEGRAM' } & Pick<
         TelegramDestinationDatabase,
         'chatTitle' | 'startToken'
+      >)
+    | ({ type: 'AGGREGATION' } & Pick<
+        AggregationDestinationDatabase,
+        'contractName' | 'functionName'
       >);
 };
 

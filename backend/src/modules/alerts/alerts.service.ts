@@ -8,6 +8,7 @@ import {
   WebhookDestination,
   EmailDestination,
   TelegramDestination,
+  AggregationDestination,
 } from '@pc/database/clients/alerts';
 
 // TODO should we re-export these types from the core module? So there is no dependency on the core prisma/client
@@ -55,6 +56,10 @@ type AlertWithDestinations = Alert & {
       telegramDestination: Pick<
         TelegramDestination,
         'startToken' | 'chatTitle'
+      > | null;
+      aggregationDestination: Pick<
+        AggregationDestination,
+        'contractName' | 'functionName'
       > | null;
     };
   }[];
@@ -292,6 +297,12 @@ export class AlertsService {
                       chatTitle: true,
                     },
                   },
+                  aggregationDestination: {
+                    select: {
+                      contractName: true,
+                      functionName: true,
+                    },
+                  },
                 },
               },
             },
@@ -347,6 +358,12 @@ export class AlertsService {
                       chatTitle: true,
                     },
                   },
+                  aggregationDestination: {
+                    select: {
+                      contractName: true,
+                      functionName: true,
+                    },
+                  },
                 },
               },
             },
@@ -400,6 +417,12 @@ export class AlertsService {
                     chatTitle: true,
                   },
                 },
+                aggregationDestination: {
+                  select: {
+                    contractName: true,
+                    functionName: true,
+                  },
+                },
               },
             },
           },
@@ -442,6 +465,12 @@ export class AlertsService {
                       chatTitle: true,
                     },
                   },
+                  aggregationDestination: {
+                    select: {
+                      contractName: true,
+                      functionName: true,
+                    },
+                  },
                 },
               },
             },
@@ -481,6 +510,7 @@ export class AlertsService {
           webhookDestination,
           emailDestination,
           telegramDestination,
+          aggregationDestination,
         } = enabledDestination.destination;
         let config;
         switch (type) {
@@ -492,6 +522,9 @@ export class AlertsService {
             break;
           case 'TELEGRAM':
             config = telegramDestination;
+            break;
+          case 'AGGREGATION':
+            config = aggregationDestination;
             break;
           default:
             assertUnreachable(type);
@@ -757,7 +790,61 @@ export class AlertsService {
       throw new VError(e, 'Failed to create telegram destination');
     }
   }
+  async createAggregationDestination(
+    user: User,
+    {
+      name = 'Aggregation Destination',
+      projectSlug,
+    }: Alerts.CreateBaseDestinationInput,
+    { contractName, functionName }: Alerts.CreateAggregationDestinationConfig,
+  ) {
+    await this.projectPermissions.checkUserProjectPermission(
+      user.id,
+      projectSlug,
+    );
 
+    try {
+      const { aggregationDestination, ...destination } =
+        await this.prisma.destination.create({
+          data: {
+            name,
+            projectSlug,
+            type: 'AGGREGATION',
+            isValid: true,
+            createdBy: user.id,
+            updatedBy: user.id,
+            aggregationDestination: {
+              create: {
+                createdBy: user.id,
+                updatedBy: user.id,
+                contractName,
+                functionName,
+              },
+            },
+          },
+          select: {
+            id: true,
+            name: true,
+            projectSlug: true,
+            isValid: true,
+            aggregationDestination: {
+              select: {
+                contractName: true,
+                functionName: true,
+              },
+            },
+          },
+        });
+
+      return {
+        ...destination,
+        type: 'AGGREGATION' as const,
+        config: aggregationDestination!,
+      };
+    } catch (e: any) {
+      throw new VError(e, 'Failed to create aggregation destination');
+    }
+  }
   async deleteDestination(user: User, id: Destination['id']): Promise<void> {
     await this.checkUserDestinationPermission(user.id, id);
 
@@ -814,6 +901,12 @@ export class AlertsService {
             chatTitle: true,
           },
         },
+        aggregationDestination: {
+          select: {
+            contractName: true,
+            functionName: true,
+          },
+        },
       },
       orderBy: {
         id: 'asc',
@@ -826,6 +919,7 @@ export class AlertsService {
         webhookDestination,
         emailDestination,
         telegramDestination,
+        aggregationDestination,
         ...rest
       }) => {
         switch (type) {
@@ -835,6 +929,8 @@ export class AlertsService {
             return { ...rest, type, config: emailDestination! };
           case 'TELEGRAM':
             return { ...rest, type, config: telegramDestination! };
+          case 'AGGREGATION':
+            return { ...rest, type, config: aggregationDestination! };
           default:
             assertUnreachable(type);
         }
@@ -1038,7 +1134,53 @@ export class AlertsService {
       throw new VError(e, 'Failed while updating telegram destination');
     }
   }
+  async updateAggregationDestination(
+    callingUser: User,
+    dto: Alerts.UpdateDestinationBaseInput,
+    config: Alerts.UpdateAggregationDestinationConfig,
+  ) {
+    const { id, name } = dto;
+    await this.checkUserDestinationPermission(callingUser.id, id);
 
+    try {
+      const { aggregationDestination, ...destination } =
+        await this.prisma.destination.update({
+          where: {
+            id,
+          },
+          data: {
+            name,
+            updatedBy: callingUser.id,
+            aggregationDestination: {
+              update: {
+                contractName: config.contractName,
+                functionName: config.functionName,
+                updatedBy: callingUser.id,
+              },
+            },
+          },
+          select: {
+            id: true,
+            name: true,
+            projectSlug: true,
+            isValid: true,
+            aggregationDestination: {
+              select: {
+                contractName: true,
+                functionName: true,
+              },
+            },
+          },
+        });
+      return {
+        ...destination,
+        type: 'AGGREGATION' as const,
+        config: aggregationDestination!,
+      };
+    } catch (e: any) {
+      throw new VError(e, 'Failed while updating aggregation destination');
+    }
+  }
   async verifyEmailDestination(token?: string) {
     try {
       const emailDestination = await this.prisma.emailDestination.findUnique({
