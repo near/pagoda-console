@@ -1,3 +1,4 @@
+import { useLDClient } from 'launchdarkly-react-client-sdk';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 
@@ -13,6 +14,7 @@ export function useAnalytics() {
   const { authStatus } = useAuth();
   const { user } = useAccount();
   const [hasIdentified, setHasIdentified] = useState(false);
+  const ldClient = useLDClient();
 
   useEffect(() => {
     if (user?.uid) {
@@ -24,9 +26,11 @@ export function useAnalytics() {
         userId: user.uid,
       });
 
+      if (ldClient) ldClient.identify({ key: user.uid });
+
       setHasIdentified(true);
     }
-  }, [user]);
+  }, [ldClient, user]);
 
   useEffect(() => {
     let page;
