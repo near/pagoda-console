@@ -39,6 +39,7 @@ export function ShareContracts({ contracts, environment }: Props) {
     });
 
     analytics.track('DC Share Contracts: Copied URL', {
+      status: 'success',
       addresses: selectedAddresses.join(','),
       url,
     });
@@ -56,6 +57,7 @@ export function ShareContracts({ contracts, environment }: Props) {
     }
 
     analytics.track('DC Share Contracts: Shared URL', {
+      status: 'success',
       addresses: selectedAddresses.join(','),
       url,
     });
@@ -68,6 +70,7 @@ export function ShareContracts({ contracts, environment }: Props) {
       });
 
       analytics.track('DC Share Contracts: Contract Selected', {
+        status: 'success',
         address: e.target.value,
       });
     } else {
@@ -76,6 +79,7 @@ export function ShareContracts({ contracts, environment }: Props) {
       });
 
       analytics.track('DC Share Contracts: Contract Deselected', {
+        status: 'success',
         address: e.target.value,
       });
     }
@@ -149,6 +153,7 @@ function ContractCheckbox({
 
   function abiIconHover() {
     analytics.track('DC Share Contracts: ABI Icon Hover', {
+      status: 'success',
       address: contract.address,
       hasEmbeddedAbi: Boolean(abiQuery.data),
     });

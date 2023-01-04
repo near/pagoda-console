@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 import config from './config';
 
 interface Properties {
+  status: 'success' | 'failure';
   [key: string]: any;
 }
 
