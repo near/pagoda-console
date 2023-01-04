@@ -179,6 +179,12 @@ export class AlertsController {
             req.user,
             rest,
           );
+        case 'AGGREGATION':
+          return await this.alertsService.createAggregationDestination(
+            req.user,
+            rest,
+            config,
+          );
         default:
           assertUnreachable(
             config,
@@ -287,6 +293,12 @@ export class AlertsController {
           return await this.alertsService.updateTelegramDestination(
             req.user,
             rest,
+          );
+        case 'AGGREGATION':
+          return await this.alertsService.updateAggregationDestination(
+            req.user,
+            rest,
+            config,
           );
         default:
           assertUnreachable(

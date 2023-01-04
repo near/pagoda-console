@@ -161,6 +161,9 @@ function ModalContent(props: Props<DestinationType>) {
       {destinationType === 'EMAIL' && (
         <EmailDestinationForm setIsCreated={setIsCreated} {...(props as Props<'EMAIL'>)} />
       )}
+      {destinationType === 'AGGREGATION' && (
+        <AggregationDestinationForm setIsCreated={setIsCreated} {...(props as Props<'AGGREGATION'>)} />
+      )}
     </Flex>
   );
 }
@@ -337,6 +340,78 @@ function EmailDestinationForm(props: FormProps<'EMAIL'>) {
           >
             Cancel
           </TextButton>
+        </Flex>
+      </Flex>
+    </Form.Root>
+  );
+}
+
+interface AggregationFormData {
+  contractName: string;
+  functionName: string;
+}
+
+function AggregationDestinationForm(props: FormProps<'AGGREGATION'>) {
+  const { create, destination, form } = useNewDestinationForm<AggregationFormData, 'AGGREGATION'>(props);
+
+  async function submitForm(data: AggregationFormData) {
+    await create(
+      { projectSlug: props.projectSlug },
+      { type: 'AGGREGATION', contractName: data.contractName, functionName: data.functionName },
+    );
+  }
+
+  if (destination)
+    return (
+      <Flex stack gap="l">
+        <Flex align="center">
+          <FeatherIcon icon="check-circle" color="primary" size="m" />
+          <H5>Aggregation destination has been created.</H5>
+        </Flex>
+      </Flex>
+    );
+
+  return (
+    <Form.Root disabled={form.formState.isSubmitting} onSubmit={form.handleSubmit(submitForm)}>
+      <Flex stack gap="l">
+        <Flex stack>
+          <Form.Group>
+            <Form.FloatingLabelInput
+              label="Aggregation Contract Name"
+              placeholder="aggregation.buildnear.testnet"
+              isInvalid={!!form.formState.errors.contractName}
+              stableId={StableId.NEW_DESTINATION_MODAL_AGGREGATION_CONTRACT_NAME_INPUT}
+              {...form.register('contractName')}
+            />
+            <Form.Feedback>{form.formState.errors.contractName?.message}</Form.Feedback>
+          </Form.Group>
+          <Form.Group>
+            <Form.FloatingLabelInput
+              label="Aggregation Function Name"
+              placeholder="aggregate_best_greetings"
+              isInvalid={!!form.formState.errors.functionName}
+              stableId={StableId.NEW_DESTINATION_MODAL_AGGREGATION_FUNCTION_NAME_INPUT}
+              {...form.register('functionName')}
+            />
+            <Form.Feedback>{form.formState.errors.functionName?.message}</Form.Feedback>
+          </Form.Group>
+        </Flex>
+
+        <Flex>
+          <Button
+            loading={form.formState.isSubmitting}
+            type="submit"
+            stableId={StableId.NEW_DESTINATION_MODAL_CREATE_BUTTON}
+          >
+            Create
+          </Button>
+          <Button
+            onClick={() => props.setShow(false)}
+            color="neutral"
+            stableId={StableId.NEW_DESTINATION_MODAL_CANCEL_BUTTON}
+          >
+            Cancel
+          </Button>
         </Flex>
       </Flex>
     </Form.Root>

@@ -8,6 +8,7 @@ export const destinationType: z.ZodType<DestinationType> = z.enum([
   'WEBHOOK',
   'EMAIL',
   'TELEGRAM',
+  'AGGREGATION'
 ]);
 export const alertRuleKind: z.ZodType<AlertRuleKind> = z.enum([
   'ACTIONS',
@@ -89,6 +90,17 @@ export const databaseTelegramDestination = z.strictObject({
   startToken: z.string().or(z.null()),
   tokenExpiresAt: z.date().or(z.null()),
   createdAt: z.date(),
+  createdBy: z.number().or(z.null()),
+  updatedAt: z.date().or(z.null()),
+  updatedBy: z.number().or(z.null()),
+});
+
+export const databaseAggregationDestination = z.strictObject({
+  id: z.number(),
+  destinationId: z.number(),
+  contractName: z.string(),
+  functionName: z.string(),
+  createdAt: z.date().or(z.null()),
   createdBy: z.number().or(z.null()),
   updatedAt: z.date().or(z.null()),
   updatedBy: z.number().or(z.null()),
@@ -215,6 +227,14 @@ const updateTelegramDestinationConfig = z.strictObject({
   type: z.literal('TELEGRAM'),
 });
 
+const updateAggregationDestinationConfig = z.strictObject({
+  type: z.literal('AGGREGATION'),
+  contractName: z.string(),
+  functionName: z.string(),
+});
+export type UpdateAggregationDestinationConfig = z.infer<
+  typeof updateAggregationDestinationConfig
+>;
 const createBaseDestinationInput = z.strictObject({
   name: destinationName.optional(),
   projectSlug,
@@ -243,12 +263,21 @@ const createTelegramDestinationConfig = z.strictObject({
   type: z.literal('TELEGRAM'),
 });
 
+const createAggregationDestinationConfig = z.strictObject({
+  type: z.literal('AGGREGATION'),
+  contractName: z.string(),
+  functionName: z.string(),
+});
+export type CreateAggregationDestinationConfig = z.infer<
+  typeof createAggregationDestinationConfig
+>;
 const createDestinationInput = createBaseDestinationInput.merge(
   z.strictObject({
     config: z.discriminatedUnion('type', [
       createWebhookDestinationConfig,
       createEmailDestinationConfig,
       createTelegramDestinationConfig,
+      createAggregationDestinationConfig,
     ]),
   }),
 );
@@ -281,6 +310,10 @@ const enabledDestination = databaseDestination
             chatTitle: true,
             startToken: true,
           }),
+        }),
+        z.strictObject({
+          type: z.literal('AGGREGATION'),
+          config: databaseAggregationDestination.pick({ contractName: true, functionName: true }),
         }),
       ]),
     }),
@@ -345,10 +378,22 @@ const telegramDestination = baseDestination.merge(
   }),
 );
 export type TelegramDestination = z.infer<typeof telegramDestination>;
+const aggregationDestination = baseDestination.merge(
+  z.strictObject({
+    type: z.literal('AGGREGATION'),
+    config: databaseAggregationDestination.pick({
+      contractName: true,
+      functionName: true,
+    }),
+  }),
+);
+export type AggregationDestination = z.infer<typeof aggregationDestination>;
+
 const destination = z.union([
   webhookDestination,
   emailDestination,
   telegramDestination,
+  aggregationDestination,
 ]);
 export type Destination = z.infer<typeof destination>;
 
@@ -422,6 +467,7 @@ export const mutation = {
           updateWebhookDestinationConfig,
           updateEmailDestinationConfig,
           updateTelegramDestinationConfig,
+          updateAggregationDestinationConfig,
         ]),
       }),
     ),
