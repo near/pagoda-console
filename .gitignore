@@ -3,3 +3,4 @@ dbData
 .turbo
 ignore
 out
+eslint-rules/dist/tsconfig.tsbuildinfo
