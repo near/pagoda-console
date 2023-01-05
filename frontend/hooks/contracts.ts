@@ -11,14 +11,18 @@ import { fetchApi } from '@/utils/http';
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
 export function useContracts(project: string | undefined, environment: number | undefined) {
-  const { data: contracts, error } = useSWR(
+  const {
+    data: contracts,
+    error,
+    mutate,
+  } = useSWR(
     project && environment ? ['/projects/getContracts' as const, project, environment] : null,
     (key, project, environment) => {
       return fetchApi([key, { project, environment }]);
     },
   );
 
-  return { contracts, error };
+  return { contracts, error, mutate };
 }
 
 export function useContract(slug: string | undefined) {

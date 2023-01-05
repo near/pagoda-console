@@ -1,7 +1,6 @@
 import type { Api } from '@pc/common/types/api';
 import { Root as VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { useRef, useState } from 'react';
-import { useMutation } from 'react-query';
 
 import { Badge } from '@/components/lib/Badge';
 import { Button } from '@/components/lib/Button';
@@ -14,11 +13,11 @@ import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useApiKeys } from '@/hooks/new-api-keys';
+import { useTypedMutation } from '@/hooks/typed-mutation';
 import { CreateApiKeyForm } from '@/modules/apis/components/CreateApiKeyForm';
 import StarterGuide from '@/modules/core/components/StarterGuide';
 import analytics from '@/utils/analytics';
 import { handleMutationError } from '@/utils/error-handlers';
-import { fetchApi } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
@@ -38,25 +37,22 @@ export function ApiKeys({ project }: Props) {
     key: '',
   });
 
-  const rotateKeyMutation = useMutation(
-    (input: Api.Mutation.Input<'/projects/rotateKey'>) => fetchApi(['/projects/rotateKey', input]),
-    {
-      onSuccess: () => {
-        mutateKeys();
-        setShowRotationModal(false);
-        analytics.track('DC Rotate API Key', {
-          status: 'success',
-        });
-      },
-      onError: (error) => {
-        handleMutationError({
-          error,
-          eventLabel: 'DC Rotate API Key',
-          toastTitle: 'Failed to rotate API key.',
-        });
-      },
+  const rotateKeyMutation = useTypedMutation('/projects/rotateKey', {
+    onSuccess: () => {
+      mutateKeys();
+      setShowRotationModal(false);
+      analytics.track('DC Rotate API Key', {
+        status: 'success',
+      });
     },
-  );
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Rotate API Key',
+        toastTitle: 'Failed to rotate API key.',
+      });
+    },
+  });
 
   return (
     <Flex stack gap="l">

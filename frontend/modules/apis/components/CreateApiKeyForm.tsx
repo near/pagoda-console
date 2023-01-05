@@ -1,16 +1,16 @@
 import type { Api } from '@pc/common/types/api';
+import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
-import { useMutation } from 'react-query';
 
 import { Button } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { TextButton } from '@/components/lib/TextLink';
 import { useApiKeys } from '@/hooks/new-api-keys';
+import { useTypedMutation } from '@/hooks/typed-mutation';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
 import { handleMutationError } from '@/utils/error-handlers';
-import { fetchApi } from '@/utils/http';
 import { StableId } from '@/utils/stable-ids';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
@@ -32,33 +32,30 @@ export const CreateApiKeyForm = ({ onClose, project }: Props) => {
   const { mutate: mutateKeys } = useApiKeys(project?.slug);
   const { register, handleSubmit, formState } = useForm<NewKeyFormData>();
 
-  const generateKeyMutation = useMutation(
-    (input: Api.Mutation.Input<'/projects/generateKey'>) => fetchApi(['/projects/generateKey', input]),
-    {
-      onSuccess: () => {
-        onClose();
-        mutateKeys();
-        analytics.track('DC Create API Key', {
-          status: 'success',
-        });
-      },
-      onError: (error) => {
-        handleMutationError({
-          error,
-          eventLabel: 'DC Create API Key',
-          toastTitle: 'Failed to create API key.',
-        });
-      },
+  const generateKeyMutation = useTypedMutation('/projects/generateKey', {
+    onSuccess: () => {
+      onClose();
+      mutateKeys();
+      analytics.track('DC Create API Key', {
+        status: 'success',
+      });
     },
-  );
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Create API Key',
+        toastTitle: 'Failed to create API key.',
+      });
+    },
+  });
 
-  function submit({ description }: NewKeyFormData) {
+  const submit: SubmitHandler<NewKeyFormData> = ({ description }: NewKeyFormData) => {
     if (!project) {
       return;
     }
 
     generateKeyMutation.mutate({ description, project: project.slug });
-  }
+  };
 
   return (
     <Form.Root onSubmit={handleSubmit(submit)}>

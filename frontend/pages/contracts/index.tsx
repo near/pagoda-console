@@ -1,7 +1,7 @@
 import type { Api } from '@pc/common/types/api';
 import { useRouter } from 'next/router';
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import * as Dialog from '@/components/lib/Dialog';
@@ -36,12 +36,15 @@ const ListContracts: NextPageWithLayout = () => {
   const { publicModeIsActive } = usePublicMode();
   const { project } = useSelectedProject();
   const { environment } = useCurrentEnvironment();
-  const { contracts: privateContracts } = useContracts(project?.slug, environment?.subId);
+  const { contracts: privateContracts, mutate } = useContracts(project?.slug, environment?.subId);
   const { contracts } = usePublicOrPrivateContracts(privateContracts);
   const [addContractIsOpen, setAddContractIsOpen] = useState(false);
   const [shareContractsIsOpen, setShareContractsIsOpen] = useState(false);
 
-  const onContractAdd = useCallback(() => setAddContractIsOpen(false), []);
+  function onContractAdd(contract: Contract) {
+    mutate((contracts) => contracts && [...contracts, contract]);
+    setAddContractIsOpen(false);
+  }
 
   return (
     <>
