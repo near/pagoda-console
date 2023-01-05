@@ -1,6 +1,6 @@
 import type { AuthError, UserCredential } from 'firebase/auth';
 import Link from 'next/link';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button, ButtonLink } from '@/components/lib/Button';
@@ -46,16 +46,11 @@ export function EmailForm({ mutation: signInViaEmailMutation, externalLoading }:
     }
   }, [signInViaEmailMutation.error]);
 
-  const signInWithEmail = useCallback(
-    ({ email, password }) => signInViaEmailMutation.mutate({ email, password }),
-    [signInViaEmailMutation],
-  );
-
   return (
     <>
       <Form.Root
         disabled={signInViaEmailMutation.isLoading || externalLoading}
-        onSubmit={handleSubmit(signInWithEmail)}
+        onSubmit={handleSubmit(signInViaEmailMutation.mutate)}
       >
         <Flex stack gap="l" align="center">
           <Flex stack gap="m">
