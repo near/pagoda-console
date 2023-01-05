@@ -6,6 +6,7 @@ import '@/styles/enhanced-api.scss';
 import '@/styles/near-wallet-selector.scss';
 
 import * as FullStory from '@fullstory/browser';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { initializeApp } from 'firebase/app';
 import Gleap from 'gleap';
 import { withLDProvider } from 'launchdarkly-react-client-sdk';
@@ -16,7 +17,6 @@ import { appWithTranslation } from 'next-i18next';
 import type { ComponentProps, ComponentType } from 'react';
 import { useState } from 'react';
 import { useEffect } from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
 import { SWRConfig } from 'swr';
 
 import { SimpleLayout } from '@/components/layouts/SimpleLayout';
@@ -105,6 +105,15 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
         <FeatherIconSheet />
         <Toaster />
+
+        {/* 
+          When we start using React Query for queries (not just mutations), we could experiment with including the devtools.
+          The devtools don't display any information regarding mutations as of now.
+
+          import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+          ...
+          {config.deployEnv === 'LOCAL' && <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />}
+        */}
 
         {config.downtimeMode ? (
           <SimpleLayout>
