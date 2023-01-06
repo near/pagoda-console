@@ -8,7 +8,7 @@ export function handleMutationError({
   toastTitle,
   toastDescription,
 }: {
-  error: unknown;
+  error: any;
   eventLabel: string;
   eventData?: Record<string, any>;
   toastTitle?: string;
@@ -16,7 +16,7 @@ export function handleMutationError({
 }) {
   let message = 'Unknown error';
   if (typeof error === 'string') message = error;
-  else if (typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string') {
+  else if (typeof error === 'object' && typeof error.message === 'string') {
     message = error.message;
   }
 
