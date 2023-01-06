@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
@@ -9,8 +8,10 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
-import { useMutation } from '@/hooks/mutation';
+import { useApiMutation } from '@/hooks/api-mutation';
+import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
+import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
 
 interface ForgotPasswordFormData {
@@ -24,18 +25,27 @@ interface Props {
 
 const ModalContent = ({ setShow }: Props) => {
   const { register, handleSubmit, formState } = useForm<ForgotPasswordFormData>();
-  const resetPasswordMutation = useMutation('/users/resetPassword', { unauth: true });
 
-  const resetPasswordError =
-    resetPasswordMutation.status === 'error'
-      ? (resetPasswordMutation.error as any).code === 400
-        ? 'Please enter a valid email address'
-        : 'Something went wrong'
-      : undefined;
-  const resetPassword = useCallback<SubmitHandler<ForgotPasswordFormData>>(
-    (form) => resetPasswordMutation.mutate(form),
-    [resetPasswordMutation],
+  const resetPasswordMutation = useApiMutation(
+    '/users/resetPassword',
+    {
+      onSuccess: () => {
+        analytics.track('DC Forgot Password', {
+          status: 'success',
+        });
+      },
+      onError: (error) => {
+        handleMutationError({
+          error,
+          eventLabel: 'DC Forgot Password',
+          toastTitle: 'Failed to send password reset email.',
+        });
+      },
+    },
+    false,
   );
+
+  const resetPassword: SubmitHandler<ForgotPasswordFormData> = (form) => resetPasswordMutation.mutate(form);
 
   return (
     <Form.Root disabled={resetPasswordMutation.isLoading} onSubmit={handleSubmit(resetPassword)}>
@@ -63,7 +73,7 @@ const ModalContent = ({ setShow }: Props) => {
               stableId={StableId.FORGOT_PASSWORD_MODAL_EMAIL_INPUT}
               {...register('email', formValidations.email)}
             />
-            <Form.Feedback>{resetPasswordError ?? formState.errors.email?.message}</Form.Feedback>
+            <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>
           </Form.Group>
 
           <Flex justify="spaceBetween" align="center">

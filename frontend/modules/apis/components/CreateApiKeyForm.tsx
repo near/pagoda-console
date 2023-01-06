@@ -7,7 +7,7 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { TextButton } from '@/components/lib/TextLink';
 import { useApiKeys } from '@/hooks/api-keys';
-import { useTypedMutation } from '@/hooks/typed-mutation';
+import { useApiMutation } from '@/hooks/api-mutation';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
 import { handleMutationError } from '@/utils/error-handlers';
@@ -32,7 +32,7 @@ export const CreateApiKeyForm = ({ onClose, project }: Props) => {
   const { mutate: mutateKeys } = useApiKeys(project?.slug);
   const { register, handleSubmit, formState } = useForm<NewKeyFormData>();
 
-  const generateKeyMutation = useTypedMutation('/projects/generateKey', {
+  const generateKeyMutation = useApiMutation('/projects/generateKey', {
     onSuccess: () => {
       onClose();
       mutateKeys();

@@ -41,9 +41,13 @@ const ListContracts: NextPageWithLayout = () => {
   const [addContractIsOpen, setAddContractIsOpen] = useState(false);
   const [shareContractsIsOpen, setShareContractsIsOpen] = useState(false);
 
-  function onContractAdd(contract: Contract) {
-    mutate((contracts) => contracts && [...contracts, contract]);
+  function onContractAdd() {
+    mutate();
     setAddContractIsOpen(false);
+  }
+
+  function onContractDelete() {
+    mutate();
   }
 
   return (
@@ -82,7 +86,11 @@ const ListContracts: NextPageWithLayout = () => {
         </Flex>
       </Section>
 
-      <ContractsTable contracts={contracts} setAddContractIsOpen={setAddContractIsOpen} />
+      <ContractsTable
+        contracts={contracts}
+        setAddContractIsOpen={setAddContractIsOpen}
+        onContractDelete={onContractDelete}
+      />
 
       {!publicModeIsActive && project && environment && (
         <Dialog.Root open={addContractIsOpen} onOpenChange={setAddContractIsOpen}>
@@ -106,9 +114,11 @@ const ListContracts: NextPageWithLayout = () => {
 function ContractsTable({
   contracts,
   setAddContractIsOpen,
+  onContractDelete,
 }: {
   contracts?: Contract[];
   setAddContractIsOpen: Dispatch<SetStateAction<boolean>>;
+  onContractDelete: () => void;
 }) {
   if (contracts?.length === 0) {
     return (
@@ -151,7 +161,7 @@ function ContractsTable({
             {!contracts && <Table.PlaceholderRows />}
 
             {contracts?.map((contract) => {
-              return <ContractTableRow contract={contract} key={contract.slug} />;
+              return <ContractTableRow contract={contract} key={contract.slug} onDelete={onContractDelete} />;
             })}
           </Table.Body>
         </Table.Root>
@@ -160,7 +170,7 @@ function ContractsTable({
   );
 }
 
-function ContractTableRow({ contract }: { contract: Contract }) {
+function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete: () => void }) {
   const { metrics, error } = useContractMetrics(contract.address, contract.net);
   const url = `/contracts/${contract.slug}`;
   const router = useRouter();
@@ -241,7 +251,12 @@ function ContractTableRow({ contract }: { contract: Contract }) {
         </DropdownMenu.Root>
       </Table.Row>
 
-      <DeleteContractModal contract={contract} show={showDeleteModal} setShow={setShowDeleteModal} />
+      <DeleteContractModal
+        contract={contract}
+        show={showDeleteModal}
+        setShow={setShowDeleteModal}
+        onDelete={onDelete}
+      />
     </>
   );
 }

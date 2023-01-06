@@ -5,7 +5,7 @@ import useSWR from 'swr';
 
 import { useNet } from '@/hooks/net';
 import { styled } from '@/styles/stitches';
-import { queryApi } from '@/utils/api';
+import { api } from '@/utils/api';
 import * as BI from '@/utils/bigint';
 
 import AccountLink from '../utils/AccountLink';
@@ -63,7 +63,7 @@ const getGasAttached = (actions: Explorer.Action[]): JSBI => {
 const InspectReceipt: React.FC<Props> = React.memo(({ receipt: { id, ...receipt } }) => {
   const net = useNet();
   const query = useSWR(['explorer/balanceChanges', net, receipt.predecessorId, receipt.receiverId], () =>
-    queryApi(
+    api.query(
       '/explorer/balanceChanges',
       { net, receiptId: id, accountIds: [receipt.predecessorId, receipt.receiverId] },
       false,

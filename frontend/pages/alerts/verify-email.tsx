@@ -7,7 +7,7 @@ import { Message } from '@/components/lib/Message';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { useSimpleLayout } from '@/hooks/layouts';
-import { mutationApi } from '@/utils/api';
+import { api } from '@/utils/api';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Verification: NextPageWithLayout = () => {
@@ -30,7 +30,7 @@ const Verification: NextPageWithLayout = () => {
 
   async function sendVerification(token: string) {
     try {
-      await mutationApi('/alerts/verifyEmailDestination', { token }, false);
+      await api.mutation('/alerts/verifyEmailDestination', { token }, false);
       setVerificationMessage('Your email destination is now ready to receive alerts! You may close this window.');
     } catch (e) {
       // TODO handle expired token

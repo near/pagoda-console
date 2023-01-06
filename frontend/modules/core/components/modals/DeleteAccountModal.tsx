@@ -6,10 +6,12 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { useApiMutation } from '@/hooks/api-mutation';
 import { useAuth } from '@/hooks/auth';
 import { useSignOut } from '@/hooks/auth';
-import { useMutation } from '@/hooks/mutation';
 import { useOrgsWithOnlyAdmin } from '@/hooks/organizations';
+import analytics from '@/utils/analytics';
+import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
 
 export default function DeleteAccountModal({ show, setShow }: { show: boolean; setShow: (show: boolean) => void }) {
@@ -17,17 +19,31 @@ export default function DeleteAccountModal({ show, setShow }: { show: boolean; s
   const { organizations } = useOrgsWithOnlyAdmin();
   const signOut = useSignOut();
 
-  const deleteAccountMutation = useMutation('/users/deleteAccount', {
+  const deleteAccountMutation = useApiMutation('/users/deleteAccount', {
     onSuccess: () => {
       openToast({
         type: 'success',
         title: 'Account Deleted',
         description: 'Your account has been deleted and you have been signed out.',
       });
-      void signOut();
+
+      analytics.track('DC Delete Account', {
+        status: 'success',
+        id: identity?.uid,
+      });
+
+      signOut();
     },
-    getAnalyticsSuccessData: () => ({ uid: identity?.uid }),
-    getAnalyticsErrorData: () => ({ uid: identity?.uid }),
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Delete Account',
+        eventData: {
+          id: identity?.uid,
+        },
+        toastTitle: 'Failed to delete account.',
+      });
+    },
   });
 
   const isOnlyAdmin = organizations && organizations.length > 0;

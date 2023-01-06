@@ -4,7 +4,9 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useMutation } from '@/hooks/mutation';
+import { useApiMutation } from '@/hooks/api-mutation';
+import analytics from '@/utils/analytics';
+import { handleMutationError } from '@/utils/error-handlers';
 
 interface Props {
   slug: string;
@@ -15,10 +17,25 @@ interface Props {
 }
 
 export const EjectProjectModal = ({ slug, name, show, setShow, onEject }: Props) => {
-  const ejectTutorialMutation = useMutation('/projects/ejectTutorial', {
-    onSuccess: onEject,
-    getAnalyticsSuccessData: () => ({ name }),
-    getAnalyticsErrorData: () => ({ name }),
+  const ejectTutorialMutation = useApiMutation('/projects/ejectTutorial', {
+    onSuccess: () => {
+      analytics.track('DC Eject Tutorial Project', {
+        status: 'success',
+        name,
+      });
+
+      onEject();
+    },
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Eject Tutorial Project',
+        eventData: {
+          name,
+        },
+        toastTitle: 'Failed to eject tutorial.',
+      });
+    },
   });
 
   const onConfirm = useCallback(() => ejectTutorialMutation.mutate({ slug }), [ejectTutorialMutation, slug]);

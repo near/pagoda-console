@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
-import { queryApi } from '@/utils/api';
+import { api } from '@/utils/api';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
 type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
@@ -144,7 +144,7 @@ export function useApiStats(
         ]
       : null,
     (path, filter, projectSlug, environmentSubId) => {
-      return queryApi(path, {
+      return api.query(path, {
         projectSlug,
         environmentSubId,
         startDateTime: startDateTime.toString(),
@@ -170,7 +170,7 @@ export function useApiStats(
         ]
       : null,
     (path, filter, projectSlug, environmentSubId) => {
-      return queryApi(path, {
+      return api.query(path, {
         projectSlug,
         environmentSubId,
         startDateTime: startDateTime.toString(),

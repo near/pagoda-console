@@ -3,7 +3,7 @@ import type { Net } from '@pc/database/clients/core';
 import JSBI from 'jsbi';
 import useSWR from 'swr';
 
-import { queryApi } from '@/utils/api';
+import { api } from '@/utils/api';
 import config from '@/utils/config';
 
 export function useRecentTransactions(contract: string | undefined, net: Net | undefined) {
@@ -14,7 +14,7 @@ export function useRecentTransactions(contract: string | undefined, net: Net | u
   const { data: transactions, error } = useSWR(
     contract && net ? ['/explorer/getTransactions' as const, contract, net] : null,
     (path, contract, net) => {
-      return queryApi(path, { contracts: contract.split(','), net }, true);
+      return api.query(path, { contracts: contract.split(','), net }, true);
     },
   );
 

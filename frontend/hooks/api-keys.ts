@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
-import { queryApi } from '@/utils/api';
+import { api } from '@/utils/api';
 
 export function useApiKeys(project: string | undefined) {
   const { identity } = useAuth();
@@ -11,7 +11,7 @@ export function useApiKeys(project: string | undefined) {
     error,
     mutate,
   } = useSWR(identity && project ? ['/projects/getKeys' as const, project, identity.uid] : null, (path, project) =>
-    queryApi(path, { project }),
+    api.query(path, { project }),
   );
 
   return { keys, error, mutate };

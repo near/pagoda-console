@@ -46,7 +46,10 @@ export const ContractInteract = ({ contract }: Props) => {
     });
   }
 
-  console.log(contract, abiUploaded);
+  function onAbiUpload() {
+    embeddedQuery.mutate();
+    privateQuery.mutate();
+  }
 
   if (!contract || abiUploaded === undefined) {
     return (
@@ -83,5 +86,5 @@ export const ContractInteract = ({ contract }: Props) => {
     );
   }
 
-  return <UploadContractAbi contractSlug={contract.slug} />;
+  return <UploadContractAbi contractSlug={contract.slug} onUpload={onAbiUpload} />;
 };

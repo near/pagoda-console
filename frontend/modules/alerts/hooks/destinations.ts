@@ -5,11 +5,11 @@ import useSWR from 'swr';
 import { openToast } from '@/components/lib/Toast';
 import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
-import { mutationApi, queryApi } from '@/utils/api';
+import { api } from '@/utils/api';
 import type { MapDiscriminatedUnion } from '@/utils/types';
 
 export async function createDestination(data: Api.Mutation.Input<'/alerts/createDestination'>) {
-  const destination = await mutationApi('/alerts/createDestination', { ...data });
+  const destination = await api.mutation('/alerts/createDestination', { ...data });
 
   analytics.track('DC Create New Destination', {
     status: 'success',
@@ -22,7 +22,7 @@ export async function createDestination(data: Api.Mutation.Input<'/alerts/create
 
 export async function deleteDestination(destination: Api.Query.Output<'/alerts/listDestinations'>[number]) {
   try {
-    await mutationApi('/alerts/deleteDestination', { id: destination.id });
+    await api.mutation('/alerts/deleteDestination', { id: destination.id });
     analytics.track('DC Remove Destination', {
       status: 'success',
       name: destination.name,
@@ -45,7 +45,7 @@ export async function deleteDestination(destination: Api.Query.Output<'/alerts/l
 export async function updateDestination<K extends Alerts.Destination['type']>(
   data: Api.Mutation.Input<'/alerts/updateDestination'>,
 ) {
-  const destination = await mutationApi('/alerts/updateDestination', { ...data });
+  const destination = await api.mutation('/alerts/updateDestination', { ...data });
 
   analytics.track('DC Update Destination', {
     status: 'success',
@@ -67,7 +67,7 @@ export function useDestinations(projectSlug: string | undefined) {
   } = useSWR(
     identity && projectSlug ? ['/alerts/listDestinations' as const, projectSlug, identity.uid] : null,
     (path, projectSlug) => {
-      return queryApi(path, { projectSlug });
+      return api.query(path, { projectSlug });
     },
   );
 
@@ -76,7 +76,7 @@ export function useDestinations(projectSlug: string | undefined) {
 
 export async function resendEmailVerification(destinationId: number) {
   try {
-    await mutationApi('/alerts/resendEmailVerification', { destinationId });
+    await api.mutation('/alerts/resendEmailVerification', { destinationId });
 
     analytics.track('DC Resend Email Verification for Email Destination', {
       status: 'success',
@@ -107,7 +107,7 @@ export async function resendEmailVerification(destinationId: number) {
 }
 
 export async function rotateWebhookDestinationSecret(destinationId: Alerts.DestinationId) {
-  const destination = await mutationApi('/alerts/rotateWebhookDestinationSecret', { destinationId });
+  const destination = await api.mutation('/alerts/rotateWebhookDestinationSecret', { destinationId });
 
   analytics.track('DC Rotate Webhook Destination Secret', {
     status: 'success',

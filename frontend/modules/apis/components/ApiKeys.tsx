@@ -13,7 +13,7 @@ import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useApiKeys } from '@/hooks/api-keys';
-import { useTypedMutation } from '@/hooks/typed-mutation';
+import { useApiMutation } from '@/hooks/api-mutation';
 import { CreateApiKeyForm } from '@/modules/apis/components/CreateApiKeyForm';
 import StarterGuide from '@/modules/core/components/StarterGuide';
 import analytics from '@/utils/analytics';
@@ -37,7 +37,7 @@ export function ApiKeys({ project }: Props) {
     key: '',
   });
 
-  const rotateKeyMutation = useTypedMutation('/projects/rotateKey', {
+  const rotateKeyMutation = useApiMutation('/projects/rotateKey', {
     onSuccess: () => {
       mutateKeys();
       setShowRotationModal(false);

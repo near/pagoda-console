@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
-import { queryApi } from '@/utils/api';
+import { api } from '@/utils/api';
 
 import { useProjectSelector } from './selected-project';
 
@@ -16,7 +16,7 @@ export function useProject(projectSlug: string | undefined) {
 
   const { data: project, error } = useSWR(
     projectSlug ? ['/projects/getDetails' as const, projectSlug] : null,
-    (path, slug) => queryApi(path, { slug }),
+    (path, slug) => api.query(path, { slug }),
   );
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export function useProjects() {
     mutate,
     isValidating,
   } = useSWR(identity ? ['/projects/list' as const, identity.uid] : null, (path) => {
-    return queryApi(path, undefined);
+    return api.query(path, undefined);
   });
 
   return { projects, error, mutate, isValidating };

@@ -5,9 +5,9 @@ import { Button } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
 import { Spinner } from '@/components/lib/Spinner';
+import { useApiMutation } from '@/hooks/api-mutation';
 import { useAuth } from '@/hooks/auth';
 import { useOrganizationsLayout } from '@/hooks/layouts';
-import { useMutation } from '@/hooks/mutation';
 import type { ParsedError } from '@/hooks/organizations';
 import { mutateOrganizations } from '@/hooks/organizations';
 import { StableId } from '@/utils/stable-ids';
@@ -15,7 +15,7 @@ import type { NextPageWithLayout } from '@/utils/types';
 
 const AcceptOrgInvite: NextPageWithLayout = () => {
   const router = useRouter();
-  const acceptMutation = useMutation('/users/acceptOrgInvite', { onSuccess: () => mutateOrganizations() });
+  const acceptMutation = useApiMutation('/users/acceptOrgInvite', { onSuccess: () => mutateOrganizations() });
   const { identity } = useAuth();
   const queryToken = router.query.token;
   const token = Array.isArray(queryToken) ? queryToken[0] : queryToken;

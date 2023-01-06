@@ -5,7 +5,7 @@ import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
 import { usePublicStore } from '@/stores/public';
-import { queryApi } from '@/utils/api';
+import { api } from '@/utils/api';
 import config from '@/utils/config';
 
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
@@ -18,7 +18,7 @@ export function useContracts(project: string | undefined, environment: number | 
   } = useSWR(
     project && environment ? ['/projects/getContracts' as const, project, environment] : null,
     (path, project, environment) => {
-      return queryApi(path, { project, environment });
+      return api.query(path, { project, environment });
     },
   );
 
@@ -33,7 +33,7 @@ export function useContract(slug: string | undefined) {
     error,
     mutate,
   } = useSWR(identity && slug ? ['/projects/getContract' as const, slug, identity.uid] : null, (path, slug) => {
-    return queryApi(path, { slug });
+    return api.query(path, { slug });
   });
 
   return { contract, error, mutate };

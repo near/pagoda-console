@@ -5,7 +5,7 @@ import useSWR, { mutate } from 'swr';
 
 import { openToast } from '@/components/lib/Toast';
 import { useAuth } from '@/hooks/auth';
-import { queryApi } from '@/utils/api';
+import { api } from '@/utils/api';
 
 export enum UserError {
   SERVER_ERROR = 'SERVER_ERROR',
@@ -107,7 +107,7 @@ const getOrgsKey = () => ['/users/listOrgs'] as const;
 export const useOrgMembers = (slug: string) => {
   const { identity } = useAuth();
   const { data, error, mutate, isValidating } = useSWR(identity ? getOrgMembersKey(slug) : null, (path) =>
-    queryApi(path, { org: slug }),
+    api.query(path, { org: slug }),
   );
 
   return { members: data, error, mutate, isValidating };
@@ -116,7 +116,7 @@ export const useOrgMembers = (slug: string) => {
 export const useOrganizations = (filterPersonal: boolean) => {
   const { identity } = useAuth();
   const { data, error, mutate, isValidating } = useSWR(identity ? getOrgsKey() : null, (path) =>
-    queryApi(path, undefined),
+    api.query(path, undefined),
   );
   const filteredOrgs = useMemo(
     () => (filterPersonal ? data?.filter((org) => !org.isPersonal) : data),
@@ -145,7 +145,7 @@ export const useOrgsWithOnlyAdmin = () => {
   const { identity } = useAuth();
   const { data, error, mutate, isValidating } = useSWR(
     identity ? ['/users/listOrgsWithOnlyAdmin' as const, identity.uid] : null,
-    (path) => queryApi(path, undefined),
+    (path) => api.query(path, undefined),
   );
 
   return { organizations: data, error, mutate, isValidating };

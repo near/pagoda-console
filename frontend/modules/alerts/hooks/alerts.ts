@@ -3,10 +3,10 @@ import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
-import { mutationApi, queryApi } from '@/utils/api';
+import { api } from '@/utils/api';
 
 export async function createAlert(data: Api.Mutation.Input<'/alerts/createAlert'>) {
-  const alert = await mutationApi('/alerts/createAlert', { ...data });
+  const alert = await api.mutation('/alerts/createAlert', { ...data });
 
   analytics.track('DC Create New Alert', {
     status: 'success',
@@ -19,7 +19,7 @@ export async function createAlert(data: Api.Mutation.Input<'/alerts/createAlert'
 
 export async function deleteAlert(alert: Api.Mutation.Input<'/alerts/deleteAlert'>) {
   try {
-    await mutationApi('/alerts/deleteAlert', { id: alert.id });
+    await api.mutation('/alerts/deleteAlert', { id: alert.id });
     analytics.track('DC Remove Alert', {
       status: 'success',
       name: alert.id,
@@ -38,7 +38,7 @@ export async function deleteAlert(alert: Api.Mutation.Input<'/alerts/deleteAlert
 }
 
 export async function disableDestinationForAlert(alertId: number, destinationId: number) {
-  await mutationApi('/alerts/disableDestination', { alert: alertId, destination: destinationId });
+  await api.mutation('/alerts/disableDestination', { alert: alertId, destination: destinationId });
 
   analytics.track('DC Disable Destination for Alert', {
     status: 'success',
@@ -48,7 +48,7 @@ export async function disableDestinationForAlert(alertId: number, destinationId:
 }
 
 export async function enableDestinationForAlert(alertId: number, destinationId: number) {
-  await mutationApi('/alerts/enableDestination', { alert: alertId, destination: destinationId });
+  await api.mutation('/alerts/enableDestination', { alert: alertId, destination: destinationId });
 
   analytics.track('DC Enable Destination for Alert', {
     status: 'success',
@@ -58,7 +58,7 @@ export async function enableDestinationForAlert(alertId: number, destinationId: 
 }
 
 export async function updateAlert(data: Api.Mutation.Input<'/alerts/updateAlert'>) {
-  const alert = await mutationApi('/alerts/updateAlert', { ...data });
+  const alert = await api.mutation('/alerts/updateAlert', { ...data });
 
   analytics.track('DC Update Alert', {
     status: 'success',
@@ -79,7 +79,7 @@ export function useAlert(alertId: number | undefined) {
   } = useSWR(
     identity && alertId ? ['/alerts/getAlertDetails' as const, alertId, identity.uid] : null,
     async (path, alertId) => {
-      return queryApi(path, { id: alertId });
+      return api.query(path, { id: alertId });
     },
   );
 
@@ -98,7 +98,7 @@ export function useAlerts(projectSlug: string | undefined, environmentSubId: num
       ? ['/alerts/listAlerts' as const, projectSlug, environmentSubId, identity.uid]
       : null,
     (path, projectSlug, environmentSubId) => {
-      return queryApi(path, { environmentSubId, projectSlug });
+      return api.query(path, { environmentSubId, projectSlug });
     },
   );
 

@@ -13,10 +13,10 @@ import { HR } from '@/components/lib/HorizontalRule';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
+import { useApiMutation } from '@/hooks/api-mutation';
 import type { ContractTemplate } from '@/hooks/contract-templates';
 import { useRawMutation } from '@/hooks/raw-mutation';
 import { useProjectSelector } from '@/hooks/selected-project';
-import { useTypedMutation } from '@/hooks/typed-mutation';
 import analytics from '@/utils/analytics';
 import { formRegex } from '@/utils/constants';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
@@ -46,7 +46,7 @@ export function AddContractForm({ onAdd, project, environment }: Props) {
   const environmentTitle = environment?.net === 'TESTNET' ? 'Testnet' : 'Mainnet';
   const environmentTla = environment?.net === 'TESTNET' ? 'testnet' : 'near';
 
-  const addContractMutation = useTypedMutation('/projects/addContract', {
+  const addContractMutation = useApiMutation('/projects/addContract', {
     onSuccess: (contract, variables) => {
       openToast({
         type: 'success',

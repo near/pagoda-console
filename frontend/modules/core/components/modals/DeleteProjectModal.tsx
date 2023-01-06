@@ -1,11 +1,9 @@
-import type { Api } from '@pc/common/types/api';
-import { useCallback } from 'react';
-import { mutate } from 'swr';
-
 import { Text } from '@/components/lib/Text';
+import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useAuth } from '@/hooks/auth';
-import { useMutation } from '@/hooks/mutation';
+import { useApiMutation } from '@/hooks/api-mutation';
+import analytics from '@/utils/analytics';
+import { handleMutationError } from '@/utils/error-handlers';
 
 interface Props {
   slug: string;
@@ -15,21 +13,37 @@ interface Props {
   onDelete: () => void;
 }
 
-type Projects = Api.Query.Output<'/projects/list'>;
-
 export default function DeleteProjectModal({ slug, name, show, setShow, onDelete }: Props) {
-  const { identity } = useAuth();
-  const deleteProjectMutation = useMutation('/projects/delete', {
+  const deleteProjectMutation = useApiMutation('/projects/delete', {
     onSuccess: () => {
-      if (identity?.uid) {
-        mutate<Projects>(['/projects/list', identity.uid], (projects) => projects?.filter((p) => p.slug !== slug));
-      }
-      onDelete?.();
+      openToast({
+        type: 'success',
+        title: 'Project Removed',
+        description: name,
+      });
+
+      analytics.track('DC Remove Project', {
+        status: 'success',
+        name,
+      });
+
+      onDelete();
     },
-    getAnalyticsSuccessData: () => ({ name }),
-    getAnalyticsErrorData: () => ({ name }),
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Remove Project',
+        eventData: {
+          name,
+        },
+        toastTitle: 'Failed to remove project.',
+      });
+    },
   });
-  const onConfirm = useCallback(() => deleteProjectMutation.mutate({ slug }), [deleteProjectMutation, slug]);
+
+  function onConfirm() {
+    deleteProjectMutation.mutate({ slug });
+  }
 
   return (
     <ConfirmModal

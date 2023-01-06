@@ -3,7 +3,7 @@ import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
 import type { Pagination } from '@/hooks/pagination';
-import { queryApi } from '@/utils/api';
+import { api } from '@/utils/api';
 import config from '@/utils/config';
 
 interface TriggeredAlertFilters {
@@ -38,7 +38,7 @@ export function useTriggeredAlerts(
         ]
       : null,
     (path, projectSlug, environmentSubId) => {
-      return queryApi(path, {
+      return api.query(path, {
         environmentSubId,
         projectSlug,
         take,
@@ -69,7 +69,7 @@ export function useTriggeredAlertDetails(slug: string) {
   const { data, error } = useSWR(
     identity ? ['/triggeredAlerts/getTriggeredAlertDetails' as const, slug] : null,
     (path) => {
-      return queryApi(path, { slug });
+      return api.query(path, { slug });
     },
   );
 

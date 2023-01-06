@@ -44,20 +44,25 @@ async function fetchApi(endpoint: string, body: Record<any, any> | void | undefi
   return json;
 }
 
-export const mutationApi = async <K extends Api.Mutation.Key>(
+async function mutation<K extends Api.Mutation.Key>(
   endpoint: K,
   input: Api.Mutation.Input<K>,
   authenticated = true,
-): Promise<Api.Mutation.Output<K>> => {
+): Promise<Api.Mutation.Output<K>> {
   const response = await fetchApi(endpoint, input, authenticated);
   return response;
-};
+}
 
-export const queryApi = async <K extends Api.Query.Key>(
+async function query<K extends Api.Query.Key>(
   endpoint: K,
   input: Api.Query.Input<K>,
   authenticated = true,
-): Promise<Api.Query.Output<K>> => {
+): Promise<Api.Query.Output<K>> {
   const response = await fetchApi(endpoint, input, authenticated);
   return response;
+}
+
+export const api = {
+  mutation,
+  query,
 };
