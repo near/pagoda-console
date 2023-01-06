@@ -8,18 +8,6 @@ import analytics from '@/utils/analytics';
 import { api } from '@/utils/api';
 import type { MapDiscriminatedUnion } from '@/utils/types';
 
-export async function createDestination(data: Api.Mutation.Input<'/alerts/createDestination'>) {
-  const destination = await api.mutation('/alerts/createDestination', { ...data });
-
-  analytics.track('DC Create New Destination', {
-    status: 'success',
-    name: destination.name,
-    id: destination.id,
-  });
-
-  return destination;
-}
-
 export async function deleteDestination(destination: Api.Query.Output<'/alerts/listDestinations'>[number]) {
   try {
     await api.mutation('/alerts/deleteDestination', { id: destination.id });

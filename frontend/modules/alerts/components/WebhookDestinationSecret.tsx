@@ -9,22 +9,15 @@ import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { StableId } from '@/utils/stable-ids';
-import type { MapDiscriminatedUnion } from '@/utils/types';
 
 import { rotateWebhookDestinationSecret } from '../hooks/destinations';
 
-type WebhookDestination = MapDiscriminatedUnion<
-  Api.Query.Output<'/alerts/listDestinations'>[number],
-  'type'
->['WEBHOOK'];
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
 interface Props {
-  destination: WebhookDestination;
-  onRotate?: (d: WebhookDestination) => void;
+  destination: Destination;
+  onRotate?: (d: Destination) => void;
 }
-
-const ROTATION_WARNING =
-  'Are you sure you would like to rotate this webhook secret? The current secret will be invalidated.';
 
 export function WebhookDestinationSecret({ destination, onRotate }: Props) {
   const [isSending, setIsSending] = useState(false);
@@ -93,7 +86,7 @@ export function WebhookDestinationSecret({ destination, onRotate }: Props) {
         show={showRotateConfirmModal}
         title="Rotate secret"
       >
-        <Text>{ROTATION_WARNING}</Text>
+        <Text>Are you sure you would like to rotate this webhook secret? The current secret will be invalidated.</Text>
       </ConfirmModal>
     </>
   );

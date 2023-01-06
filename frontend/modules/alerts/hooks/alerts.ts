@@ -1,72 +1,59 @@
-import type { Api } from '@pc/common/types/api';
 import useSWR from 'swr';
 
+import { useApiMutation } from '@/hooks/api-mutation';
 import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
 import { api } from '@/utils/api';
+import { handleMutationError } from '@/utils/error-handlers';
 
-export async function createAlert(data: Api.Mutation.Input<'/alerts/createAlert'>) {
-  const alert = await api.mutation('/alerts/createAlert', { ...data });
-
-  analytics.track('DC Create New Alert', {
-    status: 'success',
-    name: alert.name,
-    id: alert.id,
+export function useAlertMutations() {
+  const updateAlertMutation = useApiMutation('/alerts/updateAlert', {
+    onSuccess: (alert) => {
+      analytics.track('DC Update Alert', {
+        status: 'success',
+        name: alert.name,
+        id: alert.id,
+      });
+    },
   });
 
-  return alert;
-}
-
-export async function deleteAlert(alert: Api.Mutation.Input<'/alerts/deleteAlert'>) {
-  try {
-    await api.mutation('/alerts/deleteAlert', { id: alert.id });
-    analytics.track('DC Remove Alert', {
-      status: 'success',
-      name: alert.id,
-    });
-    return true;
-  } catch (e: any) {
-    analytics.track('DC Remove Alert', {
-      status: 'failure',
-      name,
-      error: e.message,
-    });
-    // TODO
-    console.error('Failed to delete alert');
-  }
-  return false;
-}
-
-export async function disableDestinationForAlert(alertId: number, destinationId: number) {
-  await api.mutation('/alerts/disableDestination', { alert: alertId, destination: destinationId });
-
-  analytics.track('DC Disable Destination for Alert', {
-    status: 'success',
-    id: alertId,
-    destinationId: destinationId,
-  });
-}
-
-export async function enableDestinationForAlert(alertId: number, destinationId: number) {
-  await api.mutation('/alerts/enableDestination', { alert: alertId, destination: destinationId });
-
-  analytics.track('DC Enable Destination for Alert', {
-    status: 'success',
-    id: alertId,
-    destinationId: destinationId,
-  });
-}
-
-export async function updateAlert(data: Api.Mutation.Input<'/alerts/updateAlert'>) {
-  const alert = await api.mutation('/alerts/updateAlert', { ...data });
-
-  analytics.track('DC Update Alert', {
-    status: 'success',
-    name: alert.name,
-    id: alert.id,
+  const enableDestinationMutation = useApiMutation('/alerts/enableDestination', {
+    onSuccess: (result, variables) => {
+      analytics.track('DC Enable Destination for Alert', {
+        status: 'success',
+        id: variables.alert,
+        destinationId: variables.destination,
+      });
+    },
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Enable Destination for Alert',
+        toastTitle: 'Update Error',
+        toastDescription: 'Failed to update alert destination.',
+      });
+    },
   });
 
-  return alert;
+  const disableDestinationMutation = useApiMutation('/alerts/disableDestination', {
+    onSuccess: (result, variables) => {
+      analytics.track('DC Disable Destination for Alert', {
+        status: 'success',
+        id: variables.alert,
+        destinationId: variables.destination,
+      });
+    },
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Disable Destination for Alert',
+        toastTitle: 'Update Error',
+        toastDescription: 'Failed to update alert destination.',
+      });
+    },
+  });
+
+  return { updateAlertMutation, enableDestinationMutation, disableDestinationMutation };
 }
 
 export function useAlert(alertId: number | undefined) {

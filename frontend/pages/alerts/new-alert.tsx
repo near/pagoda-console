@@ -3,7 +3,8 @@ import type { Api } from '@pc/common/types/api';
 import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { SubmitHandler } from 'react-hook-form';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Badge } from '@/components/lib/Badge';
@@ -22,14 +23,17 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
+import { useApiMutation } from '@/hooks/api-mutation';
 import { useContracts } from '@/hooks/contracts';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
-import { createAlert, useAlerts } from '@/modules/alerts/hooks/alerts';
+import { useAlerts } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
+import analytics from '@/utils/analytics';
 import { formRegex } from '@/utils/constants';
 import { convertNearToYocto } from '@/utils/convert-near';
+import { handleMutationError } from '@/utils/error-handlers';
 import { assertUnreachable } from '@/utils/helpers';
 import { numberInputHandler } from '@/utils/input-handlers';
 import { mergeInputProps } from '@/utils/merge-input-props';
@@ -107,13 +111,14 @@ const NewAlert: NextPageWithLayout = () => {
 
   const selectedAlertType = form.watch('type');
 
-  async function submitForm(data: FormData) {
-    try {
-      const body = returnNewAlertBody(data, selectedDestinationIds, project, environment);
-      const alert = await createAlert(body);
+  const createAlertMutation = useApiMutation('/alerts/createAlert', {
+    onSuccess: async (alert) => {
+      mutate();
 
-      mutate((alerts) => {
-        return [...(alerts || []), alert];
+      analytics.track('DC Create New Alert', {
+        status: 'success',
+        name: alert.name,
+        id: alert.id,
       });
 
       openToast({
@@ -122,18 +127,28 @@ const NewAlert: NextPageWithLayout = () => {
       });
 
       await router.push('/alerts');
-    } catch (e: any) {
-      if (e.message === 'ADDRESS_NOT_FOUND') {
+    },
+
+    onError: (error: any, variables) => {
+      if (error.message === 'ADDRESS_NOT_FOUND') {
         const net = environmentTitle.toLowerCase();
-        setCreateError(`Address ${data.contract} was not found on ${net}.`);
+        setCreateError(`Address ${variables.rule.contract} was not found on ${net}.`);
         return;
       }
 
-      console.error('Failed to create alert', e);
       setCreateError('Failed to create alert.');
-    }
-  }
-  const resetError = useCallback(() => setCreateError(''), [setCreateError]);
+
+      handleMutationError({
+        error,
+        eventLabel: 'DC Create New Alert',
+      });
+    },
+  });
+
+  const submit: SubmitHandler<FormData> = (form) => {
+    const body = returnNewAlertBody(form, selectedDestinationIds, project, environment);
+    createAlertMutation.mutate(body);
+  };
 
   return (
     <Section>
@@ -163,7 +178,7 @@ const NewAlert: NextPageWithLayout = () => {
           </Link>
         </Flex>
 
-        <Form.Root disabled={form.formState.isSubmitting} onSubmit={form.handleSubmit(submitForm)}>
+        <Form.Root disabled={form.formState.isSubmitting} onSubmit={form.handleSubmit(submit)}>
           <Flex stack gap="l">
             <Flex stack>
               <H4>
@@ -567,7 +582,7 @@ const NewAlert: NextPageWithLayout = () => {
         </Form.Root>
       </Flex>
 
-      <ErrorModal error={createError} resetError={resetError} />
+      <ErrorModal error={createError} resetError={() => setCreateError('')} />
     </Section>
   );
 };

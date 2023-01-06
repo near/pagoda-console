@@ -1,9 +1,7 @@
-import type { Alerts } from '@pc/common/types/alerts';
 import type { Api } from '@pc/common/types/api';
 import { useCallback, useState } from 'react';
 import type { FieldValues } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
-import type { KeyedMutator } from 'swr';
 
 import { Badge } from '@/components/lib/Badge';
 import { Box } from '@/components/lib/Box';
@@ -16,12 +14,13 @@ import * as Form from '@/components/lib/Form';
 import { H5 } from '@/components/lib/Heading';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
-import { openToast } from '@/components/lib/Toast';
+import { useApiMutation } from '@/hooks/api-mutation';
+import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
+import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
-import type { MapDiscriminatedUnion } from '@/utils/types';
 
-import { createDestination, useDestinations } from '../hooks/destinations';
+import { useDestinations } from '../hooks/destinations';
 import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
 import { destinationTypeOptions } from '../utils/constants';
 import { EmailDestinationVerification } from './EmailDestinationVerification';
@@ -30,28 +29,27 @@ import { WebhookDestinationSecret } from './WebhookDestinationSecret';
 
 type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 type DestinationType = Destination['type'];
-type MappedDestination<K extends DestinationType> = MapDiscriminatedUnion<Destination, 'type'>[K];
 
-interface Props<K extends DestinationType> {
-  onCreate?: (destination: MappedDestination<K>) => void;
-  onVerify?: (destination: MappedDestination<K>) => void;
+interface Props {
+  onCreate?: (destination: Destination) => void;
+  onVerify?: (destination: Destination) => void;
   projectSlug: string;
   show: boolean;
   setShow: (show: boolean) => void;
 }
 
-interface FormProps<K extends DestinationType> extends Props<K> {
+interface FormProps extends Props {
   setIsCreated: (value: boolean) => void;
 }
 
-function useNewDestinationForm<T extends FieldValues, K extends DestinationType>(props: FormProps<K>) {
+function useNewDestinationForm<T extends FieldValues>(props: FormProps) {
   const { mutate } = useDestinations(props.projectSlug);
-  const [destination, setDestination] = useState<MappedDestination<K>>();
+  const [destination, setDestination] = useState<Destination>();
   const form = useForm<T>();
 
   useVerifyDestinationInterval(
     destination,
-    mutate as unknown as KeyedMutator<MappedDestination<K>[]>,
+    mutate,
     useCallback(
       (nextDestination) => {
         props.onVerify?.(nextDestination);
@@ -61,41 +59,39 @@ function useNewDestinationForm<T extends FieldValues, K extends DestinationType>
     ),
   );
 
-  async function create(
-    data: Omit<Api.Mutation.Input<'/alerts/createDestination'>, 'config'>,
-    config: MapDiscriminatedUnion<Api.Mutation.Input<'/alerts/createDestination'>['config'], 'type'>[K],
-  ) {
-    try {
-      const destination = (await createDestination({
-        ...data,
-        config,
-      } as Alerts.CreateDestinationInput)) as MappedDestination<K>;
-
-      mutate((state) => {
-        return [...(state || []), destination];
-      });
+  const createDestinationMutation = useApiMutation('/alerts/createDestination', {
+    onSuccess: (destination) => {
+      mutate();
 
       props.setIsCreated(true);
       setDestination(destination);
 
-      if (props.onCreate) props.onCreate(destination);
-    } catch (e: any) {
-      console.error('Failed to create destination', e);
-      openToast({
-        type: 'error',
-        title: 'Failed to create destination.',
+      analytics.track('DC Create New Destination', {
+        status: 'success',
+        name: destination.name,
+        id: destination.id,
       });
-    }
-  }
+
+      if (props.onCreate) props.onCreate(destination);
+    },
+
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Create New Destination',
+        toastTitle: 'Failed to create destination.',
+      });
+    },
+  });
 
   return {
-    create,
+    createDestinationMutation,
     destination,
     form,
   };
 }
 
-export function NewDestinationModal(props: Props<DestinationType>) {
+export function NewDestinationModal(props: Props) {
   return (
     <Dialog.Root open={props.show} onOpenChange={props.setShow}>
       <Dialog.Content title="New Destination" size="m">
@@ -110,7 +106,7 @@ export function NewDestinationModal(props: Props<DestinationType>) {
   );
 }
 
-function ModalContent(props: Props<DestinationType>) {
+function ModalContent(props: Props) {
   const [destinationType, setDestinationType] = useState<DestinationType>('TELEGRAM');
   const [isCreated, setIsCreated] = useState(false);
 
@@ -152,24 +148,23 @@ function ModalContent(props: Props<DestinationType>) {
         </CheckboxCard.Group>
       )}
 
-      {destinationType === 'TELEGRAM' && (
-        <TelegramDestinationForm setIsCreated={setIsCreated} {...(props as Props<'TELEGRAM'>)} />
-      )}
-      {destinationType === 'WEBHOOK' && (
-        <WebhookDestinationForm setIsCreated={setIsCreated} {...(props as Props<'WEBHOOK'>)} />
-      )}
-      {destinationType === 'EMAIL' && (
-        <EmailDestinationForm setIsCreated={setIsCreated} {...(props as Props<'EMAIL'>)} />
-      )}
+      {destinationType === 'TELEGRAM' && <TelegramDestinationForm setIsCreated={setIsCreated} {...props} />}
+      {destinationType === 'WEBHOOK' && <WebhookDestinationForm setIsCreated={setIsCreated} {...props} />}
+      {destinationType === 'EMAIL' && <EmailDestinationForm setIsCreated={setIsCreated} {...props} />}
     </Flex>
   );
 }
 
-function TelegramDestinationForm(props: FormProps<'TELEGRAM'>) {
-  const { create, destination, form } = useNewDestinationForm(props);
+function TelegramDestinationForm(props: FormProps) {
+  const { createDestinationMutation, destination, form } = useNewDestinationForm(props);
 
   async function submitForm() {
-    await create({ projectSlug: props.projectSlug }, { type: 'TELEGRAM' });
+    createDestinationMutation.mutate({
+      projectSlug: props.projectSlug,
+      config: {
+        type: 'TELEGRAM',
+      },
+    });
   }
 
   if (destination)
@@ -217,11 +212,17 @@ interface WebhookFormData {
   url: string;
 }
 
-function WebhookDestinationForm(props: FormProps<'WEBHOOK'>) {
-  const { create, destination, form } = useNewDestinationForm<WebhookFormData, 'WEBHOOK'>(props);
+function WebhookDestinationForm(props: FormProps) {
+  const { createDestinationMutation, destination, form } = useNewDestinationForm<WebhookFormData>(props);
 
   async function submitForm(data: WebhookFormData) {
-    await create({ projectSlug: props.projectSlug }, { type: 'WEBHOOK', url: data.url });
+    createDestinationMutation.mutate({
+      projectSlug: props.projectSlug,
+      config: {
+        type: 'WEBHOOK',
+        ...data,
+      },
+    });
   }
 
   if (destination)
@@ -287,11 +288,17 @@ interface EmailFormData {
   email: string;
 }
 
-function EmailDestinationForm(props: FormProps<'EMAIL'>) {
-  const { create, destination, form } = useNewDestinationForm<EmailFormData, 'EMAIL'>(props);
+function EmailDestinationForm(props: FormProps) {
+  const { createDestinationMutation, destination, form } = useNewDestinationForm<EmailFormData>(props);
 
   async function submitForm(data: EmailFormData) {
-    await create({ projectSlug: props.projectSlug }, { type: 'EMAIL', email: data.email });
+    createDestinationMutation.mutate({
+      projectSlug: props.projectSlug,
+      config: {
+        type: 'EMAIL',
+        ...data,
+      },
+    });
   }
 
   if (destination)
