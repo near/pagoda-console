@@ -6,7 +6,7 @@ import type {
 } from '@/hooks/raw-mutation';
 import { useRawMutation } from '@/hooks/raw-mutation';
 import analytics from '@/utils/analytics';
-import { fetchApi } from '@/utils/http';
+import { fetchApi } from '@/utils/api';
 
 export type UseMutationResult<K extends Api.Mutation.Key> = RawMutationResult<
   Api.Mutation.Output<K>,

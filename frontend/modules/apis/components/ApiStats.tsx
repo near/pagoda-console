@@ -1,4 +1,3 @@
-// import { useApiKeys } from '@/hooks/api-keys';
 import type { Api } from '@pc/common/types/api';
 import type { RpcStats } from '@pc/common/types/rpcstats';
 import { DateTime } from 'luxon';
@@ -33,7 +32,6 @@ interface Props {
 }
 
 export function ApiStats({ environment, project }: Props) {
-  // const { keys } = useApiKeys(project?.slug);  // for filtering
   const [selectedTimeRangeValue, setSelectedTimeRangeValue] = useState<RpcStats.TimeRangeValue>('30_DAYS');
   const [liveRefreshEnabled, setLiveRefreshEnabled] = useState(true);
   const selectedTimeRange = timeRanges.find((t) => t.value === selectedTimeRangeValue);

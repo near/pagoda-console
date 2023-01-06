@@ -12,7 +12,7 @@ import * as Popover from '@/components/lib/Popover';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useApiKeys } from '@/hooks/new-api-keys';
+import { useApiKeys } from '@/hooks/api-keys';
 import { useTypedMutation } from '@/hooks/typed-mutation';
 import { CreateApiKeyForm } from '@/modules/apis/components/CreateApiKeyForm';
 import StarterGuide from '@/modules/core/components/StarterGuide';

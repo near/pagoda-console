@@ -5,8 +5,8 @@ import { connect, keyStores } from 'near-api-js';
 import useSWR from 'swr';
 
 import { usePublicMode } from '@/hooks/public';
+import { queryApi } from '@/utils/api';
 import config from '@/utils/config';
-import { fetchApi } from '@/utils/http';
 
 import { inspectContract } from '../utils/embedded-abi';
 
@@ -22,8 +22,8 @@ export const useEmbeddedAbi = (contract?: Contract) => {
 };
 
 export const usePrivateAbi = (contract?: Contract) => {
-  return useSWR(contract ? ['/abi/getContractAbi', contract] : null, () =>
-    fetchApi(['/abi/getContractAbi', { contract: contract!.slug }]),
+  return useSWR(contract ? ['/abi/getContractAbi' as const, contract.slug] : null, (path, contract) =>
+    queryApi(path, { contract }),
   );
 };
 

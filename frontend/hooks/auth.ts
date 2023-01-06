@@ -7,7 +7,7 @@ import useSWR from 'swr';
 
 import { useAuthStore } from '@/stores/auth';
 import analytics from '@/utils/analytics';
-import { fetchApi } from '@/utils/http';
+import { queryApi } from '@/utils/api';
 
 import { usePublicMode } from './public';
 
@@ -17,8 +17,8 @@ export function useAccount() {
     data: user,
     error,
     mutate,
-  } = useSWR(identity ? ['/users/getAccountDetails' as const, identity.uid] : null, (key) => {
-    return fetchApi([key]);
+  } = useSWR(identity ? ['/users/getAccountDetails' as const, identity.uid] : null, (path) => {
+    return queryApi(path, undefined);
   });
 
   return {

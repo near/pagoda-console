@@ -8,8 +8,8 @@ import { Spinner } from '@/components/lib/Spinner';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { useNet } from '@/hooks/net';
 import { styled } from '@/styles/stitches';
+import { queryApi } from '@/utils/api';
 import * as BI from '@/utils/bigint';
-import { fetchApi } from '@/utils/http';
 
 import AccountLink from '../utils/AccountLink';
 import BlockLink from '../utils/BlockLink';
@@ -210,7 +210,7 @@ type Props = {
 const AccountActivityView: React.FC<Props> = ({ accountId }) => {
   const net = useNet();
   const query = useSWR(accountId ? ['explorer/activity', accountId, net] : null, () =>
-    fetchApi(['/explorer/activity', { contractId: accountId, net }], true),
+    queryApi('/explorer/activity', { contractId: accountId, net }, false),
   );
 
   if (!accountId) {

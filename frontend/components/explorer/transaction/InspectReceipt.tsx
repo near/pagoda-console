@@ -5,8 +5,8 @@ import useSWR from 'swr';
 
 import { useNet } from '@/hooks/net';
 import { styled } from '@/styles/stitches';
+import { queryApi } from '@/utils/api';
 import * as BI from '@/utils/bigint';
-import { fetchApi } from '@/utils/http';
 
 import AccountLink from '../utils/AccountLink';
 import BlockLink from '../utils/BlockLink';
@@ -63,9 +63,10 @@ const getGasAttached = (actions: Explorer.Action[]): JSBI => {
 const InspectReceipt: React.FC<Props> = React.memo(({ receipt: { id, ...receipt } }) => {
   const net = useNet();
   const query = useSWR(['explorer/balanceChanges', net, receipt.predecessorId, receipt.receiverId], () =>
-    fetchApi(
-      [`/explorer/balanceChanges`, { net, receiptId: id, accountIds: [receipt.predecessorId, receipt.receiverId] }],
-      true,
+    queryApi(
+      '/explorer/balanceChanges',
+      { net, receiptId: id, accountIds: [receipt.predecessorId, receipt.receiverId] },
+      false,
     ),
   );
   const predecessorBalance = query.data?.[0];

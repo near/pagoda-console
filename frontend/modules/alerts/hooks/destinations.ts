@@ -5,11 +5,11 @@ import useSWR from 'swr';
 import { openToast } from '@/components/lib/Toast';
 import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
-import { fetchApi } from '@/utils/http';
+import { mutationApi, queryApi } from '@/utils/api';
 import type { MapDiscriminatedUnion } from '@/utils/types';
 
 export async function createDestination(data: Api.Mutation.Input<'/alerts/createDestination'>) {
-  const destination = await fetchApi(['/alerts/createDestination', { ...data }]);
+  const destination = await mutationApi('/alerts/createDestination', { ...data });
 
   analytics.track('DC Create New Destination', {
     status: 'success',
@@ -20,18 +20,20 @@ export async function createDestination(data: Api.Mutation.Input<'/alerts/create
   return destination;
 }
 
-export async function deleteDestination(destination: Api.Mutation.Input<'/alerts/deleteDestination'>) {
+export async function deleteDestination(destination: Api.Query.Output<'/alerts/listDestinations'>[number]) {
   try {
-    await fetchApi(['/alerts/deleteDestination', { id: destination.id }]);
+    await mutationApi('/alerts/deleteDestination', { id: destination.id });
     analytics.track('DC Remove Destination', {
       status: 'success',
-      name: destination.id,
+      name: destination.name,
+      id: destination.id,
     });
     return true;
   } catch (e: any) {
     analytics.track('DC Remove Destination', {
       status: 'failure',
-      name,
+      name: destination.name,
+      id: destination.id,
       error: e.message,
     });
     // TODO
@@ -43,7 +45,7 @@ export async function deleteDestination(destination: Api.Mutation.Input<'/alerts
 export async function updateDestination<K extends Alerts.Destination['type']>(
   data: Api.Mutation.Input<'/alerts/updateDestination'>,
 ) {
-  const destination = await fetchApi(['/alerts/updateDestination', { ...data }]);
+  const destination = await mutationApi('/alerts/updateDestination', { ...data });
 
   analytics.track('DC Update Destination', {
     status: 'success',
@@ -64,8 +66,8 @@ export function useDestinations(projectSlug: string | undefined) {
     isValidating,
   } = useSWR(
     identity && projectSlug ? ['/alerts/listDestinations' as const, projectSlug, identity.uid] : null,
-    (key) => {
-      return fetchApi([key, { projectSlug: projectSlug! }]);
+    (path, projectSlug) => {
+      return queryApi(path, { projectSlug });
     },
   );
 
@@ -74,7 +76,7 @@ export function useDestinations(projectSlug: string | undefined) {
 
 export async function resendEmailVerification(destinationId: number) {
   try {
-    await fetchApi(['/alerts/resendEmailVerification', { destinationId }]);
+    await mutationApi('/alerts/resendEmailVerification', { destinationId });
 
     analytics.track('DC Resend Email Verification for Email Destination', {
       status: 'success',
@@ -105,7 +107,7 @@ export async function resendEmailVerification(destinationId: number) {
 }
 
 export async function rotateWebhookDestinationSecret(destinationId: Alerts.DestinationId) {
-  const destination = await fetchApi(['/alerts/rotateWebhookDestinationSecret', { destinationId }]);
+  const destination = await mutationApi('/alerts/rotateWebhookDestinationSecret', { destinationId });
 
   analytics.track('DC Rotate Webhook Destination Secret', {
     status: 'success',

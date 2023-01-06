@@ -13,7 +13,7 @@ import { useSignedInHandler, useSignOut } from '@/hooks/auth';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
-import { fetchApi } from '@/utils/http';
+import { queryApi } from '@/utils/api';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -58,7 +58,7 @@ const Verification: NextPageWithLayout = () => {
   }, []);
   async function initAccount() {
     try {
-      await fetchApi(['/users/getAccountDetails']);
+      await queryApi('/users/getAccountDetails', undefined);
     } catch (e) {
       // silently fail
     }

@@ -6,7 +6,7 @@ import { Button } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { TextButton } from '@/components/lib/TextLink';
-import { useApiKeys } from '@/hooks/new-api-keys';
+import { useApiKeys } from '@/hooks/api-keys';
 import { useTypedMutation } from '@/hooks/typed-mutation';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';

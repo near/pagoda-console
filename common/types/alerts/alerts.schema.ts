@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { AlertRuleKind, DestinationType } from '@pc/database/clients/alerts';
 import { accountId, environmentId, projectSlug, net } from '../core/types';
 import { json } from '../schemas';
-import { flavored, Flavored } from '../utils';
 
 export const destinationType: z.ZodType<DestinationType> = z.enum([
   'WEBHOOK',
@@ -15,12 +14,10 @@ export const alertRuleKind: z.ZodType<AlertRuleKind> = z.enum([
   'STATE_CHANGES',
 ]);
 
-export const alertId = z.number().refine<Flavored<'alertId', number>>(flavored);
+export const alertId = z.number();
 export type AlertId = z.infer<typeof alertId>;
 
-export const destinationId = z
-  .number()
-  .refine<Flavored<'destinationId', number>>(flavored);
+export const destinationId = z.number();
 export type DestinationId = z.infer<typeof destinationId>;
 
 export const alertName = z.string();

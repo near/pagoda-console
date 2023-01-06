@@ -1,26 +1,17 @@
-import type { Api } from '@pc/common/types/api';
 import useSWR from 'swr';
-import type { Fetcher, SWRConfiguration } from 'swr/dist/types';
 
 import { useAuth } from '@/hooks/auth';
-import { fetchApi } from '@/utils/http';
+import { queryApi } from '@/utils/api';
 
-type ApiKeys = Api.Query.Output<'/projects/getKeys'>;
-
-export function useApiKeys(
-  project: string | undefined,
-  swrOptions?: SWRConfiguration<ApiKeys, Api.Query.Error<'/projects/getKeys'>, Fetcher<ApiKeys>>,
-) {
+export function useApiKeys(project: string | undefined) {
   const { identity } = useAuth();
 
   const {
     data: keys,
     error,
     mutate,
-  } = useSWR(
-    identity && project ? ['/projects/getKeys' as const, project, identity.uid] : null,
-    (key, project) => fetchApi([key, { project }]),
-    swrOptions,
+  } = useSWR(identity && project ? ['/projects/getKeys' as const, project, identity.uid] : null, (path, project) =>
+    queryApi(path, { project }),
   );
 
   return { keys, error, mutate };
