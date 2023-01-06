@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -10,10 +11,8 @@ import { Section } from '@/components/lib/Section';
 import { TextLink } from '@/components/lib/TextLink';
 import { useApiMutation } from '@/hooks/api-mutation';
 import { useAuth } from '@/hooks/auth';
-import type { ContractTemplate } from '@/hooks/contract-templates';
 import { useContractTemplate } from '@/hooks/contract-templates';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
-import { useRawMutation } from '@/hooks/raw-mutation';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { deployContractTemplate } from '@/utils/deploy-contract-template';
@@ -61,11 +60,7 @@ const ViewProjectTemplate: NextPageWithLayout = () => {
     onError,
   });
 
-  const deployContractMutation = useRawMutation<
-    Awaited<ReturnType<typeof deployContractTemplate>>,
-    unknown,
-    ContractTemplate
-  >(deployContractTemplate, {
+  const deployContractMutation = useMutation(deployContractTemplate, {
     onSuccess: async (deployResult, template) => {
       const date = DateTime.now().toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS);
       const projectName = `${template.title}, ${date}`;

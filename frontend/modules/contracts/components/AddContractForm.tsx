@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
@@ -15,7 +16,6 @@ import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { useApiMutation } from '@/hooks/api-mutation';
 import type { ContractTemplate } from '@/hooks/contract-templates';
-import { useRawMutation } from '@/hooks/raw-mutation';
 import { useProjectSelector } from '@/hooks/selected-project';
 import analytics from '@/utils/analytics';
 import { formRegex } from '@/utils/constants';
@@ -97,36 +97,27 @@ export function AddContractForm({ onAdd, project, environment }: Props) {
     });
   };
 
-  const deployContractMutation = useRawMutation<
-    Awaited<ReturnType<typeof deployContractTemplate>>,
-    unknown,
-    ContractTemplate
-  >(deployContractTemplate, {
-    onSuccess: async (deployResult, template) => {
-      openToast({
-        type: 'success',
-        title: 'Contract Deployed',
-        description: deployResult.address,
-      });
+  const deployContractMutation = useMutation(deployContractTemplate, {
+    onSuccess: (result, template) => {
       analytics.track('DC Deploy Contract Template', {
         status: 'success',
         name: template.title,
       });
+
       addContractMutation.mutate({
-        address: deployResult.address,
+        address: result.address,
         project: project.slug,
-        environment: deployResult.environmentSubId,
+        environment: result.environmentSubId,
       });
     },
-    onError: (_error, template) => {
-      analytics.track('DC Deploy Contract Template', {
-        status: 'failure',
-        name: template.title,
-      });
-
-      openToast({
-        type: 'error',
-        title: 'Failed to deploy example contract.',
+    onError: (error, template) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Deploy Contract Template',
+        eventData: {
+          name: template.title,
+        },
+        toastTitle: 'Failed to deploy example contract.',
       });
     },
   });

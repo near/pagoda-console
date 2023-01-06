@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import { getIdToken, updateProfile } from 'firebase/auth';
 import { useCallback, useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
@@ -14,7 +15,6 @@ import { Spinner } from '@/components/lib/Spinner';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useAccount, useAuth } from '@/hooks/auth';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { useRawMutation } from '@/hooks/raw-mutation';
 import DeleteAccountModal from '@/modules/core/components/modals/DeleteAccountModal';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
@@ -30,8 +30,8 @@ const Settings: NextPageWithLayout = () => {
   const { user, error, mutate } = useAccount();
   const { identity } = useAuth();
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
-  const updateDisplayNameMutation = useRawMutation<void, unknown, { displayName: string }>(
-    async ({ displayName }) => {
+  const updateDisplayNameMutation = useMutation(
+    async ({ displayName }: SettingsFormData) => {
       if (!identity) {
         return;
       }

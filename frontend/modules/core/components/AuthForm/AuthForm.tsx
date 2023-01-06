@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import type { AuthError, AuthProvider, UserCredential } from 'firebase/auth';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import {
@@ -18,7 +19,6 @@ import { HR } from '@/components/lib/HorizontalRule';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useSignedInHandler } from '@/hooks/auth';
 import { usePublicMode } from '@/hooks/public';
-import { useRawMutation } from '@/hooks/raw-mutation';
 import GithubIconSvg from '@/public/images/icons/github.svg';
 import GoogleIconSvg from '@/public/images/icons/google.svg';
 import analytics from '@/utils/analytics';
@@ -93,7 +93,8 @@ export function AuthForm({ onSignIn }: Props) {
   }, [onSignIn, router, signedInHandler]);
 
   const [alternativeMethods, setAlternativeMethods] = useState<string[]>([]);
-  const signInViaProviderMutation = useRawMutation<
+
+  const signInViaProviderMutation = useMutation<
     UserCredential,
     unknown,
     { provider: AuthProvider; publicModeIsActive: boolean }
@@ -117,7 +118,8 @@ export function AuthForm({ onSignIn }: Props) {
       return setAlternativeMethods(methods);
     },
   });
-  const signInViaEmailMutation = useRawMutation<UserCredential, AuthError, { email: string; password: string }>(
+
+  const signInViaEmailMutation = useMutation<UserCredential, AuthError, { email: string; password: string }>(
     async ({ email, password }) => {
       const auth = getAuth();
       return signInWithEmailAndPassword(auth, email, password);

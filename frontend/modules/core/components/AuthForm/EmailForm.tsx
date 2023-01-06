@@ -1,6 +1,8 @@
+import type { UseMutationResult } from '@tanstack/react-query';
 import type { AuthError, UserCredential } from 'firebase/auth';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import { Button, ButtonLink } from '@/components/lib/Button';
@@ -8,7 +10,6 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { TextButton } from '@/components/lib/TextLink';
 import { ErrorModal } from '@/components/modals/ErrorModal';
-import type { UseMutationResult } from '@/hooks/raw-mutation';
 import { ForgotPasswordModal } from '@/modules/core/components/modals/ForgotPasswordModal';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
@@ -46,12 +47,13 @@ export function EmailForm({ mutation: signInViaEmailMutation, externalLoading }:
     }
   }, [signInViaEmailMutation.error]);
 
+  const submit: SubmitHandler<EmailAuthFormData> = (form) => {
+    signInViaEmailMutation.mutate(form);
+  };
+
   return (
     <>
-      <Form.Root
-        disabled={signInViaEmailMutation.isLoading || externalLoading}
-        onSubmit={handleSubmit(signInViaEmailMutation.mutate)}
-      >
+      <Form.Root disabled={signInViaEmailMutation.isLoading || externalLoading} onSubmit={handleSubmit(submit)}>
         <Flex stack gap="l" align="center">
           <Flex stack gap="m">
             <Form.Group>
