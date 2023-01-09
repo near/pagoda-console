@@ -209,9 +209,9 @@ type Props = {
 
 const AccountActivityView: React.FC<Props> = ({ accountId }) => {
   const net = useNet();
-  const query = useSWR(accountId ? ['explorer/activity', accountId, net] : null, () =>
-    api.query('/explorer/activity', { contractId: accountId, net }, false),
-  );
+  const query = useSWR(accountId ? ['/explorer/activity' as const, accountId, net] : null, (path, contractId, net) => {
+    return api.query(path, { contractId, net }, false);
+  });
 
   if (!accountId) {
     return <div>No account id</div>;

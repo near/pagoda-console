@@ -106,18 +106,18 @@ const getOrgsKey = () => ['/users/listOrgs'] as const;
 
 export const useOrgMembers = (slug: string) => {
   const { identity } = useAuth();
-  const { data, error, mutate, isValidating } = useSWR(identity ? getOrgMembersKey(slug) : null, (path) =>
-    api.query(path, { org: slug }),
-  );
+  const { data, error, mutate, isValidating } = useSWR(identity ? getOrgMembersKey(slug) : null, (path) => {
+    return api.query(path, { org: slug });
+  });
 
   return { members: data, error, mutate, isValidating };
 };
 
 export const useOrganizations = (filterPersonal: boolean) => {
   const { identity } = useAuth();
-  const { data, error, mutate, isValidating } = useSWR(identity ? getOrgsKey() : null, (path) =>
-    api.query(path, undefined),
-  );
+  const { data, error, mutate, isValidating } = useSWR(identity ? getOrgsKey() : null, (path) => {
+    return api.query(path, undefined);
+  });
   const filteredOrgs = useMemo(
     () => (filterPersonal ? data?.filter((org) => !org.isPersonal) : data),
     [data, filterPersonal],
@@ -145,7 +145,9 @@ export const useOrgsWithOnlyAdmin = () => {
   const { identity } = useAuth();
   const { data, error, mutate, isValidating } = useSWR(
     identity ? ['/users/listOrgsWithOnlyAdmin' as const, identity.uid] : null,
-    (path) => api.query(path, undefined),
+    (path) => {
+      return api.query(path, undefined);
+    },
   );
 
   return { organizations: data, error, mutate, isValidating };

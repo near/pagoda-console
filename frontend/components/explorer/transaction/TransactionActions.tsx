@@ -36,7 +36,9 @@ const TransactionActions: React.FC<Props> = React.memo(({ transactionHash }) => 
 
   const query = useSWR(
     transactionHash ? ['/explorer/transaction' as const, transactionHash, net] : null,
-    (path, hash, net) => api.query(path, { hash, net }, false),
+    (path, hash, net) => {
+      return api.query(path, { hash, net }, false);
+    },
     {
       onErrorRetry: getCustomErrorRetry([401, 403, 404]),
       // TODO currently this is a quick hack to load TXs that may have pending receipts that are scheduled to execute in the next block. We could stop refreshing once we get the last receipt's execution outcome timestamp.

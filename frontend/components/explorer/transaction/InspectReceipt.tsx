@@ -62,12 +62,11 @@ const getGasAttached = (actions: Explorer.Action[]): JSBI => {
 
 const InspectReceipt: React.FC<Props> = React.memo(({ receipt: { id, ...receipt } }) => {
   const net = useNet();
-  const query = useSWR(['explorer/balanceChanges', net, receipt.predecessorId, receipt.receiverId], () =>
-    api.query(
-      '/explorer/balanceChanges',
-      { net, receiptId: id, accountIds: [receipt.predecessorId, receipt.receiverId] },
-      false,
-    ),
+  const query = useSWR(
+    ['/explorer/balanceChanges' as const, net, receipt.predecessorId, receipt.receiverId],
+    (path, net, predecessorId, receiverId) => {
+      return api.query(path, { net, receiptId: id, accountIds: [predecessorId, receiverId] }, false);
+    },
   );
   const predecessorBalance = query.data?.[0];
   const receiverBalance = query.data?.[0];

@@ -65,8 +65,8 @@ export function useAlert(alertId: number | undefined) {
     mutate,
   } = useSWR(
     identity && alertId ? ['/alerts/getAlertDetails' as const, alertId, identity.uid] : null,
-    async (path, alertId) => {
-      return api.query(path, { id: alertId });
+    async (path, id) => {
+      return api.query(path, { id });
     },
   );
 

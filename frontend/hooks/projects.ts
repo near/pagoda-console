@@ -16,7 +16,9 @@ export function useProject(projectSlug: string | undefined) {
 
   const { data: project, error } = useSWR(
     projectSlug ? ['/projects/getDetails' as const, projectSlug] : null,
-    (path, slug) => api.query(path, { slug }),
+    (path, slug) => {
+      return api.query(path, { slug });
+    },
   );
 
   useEffect(() => {

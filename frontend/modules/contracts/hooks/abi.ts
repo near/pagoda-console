@@ -16,15 +16,18 @@ type Contract = Api.Query.Output<'/projects/getContract'>;
 
 export const useEmbeddedAbi = (contract?: Contract) => {
   const { publicModeIsActive } = usePublicMode();
-  return useSWR(publicModeIsActive || !contract ? null : ['inspect-contract', contract.net, contract.address], () =>
-    inspectContract(contract!.net, contract!.address),
+  return useSWR(
+    publicModeIsActive || !contract ? null : ['inspect-contract', contract.net, contract.address],
+    (key, net, address) => {
+      return inspectContract(net, address);
+    },
   );
 };
 
 export const usePrivateAbi = (contract?: Contract) => {
-  return useSWR(contract ? ['/abi/getContractAbi' as const, contract.slug] : null, (path, contract) =>
-    api.query(path, { contract }),
-  );
+  return useSWR(contract ? ['/abi/getContractAbi' as const, contract.slug] : null, (path, contract) => {
+    return api.query(path, { contract });
+  });
 };
 
 // Returns both embedded ABI in the wasm and manually uploaded ABI.
