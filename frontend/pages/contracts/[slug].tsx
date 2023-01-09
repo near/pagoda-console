@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
@@ -32,7 +32,7 @@ const ViewContract: NextPageWithLayout = () => {
   const contractSlug = useRouteParam('slug', '/contracts', true) || undefined;
   const { project } = useSelectedProject();
   const { environment } = useCurrentEnvironment();
-  const { contracts: privateContracts } = useContracts(project?.slug, environment?.subId);
+  const { contracts: privateContracts, mutate } = useContracts(project?.slug, environment?.subId);
   const { contracts } = usePublicOrPrivateContracts(privateContracts);
   const { contract } = usePublicOrPrivateContract(contractSlug);
   const activeTab = useRouteParam('tab', `/contracts/${contractSlug}?tab=details`, true);
@@ -43,7 +43,10 @@ const ViewContract: NextPageWithLayout = () => {
   // TODO: Pull in useSelectedProjectSync() to match [triggeredAlertId].tsx logic to sync env/proj to loaded contract.
   // TODO: Handle 404
 
-  const onDelete = useCallback(() => router.replace('/contracts'), [router]);
+  function onDelete() {
+    mutate();
+    router.replace('/contracts');
+  }
 
   function onSelectedContractChange(slug: string) {
     router.push(`/contracts/${slug}?tab=${activeTab}`);

@@ -16,12 +16,14 @@ import { H1, H5 } from '@/components/lib/Heading';
 import { Section } from '@/components/lib/Section';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
+import { useApiMutation } from '@/hooks/api-mutation';
 import { useSimpleLogoutLayout } from '@/hooks/layouts';
-import { useMutation } from '@/hooks/mutation';
 import { useOrganizations } from '@/hooks/organizations';
 import { useRouteParam } from '@/hooks/route';
 import { usePublicStore } from '@/stores/public';
+import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
+import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -33,7 +35,7 @@ interface NewProjectFormData {
 }
 
 const NewProject: NextPageWithLayout = () => {
-  const { register, handleSubmit, formState, getValues, watch, setValue } = useForm<NewProjectFormData>();
+  const { register, handleSubmit, formState, getValues, watch, setValue, setError } = useForm<NewProjectFormData>();
   const router = useRouter();
   const isOnboarding = useRouteParam('onboarding');
   const publicModeContracts = usePublicStore((store) => store.contracts);
@@ -48,26 +50,42 @@ const NewProject: NextPageWithLayout = () => {
     }
   }, [organizations, getValues, setValue]);
 
-  const createProjectMutation = useMutation('/projects/create', {
+  const createProjectMutation = useApiMutation('/projects/create', {
     onMutate: () => router.prefetch('/apis?tab=keys'),
-    onSuccess: (result) => router.push(`/apis?tab=keys&project=${result.slug}`),
-    getAnalyticsSuccessData: (variables) => ({
-      name: variables.name,
-      publicMode: publicModeContracts.length > 0,
-      includedPublicModeAddresses: selectedAddresses,
-    }),
-    getAnalyticsErrorData: (variables) => ({ name: variables.name }),
-  });
-  const mutationError =
-    createProjectMutation.status === 'error'
-      ? (createProjectMutation.error as any).statusCode === 409
-        ? 'Project name is already in use'
-        : 'Something went wrong'
-      : undefined;
+    onSuccess: (result, variables) => {
+      analytics.track('DC Create New Project', {
+        status: 'success',
+        name: variables.name,
+        publicMode: publicModeContracts.length > 0,
+        includedPublicModeAddresses: selectedAddresses,
+      });
 
-  const addContractMutation = useMutation('/projects/addContract', {
-    getAnalyticsSuccessData: (variables) => ({ includedPublicModeAddresses: variables.address }),
+      router.push(`/apis?tab=keys&project=${result.slug}`);
+    },
+    onError: (error, variables) => {
+      switch ((error as any).statusCode) {
+        case 409:
+          setError('projectName', {
+            message: 'Project name is already in use',
+          });
+          break;
+
+        default:
+          handleMutationError({
+            error,
+            eventLabel: 'DC Create New Project',
+            eventData: {
+              name: variables.name,
+              publicMode: publicModeContracts.length > 0,
+              includedPublicModeAddresses: selectedAddresses,
+            },
+            toastTitle: 'Failed to create project.',
+          });
+      }
+    },
   });
+
+  const addContractMutation = useApiMutation('/projects/addContract', {});
 
   const createProject: SubmitHandler<NewProjectFormData> = async ({ projectName, projectOrg }) => {
     const project = await createProjectMutation.mutateAsync({ name: projectName, org: projectOrg });
@@ -136,7 +154,7 @@ const NewProject: NextPageWithLayout = () => {
                     stableId={StableId.NEW_PROJECT_NAME_INPUT}
                     {...register('projectName', formValidations.projectName)}
                   />
-                  <Form.Feedback>{mutationError || formState.errors.projectName?.message}</Form.Feedback>
+                  <Form.Feedback>{formState.errors.projectName?.message}</Form.Feedback>
                 </Form.Group>
 
                 {organizations.length > 1 ? (

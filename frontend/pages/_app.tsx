@@ -6,6 +6,7 @@ import '@/styles/enhanced-api.scss';
 import '@/styles/near-wallet-selector.scss';
 
 import * as FullStory from '@fullstory/browser';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { initializeApp } from 'firebase/app';
 import Gleap from 'gleap';
 import { withLDProvider } from 'launchdarkly-react-client-sdk';
@@ -32,6 +33,8 @@ import config from '@/utils/config';
 import { hydrateAllStores } from '@/utils/hydrate-all-stores';
 import { getCustomErrorRetry } from '@/utils/query';
 import type { NextPageWithLayout } from '@/utils/types';
+
+const queryClient = new QueryClient();
 
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
@@ -82,34 +85,45 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     'Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics.';
 
   return (
-    <SWRConfig value={swrConfig}>
-      <Head>
-        <title>{metaTitle}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-        <meta name="description" content={metaDescription} />
-        <meta content={metaTitle} property="og:title" />
-        <meta content={metaDescription} property="og:description" />
-        <meta content={`${config.url.host}/images/og__pagoda_image.png`} property="og:image" />
-        <meta content={metaTitle} property="twitter:title" />
-        <meta content={metaDescription} property="twitter:description" />
-        <meta content={`${config.url.host}/images/og__pagoda_image.png`} property="twitter:image" />
-        <meta content="website" property="og:type" />
-        <meta content="summary_large_image" name="twitter:card" />
-        <link rel="icon" href="/favicon.ico" />
-        <link href="/favicon-256x256.png" rel="apple-touch-icon" />
-      </Head>
+    <QueryClientProvider client={queryClient}>
+      <SWRConfig value={swrConfig}>
+        <Head>
+          <title>{metaTitle}</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+          <meta name="description" content={metaDescription} />
+          <meta content={metaTitle} property="og:title" />
+          <meta content={metaDescription} property="og:description" />
+          <meta content={`${config.url.host}/images/og__pagoda_image.png`} property="og:image" />
+          <meta content={metaTitle} property="twitter:title" />
+          <meta content={metaDescription} property="twitter:description" />
+          <meta content={`${config.url.host}/images/og__pagoda_image.png`} property="twitter:image" />
+          <meta content="website" property="og:type" />
+          <meta content="summary_large_image" name="twitter:card" />
+          <link rel="icon" href="/favicon.ico" />
+          <link href="/favicon-256x256.png" rel="apple-touch-icon" />
+        </Head>
 
-      <FeatherIconSheet />
-      <Toaster />
+        <FeatherIconSheet />
+        <Toaster />
 
-      {config.downtimeMode ? (
-        <SimpleLayout>
-          <DowntimeMode />
-        </SimpleLayout>
-      ) : (
-        getLayout(<Component {...pageProps} />)
-      )}
-    </SWRConfig>
+        {/* 
+          When we start using React Query for queries (not just mutations), we could experiment with including the devtools.
+          The devtools don't display any information regarding mutations as of now.
+
+          import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+          ...
+          {config.deployEnv === 'LOCAL' && <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />}
+        */}
+
+        {config.downtimeMode ? (
+          <SimpleLayout>
+            <DowntimeMode />
+          </SimpleLayout>
+        ) : (
+          getLayout(<Component {...pageProps} />)
+        )}
+      </SWRConfig>
+    </QueryClientProvider>
   );
 }
 

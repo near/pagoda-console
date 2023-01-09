@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
-import { fetchApi } from '@/utils/http';
+import { api } from '@/utils/api';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
 type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
@@ -136,26 +136,24 @@ export function useApiStats(
       ? [
           '/rpcstats/endpointMetrics' as const,
           'date',
+          project.slug,
           environment.subId,
           identity.uid,
           startDateTime.toISO(),
           endDateTime.toISO(),
         ]
       : null,
-    (key) => {
-      return fetchApi([
-        key,
-        {
-          environmentSubId: environment!.subId,
-          projectSlug: project!.slug,
-          startDateTime: startDateTime.toString(),
-          endDateTime: endDateTime.toString(),
-          filter: {
-            type: 'date',
-            dateTimeResolution,
-          },
+    (path, filter, projectSlug, environmentSubId) => {
+      return api.query(path, {
+        projectSlug,
+        environmentSubId,
+        startDateTime: startDateTime.toString(),
+        endDateTime: endDateTime.toString(),
+        filter: {
+          type: 'date',
+          dateTimeResolution,
         },
-      ]);
+      });
     },
   );
 
@@ -164,23 +162,21 @@ export function useApiStats(
       ? [
           '/rpcstats/endpointMetrics' as const,
           'endpoint',
+          project.slug,
           environment.subId,
           identity.uid,
           startDateTime.toISO(),
           endDateTime.toISO(),
         ]
       : null,
-    (key) => {
-      return fetchApi([
-        key,
-        {
-          environmentSubId: environment!.subId,
-          projectSlug: project!.slug,
-          startDateTime: startDateTime.toString(),
-          endDateTime: endDateTime.toString(),
-          filter: { type: 'endpoint' },
-        },
-      ]);
+    (path, filter, projectSlug, environmentSubId) => {
+      return api.query(path, {
+        projectSlug,
+        environmentSubId,
+        startDateTime: startDateTime.toString(),
+        endDateTime: endDateTime.toString(),
+        filter: { type: 'endpoint' },
+      });
     },
   );
 

@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 import config from './config';
 
 interface Properties {
+  status: 'success' | 'failure';
   [key: string]: any;
 }
 
@@ -98,7 +99,7 @@ function reset() {
   }
 }
 
-const fns = {
+const analytics = {
   identify,
   init,
   pageView,
@@ -106,4 +107,4 @@ const fns = {
   track,
 };
 
-export default fns;
+export default analytics;

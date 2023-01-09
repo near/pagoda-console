@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
-import { fetchApi } from '@/utils/http';
+import { api } from '@/utils/api';
 
 import { useProjectSelector } from './selected-project';
 
@@ -16,7 +16,9 @@ export function useProject(projectSlug: string | undefined) {
 
   const { data: project, error } = useSWR(
     projectSlug ? ['/projects/getDetails' as const, projectSlug] : null,
-    (key, projectSlug) => fetchApi([key, { slug: projectSlug }]),
+    (path, slug) => {
+      return api.query(path, { slug });
+    },
   );
 
   useEffect(() => {
@@ -43,8 +45,8 @@ export function useProjects() {
     error,
     mutate,
     isValidating,
-  } = useSWR(identity ? ['/projects/list' as const, identity.uid] : null, (key) => {
-    return fetchApi([key]);
+  } = useSWR(identity ? ['/projects/list' as const, identity.uid] : null, (path) => {
+    return api.query(path, undefined);
   });
 
   return { projects, error, mutate, isValidating };

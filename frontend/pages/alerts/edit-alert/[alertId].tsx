@@ -23,12 +23,7 @@ import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { DeleteAlertModal } from '@/modules/alerts/components/DeleteAlertModal';
 import type { OnDestinationSelectionChangeEvent } from '@/modules/alerts/components/DestinationsSelector';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
-import {
-  disableDestinationForAlert,
-  enableDestinationForAlert,
-  updateAlert,
-  useAlert,
-} from '@/modules/alerts/hooks/alerts';
+import { useAlert, useAlertMutations } from '@/modules/alerts/hooks/alerts';
 import { alertTypes, amountComparators } from '@/modules/alerts/utils/constants';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatNumber } from '@/utils/format-number';
@@ -39,32 +34,12 @@ interface NameFormData {
   name: string;
 }
 
-async function update(alert: Api.Mutation.Input<'/alerts/updateAlert'>, data: { isPaused?: boolean; name?: string }) {
-  try {
-    await updateAlert({
-      id: alert.id,
-      ...data,
-    });
-
-    return true;
-  } catch (e: any) {
-    console.error('Failed to update alert', e);
-
-    openToast({
-      type: 'error',
-      title: 'Update Error',
-      description: 'Failed to update alert.',
-    });
-
-    return false;
-  }
-}
-
 const EditAlert: NextPageWithLayout = () => {
   const router = useRouter();
   const alertId = parseInt(router.query.alertId as string);
   const nameForm = useForm<NameFormData>();
   const { alert, mutate } = useAlert(alertId);
+  const { updateAlertMutation, enableDestinationMutation, disableDestinationMutation } = useAlertMutations();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [alertIsActive, setAlertIsActive] = useState(true);
   const [isEditingName, setIsEditingName] = useState(false);
@@ -107,27 +82,30 @@ const EditAlert: NextPageWithLayout = () => {
     router.replace('/alerts');
   }
 
-  async function submitNameForm(data: NameFormData) {
+  function submitNameForm(data: NameFormData) {
     if (!alert) return;
 
-    const wasUpdated = await update(alert, {
-      name: data.name,
-    });
+    updateAlertMutation.mutate(
+      {
+        id: alert.id,
+        name: data.name,
+      },
+      {
+        onSuccess: (alert) => {
+          mutate({
+            ...alert,
+          });
 
-    mutate({
-      ...alert!,
-      name: data.name,
-    });
+          openToast({
+            type: 'success',
+            title: 'Alert Updated',
+            description: 'Alert name has been updated.',
+          });
+        },
+      },
+    );
 
     setIsEditingName(false);
-
-    if (wasUpdated) {
-      openToast({
-        type: 'success',
-        title: 'Alert Updated',
-        description: 'Alert name has been updated.',
-      });
-    }
   }
 
   const updateIsActive = useCallback(
@@ -136,50 +114,70 @@ const EditAlert: NextPageWithLayout = () => {
 
       setAlertIsActive(isActive);
 
-      const wasUpdated = await update(alert, {
-        isPaused: !isActive,
-      });
+      updateAlertMutation.mutate(
+        {
+          id: alert.id,
+          isPaused: !isActive,
+        },
+        {
+          onSuccess: (alert) => {
+            mutate({
+              ...alert,
+            });
 
-      if (wasUpdated) {
-        openToast({
-          type: 'success',
-          title: 'Alert Updated',
-          description: isActive
-            ? `Alert has been activated. New events will be recorded.`
-            : `Alert has been paused. New events won't be recorded.`,
-        });
-      }
+            openToast({
+              type: 'success',
+              title: 'Alert Updated',
+              description: isActive
+                ? `Alert has been activated. New events will be recorded.`
+                : `Alert has been paused. New events won't be recorded.`,
+            });
+          },
+        },
+      );
     },
-    [alert],
+    [alert, updateAlertMutation, mutate],
   );
 
   const updateSelectedDestination = useCallback(
     async ({ isSelected, destination }: OnDestinationSelectionChangeEvent) => {
-      try {
-        if (isSelected) {
-          await enableDestinationForAlert(alert!.id, destination.id);
-        } else {
-          await disableDestinationForAlert(alert!.id, destination.id);
-        }
+      if (!alert) return;
 
-        openToast({
-          type: 'success',
-          title: 'Alert Updated',
-          description: isSelected
-            ? `Destination was enabled: ${destination.name}`
-            : `Destination was disabled: ${destination.name}`,
-        });
-      } catch (e: any) {
-        console.error('Failed to enable/disable destination', e);
-
-        openToast({
-          type: 'error',
-          title: 'Update Error',
-          description: 'Failed to update alert destination.',
-        });
+      if (isSelected) {
+        enableDestinationMutation.mutate(
+          {
+            alert: alert.id,
+            destination: destination.id,
+          },
+          {
+            onSuccess: () => {
+              openToast({
+                type: 'success',
+                title: 'Alert Updated',
+                description: `Destination was enabled: ${destination.name}`,
+              });
+            },
+          },
+        );
+      } else {
+        disableDestinationMutation.mutate(
+          {
+            alert: alert.id,
+            destination: destination.id,
+          },
+          {
+            onSuccess: () => {
+              openToast({
+                type: 'success',
+                title: 'Alert Updated',
+                description: `Destination was disabled: ${destination.name}`,
+              });
+            },
+          },
+        );
       }
     },
-    [alert],
+    [alert, enableDestinationMutation, disableDestinationMutation],
   );
 
   return (
@@ -217,7 +215,7 @@ const EditAlert: NextPageWithLayout = () => {
           <Spinner center />
         ) : (
           <Flex stack gap="l">
-            <Form.Root disabled={nameForm.formState.isSubmitting} onSubmit={nameForm.handleSubmit(submitNameForm)}>
+            <Form.Root disabled={updateAlertMutation.isLoading} onSubmit={nameForm.handleSubmit(submitNameForm)}>
               <Flex stack>
                 <Flex justify="spaceBetween" stack={{ '@mobile': true }}>
                   {isEditingName && (
@@ -242,7 +240,7 @@ const EditAlert: NextPageWithLayout = () => {
                       <Button
                         stableId={StableId.ALERT_SAVE_ALERT_NAME_BUTTON}
                         aria-label="Save Alert Name"
-                        loading={nameForm.formState.isSubmitting}
+                        loading={updateAlertMutation.isLoading}
                         type="submit"
                         color="neutral"
                         css={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}

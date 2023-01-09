@@ -2,7 +2,6 @@ import { upgradeAbi } from '@pc/abi/upgrade';
 import type { AbiRoot } from 'near-abi-client-js';
 import type { ChangeEvent, DragEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import { mutate } from 'swr';
 
 import { Button, ButtonLink } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
@@ -16,37 +15,49 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useMutation } from '@/hooks/mutation';
+import { useApiMutation } from '@/hooks/api-mutation';
+import analytics from '@/utils/analytics';
+import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
 
 const MAX_CODE_HEIGHT = '18rem';
 
 type Props = {
   contractSlug: string;
+  onUpload: () => void;
 };
 
-export const UploadContractAbi = ({ contractSlug }: Props) => {
+export const UploadContractAbi = ({ contractSlug, onUpload }: Props) => {
   const [showModal, setShowModal] = useState(true);
   const [showUpgradeText, setShowUpgradeText] = useState(false);
   const [previewAbi, setPreviewAbi] = useState<AbiRoot | null>(null);
 
-  const uploadAbiMutation = useMutation('/abi/addContractAbi', {
-    onSuccess: (result) => {
+  const uploadAbiMutation = useApiMutation('/abi/addContractAbi', {
+    onSuccess: () => {
       openToast({
         type: 'success',
-        title: 'ABI Uploaded.',
+        title: 'Contract ABI was uploaded',
       });
+
       setShowModal(false);
-      mutate(['/abi/getContractAbi', contractSlug], () => result);
+
+      analytics.track('DC Upload Contract ABI', {
+        status: 'success',
+        contract: contractSlug,
+      });
+
+      onUpload();
     },
-    onError: () => {
-      openToast({
-        type: 'error',
-        title: 'Failed to upload ABI.',
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Upload Contract ABI',
+        eventData: {
+          contract: contractSlug,
+        },
+        toastTitle: 'Failed to remove contract.',
       });
     },
-    getAnalyticsSuccessData: ({ contract }) => ({ contract }),
-    getAnalyticsErrorData: ({ contract }) => ({ contract }),
   });
 
   async function uploadAbi() {

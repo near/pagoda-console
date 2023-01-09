@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import type { AuthError } from 'firebase/auth';
 import {
   createUserWithEmailAndPassword,
@@ -8,7 +9,8 @@ import {
 } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
+import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
@@ -19,13 +21,12 @@ import { H2 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Section } from '@/components/lib/Section';
 import { TextLink } from '@/components/lib/TextLink';
-import { ErrorModal } from '@/components/modals/ErrorModal';
 import { useSignedInHandler } from '@/hooks/auth';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { usePublicMode } from '@/hooks/public';
-import { useRawMutation } from '@/hooks/raw-mutation';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
+import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
@@ -54,7 +55,7 @@ interface RegisterFormData {
 }
 
 export function RegisterForm() {
-  const { getValues, register, handleSubmit, formState, watch } = useForm<RegisterFormData>();
+  const { getValues, register, handleSubmit, formState, watch, setError } = useForm<RegisterFormData>();
   const router = useRouter();
   const signedInHandler = useSignedInHandler();
   const { publicModeIsActive } = usePublicMode();
@@ -99,7 +100,7 @@ export function RegisterForm() {
     return false;
   }, []);
 
-  const signUpWithEmailMutation = useRawMutation<void, AuthError, { email: string; password: string }>(
+  const signUpWithEmailMutation = useMutation<void, AuthError, RegisterFormData>(
     async ({ email, password }) => {
       const auth = getAuth();
       await createUserWithEmailAndPassword(auth, email, password);
@@ -108,25 +109,31 @@ export function RegisterForm() {
       }
     },
     {
-      onSuccess: () => analytics.track(`DC sign up with email`, { status: 'success' }),
-      onError: (error) => analytics.track(`DC sign up with email`, { status: 'success', error: error.code }),
+      onSuccess: () => {
+        analytics.track('DC Signed up with email', { status: 'success' });
+      },
+      onError: (error) => {
+        switch ((error as any).code) {
+          case 'auth/email-already-in-use':
+            setError('email', {
+              message: 'Email is already in use',
+            });
+            break;
+          default:
+            handleMutationError({
+              error,
+              eventLabel: 'DC Signed up with email',
+              toastTitle: 'Failed to register account.',
+            });
+        }
+      },
     },
   );
 
-  const signUpWithEmail = useCallback(
-    (form: RegisterFormData) => signUpWithEmailMutation.mutate(form),
-    [signUpWithEmailMutation],
-  );
-
-  const registerError = useMemo(() => {
-    if (!signUpWithEmailMutation.error) {
-      return;
-    }
-    if (signUpWithEmailMutation.error.code === 'auth/email-already-in-use') {
-      return 'Email is already in use';
-    }
-    return signUpWithEmailMutation.error.message;
-  }, [signUpWithEmailMutation.error]);
+  const signUpWithEmail: SubmitHandler<RegisterFormData> = (form) => {
+    analytics.track('DC Submitted email registration form');
+    signUpWithEmailMutation.mutate(form);
+  };
 
   return (
     <Form.Root
@@ -192,8 +199,6 @@ export function RegisterForm() {
             <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
           </Form.Group>
         </Flex>
-
-        <ErrorModal error={registerError} resetError={signUpWithEmailMutation.reset} />
 
         <Button
           stableId={StableId.REGISTER_SIGN_UP_BUTTON}
