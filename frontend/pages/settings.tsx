@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { getIdToken, updateProfile } from 'firebase/auth';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
@@ -30,6 +30,7 @@ const Settings: NextPageWithLayout = () => {
   const { user, error, mutate } = useAccount();
   const { identity } = useAuth();
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+
   const updateDisplayNameMutation = useMutation(
     async ({ displayName }: SettingsFormData) => {
       if (!identity) {
@@ -42,29 +43,42 @@ const Settings: NextPageWithLayout = () => {
         if (!identity) {
           return;
         }
-        void getIdToken(identity, true);
-        mutate((data) => {
-          if (data) {
-            return {
-              ...data,
-              name: variables.displayName,
-            };
-          }
-        });
+
+        getIdToken(identity, true);
+
+        /*
+          When the name is updated, there's a slight delay in getting back
+          the updated displayName value from "/users/getAccountDetails". This
+          is why "revalidate: false" is needed. Otherwise, the user would see
+          their old displayName value after updating.
+        */
+
+        mutate(
+          (data) => {
+            if (data) {
+              return {
+                ...data,
+                name: variables.displayName,
+              };
+            }
+          },
+          {
+            revalidate: false,
+          },
+        );
       },
       onSettled: () => setIsEditing(false),
     },
   );
 
-  const edit = useCallback(() => {
+  function edit() {
     setValue('displayName', user!.name!);
     setIsEditing(true);
-  }, [setValue, user]);
+  }
 
-  const submitSettings: SubmitHandler<SettingsFormData> = useCallback(
-    ({ displayName }) => updateDisplayNameMutation.mutate({ displayName }),
-    [updateDisplayNameMutation],
-  );
+  const submitSettings: SubmitHandler<SettingsFormData> = ({ displayName }) => {
+    updateDisplayNameMutation.mutate({ displayName });
+  };
 
   const isLoading = !user && !error;
 
@@ -81,7 +95,11 @@ const Settings: NextPageWithLayout = () => {
             <Flex justify="spaceBetween" align="center">
               <H1>User Settings</H1>
               {isEditing && (
-                <Button stableId={StableId.USER_SETTINGS_SAVE_BUTTON} type="submit">
+                <Button
+                  stableId={StableId.USER_SETTINGS_SAVE_BUTTON}
+                  type="submit"
+                  loading={updateDisplayNameMutation.isLoading}
+                >
                   Done
                 </Button>
               )}
