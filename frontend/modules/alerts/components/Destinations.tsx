@@ -23,10 +23,11 @@ export function Destinations({ project }: { project?: Project }) {
   const { destinations, mutate } = useDestinations(project?.slug);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
-  const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
+  const [selectedEditDestinationId, setSelectedEditDestinationId] = useState<number>();
+  const selectedEditDestination = destinations?.find((d) => d.id === selectedEditDestinationId);
 
   function openDestination(destination: Destination) {
-    setSelectedEditDestination(destination);
+    setSelectedEditDestinationId(destination.id);
     setShowEditDestinationModal(true);
   }
 
