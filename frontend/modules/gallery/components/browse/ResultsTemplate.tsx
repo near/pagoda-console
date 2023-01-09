@@ -6,6 +6,7 @@ import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
 import PlaceholderImage from '@/public/images/gallery/placeholder.png';
 import { styled } from '@/styles/stitches';
+import { StableId } from '@/utils/stable-ids';
 
 const TemplateTitle = styled(Flex, {
   marginBottom: '1.25rem',
@@ -69,7 +70,7 @@ const ResultsTemplate = ({ template }) => {
   const onClick = () => router.push(`/gallery/${template.attributes.nameSlug}`);
 
   return (
-    <Template onClick={onClick}>
+    <Template data-stable-id={StableId.GALLERY_VIEW_SOURCE} onClick={onClick}>
       <TemplateImage>
         <Image layout="fill" src={PlaceholderImage} alt="" />
         <TemplateGradient />

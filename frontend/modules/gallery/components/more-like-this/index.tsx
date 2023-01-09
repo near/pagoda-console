@@ -6,6 +6,7 @@ import { Text } from '@/components/lib/Text';
 import { useGalleryStore } from '@/stores/gallery';
 import { selectMoreLikeThis } from '@/stores/gallery/gallery';
 import { styled } from '@/styles/stitches';
+import { StableId } from '@/utils/stable-ids';
 
 import ResultsTemplate from '../browse/ResultsTemplate';
 
@@ -46,7 +47,9 @@ const MoreLikeThis = () => {
           </Text>
         </Flex>
         <Flex justify="end">
-          <SeeAllTemplate onClick={seeAllTemplates}>See All Templates</SeeAllTemplate>
+          <SeeAllTemplate onClick={seeAllTemplates} data-stable-id={StableId.GALLERY_SEE_ALL_TEMPLATES}>
+            See All Templates
+          </SeeAllTemplate>
         </Flex>
       </ResultsTop>
       <Templates>

@@ -17,6 +17,7 @@ import { useGalleryStore } from '@/stores/gallery';
 import type { Template, Templates } from '@/stores/gallery/gallery';
 import { styled } from '@/styles/stitches';
 import { fetchFromCMS } from '@/utils/cms';
+import { StableId } from '@/utils/stable-ids';
 
 import Banner from './Banner';
 
@@ -107,7 +108,7 @@ const ViewGallery = ({ template, moreLikeThis }: ViewGalleryProps) => {
         <Container size="ml">
           <BackToTemplatesLink wrap justify="start" align="center">
             <FeatherIcon icon="arrow-left" color="text3" size="s" />
-            <Text color="text3" onClick={backToTemplates}>
+            <Text color="text3" onClick={backToTemplates} data-stable-id={StableId.GALLERY_BACK_TO_TEMPLATES}>
               Back to Templates
             </Text>
           </BackToTemplatesLink>
