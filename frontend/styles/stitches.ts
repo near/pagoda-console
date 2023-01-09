@@ -5,6 +5,7 @@ import type { JSXElementConstructor } from 'react';
 export const { config, css, getCssText, globalCss, keyframes, styled, theme } = createStitches({
   media: {
     mobile: '(max-width: 35rem)',
+    smallTablet: '(max-width: 45rem)',
     tablet: '(max-width: 60rem)',
     laptop: '(max-width: 75rem)',
   },
