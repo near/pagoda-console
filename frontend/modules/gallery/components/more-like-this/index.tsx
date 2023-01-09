@@ -18,6 +18,13 @@ const Templates = styled('div', {
   gridTemplateColumns: '1fr 1fr 1fr 1fr',
   columnGap: '2.5rem',
   rowGap: '3.75rem',
+
+  '@tablet': {
+    gridTemplateColumns: '1fr 1fr',
+  },
+  '@mobile': {
+    gridTemplateColumns: '1fr',
+  },
 });
 
 const SeeAllTemplate = styled('span', {

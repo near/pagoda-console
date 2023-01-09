@@ -7,6 +7,13 @@ const Template = styled('div', {
   width: '100%',
   height: '9.5rem',
   position: 'relative',
+
+  '@smallTablet': {
+    height: '7rem',
+  },
+  '@mobile': {
+    height: '5rem',
+  },
 });
 
 const TemplateArchitecture = ({ architectureUrl }) => (

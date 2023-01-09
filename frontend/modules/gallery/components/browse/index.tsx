@@ -9,6 +9,17 @@ const CustomContainer = styled(Container, {
   display: 'grid',
   gridTemplateColumns: '1fr 3fr',
   columnGap: '2.5rem',
+
+  '@tablet': {
+    gridTemplateColumns: '1fr 3fr',
+    columnGap: '1.5rem',
+  },
+  '@smallTablet': {
+    gridTemplateColumns: '2fr 3fr',
+  },
+  '@mobile': {
+    gridTemplateColumns: '1fr 2fr',
+  },
 });
 
 const Browse = () => {
