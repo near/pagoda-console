@@ -99,7 +99,7 @@ function reset() {
   }
 }
 
-const fns = {
+const analytics = {
   identify,
   init,
   pageView,
@@ -107,4 +107,4 @@ const fns = {
   track,
 };
 
-export default fns;
+export default analytics;

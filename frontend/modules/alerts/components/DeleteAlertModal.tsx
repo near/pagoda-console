@@ -26,6 +26,10 @@ export function DeleteAlertModal({ alert, show, setShow, onDelete }: Props) {
   }
 
   const deleteAlertMutation = useApiMutation('/alerts/deleteAlert', {
+    onMutate: () => {
+      setErrorText('');
+    },
+
     onSuccess: (result, variables) => {
       analytics.track('DC Remove Alert', {
         status: 'success',

@@ -180,7 +180,7 @@ function TelegramDestinationForm(props: FormProps) {
     );
 
   return (
-    <Form.Root disabled={form.formState.isSubmitting} onSubmit={form.handleSubmit(submitForm)}>
+    <Form.Root disabled={createDestinationMutation.isLoading} onSubmit={form.handleSubmit(submitForm)}>
       <Flex stack gap="l">
         <Text color="text1">
           Once you create a Telegram destination, you&apos;ll have one last step: connecting with our{' '}
@@ -189,7 +189,7 @@ function TelegramDestinationForm(props: FormProps) {
 
         <Flex justify="spaceBetween" align="center">
           <Button
-            loading={form.formState.isSubmitting}
+            loading={createDestinationMutation.isLoading}
             type="submit"
             stableId={StableId.NEW_DESTINATION_MODAL_CREATE_BUTTON}
           >
@@ -248,7 +248,7 @@ function WebhookDestinationForm(props: FormProps) {
     );
 
   return (
-    <Form.Root disabled={form.formState.isSubmitting} onSubmit={form.handleSubmit(submitForm)}>
+    <Form.Root disabled={createDestinationMutation.isLoading} onSubmit={form.handleSubmit(submitForm)}>
       <Flex stack gap="l">
         <Flex stack>
           <Form.Group>
@@ -265,7 +265,7 @@ function WebhookDestinationForm(props: FormProps) {
 
         <Flex justify="spaceBetween" align="center">
           <Button
-            loading={form.formState.isSubmitting}
+            loading={createDestinationMutation.isLoading}
             type="submit"
             stableId={StableId.NEW_DESTINATION_MODAL_CREATE_BUTTON}
           >
@@ -314,7 +314,7 @@ function EmailDestinationForm(props: FormProps) {
     );
 
   return (
-    <Form.Root disabled={form.formState.isSubmitting} onSubmit={form.handleSubmit(submitForm)}>
+    <Form.Root disabled={createDestinationMutation.isLoading} onSubmit={form.handleSubmit(submitForm)}>
       <Flex stack gap="l">
         <Flex stack>
           <Form.Group>
@@ -331,7 +331,7 @@ function EmailDestinationForm(props: FormProps) {
 
         <Flex justify="spaceBetween" align="center">
           <Button
-            loading={form.formState.isSubmitting}
+            loading={createDestinationMutation.isLoading}
             type="submit"
             stableId={StableId.NEW_DESTINATION_MODAL_CREATE_BUTTON}
           >

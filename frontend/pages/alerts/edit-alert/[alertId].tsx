@@ -215,7 +215,7 @@ const EditAlert: NextPageWithLayout = () => {
           <Spinner center />
         ) : (
           <Flex stack gap="l">
-            <Form.Root disabled={nameForm.formState.isSubmitting} onSubmit={nameForm.handleSubmit(submitNameForm)}>
+            <Form.Root disabled={updateAlertMutation.isLoading} onSubmit={nameForm.handleSubmit(submitNameForm)}>
               <Flex stack>
                 <Flex justify="spaceBetween" stack={{ '@mobile': true }}>
                   {isEditingName && (
@@ -240,7 +240,7 @@ const EditAlert: NextPageWithLayout = () => {
                       <Button
                         stableId={StableId.ALERT_SAVE_ALERT_NAME_BUTTON}
                         aria-label="Save Alert Name"
-                        loading={nameForm.formState.isSubmitting}
+                        loading={updateAlertMutation.isLoading}
                         type="submit"
                         color="neutral"
                         css={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}

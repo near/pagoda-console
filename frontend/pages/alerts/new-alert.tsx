@@ -178,7 +178,7 @@ const NewAlert: NextPageWithLayout = () => {
           </Link>
         </Flex>
 
-        <Form.Root disabled={form.formState.isSubmitting} onSubmit={form.handleSubmit(submit)}>
+        <Form.Root disabled={createAlertMutation.isLoading} onSubmit={form.handleSubmit(submit)}>
           <Flex stack gap="l">
             <Flex stack>
               <H4>
@@ -568,7 +568,7 @@ const NewAlert: NextPageWithLayout = () => {
             <HR />
 
             <Flex justify="spaceBetween" align="center">
-              <Button type="submit" loading={form.formState.isSubmitting} stableId={StableId.NEW_ALERT_CREATE_BUTTON}>
+              <Button type="submit" loading={createAlertMutation.isLoading} stableId={StableId.NEW_ALERT_CREATE_BUTTON}>
                 <FeatherIcon icon="bell" /> Create Alert
               </Button>
 
