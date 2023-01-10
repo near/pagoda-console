@@ -17,11 +17,13 @@ model Repository {
   slug                 String                 @unique
   projectSlug          String
   environmentSubId     Int
-  githubRepoFullName   String                 @unique         
+  githubRepoFullName   String                 @unique
   ContractDeployConfig ContractDeployConfig[]
   RepoDeployment       RepoDeployment[]
   enabled              Boolean                @default(true)
   FrontendDeployConfig FrontendDeployConfig[]
+  authTokenHash        Bytes
+  authTokenSalt        Bytes
 }
 
 // deployment configuration for a given contract in a Repository

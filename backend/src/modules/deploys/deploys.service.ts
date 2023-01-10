@@ -4,7 +4,7 @@ import { customAlphabet } from 'nanoid';
 import { PrismaService } from './prisma.service';
 import { Environment, Project, User } from '@pc/database/clients/core';
 import { Repository } from '@pc/database/clients/deploys';
-import { createHash } from 'crypto';
+import { createHash, randomBytes, scryptSync } from 'crypto';
 import { encode } from 'bs58';
 import { VError } from 'verror';
 import { connect, KeyPair, keyStores } from 'near-api-js';
@@ -63,10 +63,25 @@ export class DeploysService {
       throw new VError('Could not find testnet env for newly created project');
     }
 
+    // TODO get GitHub token
+
+    // OWASP recommended password hashing:
+    // If Argon2id is not available, use scrypt with a minimum CPU/memory cost parameter of (2^16),
+    // a minimum block size of 8 (1024 bytes), and a parallelization parameter of 1.
+    const actionAuthToken = nanoid(25);
+    const authTokenSalt = randomBytes(32);
+    const authTokenHash = scryptSync(actionAuthToken, authTokenSalt, 64, {
+      N: 2 ** 16,
+    });
+
+    // TODO set secret on repository
+
     return this.addDeployRepository({
       projectSlug: project.slug,
       environmentSubId: testnetEnv.subId,
       githubRepoFullName,
+      authTokenHash,
+      authTokenSalt,
     });
   }
 
@@ -78,10 +93,14 @@ export class DeploysService {
     projectSlug,
     environmentSubId,
     githubRepoFullName,
+    authTokenHash,
+    authTokenSalt,
   }: {
     projectSlug: Project['slug'];
     environmentSubId: Environment['subId'];
     githubRepoFullName: string;
+    authTokenHash: Buffer;
+    authTokenSalt: Buffer;
   }) {
     return this.prisma.repository.create({
       data: {
@@ -89,6 +108,8 @@ export class DeploysService {
         projectSlug,
         environmentSubId,
         githubRepoFullName,
+        authTokenHash,
+        authTokenSalt,
       },
     });
   }
