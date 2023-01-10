@@ -4,8 +4,8 @@ import { customAlphabet } from 'nanoid';
 import { PrismaService } from './prisma.service';
 import { Environment, Project, User } from '@pc/database/clients/core';
 import { Repository } from '@pc/database/clients/deploys';
-import { createHash } from 'sha256-uint8array';
-import Base58 from 'base-58';
+import { createHash } from 'crypto';
+import { encode } from 'bs58';
 import { VError } from 'verror';
 import { connect, KeyPair, keyStores } from 'near-api-js';
 
@@ -236,7 +236,7 @@ export class DeploysService {
     const account = await near.account(deployConfig.nearAccountId);
 
     const { code_hash: accountCodeHash } = await account.state();
-    const uploadedCodeHash = Base58.encode(createHash().update(file).digest());
+    const uploadedCodeHash = encode(createHash('sha256').update(file).digest());
 
     let txOutcome;
 
