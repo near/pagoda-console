@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 
-import { fetchApi } from '@/utils/http';
+import { api } from '@/utils/api';
 
 import { useAuth } from './auth';
 
@@ -12,7 +12,7 @@ export function useGithubConnection() {
     mutate,
     isValidating,
   } = useSWR(identity ? ['/users/getGithubConnection' as const, identity.uid] : null, (key) => {
-    return fetchApi([key]);
+    return api.query(key, undefined);
   });
 
   return { connection, error, mutate, isValidating };
