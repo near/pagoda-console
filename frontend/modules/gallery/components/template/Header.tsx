@@ -35,7 +35,12 @@ const Header = () => {
   const { allUsed } = useGalleryStore(selectTemplateTools);
 
   return (
-    <Flex>
+    <Flex
+      stack="smallTablet"
+      gap={{
+        '@smallTablet': 'xl',
+      }}
+    >
       <Flex stack>
         <Text size="h3" family="sprint">
           {name}
@@ -54,7 +59,7 @@ const Header = () => {
           <Text color="text2">Pagoda</Text>
         </Flex>
       </Flex>
-      <Flex stack autoWidth>
+      <Flex stack justify="end">
         <Flex justify="end">
           <UseTemplateButton stableId={StableId.GALLERY_USE_TEMPLATE}>
             <IconShare icon="share-2" size="s" />

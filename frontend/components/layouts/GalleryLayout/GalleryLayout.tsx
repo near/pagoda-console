@@ -9,7 +9,7 @@ export const GalleryLayout = ({ children }: { children: ReactElement }) => {
   return (
     <S.Wrapper>
       <S.Header>
-        <LogoSvg style={{ height: '2.4rem', marginLeft: '7.4rem', alignSelf: 'center' }} />
+        <LogoSvg style={{ height: '2.4rem', alignSelf: 'center' }} />
       </S.Header>
       <S.Main>{children}</S.Main>
       <Footer />
