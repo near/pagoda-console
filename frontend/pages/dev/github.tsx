@@ -39,7 +39,7 @@ const Page: NextPageWithLayout = () => {
   const { code } = router.query;
   const { authStatus } = useAuth();
 
-  const connectGithubMut = useApiMutation('/users/connectGithub', {
+  const { mutate, ...connectGithubMut } = useApiMutation('/users/connectGithub', {
     onError: (e) => {
       console.error(e);
     },
@@ -53,8 +53,9 @@ const Page: NextPageWithLayout = () => {
 
     router.replace(router.pathname, undefined, { shallow: true });
 
-    connectGithubMut.mutate({ code });
-  }, [code, connectGithubMut, authStatus, router]);
+    mutate({ code });
+  }, [code, mutate, authStatus, router]);
+
   return (
     <Section>
       <ButtonLink href={formGithubUrl()} stableId={StableId.GITHUB_CONNECT}>
