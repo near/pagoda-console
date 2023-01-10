@@ -191,17 +191,6 @@ export const HeaderCell = styled('th', {
   textTransform: 'uppercase',
   background: 'linear-gradient(var(--color-surface-2) 85%, transparent)',
   transition: 'var(--transitions)',
-
-  variants: {
-    textTransform: {
-      none: {
-        textTransform: 'none',
-      },
-      uppercase: {
-        textTransform: 'uppercase',
-      },
-    },
-  },
 });
 
 export const HeaderCustomCell = styled('th', {
