@@ -21,7 +21,7 @@ const IconShareCustom = styled(FeatherIcon, {
 const TemplateArchitecture = () => (
   <Flex stack>
     Share
-    <ShareButtons>
+    <ShareButtons wrap>
       <Button color="neutral" stableId={StableId.GALLERY_FILTER_TOOLS}>
         <IconShareCustom icon="link-2" size="s" color="text2" />
       </Button>

@@ -84,6 +84,16 @@ export const Flex = styled('div', {
       true: {
         flexDirection: 'column',
       },
+      mobile: {
+        '@mobile': {
+          flexDirection: 'column',
+        },
+      },
+      smallTablet: {
+        '@smallTablet': {
+          flexDirection: 'column',
+        },
+      },
     },
 
     wrap: {

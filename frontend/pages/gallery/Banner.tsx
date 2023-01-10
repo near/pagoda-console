@@ -14,11 +14,33 @@ const CustomDiv = styled('div', {
   height: '26.625rem',
   backgroundColor: '#BABACB',
   margin: '7.5rem 0 12.5rem',
+
+  '@laptop': {
+    height: '22rem',
+  },
+  '@tablet': {
+    height: '20.5rem',
+  },
+  '@smallTablet': {
+    height: '29rem',
+  },
+  '@mobile': {
+    height: '27rem',
+  },
 });
 
 const BannerText = styled(Flex, {
-  padding: '5rem 0 0 6.25rem',
-  width: '45%',
+  padding: '5rem 6.25rem 0',
+  width: '35rem',
+
+  '@laptop': {
+    padding: '3.75rem 5rem 0',
+    width: '100%',
+  },
+  '@tablet': {
+    padding: '1.75rem 2rem 0',
+    width: '100%',
+  },
 
   [`& ${Text}`]: {
     color: '#151718',
@@ -30,6 +52,24 @@ const CustomBox = styled(Box, {
   position: 'absolute',
   top: '10rem',
   right: 0,
+  width: '731px',
+  height: '380px',
+
+  '@laptop': {
+    top: '6rem',
+    width: '620px',
+  },
+  '@tablet': {
+    width: '450px',
+  },
+  '@smallTablet': {
+    top: '14rem',
+    width: '100%',
+  },
+  '@mobile': {
+    top: '10rem',
+    width: '100%',
+  },
 });
 
 const CustomContainer = styled(Container, {
@@ -51,7 +91,7 @@ const Banner = () => {
           </Button>
         </BannerText>
         <CustomBox>
-          <Image src={ImageBanner} alt="" />
+          <Image layout="fill" objectFit="contain" src={ImageBanner} alt="" />
         </CustomBox>
       </CustomContainer>
     </CustomDiv>
