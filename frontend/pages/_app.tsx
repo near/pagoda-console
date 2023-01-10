@@ -6,33 +6,35 @@ import '@/styles/enhanced-api.scss';
 import '@/styles/near-wallet-selector.scss';
 
 import * as FullStory from '@fullstory/browser';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Gleap from 'gleap';
 import { withLDProvider } from 'launchdarkly-react-client-sdk';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { appWithTranslation } from 'next-i18next';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
+import { useState } from 'react';
 import { useEffect } from 'react';
-import { SWRConfig, useSWRConfig } from 'swr';
+import { SWRConfig } from 'swr';
 
 import { SimpleLayout } from '@/components/layouts/SimpleLayout';
 import { FeatherIconSheet } from '@/components/lib/FeatherIcon';
 import { Toaster } from '@/components/lib/Toast';
 import { useAnalytics } from '@/hooks/analytics';
+import { useAuth, useAuthSync } from '@/hooks/auth';
 import { useSelectedProjectRouteParamSync } from '@/hooks/selected-project';
-import { useIdentity } from '@/hooks/user';
 import { DowntimeMode } from '@/modules/core/components/DowntimeMode';
-import SmallScreenNotice from '@/modules/core/components/SmallScreenNotice';
 import { useSettingsStore } from '@/stores/settings';
 import analytics from '@/utils/analytics';
 import { initializeNaj } from '@/utils/chain-data';
 import config from '@/utils/config';
 import { hydrateAllStores } from '@/utils/hydrate-all-stores';
-import { customErrorRetry } from '@/utils/swr';
+import { getCustomErrorRetry } from '@/utils/query';
 import type { NextPageWithLayout } from '@/utils/types';
+
+const queryClient = new QueryClient();
 
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
@@ -46,21 +48,12 @@ if (typeof window !== 'undefined') {
   if (config.gleapAuth) Gleap.initialize(config.gleapAuth);
 }
 
-const unauthedPaths = [
-  '/',
-  '/register',
-  '/ui',
-  '/alerts/verify-email',
-  '/alerts/unsubscribe-from-email-alert',
-  '/pick-project-template/[templateSlug]',
-];
-
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+  useAuthSync();
   useSelectedProjectRouteParamSync();
   useAnalytics();
-  const identity = useIdentity();
+  const { identity } = useAuth();
   const router = useRouter();
-  const { cache }: { cache: any } = useSWRConfig(); // https://github.com/vercel/swr/discussions/1494
   const initializeCurrentUserSettings = useSettingsStore((store) => store.initializeCurrentUserSettings);
 
   useEffect(() => {
@@ -81,54 +74,64 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     initializeNaj();
   }, []);
 
-  useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (!firebaseUser && !unauthedPaths.includes(router.pathname)) {
-        analytics.reset();
-        cache.clear();
-        router.replace('/');
-      }
-    });
-
-    return () => unsubscribe(); // TODO why lambda function?
-  }, [router, cache]);
-
   const getLayout = Component.getLayout ?? ((page) => page);
 
+  const [swrConfig] = useState<ComponentProps<typeof SWRConfig>['value']>(() => ({
+    onErrorRetry: getCustomErrorRetry(),
+  }));
+
+  const metaTitle = 'Pagoda Developer Console';
+  const metaDescription =
+    'Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics.';
+
   return (
-    <SWRConfig
-      value={{
-        onErrorRetry: customErrorRetry,
-      }}
-    >
-      <Head>
-        <title>Pagoda Developer Console</title>
-        <meta
-          name="description"
-          content="Developer Console helps you create and maintain dApps by providing interactive tutorials, scalable infrastructure, and operational metrics."
-        />
-        <link rel="icon" href="/favicon.ico" />
-        <link href="/favicon-256x256.png" rel="apple-touch-icon" />
-      </Head>
+    <QueryClientProvider client={queryClient}>
+      <SWRConfig value={swrConfig}>
+        <Head>
+          <title>{metaTitle}</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+          <meta name="description" content={metaDescription} />
+          <meta content={metaTitle} property="og:title" />
+          <meta content={metaDescription} property="og:description" />
+          <meta content={`${config.url.host}/images/og__pagoda_image.png`} property="og:image" />
+          <meta content={metaTitle} property="twitter:title" />
+          <meta content={metaDescription} property="twitter:description" />
+          <meta content={`${config.url.host}/images/og__pagoda_image.png`} property="twitter:image" />
+          <meta content="website" property="og:type" />
+          <meta content="summary_large_image" name="twitter:card" />
+          <link rel="icon" href="/favicon.ico" />
+          <link href="/favicon-256x256.png" rel="apple-touch-icon" />
+        </Head>
 
-      <FeatherIconSheet />
-      <SmallScreenNotice />
-      <Toaster />
+        <FeatherIconSheet />
+        <Toaster />
 
-      {config.downtimeMode ? (
-        <SimpleLayout>
-          <DowntimeMode />
-        </SimpleLayout>
-      ) : (
-        getLayout(<Component {...pageProps} />)
-      )}
-    </SWRConfig>
+        {/* 
+          When we start using React Query for queries (not just mutations), we could experiment with including the devtools.
+          The devtools don't display any information regarding mutations as of now.
+
+          import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+          ...
+          {config.deployEnv === 'LOCAL' && <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />}
+        */}
+
+        {config.downtimeMode ? (
+          <SimpleLayout>
+            <DowntimeMode />
+          </SimpleLayout>
+        ) : (
+          getLayout(<Component {...pageProps} />)
+        )}
+      </SWRConfig>
+    </QueryClientProvider>
   );
 }
 
 export default withLDProvider({
   clientSideID: config.launchDarklyEnv,
+  user: {
+    key: 'anonymous-placeholder-id',
+  },
   reactOptions: {
     useCamelCaseFlagKeys: false,
   },

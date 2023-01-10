@@ -731,7 +731,6 @@ export class ProjectsService {
         },
       },
       select: {
-        id: true,
         name: true,
         slug: true,
         tutorial: true,

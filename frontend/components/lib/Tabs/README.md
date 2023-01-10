@@ -8,14 +8,13 @@ _If the current props and Stitches style overrides aren't enough to cover your u
 
 ```tsx
 import * as Tabs from '@/components/lib/Tabs';
-import { StableId } from '@/utils/stable-ids';
 
 ...
 
 <Tabs.Root defaultValue="alerts">
   <Tabs.List>
-    <Tabs.Trigger stableId={StableId.MY_TABS_ALERTS_TRIGGER} value="alerts">Alerts</Tabs.Trigger>
-    <Tabs.Trigger stableId={StableId.MY_TABS_HISTORY_TRIGGER} value="history">History</Tabs.Trigger>
+    <Tabs.Trigger value="alerts">Alerts</Tabs.Trigger>
+    <Tabs.Trigger value="history">History</Tabs.Trigger>
   </Tabs.List>
 
   <Tabs.Content value="alerts">
@@ -27,10 +26,6 @@ import { StableId } from '@/utils/stable-ids';
   </Tabs.Content>
 </Tabs.Root>
 ```
-
-## Stable ID
-
-Please refer to the [Stable ID Documentation](../Button/README.md) in the `Button` component.
 
 ## Inline
 
@@ -45,7 +40,7 @@ You can use this alternative tab styling via the `inline` prop on the `Tabs.List
 
 ## Routing
 
-Sometimes it will make sense to sync the selected tab with the URL - each trigger acting as a link instead of a button. Here's an example of driving the selected tab via a URL query param:
+Sometimes it will make sense to sync the selected tab with the URL - each trigger acting as a link. This can be accomplished by using `useRouterParam()` and the `href` prop on each trigger:
 
 ```tsx
 import { useRouteParam } from '@/hooks/route';
@@ -57,21 +52,12 @@ const activeTab = useRouteParam('tab', '?tab=section-1', true);
 ...
 
 <Tabs.Root value={activeTab || ''}>
-  <Tabs.List tabIndex={-1}>
-    <Link href="?tab=section-1" passHref>
-      <Tabs.TriggerLink stableId={StableId.MY_TABS_SECTION_1_LINK} active={activeTab === 'section-1'}>Section 1</Tabs.TriggerLink>
-    </Link>
-
-    <Link href="?tab=section-2" passHref>
-      <Tabs.TriggerLink stableId={StableId.MY_TABS_SECTION_2_LINK} active={activeTab === 'section-2'}>Section 2</Tabs.TriggerLink>
-    </Link>
+  <Tabs.List>
+    <Tabs.Trigger value="section-1" href="?tab=section-1">Section 1</Tabs.Trigger>
+    <Tabs.Trigger value="section-2" href="?tab=section-2">Section 2</Tabs.Trigger>
   </Tabs.List>
 
   <Tabs.Content value="section-1">...</Tabs.Content>
   <Tabs.Content value="section-2">...</Tabs.Content>
 </Tabs.Root>;
 ```
-
-Note the use of `Tabs.TriggerLink` wrapped by `Link` (an anchor element) instead of `Tabs.Trigger` (a button element). This will allow users to interact with the tabs as standard links (supports opening new tabs, browser history, etc).
-
-Also, note the use of `tabIndex={-1}` on `Tabs.List`. The `Tabs.List` component is designed to receive keyboard focus when using the standard `Tabs.Trigger` inside the list. However, when we use `Tabs.TriggerLink`, keyboard focus works differently (each trigger should receive focus, not the wrapping list).

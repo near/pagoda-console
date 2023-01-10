@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import { getIdToken, updateProfile } from 'firebase/auth';
 import { useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
@@ -11,12 +12,10 @@ import { HR } from '@/components/lib/HorizontalRule';
 import { Message } from '@/components/lib/Message';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
-import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
+import { useAccount, useAuth } from '@/hooks/auth';
 import { useDashboardLayout } from '@/hooks/layouts';
-import { useAccount, useIdentity } from '@/hooks/user';
 import DeleteAccountModal from '@/modules/core/components/modals/DeleteAccountModal';
-import { logOut } from '@/utils/auth';
 import { formValidations } from '@/utils/constants';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -29,48 +28,56 @@ const Settings: NextPageWithLayout = () => {
   const { register, handleSubmit, formState, setValue } = useForm<SettingsFormData>();
   const [isEditing, setIsEditing] = useState(false);
   const { user, error, mutate } = useAccount();
-  const identity = useIdentity();
-  const [updateError, setUpdateError] = useState('');
+  const { identity } = useAuth();
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+
+  const updateDisplayNameMutation = useMutation(
+    async ({ displayName }: SettingsFormData) => {
+      if (!identity) {
+        return;
+      }
+      await updateProfile(identity, { displayName });
+    },
+    {
+      onSuccess: (_, variables) => {
+        if (!identity) {
+          return;
+        }
+
+        getIdToken(identity, true);
+
+        /*
+          When the name is updated, there's a slight delay in getting back
+          the updated displayName value from "/users/getAccountDetails". This
+          is why "revalidate: false" is needed. Otherwise, the user would see
+          their old displayName value after updating.
+        */
+
+        mutate(
+          (data) => {
+            if (data) {
+              return {
+                ...data,
+                name: variables.displayName,
+              };
+            }
+          },
+          {
+            revalidate: false,
+          },
+        );
+      },
+      onSettled: () => setIsEditing(false),
+    },
+  );
 
   function edit() {
     setValue('displayName', user!.name!);
     setIsEditing(true);
   }
 
-  const submitSettings: SubmitHandler<SettingsFormData> = async ({ displayName }) => {
-    if (!identity) return;
-
-    try {
-      await updateProfile(identity, {
-        displayName,
-      });
-
-      // force token refresh since that is where the backend gets user details
-      await getIdToken(identity, true);
-
-      mutate((data) => {
-        if (data) {
-          return {
-            ...data,
-            name: displayName,
-          };
-        }
-      });
-    } catch (e) {
-      setUpdateError('Something went wrong while attempting to update your settings');
-    } finally {
-      setIsEditing(false);
-    }
-  };
-
-  const onAccountDelete = async () => {
-    await logOut();
-    openToast({
-      type: 'success',
-      title: 'Account Deleted',
-      description: 'Your account has been deleted and you have been signed out.',
-    });
+  const submitSettings: SubmitHandler<SettingsFormData> = ({ displayName }) => {
+    updateDisplayNameMutation.mutate({ displayName });
   };
 
   const isLoading = !user && !error;
@@ -78,14 +85,21 @@ const Settings: NextPageWithLayout = () => {
   return (
     <>
       <Section>
-        <ErrorModal error={updateError} setError={setUpdateError} />
+        <ErrorModal
+          error={updateDisplayNameMutation.error ? String(updateDisplayNameMutation.error) : null}
+          resetError={updateDisplayNameMutation.reset}
+        />
 
-        <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitSettings)}>
+        <Form.Root disabled={updateDisplayNameMutation.isLoading} onSubmit={handleSubmit(submitSettings)}>
           <Flex stack gap="l">
-            <Flex justify="spaceBetween">
+            <Flex justify="spaceBetween" align="center">
               <H1>User Settings</H1>
               {isEditing && (
-                <Button stableId={StableId.USER_SETTINGS_SAVE_BUTTON} type="submit">
+                <Button
+                  stableId={StableId.USER_SETTINGS_SAVE_BUTTON}
+                  type="submit"
+                  loading={updateDisplayNameMutation.isLoading}
+                >
                   Done
                 </Button>
               )}
@@ -109,6 +123,7 @@ const Settings: NextPageWithLayout = () => {
                       id="displayName"
                       isInvalid={!!formState.errors.displayName}
                       placeholder="John Nearian"
+                      stableId={StableId.USER_SETTINGS_DISPLAY_NAME_INPUT}
                       {...register('displayName', formValidations.displayName)}
                     />
                     <Form.Feedback>{formState.errors.displayName?.message}</Form.Feedback>
@@ -137,11 +152,7 @@ const Settings: NextPageWithLayout = () => {
           </Button>
         </Flex>
       </Section>
-      <DeleteAccountModal
-        show={showDeleteAccountModal}
-        setShow={setShowDeleteAccountModal}
-        onDelete={onAccountDelete}
-      />
+      <DeleteAccountModal show={showDeleteAccountModal} setShow={setShowDeleteAccountModal} />
     </>
   );
 };

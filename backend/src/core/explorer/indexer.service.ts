@@ -32,6 +32,7 @@ import { Sequelize, QueryTypes } from 'sequelize';
 import { Net } from '@pc/database/clients/core';
 import { AppConfig } from '../../config/validate';
 import { Explorer } from '@pc/common/types/core';
+import { DatabaseAccessKey } from './actions';
 
 @Injectable()
 export class IndexerService {
@@ -257,6 +258,7 @@ export class IndexerService {
     let mergedTransactions: (Explorer.Old.Transaction & {
       sourceContract: string;
     })[] = [];
+
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
       if (result.status === 'fulfilled' && result.value?.length) {
@@ -280,9 +282,37 @@ export class IndexerService {
       return mergedTransactions.sort(compareTransactions);
     }
     */
-    return mergedTransactions
+
+    mergedTransactions = mergedTransactions
       .sort((a, b) => sortBigInts(a.blockTimestamp, b.blockTimestamp))
       .slice(0, this.recentTransactionsCount);
+
+    mergedTransactions.forEach((transaction) => {
+      transaction.actions.forEach((action) => {
+        if (action.kind === 'AddKey') {
+          /*
+            This logic is needed to map the Explorer DB data to match the expected 
+            RPC data type. It's a bit ugly, but does the trick for now. Hopefully, 
+            we can stop relying on Explorer's DB in the future when the RPC is 
+            more robust.
+          */
+
+          const accessKey = action.args.access_key as any as DatabaseAccessKey;
+
+          if (accessKey.permission.permission_kind === 'FULL_ACCESS') {
+            action.args.access_key.permission = 'FullAccess';
+          } else {
+            action.args.access_key.permission = {
+              FunctionCall: {
+                ...accessKey.permission.permission_details,
+              },
+            };
+          }
+        }
+      });
+    });
+
+    return mergedTransactions;
   }
 }
 

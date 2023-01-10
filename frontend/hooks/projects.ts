@@ -2,69 +2,22 @@ import type { Api } from '@pc/common/types/api';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import useSWR from 'swr';
-import { mutate } from 'swr';
 
-import { useIdentity } from '@/hooks/user';
-import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
+import { useAuth } from '@/hooks/auth';
+import { api } from '@/utils/api';
 
 import { useProjectSelector } from './selected-project';
 
-export async function ejectTutorial(slug: string, name: string) {
-  try {
-    await authenticatedPost('/projects/ejectTutorial', { slug });
-    analytics.track('DC Eject Tutorial Project', {
-      status: 'success',
-      name,
-    });
-    return true;
-  } catch (e: any) {
-    analytics.track('DC Eject Tutorial Project', {
-      status: 'failure',
-      name,
-      error: e.message,
-    });
-    // TODO
-    console.error('Failed to eject tutorial project');
-  }
-  return false;
-}
-
 type Projects = Api.Query.Output<'/projects/list'>;
-
-export async function deleteProject(userId: string | undefined, slug: string, name: string) {
-  try {
-    await authenticatedPost('/projects/delete', { slug });
-    analytics.track('DC Remove Project', {
-      status: 'success',
-      name,
-    });
-    // Update the SWR cache before a refetch for better UX.
-    mutate<Projects>(userId ? ['/projects/list', userId] : null, async (projects) => {
-      return projects?.filter((p) => p.slug !== slug);
-    });
-    return true;
-  } catch (e: any) {
-    analytics.track('DC Remove Project', {
-      status: 'failure',
-      name,
-      error: e.message,
-    });
-    // TODO
-    console.error('Failed to delete project');
-  }
-  return false;
-}
 
 export function useProject(projectSlug: string | undefined) {
   const router = useRouter();
-  const identity = useIdentity();
   const { selectProject } = useProjectSelector();
 
   const { data: project, error } = useSWR(
-    identity && projectSlug ? ['/projects/getDetails' as const, projectSlug, identity.uid] : null,
-    (key, projectSlug) => {
-      return authenticatedPost(key, { slug: projectSlug });
+    projectSlug ? ['/projects/getDetails' as const, projectSlug] : null,
+    (path, slug) => {
+      return api.query(path, { slug });
     },
   );
 
@@ -86,14 +39,14 @@ export function useProject(projectSlug: string | undefined) {
 }
 
 export function useProjects() {
-  const identity = useIdentity();
+  const { identity } = useAuth();
   const {
     data: projects,
     error,
     mutate,
     isValidating,
-  } = useSWR(identity ? ['/projects/list' as const, identity.uid] : null, (key) => {
-    return authenticatedPost(key);
+  } = useSWR(identity ? ['/projects/list' as const, identity.uid] : null, (path) => {
+    return api.query(path, undefined);
   });
 
   return { projects, error, mutate, isValidating };

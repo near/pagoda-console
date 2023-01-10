@@ -136,7 +136,7 @@ import { Text } from '@/components/lib/Text';
 Due to our app primarily targeting desktop/laptop users, our default styles should target large screens. That means our breakpoints are implemented with `max-width`, like so:
 
 ```
-mobile: '(max-width: 30rem)',
+mobile: '(max-width: 35rem)',
 tablet: '(max-width: 60rem)',
 laptop: '(max-width: 75rem)',
 ```

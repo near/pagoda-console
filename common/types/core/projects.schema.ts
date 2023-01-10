@@ -50,7 +50,6 @@ export const query = {
     list: z.array(
       project
         .pick({
-          id: true,
           name: true,
           slug: true,
           tutorial: true,

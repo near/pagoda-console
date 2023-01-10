@@ -12,7 +12,7 @@ type Props = {
 const DetailsWrapper = styled('div', {
   display: 'flex',
   flexDirection: 'column',
-  margin: '24px 0',
+  paddingBottom: 'var(--space-l)',
 });
 
 const Row = styled('div', {
@@ -28,7 +28,8 @@ const Row = styled('div', {
 const Column = styled('div', {
   display: 'flex',
   flexDirection: 'column',
-  overflowX: 'scroll',
+  width: '100%',
+  overflow: 'hidden',
 
   '& > *:not(:first-child)': {
     marginTop: 16,

@@ -5,7 +5,7 @@ module.exports = {
     sourceType: 'module',
     tsconfigRootDir: __dirname,
   },
-  plugins: ['@typescript-eslint/eslint-plugin'],
+  plugins: ['@typescript-eslint/eslint-plugin', 'custom-rules'],
   extends: [
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
@@ -36,6 +36,15 @@ module.exports = {
             message: "Please use `import { VError } from 'verror'` instead.",
           },
         ],
+      },
+    ],
+    'custom-rules/require-properties-in-object': [
+      'error',
+      {
+        objectIdentifier: 'connect',
+        condition: { type: 'or', conditions: ['id', 'uid'] },
+        message:
+          "Consider using an 'id' or 'uid' field when connecting to a soft-deletable object through Prisma. Ignore eslint rule for this line if this object is not intended for use with Prisma.",
       },
     ],
   },

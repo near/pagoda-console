@@ -14,6 +14,7 @@ type DeployEnvironment = 'LOCAL' | 'DEVELOPMENT' | 'PRODUCTION';
 // * down, or add non-null assertion on every usage.
 // * https://nextjs.org/docs/basic-features/environment-variables#loading-environment-variables
 if (
+  !process.env.NEXT_PUBLIC_HOST_URL ||
   !process.env.NEXT_PUBLIC_API_BASE_URL ||
   !process.env.NEXT_PUBLIC_MAIN_NET_RPC ||
   !process.env.NEXT_PUBLIC_TEST_NET_RPC ||
@@ -68,6 +69,7 @@ if (process.env.NEXT_PUBLIC_DEPLOY_ENV !== 'LOCAL' && !process.env.NEXT_PUBLIC_T
 // Define config:
 interface AppConfig {
   url: {
+    host: string;
     api: string;
     explorer: ExplorerNets;
     rpc: {
@@ -97,6 +99,7 @@ interface AppConfig {
 // TODO remove recommended RPC since there is no longer a separate URL from default
 const config: AppConfig = {
   url: {
+    host: process.env.NEXT_PUBLIC_HOST_URL,
     api: process.env.NEXT_PUBLIC_API_BASE_URL,
     explorer: {
       MAINNET: process.env.NEXT_PUBLIC_MAIN_NET_EXPLORER,

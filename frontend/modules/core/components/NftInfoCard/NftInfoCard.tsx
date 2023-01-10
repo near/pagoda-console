@@ -15,8 +15,8 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
+import { useAuth } from '@/hooks/auth';
 import { useSelectedProject } from '@/hooks/selected-project';
-import { useIdentity } from '@/hooks/user';
 import { useSettingsStore } from '@/stores/settings';
 import analytics from '@/utils/analytics';
 import type { ContractMetadata, NftData, Token } from '@/utils/chain-data';
@@ -36,7 +36,7 @@ export function NftInfoCard() {
   const [savedContractAddress, setSavedContractAddress] = useState<string | null>(null);
   const [showQuickInfo, setShowQuickInfo] = useState(true);
   const { environment, project } = useSelectedProject();
-  const identity = useIdentity();
+  const { identity } = useAuth();
   const settings = useSettingsStore((store) => store.currentUser);
   const updateProjectSettings = useSettingsStore((store) => store.updateProjectSettings);
   const contractAddressRegex = returnContractAddressRegex(environment);
@@ -61,7 +61,7 @@ export function NftInfoCard() {
   );
 
   // update the contract address for data fetching
-  const saveAddressChange: SubmitHandler<NftInfoFormData> = async ({ contractAddress }) => {
+  const saveAddressChange: SubmitHandler<NftInfoFormData> = ({ contractAddress }) => {
     if (!identity || !project) return;
     setSavedContractAddress(contractAddress);
     setIsEditing(false);
@@ -83,7 +83,14 @@ export function NftInfoCard() {
   }
 
   return (
-    <S.Root open={showQuickInfo}>
+    <S.Root
+      open={showQuickInfo}
+      css={{
+        '@tablet': {
+          display: 'none',
+        },
+      }}
+    >
       <S.Header onClick={toggleQuickInfo}>
         <H3 css={{ marginRight: 'auto' }}>Live Contract Data</H3>
         {(basicsError || nftError) && <ErrorIndicator />}
@@ -99,12 +106,13 @@ export function NftInfoCard() {
         )}
 
         {isEditing || !savedContractAddress ? (
-          <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(saveAddressChange)}>
+          <Form.Root onSubmit={handleSubmit(saveAddressChange)}>
             <Flex>
               <Form.Group>
                 <Form.Input
                   isInvalid={!!formState.errors.contractAddress}
                   placeholder="contract.testnet"
+                  stableId={StableId.NFT_INFO_CARD_ADDRESS_INPUT}
                   {...register('contractAddress', {
                     required: 'Address field is required',
                     pattern: {

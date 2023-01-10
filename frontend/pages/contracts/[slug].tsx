@@ -1,4 +1,3 @@
-import type { Api } from '@pc/common/types/api';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -12,8 +11,11 @@ import * as Tabs from '@/components/lib/Tabs';
 import { TextLink } from '@/components/lib/TextLink';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { Tooltip } from '@/components/lib/Tooltip';
-import { useContract, useContracts } from '@/hooks/contracts';
+import { useContracts } from '@/hooks/contracts';
+import { usePublicOrPrivateContract, usePublicOrPrivateContracts } from '@/hooks/contracts';
+import { useCurrentEnvironment } from '@/hooks/environments';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
+import { usePublicMode } from '@/hooks/public';
 import { useRouteParam } from '@/hooks/route';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { ContractAbi } from '@/modules/contracts/components/ContractAbi';
@@ -24,25 +26,25 @@ import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
 
-type Contract = Api.Query.Output<'/projects/getContract'>;
-
 const ViewContract: NextPageWithLayout = () => {
+  const { publicModeIsActive } = usePublicMode();
   const router = useRouter();
   const contractSlug = useRouteParam('slug', '/contracts', true) || undefined;
-  const { environment, project } = useSelectedProject();
-  const { contracts, mutate: mutateContracts } = useContracts(project?.slug, environment?.subId);
-  const { contract } = useContract(contractSlug);
+  const { project } = useSelectedProject();
+  const { environment } = useCurrentEnvironment();
+  const { contracts: privateContracts, mutate } = useContracts(project?.slug, environment?.subId);
+  const { contracts } = usePublicOrPrivateContracts(privateContracts);
+  const { contract } = usePublicOrPrivateContract(contractSlug);
   const activeTab = useRouteParam('tab', `/contracts/${contractSlug}?tab=details`, true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { contractAbi } = useAnyAbi(contract);
+  const abis = useAnyAbi(contract);
+  const abi = abis.embeddedQuery.data?.abiRoot || abis.privateQuery.data?.abi;
 
   // TODO: Pull in useSelectedProjectSync() to match [triggeredAlertId].tsx logic to sync env/proj to loaded contract.
   // TODO: Handle 404
 
-  function onDelete(contract: Contract) {
-    mutateContracts((contracts) => {
-      return contracts?.filter((c) => c.slug !== contract.slug) || [];
-    });
+  function onDelete() {
+    mutate();
     router.replace('/contracts');
   }
 
@@ -53,8 +55,8 @@ const ViewContract: NextPageWithLayout = () => {
   return (
     <>
       <Tabs.Root value={activeTab || ''}>
-        <Section>
-          <Flex stack>
+        <Section background="surface2">
+          <Flex stack gap="l">
             <Link href="/contracts" passHref>
               <TextLink stableId={StableId.CONTRACT_BACK_TO_CONTRACTS_LINK}>
                 <FeatherIcon icon="arrow-left" /> Contracts
@@ -92,39 +94,47 @@ const ViewContract: NextPageWithLayout = () => {
               </DropdownMenu.Root>
 
               <Flex gap="l" css={{ width: 'auto', flexGrow: 1 }}>
-                <Tabs.List tabIndex={-1} inline css={{ marginRight: 'auto' }}>
-                  <Link href={`/contracts/${contractSlug}?tab=details`} passHref>
-                    <Tabs.TriggerLink stableId={StableId.CONTRACT_TABS_DETAILS_LINK} active={activeTab === 'details'}>
-                      <FeatherIcon icon="list" size="xs" /> Details
-                    </Tabs.TriggerLink>
-                  </Link>
+                <Tabs.List inline css={{ marginRight: 'auto' }}>
+                  <Tabs.Trigger
+                    value="details"
+                    href={`/contracts/${contractSlug}?tab=details`}
+                    stableId={StableId.CONTRACT_TABS_DETAILS_LINK}
+                  >
+                    <FeatherIcon icon="list" size="xs" /> Details
+                  </Tabs.Trigger>
 
-                  <Link href={`/contracts/${contractSlug}?tab=interact`} passHref>
-                    <Tabs.TriggerLink stableId={StableId.CONTRACT_TABS_INTERACT_LINK} active={activeTab === 'interact'}>
-                      <FeatherIcon icon="terminal" size="xs" /> Interact
-                    </Tabs.TriggerLink>
-                  </Link>
+                  <Tabs.Trigger
+                    value="interact"
+                    href={`/contracts/${contractSlug}?tab=interact`}
+                    stableId={StableId.CONTRACT_TABS_INTERACT_LINK}
+                  >
+                    <FeatherIcon icon="terminal" size="xs" /> Interact
+                  </Tabs.Trigger>
 
-                  {contractAbi && (
-                    <Link href={`/contracts/${contractSlug}?tab=abi`} passHref>
-                      <Tabs.TriggerLink stableId={StableId.CONTRACT_TABS_ABI_LINK} active={activeTab === 'abi'}>
-                        <FeatherIcon icon="file-text" size="xs" /> Contract ABI
-                      </Tabs.TriggerLink>
-                    </Link>
+                  {abi && (
+                    <Tabs.Trigger
+                      value="abi"
+                      href={`/contracts/${contractSlug}?tab=abi`}
+                      stableId={StableId.CONTRACT_TABS_ABI_LINK}
+                    >
+                      <FeatherIcon icon="file-text" size="xs" /> ABI
+                    </Tabs.Trigger>
                   )}
                 </Tabs.List>
 
-                <Tooltip content="Remove this contract">
-                  <Button
-                    stableId={StableId.CONTRACT_OPEN_REMOVE_MODAL_BUTTON}
-                    color="neutral"
-                    aria-label="Remove Contract"
-                    size="s"
-                    onClick={() => setShowDeleteModal(true)}
-                  >
-                    <FeatherIcon icon="trash-2" size="xs" color="text2" />
-                  </Button>
-                </Tooltip>
+                {!publicModeIsActive && (
+                  <Tooltip content="Remove this contract">
+                    <Button
+                      stableId={StableId.CONTRACT_OPEN_REMOVE_MODAL_BUTTON}
+                      color="neutral"
+                      aria-label="Remove Contract"
+                      size="s"
+                      onClick={() => setShowDeleteModal(true)}
+                    >
+                      <FeatherIcon icon="trash-2" size="xs" color="text2" />
+                    </Button>
+                  </Tooltip>
+                )}
               </Flex>
             </Flex>
           </Flex>
@@ -132,14 +142,14 @@ const ViewContract: NextPageWithLayout = () => {
 
         <Section>
           <Tabs.Content css={{ paddingTop: 0 }} value="details">
-            <ContractDetails contract={contract} environment={environment} />
+            <ContractDetails contract={contract} />
           </Tabs.Content>
 
           <Tabs.Content css={{ paddingTop: 0 }} value="interact">
             <ContractInteract contract={contract} />
           </Tabs.Content>
 
-          {contractAbi && (
+          {abi && (
             <Tabs.Content css={{ paddingTop: 0 }} value="abi">
               <ContractAbi contract={contract} />
             </Tabs.Content>

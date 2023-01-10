@@ -5,19 +5,30 @@ import {
   Net,
   UserActionType,
 } from '@pc/database/clients/core';
-import { flavored, Flavored } from '../utils';
 
-export const userUid = z.string().refine<Flavored<'userUid'>>(flavored);
+// Explorer types
+export const accountId = z.string();
+export type AccountId = z.infer<typeof accountId>;
+export const receiptId = z.string();
+export type ReceiptId = z.infer<typeof receiptId>;
+export const transactionHash = z.string();
+export type TransactionHash = z.infer<typeof transactionHash>;
+export const blockHash = z.string();
+export type BlockHash = z.infer<typeof blockHash>;
+export const yoctoNear = z.string();
+export type YoctoNear = z.infer<typeof yoctoNear>;
+export const transactionStatus = z.enum(['unknown', 'failure', 'success']);
+export type TransactionStatus = z.infer<typeof transactionStatus>;
+
+export const userUid = z.string();
 export type UserUid = z.infer<typeof userUid>;
-export const projectSlug = z.string().refine<Flavored<'projectSlug'>>(flavored);
+export const projectSlug = z.string();
 export type ProjectSlug = z.infer<typeof projectSlug>;
-export const orgSlug = z.string().refine<Flavored<'orgSlug'>>(flavored);
+export const orgSlug = z.string();
 export type OrgSlug = z.infer<typeof orgSlug>;
-export const contractSlug = z
-  .string()
-  .refine<Flavored<'contractSlug'>>(flavored);
+export const contractSlug = z.string();
 export type ContractSlug = z.infer<typeof contractSlug>;
-export const apiKeySlug = z.string().refine<Flavored<'apiKeySlug'>>(flavored);
+export const apiKeySlug = z.string();
 export type ApiKeySlug = z.infer<typeof apiKeySlug>;
 // TESTNET = 1, MAINNET = 2
 export const environmentId = z.number();
@@ -101,7 +112,7 @@ export const contract = z.strictObject({
   id: z.number(),
   slug: contractSlug,
   environmentId: environmentId,
-  address: z.string(),
+  address: accountId,
   net,
   active: z.boolean(),
   createdAt: z.date().or(z.null()),
@@ -135,19 +146,3 @@ export const apiKey = z.strictObject({
   updatedAt: z.date().or(z.null()),
   updatedBy: z.number().or(z.null()),
 });
-
-// Explorer types
-export const accountId = z.string().refine<Flavored<'accountId'>>(flavored);
-export type AccountId = z.infer<typeof accountId>;
-export const receiptId = z.string().refine<Flavored<'receiptId'>>(flavored);
-export type ReceiptId = z.infer<typeof receiptId>;
-export const transactionHash = z
-  .string()
-  .refine<Flavored<'transactionHash'>>(flavored);
-export type TransactionHash = z.infer<typeof transactionHash>;
-export const blockHash = z.string().refine<Flavored<'blockHash'>>(flavored);
-export type BlockHash = z.infer<typeof blockHash>;
-export const yoctoNear = z.string().refine<Flavored<'yoctoNear'>>(flavored);
-export type YoctoNear = z.infer<typeof yoctoNear>;
-export const transactionStatus = z.enum(['unknown', 'failure', 'success']);
-export type TransactionStatus = z.infer<typeof transactionStatus>;

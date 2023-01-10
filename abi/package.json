@@ -1,0 +1,18 @@
+{
+  "name": "@pc/abi",
+  "version": "1.0.0",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/near/pagoda-console.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/near/pagoda-console/issues"
+  },
+  "homepage": "https://github.com/near/pagoda-console#readme",
+  "dependencies": {
+    "near-abi-client-js": "https://github.com/near/near-abi-client-js.git#13cc45a2a0722159c263112f43aa398364da889e"
+  }
+}

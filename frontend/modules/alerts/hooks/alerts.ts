@@ -1,86 +1,63 @@
-import type { Api } from '@pc/common/types/api';
 import useSWR from 'swr';
 
-import { useIdentity } from '@/hooks/user';
+import { useApiMutation } from '@/hooks/api-mutation';
+import { useAuth } from '@/hooks/auth';
 import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
+import { api } from '@/utils/api';
+import { handleMutationError } from '@/utils/error-handlers';
 
-export async function createAlert(data: Api.Mutation.Input<'/alerts/createAlert'>) {
-  const alert = await authenticatedPost('/alerts/createAlert', {
-    ...data,
+export function useAlertMutations() {
+  const updateAlertMutation = useApiMutation('/alerts/updateAlert', {
+    onSuccess: (alert) => {
+      analytics.track('DC Update Alert', {
+        status: 'success',
+        name: alert.name,
+        id: alert.id,
+      });
+    },
   });
 
-  analytics.track('DC Create New Alert', {
-    status: 'success',
-    name: alert.name,
-    id: alert.id,
+  const enableDestinationMutation = useApiMutation('/alerts/enableDestination', {
+    onSuccess: (result, variables) => {
+      analytics.track('DC Enable Destination for Alert', {
+        status: 'success',
+        id: variables.alert,
+        destinationId: variables.destination,
+      });
+    },
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Enable Destination for Alert',
+        toastTitle: 'Update Error',
+        toastDescription: 'Failed to update alert destination.',
+      });
+    },
   });
 
-  return alert;
-}
-
-export async function deleteAlert(alert: Api.Mutation.Input<'/alerts/deleteAlert'>) {
-  try {
-    await authenticatedPost('/alerts/deleteAlert', { id: alert.id });
-    analytics.track('DC Remove Alert', {
-      status: 'success',
-      name: alert.id,
-    });
-    return true;
-  } catch (e: any) {
-    analytics.track('DC Remove Alert', {
-      status: 'failure',
-      name,
-      error: e.message,
-    });
-    // TODO
-    console.error('Failed to delete alert');
-  }
-  return false;
-}
-
-export async function disableDestinationForAlert(alertId: number, destinationId: number) {
-  await authenticatedPost('/alerts/disableDestination', {
-    alert: alertId,
-    destination: destinationId,
+  const disableDestinationMutation = useApiMutation('/alerts/disableDestination', {
+    onSuccess: (result, variables) => {
+      analytics.track('DC Disable Destination for Alert', {
+        status: 'success',
+        id: variables.alert,
+        destinationId: variables.destination,
+      });
+    },
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Disable Destination for Alert',
+        toastTitle: 'Update Error',
+        toastDescription: 'Failed to update alert destination.',
+      });
+    },
   });
 
-  analytics.track('DC Disable Destination for Alert', {
-    status: 'success',
-    id: alertId,
-    destinationId: destinationId,
-  });
-}
-
-export async function enableDestinationForAlert(alertId: number, destinationId: number) {
-  await authenticatedPost('/alerts/enableDestination', {
-    alert: alertId,
-    destination: destinationId,
-  });
-
-  analytics.track('DC Enable Destination for Alert', {
-    status: 'success',
-    id: alertId,
-    destinationId: destinationId,
-  });
-}
-
-export async function updateAlert(data: Api.Mutation.Input<'/alerts/updateAlert'>) {
-  const alert = await authenticatedPost('/alerts/updateAlert', {
-    ...data,
-  });
-
-  analytics.track('DC Update Alert', {
-    status: 'success',
-    name: alert.name,
-    id: alert.id,
-  });
-
-  return alert;
+  return { updateAlertMutation, enableDestinationMutation, disableDestinationMutation };
 }
 
 export function useAlert(alertId: number | undefined) {
-  const identity = useIdentity();
+  const { identity } = useAuth();
 
   const {
     data: alert,
@@ -88,8 +65,8 @@ export function useAlert(alertId: number | undefined) {
     mutate,
   } = useSWR(
     identity && alertId ? ['/alerts/getAlertDetails' as const, alertId, identity.uid] : null,
-    async (key, alertId) => {
-      return authenticatedPost(key, { id: alertId });
+    async (path, id) => {
+      return api.query(path, { id });
     },
   );
 
@@ -97,7 +74,7 @@ export function useAlert(alertId: number | undefined) {
 }
 
 export function useAlerts(projectSlug: string | undefined, environmentSubId: number | undefined) {
-  const identity = useIdentity();
+  const { identity } = useAuth();
   const {
     data: alerts,
     error,
@@ -107,8 +84,8 @@ export function useAlerts(projectSlug: string | undefined, environmentSubId: num
     identity && projectSlug && environmentSubId
       ? ['/alerts/listAlerts' as const, projectSlug, environmentSubId, identity.uid]
       : null,
-    (key) => {
-      return authenticatedPost(key, { environmentSubId: environmentSubId!, projectSlug: projectSlug! });
+    (path, projectSlug, environmentSubId) => {
+      return api.query(path, { environmentSubId, projectSlug });
     },
   );
 

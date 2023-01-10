@@ -1,3 +1,5 @@
+import { upgradeAbi } from '@pc/abi/upgrade';
+import type { AbiRoot } from 'near-abi-client-js';
 import type { ChangeEvent, DragEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -8,23 +10,55 @@ import { DragAndDropLabel } from '@/components/lib/DragAndDrop';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
+import { Message } from '@/components/lib/Message';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { uploadContractAbi } from '@/modules/contracts/hooks/abi';
+import { useApiMutation } from '@/hooks/api-mutation';
+import analytics from '@/utils/analytics';
+import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
 
 const MAX_CODE_HEIGHT = '18rem';
 
 type Props = {
   contractSlug: string;
-  setAbiUploaded: (arg0: boolean) => void;
+  onUpload: () => void;
 };
 
-export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
+export const UploadContractAbi = ({ contractSlug, onUpload }: Props) => {
   const [showModal, setShowModal] = useState(true);
-  const [previewAbi, setPreviewAbi] = useState<string | null>(null);
+  const [showUpgradeText, setShowUpgradeText] = useState(false);
+  const [previewAbi, setPreviewAbi] = useState<AbiRoot | null>(null);
+
+  const uploadAbiMutation = useApiMutation('/abi/addContractAbi', {
+    onSuccess: () => {
+      openToast({
+        type: 'success',
+        title: 'Contract ABI was uploaded',
+      });
+
+      setShowModal(false);
+
+      analytics.track('DC Upload Contract ABI', {
+        status: 'success',
+        contract: contractSlug,
+      });
+
+      onUpload();
+    },
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Upload Contract ABI',
+        eventData: {
+          contract: contractSlug,
+        },
+        toastTitle: 'Failed to remove contract.',
+      });
+    },
+  });
 
   async function uploadAbi() {
     if (!previewAbi) {
@@ -34,28 +68,17 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
         title: 'Error on Contract ABI Upload',
         description: `${contractSlug}`,
       });
-      return null;
+      return;
     }
-    const uploaded = await uploadContractAbi(contractSlug, JSON.parse(previewAbi));
-    if (uploaded) {
-      setAbiUploaded(true);
-      setShowModal(false);
-      openToast({
-        type: 'success',
-        title: 'ABI Uploaded.',
-      });
-    } else {
-      openToast({
-        type: 'error',
-        title: 'Failed to upload ABI.',
-      });
-    }
+    uploadAbiMutation.mutate({ contract: contractSlug, abi: previewAbi });
   }
 
   function tryLoadPreview(content: any) {
     try {
-      JSON.parse(content);
-      setPreviewAbi(content);
+      const parsedAbi = JSON.parse(content);
+      const upgradedAbi = upgradeAbi(parsedAbi);
+      setPreviewAbi(upgradedAbi.abiRoot);
+      setShowUpgradeText(upgradedAbi.upgraded);
     } catch {
       openToast({
         type: 'error',
@@ -180,7 +203,7 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
           To generate an ABI
         </TextLink>
 
-        <Flex align="center">
+        <Flex align="center" stack={{ '@tablet': true }}>
           <DragAndDropLabel
             css={{ flexGrow: 1 }}
             stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_CHOOSE_FILE_BUTTON}
@@ -188,7 +211,14 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
           >
             <FeatherIcon color="primary" size="s" icon="upload" />
             Choose or drop a file
-            <Form.Input type="file" onChange={handleUpload} file tabIndex={-1} accept="application/JSON" />
+            <Form.Input
+              type="file"
+              onChange={handleUpload}
+              file
+              tabIndex={-1}
+              accept="application/JSON"
+              stableId={StableId.UPLOAD_CONTRACT_ABI_MODAL_CHOOSE_FILE_INPUT}
+            />
           </DragAndDropLabel>
 
           <Text color="text3" size="bodySmall">
@@ -207,8 +237,15 @@ export const UploadContractAbi = ({ contractSlug, setAbiUploaded }: Props) => {
           </Button>
         </Flex>
 
+        {showUpgradeText && (
+          <Message
+            type="info"
+            content="We upgraded this ABI to the latest schema version (v0.3.0). Please review below."
+          />
+        )}
+
         <CodeBlock css={{ maxHeight: MAX_CODE_HEIGHT }} language="json">
-          {!previewAbi ? '{}' : JSON.stringify(JSON.parse(previewAbi), null, 2)}
+          {!previewAbi ? '{}' : JSON.stringify(previewAbi, null, 2)}
         </CodeBlock>
       </ConfirmModal>
     </>

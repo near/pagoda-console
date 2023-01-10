@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import * as Dialog from '@/components/lib/Dialog';
-import { AuthenticationForm } from '@/modules/core/components/AuthenticationForm';
+import { AuthForm } from '@/modules/core/components/AuthForm';
 
 import { Flex } from '../lib/Flex';
 import { Text } from '../lib/Text';
@@ -30,7 +30,7 @@ export function SignInModal({ description, setShow, show, onSignIn }: Props) {
       <Dialog.Content title="Sign In" size="s">
         <Flex stack gap="l">
           {description && <Text>{description}</Text>}
-          <AuthenticationForm onSignIn={signInHandler} />
+          <AuthForm onSignIn={signInHandler} />
         </Flex>
       </Dialog.Content>
     </Dialog.Root>

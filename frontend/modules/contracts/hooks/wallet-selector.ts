@@ -13,7 +13,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { distinctUntilChanged, map } from 'rxjs';
 
 import { openToast } from '@/components/lib/Toast';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useCurrentEnvironment } from '@/hooks/environments';
 import { storage } from '@/utils/storage';
 
 // Cache in module to ensure we don't re-init
@@ -30,7 +30,7 @@ const SELECTED_CONTRACT = 'selectedWalletSelectorContract';
 // coupled to being called once in ContractTransaction.tsx and serious side-effects may occur if this is changed.
 export const useWalletSelector = (contractId: string | undefined) => {
   const [accounts, setAccounts] = useState<Array<AccountState>>([]);
-  const { environment } = useSelectedProject();
+  const { environment } = useCurrentEnvironment();
   const [prevNet, setPrevNet] = useState<Net | undefined>();
   const network = environment?.net.toLowerCase();
 
@@ -78,8 +78,14 @@ export const useWalletSelector = (contractId: string | undefined) => {
     selector = await setupWalletSelector({
       network: network as NetworkId,
       modules: [
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         setupMyNearWallet({ iconUrl: myNearWalletIconUrl.src }),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         setupSender({ iconUrl: senderIconUrl.src }),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         setupNearWallet({ iconUrl: nearWalletIconUrl.src }),
       ],
       storage: {

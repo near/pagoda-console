@@ -14,16 +14,19 @@ import type { NextPageWithLayout } from '@/utils/types';
 const Indexers: NextPageWithLayout = () => {
   return (
     <Section css={{ margin: 'auto' }}>
-      <Flex stack gap="xl">
+      <Flex stack gap={{ '@initial': 'xl', '@mobile': 'l' }}>
         <H1>Create your own indexer using NEAR Lake!</H1>
 
-        <Flex>
+        <Flex stack={{ '@tablet': true }} align="center" gap={{ '@initial': 'xl', '@mobile': 'l' }}>
           <Box
             css={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
-              columnGap: 'var(--space-l)',
-              rowGap: 'var(--space-xl)',
+              gap: 'var(--space-xl)',
+              '@mobile': {
+                gridTemplateColumns: '1fr',
+                gap: 'var(--space-l)',
+              },
             }}
           >
             <DescriptionBlock
@@ -43,7 +46,7 @@ const Indexers: NextPageWithLayout = () => {
               content="Write indexers in languages you're already familiar with: JavaScript, Python, or Rust."
             />
           </Box>
-          <Box css={{ margin: '0 var(--space-xl) 0 var(--space-xl)' }}>
+          <Box>
             <SailboatImage />
           </Box>
         </Flex>
@@ -87,14 +90,15 @@ const Indexers: NextPageWithLayout = () => {
               </ListItem>
             </List>
           </Flex>
+
+          <ButtonLink
+            stableId={StableId.INDEXERS_TRY_NEAR_LAKE_LINK}
+            href="https://near-indexers.io/docs/projects/near-lake-framework"
+            external
+          >
+            Try Out NEAR Lake
+          </ButtonLink>
         </Flex>
-        <ButtonLink
-          stableId={StableId.INDEXERS_TRY_NEAR_LAKE_LINK}
-          href="https://near-indexers.io/docs/projects/near-lake-framework"
-          external
-        >
-          Try Out NEAR Lake
-        </ButtonLink>
       </Flex>
     </Section>
   );
@@ -102,7 +106,7 @@ const Indexers: NextPageWithLayout = () => {
 
 function DescriptionBlock({ title, content }: { title: string; content: string }) {
   return (
-    <Flex stack>
+    <Flex stack gap="xs">
       <H5>{title}</H5>
       <Text as="span">{content}</Text>
     </Flex>
