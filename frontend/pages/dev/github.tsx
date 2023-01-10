@@ -6,11 +6,11 @@ import { useEffect } from 'react';
 
 import { ButtonLink } from '@/components/lib/Button';
 import { Section } from '@/components/lib/Section';
+import { useApiMutation } from '@/hooks/api-mutation';
 // import { ConfirmModal } from '@/components/modals/ConfirmModal';
 import { useAuth } from '@/hooks/auth';
 import { useGithubConnection } from '@/hooks/github';
 import { useSimpleLayout } from '@/hooks/layouts';
-import { useMutation } from '@/hooks/mutation';
 import config from '@/utils/config';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -39,7 +39,7 @@ const Page: NextPageWithLayout = () => {
   const { code } = router.query;
   const { authStatus } = useAuth();
 
-  const connectGithubMut = useMutation('/users/connectGithub', {
+  const connectGithubMut = useApiMutation('/users/connectGithub', {
     onError: (e) => {
       console.error(e);
     },
