@@ -7,6 +7,7 @@ import * as S from './styles';
 type CheckboxProps = Omit<ComponentProps<typeof S.Input>, 'type' | 'radioGroup'> & {
   isInvalid?: boolean;
   radio?: boolean;
+  loader?: boolean;
 };
 
 type CheckboxGroupProps = ComponentProps<typeof S.Group>;
@@ -20,14 +21,14 @@ export const CheckboxGroup = ({ children, ...props }: CheckboxGroupProps) => {
 };
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ children, css, isInvalid, radio = false, ...props }, ref) => {
+  ({ children, css, disabled, isInvalid, loader, radio = false, ...props }, ref) => {
     const type = radio ? 'radio' : 'checkbox';
 
     return (
-      <S.Label css={css}>
-        <S.Input aria-invalid={isInvalid} type={type} ref={ref} {...props} />
+      <S.Label disabled={disabled} css={css}>
+        <S.Input aria-invalid={isInvalid} type={type} ref={ref} disabled={disabled} {...props} />
 
-        <S.Indicator invalid={isInvalid} radio={radio}>
+        <S.Indicator loader={loader} invalid={isInvalid} radio={radio}>
           {radio ? (
             <FeatherIcon icon="circle" fill="currentColor" stroke="none" />
           ) : (

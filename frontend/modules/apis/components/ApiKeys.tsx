@@ -12,18 +12,16 @@ import * as Popover from '@/components/lib/Popover';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useApiKeys } from '@/hooks/new-api-keys';
+import { useApiKeys } from '@/hooks/api-keys';
+import { useApiMutation } from '@/hooks/api-mutation';
 import { CreateApiKeyForm } from '@/modules/apis/components/CreateApiKeyForm';
 import StarterGuide from '@/modules/core/components/StarterGuide';
 import analytics from '@/utils/analytics';
-import { authenticatedPost } from '@/utils/http';
+import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
 type ApiKey = Api.Query.Output<'/projects/getKeys'>[number];
-
-const ROTATION_WARNING =
-  'Are you sure you would like to rotate this API key? The current key will be invalidated and future calls made with it will be rejected.';
 
 interface Props {
   project?: Project;
@@ -33,51 +31,28 @@ export function ApiKeys({ project }: Props) {
   const { keys, mutate: mutateKeys } = useApiKeys(project?.slug);
   const [showRotationModal, setShowRotationModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
-
   const [keyToRotate, setKeyToRotate] = useState<ApiKey>({
     keySlug: '',
     description: '',
     key: '',
   });
 
-  async function rotateKey(keySlug: string) {
-    showRotationModal && setShowRotationModal(false);
-    try {
-      mutateKeys((cachedKeys) => {
-        return cachedKeys?.map((key) => {
-          if (key.keySlug === keySlug) {
-            key.keySlug = '';
-            key.key = '';
-          }
-          return key;
-        });
-      });
-      await mutateKeys(async (cachedKeys) => {
-        const { keySlug: newKeySlug, key: newKey } = await authenticatedPost('/projects/rotateKey' as const, {
-          slug: keySlug,
-        });
-
-        analytics.track('DC Rotate API Key', {
-          status: 'success',
-          description: keyToRotate.description,
-        });
-        return cachedKeys?.map((key: ApiKey) => {
-          if (key.keySlug === keyToRotate.keySlug) {
-            key.keySlug = newKeySlug;
-            key.key = newKey;
-          }
-          return key;
-        });
-      });
-    } catch (e: any) {
+  const rotateKeyMutation = useApiMutation('/projects/rotateKey', {
+    onSuccess: () => {
+      mutateKeys();
+      setShowRotationModal(false);
       analytics.track('DC Rotate API Key', {
-        status: 'failure',
-        description: keyToRotate.description,
-        error: e.message,
+        status: 'success',
       });
-      throw new Error('Failed to rotate key');
-    }
-  }
+    },
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Rotate API Key',
+        toastTitle: 'Failed to rotate API key.',
+      });
+    },
+  });
 
   return (
     <Flex stack gap="l">
@@ -88,21 +63,28 @@ export function ApiKeys({ project }: Props) {
       >
         Create New Key
       </Button>
+
       <Flex stack>
         <Dialog.Root open={showCreateModal} onOpenChange={setShowCreateModal}>
           <Dialog.Content title="Create New Key" size="s">
-            <CreateApiKeyForm setShow={setShowCreateModal} show={showCreateModal} project={project} />
+            <CreateApiKeyForm project={project} onClose={() => setShowCreateModal(false)} />
           </Dialog.Content>
         </Dialog.Root>
+
         <ConfirmModal
           confirmText="Rotate"
-          onConfirm={() => rotateKey(keyToRotate.keySlug)}
+          isProcessing={rotateKeyMutation.isLoading}
+          onConfirm={() => rotateKeyMutation.mutate({ slug: keyToRotate.keySlug })}
           setShow={setShowRotationModal}
           show={showRotationModal}
           title="Rotate Key?"
         >
-          <Text>{ROTATION_WARNING}</Text>
+          <Text>
+            Are you sure you would like to rotate this API key? The current key will be invalidated and future calls
+            made with it will be rejected.
+          </Text>
         </ConfirmModal>
+
         <Table.Root>
           <Table.Head css={{ top: 0 }}>
             <Table.Row>
@@ -154,6 +136,7 @@ function KeyRow(props: { token?: string; description: string; onClickRotateIcon:
     props.token && navigator.clipboard.writeText(props.token);
 
     analytics.track('DC Copy API Key', {
+      status: 'success',
       description: props.description,
     });
 

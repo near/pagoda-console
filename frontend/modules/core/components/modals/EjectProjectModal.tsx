@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useCallback } from 'react';
 
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { ejectTutorial } from '@/hooks/projects';
+import { useApiMutation } from '@/hooks/api-mutation';
+import analytics from '@/utils/analytics';
+import { handleMutationError } from '@/utils/error-handlers';
 
 interface Props {
   slug: string;
@@ -15,31 +17,36 @@ interface Props {
 }
 
 export const EjectProjectModal = ({ slug, name, show, setShow, onEject }: Props) => {
-  const [errorText, setErrorText] = useState<string | undefined>();
-  const [isEjecting, setIsEjecting] = useState(false);
+  const ejectTutorialMutation = useApiMutation('/projects/ejectTutorial', {
+    onSuccess: () => {
+      analytics.track('DC Eject Tutorial Project', {
+        status: 'success',
+        name,
+      });
 
-  async function onConfirm() {
-    setIsEjecting(true);
-    setErrorText('');
-
-    const success = await ejectTutorial(slug, name);
-
-    if (success) {
       onEject();
-      setShow(false);
-    } else {
-      setErrorText('Something went wrong.');
-      setIsEjecting(false);
-    }
-  }
+    },
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Eject Tutorial Project',
+        eventData: {
+          name,
+        },
+        toastTitle: 'Failed to eject tutorial.',
+      });
+    },
+  });
+
+  const onConfirm = useCallback(() => ejectTutorialMutation.mutate({ slug }), [ejectTutorialMutation, slug]);
 
   return (
     <ConfirmModal
       confirmText="Complete"
-      errorText={errorText}
-      isProcessing={isEjecting}
+      errorText={ejectTutorialMutation.status === 'error' ? 'Something went wrong.' : undefined}
+      isProcessing={ejectTutorialMutation.isLoading}
       onConfirm={onConfirm}
-      setErrorText={setErrorText}
+      resetError={ejectTutorialMutation.reset}
       setShow={setShow}
       show={show}
       title={`Complete ${name}`}

@@ -23,21 +23,23 @@ export function Destinations({ project }: { project?: Project }) {
   const { destinations, mutate } = useDestinations(project?.slug);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
-  const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
+  const [selectedEditDestinationId, setSelectedEditDestinationId] = useState<number>();
+  const selectedEditDestination = destinations?.find((d) => d.id === selectedEditDestinationId);
 
   function openDestination(destination: Destination) {
-    setSelectedEditDestination(destination);
+    setSelectedEditDestinationId(destination.id);
     setShowEditDestinationModal(true);
   }
 
   return (
     <>
       <Flex stack gap="l">
-        <Flex justify="spaceBetween">
+        <Flex justify="spaceBetween" align="center">
           <H1>Destinations</H1>
           <Button
             stableId={StableId.DESTINATIONS_OPEN_CREATE_MODAL_BUTTON}
             onClick={() => setShowNewDestinationModal(true)}
+            hideText="mobile"
           >
             <FeatherIcon icon="plus" /> New Destination
           </Button>

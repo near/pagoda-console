@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 import config from './config';
 
 interface Properties {
+  status: 'success' | 'failure';
   [key: string]: any;
 }
 
@@ -31,20 +32,24 @@ function getAnonymousId() {
 function init() {
   if (segment) return console.log('Segment Analytics has already been initialized');
 
-  const proxySettings =
-    typeof window === 'undefined'
-      ? {}
-      : {
-          host: `${window.location.protocol}//${window.location.host}`,
-          path: '/api/segment',
-        };
+  try {
+    const proxySettings =
+      typeof window === 'undefined'
+        ? {}
+        : {
+            host: `${window.location.protocol}//${window.location.host}`,
+            path: '/api/segment',
+          };
 
-  const options = {
-    ...proxySettings,
-    flushAt: config.deployEnv === 'LOCAL' ? 1 : undefined, // flushAt=1 is useful for testing new events
-  };
+    const options = {
+      ...proxySettings,
+      flushAt: config.deployEnv === 'LOCAL' ? 1 : undefined, // flushAt=1 is useful for testing new events
+    };
 
-  segment = new Analytics(config.segment, options);
+    segment = new Analytics(config.segment, options);
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function track(eventLabel: string, properties?: Properties) {
@@ -94,7 +99,7 @@ function reset() {
   }
 }
 
-const fns = {
+const analytics = {
   identify,
   init,
   pageView,
@@ -102,4 +107,4 @@ const fns = {
   track,
 };
 
-export default fns;
+export default analytics;

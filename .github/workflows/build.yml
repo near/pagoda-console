@@ -7,8 +7,8 @@ jobs:
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: "16.x"
 
@@ -18,8 +18,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Format and lint check
+        run: npx turbo run format:check lint:check
+
       - name: Test building a project
-        run: npm -w backend run build
+        run: npx turbo build --filter=backend --force
+        # remove --force when we are confident in turbo caching configuration
+        # since it can significantly speed up Action execution
 
       - name: Run unit tests
         run: npm -w backend run test

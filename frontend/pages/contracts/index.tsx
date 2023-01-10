@@ -16,10 +16,14 @@ import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { useContractMetrics, useContracts } from '@/hooks/contracts';
+import { usePublicOrPrivateContracts } from '@/hooks/contracts';
+import { useCurrentEnvironment } from '@/hooks/environments';
 import { useDashboardLayout } from '@/hooks/layouts';
+import { usePublicMode } from '@/hooks/public';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { AddContractForm } from '@/modules/contracts/components/AddContractForm';
 import { DeleteContractModal } from '@/modules/contracts/components/DeleteContractModal';
+import { ShareContracts } from '@/modules/contracts/components/ShareContracts';
 import { useAnyAbi } from '@/modules/contracts/hooks/abi';
 import { convertYoctoToNear } from '@/utils/convert-near';
 import { formatBytes } from '@/utils/format-bytes';
@@ -29,22 +33,21 @@ import type { NextPageWithLayout } from '@/utils/types';
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
 const ListContracts: NextPageWithLayout = () => {
-  const { project, environment } = useSelectedProject();
-  const { contracts, mutate } = useContracts(project?.slug, environment?.subId);
+  const { publicModeIsActive } = usePublicMode();
+  const { project } = useSelectedProject();
+  const { environment } = useCurrentEnvironment();
+  const { contracts: privateContracts, mutate } = useContracts(project?.slug, environment?.subId);
+  const { contracts } = usePublicOrPrivateContracts(privateContracts);
   const [addContractIsOpen, setAddContractIsOpen] = useState(false);
+  const [shareContractsIsOpen, setShareContractsIsOpen] = useState(false);
 
-  function onContractAdd(contract: Contract) {
+  function onContractAdd() {
+    mutate();
     setAddContractIsOpen(false);
-
-    mutate((contracts) => {
-      return [...(contracts || []), contract];
-    });
   }
 
-  function onContractDelete(contract: Contract) {
-    mutate((contracts) => {
-      return contracts?.filter((c) => c.slug !== contract.slug) || [];
-    });
+  function onContractDelete() {
+    mutate();
   }
 
   return (
@@ -52,30 +55,57 @@ const ListContracts: NextPageWithLayout = () => {
       <Section>
         <Flex stack gap="l">
           <Flex align="center">
-            <Flex align="center">
-              <FeatherIcon icon="zap" size="l" />
+            <Flex align="center" autoWidth css={{ marginRight: 'auto' }}>
+              <FeatherIcon icon="zap" size="m" />
               <H1>Contracts</H1>
             </Flex>
-            <Button
-              stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON}
-              onClick={() => setAddContractIsOpen(true)}
-            >
-              <FeatherIcon icon="plus" /> Add Contract
-            </Button>
+
+            <Flex autoWidth>
+              {contracts && contracts.length > 0 && (
+                <Button
+                  color="neutral"
+                  stableId={StableId.CONTRACTS_OPEN_SHARE_CONTRACTS_MODAL_BUTTON}
+                  onClick={() => setShareContractsIsOpen(true)}
+                  hideText="tablet"
+                >
+                  <FeatherIcon icon="share" /> Share
+                </Button>
+              )}
+
+              {!publicModeIsActive && (
+                <Button
+                  stableId={StableId.CONTRACTS_OPEN_ADD_CONTRACT_MODAL_BUTTON}
+                  onClick={() => setAddContractIsOpen(true)}
+                  hideText="tablet"
+                >
+                  <FeatherIcon icon="plus" /> Add Contract
+                </Button>
+              )}
+            </Flex>
           </Flex>
         </Flex>
       </Section>
 
-      <ContractsTable contracts={contracts} onDelete={onContractDelete} setAddContractIsOpen={setAddContractIsOpen} />
+      <ContractsTable
+        contracts={contracts}
+        setAddContractIsOpen={setAddContractIsOpen}
+        onContractDelete={onContractDelete}
+      />
 
-      {project && environment && (
-        <>
-          <Dialog.Root open={addContractIsOpen} onOpenChange={setAddContractIsOpen}>
-            <Dialog.Content title="Add Contract" size="s">
-              <AddContractForm project={project} environment={environment} onAdd={onContractAdd} />
-            </Dialog.Content>
-          </Dialog.Root>
-        </>
+      {!publicModeIsActive && project && environment && (
+        <Dialog.Root open={addContractIsOpen} onOpenChange={setAddContractIsOpen}>
+          <Dialog.Content title="Add Contract" size="s">
+            <AddContractForm project={project} environment={environment} onAdd={onContractAdd} />
+          </Dialog.Content>
+        </Dialog.Root>
+      )}
+
+      {contracts && environment && (
+        <Dialog.Root open={shareContractsIsOpen} onOpenChange={setShareContractsIsOpen}>
+          <Dialog.Content title="Share Contracts" size="s">
+            <ShareContracts contracts={contracts} environment={environment} />
+          </Dialog.Content>
+        </Dialog.Root>
       )}
     </>
   );
@@ -83,12 +113,12 @@ const ListContracts: NextPageWithLayout = () => {
 
 function ContractsTable({
   contracts,
-  onDelete,
   setAddContractIsOpen,
+  onContractDelete,
 }: {
   contracts?: Contract[];
-  onDelete: (contract: Contract) => void;
   setAddContractIsOpen: Dispatch<SetStateAction<boolean>>;
+  onContractDelete: () => void;
 }) {
   if (contracts?.length === 0) {
     return (
@@ -131,7 +161,7 @@ function ContractsTable({
             {!contracts && <Table.PlaceholderRows />}
 
             {contracts?.map((contract) => {
-              return <ContractTableRow contract={contract} onDelete={onDelete} key={contract.slug} />;
+              return <ContractTableRow contract={contract} key={contract.slug} onDelete={onContractDelete} />;
             })}
           </Table.Body>
         </Table.Root>
@@ -140,12 +170,14 @@ function ContractsTable({
   );
 }
 
-function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete: (contract: Contract) => void }) {
+function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete: () => void }) {
   const { metrics, error } = useContractMetrics(contract.address, contract.net);
   const url = `/contracts/${contract.slug}`;
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { contractAbi } = useAnyAbi(contract);
+  const abis = useAnyAbi(contract);
+  const hasAbi = Boolean(abis.embeddedQuery.data?.abiRoot || abis.privateQuery.data?.abi);
+  const { publicModeIsActive } = usePublicMode();
 
   function ContractTableCellData({ children }: { children: ReactNode }) {
     if (metrics)
@@ -168,7 +200,7 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
   return (
     <>
       <Table.Row>
-        <Table.Cell href={url} wrap css={{ width: '50%' }}>
+        <Table.Cell href={url} wrap css={{ width: '50%', minWidth: '12rem' }}>
           {contract.address}
         </Table.Cell>
 
@@ -200,7 +232,7 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
               </Flex>
             </DropdownMenu.Item>
 
-            {contractAbi && (
+            {hasAbi && (
               <DropdownMenu.Item onClick={() => router.push(`/contracts/${contract.slug}?tab=abi`)}>
                 <Flex align="center">
                   <FeatherIcon icon="file-text" color="primary" /> Contract ABI
@@ -208,11 +240,13 @@ function ContractTableRow({ contract, onDelete }: { contract: Contract; onDelete
               </DropdownMenu.Item>
             )}
 
-            <DropdownMenu.Item onClick={() => setShowDeleteModal(true)}>
-              <Flex align="center">
-                <FeatherIcon icon="trash-2" color="danger" /> Remove
-              </Flex>
-            </DropdownMenu.Item>
+            {!publicModeIsActive && (
+              <DropdownMenu.Item onClick={() => setShowDeleteModal(true)}>
+                <Flex align="center">
+                  <FeatherIcon icon="trash-2" color="danger" /> Remove
+                </Flex>
+              </DropdownMenu.Item>
+            )}
           </DropdownMenu.Content>
         </DropdownMenu.Root>
       </Table.Row>

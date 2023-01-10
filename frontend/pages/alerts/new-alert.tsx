@@ -4,6 +4,7 @@ import { useCombobox } from 'downshift';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import type { SubmitHandler } from 'react-hook-form';
 import { Controller, useForm } from 'react-hook-form';
 
 import { Badge } from '@/components/lib/Badge';
@@ -22,14 +23,17 @@ import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { ErrorModal } from '@/components/modals/ErrorModal';
+import { useApiMutation } from '@/hooks/api-mutation';
 import { useContracts } from '@/hooks/contracts';
 import { wrapDashboardLayoutWithOptions } from '@/hooks/layouts';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { DestinationsSelector } from '@/modules/alerts/components/DestinationsSelector';
-import { createAlert, useAlerts } from '@/modules/alerts/hooks/alerts';
+import { useAlerts } from '@/modules/alerts/hooks/alerts';
 import { alertTypeOptions, amountComparatorOptions } from '@/modules/alerts/utils/constants';
+import analytics from '@/utils/analytics';
 import { formRegex } from '@/utils/constants';
 import { convertNearToYocto } from '@/utils/convert-near';
+import { handleMutationError } from '@/utils/error-handlers';
 import { assertUnreachable } from '@/utils/helpers';
 import { numberInputHandler } from '@/utils/input-handlers';
 import { mergeInputProps } from '@/utils/merge-input-props';
@@ -107,13 +111,14 @@ const NewAlert: NextPageWithLayout = () => {
 
   const selectedAlertType = form.watch('type');
 
-  async function submitForm(data: FormData) {
-    try {
-      const body = returnNewAlertBody(data, selectedDestinationIds, project, environment);
-      const alert = await createAlert(body);
+  const createAlertMutation = useApiMutation('/alerts/createAlert', {
+    onSuccess: async (alert) => {
+      mutate();
 
-      mutate((alerts) => {
-        return [...(alerts || []), alert];
+      analytics.track('DC Create New Alert', {
+        status: 'success',
+        name: alert.name,
+        id: alert.id,
       });
 
       openToast({
@@ -122,17 +127,28 @@ const NewAlert: NextPageWithLayout = () => {
       });
 
       await router.push('/alerts');
-    } catch (e: any) {
-      if (e.message === 'ADDRESS_NOT_FOUND') {
+    },
+
+    onError: (error: any, variables) => {
+      if (error.message === 'ADDRESS_NOT_FOUND') {
         const net = environmentTitle.toLowerCase();
-        setCreateError(`Address ${data.contract} was not found on ${net}.`);
+        setCreateError(`Address ${variables.rule.contract} was not found on ${net}.`);
         return;
       }
 
-      console.error('Failed to create alert', e);
       setCreateError('Failed to create alert.');
-    }
-  }
+
+      handleMutationError({
+        error,
+        eventLabel: 'DC Create New Alert',
+      });
+    },
+  });
+
+  const submit: SubmitHandler<FormData> = (form) => {
+    const body = returnNewAlertBody(form, selectedDestinationIds, project, environment);
+    createAlertMutation.mutate(body);
+  };
 
   return (
     <Section>
@@ -162,7 +178,7 @@ const NewAlert: NextPageWithLayout = () => {
           </Link>
         </Flex>
 
-        <Form.Root disabled={form.formState.isSubmitting} onSubmit={form.handleSubmit(submitForm)}>
+        <Form.Root disabled={createAlertMutation.isLoading} onSubmit={form.handleSubmit(submit)}>
           <Flex stack gap="l">
             <Flex stack>
               <H4>
@@ -189,6 +205,7 @@ const NewAlert: NextPageWithLayout = () => {
                       labelProps={{ ...contractCombobox.getLabelProps() }}
                       isInvalid={!!form.formState.errors.contract}
                       placeholder="Enter any address..."
+                      stableId={StableId.NEW_ALERT_ADDRESS_INPUT}
                       {...mergeInputProps(
                         contractCombobox.getInputProps({
                           onFocus: () => !contractCombobox.isOpen && contractCombobox.openMenu(),
@@ -269,6 +286,7 @@ const NewAlert: NextPageWithLayout = () => {
                             isInvalid={!!form.formState.errors.type}
                             onBlur={field.onBlur}
                             ref={field.ref}
+                            stableId={StableId.NEW_ALERT_CONDITION_SELECT}
                             selection={
                               selection && (
                                 <>
@@ -324,6 +342,7 @@ const NewAlert: NextPageWithLayout = () => {
                                 isInvalid={!!form.formState.errors.acctBalRule?.comparator}
                                 onBlur={field.onBlur}
                                 ref={field.ref}
+                                stableId={StableId.NEW_ALERT_COMPARATOR_SELECT}
                                 selection={selection?.name}
                               />
                             </DropdownMenu.Trigger>
@@ -376,6 +395,7 @@ const NewAlert: NextPageWithLayout = () => {
                               field={field}
                               isInvalid={!!form.formState.errors.acctBalNumRule?.from}
                               onInput={() => form.clearErrors('acctBalNumRule.to')}
+                              stableId={StableId.NEW_ALERT_ACCT_BAL_NUM_FROM_INPUT}
                             />
                           )}
                         />
@@ -403,6 +423,7 @@ const NewAlert: NextPageWithLayout = () => {
                                 placeholder="eg: 3"
                                 field={field}
                                 isInvalid={!!form.formState.errors.acctBalNumRule?.to}
+                                stableId={StableId.NEW_ALERT_ACCT_BAL_NUM_TO_INPUT}
                               />
                             )}
                           />
@@ -421,6 +442,7 @@ const NewAlert: NextPageWithLayout = () => {
                           placeholder="eg: 30"
                           isInvalid={!!form.formState.errors.acctBalPctRule?.from}
                           isNumber
+                          stableId={StableId.NEW_ALERT_ACCT_BAL_PCT_FROM_INPUT}
                           onInput={(event) => {
                             numberInputHandler(event);
                             form.clearErrors('acctBalPctRule.to');
@@ -444,6 +466,7 @@ const NewAlert: NextPageWithLayout = () => {
                             placeholder="eg: 60"
                             isInvalid={!!form.formState.errors.acctBalPctRule?.to}
                             isNumber
+                            stableId={StableId.NEW_ALERT_ACCT_BAL_PCT_TO_INPUT}
                             onInput={numberInputHandler}
                             {...form.register('acctBalPctRule.to', {
                               setValueAs: (value) => Number(sanitizeNumber(value)),
@@ -472,6 +495,7 @@ const NewAlert: NextPageWithLayout = () => {
                       label="Event Name"
                       placeholder="eg: nft_buy, nft_*"
                       isInvalid={!!form.formState.errors.eventRule?.event}
+                      stableId={StableId.NEW_ALERT_EVENT_NAME_INPUT}
                       {...form.register('eventRule.event', {
                         required: 'Please enter an event name',
                       })}
@@ -484,6 +508,7 @@ const NewAlert: NextPageWithLayout = () => {
                       label="Standard"
                       placeholder="eg: nep171, nep*"
                       isInvalid={!!form.formState.errors.eventRule?.standard}
+                      stableId={StableId.NEW_ALERT_EVENT_STANDARD_INPUT}
                       {...form.register('eventRule.standard', {
                         required: 'Please enter a standard',
                       })}
@@ -496,6 +521,7 @@ const NewAlert: NextPageWithLayout = () => {
                       label="Version"
                       placeholder="eg: 1.0.2, 1.0.*"
                       isInvalid={!!form.formState.errors.eventRule?.version}
+                      stableId={StableId.NEW_ALERT_EVENT_VERSION_INPUT}
                       {...form.register('eventRule.version', {
                         required: 'Please enter a version',
                       })}
@@ -511,6 +537,7 @@ const NewAlert: NextPageWithLayout = () => {
                     <Form.FloatingLabelInput
                       label="Function Name"
                       isInvalid={!!form.formState.errors.fnCallRule?.function}
+                      stableId={StableId.NEW_ALERT_FN_CALL_FUNCTION_NAME_INPUT}
                       {...form.register('fnCallRule.function', {
                         required: 'Please enter a function name',
                       })}
@@ -541,7 +568,7 @@ const NewAlert: NextPageWithLayout = () => {
             <HR />
 
             <Flex justify="spaceBetween" align="center">
-              <Button type="submit" loading={form.formState.isSubmitting} stableId={StableId.NEW_ALERT_CREATE_BUTTON}>
+              <Button type="submit" loading={createAlertMutation.isLoading} stableId={StableId.NEW_ALERT_CREATE_BUTTON}>
                 <FeatherIcon icon="bell" /> Create Alert
               </Button>
 
@@ -555,7 +582,7 @@ const NewAlert: NextPageWithLayout = () => {
         </Form.Root>
       </Flex>
 
-      <ErrorModal error={createError} setError={setCreateError} />
+      <ErrorModal error={createError} resetError={() => setCreateError('')} />
     </Section>
   );
 };

@@ -14,7 +14,6 @@ export const Main = styled('main', {
   gap: 'var(--space-l)',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: 'var(--space-l) var(--space-m)',
 });
 
 export const Header = styled('header', {
@@ -27,8 +26,11 @@ export const Header = styled('header', {
   padding: 'var(--space-s) var(--space-m)',
   position: 'sticky',
   top: 0,
-  background: 'var(--color-surface-2)',
-  borderBottom: '1px solid var(--color-surface-1)',
+  background: 'var(--color-surface-3)',
   boxShadow: 'var(--shadow-softer)',
   zIndex: 500,
+
+  '@tablet': {
+    padding: 'var(--space-s)',
+  },
 });

@@ -2,7 +2,7 @@
 # i.e. as called from parent directory `docker build -t <tag> -f backend/Dockerfile .`
 
 # Implements some security tips found here: https://snyk.io/blog/10-best-practices-to-containerize-nodejs-web-applications-with-docker/
-FROM --platform=linux/amd64 node:16 as builder
+FROM --platform=linux/amd64 node:16.18.1 as builder
 # Do not set NODE_ENV to production on this image, or dependencies used for building will not be installed
 
 # Create app directory
@@ -15,6 +15,7 @@ COPY tsconfig.json ./
 
 COPY ./database/package.json ./database/package.json
 COPY ./common/package.json ./common/package.json
+COPY ./abi/package.json ./abi/package.json
 COPY ./backend/package.json ./backend/package.json
 COPY ./frontend/package.json ./frontend/package.json
 
@@ -29,12 +30,13 @@ RUN npm ci
 
 COPY ./backend ./backend
 COPY ./common ./common
+COPY ./abi ./abi
 COPY ./database ./database
 
 # This will also build any other packages in the repo which backend depends on
 RUN npx turbo build --filter=backend
 
-FROM --platform=linux/amd64 node:16-alpine as runner
+FROM --platform=linux/amd64 node:16.18.1-alpine3.16 as runner
 
 EXPOSE 8080
 ENV NODE_ENV=production

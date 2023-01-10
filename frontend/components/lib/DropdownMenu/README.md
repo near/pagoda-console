@@ -139,6 +139,28 @@ import { TextOverflow } from '@/components/lib/TextOverflow';
 </DropdownMenu.Root>
 ```
 
+## Sticky Footer
+
+You can use the `ContentStickyFooter` component inside `Content` to create a sticky footer when scrolling through dropdown options:
+
+```tsx
+<DropdownMenu.Root>
+  <DropdownMenu.Trigger asChild>
+    <Button>Open Menu</Button>
+  </DropdownMenu.Trigger>
+
+  <DropdownMenu.Content>
+    <DropdownMenu.Item>Item 1</DropdownMenu.Item>
+    <DropdownMenu.Item>Item 2</DropdownMenu.Item>
+    <DropdownMenu.Item>Item 3</DropdownMenu.Item>
+
+    <DropdownMenu.ContentStickyFooter>
+      <DropdownMenu.Item color="primary">New Item</DropdownMenu.Item>
+    </DropdownMenu.ContentStickyFooter>
+  </DropdownMenu.Content>
+</DropdownMenu.Root>
+```
+
 ## Nested Menus
 
 In the primary `Example` section above, note the use of the `Sub`, `SubTrigger`, and `SubContent` components to achieve a nested menu.

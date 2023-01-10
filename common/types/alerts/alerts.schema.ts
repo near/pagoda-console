@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { AlertRuleKind, DestinationType } from '@pc/database/clients/alerts';
 import { accountId, environmentId, projectSlug, net } from '../core/types';
 import { json } from '../schemas';
-import { flavored, Flavored } from '../utils';
 
 export const destinationType: z.ZodType<DestinationType> = z.enum([
   'WEBHOOK',
@@ -15,12 +14,10 @@ export const alertRuleKind: z.ZodType<AlertRuleKind> = z.enum([
   'STATE_CHANGES',
 ]);
 
-export const alertId = z.number().refine<Flavored<'alertId', number>>(flavored);
+export const alertId = z.number();
 export type AlertId = z.infer<typeof alertId>;
 
-export const destinationId = z
-  .number()
-  .refine<Flavored<'destinationId', number>>(flavored);
+export const destinationId = z.number();
 export type DestinationId = z.infer<typeof destinationId>;
 
 export const alertName = z.string();
@@ -353,12 +350,12 @@ const destination = z.union([
 export type Destination = z.infer<typeof destination>;
 
 const tgChat = z.union([
-  z.strictObject({
+  z.object({
     type: z.literal('private'),
     id: z.number(),
     username: z.string().optional(),
   }),
-  z.strictObject({
+  z.object({
     type: z.enum(['group', 'supergroup', 'channel']),
     id: z.number(),
     title: z.string().optional(),
@@ -428,10 +425,10 @@ export const mutation = {
     verifyEmailDestination: z.strictObject({
       token: z.string(),
     }),
-    telegramWebhook: z.strictObject({
+    telegramWebhook: z.object({
       update_id: z.number(),
       message: z
-        .strictObject({
+        .object({
           chat: tgChat,
           text: z.string().optional(),
         })

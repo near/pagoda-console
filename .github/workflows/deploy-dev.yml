@@ -16,16 +16,16 @@ jobs:
     outputs:
       image: ${{ steps.image.outputs.image }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # Setup auth: https://github.com/google-github-actions/setup-gcloud#service-account-key-json
       - id: "auth"
-        uses: "google-github-actions/auth@v0"
+        uses: "google-github-actions/auth@v1"
         with:
           credentials_json: "${{ secrets.GCP_CREDENTIALS_PAGODA_DEVELOPER_CONSOLE }}"
 
       - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v0"
+        uses: "google-github-actions/setup-gcloud@v1"
 
       - name: "Use gcloud CLI"
         run: gcloud auth configure-docker -q
@@ -43,7 +43,7 @@ jobs:
         name: "Outputs docker image with registry's sha256"
         run: |
           export API_IMAGE=$(docker inspect --format='{{index .RepoDigests 0}}' gcr.io/near-dev-platform/developer-console-api:$NAMESPACE)
-          echo "::set-output name=image::$API_IMAGE"
+          echo "image=$API_IMAGE" >> $GITHUB_OUTPUT
   deploy-image:
     timeout-minutes: 15
     runs-on: ubuntu-latest
@@ -57,19 +57,19 @@ jobs:
       VERCEL_TEAM_ID: team_0XCkE3xOywBTMmd6s7bqJQot
       GIT_REPO: pagoda-console
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # Setup auth: https://github.com/google-github-actions/setup-gcloud#service-account-key-json
       - id: "auth"
-        uses: "google-github-actions/auth@v0"
+        uses: "google-github-actions/auth@v1"
         with:
           credentials_json: "${{ secrets.GCP_CREDENTIALS_PAGODA_DEVELOPER_CONSOLE }}"
 
       - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v0"
+        uses: "google-github-actions/setup-gcloud@v1"
 
       - name: "Set env variables"
-        run: | 
+        run: |
           echo "DEV_NAMESPACE=dev" >> $GITHUB_ENV
           echo "DEV_SERVICE_NAME=developer-console-api-test" >> $GITHUB_ENV
           echo "DEV_REGION=us-east1" >> $GITHUB_ENV
@@ -83,12 +83,12 @@ jobs:
         run: |
           echo "BRANCH_NAME=develop" >> $GITHUB_ENV
           echo "VERCEL_AUTH_TOKEN=${{ secrets.VERCEL_AUTH_TOKEN }}" >> $GITHUB_ENV
-      
+
       - name: "Set FE to maintenance mode"
         run: |
           ../scripts/vercel_upsert_env_var.sh NEXT_PUBLIC_DOWNTIME_MODE maintenance
           ../scripts/vercel_redeploy.sh
-      
+
       - name: "Perform DB migrations"
         run: |
           cd .. && 
@@ -96,8 +96,8 @@ jobs:
           cd .. && npm ci && npm run -w database migrate:deploy
 
       - name: "Deploy image"
-        run: gcloud run deploy $DEV_SERVICE_NAME --image=$DEV_IMAGE_URL --region $DEV_REGION 
-      
+        run: gcloud run deploy $DEV_SERVICE_NAME --image=$DEV_IMAGE_URL --region $DEV_REGION
+
       - name: "Allowing all traffic for the service"
         run: gcloud run services update $DEV_SERVICE_NAME --region $DEV_REGION --platform managed --ingress all
 

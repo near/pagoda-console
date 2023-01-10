@@ -8,11 +8,8 @@ import {
   transactionHash,
 } from '../core/types';
 import { ruleType, alertId } from './alerts.schema';
-import { flavored, Flavored } from '../utils';
 
-export const triggeredAlertSlug = z
-  .string()
-  .refine<Flavored<'triggeredAlertSlug'>>(flavored);
+export const triggeredAlertSlug = z.string();
 export type TriggeredAlertSlug = z.infer<typeof triggeredAlertSlug>;
 
 const triggeredAlert = z.strictObject({

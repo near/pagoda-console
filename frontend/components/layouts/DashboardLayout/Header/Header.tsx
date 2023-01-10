@@ -1,84 +1,43 @@
 import type { ComponentProps } from '@stitches/react';
-import { useRouter } from 'next/router';
-import { useRef, useState } from 'react';
+import Link from 'next/link';
 
-import { ProjectSelector } from '@/components/layouts/DashboardLayout/ProjectSelector';
-import { Flex } from '@/components/lib/Flex';
-import { Text } from '@/components/lib/Text';
-import { UserFullDropdown } from '@/components/lib/UserFullDropdown';
-import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { UserFullDropdown } from '@/components/layouts/UserFullDropdown';
+import { ButtonLink } from '@/components/lib/Button';
+import { useAuth } from '@/hooks/auth';
+import { usePublicMode } from '@/hooks/public';
+import { StableId } from '@/utils/stable-ids';
 
-import { EnvironmentSelector } from '../EnvironmentSelector';
+import { PublicHeader } from './PublicHeader';
+import { StandardHeader } from './StandardHeader';
 import * as S from './styles';
+import type { HeaderRedirect } from './types';
 
 type Props = ComponentProps<typeof S.Header> & {
-  redirect?: {
-    environmentChange?: boolean;
-    projectChange?: boolean;
-    url: string;
-  };
+  redirect?: HeaderRedirect;
 };
 
 export function Header({ redirect, ...props }: Props) {
-  const router = useRouter();
-  const [redirectMessage, setRedirectMessage] = useState('');
-  const redirectOnConfirmRef = useRef<() => void>();
-  const [showRedirectConfirmModal, setShowRedirectConfirmModal] = useState(false);
-
-  function onRedirectConfirm() {
-    if (redirectOnConfirmRef.current) redirectOnConfirmRef.current();
-    setShowRedirectConfirmModal(false);
-    router.push(redirect!.url);
-  }
-
-  function openConfirmRedirectModal(message: string, onConfirm: () => void) {
-    setRedirectMessage(message);
-    redirectOnConfirmRef.current = onConfirm;
-    setShowRedirectConfirmModal(true);
-  }
+  const { authStatus } = useAuth();
+  const { publicModeIsActive } = usePublicMode();
 
   return (
-    <>
-      <S.Header {...props}>
-        <Flex align="stretch">
-          <ProjectSelector
-            onBeforeChange={
-              redirect?.projectChange
-                ? (change) => {
-                    openConfirmRedirectModal(
-                      'Changing projects will redirect you away from your current page. Would you like to change?',
-                      change,
-                    );
-                  }
-                : undefined
-            }
-          />
+    <S.Header {...props}>
+      {publicModeIsActive ? <PublicHeader /> : <StandardHeader redirect={redirect} />}
 
-          <EnvironmentSelector
-            onBeforeChange={
-              redirect?.environmentChange
-                ? (change) => {
-                    openConfirmRedirectModal(
-                      'Changing environments will redirect you away from your current page. Would you like to change?',
-                      change,
-                    );
-                  }
-                : undefined
-            }
-          />
-        </Flex>
+      {authStatus === 'AUTHENTICATED' && <UserFullDropdown />}
 
-        <UserFullDropdown />
-      </S.Header>
-
-      <ConfirmModal
-        onConfirm={onRedirectConfirm}
-        setShow={setShowRedirectConfirmModal}
-        show={showRedirectConfirmModal}
-        title="Redirect Notice"
-      >
-        <Text>{redirectMessage}</Text>
-      </ConfirmModal>
-    </>
+      {authStatus === 'UNAUTHENTICATED' && (
+        <Link href="/">
+          <ButtonLink
+            stableId={StableId.HEADER_SIGN_IN_LINK}
+            size="s"
+            color="primaryBorder"
+            css={{ alignSelf: 'center' }}
+          >
+            Sign In
+          </ButtonLink>
+        </Link>
+      )}
+    </S.Header>
   );
 }

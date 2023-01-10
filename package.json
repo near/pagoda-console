@@ -7,14 +7,18 @@
     "npm": "^8.0.0"
   },
   "workspaces": [
-    "./frontend",
-    "./backend",
+    "frontend",
+    "backend",
     "database",
-    "common"
+    "common",
+    "cms",
+    "test",
+    "abi",
+    "eslint-rules"
   ],
   "scripts": {
     "prepare": "husky install",
-    "postinstall": "npm install turbo -D && npm run -w database build",
+    "postinstall": "npm install turbo -D",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start"
@@ -29,8 +33,12 @@
   },
   "homepage": "https://github.com/near/pagoda-console#readme",
   "devDependencies": {
+    "eslint-plugin-custom-rules": "./eslint-rules",
     "husky": "^8.0.0",
     "prettier": "^2.7.1",
     "turbo": "^1.7.0"
+  },
+  "dependencies": {
+    "immer": "^9.0.16"
   }
 }

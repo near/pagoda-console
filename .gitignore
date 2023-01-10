@@ -1,3 +1,7 @@
 node_modules
 dbData
 .turbo
+ignore
+out
+eslint-rules/dist/tsconfig.tsbuildinfo
+.DS_Store

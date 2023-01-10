@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
@@ -9,9 +8,10 @@ import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
-import { resetPassword } from '@/hooks/user';
+import { useApiMutation } from '@/hooks/api-mutation';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
+import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
 
 interface ForgotPasswordFormData {
@@ -24,42 +24,32 @@ interface Props {
 }
 
 const ModalContent = ({ setShow }: Props) => {
-  const { register, handleSubmit, formState, setError } = useForm<ForgotPasswordFormData>();
-  const [hasSent, setHasSent] = useState(false);
+  const { register, handleSubmit, formState } = useForm<ForgotPasswordFormData>();
 
-  const sendPasswordReset: SubmitHandler<ForgotPasswordFormData> = async ({ email }) => {
-    try {
-      await resetPassword(email);
-      analytics.track('DC Forgot Password', {
-        status: 'success',
-      });
-      setHasSent(true);
-    } catch (e: any) {
-      console.error(e);
+  const resetPasswordMutation = useApiMutation(
+    '/users/resetPassword',
+    {
+      onSuccess: () => {
+        analytics.track('DC Forgot Password', {
+          status: 'success',
+        });
+      },
+      onError: (error) => {
+        handleMutationError({
+          error,
+          eventLabel: 'DC Forgot Password',
+          toastTitle: 'Failed to send password reset email.',
+        });
+      },
+    },
+    false,
+  );
 
-      analytics.track('DC Forgot Password', {
-        status: 'failure',
-        error: e.code,
-      });
-
-      switch (e.code) {
-        case 400:
-          setError('email', {
-            message: 'Please enter a valid email address',
-          });
-          break;
-        default:
-          setError('email', {
-            message: 'Something went wrong',
-          });
-          break;
-      }
-    }
-  };
+  const resetPassword: SubmitHandler<ForgotPasswordFormData> = (form) => resetPasswordMutation.mutate(form);
 
   return (
-    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(sendPasswordReset)}>
-      {hasSent ? (
+    <Form.Root disabled={resetPasswordMutation.isLoading} onSubmit={handleSubmit(resetPassword)}>
+      {resetPasswordMutation.status === 'success' ? (
         <Flex stack align="center" css={{ textAlign: 'center' }}>
           <FeatherIcon icon="check-circle" color="success" size="l" />
 
@@ -80,6 +70,7 @@ const ModalContent = ({ setShow }: Props) => {
               type="email"
               placeholder="name@example.com"
               isInvalid={!!formState.errors.email}
+              stableId={StableId.FORGOT_PASSWORD_MODAL_EMAIL_INPUT}
               {...register('email', formValidations.email)}
             />
             <Form.Feedback>{formState.errors.email?.message}</Form.Feedback>

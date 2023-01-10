@@ -45,6 +45,9 @@ export const Flex = styled('div', {
       xl: {
         gap: 'var(--space-xl)',
       },
+      xxl: {
+        gap: 'var(--space-xxl)',
+      },
     },
 
     inline: {
@@ -80,6 +83,16 @@ export const Flex = styled('div', {
     stack: {
       true: {
         flexDirection: 'column',
+      },
+      mobile: {
+        '@mobile': {
+          flexDirection: 'column',
+        },
+      },
+      smallTablet: {
+        '@smallTablet': {
+          flexDirection: 'column',
+        },
       },
     },
 

@@ -1,12 +1,13 @@
 import type { Api } from '@pc/common/types/api';
-import { useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
+import { openToast } from '@/components/lib/Toast';
+import { useApiMutation } from '@/hooks/api-mutation';
+import analytics from '@/utils/analytics';
+import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
-
-import { resendEmailVerification } from '../hooks/destinations';
 
 type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
 
@@ -15,12 +16,34 @@ interface Props {
 }
 
 export function EmailDestinationVerification({ destination }: Props) {
-  const [isSending, setIsSending] = useState(false);
+  const resendEmailMutation = useApiMutation('/alerts/resendEmailVerification', {
+    onSuccess: () => {
+      analytics.track('DC Resend Email Verification for Email Destination', {
+        status: 'success',
+        name: destination.id,
+      });
 
-  async function resend() {
-    setIsSending(true);
-    await resendEmailVerification(destination.id);
-    setIsSending(false);
+      openToast({
+        type: 'success',
+        title: 'Verification Sent',
+        description: 'Check your inbox and spam folder.',
+      });
+    },
+
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Resend Email Verification for Email Destination',
+        toastTitle: 'Send Failure',
+        toastDescription: `Failed to send verification email. Please try again later.`,
+      });
+    },
+  });
+
+  function resend() {
+    resendEmailMutation.mutate({
+      destinationId: destination.id,
+    });
   }
 
   if (destination.type !== 'EMAIL') return null;
@@ -39,7 +62,7 @@ export function EmailDestinationVerification({ destination }: Props) {
         <Button
           stableId={StableId.EMAIL_DESTINATION_VERIFICATION_RESEND_BUTTON}
           color="neutral"
-          loading={isSending}
+          loading={resendEmailMutation.isLoading}
           onClick={resend}
         >
           Resend Verification Email

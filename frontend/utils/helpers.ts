@@ -1,5 +1,5 @@
 import type { Api } from '@pc/common/types/api';
-import type { NextRouter } from 'next/router';
+import type { Net } from '@pc/database/clients/core';
 
 export function assertUnreachable(x: never): never {
   throw new Error(`Unreachable Case: ${x}`);
@@ -31,14 +31,17 @@ export function returnContractAddressRegex(environment?: Environment) {
   return new RegExp(prefix + postfix);
 }
 
-export function signInRedirectHandler(router: NextRouter, defaultRedirectUrl: string) {
-  const redirectUrl = sessionStorage.getItem('signInRedirectUrl') || defaultRedirectUrl;
-  sessionStorage.removeItem('signInRedirectUrl');
-  router.push(redirectUrl);
-}
-
 export function sleep(ms: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 }
+
+export const mapEnvironmentSubIdToNet = (environmentSubId: number): Net => {
+  switch (environmentSubId) {
+    case 2:
+      return 'MAINNET';
+    default:
+      return 'TESTNET';
+  }
+};
