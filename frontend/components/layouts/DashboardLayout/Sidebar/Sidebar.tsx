@@ -15,7 +15,6 @@ import alertsEntries from '@/modules/alerts/sidebar-entries';
 import apisEntries from '@/modules/apis/sidebar-entries';
 import contractsEntries from '@/modules/contracts/sidebar-entries';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
-import deploysEntries from '@/modules/deploys/sidebar-entries';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
 import { StableId } from '@/utils/stable-ids';
 
@@ -45,7 +44,6 @@ function useProjectPages(): SidebarEntry[] {
   }
 
   pages.push(...apisEntries);
-  pages.push(...deploysEntries);
   pages.push(...alertsEntries);
   pages.push(...contractsEntries);
 
