@@ -177,10 +177,6 @@ export function AuthForm({ onSignIn }: Props) {
 
   return (
     <Flex gap="l" stack>
-      <EmailForm externalLoading={signInViaProviderMutation.isLoading} mutation={signInViaEmailMutation} />
-
-      <HR />
-
       <Flex stack>
         {providers.map((provider) => (
           <ProviderButton
@@ -191,6 +187,10 @@ export function AuthForm({ onSignIn }: Props) {
           />
         ))}
       </Flex>
+
+      <HR />
+
+      <EmailForm externalLoading={signInViaProviderMutation.isLoading} mutation={signInViaEmailMutation} />
 
       <ErrorModal error={signInViaProviderError} resetError={signInViaProviderMutation.reset} />
     </Flex>
