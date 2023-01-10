@@ -142,21 +142,15 @@ export class DeploysService {
     });
 
     await Promise.all(
-      files.map((file) => {
-        const deployConfig = repo.ContractDeployConfig.find(
+      files.map(async (file) => {
+        let deployConfig = repo.ContractDeployConfig.find(
           ({ filename }) => filename === file.originalname,
         );
         if (!deployConfig) {
-          return this.generateDeployConfig({
+          deployConfig = await this.generateDeployConfig({
             filename: file.originalname,
             repositorySlug: repo.slug,
-          }).then((deployConfig) =>
-            this.deployContract({
-              deployConfig,
-              file: file.buffer,
-              repoDeploymentSlug: repoDeployment.slug,
-            }),
-          );
+          });
         }
         return this.deployContract({
           deployConfig,
