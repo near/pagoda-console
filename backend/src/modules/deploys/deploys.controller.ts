@@ -43,12 +43,8 @@ const patchDeploymentFrontendUrlInput = z
   .strictObject({
     repoDeploymentSlug: z.string(),
     packageName: z.string(),
-    frontendDeployUrl: z.string().url(),
-    cid: z.string(),
-  })
-  .partial({
-    frontendDeployUrl: true,
-    cid: true,
+    frontendDeployUrl: z.string().url().optional(),
+    cid: z.string().optional(),
   })
   .refine(
     (data) => !!data.frontendDeployUrl || !!data.cid,
