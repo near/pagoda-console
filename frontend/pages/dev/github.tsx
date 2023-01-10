@@ -58,7 +58,7 @@ const Page: NextPageWithLayout = () => {
 
   return (
     <Section>
-      <ButtonLink href={formGithubUrl()} stableId={StableId.GITHUB_CONNECT}>
+      <ButtonLink href={formGithubUrl()} stableId={StableId.GITHUB_CONNECT_BUTTON}>
         Connect GitHub
       </ButtonLink>
       <p>{code ?? 'none'}</p>
