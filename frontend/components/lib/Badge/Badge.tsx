@@ -2,7 +2,6 @@ import { styled } from '@/styles/stitches';
 
 export const Badge = styled('span', {
   display: 'inline-flex',
-  gap: 'var(--space-s)',
   alignItems: 'center',
   flexShrink: 0,
   padding: 'var(--space-xs) var(--space-s)',
@@ -83,5 +82,7 @@ export const Badge = styled('span', {
   defaultVariants: {
     color: 'neutral',
     size: 'm',
+    gap: 's',
+    background: 'light',
   },
 });
