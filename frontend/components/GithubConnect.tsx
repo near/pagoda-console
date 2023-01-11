@@ -44,12 +44,7 @@ function formGithubUrl() {
 }
 
 export function GithubConnect(props: Props) {
-  const {
-    connection,
-    error: connectionError,
-    mutate: refreshConnection,
-    isValidating: isLoadingConnection,
-  } = useGithubConnection();
+  const { connection, error: connectionError, mutate: refreshConnection } = useGithubConnection();
   const router = useRouter();
   const codeParam = useRouteParam('code');
   const { authStatus } = useAuth();
@@ -57,12 +52,14 @@ export function GithubConnect(props: Props) {
 
   const { mutate: connect, ...connectMutation } = useApiMutation('/users/connectGithub', {
     onSuccess: () => {
-      refreshConnection();
+      refreshConnection(undefined); // Mutating to undefined prevents the "NONE" state from quickly flashing
+
       openToast({
         type: 'success',
-        title: 'Account connected!',
+        title: 'GitHub account connected!',
         icon: 'github',
       });
+
       analytics.track('DC Github Connected', {
         status: 'success',
       });
@@ -79,8 +76,9 @@ export function GithubConnect(props: Props) {
 
   useEffect(() => {
     /*
-      This useEffect() is extremely ugly, but it gets the job done: calling connectMutation.mutate() only once.
-      The setTimeout() at the end is needed for the mutation to update correctly.
+      This hook is extremely ugly, but it gets the job done: calling connectMutation.mutate() only once.
+      The setTimeout() at the end is needed for the mutation state to update correctly. Very weird
+      behavior occurs without the setTimeout() - isLoading gets stuck on "true" and never updates.
     */
 
     if (authStatus !== 'AUTHENTICATED' || typeof codeParam !== 'string' || hasCalledConnect.current) return;
@@ -89,16 +87,17 @@ export function GithubConnect(props: Props) {
 
     setTimeout(() => {
       connect({ code: codeParam });
+
       router.replace(router.asPath.split('?')[0], undefined, { shallow: true });
     });
   }, [codeParam, connect, authStatus, router]);
 
-  if (!connection || connectMutation.isLoading || isLoadingConnection) {
-    return <Spinner center />;
-  }
-
   if (connectionError) {
     return <Message type="error" content="Failed to load GitHub connection status for your account." />;
+  }
+
+  if (!connection || connectMutation.isLoading) {
+    return <Spinner center />;
   }
 
   switch (connection.status) {

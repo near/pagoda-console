@@ -76,7 +76,7 @@ function ConnectedModalContent(props: Props) {
     <Flex stack>
       <Form.Root onSubmit={form.handleSubmit(deploy)}>
         <Flex stack>
-          <Text>Deploying this template will create a new repository on the connected GitHub account.</Text>
+          <Text>Deploying this template will create a new repository on your connected GitHub account.</Text>
 
           <Form.Group>
             <Form.FloatingLabelInput
