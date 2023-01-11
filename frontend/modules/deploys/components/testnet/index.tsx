@@ -11,15 +11,21 @@ import { Text } from '@/components/lib/Text';
 import { StableId } from '@/utils/stable-ids';
 
 const MainCard = styled(Card, {
+  overflow: 'hidden',
 });
 
 const FlexTop = styled(Flex, {
+  margin: 'var(--space-s) 0 0 0',
 });
 
 const BadgeTop = styled(Badge, {
+  margin: 'var(--space-s) 0 0 0',
 });
 
 const CopyButton = styled(Flex, {
+  background: 'var(--color-surface-5)',
+  padding: 'var(--space-xs)',
+  borderRadius: 'var(--border-radius-xs)',
 });
 
 const Testnet = () => {
