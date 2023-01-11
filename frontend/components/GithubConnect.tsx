@@ -27,22 +27,6 @@ interface Props {
   unconnected: ReactElement;
 }
 
-function formGithubUrl() {
-  const redirectUrl = new URL(`${window.location.protocol}//${window.location.hostname}/${window.location.pathname}`);
-  redirectUrl.searchParams.append('githubConnectSuccess', 'true');
-
-  const authorizeUrl = new URL('https://github.com/login/oauth/authorize');
-  authorizeUrl.searchParams.append('redirect_uri', redirectUrl.href);
-  authorizeUrl.searchParams.append('scope', 'public_repo');
-  authorizeUrl.searchParams.append('client_id', config.github.connectClientId);
-
-  // TODO: suggest login if user logged into Console with GitHub
-  // GitHub docs: "Suggests a specific account to use for signing in and authorizing the app."
-  // authorizeUrl.searchParams.append('login', <user handle>);
-
-  return authorizeUrl.href;
-}
-
 export function GithubConnect(props: Props) {
   const { connection, error: connectionError, mutate: refreshConnection } = useGithubConnection();
   const router = useRouter();
@@ -131,6 +115,22 @@ function Connected({ children, handle }: { children: ReactElement; handle: strin
 }
 
 function UnconnectedPrompt({ children, invalid }: { children: ReactElement; invalid?: boolean }) {
+  function formGithubUrl() {
+    const redirectUrl = new URL(`${window.location.protocol}//${window.location.hostname}/${window.location.pathname}`);
+    redirectUrl.searchParams.append('githubConnectSuccess', 'true');
+
+    const authorizeUrl = new URL('https://github.com/login/oauth/authorize');
+    authorizeUrl.searchParams.append('redirect_uri', redirectUrl.href);
+    authorizeUrl.searchParams.append('scope', 'public_repo');
+    authorizeUrl.searchParams.append('client_id', config.github.connectClientId);
+
+    // TODO: suggest login if user logged into Console with GitHub
+    // GitHub docs: "Suggests a specific account to use for signing in and authorizing the app."
+    // authorizeUrl.searchParams.append('login', <user handle>);
+
+    return authorizeUrl.href;
+  }
+
   return (
     <Flex stack gap="l">
       {invalid && <Message type="warning" content="Your previous GitHub connection expired. Please reconnect below." />}

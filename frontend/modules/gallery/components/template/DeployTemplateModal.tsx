@@ -70,6 +70,10 @@ function ConnectedModalContent(props: Props) {
 
   function deploy(data: DeployFormData) {
     console.log(props.template.attributes, data);
+    // TODO:
+    // 1. Fire off deploy mutation
+    // 2. Show loading state on "Deploy Repository" button
+    // 3. Handle onSuccess/onError
   }
 
   return (
@@ -94,7 +98,12 @@ function ConnectedModalContent(props: Props) {
           <HR />
 
           <Flex justify="center">
-            <TextLink stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_VIEW_REPO_LINK} external size="s">
+            <TextLink
+              href={props.template.attributes.githubUrl}
+              stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_VIEW_REPO_LINK}
+              external
+              size="s"
+            >
               View Repository
             </TextLink>
           </Flex>
