@@ -8,5 +8,6 @@ import { PrismaService } from './prisma.service';
   providers: [DeploysService, PrismaService],
   imports: [ProjectsModule],
   controllers: [DeploysController],
+  exports: [DeploysService],
 })
 export class DeploysModule {}

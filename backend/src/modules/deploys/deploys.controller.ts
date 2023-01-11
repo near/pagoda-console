@@ -20,6 +20,7 @@ import { fromZodError } from 'zod-validation-error';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { Deploys } from '@/../common/types/deploys';
 import { Api } from '@pc/common/types/api';
+import { GithubBasicAuthGuard } from '@/src/core/auth/github-basic-auth.guard';
 
 @Controller('deploys')
 export class DeploysController {
@@ -50,7 +51,7 @@ export class DeploysController {
   @Post('deployWasm')
   @HttpCode(204)
   @UseInterceptors(AnyFilesInterceptor())
-  @UseGuards(BearerAuthGuard)
+  @UseGuards(GithubBasicAuthGuard)
   async deployWasm(
     @Req() req: Request,
     @UploadedFiles() files: Array<Express.Multer.File>,
@@ -81,7 +82,7 @@ export class DeploysController {
   @Post('addFrontend')
   @HttpCode(204)
   @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addFrontend))
-  @UseGuards(BearerAuthGuard)
+  @UseGuards(GithubBasicAuthGuard)
   async addFrontend(
     @Req() req: Request,
     @Body()

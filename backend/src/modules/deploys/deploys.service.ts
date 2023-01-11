@@ -63,18 +63,14 @@ export class DeploysService {
       throw new VError('Could not find testnet env for newly created project');
     }
 
-    // TODO get GitHub token
-
     // OWASP recommended password hashing:
     // If Argon2id is not available, use scrypt with a minimum CPU/memory cost parameter of (2^16),
     // a minimum block size of 8 (1024 bytes), and a parallelization parameter of 1.
     const actionAuthToken = nanoid(25);
     const authTokenSalt = randomBytes(32);
-    const authTokenHash = scryptSync(actionAuthToken, authTokenSalt, 64, {
-      N: 2 ** 16,
-    });
+    const authTokenHash = this.hashToken(actionAuthToken, authTokenSalt);
 
-    // TODO set secret on repository
+    // TODO get octokit connection and set secret on repository
 
     return this.addDeployRepository({
       projectSlug: project.slug,
@@ -336,6 +332,21 @@ export class DeploysService {
       include: {
         repository: true,
       },
+    });
+  }
+
+  getDeployRepository(githubRepoFullName: string) {
+    return this.prisma.repository.findUnique({
+      where: {
+        githubRepoFullName,
+      },
+    });
+  }
+
+  hashToken(token: string, salt: Buffer) {
+    console.log('scrypt pre token', token);
+    return scryptSync(token, salt, 64, {
+      p: 4,
     });
   }
 }
