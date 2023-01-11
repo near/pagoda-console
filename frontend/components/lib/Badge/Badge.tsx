@@ -12,10 +12,28 @@ export const Badge = styled('span', {
   fontFamily: 'var(--font-action)',
   lineHeight: 1,
   whiteSpace: 'nowrap',
-  background: 'var(--color-cta-neutral)',
   transition: 'var(--transitions)',
 
   variants: {
+    background: {
+      light: {
+        background: 'var(--color-cta-neutral)',
+      },
+      dark: {
+        background: 'var(--color-surface-1)',
+      },
+    },
+    gap: {
+      none: {
+        gap: '0rem',
+      },
+      xs: {
+        gap: 'var(--space-xs)',
+      },
+      s: {
+        gap: 'var(--space-s)',
+      },
+    },
     clickable: {
       true: {
         cursor: 'pointer',
