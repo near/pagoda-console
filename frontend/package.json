@@ -55,7 +55,7 @@
     "jsbi": "^4.3.0",
     "launchdarkly-react-client-sdk": "^2.26.0",
     "lodash-es": "^4.17.21",
-    "luxon": "^2.4.0",
+    "luxon": "^3.2.1",
     "nanoid": "^4.0.0",
     "near-abi-client-js": "https://github.com/near/near-abi-client-js.git#13cc45a2a0722159c263112f43aa398364da889e",
     "near-api-js": "^0.44.2",
