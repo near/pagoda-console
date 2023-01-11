@@ -62,9 +62,10 @@ interface DeployFormData {
 }
 
 function ConnectedModalContent(props: Props) {
+  const repositoryName = props.template.attributes.githubUrl.split('/').pop();
   const form = useForm<DeployFormData>({
     defaultValues: {
-      repositoryName: props.template.attributes.name,
+      repositoryName,
     },
   });
 
