@@ -11,6 +11,7 @@ import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import config from '@/utils/config';
 import { handleMutationError } from '@/utils/error-handlers';
+import { assertUnreachable } from '@/utils/helpers';
 import { StableId } from '@/utils/stable-ids';
 
 import { ButtonLink } from './lib/Button';
@@ -84,13 +85,17 @@ export function GithubConnect(props: Props) {
     return <Spinner center />;
   }
 
-  switch (connection.status) {
+  const { status } = connection;
+
+  switch (status) {
     case 'VALID':
       return <Connected handle={connection.handle}>{props.connected}</Connected>;
     case 'INVALID':
       return <UnconnectedPrompt invalid>{props.unconnected}</UnconnectedPrompt>;
     case 'NONE':
       return <UnconnectedPrompt>{props.unconnected}</UnconnectedPrompt>;
+    default:
+      assertUnreachable(status);
   }
 }
 
