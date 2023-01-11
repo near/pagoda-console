@@ -6,6 +6,14 @@ const Arrow = styled(Flex, {
   width: '6.25rem',
   position: 'relative',
 
+  [`& ${Flex}`]: {
+    width: '3.125rem',
+    height: '3.125rem',
+    borderRadius: '100%',
+    background: 'var(--color-surface-3)',
+    position: 'absolute',
+    top: 'var(--space-m)',
+  },
 });
 
 const ArrowInCircle = () => (
