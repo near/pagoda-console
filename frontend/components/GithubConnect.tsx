@@ -120,7 +120,12 @@ function Connected({ children, handle }: { children: ReactElement; handle: strin
 }
 
 function UnconnectedPrompt({ children, invalid }: { children: ReactElement; invalid?: boolean }) {
+  const { identity } = useAuth();
+  const githubIdentityProvider = identity?.providerData.find((data) => data.providerId === 'github.com');
+
   function formGithubUrl() {
+    // https://docs.github.com/en/developers/apps/building-github-apps/identifying-and-authorizing-users-for-github-apps#1-request-a-users-github-identity
+
     const redirectUrl = new URL(`${window.location.protocol}//${window.location.hostname}/${window.location.pathname}`);
     redirectUrl.searchParams.append('githubConnectSuccess', 'true');
 
@@ -129,9 +134,10 @@ function UnconnectedPrompt({ children, invalid }: { children: ReactElement; inva
     authorizeUrl.searchParams.append('scope', 'public_repo');
     authorizeUrl.searchParams.append('client_id', config.github.connectClientId);
 
-    // TODO: suggest login if user logged into Console with GitHub
-    // GitHub docs: "Suggests a specific account to use for signing in and authorizing the app."
-    // authorizeUrl.searchParams.append('login', <user handle>);
+    if (githubIdentityProvider && githubIdentityProvider.email) {
+      // Suggest a specific account to use for signing in and authorizing the app:
+      authorizeUrl.searchParams.append('login', githubIdentityProvider.email);
+    }
 
     return authorizeUrl.href;
   }
