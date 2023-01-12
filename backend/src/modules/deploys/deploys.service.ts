@@ -1,4 +1,5 @@
 import { ProjectsService } from '@/src/core/projects/projects.service';
+import sodium from 'libsodium-wrappers';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
 import { PrismaService } from './prisma.service';
@@ -34,6 +35,20 @@ export class DeploysService {
     githubRepoFullName: string;
     projectName: Project['name'];
   }) {
+    const ghToken = 'token <SOME_TOKEN>';
+    const { full_name: repoFullName } = await fetch(
+      `https://api.github.com/repos/${githubRepoFullName}/generate`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          owner: 'esaminu',
+          name: projectName,
+          include_all_branches: true,
+        }),
+        headers: { Authorization: ghToken },
+      },
+    ).then((res) => res.json());
+
     let project, environments;
 
     // create the project which this deployment will be placed under
@@ -70,12 +85,53 @@ export class DeploysService {
     const authTokenSalt = randomBytes(32);
     const authTokenHash = this.hashToken(actionAuthToken, authTokenSalt);
 
+    const { key, key_id } = await fetch(
+      `https://api.github.com/repos/${repoFullName}/actions/secrets/public-key`,
+      {
+        headers: { Authorization: ghToken },
+      },
+    ).then((res) => res.json());
+
+    const secret_name = 'PAGODA_CONSOLE_TOKEN';
+
+    const encryptedSecret = await sodium.ready.then(() => {
+      // Convert Secret & Base64 key to Uint8Array.
+      const binkey = sodium.from_base64(key, sodium.base64_variants.ORIGINAL);
+      const binsec = sodium.from_string(
+        'Basic ' +
+          sodium.to_base64(
+            `${repoFullName}:${actionAuthToken}`,
+            sodium.base64_variants.ORIGINAL,
+          ),
+      );
+
+      //Encrypt the secret using LibSodium
+      const encBytes = sodium.crypto_box_seal(binsec, binkey);
+
+      // Convert encrypted Uint8Array to Base64
+      const output = sodium.to_base64(
+        encBytes,
+        sodium.base64_variants.ORIGINAL,
+      );
+
+      return output;
+    });
+
+    await fetch(
+      `https://api.github.com/repos/${repoFullName}/actions/secrets/${secret_name}`,
+      {
+        method: 'PUT',
+        headers: { Authorization: ghToken },
+        body: JSON.stringify({ encrypted_value: encryptedSecret, key_id }),
+      },
+    );
+
     // TODO get octokit connection and set secret on repository
 
     return this.addDeployRepository({
       projectSlug: project.slug,
       environmentSubId: testnetEnv.subId,
-      githubRepoFullName,
+      githubRepoFullName: repoFullName,
       authTokenHash,
       authTokenSalt,
     });
@@ -347,6 +403,55 @@ export class DeploysService {
     console.log('scrypt pre token', token);
     return scryptSync(token, salt, 64, {
       p: 4,
+    });
+  }
+
+  getRepositoriesByProjectSlug(projectSlug) {
+    return this.prisma.repository.findMany({
+      where: {
+        projectSlug,
+      },
+      include: {
+        RepoDeployment: {
+          include: {
+            ContractDeployment: {
+              include: {
+                contractDeployConfig: {
+                  select: {
+                    filename: true,
+                    nearAccountId: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  getRepositoryBySlug(slug) {
+    return this.prisma.repository.findUnique({
+      where: {
+        slug,
+      },
+      include: {
+        RepoDeployment: {
+          include: {
+            ContractDeployment: {
+              include: {
+                contractDeployConfig: {
+                  select: {
+                    filename: true,
+                    nearAccountId: true,
+                  },
+                },
+              },
+            },
+            FrontendDeployment: true,
+          },
+        },
+      },
     });
   }
 }

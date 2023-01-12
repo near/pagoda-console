@@ -9,6 +9,8 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
+  Get,
+  Query,
 } from '@nestjs/common';
 import { DeploysService } from './deploys.service';
 import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
@@ -22,6 +24,12 @@ import { Deploys } from '@/../common/types/deploys';
 import { Api } from '@pc/common/types/api';
 import { GithubBasicAuthGuard } from '@/src/core/auth/github-basic-auth.guard';
 
+const getProjectRepositories = z.strictObject({
+  projectSlug: z.string(),
+});
+const slugInput = z.strictObject({
+  slug: z.string(),
+});
 @Controller('deploys')
 export class DeploysController {
   constructor(private readonly deploysService: DeploysService) {}
@@ -111,5 +119,27 @@ export class DeploysController {
     });
 
     // 204 no content
+  }
+
+  @Get('getProjectRepositories')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(getProjectRepositories))
+  async getProjectRepositories(
+    @Req() req: Request,
+    @Query()
+    { projectSlug }: z.infer<typeof getProjectRepositories>,
+  ) {
+    return this.deploysService.getRepositoriesByProjectSlug(projectSlug);
+  }
+
+  @Get('getRepository')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(slugInput))
+  async getRepository(
+    @Req() req: Request,
+    @Query()
+    { slug }: z.infer<typeof slugInput>,
+  ) {
+    return this.deploysService.getRepositoryBySlug(slug);
   }
 }
