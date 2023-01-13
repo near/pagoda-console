@@ -14,50 +14,51 @@ generator client {
 
 // a github repo set up for automated deploys
 model Repository {
-  slug                 String                 @unique
-  projectSlug          String
-  environmentSubId     Int
-  githubRepoFullName   String                 @unique
-  ContractDeployConfig ContractDeployConfig[]
-  RepoDeployment       RepoDeployment[]
-  enabled              Boolean                @default(true)
-  FrontendDeployConfig FrontendDeployConfig[]
-  authTokenHash        Bytes
-  authTokenSalt        Bytes
+  slug                  String                 @unique
+  projectSlug           String
+  environmentSubId      Int
+  githubRepoFullName    String                 @unique
+  contractDeployConfigs ContractDeployConfig[]
+  repoDeployments       RepoDeployment[]
+  enabled               Boolean                @default(true)
+  frontendDeployConfigs FrontendDeployConfig[]
+  authTokenHash         Bytes
+  authTokenSalt         Bytes
 }
 
 // deployment configuration for a given contract in a Repository
 // (many templates will only have one)
 model ContractDeployConfig {
-  slug               String               @unique
-  repository         Repository           @relation(fields: [repositorySlug], references: [slug])
-  repositorySlug     String
-  filename           String
-  nearAccountId      String
-  nearPrivateKey     String
-  ContractDeployment ContractDeployment[]
+  slug                String               @unique
+  repository          Repository           @relation(fields: [repositorySlug], references: [slug])
+  repositorySlug      String
+  filename            String
+  nearAccountId       String
+  nearPrivateKey      String
+  contractDeployments ContractDeployment[]
 }
 
 // deployment configuration for a given frontend in a Repository
 // (many templates will only have one)
 model FrontendDeployConfig {
-  slug               String               @unique
-  repository         Repository           @relation(fields: [repositorySlug], references: [slug])
-  repositorySlug     String
-  packageName        String
-  FrontendDeployment FrontendDeployment[]
+  slug                String               @unique
+  repository          Repository           @relation(fields: [repositorySlug], references: [slug])
+  repositorySlug      String
+  packageName         String
+  frontendDeployments FrontendDeployment[]
 }
 
 // top level reference to a deployment workflow for a Repository which
 // will lead to 1+ ContractDeployments
 model RepoDeployment {
-  slug               String               @unique
-  repository         Repository           @relation(fields: [repositorySlug], references: [slug])
-  repositorySlug     String
-  commitHash         String
-  commitMessage      String
-  ContractDeployment ContractDeployment[]
-  FrontendDeployment FrontendDeployment[]
+  slug                String               @unique
+  repository          Repository           @relation(fields: [repositorySlug], references: [slug])
+  repositorySlug      String
+  commitHash          String
+  commitMessage       String
+  contractDeployments ContractDeployment[]
+  frontendDeployments FrontendDeployment[]
+  createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz
 }
 
 // an executed deployment action on a single ContractDeployConfig

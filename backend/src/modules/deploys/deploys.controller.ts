@@ -2,8 +2,10 @@ import {
   BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   HttpCode,
   Post,
+  Request,
   Req,
   UploadedFiles,
   UseGuards,
@@ -14,13 +16,15 @@ import { DeploysService } from './deploys.service';
 import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
 import { User } from '@pc/database/clients/core';
 import { BearerAuthGuard } from '@/src/core/auth/bearer-auth.guard';
-import { Request } from 'express';
 import { z } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { Deploys } from '@/../common/types/deploys';
 import { Api } from '@pc/common/types/api';
 import { GithubBasicAuthGuard } from '@/src/core/auth/github-basic-auth.guard';
+import { TooManyRequestsException } from '../alerts/exception/tooManyRequestsException';
+import { VError } from 'verror';
+import { Request as ExpressRequest } from 'express';
 
 @Controller('deploys')
 export class DeploysController {
@@ -30,7 +34,7 @@ export class DeploysController {
   @UseGuards(BearerAuthGuard)
   @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addDeploy))
   async addDeploy(
-    @Req() req: Request,
+    @Req() req: ExpressRequest,
     @Body()
     {
       githubRepoFullName,
@@ -111,5 +115,65 @@ export class DeploysController {
     });
 
     // 204 no content
+  }
+
+  @Post('listRepositories')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(Deploys.query.inputs.listRepositories))
+  async listRepositories(
+    @Request() req,
+    @Body()
+    {
+      projectSlug,
+      environmentSubId,
+    }: Api.Query.Input<'/deploys/listRepositories'>,
+  ): Promise<Api.Query.Output<'/deploys/listRepositories'>> {
+    try {
+      return await this.deploysService.listRepositories(
+        req.user,
+        projectSlug,
+        environmentSubId,
+      );
+    } catch (e: any) {
+      throw mapError(e);
+    }
+  }
+
+  // TODO in future iterations, it probably makes sense to fetch deployments by repositorySlug instead
+  @Post('listDeployments')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(Deploys.query.inputs.listDeployments))
+  async listDeployments(
+    @Request() req,
+    @Body()
+    {
+      projectSlug,
+      environmentSubId,
+    }: Api.Query.Input<'/deploys/listDeployments'>,
+  ): Promise<Api.Query.Output<'/deploys/listDeployments'>> {
+    try {
+      return await this.deploysService.listDeployments(
+        req.user,
+        projectSlug,
+        environmentSubId,
+        10,
+      );
+    } catch (e: any) {
+      throw mapError(e);
+    }
+  }
+}
+
+function mapError(e: Error) {
+  // TODO log in dev
+  // console.error(e);
+  const errorInfo = VError.info(e);
+  switch (errorInfo?.code) {
+    case 'PERMISSION_DENIED':
+      return new ForbiddenException();
+    case 'TOO_MANY_REQUESTS':
+      return new TooManyRequestsException();
+    default:
+      return e;
   }
 }

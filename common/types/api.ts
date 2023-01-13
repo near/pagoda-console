@@ -129,6 +129,17 @@ export namespace Api {
         output: z.infer<typeof RpcStats.query.outputs.endpointMetrics>;
         error: z.infer<typeof RpcStats.query.errors.endpointMetrics>;
       };
+
+      '/deploys/listRepositories': {
+        input: z.infer<typeof Deploys.query.inputs.listRepositories>;
+        output: z.infer<typeof Deploys.query.outputs.listRepositories>;
+        error: z.infer<typeof Deploys.query.errors.listRepositories>;
+      };
+      '/deploys/listDeployments': {
+        input: z.infer<typeof Deploys.query.inputs.listDeployments>;
+        output: z.infer<typeof Deploys.query.outputs.listDeployments>;
+        error: z.infer<typeof Deploys.query.errors.listDeployments>;
+      };
     };
 
     export type Key = keyof Mapping;

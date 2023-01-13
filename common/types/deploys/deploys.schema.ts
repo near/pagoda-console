@@ -1,11 +1,74 @@
 import { z } from 'zod';
 
+const frontendDeployments = z.array(
+  z.strictObject({
+    slug: z.string(),
+    url: z.string().or(z.null()),
+    cid: z.string().or(z.null()),
+  }),
+);
+
+const contractDeployments = z.array(
+  z.strictObject({
+    slug: z.string(),
+    deployTransactionHash: z.string().or(z.null()),
+  }),
+);
+
+const repoDeployments = z.array(
+  z.strictObject({
+    slug: z.string(),
+    commitHash: z.string(),
+    commitMessage: z.string(),
+    createdAt: z.date(),
+    frontendDeployments,
+    contractDeployments,
+  }),
+);
+
 export const query = {
-  inputs: {},
+  inputs: {
+    listRepositories: z.strictObject({
+      projectSlug: z.string(),
+      environmentSubId: z.number(),
+    }),
+    listDeployments: z.strictObject({
+      projectSlug: z.string(),
+      environmentSubId: z.number().optional(),
+    }),
+  },
 
-  outputs: {},
+  outputs: {
+    listRepositories: z.array(
+      z.strictObject({
+        slug: z.string(),
+        projectSlug: z.string(),
+        environmentSubId: z.number(),
+        githubRepoFullName: z.string(),
+        enabled: z.boolean(),
+        frontendDeployConfigs: z.array(
+          z.strictObject({
+            slug: z.string(),
+            packageName: z.string(),
+          }),
+        ),
+        contractDeployConfigs: z.array(
+          z.strictObject({
+            slug: z.string(),
+            filename: z.string(),
+            nearAccountId: z.string(),
+          }),
+        ),
+        repoDeployments,
+      }),
+    ),
+    listDeployments: repoDeployments,
+  },
 
-  errors: {},
+  errors: {
+    listRepositories: z.unknown(),
+    listDeployments: z.unknown(),
+  },
 };
 
 export const mutation = {
