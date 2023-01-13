@@ -11,82 +11,56 @@ import {
 } from '@nestjs/common';
 import { DeploysService } from './deploys.service';
 import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
-// import { Deploys } from '@pc/common/types/core';
-// import { Api } from '@pc/common/types/api';
 import { User } from '@pc/database/clients/core';
-
 import { BearerAuthGuard } from '@/src/core/auth/bearer-auth.guard';
-import { Request, Express } from 'express';
+import { Request } from 'express';
 import { z } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
+import { Deploys } from '@/../common/types/deploys';
+import { Api } from '@pc/common/types/api';
+import { GithubBasicAuthGuard } from '@/src/core/auth/github-basic-auth.guard';
 
-/*
-NOTE: to unblock functionality development, types in this file are
-temporarily not hooked into shared API types. This will be refactored
-later
-*/
-
-const addDeployInput = z.strictObject({
-  githubRepoFullName: z.string().regex(/[\w\.\-]+\/[\w\.\-]+/), // matches <owner/repo> e.g. 'near/pagoda-console`
-  projectName: z.string(),
-});
-const deployWasmInput = z.strictObject({
-  githubRepoFullName: z.string().regex(/[\w\.\-]+\/[\w\.\-]+/), // matches <owner/repo> e.g. 'near/pagoda-console`
-  commitHash: z.string(),
-  commitMessage: z.string(),
-});
-const wasmFilesInput = z.array(
-  z.object({ mimetype: z.string().startsWith('application/wasm') }),
-);
-const patchDeploymentFrontendUrlInput = z
-  .strictObject({
-    repoDeploymentSlug: z.string(),
-    packageName: z.string(),
-    frontendDeployUrl: z.string().url().optional(),
-    cid: z.string().optional(),
-  })
-  .refine(
-    (data) => !!data.frontendDeployUrl || !!data.cid,
-    'Either frontendDeployUrl or cid should be filled in.',
-  );
-
-// TODO
-// add GET endpoints to view this data
 @Controller('deploys')
 export class DeploysController {
   constructor(private readonly deploysService: DeploysService) {}
 
   @Post('addDeploy')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new ZodValidationPipe(addDeployInput))
+  @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addDeploy))
   async addDeploy(
     @Req() req: Request,
     @Body()
-    { githubRepoFullName, projectName }: z.infer<typeof addDeployInput>,
-  ) {
+    {
+      githubRepoFullName,
+      projectName,
+    }: z.infer<typeof Deploys.mutation.inputs.addDeploy>,
+  ): Promise<Api.Mutation.Output<'/deploys/addDeploy'>> {
     // called from Console frontend to initialize a new repo for deployment
-    return this.deploysService.createDeployProject({
+    const repository = await this.deploysService.createDeployProject({
       user: req.user as User, // TODO change to UserDetails from auth service
       githubRepoFullName,
       projectName,
     });
+    return {
+      repositorySlug: repository.slug,
+    };
   }
 
   @Post('deployWasm')
   @UseInterceptors(AnyFilesInterceptor())
-  @UseGuards(BearerAuthGuard)
+  @UseGuards(GithubBasicAuthGuard)
   async deployWasm(
     @Req() req: Request,
     @UploadedFiles() files: Array<Express.Multer.File>,
-    @Body() body: z.infer<typeof deployWasmInput>,
+    @Body() body: z.infer<typeof Deploys.mutation.inputs.deployWasm>,
   ) {
-    const parsedValue = deployWasmInput.safeParse(body);
+    const parsedValue = Deploys.mutation.inputs.deployWasm.safeParse(body);
     if (parsedValue.success === false) {
       throw new BadRequestException(fromZodError(parsedValue.error).toString());
     }
 
-    const parsedFiles = wasmFilesInput.safeParse(files);
+    const parsedFiles = Deploys.mutation.inputs.wasmFiles.safeParse(files);
     if (parsedFiles.success === false) {
       throw new BadRequestException(fromZodError(parsedFiles.error).toString());
     }
@@ -102,8 +76,8 @@ export class DeploysController {
   }
 
   @Post('addFrontend')
-  @UsePipes(new ZodValidationPipe(patchDeploymentFrontendUrlInput))
-  @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addFrontend))
+  @UseGuards(GithubBasicAuthGuard)
   async addFrontend(
     @Req() req: Request,
     @Body()
@@ -112,7 +86,7 @@ export class DeploysController {
       frontendDeployUrl,
       cid,
       packageName,
-    }: z.infer<typeof patchDeploymentFrontendUrlInput>,
+    }: z.infer<typeof Deploys.mutation.inputs.addFrontend>,
   ) {
     const repoDeployment = await this.deploysService.getRepoDeploymentBySlug(
       repoDeploymentSlug,
