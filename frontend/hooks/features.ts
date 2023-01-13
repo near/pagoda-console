@@ -1,6 +1,6 @@
 import { useFlags } from 'launchdarkly-react-client-sdk';
 
-type Feature = string;
+type Feature = 'frontend-deploys-module';
 
 export default function useFeatureFlag(key: Feature) {
   const flags = useFlags();

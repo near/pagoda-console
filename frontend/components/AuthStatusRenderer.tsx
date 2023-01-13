@@ -12,6 +12,7 @@ import { Section } from './lib/Section';
 
 interface Props {
   authenticated: ReactElement;
+  custom?: boolean;
   unauthenticated: ReactElement;
 }
 
@@ -29,6 +30,7 @@ export function AuthStatusRenderer(props: Props) {
     case 'AUTHENTICATED':
       return props.authenticated;
     case 'UNAUTHENTICATED':
+      if (props.custom) return props.unauthenticated;
       return <UnauthenticatedPrompt>{props.unauthenticated}</UnauthenticatedPrompt>;
     case 'LOADING':
       return null;

@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { Button, ButtonLink } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
+import { HR } from '@/components/lib/HorizontalRule';
 import { TextButton } from '@/components/lib/TextLink';
 import { ErrorModal } from '@/components/modals/ErrorModal';
 import { ForgotPasswordModal } from '@/modules/core/components/modals/ForgotPasswordModal';
@@ -70,7 +71,17 @@ export function EmailForm({ mutation: signInViaEmailMutation, externalLoading }:
             </Form.Group>
 
             <Form.Group>
-              <Form.Label htmlFor="password">Password</Form.Label>
+              <Flex justify="spaceBetween">
+                <Form.Label htmlFor="password">Password</Form.Label>
+                <TextButton
+                  stableId={StableId.AUTHENTICATION_EMAIL_FORM_FORGOT_PASSWORD_BUTTON}
+                  size="s"
+                  onClick={() => setShowResetModal(true)}
+                  tabIndex={-1}
+                >
+                  Forgot Password?
+                </TextButton>
+              </Flex>
               <Form.Input
                 id="password"
                 type="password"
@@ -90,27 +101,20 @@ export function EmailForm({ mutation: signInViaEmailMutation, externalLoading }:
             >
               Continue
             </Button>
-
-            <Link href="/register" passHref>
-              <ButtonLink
-                stableId={StableId.AUTHENTICATION_EMAIL_FORM_SIGN_UP_BUTTON}
-                color="neutral"
-                stretch
-                onClick={() => analytics.track('DC Clicked Sign Up on Login')}
-              >
-                Sign Up
-              </ButtonLink>
-            </Link>
           </Flex>
 
-          <TextButton
-            stableId={StableId.AUTHENTICATION_EMAIL_FORM_FORGOT_PASSWORD_BUTTON}
-            color="neutral"
-            size="s"
-            onClick={() => setShowResetModal(true)}
-          >
-            Forgot Password?
-          </TextButton>
+          <HR />
+
+          <Link href="/register" passHref>
+            <ButtonLink
+              stableId={StableId.AUTHENTICATION_EMAIL_FORM_SIGN_UP_BUTTON}
+              color="neutral"
+              stretch
+              onClick={() => analytics.track('DC Clicked Sign Up on Login')}
+            >
+              Register with Email
+            </ButtonLink>
+          </Link>
         </Flex>
       </Form.Root>
 

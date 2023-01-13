@@ -16,6 +16,7 @@ export const query = {
     listOrgsWithOnlyAdmin: z.void(),
     listOrgMembers: z.strictObject({ org: orgSlug }),
     listOrgs: z.void(),
+    getGithubConnection: z.void(),
   },
 
   outputs: {
@@ -50,6 +51,19 @@ export const query = {
         }),
       ),
     ),
+    getGithubConnection: z.union([
+      z.strictObject({
+        status: z.literal('NONE'),
+      }),
+      z.strictObject({
+        status: z.literal('VALID'),
+        handle: z.string(),
+      }),
+      z.strictObject({
+        status: z.literal('INVALID'),
+        handle: z.string(),
+      }),
+    ]),
   },
 
   errors: {
@@ -57,6 +71,7 @@ export const query = {
     listOrgsWithOnlyAdmin: z.unknown(),
     listOrgMembers: z.unknown(),
     listOrgs: z.unknown(),
+    getGithubConnection: z.unknown(),
   },
 };
 
@@ -93,6 +108,9 @@ export const mutation = {
     resetPassword: z.strictObject({
       email: z.string().email(),
     }),
+    connectGithub: z.strictObject({
+      code: z.string(),
+    }),
   },
 
   outputs: {
@@ -117,6 +135,7 @@ export const mutation = {
     removeFromOrg: z.void(),
     removeOrgInvite: z.void(),
     resetPassword: z.void(),
+    connectGithub: z.void(),
   },
 
   errors: {
@@ -129,5 +148,6 @@ export const mutation = {
     removeFromOrg: z.unknown(),
     removeOrgInvite: z.unknown(),
     resetPassword: z.unknown(),
+    connectGithub: z.unknown(),
   },
 };
