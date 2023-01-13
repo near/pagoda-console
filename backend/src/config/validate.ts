@@ -101,10 +101,10 @@ const appConfigSchema = z.strictObject({
   }),
   featureEnabled: z.strictObject({
     core: z.strictObject({
-      contractAddressValidation: z.boolean().optional().default(true),
+      contractAddressValidation: z.boolean(),
     }),
     alerts: z.strictObject({
-      contractAddressValidation: z.boolean().optional().default(true),
+      contractAddressValidation: z.boolean(),
     }),
   }),
   metricsPort: z.number().int().optional().default(3030),
