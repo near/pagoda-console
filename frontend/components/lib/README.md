@@ -144,10 +144,10 @@ mobile: '(max-width: 35rem)',
 
 Even though we don't use Stitches theme API for things like colors and fonts, it's extremely useful for sharing predefined breakpoints. Right now we have support for four Stitches breakpoints (defined in [styles/stiches.ts](../../styles/stitches.ts)):
 
-`@laptop`: For devices smaller than a desktop
-`@tablet`: For devices smaller than a laptop
-`@smallTablet`: For devices smaller than a standard tablet
-`@mobile`: For devices smaller than a tablet
+- `@laptop`: For devices smaller than a desktop
+- `@tablet`: For devices smaller than a laptop
+- `@smallTablet`: For devices smaller than a standard tablet
+- `@mobile`: For devices smaller than a tablet
 
 These breakpoint theme tokens can be used in really cool ways with Stitches.
 
