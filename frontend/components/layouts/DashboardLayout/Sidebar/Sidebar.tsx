@@ -9,7 +9,6 @@ import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { useAuth, useSignOut } from '@/hooks/auth';
-import useFeatureFlag from '@/hooks/features';
 import { usePublicMode } from '@/hooks/public';
 import { useSelectedProject } from '@/hooks/selected-project';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
@@ -46,9 +45,7 @@ function useProjectPages(): SidebarEntry[] {
   }
 
   pages.push(...apisEntries);
-  if (useFeatureFlag('frontend-deploys-module')) {
-    pages.push(...deploysEntries);
-  }
+  pages.push(...deploysEntries);
   pages.push(...alertsEntries);
   pages.push(...contractsEntries);
 
