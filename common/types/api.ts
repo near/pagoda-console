@@ -123,11 +123,15 @@ export namespace Api {
           typeof TriggeredAlerts.query.errors.getTriggeredAlertDetails
         >;
       };
-
       '/rpcstats/endpointMetrics': {
         input: z.infer<typeof RpcStats.query.inputs.endpointMetrics>;
         output: z.infer<typeof RpcStats.query.outputs.endpointMetrics>;
         error: z.infer<typeof RpcStats.query.errors.endpointMetrics>;
+      };
+      '/users/getGithubConnection': {
+        input: z.infer<typeof Users.query.inputs.getGithubConnection>;
+        output: z.infer<typeof Users.query.outputs.getGithubConnection>;
+        error: z.infer<typeof Users.query.errors.getGithubConnection>;
       };
     };
 
@@ -325,6 +329,11 @@ export namespace Api {
         input: z.infer<typeof Deploys.mutation.inputs.addFrontend>;
         output: z.infer<typeof Deploys.mutation.outputs.addFrontend>;
         error: z.infer<typeof Deploys.mutation.errors.addFrontend>;
+      };
+      '/users/connectGithub': {
+        input: z.infer<typeof Users.mutation.inputs.connectGithub>;
+        output: z.infer<typeof Users.mutation.outputs.connectGithub>;
+        error: z.infer<typeof Users.mutation.errors.connectGithub>;
       };
     };
 
