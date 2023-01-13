@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Body,
   Controller,
-  HttpCode,
   Post,
   Req,
   UploadedFiles,
@@ -49,7 +48,6 @@ export class DeploysController {
   }
 
   @Post('deployWasm')
-  @HttpCode(204)
   @UseInterceptors(AnyFilesInterceptor())
   @UseGuards(GithubBasicAuthGuard)
   async deployWasm(
@@ -69,18 +67,15 @@ export class DeploysController {
     const { githubRepoFullName, commitHash, commitMessage } = body;
 
     // called from Console frontend to initialize a new repo for deployment
-    await this.deploysService.deployRepository({
+    return this.deploysService.deployRepository({
       githubRepoFullName,
       commitHash,
       commitMessage,
       files,
     });
-
-    // 204 no content
   }
 
   @Post('addFrontend')
-  @HttpCode(204)
   @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addFrontend))
   @UseGuards(GithubBasicAuthGuard)
   async addFrontend(
@@ -102,14 +97,12 @@ export class DeploysController {
       );
     }
 
-    await this.deploysService.addFrontend({
+    return this.deploysService.addFrontend({
       repositorySlug: repoDeployment.repositorySlug,
       frontendDeployUrl,
       cid,
       packageName,
       repoDeploymentSlug,
     });
-
-    // 204 no content
   }
 }
