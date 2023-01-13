@@ -36,7 +36,7 @@
     "firebase-admin": "^10.0.0",
     "form-data": "^4.0.0",
     "kysely": "^0.20.0",
-    "luxon": "^3.0.1",
+    "luxon": "^3.2.1",
     "mailgun.js": "^7.0.2",
     "nanoid": "^3.1.30",
     "near-abi-client-js": "https://github.com/near/near-abi-client-js.git#13cc45a2a0722159c263112f43aa398364da889e",

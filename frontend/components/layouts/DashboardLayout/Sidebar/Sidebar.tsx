@@ -9,12 +9,14 @@ import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { useAuth, useSignOut } from '@/hooks/auth';
+import useFeatureFlag from '@/hooks/features';
 import { usePublicMode } from '@/hooks/public';
 import { useSelectedProject } from '@/hooks/selected-project';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
 import apisEntries from '@/modules/apis/sidebar-entries';
 import contractsEntries from '@/modules/contracts/sidebar-entries';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
+import deploysEntries from '@/modules/deploys/sidebar-entries';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
 import { StableId } from '@/utils/stable-ids';
 
@@ -44,6 +46,9 @@ function useProjectPages(): SidebarEntry[] {
   }
 
   pages.push(...apisEntries);
+  if (useFeatureFlag('frontend-deploys-module')) {
+    pages.push(...deploysEntries);
+  }
   pages.push(...alertsEntries);
   pages.push(...contractsEntries);
 

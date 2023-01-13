@@ -12,10 +12,16 @@ export const HR = styled('hr', {
       border2: {
         background: 'var(--color-border-2)',
       },
+      warning: {
+        background: 'var(--color-warning)',
+      },
     },
     margin: {
       zero: {
         margin: '0',
+      },
+      s: {
+        margin: '0.75rem 0',
       },
       m: {
         margin: '1.5rem 0',
