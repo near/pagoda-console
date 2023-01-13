@@ -2,6 +2,7 @@ import type { Api } from '@pc/common/types/api';
 import { useMutation } from '@tanstack/react-query';
 import type { Contract as AbiContract } from 'near-abi-client-js';
 import { AbiFunctionKind } from 'near-abi-client-js';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 import { Box } from '@/components/lib/Box';
@@ -67,6 +68,16 @@ interface Props {
 
 const ContractTransaction = ({ contract }: Props) => {
   const transactionHashParam = useRouteParam('transactionHashes');
+  const [transactionHash, setTransactionHash] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (transactionHashParam) {
+      setTransactionHash(transactionHashParam);
+      router.replace(`/contracts/${contract.slug}?tab=interact`);
+    }
+  }, [transactionHashParam, contract.slug, router]);
+
   const { accountId, selector } = useWalletSelector(contract.address);
 
   const sendTransactionMutation = useMutation<TransactionData, unknown, MutateInput>(
@@ -125,8 +136,8 @@ const ContractTransaction = ({ contract }: Props) => {
     initContractMethods(contract.net.toLowerCase(), contract.address, contractAbi).then(setContractMethods);
   }, [contract.address, contract.net, contractAbi]);
 
-  const sendTransactionMutationData = transactionHashParam
-    ? { hash: transactionHashParam }
+  const sendTransactionMutationData = transactionHash
+    ? { hash: transactionHash }
     : (sendTransactionMutation.data as any)?.transaction?.hash
     ? { hash: (sendTransactionMutation.data as any)?.transaction?.hash }
     : sendTransactionMutation.data;
