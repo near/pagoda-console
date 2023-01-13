@@ -126,7 +126,7 @@ function UnconnectedPrompt({ children, invalid }: { children: ReactElement; inva
   function formGithubUrl() {
     // https://docs.github.com/en/developers/apps/building-github-apps/identifying-and-authorizing-users-for-github-apps#1-request-a-users-github-identity
 
-    const redirectUrl = new URL(`${window.location.protocol}//${window.location.hostname}/${window.location.pathname}`);
+    const redirectUrl = new URL(`${window.location.protocol}//${window.location.hostname}${window.location.pathname}`);
     redirectUrl.searchParams.append('githubConnectSuccess', 'true');
 
     const authorizeUrl = new URL('https://github.com/login/oauth/authorize');
