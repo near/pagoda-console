@@ -35,7 +35,8 @@ if (
   !process.env.NEXT_PUBLIC_DEPLOY_ENV ||
   !process.env.NEXT_PUBLIC_LAUNCHDARKLY_SDK_ENV ||
   !process.env.NEXT_PUBLIC_ANALYTICS_MAIN_NET_IFRAME ||
-  !process.env.NEXT_PUBLIC_ANALYTICS_TEST_NET_IFRAME
+  !process.env.NEXT_PUBLIC_ANALYTICS_TEST_NET_IFRAME ||
+  !process.env.NEXT_PUBLIC_GITHUB_CONNECT_CLIENT_ID
 ) {
   throw new Error('Missing configuration value');
 }
@@ -94,6 +95,9 @@ interface AppConfig {
   launchDarklyEnv: string;
   gleapAuth?: string;
   googleTagManagerId?: string;
+  github: {
+    connectClientId: string;
+  };
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
@@ -147,6 +151,9 @@ const config: AppConfig = {
   launchDarklyEnv: process.env.NEXT_PUBLIC_LAUNCHDARKLY_SDK_ENV,
   gleapAuth: process.env.NEXT_PUBLIC_GLEAP_AUTH_KEY,
   googleTagManagerId: process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID,
+  github: {
+    connectClientId: process.env.NEXT_PUBLIC_GITHUB_CONNECT_CLIENT_ID,
+  },
 };
 
 export default config;
