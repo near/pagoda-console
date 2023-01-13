@@ -2,7 +2,6 @@ import type { Api } from '@pc/common/types/api';
 import { useMutation } from '@tanstack/react-query';
 import type { Contract as AbiContract } from 'near-abi-client-js';
 import { AbiFunctionKind } from 'near-abi-client-js';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 import { Box } from '@/components/lib/Box';
@@ -68,14 +67,6 @@ interface Props {
 
 const ContractTransaction = ({ contract }: Props) => {
   const transactionHashParam = useRouteParam('transactionHashes');
-  const router = useRouter();
-
-  useEffect(() => {
-    if (transactionHashParam) {
-      router.replace(`/contracts/${contract.slug}?tab=interact`);
-    }
-  }, [transactionHashParam, contract.slug, router]);
-
   const { accountId, selector } = useWalletSelector(contract.address);
 
   const sendTransactionMutation = useMutation<TransactionData, unknown, MutateInput>(
