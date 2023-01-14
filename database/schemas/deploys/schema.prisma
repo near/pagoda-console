@@ -58,7 +58,7 @@ model RepoDeployment {
   commitMessage       String
   contractDeployments ContractDeployment[]
   frontendDeployments FrontendDeployment[]
-  createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  createdAt           DateTime             @default(now()) @db.Timestamptz
 }
 
 // an executed deployment action on a single ContractDeployConfig
