@@ -388,12 +388,6 @@ export class DeploysService {
             createdAt: 'desc',
           },
           take: 1,
-          select: {
-            slug: true,
-            commitHash: true,
-            commitMessage: true,
-            createdAt: true,
-          },
           include: {
             frontendDeployments: {
               select: {
@@ -433,7 +427,25 @@ export class DeploysService {
         enabled,
         frontendDeployConfigs,
         contractDeployConfigs,
-        repoDeployments,
+        repoDeployments: repoDeployments.map((r) => {
+          const {
+            slug,
+            commitHash,
+            commitMessage,
+            createdAt,
+            frontendDeployments,
+            contractDeployments,
+          } = r;
+
+          return {
+            slug,
+            commitHash,
+            commitMessage,
+            createdAt,
+            frontendDeployments,
+            contractDeployments,
+          };
+        }),
       };
     });
   }
