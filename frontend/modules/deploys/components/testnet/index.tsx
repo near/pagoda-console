@@ -33,9 +33,8 @@ const CopyButton = styled(Flex, {
 
 const Testnet = () => {
   const project = useSelectedProject();
-  const { repositories } = useRepositories(project.project?.slug, project.environment?.subId);
+  const { repositories } = useRepositories(project.project?.slug);
 
-  // TODO if there are no repositories, should the deploys tab be hidden or disabled in the nav?
   // TODO add better loading state
   if (!repositories || !repositories.length) {
     return (

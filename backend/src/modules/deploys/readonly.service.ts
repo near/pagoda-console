@@ -8,12 +8,10 @@ export class ReadonlyService {
 
   async getRepositories(
     projectSlug: Repository['projectSlug'],
-    environmentSubId?: Repository['environmentSubId'],
   ): Promise<Repository[]> {
     return this.prisma.repository.findMany({
       where: {
         projectSlug,
-        environmentSubId,
       },
     });
   }

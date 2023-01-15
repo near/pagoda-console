@@ -30,12 +30,10 @@ const repoDeployments = z.array(
 export const query = {
   inputs: {
     listRepositories: z.strictObject({
-      projectSlug: z.string(),
-      environmentSubId: z.number(),
+      project: z.string(),
     }),
     listDeployments: z.strictObject({
-      projectSlug: z.string(),
-      environmentSubId: z.number().optional(),
+      project: z.string(),
     }),
   },
 

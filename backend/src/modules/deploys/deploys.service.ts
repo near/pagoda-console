@@ -354,22 +354,13 @@ export class DeploysService {
     });
   }
 
-  async listRepositories(
-    user: User,
-    projectSlug: Repository['projectSlug'],
-    environmentSubId: Repository['environmentSubId'],
-  ) {
-    await this.projectPermissions.checkUserProjectEnvPermission(
-      user.id,
-      projectSlug,
-      environmentSubId,
-    );
+  async listRepositories(user: User, project: Repository['projectSlug']) {
+    await this.projectPermissions.checkUserProjectPermission(user.id, project);
 
-    // TODO filter enabled repositories?
+    // TODO should we filter enabled repositories?
     const repositories = await this.prisma.repository.findMany({
       where: {
-        projectSlug,
-        environmentSubId,
+        projectSlug: project,
       },
       include: {
         frontendDeployConfigs: {
@@ -452,20 +443,12 @@ export class DeploysService {
 
   async listDeployments(
     user: User,
-    projectSlug: Repository['projectSlug'],
-    // Used as a filter
-    environmentSubId?: Repository['environmentSubId'],
+    project: Repository['projectSlug'],
     take = 10,
   ) {
-    await this.projectPermissions.checkUserProjectPermission(
-      user.id,
-      projectSlug,
-    );
+    await this.projectPermissions.checkUserProjectPermission(user.id, project);
 
-    const repositories = await this.readonlyService.getRepositories(
-      projectSlug,
-      environmentSubId,
-    );
+    const repositories = await this.readonlyService.getRepositories(project);
 
     if (!repositories.length) {
       return [];

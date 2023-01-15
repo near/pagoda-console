@@ -123,41 +123,25 @@ export class DeploysController {
   async listRepositories(
     @Request() req,
     @Body()
-    {
-      projectSlug,
-      environmentSubId,
-    }: Api.Query.Input<'/deploys/listRepositories'>,
+    { project }: Api.Query.Input<'/deploys/listRepositories'>,
   ): Promise<Api.Query.Output<'/deploys/listRepositories'>> {
     try {
-      return await this.deploysService.listRepositories(
-        req.user,
-        projectSlug,
-        environmentSubId,
-      );
+      return await this.deploysService.listRepositories(req.user, project);
     } catch (e: any) {
       throw mapError(e);
     }
   }
 
-  // TODO in future iterations, it probably makes sense to fetch deployments by repositorySlug instead
   @Post('listDeployments')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new ZodValidationPipe(Deploys.query.inputs.listDeployments))
   async listDeployments(
     @Request() req,
     @Body()
-    {
-      projectSlug,
-      environmentSubId,
-    }: Api.Query.Input<'/deploys/listDeployments'>,
+    { project }: Api.Query.Input<'/deploys/listDeployments'>,
   ): Promise<Api.Query.Output<'/deploys/listDeployments'>> {
     try {
-      return await this.deploysService.listDeployments(
-        req.user,
-        projectSlug,
-        environmentSubId,
-        10,
-      );
+      return await this.deploysService.listDeployments(req.user, project, 10);
     } catch (e: any) {
       throw mapError(e);
     }
