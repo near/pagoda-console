@@ -82,7 +82,9 @@ const ViewTriggeredAlert: NextPageWithLayout = () => {
   }
 
   const triggeredAtDateFormatted = triggeredAlert
-    ? DateTime.fromISO(triggeredAlert.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS)
+    ? DateTime.fromISO(new Date(triggeredAlert.triggeredAt).toISOString())?.toLocaleString(
+        DateTime.DATETIME_SHORT_WITH_SECONDS,
+      )
     : '';
 
   return (
