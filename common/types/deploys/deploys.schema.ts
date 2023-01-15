@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { stringifiedDate } from '../schemas';
 
 const frontendDeployments = z.array(
   z.strictObject({
@@ -20,7 +21,7 @@ const repoDeployments = z.array(
     slug: z.string(),
     commitHash: z.string(),
     commitMessage: z.string(),
-    createdAt: z.date(),
+    createdAt: stringifiedDate,
     frontendDeployments,
     contractDeployments,
   }),

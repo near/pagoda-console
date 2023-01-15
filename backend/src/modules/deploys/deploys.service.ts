@@ -441,7 +441,7 @@ export class DeploysService {
             slug,
             commitHash,
             commitMessage,
-            createdAt,
+            createdAt: createdAt.toISOString(),
             frontendDeployments,
             contractDeployments,
           };
@@ -513,7 +513,7 @@ export class DeploysService {
         slug,
         commitHash,
         commitMessage,
-        createdAt,
+        createdAt: createdAt.toISOString(),
         frontendDeployments,
         contractDeployments,
       };
