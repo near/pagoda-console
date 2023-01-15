@@ -18,13 +18,13 @@ export function useRepositories(project: string | undefined, environment: number
 }
 
 // TODO after MVP it might make sense to fetch by repository instead of project and env
-export function useDeployments(project: string | undefined, environment: number | undefined) {
+export function useDeployments(project: string | undefined, environment?: number) {
   const {
     data: deployments,
     error,
     mutate,
   } = useSWR(
-    project && environment ? ['/deploys/listDeployments' as const, project, environment] : null,
+    project ? ['/deploys/listDeployments' as const, project, environment] : null,
     (path, project, environment) => {
       // TODO refactor to project and environment instead of using slug and subId suffixes, keeps it consistent with other modules
       return api.query(path, { projectSlug: project, environmentSubId: environment });

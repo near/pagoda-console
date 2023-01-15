@@ -37,8 +37,14 @@ const Testnet = () => {
 
   // TODO if there are no repositories, should the deploys tab be hidden or disabled in the nav?
   // TODO add better loading state
-  if (!repositories) {
-    return null;
+  if (!repositories || !repositories.length) {
+    return (
+      <Flex align="center">
+        <MainCard borderRadius="m" padding="none">
+          <Box padding="m" background="surface3"></Box>
+        </MainCard>
+      </Flex>
+    );
   }
 
   const repo = repositories[0];
