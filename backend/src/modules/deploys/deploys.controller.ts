@@ -49,7 +49,7 @@ export class DeploysController {
 
   @Post('deployWasm')
   @UseInterceptors(AnyFilesInterceptor())
-  @UseGuards(GithubBasicAuthGuard)
+  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
   async deployWasm(
     @Req() req: Request,
     @UploadedFiles() files: Array<Express.Multer.File>,
@@ -77,7 +77,7 @@ export class DeploysController {
 
   @Post('addFrontend')
   @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addFrontend))
-  @UseGuards(GithubBasicAuthGuard)
+  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
   async addFrontend(
     @Req() req: Request,
     @Body()

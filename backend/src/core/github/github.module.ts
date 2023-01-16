@@ -4,5 +4,6 @@ import { GithubService } from './github.service';
 
 @Module({
   providers: [GithubService, PrismaService],
+  exports: [GithubService],
 })
 export class GithubModule {}

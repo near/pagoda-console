@@ -15,7 +15,7 @@ import { GithubBasicAuthGuard } from '@/src/core/auth/github-basic-auth.guard';
 export class IPFSController {
   @Post('add')
   @UseInterceptors(AnyFilesInterceptor())
-  @UseGuards(GithubBasicAuthGuard)
+  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
   async add(
     @Req() req: Request,
     @UploadedFiles() files: Array<Express.Multer.File>,

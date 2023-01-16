@@ -1,4 +1,5 @@
 import { ProjectsService } from '@/src/core/projects/projects.service';
+import sodium from 'libsodium-wrappers';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
 import { PrismaService } from './prisma.service';
@@ -8,6 +9,8 @@ import { createHash, randomBytes, scryptSync } from 'crypto';
 import { encode } from 'bs58';
 import { VError } from 'verror';
 import { connect, KeyPair, keyStores } from 'near-api-js';
+import { Octokit } from '@octokit/core';
+import { GithubService } from '@/src/core/github/github.service';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -19,6 +22,7 @@ export class DeploysService {
   constructor(
     private prisma: PrismaService,
     private projectsService: ProjectsService,
+    private githubService: GithubService,
   ) {}
 
   /**
@@ -34,6 +38,33 @@ export class DeploysService {
     githubRepoFullName: string;
     projectName: Project['name'];
   }) {
+    let octokit: Octokit;
+    try {
+      octokit = await this.githubService.getUserOctokit(user);
+    } catch (e: any) {
+      throw new VError(
+        e,
+        'Could not establish octokit conneciton for template creation',
+      );
+    }
+
+    const {
+      data: { full_name: repoFullName },
+    } = (await octokit
+      .request(`POST /repos/${githubRepoFullName}/generate`, {
+        name: projectName,
+      })
+      .catch((e) => {
+        if (/Name already exists on this account/.test(e.message)) {
+          throw new BadRequestException(
+            'Repository name already exists on this GitHub account',
+          );
+        }
+        throw new VError(e, 'Could not create repo from template');
+      })) as any;
+
+    console.log(repoFullName, '<<< repoFullBName');
+
     let project, environments;
 
     // create the project which this deployment will be placed under
@@ -70,12 +101,55 @@ export class DeploysService {
     const authTokenSalt = randomBytes(32);
     const authTokenHash = this.hashToken(actionAuthToken, authTokenSalt);
 
-    // TODO get octokit connection and set secret on repository
+    const {
+      data: { key, key_id },
+    } = (await octokit
+      .request(`GET /repos/${repoFullName}/actions/secrets/public-key`)
+      .catch((e) => {
+        throw new VError(
+          e,
+          'Could not get repo public key to set secrets on repo',
+        );
+      })) as any;
+
+    const secret_name = 'PAGODA_CONSOLE_TOKEN';
+
+    const encryptedSecret = await sodium.ready.then(() => {
+      // Convert Secret & Base64 key to Uint8Array.
+      const binkey = sodium.from_base64(key, sodium.base64_variants.ORIGINAL);
+      const binsec = sodium.from_string(
+        'Basic ' +
+          sodium.to_base64(
+            `${repoFullName}:${actionAuthToken}`,
+            sodium.base64_variants.ORIGINAL,
+          ),
+      );
+
+      //Encrypt the secret using LibSodium
+      const encBytes = sodium.crypto_box_seal(binsec, binkey);
+
+      // Convert encrypted Uint8Array to Base64
+      const output = sodium.to_base64(
+        encBytes,
+        sodium.base64_variants.ORIGINAL,
+      );
+
+      return output;
+    });
+
+    await octokit
+      .request(`PUT /repos/${repoFullName}/actions/secrets/${secret_name}`, {
+        encrypted_value: encryptedSecret,
+        key_id,
+      })
+      .catch((e) => {
+        throw new VError(e, 'Could not set secrets on repo');
+      });
 
     return this.addDeployRepository({
       projectSlug: project.slug,
       environmentSubId: testnetEnv.subId,
-      githubRepoFullName,
+      githubRepoFullName: repoFullName,
       authTokenHash,
       authTokenSalt,
     });
