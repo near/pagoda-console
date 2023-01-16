@@ -332,7 +332,14 @@ export class DeploysService {
     let txOutcome;
 
     if (uploadedCodeHash != accountCodeHash) {
-      txOutcome = await account.deployContract(file);
+      try {
+        txOutcome = await account.deployContract(file);
+      } catch (e: any) {
+        throw new VError(
+          e,
+          `Could not deploy wasm to account ${account.accountId}`,
+        );
+      }
     }
 
     await this.prisma.contractDeployment.create({
