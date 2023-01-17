@@ -427,7 +427,6 @@ export class DeploysService {
   }
 
   hashToken(token: string, salt: Buffer) {
-    console.log('scrypt pre token', token);
     return scryptSync(token, salt, 64, {
       p: 4,
     });
