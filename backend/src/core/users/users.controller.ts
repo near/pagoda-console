@@ -17,10 +17,14 @@ import { Users } from '@pc/common/types/core';
 import { VError } from 'verror';
 import { UserError } from './user-error';
 import { Api } from '@pc/common/types/api';
+import { GithubService } from '../github/github.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private githubService: GithubService,
+  ) {}
 
   // ! It is important this function is not extended to include any system data
   // ! since we allow it to be called by users who have not verified their email
@@ -204,6 +208,34 @@ export class UsersController {
   ): Promise<Api.Mutation.Output<'/users/resetPassword'>> {
     try {
       await this.usersService.resetPassword(email);
+    } catch (e: any) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('connectGithub')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(Users.mutation.inputs.connectGithub))
+  async connectGithub(
+    @Request() req,
+    @Body() { code }: Api.Mutation.Input<'/users/connectGithub'>,
+  ): Promise<Api.Mutation.Output<'/users/connectGithub'>> {
+    try {
+      return await this.githubService.connect(req.user, code);
+    } catch (e: any) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('getGithubConnection')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(Users.query.inputs.getGithubConnection))
+  async getGithubConnection(
+    @Request() req,
+    @Body() _: Api.Query.Input<'/users/getGithubConnection'>,
+  ): Promise<Api.Query.Output<'/users/getGithubConnection'>> {
+    try {
+      return await this.githubService.getConnection(req.user);
     } catch (e: any) {
       throw mapError(e);
     }

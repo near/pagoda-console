@@ -3,7 +3,6 @@ import {
   Body,
   Controller,
   ForbiddenException,
-  HttpCode,
   Post,
   Request,
   Req,
@@ -53,9 +52,8 @@ export class DeploysController {
   }
 
   @Post('deployWasm')
-  @HttpCode(204)
   @UseInterceptors(AnyFilesInterceptor())
-  @UseGuards(GithubBasicAuthGuard)
+  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
   async deployWasm(
     @Req() req: Request,
     @UploadedFiles() files: Array<Express.Multer.File>,
@@ -73,20 +71,17 @@ export class DeploysController {
     const { githubRepoFullName, commitHash, commitMessage } = body;
 
     // called from Console frontend to initialize a new repo for deployment
-    await this.deploysService.deployRepository({
+    return this.deploysService.deployRepository({
       githubRepoFullName,
       commitHash,
       commitMessage,
       files,
     });
-
-    // 204 no content
   }
 
   @Post('addFrontend')
-  @HttpCode(204)
   @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addFrontend))
-  @UseGuards(GithubBasicAuthGuard)
+  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
   async addFrontend(
     @Req() req: Request,
     @Body()
@@ -106,7 +101,7 @@ export class DeploysController {
       );
     }
 
-    await this.deploysService.addFrontend({
+    return this.deploysService.addFrontend({
       repositorySlug: repoDeployment.repositorySlug,
       frontendDeployUrl,
       cid,

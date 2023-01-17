@@ -1,3 +1,4 @@
+import { GithubModule } from '@/src/core/github/github.module';
 import { ProjectsModule } from '@/src/core/projects/projects.module';
 import { Module } from '@nestjs/common';
 import { DeploysController } from './deploys.controller';
@@ -8,7 +9,7 @@ import { ReadonlyService } from './readonly.service';
 
 @Module({
   providers: [DeploysService, PrismaService, ReadonlyService],
-  imports: [ProjectsModule],
+  imports: [ProjectsModule, GithubModule],
   controllers: [DeploysController, IPFSController],
   exports: [DeploysService],
 })

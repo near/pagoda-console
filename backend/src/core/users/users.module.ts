@@ -7,6 +7,8 @@ import { OrgInviteEmailService } from './org-invite-email.service';
 import { ReadonlyService } from './readonly.service';
 import { PermissionsService } from './permissions.service';
 import { ApiKeysModule } from '../keys/apiKeys.module';
+import { GithubModule } from '../github/github.module';
+import { GithubService } from '../github/github.service';
 
 @Module({
   providers: [
@@ -15,8 +17,9 @@ import { ApiKeysModule } from '../keys/apiKeys.module';
     OrgInviteEmailService,
     ReadonlyService,
     PermissionsService,
+    GithubService,
   ],
-  imports: [PrismaService, EmailModule, ApiKeysModule],
+  imports: [PrismaService, EmailModule, ApiKeysModule, GithubModule],
   exports: [UsersService, ReadonlyService, PermissionsService],
   controllers: [UsersController],
 })

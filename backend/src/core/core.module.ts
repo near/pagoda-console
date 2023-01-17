@@ -8,6 +8,7 @@ import validate from '../config/validate';
 
 import { ApiKeysModule } from './keys/apiKeys.module';
 import { EmailModule } from './email/email.module';
+import { GithubModule } from './github/github.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { EmailModule } from './email/email.module';
     ApiKeysModule,
     EmailModule,
     ExplorerModule,
+    GithubModule,
   ],
   exports: [EmailModule],
 })
