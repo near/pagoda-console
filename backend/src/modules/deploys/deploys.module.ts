@@ -5,9 +5,10 @@ import { DeploysController } from './deploys.controller';
 import { DeploysService } from './deploys.service';
 import { IPFSController } from './ipfs.controller';
 import { PrismaService } from './prisma.service';
+import { ReadonlyService } from './readonly.service';
 
 @Module({
-  providers: [DeploysService, PrismaService],
+  providers: [DeploysService, PrismaService, ReadonlyService],
   imports: [ProjectsModule, GithubModule],
   controllers: [DeploysController, IPFSController],
   exports: [DeploysService],

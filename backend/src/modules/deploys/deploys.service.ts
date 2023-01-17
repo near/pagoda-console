@@ -9,6 +9,8 @@ import { createHash, randomBytes, scryptSync } from 'crypto';
 import { encode } from 'bs58';
 import { VError } from 'verror';
 import { connect, KeyPair, keyStores } from 'near-api-js';
+import { PermissionsService as ProjectPermissionsService } from '../../core/projects/permissions.service';
+import { ReadonlyService } from './readonly.service';
 import { Octokit } from '@octokit/core';
 import { GithubService } from '@/src/core/github/github.service';
 
@@ -22,6 +24,8 @@ export class DeploysService {
   constructor(
     private prisma: PrismaService,
     private projectsService: ProjectsService,
+    private projectPermissions: ProjectPermissionsService,
+    private readonlyService: ReadonlyService,
     private githubService: GithubService,
   ) {}
 
@@ -211,7 +215,7 @@ export class DeploysService {
         githubRepoFullName,
       },
       include: {
-        ContractDeployConfig: true,
+        contractDeployConfigs: true,
       },
     });
 
@@ -232,7 +236,7 @@ export class DeploysService {
 
     await Promise.all(
       files.map(async (file) => {
-        let deployConfig = repo.ContractDeployConfig.find(
+        let deployConfig = repo.contractDeployConfigs.find(
           ({ filename }) => filename === file.originalname,
         );
         if (!deployConfig) {
@@ -254,7 +258,7 @@ export class DeploysService {
         slug: repoDeployment.slug,
       },
       include: {
-        ContractDeployment: {
+        contractDeployments: {
           include: {
             contractDeployConfig: {
               select: {
@@ -426,6 +430,155 @@ export class DeploysService {
     console.log('scrypt pre token', token);
     return scryptSync(token, salt, 64, {
       p: 4,
+    });
+  }
+
+  async listRepositories(user: User, project: Repository['projectSlug']) {
+    await this.projectPermissions.checkUserProjectPermission(user.id, project);
+
+    // TODO should we filter enabled repositories?
+    const repositories = await this.prisma.repository.findMany({
+      where: {
+        projectSlug: project,
+      },
+      include: {
+        frontendDeployConfigs: {
+          select: { slug: true, packageName: true },
+        },
+        contractDeployConfigs: {
+          select: {
+            slug: true,
+            filename: true,
+            nearAccountId: true,
+          },
+        },
+        repoDeployments: {
+          // Get the latest deployment
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 1,
+          include: {
+            frontendDeployments: {
+              select: {
+                slug: true,
+                url: true,
+                cid: true,
+              },
+            },
+            contractDeployments: {
+              select: {
+                slug: true,
+                deployTransactionHash: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return repositories.map((repository) => {
+      const {
+        slug,
+        projectSlug,
+        environmentSubId,
+        githubRepoFullName,
+        enabled,
+        frontendDeployConfigs,
+        contractDeployConfigs,
+        repoDeployments,
+      } = repository;
+
+      return {
+        slug,
+        projectSlug,
+        environmentSubId,
+        githubRepoFullName,
+        enabled,
+        frontendDeployConfigs,
+        contractDeployConfigs,
+        repoDeployments: repoDeployments.map((r) => {
+          const {
+            slug,
+            commitHash,
+            commitMessage,
+            createdAt,
+            frontendDeployments,
+            contractDeployments,
+          } = r;
+
+          return {
+            slug,
+            commitHash,
+            commitMessage,
+            createdAt: createdAt.toISOString(),
+            frontendDeployments,
+            contractDeployments,
+          };
+        }),
+      };
+    });
+  }
+
+  async listDeployments(
+    user: User,
+    project: Repository['projectSlug'],
+    take = 10,
+  ) {
+    await this.projectPermissions.checkUserProjectPermission(user.id, project);
+
+    const repositories = await this.readonlyService.getRepositories(project);
+
+    if (!repositories.length) {
+      return [];
+    }
+
+    // TODO right now this assumes we have 1 repo for a given project, which seems to be true for the MVP
+    const repository = repositories[0];
+
+    const deployments = await this.prisma.repoDeployment.findMany({
+      where: {
+        repository,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take,
+      include: {
+        frontendDeployments: {
+          select: {
+            slug: true,
+            url: true,
+            cid: true,
+          },
+        },
+        contractDeployments: {
+          select: {
+            slug: true,
+            deployTransactionHash: true,
+          },
+        },
+      },
+    });
+
+    return deployments.map((deployment) => {
+      const {
+        slug,
+        commitHash,
+        commitMessage,
+        createdAt,
+        frontendDeployments,
+        contractDeployments,
+      } = deployment;
+
+      return {
+        slug,
+        commitHash,
+        commitMessage,
+        createdAt: createdAt.toISOString(),
+        frontendDeployments,
+        contractDeployments,
+      };
     });
   }
 }

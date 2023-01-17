@@ -4,7 +4,7 @@ import { Flex } from '@/components/lib/Flex';
 const Mainnet = () => (
   <Flex>
     <Card borderRadius="m" padding="m">
-      Deployment to Mainnet comming soon.
+      Deployment to Mainnet coming soon.
     </Card>
   </Flex>
 );
