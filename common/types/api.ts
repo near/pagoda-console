@@ -4,6 +4,7 @@ import type { Abi } from './abi';
 import type { Alerts, TriggeredAlerts } from './alerts';
 import type { Explorer, Projects, Users } from './core';
 import type { RpcStats } from './rpcstats';
+import type { Deploys } from './deploys';
 
 export namespace Api {
   export namespace Query {
@@ -127,6 +128,18 @@ export namespace Api {
         output: z.infer<typeof RpcStats.query.outputs.endpointMetrics>;
         error: z.infer<typeof RpcStats.query.errors.endpointMetrics>;
       };
+
+      '/deploys/listRepositories': {
+        input: z.infer<typeof Deploys.query.inputs.listRepositories>;
+        output: z.infer<typeof Deploys.query.outputs.listRepositories>;
+        error: z.infer<typeof Deploys.query.errors.listRepositories>;
+      };
+      '/deploys/listDeployments': {
+        input: z.infer<typeof Deploys.query.inputs.listDeployments>;
+        output: z.infer<typeof Deploys.query.outputs.listDeployments>;
+        error: z.infer<typeof Deploys.query.errors.listDeployments>;
+      };
+
       '/users/getGithubConnection': {
         input: z.infer<typeof Users.query.inputs.getGithubConnection>;
         output: z.infer<typeof Users.query.outputs.getGithubConnection>;
@@ -308,6 +321,26 @@ export namespace Api {
         error: z.infer<
           typeof Alerts.mutation.errors.rotateWebhookDestinationSecret
         >;
+      };
+      '/deploys/addDeploy': {
+        input: z.infer<typeof Deploys.mutation.inputs.addDeploy>;
+        output: z.infer<typeof Deploys.mutation.outputs.addDeploy>;
+        error: z.infer<typeof Deploys.mutation.errors.addDeploy>;
+      };
+      '/deploys/deployWasm': {
+        input: z.infer<typeof Deploys.mutation.inputs.deployWasm>;
+        output: z.infer<typeof Deploys.mutation.outputs.deployWasm>;
+        error: z.infer<typeof Deploys.mutation.errors.deployWasm>;
+      };
+      '/deploys/wasmFiles': {
+        input: z.infer<typeof Deploys.mutation.inputs.wasmFiles>;
+        output: z.infer<typeof Deploys.mutation.outputs.wasmFiles>;
+        error: z.infer<typeof Deploys.mutation.errors.wasmFiles>;
+      };
+      '/deploys/addFrontend': {
+        input: z.infer<typeof Deploys.mutation.inputs.addFrontend>;
+        output: z.infer<typeof Deploys.mutation.outputs.addFrontend>;
+        error: z.infer<typeof Deploys.mutation.errors.addFrontend>;
       };
       '/users/connectGithub': {
         input: z.infer<typeof Users.mutation.inputs.connectGithub>;

@@ -27,8 +27,9 @@ cd ../..;
 
 # Copy the template files over
 cp -r ./modules/template/* "$MODULE_PATH"
+cp -r ../database/template "../database/schemas/$MODULE_NAME"
 
-echo "npx prisma \"\$@\" --schema=\"./src/modules/${MODULE_NAME}/prisma/schema.prisma\"" >> ./scripts/prisma.sh
+echo "npx prisma \"\$@\" --schema=\"./schemas/${MODULE_NAME}/schema.prisma\"" >> ../database/scripts/prisma.sh
 
 cd "$MODULE_PATH";
 
@@ -38,8 +39,8 @@ npx nest g --flat controller "$MODULE_NAME"
 
 # Declare which files need interpolation
 TEMPLATE_FILES="prisma.service.ts
-./prisma/schema.prisma
-./prisma/.env
+../database/schemas/$MODULE_NAME/schema.prisma
+../database/schemas/$MODULE_NAME/.env
 "
 for FILE in $TEMPLATE_FILES
 do
@@ -48,6 +49,6 @@ do
 done
 
 # Finally, generate an empty database
-npx prisma migrate dev --skip-generate
+# npx prisma migrate dev --skip-generate
 
 echo "Successfully generated module: $MODULE_NAME"
