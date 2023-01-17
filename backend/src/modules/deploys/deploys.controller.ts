@@ -108,8 +108,6 @@ export class DeploysController {
       packageName,
       repoDeploymentSlug,
     });
-
-    // 204 no content
   }
 
   @Post('listRepositories')
