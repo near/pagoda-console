@@ -63,8 +63,6 @@ export class DeploysService {
         throw new VError(e, 'Could not create repo from template');
       })) as any;
 
-    console.log(repoFullName, '<<< repoFullBName');
-
     let project, environments;
 
     // create the project which this deployment will be placed under
