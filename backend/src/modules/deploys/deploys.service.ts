@@ -1,10 +1,16 @@
 import { ProjectsService } from '@/src/core/projects/projects.service';
-import { Injectable } from '@nestjs/common';
+import sodium from 'libsodium-wrappers';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
 import { PrismaService } from './prisma.service';
 import { Environment, Project, User } from '@pc/database/clients/core';
-import { ContractDeployConfig, Repository } from '@pc/database/clients/deploys';
+import { Repository } from '@pc/database/clients/deploys';
+import { createHash, randomBytes, scryptSync } from 'crypto';
+import { encode } from 'bs58';
 import { VError } from 'verror';
+import { connect, KeyPair, keyStores } from 'near-api-js';
+import { Octokit } from '@octokit/core';
+import { GithubService } from '@/src/core/github/github.service';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -16,6 +22,7 @@ export class DeploysService {
   constructor(
     private prisma: PrismaService,
     private projectsService: ProjectsService,
+    private githubService: GithubService,
   ) {}
 
   /**
@@ -31,6 +38,31 @@ export class DeploysService {
     githubRepoFullName: string;
     projectName: Project['name'];
   }) {
+    let octokit: Octokit;
+    try {
+      octokit = await this.githubService.getUserOctokit(user);
+    } catch (e: any) {
+      throw new VError(
+        e,
+        'Could not establish octokit conneciton for template creation',
+      );
+    }
+
+    const {
+      data: { full_name: repoFullName },
+    } = (await octokit
+      .request(`POST /repos/${githubRepoFullName}/generate`, {
+        name: projectName,
+      })
+      .catch((e) => {
+        if (/Name already exists on this account/.test(e.message)) {
+          throw new BadRequestException(
+            'Repository name already exists on this GitHub account',
+          );
+        }
+        throw new VError(e, 'Could not create repo from template');
+      })) as any;
+
     let project, environments;
 
     // create the project which this deployment will be placed under
@@ -60,10 +92,64 @@ export class DeploysService {
       throw new VError('Could not find testnet env for newly created project');
     }
 
-    await this.addDeployRepository({
+    // OWASP recommended password hashing:
+    // If Argon2id is not available, use scrypt with a minimum CPU/memory cost parameter of (2^16),
+    // a minimum block size of 8 (1024 bytes), and a parallelization parameter of 1.
+    const actionAuthToken = nanoid(25);
+    const authTokenSalt = randomBytes(32);
+    const authTokenHash = this.hashToken(actionAuthToken, authTokenSalt);
+
+    const {
+      data: { key, key_id },
+    } = (await octokit
+      .request(`GET /repos/${repoFullName}/actions/secrets/public-key`)
+      .catch((e) => {
+        throw new VError(
+          e,
+          'Could not get repo public key to set secrets on repo',
+        );
+      })) as any;
+
+    const secret_name = 'PAGODA_CONSOLE_TOKEN';
+
+    const encryptedSecret = await sodium.ready.then(() => {
+      // Convert Secret & Base64 key to Uint8Array.
+      const binkey = sodium.from_base64(key, sodium.base64_variants.ORIGINAL);
+      const binsec = sodium.from_string(
+        'Basic ' +
+          sodium.to_base64(
+            `${repoFullName}:${actionAuthToken}`,
+            sodium.base64_variants.ORIGINAL,
+          ),
+      );
+
+      //Encrypt the secret using LibSodium
+      const encBytes = sodium.crypto_box_seal(binsec, binkey);
+
+      // Convert encrypted Uint8Array to Base64
+      const output = sodium.to_base64(
+        encBytes,
+        sodium.base64_variants.ORIGINAL,
+      );
+
+      return output;
+    });
+
+    await octokit
+      .request(`PUT /repos/${repoFullName}/actions/secrets/${secret_name}`, {
+        encrypted_value: encryptedSecret,
+        key_id,
+      })
+      .catch((e) => {
+        throw new VError(e, 'Could not set secrets on repo');
+      });
+
+    return this.addDeployRepository({
       projectSlug: project.slug,
       environmentSubId: testnetEnv.subId,
-      githubRepoFullName,
+      githubRepoFullName: repoFullName,
+      authTokenHash,
+      authTokenSalt,
     });
   }
 
@@ -75,17 +161,23 @@ export class DeploysService {
     projectSlug,
     environmentSubId,
     githubRepoFullName,
+    authTokenHash,
+    authTokenSalt,
   }: {
     projectSlug: Project['slug'];
     environmentSubId: Environment['subId'];
     githubRepoFullName: string;
+    authTokenHash: Buffer;
+    authTokenSalt: Buffer;
   }) {
-    await this.prisma.repository.create({
+    return this.prisma.repository.create({
       data: {
         slug: nanoid(),
         projectSlug,
         environmentSubId,
         githubRepoFullName,
+        authTokenHash,
+        authTokenSalt,
       },
     });
   }
@@ -98,13 +190,13 @@ export class DeploysService {
     githubRepoFullName,
     commitHash,
     commitMessage,
+    files,
   }: {
     githubRepoFullName: string;
     commitHash: string;
     commitMessage: string;
-    // ...files
+    files: Array<Express.Multer.File>;
   }) {
-    console.log(githubRepoFullName, commitHash, commitMessage);
     /*
     - find matching Repository
     - create new RepoDeployment
@@ -114,6 +206,65 @@ export class DeploysService {
         instead of making the contract set static at time of connecting the repo
     - deployContract for contract
     */
+    const repo = await this.prisma.repository.findUnique({
+      where: {
+        githubRepoFullName,
+      },
+      include: {
+        ContractDeployConfig: true,
+      },
+    });
+
+    if (!repo) {
+      throw new BadRequestException(
+        'githubRepoFullName not found please add a Repository project to deploy to',
+      );
+    }
+
+    const repoDeployment = await this.prisma.repoDeployment.create({
+      data: {
+        slug: nanoid(),
+        repositorySlug: repo.slug,
+        commitHash,
+        commitMessage,
+      },
+    });
+
+    await Promise.all(
+      files.map(async (file) => {
+        let deployConfig = repo.ContractDeployConfig.find(
+          ({ filename }) => filename === file.originalname,
+        );
+        if (!deployConfig) {
+          deployConfig = await this.generateDeployConfig({
+            filename: file.originalname,
+            repositorySlug: repo.slug,
+          });
+        }
+        return this.deployContract({
+          deployConfig,
+          file: file.buffer,
+          repoDeploymentSlug: repoDeployment.slug,
+        });
+      }),
+    );
+
+    return this.prisma.repoDeployment.findUnique({
+      where: {
+        slug: repoDeployment.slug,
+      },
+      include: {
+        ContractDeployment: {
+          include: {
+            contractDeployConfig: {
+              select: {
+                nearAccountId: true,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 
   async generateDeployConfig({
@@ -123,20 +274,30 @@ export class DeploysService {
     filename: string;
     repositorySlug: Repository['slug'];
   }) {
-    //TODO generate account ID, this is a placeholder
-    const nearAccountId = customAlphabet(
-      '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-      35,
-    )();
+    const keyStore = new keyStores.InMemoryKeyStore();
+    const nearConfig = {
+      networkId: 'testnet',
+      keyStore,
+      nodeUrl: 'https://rpc.testnet.near.org', // todo from env?
+      helperUrl: 'https://helper.testnet.near.org',
+      headers: {},
+    };
+    const near = await connect(nearConfig);
+    const randomNumber = Math.floor(
+      Math.random() * (99999999999999 - 10000000000000) + 10000000000000,
+    );
+    const accountId = `dev-${Date.now()}-${randomNumber}`;
+    const keyPair = KeyPair.fromRandom('ed25519');
+    await near.accountCreator.createAccount(accountId, keyPair.getPublicKey());
+    await keyStore.setKey(nearConfig.networkId, accountId, keyPair);
 
-    const nearPrivateKey = await this.generateDeployKey();
-    await this.prisma.contractDeployConfig.create({
+    return this.prisma.contractDeployConfig.create({
       data: {
         slug: nanoid(),
-        nearPrivateKey,
+        nearPrivateKey: keyPair.toString(),
         filename,
         repositorySlug,
-        nearAccountId,
+        nearAccountId: accountId,
       },
     });
   }
@@ -144,21 +305,127 @@ export class DeploysService {
   /**
    * Deploys a single contract WASM bundle
    */
-  async deployContract(/* todo */) {
-    // TODO by tools
-    // await this.prisma.contractDeployment.create({
-    //   data: {
-    //     slug: nanoid(),
-    //     // etc
-    //   },
-    // });
+  async deployContract({ deployConfig, file, repoDeploymentSlug }) {
+    const keyPair = KeyPair.fromString(deployConfig.nearPrivateKey);
+    const keyStore = new keyStores.InMemoryKeyStore();
+    const nearConfig = {
+      networkId: 'testnet',
+      keyStore,
+      nodeUrl: 'https://rpc.testnet.near.org', // todo from env?
+      helperUrl: 'https://helper.testnet.near.org',
+      headers: {},
+    };
+    await keyStore.setKey(
+      nearConfig.networkId,
+      deployConfig.nearAccountId,
+      keyPair,
+    );
+
+    const near = await connect(nearConfig);
+    const account = await near.account(deployConfig.nearAccountId);
+
+    const { code_hash: accountCodeHash } = await account.state();
+    const uploadedCodeHash = encode(createHash('sha256').update(file).digest());
+
+    let txOutcome;
+
+    if (uploadedCodeHash != accountCodeHash) {
+      try {
+        txOutcome = await account.deployContract(file);
+      } catch (e: any) {
+        throw new VError(
+          e,
+          `Could not deploy wasm to account ${account.accountId}`,
+        );
+      }
+    }
+
+    await this.prisma.contractDeployment.create({
+      data: {
+        slug: nanoid(),
+        repoDeploymentSlug,
+        contractDeployConfigSlug: deployConfig.slug,
+        deployTransactionHash: txOutcome ? txOutcome.transaction.hash : null,
+      },
+    });
   }
 
   /**
-   * Generates new testnet deploy keys
+   * Sets Frontend Deploy Url
    */
-  async generateDeployKey(): Promise<ContractDeployConfig['nearPrivateKey']> {
-    // TODO by tools
-    return 'todo';
+  async addFrontend({
+    repositorySlug,
+    frontendDeployUrl,
+    cid,
+    packageName,
+    repoDeploymentSlug,
+  }) {
+    let frontendDeployConfig = await this.prisma.frontendDeployConfig.findFirst(
+      {
+        where: {
+          repositorySlug,
+          packageName,
+        },
+      },
+    );
+
+    if (!frontendDeployConfig) {
+      frontendDeployConfig = await this.prisma.frontendDeployConfig.create({
+        data: {
+          slug: nanoid(),
+          repositorySlug,
+          packageName,
+        },
+      });
+    }
+
+    const existingFrontend = await this.prisma.frontendDeployment.findFirst({
+      where: {
+        repoDeploymentSlug,
+        frontendDeployConfigSlug: frontendDeployConfig.slug,
+      },
+    });
+
+    if (existingFrontend) {
+      throw new BadRequestException(
+        `Package ${packageName} already added for repo deployment ${repoDeploymentSlug}`,
+      );
+    }
+
+    return this.prisma.frontendDeployment.create({
+      data: {
+        slug: nanoid(),
+        url: frontendDeployUrl,
+        cid,
+        frontendDeployConfigSlug: frontendDeployConfig.slug,
+        repoDeploymentSlug,
+      },
+    });
+  }
+
+  getRepoDeploymentBySlug(slug) {
+    return this.prisma.repoDeployment.findUnique({
+      where: {
+        slug,
+      },
+      include: {
+        repository: true,
+      },
+    });
+  }
+
+  getDeployRepository(githubRepoFullName: string) {
+    return this.prisma.repository.findUnique({
+      where: {
+        githubRepoFullName,
+      },
+    });
+  }
+
+  hashToken(token: string, salt: Buffer) {
+    console.log('scrypt pre token', token);
+    return scryptSync(token, salt, 64, {
+      p: 4,
+    });
   }
 }

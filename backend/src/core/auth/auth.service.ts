@@ -3,12 +3,18 @@ import { UsersService } from '../users/users.service';
 import firebaseAdmin from 'firebase-admin';
 import { User } from '@pc/database/clients/core';
 import { Request } from 'express';
+import { Repository } from '@/../database/clients/deploys';
+import { DeploysService } from '@/src/modules/deploys/deploys.service';
+import { timingSafeEqual } from 'crypto';
 
 type UserDetails = User & { name?: string; picture?: string };
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private deploysService: DeploysService,
+  ) {}
 
   async validateUser(req: Request, token: string): Promise<UserDetails | null> {
     try {
@@ -43,6 +49,26 @@ export class AuthService {
     } catch (e) {
       console.error(e);
     }
+    return null;
+  }
+  async validateGithubRepository(
+    githubRepoFullName: string,
+    token: string,
+  ): Promise<Repository | null> {
+    const repo = await this.deploysService.getDeployRepository(
+      githubRepoFullName,
+    );
+    if (!repo) return null;
+
+    const hashedInput = this.deploysService.hashToken(
+      token,
+      repo.authTokenSalt,
+    );
+
+    if (timingSafeEqual(hashedInput, repo.authTokenHash)) {
+      return repo;
+    }
+
     return null;
   }
 }
