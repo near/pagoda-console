@@ -181,7 +181,6 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
           {triggeredAlerts?.map((row) => {
             const url = `/alerts/triggered-alert/${row.slug}`;
             const alertTypeOption = alertTypes[row.type];
-            const triggeredAt = new Date(row.triggeredAt).toISOString();
 
             return (
               <Table.Row flash={shouldFlashRow(row)} key={row.slug}>
@@ -206,7 +205,7 @@ export function TriggeredAlerts({ environment, project }: { environment?: Enviro
                 </Table.Cell>
                 <Table.Cell href={url}>
                   <Text family="number" color="text3" size="current">
-                    {DateTime.fromISO(triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS)}
+                    {DateTime.fromISO(row.triggeredAt)?.toLocaleString(DateTime.DATETIME_SHORT_WITH_SECONDS)}
                   </Text>
                 </Table.Cell>
               </Table.Row>
