@@ -3,16 +3,19 @@ import { useForm } from 'react-hook-form';
 
 import { AuthStatusRenderer } from '@/components/AuthStatusRenderer';
 import { GithubConnect } from '@/components/GithubConnect';
-import { Button } from '@/components/lib/Button';
+import { Button, ButtonLink } from '@/components/lib/Button';
 import * as Dialog from '@/components/lib/Dialog';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
-import { HR } from '@/components/lib/HorizontalRule';
 import { Text } from '@/components/lib/Text';
 import { TextLink } from '@/components/lib/TextLink';
+import { openToast } from '@/components/lib/Toast';
+import { useApiMutation } from '@/hooks/api-mutation';
 import { useRouteParam } from '@/hooks/route';
 import { AuthForm } from '@/modules/core/components/AuthForm';
 import type { Template } from '@/stores/gallery/gallery';
+import analytics from '@/utils/analytics';
+import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
 
 interface Props {
@@ -62,19 +65,53 @@ interface DeployFormData {
 }
 
 function ConnectedModalContent(props: Props) {
-  const repositoryName = props.template.attributes.githubUrl.split('/').pop();
+  const repositoryName = props.template.attributes.githubUrl.split('/').pop() as string;
   const form = useForm<DeployFormData>({
     defaultValues: {
       repositoryName,
     },
   });
 
+  const deployMutation = useApiMutation('/deploys/addDeploy', {
+    onSuccess: () => {
+      analytics.track('DC Deploy Gallery Template', {
+        status: 'success',
+        id: props.template.id,
+      });
+
+      const name = form.getValues('repositoryName') || repositoryName;
+
+      openToast({
+        type: 'success',
+        title: 'Deploy Success',
+        description: `Repository was created: ${name}`,
+      });
+
+      props.setShow(false);
+
+      // TODO: Redirect to deploy module page to show progress?
+    },
+    onError: (error: any) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Deploy Gallery Template',
+        eventData: {
+          id: props.template.id,
+        },
+        toastTitle: 'Deploy Failure',
+        toastDescription: error.statusCode === 400 ? error.message : 'Unknown error.',
+      });
+    },
+  });
+
   function deploy(data: DeployFormData) {
-    console.log(props.template.attributes, data);
-    // TODO:
-    // 1. Fire off deploy mutation
-    // 2. Show loading state on "Deploy Repository" button
-    // 3. Handle onSuccess/onError
+    const githubRepoFullName = props.template.attributes.githubUrl.split('/').slice(-2).join('/');
+    const projectName = data.repositoryName || repositoryName;
+
+    deployMutation.mutate({
+      githubRepoFullName,
+      projectName,
+    });
   }
 
   return (
@@ -86,28 +123,30 @@ function ConnectedModalContent(props: Props) {
           <Form.Group>
             <Form.FloatingLabelInput
               label="Repository Name"
-              placeholder={props.template.attributes.name}
+              placeholder={repositoryName}
               stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_REPO_NAME_INPUT}
               {...form.register('repositoryName')}
             />
           </Form.Group>
 
-          <Button stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_CONFIRM_BUTTON} type="submit" stretch>
-            Deploy Repository
+          <Button
+            stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_CONFIRM_BUTTON}
+            type="submit"
+            stretch
+            loading={deployMutation.isLoading}
+          >
+            Deploy
           </Button>
 
-          <HR />
-
-          <Flex justify="center">
-            <TextLink
-              href={props.template.attributes.githubUrl}
-              stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_VIEW_REPO_LINK}
-              external
-              size="s"
-            >
-              View Repository
-            </TextLink>
-          </Flex>
+          <ButtonLink
+            href={props.template.attributes.githubUrl}
+            stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_VIEW_REPO_LINK}
+            external
+            color="neutral"
+            stretch
+          >
+            View Repository
+          </ButtonLink>
         </Flex>
       </Form.Root>
     </Flex>
