@@ -16,7 +16,6 @@ import { StableId } from '@/utils/stable-ids';
 
 import { ButtonLink } from './lib/Button';
 import { FeatherIcon } from './lib/FeatherIcon';
-import { HR } from './lib/HorizontalRule';
 import { Message } from './lib/Message';
 import { Spinner } from './lib/Spinner';
 import { Text } from './lib/Text';
@@ -101,7 +100,7 @@ export function GithubConnect(props: Props) {
 
 function Connected({ children, handle }: { children: ReactElement; handle: string }) {
   return (
-    <Flex stack>
+    <Flex stack gap="l">
       <Flex align="center">
         <FeatherIcon icon="github" size="s" />
         <Text size="bodySmall">
@@ -111,8 +110,6 @@ function Connected({ children, handle }: { children: ReactElement; handle: strin
           </TextLink>
         </Text>
       </Flex>
-
-      <HR />
 
       {children}
     </Flex>
