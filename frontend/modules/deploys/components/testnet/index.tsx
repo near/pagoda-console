@@ -49,7 +49,7 @@ const Testnet = () => {
   const repo = repositories[0];
   const lastDeploy = repo.repoDeployments[0];
 
-  return (
+  return lastDeploy && (
     <Flex align="center">
       <MainCard borderRadius="m" padding="none">
         <Box padding="m" background="surface3">

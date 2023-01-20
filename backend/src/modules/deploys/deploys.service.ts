@@ -249,6 +249,8 @@ export class DeploysService {
           deployConfig,
           file: file.buffer,
           repoDeploymentSlug: repoDeployment.slug,
+          projectSlug: repo.projectSlug,
+          subId: repo.environmentSubId,
         });
       }),
     );
@@ -309,7 +311,13 @@ export class DeploysService {
   /**
    * Deploys a single contract WASM bundle
    */
-  async deployContract({ deployConfig, file, repoDeploymentSlug }) {
+  async deployContract({
+    deployConfig,
+    file,
+    repoDeploymentSlug,
+    projectSlug,
+    subId,
+  }) {
     const keyPair = KeyPair.fromString(deployConfig.nearPrivateKey);
     const keyStore = new keyStores.InMemoryKeyStore();
     const nearConfig = {
@@ -352,6 +360,12 @@ export class DeploysService {
         deployTransactionHash: txOutcome ? txOutcome.transaction.hash : null,
       },
     });
+
+    await this.projectsService.systemAddContract(
+      projectSlug,
+      subId,
+      account.accountId,
+    );
   }
 
   /**

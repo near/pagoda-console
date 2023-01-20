@@ -401,6 +401,64 @@ export class ProjectsService {
     }
   }
 
+  async systemAddContract(
+    project: Project['slug'],
+    subId: Environment['subId'],
+    address: Contract['address'],
+  ) {
+    let net: Net;
+    let environmentId: Environment['id'];
+    try {
+      const environment = await this.getActiveEnvironment(project, subId);
+      net = environment.net;
+      environmentId = environment.id;
+    } catch (e: any) {
+      throw new VError(
+        e,
+        'Failed while checking validity of adding contract to environment',
+      );
+    }
+
+    // throw an error if the contract address does not exist on the blockchain.
+    await this.checkContractAddressExists(net, address);
+
+    const contract = await this.findContract(project, subId, address);
+    if (contract) {
+      throw new VError(
+        {
+          info: {
+            code: 'CONFLICT',
+            response: 'DUPLICATE_CONTRACT_ADDRESS',
+          },
+        },
+        'Address already exists on the project and environment',
+      );
+    }
+
+    try {
+      return await this.prisma.contract.create({
+        data: {
+          slug: nanoid(),
+          address,
+          environment: {
+            connect: {
+              id: environmentId,
+            },
+          },
+          net,
+        },
+        select: {
+          id: true,
+          slug: true,
+          address: true,
+          net: true,
+        },
+      });
+    } catch (e: any) {
+      throw new VError(e, 'Failed while creating contract');
+    }
+  }
+
   async addContract(
     callingUser: User,
     project: Project['slug'],
