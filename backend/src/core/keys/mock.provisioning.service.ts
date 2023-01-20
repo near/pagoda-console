@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { ApiKeysProvisioningServiceInterface } from './interfaces';
-import { Consumer, ConsumerRateLimitingPolicyEnum } from './rpcaas-client';
+import { Consumer, ConsumerRateLimitingPolicyEnum } from 'rpcaas-client';
 
 @Injectable()
 export class ApiKeysMockProvisioningService
