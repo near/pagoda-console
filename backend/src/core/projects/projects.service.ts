@@ -436,6 +436,14 @@ export class ProjectsService {
     }
 
     try {
+      await this.prisma.user.upsert({
+        where: { uid: '-1' },
+        update: {},
+        create: {
+          uid: '-1',
+          email: 'console.system@pagoda.co',
+        },
+      });
       return await this.prisma.contract.create({
         data: {
           slug: nanoid(),
@@ -446,6 +454,16 @@ export class ProjectsService {
             },
           },
           net,
+          createdByUser: {
+            connect: {
+              uid: '-1',
+            },
+          },
+          updatedByUser: {
+            connect: {
+              uid: '-1',
+            },
+          },
         },
         select: {
           id: true,
