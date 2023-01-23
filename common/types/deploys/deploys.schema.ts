@@ -6,6 +6,9 @@ const frontendDeployments = z.array(
     slug: z.string(),
     url: z.string().or(z.null()),
     cid: z.string().or(z.null()),
+    frontendDeployConfig: z.strictObject({
+      packageName: z.string()
+    })
   }),
 );
 

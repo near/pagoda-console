@@ -477,6 +477,11 @@ export class DeploysService {
                 slug: true,
                 url: true,
                 cid: true,
+                frontendDeployConfig: {
+                  select: {
+                    packageName: true,
+                  },
+                },
               },
             },
             contractDeployments: {
@@ -568,6 +573,11 @@ export class DeploysService {
             slug: true,
             url: true,
             cid: true,
+            frontendDeployConfig: {
+              select: {
+                packageName: true,
+              },
+            },
           },
         },
         contractDeployments: {

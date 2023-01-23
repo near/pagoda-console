@@ -6,6 +6,7 @@ import { Badge } from '@/components/lib/Badge';
 import { Box } from '@/components/lib/Box';
 import { Button } from '@/components/lib/Button';
 import { Card } from '@/components/lib/Card';
+import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { HR } from '@/components/lib/HorizontalRule';
@@ -37,6 +38,23 @@ const CopyButton = styled(Flex, {
   borderRadius: 'var(--border-radius-xs)',
 });
 
+const FrontendDeployment = ({ deployment }) => {
+  const display =
+    deployment.frontendDeployConfig.packageName || deployment.cid || new URL(deployment.url as string).hostname;
+  const link = deployment.cid ? `https://${deployment.cid}.ipfs.w3s.link` : (deployment.url as string);
+  return (
+    <Button
+      stableId={StableId.DEPLOYS_TESTNET_REPO}
+      size="s"
+      color="neutral"
+      key={deployment.slug}
+      onClick={() => window.open(link, '_blank')}
+    >
+      <FeatherIcon size="xs" icon="external-link" /> {display}
+    </Button>
+  );
+};
+
 const Testnet = () => {
   const project = useSelectedProject();
   const { repositories } = useRepositories(project.project?.slug);
@@ -59,11 +77,12 @@ const Testnet = () => {
   const repo = repositories[0];
   const lastDeploy = repo.repoDeployments[0];
   const accountId = repo.contractDeployConfigs[0]?.nearAccountId;
+  const { frontendDeployments } = lastDeploy;
 
   const contractSlug = contracts?.find(({ address }) => address === accountId)?.slug;
 
   return (
-    <Flex align="center">
+    <Flex align="center" style={{ width: '35rem' }}>
       <MainCard borderRadius="m" padding="none">
         <Box padding="m" background="surface3">
           {deployCompleted(lastDeploy) ? (
@@ -107,9 +126,35 @@ const Testnet = () => {
                 </Text>
               </FlexTop>
               <FlexTop>
-                <Button stableId={StableId.DEPLOYS_TESTNET_REPO} size="s" color="neutral">
-                  <FeatherIcon size="xs" icon="external-link" /> {lastDeploy.frontendDeployments[0].url}
-                </Button>
+                <FrontendDeployment deployment={frontendDeployments[0]} />
+                {frontendDeployments.length > 1 ? (
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Button stableId={StableId.PROJECT_SELECTOR_DROPDOWN} color="neutral" size="s">
+                      <Text
+                        as="span"
+                        color="text1"
+                        family="body"
+                        weight="semibold"
+                        css={{
+                          '@tablet': {
+                            display: 'none',
+                          },
+                        }}
+                      >
+                        + {frontendDeployments.length - 1}
+                      </Text>
+                    </DropdownMenu.Button>
+                    <DropdownMenu.Content align="end">
+                      {frontendDeployments.map((deployment, i) =>
+                        i === 0 ? null : (
+                          <div key={deployment.slug} style={{ marginBottom: 10 }}>
+                            <FrontendDeployment deployment={deployment} />
+                          </div>
+                        ),
+                      )}
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Root>
+                ) : null}
               </FlexTop>
               <BadgeTop background="dark">
                 <FeatherIcon size="xs" icon="zap" />
