@@ -25,7 +25,7 @@ export function useContracts(project: string | undefined, environment: number | 
   return { contracts, error, mutate };
 }
 
-export function useContract(slug: string | undefined) {
+export function useContract(slug: string | null | undefined) {
   const { identity } = useAuth();
 
   const {
@@ -76,7 +76,7 @@ export function useContractMetrics(address: string | undefined, net: Net | undef
   };
 }
 
-export function usePublicOrPrivateContract(slug: string | undefined) {
+export function usePublicOrPrivateContract(slug: string | null | undefined) {
   const publicModeHasHydrated = usePublicStore((store) => store.hasHydrated);
   const publicModeIsActive = usePublicStore((store) => store.publicModeIsActive);
   const publicContracts = usePublicStore((store) => store.contracts);
