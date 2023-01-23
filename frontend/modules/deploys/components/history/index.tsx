@@ -54,13 +54,24 @@ const History = () => {
           <Table.Row key={deployment.slug}>
             <Table.Cell>
               <Flex gap="xs">
-                <Text size="bodySmall" color="text1">
+                {/* <Text size="bodySmall" color="text1">
                   dev
                 </Text>
                 <Text size="bodySmall" color="text3">
                   @
-                </Text>
-                <Text size="bodySmall" color="primary" family="number">
+                </Text> */}
+                <Text
+                  size="bodySmall"
+                  color="primary"
+                  family="number"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() =>
+                    window.open(
+                      `https://www.github.com/${deployment.githubRepoFullName}/commit/${deployment.commitHash}`,
+                      '_blank',
+                    )
+                  }
+                >
                   {deployment.commitHash.substring(0, 7)}
                 </Text>
               </Flex>

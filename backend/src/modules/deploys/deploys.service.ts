@@ -558,6 +558,11 @@ export class DeploysService {
       },
       take,
       include: {
+        repository: {
+          select: {
+            githubRepoFullName: true,
+          },
+        },
         frontendDeployments: {
           select: {
             slug: true,
@@ -582,6 +587,7 @@ export class DeploysService {
         createdAt,
         frontendDeployments,
         contractDeployments,
+        repository,
       } = deployment;
 
       return {
@@ -591,6 +597,7 @@ export class DeploysService {
         createdAt: createdAt.toISOString(),
         frontendDeployments,
         contractDeployments,
+        githubRepoFullName: repository.githubRepoFullName,
       };
     });
   }

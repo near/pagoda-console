@@ -75,13 +75,23 @@ const Testnet = () => {
                   </Text>
                 </Flex>
                 <Flex justify="end">
-                  <Badge size="s" gap="xs">
-                    <Text size="bodySmall" color="text1">
+                  <Badge
+                    size="s"
+                    gap="xs"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() =>
+                      window.open(
+                        `https://www.github.com/${repo.githubRepoFullName}/commit/${lastDeploy.commitHash}`,
+                        '_blank',
+                      )
+                    }
+                  >
+                    {/* <Text size="bodySmall" color="text1">
                       dev
                     </Text>
                     <Text size="bodySmall" color="text3">
                       @
-                    </Text>
+                    </Text> */}
                     <Text size="bodySmall" color="primary" family="number">
                       {lastDeploy.commitHash.substring(0, 7)}
                     </Text>
