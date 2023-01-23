@@ -56,11 +56,11 @@ model Team {
   teamProjects  TeamProject[]
   createdAt     DateTime?     @default(now()) @db.Timestamptz
   createdByUser User?         @relation(name: "UserCreatedTeam", fields: [createdBy], references: [id])
-  /// Reference to the user id who created the record.
+  ///!FIELD IS REQUIRED FOR AUDITING! Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?         @relation(name: "UserUpdatedTeam", fields: [updatedBy], references: [id])
   updatedAt     DateTime?     @updatedAt @db.Timestamptz
-  /// Reference to the user id who last updated the record.
+  ///!FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
   updatedBy     Int?
   org           Org           @relation(fields: [orgSlug], references: [slug])
   orgSlug       String
@@ -155,11 +155,11 @@ model Project {
   tutorial      ProjectTutorial?
   createdAt     DateTime?        @default(now()) @db.Timestamptz
   createdByUser User?            @relation(name: "UserCreatedProject", fields: [createdBy], references: [id])
-  /// Reference to the user id who created the record.
+  ///!FIELD IS REQUIRED FOR AUDITING! Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?            @relation(name: "UserUpdatedProject", fields: [updatedBy], references: [id])
   updatedAt     DateTime?        @updatedAt @db.Timestamptz
-  /// Reference to the user id who last updated the record.
+  ///!FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
   updatedBy     Int?
   org           Org              @relation(fields: [orgSlug], references: [slug])
   orgSlug       String
@@ -221,11 +221,11 @@ model Environment {
   contracts     Contract[]
   createdAt     DateTime?  @default(now()) @db.Timestamptz
   createdByUser User?      @relation(name: "UserCreatedEnvironment", fields: [createdBy], references: [id])
-  /// Reference to the user id who created the record.
+  ///!FIELD IS REQUIRED FOR AUDITING! Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?      @relation(name: "UserUpdatedEnvironment", fields: [updatedBy], references: [id])
   updatedAt     DateTime?  @updatedAt @db.Timestamptz
-  /// Reference to the user id who last updated the record.
+  ///!FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
   updatedBy     Int?
 
   @@unique([projectId, subId])
@@ -243,11 +243,11 @@ model Contract {
   active        Boolean     @default(true)
   createdAt     DateTime?   @default(now()) @db.Timestamptz
   createdByUser User?       @relation(name: "UserCreatedContract", fields: [createdBy], references: [id])
-  /// Reference to the user id who created the record.
+  ///!FIELD IS REQUIRED FOR AUDITING! Reference to the user id who created the record.
   createdBy     Int?
   updatedByUser User?       @relation(name: "UserUpdatedContract", fields: [updatedBy], references: [id])
   updatedAt     DateTime?   @updatedAt @db.Timestamptz
-  /// Reference to the user id who last updated the record.
+  ///!FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
   updatedBy     Int?
 }
 
