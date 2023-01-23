@@ -100,6 +100,7 @@ export const mutation = {
   outputs: {
     addDeploy: z.strictObject({
       repositorySlug: z.string(),
+      projectSlug: z.string(),
     }),
     deployWasm: z.void(),
     wasmFiles: z.void(),

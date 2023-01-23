@@ -58,7 +58,7 @@ const Testnet = () => {
 
   const repo = repositories[0];
   const lastDeploy = repo.repoDeployments[0];
-  const accountId = repo.contractDeployConfigs[0].nearAccountId;
+  const accountId = repo.contractDeployConfigs[0]?.nearAccountId;
 
   const contractSlug = contracts?.find(({ address }) => address === accountId)?.slug;
 
@@ -116,7 +116,7 @@ const Testnet = () => {
                 <Text size="bodySmall" color="text1" family="number">
                   {accountId}
                 </Text>
-                <CopyButton>
+                <CopyButton style={{ cursor: 'pointer' }} onClick={() => navigator.clipboard.writeText(accountId)}>
                   <FeatherIcon size="xs" icon="copy" />
                 </CopyButton>
               </BadgeTop>
