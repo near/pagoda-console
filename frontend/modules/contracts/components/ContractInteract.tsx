@@ -39,12 +39,14 @@ export const ContractInteract = ({ contract }: Props) => {
     }
   }, [abi, isValidating, error]);
 
-  if (error && error.message && ['Failed to fetch', 'ABI_NOT_FOUND'].indexOf(error.message) < 0) {
-    openToast({
-      type: 'error',
-      title: 'Failed to retrieve ABI.',
-    });
-  }
+  useEffect(() => {
+    if (error && error.message && ['Failed to fetch', 'ABI_NOT_FOUND'].indexOf(error.message) < 0) {
+      openToast({
+        type: 'error',
+        title: 'Failed to retrieve ABI.',
+      });
+    }
+  }, [error]);
 
   function onAbiUpload() {
     embeddedQuery.mutate();
