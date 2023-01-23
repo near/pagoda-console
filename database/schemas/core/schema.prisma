@@ -60,7 +60,7 @@ model Team {
   createdBy     Int?
   updatedByUser User?         @relation(name: "UserUpdatedTeam", fields: [updatedBy], references: [id])
   updatedAt     DateTime?     @updatedAt @db.Timestamptz
-  ///!FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
+  /// !FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
   updatedBy     Int?
   org           Org           @relation(fields: [orgSlug], references: [slug])
   orgSlug       String
@@ -159,7 +159,7 @@ model Project {
   createdBy     Int?
   updatedByUser User?            @relation(name: "UserUpdatedProject", fields: [updatedBy], references: [id])
   updatedAt     DateTime?        @updatedAt @db.Timestamptz
-  ///!FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
+  /// !FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
   updatedBy     Int?
   org           Org              @relation(fields: [orgSlug], references: [slug])
   orgSlug       String
@@ -225,7 +225,7 @@ model Environment {
   createdBy     Int?
   updatedByUser User?      @relation(name: "UserUpdatedEnvironment", fields: [updatedBy], references: [id])
   updatedAt     DateTime?  @updatedAt @db.Timestamptz
-  ///!FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
+  /// !FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
   updatedBy     Int?
 
   @@unique([projectId, subId])
@@ -247,7 +247,7 @@ model Contract {
   createdBy     Int?
   updatedByUser User?       @relation(name: "UserUpdatedContract", fields: [updatedBy], references: [id])
   updatedAt     DateTime?   @updatedAt @db.Timestamptz
-  ///!FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
+  /// !FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
   updatedBy     Int?
 }
 
