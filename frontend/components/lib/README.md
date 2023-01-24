@@ -131,25 +131,27 @@ import { Text } from '@/components/lib/Text';
 </Section>
 ```
 
-### Breakpoints
+### Breakpoints / Responsive Design
 
-Due to our app primarily targeting desktop/laptop users, our default styles should target large screens. That means our breakpoints are implemented with `max-width`, like so:
+Due to our app primarily targeting desktop/laptop users, our default styles and UI should target large screens. That means our breakpoints are implemented with `max-width` (activating when a screen is smaller than defined width), like so:
 
 ```
-mobile: '(max-width: 35rem)',
-tablet: '(max-width: 60rem)',
 laptop: '(max-width: 75rem)',
+tablet: '(max-width: 60rem)',
+smallTablet: '(max-width: 45rem)',
+mobile: '(max-width: 35rem)',
 ```
 
-Even though we don't use Stitches theme API for things like colors and fonts, it's extremely useful for sharing predefined breakpoints. Right now we have support for three Stitches breakpoints (defined in [styles/stiches.ts](../../styles/stitches.ts)):
+Even though we don't use Stitches theme API for things like colors and fonts, it's extremely useful for sharing predefined breakpoints. Right now we have support for four Stitches breakpoints (defined in [styles/stiches.ts](../../styles/stitches.ts)):
 
-`@mobile`: For devices smaller than a tablet
-`@tablet`: For devices smaller than a laptop
-`@laptop`: For devices smaller than a desktop
+- `@laptop`: For devices smaller than a desktop
+- `@tablet`: For devices smaller than a laptop
+- `@smallTablet`: For devices smaller than a standard tablet
+- `@mobile`: For devices smaller than a tablet
 
 These breakpoint theme tokens can be used in really cool ways with Stitches.
 
-1. Applying styles to a new element at a certain breakpoint:
+1. Applying styles to a custom element at a certain breakpoint:
 
 ```ts
 import { styled } from '@/styles/stitches';

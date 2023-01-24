@@ -118,6 +118,10 @@ const appConfigSchema = z.strictObject({
       apiKey: z.string(),
     }),
   ]),
+  github: z.strictObject({
+    clientId: z.string(),
+    clientSecret: z.string(),
+  }),
 });
 
 export type AppConfig = z.infer<typeof appConfigSchema>;
@@ -240,12 +244,10 @@ export default function validate(config: Record<string, any>): AppConfig {
     },
     featureEnabled: {
       core: {
-        contractAddressValidation:
-          config.CORE_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
+        contractAddressValidation: true,
       },
       alerts: {
-        contractAddressValidation:
-          config.ALERT_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
+        contractAddressValidation: true,
       },
     },
     metricsPort: config.METRICS_PORT,
@@ -256,6 +258,10 @@ export default function validate(config: Record<string, any>): AppConfig {
           url: config.RPC_API_KEYS_URL,
           apiKey: config.RPC_API_KEYS_API_KEY,
         },
+    github: {
+      clientId: config.GITHUB_CONNECT_CLIENT_ID,
+      clientSecret: config.GITHUB_CONNECT_CLIENT_SECRET,
+    },
   };
 
   const parseResult = appConfigSchema.safeParse(structuredConfig);

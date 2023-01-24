@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import { useMutation } from '@tanstack/react-query';
 import type { Contract as AbiContract } from 'near-abi-client-js';
 import { AbiFunctionKind } from 'near-abi-client-js';
 import { useRouter } from 'next/router';
@@ -7,7 +8,6 @@ import { useEffect, useState } from 'react';
 import { Box } from '@/components/lib/Box';
 import { Flex } from '@/components/lib/Flex';
 import { openToast } from '@/components/lib/Toast';
-import { useRawMutation } from '@/hooks/raw-mutation';
 import { useRouteParam } from '@/hooks/route';
 import { styled } from '@/styles/stitches';
 import analytics from '@/utils/analytics';
@@ -77,7 +77,8 @@ const ContractTransaction = ({ contract }: Props) => {
   }, [transactionHashParam, contract.slug, router]);
 
   const { accountId, selector } = useWalletSelector(contract.address);
-  const sendTransactionMutation = useRawMutation<TransactionData, unknown, MutateInput>(
+
+  const sendTransactionMutation = useMutation<TransactionData, unknown, MutateInput>(
     async (params) => {
       const call = getCall(params);
       if (!call) return;

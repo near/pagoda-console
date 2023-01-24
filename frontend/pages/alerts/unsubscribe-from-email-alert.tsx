@@ -7,7 +7,7 @@ import { Message } from '@/components/lib/Message';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { useSimpleLayout } from '@/hooks/layouts';
-import { fetchApi } from '@/utils/http';
+import { api } from '@/utils/api';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Unsubscribe: NextPageWithLayout = () => {
@@ -30,7 +30,7 @@ const Unsubscribe: NextPageWithLayout = () => {
 
   async function sendUnsubscribeRequest(token: string) {
     try {
-      await fetchApi(['/alerts/unsubscribeFromEmailAlert', { token }], true);
+      await api.mutation('/alerts/unsubscribeFromEmailAlert', { token }, false);
       setUnsubscribeMessage('You have successfully unsubscribed from this email alert. You may close this window.');
     } catch (e) {
       console.error(e);

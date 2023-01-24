@@ -26,3 +26,4 @@ export DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/devconsole
 export ALERTS_DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/alerts
 export ABI_DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/abi
 export RPCSTATS_DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/rpcstats
+export DEPLOYS_DATABASE_URL=postgresql://$DB_USER:$DB_PASS@$DB_URL/deploys

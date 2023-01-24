@@ -167,8 +167,11 @@ model AggregationDestination {
   id            Int         @id @default(autoincrement())
   destination   Destination @relation(fields: [destinationId], references: [id])
   destinationId Int         @unique @map("destination_id")
-  contractName  String		@map("contract_name")
-  functionName  String		@map("function_name")
+  /// name is in Destination
+  ///code			String
+  /// Filter is in alert (Contract, Condition, comparator, Value, Value1)
+  indexerName  String		@map("indexer_name")
+  indexerFunctionCode  String		@map("indexer_function_code")
   createdAt     DateTime?   @default(now()) @map("created_at") @db.Timestamptz
   /// Reference to the user id who created the record.
   createdBy     Int?        @map("created_by")

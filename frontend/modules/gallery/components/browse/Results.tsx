@@ -17,6 +17,13 @@ const Templates = styled('div', {
   gridTemplateColumns: '1fr 1fr 1fr',
   columnGap: '2.5rem',
   rowGap: '3.75rem',
+
+  '@tablet': {
+    gridTemplateColumns: '1fr 1fr',
+  },
+  '@smallTablet': {
+    gridTemplateColumns: '1fr',
+  },
 });
 
 const spinAnimation = keyframes({
@@ -92,7 +99,12 @@ const Results = () => {
   return (
     <Box>
       <ResultsTop align="center">
-        <Flex>
+        <Flex
+          gap={{
+            '@smallTablet': 's',
+          }}
+          align="center"
+        >
           <Text color="text2">{numberOfResults} Results</Text>•
           <ResetLink loader={dbLoader} onClick={resetFilters}>
             <span>Reset</span>

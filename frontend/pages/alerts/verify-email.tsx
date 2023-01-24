@@ -7,7 +7,7 @@ import { Message } from '@/components/lib/Message';
 import { Section } from '@/components/lib/Section';
 import { Spinner } from '@/components/lib/Spinner';
 import { useSimpleLayout } from '@/hooks/layouts';
-import { fetchApi } from '@/utils/http';
+import { api } from '@/utils/api';
 import type { NextPageWithLayout } from '@/utils/types';
 
 const Verification: NextPageWithLayout = () => {
@@ -30,7 +30,7 @@ const Verification: NextPageWithLayout = () => {
 
   async function sendVerification(token: string) {
     try {
-      await fetchApi(['/alerts/verifyEmailDestination', { token }], true);
+      await api.mutation('/alerts/verifyEmailDestination', { token }, false);
       setVerificationMessage('Your email destination is now ready to receive alerts! You may close this window.');
     } catch (e) {
       // TODO handle expired token

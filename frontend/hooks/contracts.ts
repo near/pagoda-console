@@ -5,20 +5,24 @@ import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
 import { usePublicStore } from '@/stores/public';
+import { api } from '@/utils/api';
 import config from '@/utils/config';
-import { fetchApi } from '@/utils/http';
 
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
 export function useContracts(project: string | undefined, environment: number | undefined) {
-  const { data: contracts, error } = useSWR(
+  const {
+    data: contracts,
+    error,
+    mutate,
+  } = useSWR(
     project && environment ? ['/projects/getContracts' as const, project, environment] : null,
-    (key, project, environment) => {
-      return fetchApi([key, { project, environment }]);
+    (path, project, environment) => {
+      return api.query(path, { project, environment });
     },
   );
 
-  return { contracts, error };
+  return { contracts, error, mutate };
 }
 
 export function useContract(slug: string | undefined) {
@@ -28,8 +32,8 @@ export function useContract(slug: string | undefined) {
     data: contract,
     error,
     mutate,
-  } = useSWR(identity && slug ? ['/projects/getContract' as const, slug, identity.uid] : null, (key, slug) => {
-    return fetchApi([key, { slug }]);
+  } = useSWR(identity && slug ? ['/projects/getContract' as const, slug, identity.uid] : null, (path, slug) => {
+    return api.query(path, { slug });
   });
 
   return { contract, error, mutate };

@@ -5,8 +5,8 @@ ALTER TYPE "destination_type" ADD VALUE 'AGGREGATION';
 CREATE TABLE "aggregation_destinations" (
     "id" SERIAL NOT NULL,
     "destination_id" INTEGER NOT NULL,
-    "contract_name" TEXT NOT NULL,
-    "function_name" TEXT NOT NULL,
+    "indexer_name" TEXT NOT NULL,
+    "indexer_function_code" TEXT NOT NULL,
     "created_at" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     "created_by" INTEGER,
     "updated_at" TIMESTAMPTZ,

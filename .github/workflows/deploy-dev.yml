@@ -11,7 +11,7 @@ defaults:
     working-directory: backend
 jobs:
   docker-build-and-push:
-    timeout-minutes: 10
+    timeout-minutes: 20
     runs-on: ubuntu-latest
     outputs:
       image: ${{ steps.image.outputs.image }}

@@ -49,6 +49,7 @@ export function useAnalytics() {
     lastTrackedPage = page;
 
     analytics.pageView(`DC View ${page} Page`, {
+      status: 'success',
       path: router.pathname,
     });
   }, [authStatus, hasIdentified, router.pathname]);
@@ -109,6 +110,7 @@ function useGlobalClickTracker() {
         }
 
         analytics.track(`DC ${componentType} Clicked`, {
+          status: 'success',
           stableId,
         });
       }

@@ -4,6 +4,11 @@ import { styled } from '@/styles/stitches';
 
 const StepFlex = styled(Flex, {
   padding: '120px 0 60px',
+  textAlign: 'center',
+
+  '@mobile': {
+    padding: '2rem 0 0',
+  },
 });
 
 const IconBackground = styled(Flex, {
@@ -15,7 +20,7 @@ const IconBackground = styled(Flex, {
 });
 
 const Step = ({ icon, header, text }) => (
-  <StepFlex stack>
+  <StepFlex stack align="center">
     <IconBackground align="center" justify="center">
       {icon}
     </IconBackground>

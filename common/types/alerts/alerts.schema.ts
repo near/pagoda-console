@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { AlertRuleKind, DestinationType } from '@pc/database/clients/alerts';
 import { accountId, environmentId, projectSlug, net } from '../core/types';
 import { json } from '../schemas';
-import { flavored, Flavored } from '../utils';
 
 export const destinationType: z.ZodType<DestinationType> = z.enum([
   'WEBHOOK',
@@ -16,12 +15,10 @@ export const alertRuleKind: z.ZodType<AlertRuleKind> = z.enum([
   'STATE_CHANGES',
 ]);
 
-export const alertId = z.number().refine<Flavored<'alertId', number>>(flavored);
+export const alertId = z.number();
 export type AlertId = z.infer<typeof alertId>;
 
-export const destinationId = z
-  .number()
-  .refine<Flavored<'destinationId', number>>(flavored);
+export const destinationId = z.number();
 export type DestinationId = z.infer<typeof destinationId>;
 
 export const alertName = z.string();
@@ -98,8 +95,8 @@ export const databaseTelegramDestination = z.strictObject({
 export const databaseAggregationDestination = z.strictObject({
   id: z.number(),
   destinationId: z.number(),
-  contractName: z.string(),
-  functionName: z.string(),
+  indexerName: z.string(),
+  indexerFunctionCode: z.string(),
   createdAt: z.date().or(z.null()),
   createdBy: z.number().or(z.null()),
   updatedAt: z.date().or(z.null()),
@@ -229,8 +226,8 @@ const updateTelegramDestinationConfig = z.strictObject({
 
 const updateAggregationDestinationConfig = z.strictObject({
   type: z.literal('AGGREGATION'),
-  contractName: z.string(),
-  functionName: z.string(),
+  indexerName: z.string(),
+  indexerFunctionCode: z.string(),
 });
 export type UpdateAggregationDestinationConfig = z.infer<
   typeof updateAggregationDestinationConfig
@@ -265,8 +262,8 @@ const createTelegramDestinationConfig = z.strictObject({
 
 const createAggregationDestinationConfig = z.strictObject({
   type: z.literal('AGGREGATION'),
-  contractName: z.string(),
-  functionName: z.string(),
+  indexerName: z.string(),
+  indexerFunctionCode: z.string(),
 });
 export type CreateAggregationDestinationConfig = z.infer<
   typeof createAggregationDestinationConfig
@@ -313,7 +310,7 @@ const enabledDestination = databaseDestination
         }),
         z.strictObject({
           type: z.literal('AGGREGATION'),
-          config: databaseAggregationDestination.pick({ contractName: true, functionName: true }),
+          config: databaseAggregationDestination.pick({ indexerName: true, indexerFunctionCode: true }),
         }),
       ]),
     }),
@@ -382,8 +379,8 @@ const aggregationDestination = baseDestination.merge(
   z.strictObject({
     type: z.literal('AGGREGATION'),
     config: databaseAggregationDestination.pick({
-      contractName: true,
-      functionName: true,
+      indexerName: true,
+      indexerFunctionCode: true,
     }),
   }),
 );

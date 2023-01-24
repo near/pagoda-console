@@ -13,37 +13,38 @@ generator client {
 }
 
 model User {
-  id                  Int           @id @default(autoincrement())
-  uid                 String        @unique
-  email               String        @unique
+  id                  Int                @id @default(autoincrement())
+  uid                 String             @unique
+  email               String             @unique
   /// If 'false', the record was soft-deleted by a user.
-  active              Boolean       @default(true)
+  active              Boolean            @default(true)
   teamMembers         TeamMember[]
-  createdAt           DateTime?     @default(now()) @db.Timestamptz
-  updatedAt           DateTime?     @updatedAt @db.Timestamptz
-  createdTeams        Team[]        @relation("UserCreatedTeam")
-  updatedTeams        Team[]        @relation("UserUpdatedTeam")
-  createdTeamMembers  TeamMember[]  @relation("UserCreatedTeamMember")
-  updatedTeamMembers  TeamMember[]  @relation("UserUpdatedTeamMember")
-  createdProjects     Project[]     @relation("UserCreatedProject")
-  updatedProjects     Project[]     @relation("UserUpdatedProject")
-  createdEnvironments Environment[] @relation("UserCreatedEnvironment")
-  updatedEnvironments Environment[] @relation("UserUpdatedEnvironment")
-  createdContracts    Contract[]    @relation("UserCreatedContract")
-  updatedContracts    Contract[]    @relation("UserUpdatedContract")
-  createdTeamProject  TeamProject[] @relation("UserCreatedTeamProject")
-  updatedTeamProject  TeamProject[] @relation("UserUpdatedTeamProject")
-  createdOrg          Org[]         @relation("UserCreatedOrg")
-  updatedOrg          Org[]         @relation("UserUpdatedOrg")
-  createdOrgMember    OrgMember[]   @relation("UserCreatedOrgMember")
-  updatedOrgMember    OrgMember[]   @relation("UserUpdatedOrgMember")
-  createdOrgInvite    OrgInvite[]   @relation("UserCreatedOrgInvite")
-  updatedOrgInvite    OrgInvite[]   @relation("UserUpdatedOrgInvite")
+  createdAt           DateTime?          @default(now()) @db.Timestamptz
+  updatedAt           DateTime?          @updatedAt @db.Timestamptz
+  createdTeams        Team[]             @relation("UserCreatedTeam")
+  updatedTeams        Team[]             @relation("UserUpdatedTeam")
+  createdTeamMembers  TeamMember[]       @relation("UserCreatedTeamMember")
+  updatedTeamMembers  TeamMember[]       @relation("UserUpdatedTeamMember")
+  createdProjects     Project[]          @relation("UserCreatedProject")
+  updatedProjects     Project[]          @relation("UserUpdatedProject")
+  createdEnvironments Environment[]      @relation("UserCreatedEnvironment")
+  updatedEnvironments Environment[]      @relation("UserUpdatedEnvironment")
+  createdContracts    Contract[]         @relation("UserCreatedContract")
+  updatedContracts    Contract[]         @relation("UserUpdatedContract")
+  createdTeamProject  TeamProject[]      @relation("UserCreatedTeamProject")
+  updatedTeamProject  TeamProject[]      @relation("UserUpdatedTeamProject")
+  createdOrg          Org[]              @relation("UserCreatedOrg")
+  updatedOrg          Org[]              @relation("UserUpdatedOrg")
+  createdOrgMember    OrgMember[]        @relation("UserCreatedOrgMember")
+  updatedOrgMember    OrgMember[]        @relation("UserUpdatedOrgMember")
+  createdOrgInvite    OrgInvite[]        @relation("UserCreatedOrgInvite")
+  updatedOrgInvite    OrgInvite[]        @relation("UserUpdatedOrgInvite")
   userActions         UserAction[]
-  createdApiKey       ApiKey[]      @relation("UserCreatedApiKey")
-  updatedApiKey       ApiKey[]      @relation("UserUpdatedApiKey")
+  createdApiKey       ApiKey[]           @relation("UserCreatedApiKey")
+  updatedApiKey       ApiKey[]           @relation("UserUpdatedApiKey")
   personalOrg         Org?
   orgMembers          OrgMember[]
+  GithubConnection    GithubConnection[]
 }
 
 model Team {
@@ -59,7 +60,7 @@ model Team {
   createdBy     Int?
   updatedByUser User?         @relation(name: "UserUpdatedTeam", fields: [updatedBy], references: [id])
   updatedAt     DateTime?     @updatedAt @db.Timestamptz
-  /// Reference to the user id who last updated the record.
+  /// !FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
   updatedBy     Int?
   org           Org           @relation(fields: [orgSlug], references: [slug])
   orgSlug       String
@@ -158,7 +159,7 @@ model Project {
   createdBy     Int?
   updatedByUser User?            @relation(name: "UserUpdatedProject", fields: [updatedBy], references: [id])
   updatedAt     DateTime?        @updatedAt @db.Timestamptz
-  /// Reference to the user id who last updated the record.
+  /// !FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
   updatedBy     Int?
   org           Org              @relation(fields: [orgSlug], references: [slug])
   orgSlug       String
@@ -224,7 +225,7 @@ model Environment {
   createdBy     Int?
   updatedByUser User?      @relation(name: "UserUpdatedEnvironment", fields: [updatedBy], references: [id])
   updatedAt     DateTime?  @updatedAt @db.Timestamptz
-  /// Reference to the user id who last updated the record.
+  /// !FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
   updatedBy     Int?
 
   @@unique([projectId, subId])
@@ -246,7 +247,7 @@ model Contract {
   createdBy     Int?
   updatedByUser User?       @relation(name: "UserUpdatedContract", fields: [updatedBy], references: [id])
   updatedAt     DateTime?   @updatedAt @db.Timestamptz
-  /// Reference to the user id who last updated the record.
+  /// !FIELD IS REQUIRED FOR AUDITING! Reference to the user id who last updated the record.
   updatedBy     Int?
 }
 
@@ -267,4 +268,15 @@ model UserAction {
 
 enum UserActionType {
   ROTATE_API_KEY
+}
+
+model GithubConnection {
+  id          Int       @id @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int       @unique
+  accessToken String
+  handle      String
+  scopes      String
+  createdAt   DateTime? @default(now()) @db.Timestamptz
+  updatedAt   DateTime? @updatedAt @db.Timestamptz
 }

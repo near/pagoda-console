@@ -1,13 +1,13 @@
 import type { Api } from '@pc/common/types/api';
-import { mutate } from 'swr';
 
 import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useMutation } from '@/hooks/mutation';
-import { useSelectedProject } from '@/hooks/selected-project';
+import { useApiMutation } from '@/hooks/api-mutation';
+import analytics from '@/utils/analytics';
+import { handleMutationError } from '@/utils/error-handlers';
 
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
@@ -15,33 +15,37 @@ interface Props {
   contract: Contract;
   show: boolean;
   setShow: (show: boolean) => void;
-  onDelete?: () => void;
+  onDelete: () => void;
 }
 
 export function DeleteContractModal({ contract, show, setShow, onDelete }: Props) {
-  const { environment, project } = useSelectedProject();
-  const removeContractMutation = useMutation('/projects/removeContract', {
+  const removeContractMutation = useApiMutation('/projects/removeContract', {
     onSuccess: () => {
-      mutate<Contract[]>(
-        ['/projects/getContracts', project?.slug, environment?.subId],
-        (contracts) => contracts && contracts.filter((lookupContract) => lookupContract.slug !== contract.slug),
-      );
       openToast({
         type: 'success',
         title: 'Contract Removed',
         description: `${contract.address}`,
       });
-      onDelete?.();
+
+      analytics.track('DC Remove Contract', {
+        status: 'success',
+        contractId: contract.address,
+      });
+
+      onDelete();
     },
-    onError: () =>
-      openToast({
-        type: 'error',
-        title: 'Remove Error',
-        description: 'Failed to remove contract.',
-      }),
-    getAnalyticsSuccessData: () => ({ contractId: contract.address }),
-    getAnalyticsErrorData: () => ({ contractId: contract.address }),
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Remove Contract',
+        eventData: {
+          contractId: contract.address,
+        },
+        toastTitle: 'Failed to remove contract.',
+      });
+    },
   });
+
   const onConfirm = () => removeContractMutation.mutate({ slug: contract.slug });
 
   return (

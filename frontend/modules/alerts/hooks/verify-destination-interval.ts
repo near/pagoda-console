@@ -1,12 +1,15 @@
+import type { Api } from '@pc/common/types/api';
 import { useEffect } from 'react';
 import type { KeyedMutator } from 'swr';
 
 import { openToast } from '@/components/lib/Toast';
 
-export function useVerifyDestinationInterval<D extends { id: number; isValid: boolean }>(
-  destination: D | undefined,
-  mutate: KeyedMutator<D[]>,
-  onVerify: (destination: D) => void,
+type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
+
+export function useVerifyDestinationInterval(
+  destination: Destination | undefined,
+  mutate: KeyedMutator<Destination[]>,
+  onVerify: (destination: Destination) => void,
 ) {
   useEffect(() => {
     if (!destination || destination.isValid) {

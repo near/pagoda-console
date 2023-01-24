@@ -61,7 +61,7 @@ export function NftInfoCard() {
   );
 
   // update the contract address for data fetching
-  const saveAddressChange: SubmitHandler<NftInfoFormData> = async ({ contractAddress }) => {
+  const saveAddressChange: SubmitHandler<NftInfoFormData> = ({ contractAddress }) => {
     if (!identity || !project) return;
     setSavedContractAddress(contractAddress);
     setIsEditing(false);
@@ -106,7 +106,7 @@ export function NftInfoCard() {
         )}
 
         {isEditing || !savedContractAddress ? (
-          <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(saveAddressChange)}>
+          <Form.Root onSubmit={handleSubmit(saveAddressChange)}>
             <Flex>
               <Form.Group>
                 <Form.Input

@@ -65,8 +65,9 @@ export function DestinationsSelector(props: Props) {
   const { destinations } = useDestinations(project?.slug);
   const [showNewDestinationModal, setShowNewDestinationModal] = useState(false);
   const [showEditDestinationModal, setShowEditDestinationModal] = useState(false);
-  const [selectedEditDestination, setSelectedEditDestination] = useState<Destination>();
+  const [selectedEditDestinationId, setSelectedEditDestinationId] = useState<number>();
   const previousDestinations = useRef<Destination[]>([]);
+  const selectedEditDestination = destinations?.find((d) => d.id === selectedEditDestinationId);
 
   useEffect(() => {
     destinations?.forEach((current) => {
@@ -81,7 +82,7 @@ export function DestinationsSelector(props: Props) {
   }, [destinations, props]);
 
   function openDestination(destination: Destination) {
-    setSelectedEditDestination(destination);
+    setSelectedEditDestinationId(destination.id);
     setShowEditDestinationModal(true);
   }
 

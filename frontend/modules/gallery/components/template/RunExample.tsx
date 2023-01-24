@@ -16,6 +16,16 @@ const RunExampleImage = styled(Box, {
   borderTopLeftRadius: '2.5rem',
   margin: '3.75rem 0',
 
+  '@tablet': {
+    height: '24rem',
+  },
+  '@smallTablet': {
+    height: '18rem',
+  },
+  '@mobile': {
+    height: '14rem',
+  },
+
   '& button': {
     position: 'absolute',
     top: '1.5rem',

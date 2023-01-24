@@ -59,7 +59,7 @@ type AlertWithDestinations = Alert & {
       > | null;
       aggregationDestination: Pick<
         AggregationDestination,
-        'contractName' | 'functionName'
+        'indexerName' | 'indexerFunctionCode'
       > | null;
     };
   }[];
@@ -279,8 +279,8 @@ export class AlertsService {
                   },
                   aggregationDestination: {
                     select: {
-                      contractName: true,
-                      functionName: true,
+                      indexerName: true,
+                      indexerFunctionCode: true,
                     },
                   },
                 },
@@ -340,8 +340,8 @@ export class AlertsService {
                   },
                   aggregationDestination: {
                     select: {
-                      contractName: true,
-                      functionName: true,
+                      indexerName: true,
+                      indexerFunctionCode: true,
                     },
                   },
                 },
@@ -399,8 +399,8 @@ export class AlertsService {
                 },
                 aggregationDestination: {
                   select: {
-                    contractName: true,
-                    functionName: true,
+                    indexerName: true,
+                    indexerFunctionCode: true,
                   },
                 },
               },
@@ -447,8 +447,8 @@ export class AlertsService {
                   },
                   aggregationDestination: {
                     select: {
-                      contractName: true,
-                      functionName: true,
+                      indexerName: true,
+                      indexerFunctionCode: true,
                     },
                   },
                 },
@@ -776,7 +776,10 @@ export class AlertsService {
       name = 'Aggregation Destination',
       projectSlug,
     }: Alerts.CreateBaseDestinationInput,
-    { contractName, functionName }: Alerts.CreateAggregationDestinationConfig,
+    {
+      indexerName,
+      indexerFunctionCode,
+    }: Alerts.CreateAggregationDestinationConfig,
   ) {
     await this.projectPermissions.checkUserProjectPermission(
       user.id,
@@ -797,8 +800,8 @@ export class AlertsService {
               create: {
                 createdBy: user.id,
                 updatedBy: user.id,
-                contractName,
-                functionName,
+                indexerName,
+                indexerFunctionCode,
               },
             },
           },
@@ -809,8 +812,8 @@ export class AlertsService {
             isValid: true,
             aggregationDestination: {
               select: {
-                contractName: true,
-                functionName: true,
+                indexerName: true,
+                indexerFunctionCode: true,
               },
             },
           },
@@ -883,8 +886,8 @@ export class AlertsService {
         },
         aggregationDestination: {
           select: {
-            contractName: true,
-            functionName: true,
+            indexerName: true,
+            indexerFunctionCode: true,
           },
         },
       },
@@ -1133,8 +1136,8 @@ export class AlertsService {
             updatedBy: callingUser.id,
             aggregationDestination: {
               update: {
-                contractName: config.contractName,
-                functionName: config.functionName,
+                indexerName: config.indexerName,
+                indexerFunctionCode: config.indexerFunctionCode,
                 updatedBy: callingUser.id,
               },
             },
@@ -1146,8 +1149,8 @@ export class AlertsService {
             isValid: true,
             aggregationDestination: {
               select: {
-                contractName: true,
-                functionName: true,
+                indexerName: true,
+                indexerFunctionCode: true,
               },
             },
           },

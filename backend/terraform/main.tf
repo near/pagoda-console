@@ -85,11 +85,13 @@ resource "null_resource" "env_secrets" {
       ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/abi?host=/cloudsql/${module.postgres.database_connection_name} ABI_DATABASE_URL_${local.database_secret_suffix} &&
       ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/alerts?host=/cloudsql/${module.postgres.database_connection_name} ALERTS_DATABASE_URL_${local.database_secret_suffix} &&
       ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/rpcstats?host=/cloudsql/${module.postgres.database_connection_name} RPCSTATS_DATABASE_URL_${local.database_secret_suffix} &&
-   
+      ../scripts/gcp_new_secret.sh postgresql://postgres:${var.database_password}@localhost/deploys?host=/cloudsql/${module.postgres.database_connection_name} DEPLOYS_DATABASE_URL_${local.database_secret_suffix} &&
+
       ../scripts/gcp_access_secret.sh DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} &&
       ../scripts/gcp_access_secret.sh ABI_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} && 
       ../scripts/gcp_access_secret.sh ALERTS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account} &&
       ../scripts/gcp_access_secret.sh RPCSTATS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account}
+      ../scripts/gcp_access_secret.sh DEPLOYS_DATABASE_URL_${local.database_secret_suffix} ${var.api_service_account}
     EOT
   }
 
@@ -100,6 +102,7 @@ resource "null_resource" "env_secrets" {
       gcloud secrets delete --quiet --project ${self.triggers.project_id} ABI_DATABASE_URL_${self.triggers.database_secret_suffix};
       gcloud secrets delete --quiet --project ${self.triggers.project_id} ALERTS_DATABASE_URL_${self.triggers.database_secret_suffix};
       gcloud secrets delete --quiet --project ${self.triggers.project_id} RPCSTATS_DATABASE_URL_${self.triggers.database_secret_suffix};
+      gcloud secrets delete --quiet --project ${self.triggers.project_id} DEPLOYS_DATABASE_URL_${self.triggers.database_secret_suffix};
     EOT
   }
 }

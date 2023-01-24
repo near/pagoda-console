@@ -1,8 +1,7 @@
 import type { Api } from '@pc/common/types/api';
+import type { UseMutationResult } from '@tanstack/react-query';
 import type { AbiFunction, AbiRoot, Contract as AbiContract } from 'near-abi-client-js';
 import type { UseFormReturn } from 'react-hook-form';
-
-import type { UseMutationResult } from '@/hooks/raw-mutation';
 
 export type Contract = Api.Query.Output<'/projects/getContract'>;
 

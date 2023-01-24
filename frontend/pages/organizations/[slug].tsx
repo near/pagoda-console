@@ -19,9 +19,9 @@ import { Spinner } from '@/components/lib/Spinner';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
+import { useApiMutation } from '@/hooks/api-mutation';
 import { useAuth } from '@/hooks/auth';
 import { useOrganizationsLayout } from '@/hooks/layouts';
-import { useMutation } from '@/hooks/mutation';
 import {
   mutateOrganizationMembers,
   mutateOrganizations,
@@ -97,7 +97,7 @@ const RemoveUserDialog = ({
   userData: RemovingUserData;
   setUserData: (data?: RemovingUserData) => void;
 }) => {
-  const removeInviteMutation = useMutation('/users/removeOrgInvite', {
+  const removeInviteMutation = useApiMutation('/users/removeOrgInvite', {
     onSuccess: (_result, { email }) => {
       mutateOrganizationMembers(
         orgSlug,
@@ -109,7 +109,8 @@ const RemoveUserDialog = ({
     },
     onError: (error) => openUserErrorToast(parseError(error, getRemoveInviteMessage)),
   });
-  const removeUserMutation = useMutation('/users/removeFromOrg', {
+
+  const removeUserMutation = useApiMutation('/users/removeFromOrg', {
     onSuccess: (_result, { user }) => {
       mutateOrganizationMembers(orgSlug, (members) => members && members.filter((member) => member.user.uid !== user), {
         revalidate: false,
@@ -119,7 +120,9 @@ const RemoveUserDialog = ({
     },
     onError: (error) => openUserErrorToast(parseError(error, getRemoveInviteMessage)),
   });
+
   const resetRemovingUserData = useCallback(() => setUserData(undefined), [setUserData]);
+
   const removeUser = useCallback(() => {
     if (!userData) {
       return;
@@ -130,6 +133,7 @@ const RemoveUserDialog = ({
       removeInviteMutation.mutate({ email: userData.email, org: orgSlug });
     }
   }, [removeInviteMutation, removeUserMutation, userData, orgSlug]);
+
   const resetError = useCallback(() => {
     removeInviteMutation.reset();
     removeUserMutation.reset();
@@ -192,7 +196,7 @@ const OrganizationMemberView = ({
   singleAdmin: boolean;
 }) => {
   const [leavingModalOpen, setLeavingModalOpen] = useState(false);
-  const leaveMutation = useMutation('/users/removeFromOrg', {
+  const leaveMutation = useApiMutation('/users/removeFromOrg', {
     onSuccess: () => {
       mutateOrganizations(
         (organizations) => {
@@ -208,7 +212,7 @@ const OrganizationMemberView = ({
     onError: (error) => openUserErrorToast(parseError(error, getRemoveFromOrgMessage)),
   });
 
-  const changeRoleMutation = useMutation('/users/changeOrgRole', {
+  const changeRoleMutation = useApiMutation('/users/changeOrgRole', {
     onSuccess: (_result, { role }) => openSuccessToast(`Role changed to ${role}`),
     onMutate: ({ user: userUid, role, org: orgSlug }) => {
       let modifiedRole: OrgMember['role'] | undefined;
@@ -399,7 +403,7 @@ const InviteUserDialog = ({
       role: 'COLLABORATOR',
     },
   });
-  const inviteMutation = useMutation('/users/inviteToOrg', {
+  const inviteMutation = useApiMutation('/users/inviteToOrg', {
     onSuccess: (_result, { email, role }) => {
       mutateOrganizationMembers(
         orgSlug,
@@ -519,7 +523,7 @@ const OrganizationView: NextPageWithLayout = () => {
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const switchDeleteModalOpen = useCallback(() => setDeleteModalOpen((open) => !open), [setDeleteModalOpen]);
-  const deleteMutation = useMutation('/users/deleteOrg', {
+  const deleteMutation = useApiMutation('/users/deleteOrg', {
     onSuccess: (_result, { org }) => {
       mutateOrganizationMembers(orgSlug);
       mutateOrganizations((orgs) => orgs && orgs.filter((org) => org.slug !== orgSlug), {

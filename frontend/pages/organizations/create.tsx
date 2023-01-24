@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import React, { useCallback } from 'react';
+import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
@@ -10,8 +11,8 @@ import * as Form from '@/components/lib/Form';
 import { H2 } from '@/components/lib/Heading';
 import { Section } from '@/components/lib/Section';
 import { Text } from '@/components/lib/Text';
+import { useApiMutation } from '@/hooks/api-mutation';
 import { useOrganizationsLayout } from '@/hooks/layouts';
-import { useMutation } from '@/hooks/mutation';
 import {
   mutateOrganizationMembers,
   mutateOrganizations,
@@ -32,11 +33,16 @@ const getCreateOrgMessage = (code: UserError) => {
   }
 };
 
+interface CreateOrganizationForm {
+  name: string;
+}
+
 const CreateOrganization: NextPageWithLayout = () => {
   const router = useRouter();
   const closeDialog = useCallback(() => router.replace('/organizations'), [router]);
-  const form = useForm<{ name: string }>();
-  const createOrgMutation = useMutation('/users/createOrg', {
+  const form = useForm<CreateOrganizationForm>();
+
+  const createOrgMutation = useApiMutation('/users/createOrg', {
     onSuccess: (createdOrg) => {
       mutateOrganizationMembers(createdOrg.slug, [
         {
@@ -55,11 +61,15 @@ const CreateOrganization: NextPageWithLayout = () => {
     onError: (error) => openUserErrorToast(parseError(error, getCreateOrgMessage)),
   });
 
+  const submit: SubmitHandler<CreateOrganizationForm> = (form) => {
+    createOrgMutation.mutate(form);
+  };
+
   return (
     <Section css={{ margin: 'auto' }}>
       <Container size="s">
         <Card>
-          <Form.Root onSubmit={form.handleSubmit(createOrgMutation.mutate)}>
+          <Form.Root onSubmit={form.handleSubmit(submit)}>
             <Flex stack>
               <H2>Add Organization</H2>
               <Text>This will allow you to collaborate with other users on multiple projects.</Text>
@@ -80,9 +90,9 @@ const CreateOrganization: NextPageWithLayout = () => {
 
               <Flex justify="spaceBetween">
                 <Button
+                  type="submit"
                   stableId={StableId.CREATE_ORGANIZATION_SAVE_BUTTON}
                   loading={createOrgMutation.isLoading}
-                  onClick={form.handleSubmit(createOrgMutation.mutate)}
                 >
                   Save
                 </Button>

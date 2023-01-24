@@ -65,6 +65,7 @@ const Public: NextPageWithLayout = () => {
     activatePublicMode();
 
     analytics.track('DC Public Mode Activated', {
+      status: 'success',
       existingUser: authStatus === 'AUTHENTICATED',
       shared: sharedParam === 'true',
       url: window.location.pathname + window.location.search,

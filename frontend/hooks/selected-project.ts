@@ -183,7 +183,7 @@ export function useSelectedProjectRouteParamSync() {
     }
 
     if (projectSlugRouteParam || environmentSubIdRouteParam) {
-      router.replace(router.pathname, undefined, {
+      router.replace(router.asPath.split('?')[0], undefined, {
         shallow: true,
       });
     }

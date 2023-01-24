@@ -1,14 +1,16 @@
+import type { UseMutationResult } from '@tanstack/react-query';
 import type { AuthError, UserCredential } from 'firebase/auth';
 import Link from 'next/link';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import { Button, ButtonLink } from '@/components/lib/Button';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
+import { HR } from '@/components/lib/HorizontalRule';
 import { TextButton } from '@/components/lib/TextLink';
 import { ErrorModal } from '@/components/modals/ErrorModal';
-import type { UseMutationResult } from '@/hooks/raw-mutation';
 import { ForgotPasswordModal } from '@/modules/core/components/modals/ForgotPasswordModal';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
@@ -46,17 +48,13 @@ export function EmailForm({ mutation: signInViaEmailMutation, externalLoading }:
     }
   }, [signInViaEmailMutation.error]);
 
-  const signInWithEmail = useCallback(
-    ({ email, password }) => signInViaEmailMutation.mutate({ email, password }),
-    [signInViaEmailMutation],
-  );
+  const submit: SubmitHandler<EmailAuthFormData> = (form) => {
+    signInViaEmailMutation.mutate(form);
+  };
 
   return (
     <>
-      <Form.Root
-        disabled={signInViaEmailMutation.isLoading || externalLoading}
-        onSubmit={handleSubmit(signInWithEmail)}
-      >
+      <Form.Root disabled={signInViaEmailMutation.isLoading || externalLoading} onSubmit={handleSubmit(submit)}>
         <Flex stack gap="l" align="center">
           <Flex stack gap="m">
             <Form.Group>
@@ -73,7 +71,17 @@ export function EmailForm({ mutation: signInViaEmailMutation, externalLoading }:
             </Form.Group>
 
             <Form.Group>
-              <Form.Label htmlFor="password">Password</Form.Label>
+              <Flex justify="spaceBetween">
+                <Form.Label htmlFor="password">Password</Form.Label>
+                <TextButton
+                  stableId={StableId.AUTHENTICATION_EMAIL_FORM_FORGOT_PASSWORD_BUTTON}
+                  size="s"
+                  onClick={() => setShowResetModal(true)}
+                  tabIndex={-1}
+                >
+                  Forgot Password?
+                </TextButton>
+              </Flex>
               <Form.Input
                 id="password"
                 type="password"
@@ -93,27 +101,20 @@ export function EmailForm({ mutation: signInViaEmailMutation, externalLoading }:
             >
               Continue
             </Button>
-
-            <Link href="/register" passHref>
-              <ButtonLink
-                stableId={StableId.AUTHENTICATION_EMAIL_FORM_SIGN_UP_BUTTON}
-                color="neutral"
-                stretch
-                onClick={() => analytics.track('DC Clicked Sign Up on Login')}
-              >
-                Sign Up
-              </ButtonLink>
-            </Link>
           </Flex>
 
-          <TextButton
-            stableId={StableId.AUTHENTICATION_EMAIL_FORM_FORGOT_PASSWORD_BUTTON}
-            color="neutral"
-            size="s"
-            onClick={() => setShowResetModal(true)}
-          >
-            Forgot Password?
-          </TextButton>
+          <HR />
+
+          <Link href="/register" passHref>
+            <ButtonLink
+              stableId={StableId.AUTHENTICATION_EMAIL_FORM_SIGN_UP_BUTTON}
+              color="neutral"
+              stretch
+              onClick={() => analytics.track('DC Clicked Sign Up on Login')}
+            >
+              Register with Email
+            </ButtonLink>
+          </Link>
         </Flex>
       </Form.Root>
 
