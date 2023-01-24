@@ -8,7 +8,7 @@ datasource db {
 
 generator client {
   provider      = "prisma-client-js"
-  output        = "../../../../generated/prisma/{{MODULE_NAME}}"
+  output        = env("GENERATE_PATH")
   binaryTargets = ["linux-musl", "native"]
 }
 

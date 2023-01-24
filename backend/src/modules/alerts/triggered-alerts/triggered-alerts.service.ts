@@ -157,7 +157,7 @@ export class TriggeredAlertsService {
       triggeredInBlockHash,
       triggeredInTransactionHash,
       triggeredInReceiptId,
-      triggeredAt: triggeredAt.toString(),
+      triggeredAt: triggeredAt.toISOString(),
       extraData,
     };
   }

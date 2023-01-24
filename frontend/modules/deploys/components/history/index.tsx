@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon';
+
 import { Badge } from '@/components/lib/Badge';
 import { Button } from '@/components/lib/Button';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
@@ -5,10 +7,13 @@ import { Flex } from '@/components/lib/Flex';
 import { H5 } from '@/components/lib/Heading';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
+import { useDeployments } from '@/hooks/deploys';
+import { useSelectedProject } from '@/hooks/selected-project';
 import { StableId } from '@/utils/stable-ids';
 
 const History = () => {
-  const history = [1, 2, 3, 4];
+  const project = useSelectedProject();
+  const { deployments } = useDeployments(project.project?.slug);
 
   return (
     <Table.Root>
@@ -36,15 +41,15 @@ const History = () => {
         <Table.Row>
           <Table.HeaderCell>COMMIT</Table.HeaderCell>
           <Table.HeaderCell>DATE</Table.HeaderCell>
-          <Table.HeaderCell>ENVIROMENT</Table.HeaderCell>
+          <Table.HeaderCell>ENVIRONMENT</Table.HeaderCell>
           <Table.HeaderCell>MESSAGE</Table.HeaderCell>
           <Table.HeaderCell></Table.HeaderCell>
         </Table.Row>
       </Table.Head>
 
       <Table.Body>
-        {history.map((i) => (
-          <Table.Row key={i}>
+        {deployments?.map((deployment) => (
+          <Table.Row key={deployment.slug}>
             <Table.Cell>
               <Flex gap="xs">
                 <Text size="bodySmall" color="text1">
@@ -54,13 +59,13 @@ const History = () => {
                   @
                 </Text>
                 <Text size="bodySmall" color="primary" family="number">
-                  4166bf9
+                  {deployment.commitHash.substring(0, 7)}
                 </Text>
               </Flex>
             </Table.Cell>
             <Table.Cell>
               <Text size="bodySmall" family="number" color="text1">
-                Today at 4:35 PM
+                {DateTime.fromISO(deployment.createdAt).toUTC().toLocaleString(DateTime.DATETIME_MED_WITH_WEEKDAY)} GMT
               </Text>
             </Table.Cell>
             <Table.Cell>
@@ -74,7 +79,7 @@ const History = () => {
             </Table.Cell>
             <Table.Cell>
               <Text size="bodySmall" color="text1">
-                Fixed deployment flow
+                {deployment.commitMessage}
               </Text>
             </Table.Cell>
             <Table.Cell>
