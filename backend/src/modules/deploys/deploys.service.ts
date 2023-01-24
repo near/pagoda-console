@@ -529,6 +529,7 @@ export class DeploysService {
             slug,
             commitHash,
             commitMessage,
+            githubRepoFullName,
             createdAt: createdAt.toISOString(),
             frontendDeployments,
             contractDeployments,
