@@ -120,9 +120,9 @@ export const destinationTypes: Record<DestinationType, DestinationTypeOption> = 
     value: 'WEBHOOK',
   },
   AGGREGATION: {
-    description: 'Call an aggregation function.',
+    description: 'Call an indexer function.',
     icon: 'table',
-    name: 'Aggregation',
+    name: 'Indexer Function',
     value: 'AGGREGATION',
   },
 };
