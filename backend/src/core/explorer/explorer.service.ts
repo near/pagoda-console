@@ -320,11 +320,15 @@ const collectNestedReceiptWithOutcome = (
 ): Explorer.NestedReceiptWithOutcome => {
   const parsedElement = parsedMap.get(idOrHash)!;
   const { receiptIds, ...restOutcome } = parsedElement.outcome;
+  // TODO instead of filtering receipts out, we should be getting the details from RPC in the EXPERIMENTAL_tx_status call
+  // but RPC stopped providing refund receipt's details so we needed to put this fix in place.
+  // Right now, filtering out the receipts is easier than trying to return just the id of the receipt if the details are not found.
+  const filteredReceipts = receiptIds.filter((id) => parsedMap.has(id));
   return {
     ...parsedElement,
     outcome: {
       ...restOutcome,
-      nestedReceipts: receiptIds.map((id) =>
+      nestedReceipts: filteredReceipts.map((id) =>
         collectNestedReceiptWithOutcome(id, parsedMap),
       ),
     },

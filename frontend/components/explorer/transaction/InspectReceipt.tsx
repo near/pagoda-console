@@ -73,6 +73,7 @@ const InspectReceipt: React.FC<Props> = React.memo(({ receipt: { id, ...receipt 
   const receiverBalance = query.data?.[0];
 
   const gasAttached = getGasAttached(receipt.actions);
+  // TODO this will always show 0 because we are no longer receiving refund receipt details from RPC
   const refund =
     receipt.outcome.nestedReceipts
       .filter((receipt) => receipt.predecessorId === 'system')
