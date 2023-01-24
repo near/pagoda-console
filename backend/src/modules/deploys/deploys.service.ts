@@ -345,6 +345,14 @@ export class DeploysService {
       try {
         txOutcome = await account.deployContract(file);
       } catch (e: any) {
+        await this.prisma.contractDeployment.create({
+          data: {
+            slug: nanoid(),
+            repoDeploymentSlug,
+            contractDeployConfigSlug: deployConfig.slug,
+            status: 'ERROR',
+          },
+        });
         throw new VError(
           e,
           `Could not deploy wasm to account ${account.accountId}`,
@@ -358,6 +366,7 @@ export class DeploysService {
         repoDeploymentSlug,
         contractDeployConfigSlug: deployConfig.slug,
         deployTransactionHash: txOutcome ? txOutcome.transaction.hash : null,
+        status: 'SUCCESS',
       },
     });
 
@@ -465,33 +474,6 @@ export class DeploysService {
             nearAccountId: true,
           },
         },
-        repoDeployments: {
-          // Get the latest deployment
-          orderBy: {
-            createdAt: 'desc',
-          },
-          take: 1,
-          include: {
-            frontendDeployments: {
-              select: {
-                slug: true,
-                url: true,
-                cid: true,
-                frontendDeployConfig: {
-                  select: {
-                    packageName: true,
-                  },
-                },
-              },
-            },
-            contractDeployments: {
-              select: {
-                slug: true,
-                deployTransactionHash: true,
-              },
-            },
-          },
-        },
       },
     });
 
@@ -504,7 +486,6 @@ export class DeploysService {
         enabled,
         frontendDeployConfigs,
         contractDeployConfigs,
-        repoDeployments,
       } = repository;
 
       return {
@@ -515,26 +496,6 @@ export class DeploysService {
         enabled,
         frontendDeployConfigs,
         contractDeployConfigs,
-        repoDeployments: repoDeployments.map((r) => {
-          const {
-            slug,
-            commitHash,
-            commitMessage,
-            createdAt,
-            frontendDeployments,
-            contractDeployments,
-          } = r;
-
-          return {
-            slug,
-            commitHash,
-            commitMessage,
-            githubRepoFullName,
-            createdAt: createdAt.toISOString(),
-            frontendDeployments,
-            contractDeployments,
-          };
-        }),
       };
     });
   }
@@ -585,6 +546,7 @@ export class DeploysService {
           select: {
             slug: true,
             deployTransactionHash: true,
+            status: true,
           },
         },
       },

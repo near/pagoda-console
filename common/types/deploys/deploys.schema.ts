@@ -16,6 +16,7 @@ const contractDeployments = z.array(
   z.strictObject({
     slug: z.string(),
     deployTransactionHash: z.string().or(z.null()),
+    status: z.enum(['IN_PROGRESS', 'ERROR', 'SUCCESS'])
   }),
 );
 
@@ -61,8 +62,7 @@ export const query = {
             filename: z.string(),
             nearAccountId: z.string(),
           }),
-        ),
-        repoDeployments,
+        )
       }),
     ),
     listDeployments: repoDeployments,

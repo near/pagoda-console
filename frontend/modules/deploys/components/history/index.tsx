@@ -11,7 +11,7 @@ import { useDeployments } from '@/hooks/deploys';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { StableId } from '@/utils/stable-ids';
 
-import { deployCompleted } from '../testnet';
+import { wasmDeployCompleted } from '../testnet';
 
 const History = () => {
   const project = useSelectedProject();
@@ -50,7 +50,7 @@ const History = () => {
       </Table.Head>
 
       <Table.Body>
-        {deployments?.filter(deployCompleted).map((deployment) => (
+        {deployments?.filter(wasmDeployCompleted).map((deployment) => (
           <Table.Row key={deployment.slug}>
             <Table.Cell>
               <Flex gap="xs">
@@ -97,20 +97,22 @@ const History = () => {
             </Table.Cell>
             <Table.Cell>
               <Flex justify="end">
-                <Button
-                  stableId={StableId.DEPLOYS_HISTORY_RECORD}
-                  hideText="tablet"
-                  size="s"
-                  color="neutral"
-                  onClick={() =>
-                    window.open(
-                      `https://explorer.testnet.near.org/transactions/${deployment.contractDeployments[0].deployTransactionHash}`,
-                      '_blank',
-                    )
-                  }
-                >
-                  <FeatherIcon size="xs" icon="zap" />
-                </Button>
+                {deployment?.contractDeployments?.[0]?.deployTransactionHash ? (
+                  <Button
+                    stableId={StableId.DEPLOYS_HISTORY_RECORD}
+                    hideText="tablet"
+                    size="s"
+                    color="neutral"
+                    onClick={() =>
+                      window.open(
+                        `https://explorer.testnet.near.org/transactions/${deployment.contractDeployments[0].deployTransactionHash}`,
+                        '_blank',
+                      )
+                    }
+                  >
+                    <FeatherIcon size="xs" icon="zap" />
+                  </Button>
+                ) : null}
               </Flex>
             </Table.Cell>
           </Table.Row>
