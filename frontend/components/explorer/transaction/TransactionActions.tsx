@@ -168,14 +168,13 @@ const TransactionActionsList: React.FC<ListProps> = React.memo(({ transaction })
     setActiveReceipts(receipts);
   }, [activeReceipts, toggleType]);
 
-  const nestedReceipts = transaction.receipt.outcome.nestedReceipts;
   const pending = React.useMemo(() => {
-    const completedTimestamp = nestedReceipts.at(-1)?.outcome?.block?.timestamp;
+    const completedTimestamp = transaction.receipt?.outcome?.block?.timestamp;
     if (!completedTimestamp) {
       return <Placeholder css={{ display: 'inline-block', width: '8rem' }} />;
     }
     return toHuman(Interval.fromDateTimes(new Date(transaction.timestamp), new Date(completedTimestamp)).toDuration());
-  }, [transaction.timestamp, nestedReceipts]);
+  }, [transaction.timestamp, transaction.receipt]);
 
   const toggleReceipts = (id: string) => {
     setActiveReceipts((prevState) => {
@@ -206,7 +205,7 @@ const TransactionActionsList: React.FC<ListProps> = React.memo(({ transaction })
         <TitleWrapper>
           <div>
             <H4>Execution Plan</H4>
-            <span>Processed in {pending}</span>
+            <span>Processed in {pending === '0 seconds' ? '< 1 second' : pending}</span>
           </div>
           <Button stableId={StableId.TRANSACTION_ACTIONS_RESPONSE_EXPAND_BUTTON} size="s" onClick={toggleAllReceipts}>
             {toggleType === 'toggle' ? 'Collapse all -' : 'Expand All + '}

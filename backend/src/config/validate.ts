@@ -99,6 +99,7 @@ export interface AppConfig {
 
 const databaseSchema = Joi.object({
   host: Joi.string(),
+  port: Joi.number().integer().optional(),
   database: Joi.string(),
   user: Joi.string(),
   password: Joi.string(),
@@ -250,6 +251,7 @@ export default function validate(config: Record<string, unknown>): AppConfig {
       MAINNET: {
         host:
           config.INDEXER_MAINNET_HOST || 'mainnet.db.explorer.indexer.near.dev',
+        port: config.INDEXER_MAINNET_PORT,
         database: config.INDEXER_MAINNET_DATABASE || 'mainnet_explorer',
         user: config.INDEXER_MAINNET_USER || 'public_readonly',
         password: config.INDEXER_MAINNET_PASSWORD || 'nearprotocol',
@@ -257,6 +259,7 @@ export default function validate(config: Record<string, unknown>): AppConfig {
       TESTNET: {
         host:
           config.INDEXER_TESTNET_HOST || 'testnet.db.explorer.indexer.near.dev',
+        port: config.INDEXER_TESTNET_PORT,
         database: config.INDEXER_TESTNET_DATABASE || 'testnet_explorer',
         user: config.INDEXER_TESTNET_USER || 'public_readonly',
         password: config.INDEXER_TESTNET_PASSWORD || 'nearprotocol',
