@@ -27,6 +27,7 @@ const repoDeployments = z.array(
     createdAt: stringifiedDate,
     frontendDeployments,
     contractDeployments,
+    githubRepoFullName: z.string(),
   }),
 );
 
