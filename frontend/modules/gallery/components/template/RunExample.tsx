@@ -1,12 +1,9 @@
 import Image from 'next/image';
 
 import { Box } from '@/components/lib/Box';
-import { Button } from '@/components/lib/Button';
-import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { useGalleryStore } from '@/stores/gallery';
 import { selectTemplateAttributes } from '@/stores/gallery/gallery';
 import { styled } from '@/styles/stitches';
-import { StableId } from '@/utils/stable-ids';
 
 const RunExampleImage = styled(Box, {
   width: '100%',
@@ -36,15 +33,15 @@ const RunExampleImage = styled(Box, {
 const RunExample = () => {
   const { heroUrl } = useGalleryStore(selectTemplateAttributes);
 
-  return (
+  return heroUrl ? (
     <RunExampleImage>
       <Image layout="fill" src={heroUrl} alt="" />
-      <Button stableId={StableId.GALLERY_RUN_EXAMPLE}>
+      {/* <Button stableId={StableId.GALLERY_RUN_EXAMPLE}>
         <FeatherIcon icon="play" size="s" />
         Run Example
-      </Button>
+      </Button> */}
     </RunExampleImage>
-  );
+  ) : null;
 };
 
 export default RunExample;

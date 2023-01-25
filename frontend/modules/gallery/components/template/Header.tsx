@@ -81,10 +81,10 @@ const Header = () => {
             </UseTemplateButton>
           </Flex>
           <Flex justify="end">
-            <Button color="neutral" stableId={StableId.GALLERY_LIKE}>
+            {/* <Button color="neutral" stableId={StableId.GALLERY_LIKE}>
               <FeatherIcon icon="heart" color="danger" size="s" />
               319
-            </Button>
+            </Button> */}
             <ButtonLink href={githubUrl} color="neutral" stableId={StableId.GALLERY_VIEW_SOURCE}>
               <FeatherIcon icon="github" size="s" />
               View Source

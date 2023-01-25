@@ -7,7 +7,7 @@ import { styled } from '@/styles/stitches';
 
 import Header from './Header';
 import RunExample from './RunExample';
-import Share from './Share';
+// import Share from './Share';
 import TemplateArchitecture from './TemplateArchitecture';
 import ToolsUsed from './ToolsUsed';
 
@@ -53,8 +53,8 @@ const TemplateDetails = () => {
           <TemplateArchitecture architectureUrl={architectureUrl} />
           <HR color="border2" margin="m" />
           <ToolsUsed tools={tools} />
-          <HR color="border2" margin="m" />
-          <Share />
+          {/* <HR color="border2" margin="m" />
+          <Share /> */}
         </Details>
       </Grid>
     </>
