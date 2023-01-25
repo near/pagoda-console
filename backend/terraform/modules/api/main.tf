@@ -245,6 +245,11 @@ resource "google_cloud_run_service" "console_api" {
         }
 
         env {
+          name  = "INDEXER_TESTNET_PORT"
+          value = "6432"
+        }
+
+        env {
           name = "INDEXER_TESTNET_DATABASE"
           value_from {
             secret_key_ref {
