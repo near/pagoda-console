@@ -6,6 +6,9 @@ const frontendDeployments = z.array(
     slug: z.string(),
     url: z.string().or(z.null()),
     cid: z.string().or(z.null()),
+    frontendDeployConfig: z.strictObject({
+      packageName: z.string()
+    })
   }),
 );
 
@@ -13,6 +16,7 @@ const contractDeployments = z.array(
   z.strictObject({
     slug: z.string(),
     deployTransactionHash: z.string().or(z.null()),
+    status: z.enum(['IN_PROGRESS', 'ERROR', 'SUCCESS'])
   }),
 );
 
@@ -24,6 +28,7 @@ const repoDeployments = z.array(
     createdAt: stringifiedDate,
     frontendDeployments,
     contractDeployments,
+    githubRepoFullName: z.string(),
   }),
 );
 
@@ -57,8 +62,7 @@ export const query = {
             filename: z.string(),
             nearAccountId: z.string(),
           }),
-        ),
-        repoDeployments,
+        )
       }),
     ),
     listDeployments: repoDeployments,
@@ -100,6 +104,7 @@ export const mutation = {
   outputs: {
     addDeploy: z.strictObject({
       repositorySlug: z.string(),
+      projectSlug: z.string(),
     }),
     deployWasm: z.void(),
     wasmFiles: z.void(),
