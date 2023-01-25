@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
-import { Text } from '@/components/lib/Text';
 import PlaceholderImage from '@/public/images/gallery/placeholder.png';
 import { styled } from '@/styles/stitches';
 import { StableId } from '@/utils/stable-ids';
@@ -61,9 +60,9 @@ const TemplateImage = styled('div', {
   },
 });
 
-const TemplateShared = styled(FeatherIcon, {
-  transform: 'rotate(-90deg)',
-});
+// const TemplateShared = styled(FeatherIcon, {
+//   transform: 'rotate(-90deg)',
+// });
 
 const ResultsTemplate = ({ template }) => {
   const router = useRouter();
@@ -80,12 +79,12 @@ const ResultsTemplate = ({ template }) => {
       </TemplateImage>
 
       <TemplateTitle>{template.attributes.name}</TemplateTitle>
-      <Flex align="center">
+      {/* <Flex align="center">
         <TemplateShared icon="share-2" color="text3" size="s" />
         <Text color="text3">28.4k</Text>
         <FeatherIcon icon="heart" color="text3" size="s" />
         <Text color="text3">3.4k</Text>
-      </Flex>
+      </Flex> */}
     </Template>
   );
 };
