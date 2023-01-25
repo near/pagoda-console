@@ -11,6 +11,8 @@ import { useDeployments } from '@/hooks/deploys';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { StableId } from '@/utils/stable-ids';
 
+import { wasmDeployCompleted } from '../testnet';
+
 const History = () => {
   const project = useSelectedProject();
   const { deployments } = useDeployments(project.project?.slug);
@@ -29,11 +31,11 @@ const History = () => {
           <Table.HeaderCell></Table.HeaderCell>
           <Table.HeaderCell></Table.HeaderCell>
           <Table.HeaderCell textTransform="none">
-            <Flex justify="end">
+            {/* <Flex justify="end">
               <Button stableId={StableId.DEPLOYS_HISTORY_FILTER} hideText="tablet" size="s" color="primaryBorder">
                 <FeatherIcon size="xs" icon="sliders" /> Filter
               </Button>
-            </Flex>
+            </Flex> */}
           </Table.HeaderCell>
         </Table.Row>
       </Table.Head>
@@ -48,17 +50,28 @@ const History = () => {
       </Table.Head>
 
       <Table.Body>
-        {deployments?.map((deployment) => (
+        {deployments?.filter(wasmDeployCompleted).map((deployment) => (
           <Table.Row key={deployment.slug}>
             <Table.Cell>
               <Flex gap="xs">
-                <Text size="bodySmall" color="text1">
+                {/* <Text size="bodySmall" color="text1">
                   dev
                 </Text>
                 <Text size="bodySmall" color="text3">
                   @
-                </Text>
-                <Text size="bodySmall" color="primary" family="number">
+                </Text> */}
+                <Text
+                  size="bodySmall"
+                  color="primary"
+                  family="number"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() =>
+                    window.open(
+                      `https://www.github.com/${deployment.githubRepoFullName}/commit/${deployment.commitHash}`,
+                      '_blank',
+                    )
+                  }
+                >
                   {deployment.commitHash.substring(0, 7)}
                 </Text>
               </Flex>
@@ -74,7 +87,7 @@ const History = () => {
                   <FeatherIcon size="xs" icon="code" color="warning" />
                   Testnet
                 </Badge>{' '}
-                1m 58s
+                {/* 1m 58s */}
               </Text>
             </Table.Cell>
             <Table.Cell>
@@ -84,9 +97,22 @@ const History = () => {
             </Table.Cell>
             <Table.Cell>
               <Flex justify="end">
-                <Button stableId={StableId.DEPLOYS_HISTORY_RECORD} hideText="tablet" size="s" color="neutral">
-                  <FeatherIcon size="xs" icon="zap" />
-                </Button>
+                {deployment?.contractDeployments?.[0]?.deployTransactionHash ? (
+                  <Button
+                    stableId={StableId.DEPLOYS_HISTORY_RECORD}
+                    hideText="tablet"
+                    size="s"
+                    color="neutral"
+                    onClick={() =>
+                      window.open(
+                        `https://explorer.testnet.near.org/transactions/${deployment.contractDeployments[0].deployTransactionHash}`,
+                        '_blank',
+                      )
+                    }
+                  >
+                    <FeatherIcon size="xs" icon="zap" />
+                  </Button>
+                ) : null}
               </Flex>
             </Table.Cell>
           </Table.Row>

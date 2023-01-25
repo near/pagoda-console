@@ -61,6 +61,12 @@ model RepoDeployment {
   createdAt           DateTime             @default(now()) @db.Timestamptz
 }
 
+enum ContractDeployStatus {
+  IN_PROGRESS
+  SUCCESS
+  ERROR
+}
+
 // an executed deployment action on a single ContractDeployConfig
 model ContractDeployment {
   slug                     String               @unique
@@ -69,6 +75,7 @@ model ContractDeployment {
   contractDeployConfig     ContractDeployConfig @relation(fields: [contractDeployConfigSlug], references: [slug])
   contractDeployConfigSlug String
   deployTransactionHash    String?
+  status                   ContractDeployStatus @default(IN_PROGRESS)
 }
 
 // an executed deployment action on a single FrontendDeployConfig

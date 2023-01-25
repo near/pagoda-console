@@ -68,10 +68,12 @@ interface Props {
 
 const ContractTransaction = ({ contract }: Props) => {
   const transactionHashParam = useRouteParam('transactionHashes');
+  const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     if (transactionHashParam) {
+      setTransactionHash(transactionHashParam);
       router.replace(`/contracts/${contract.slug}?tab=interact`);
     }
   }, [transactionHashParam, contract.slug, router]);
@@ -134,8 +136,8 @@ const ContractTransaction = ({ contract }: Props) => {
     initContractMethods(contract.net.toLowerCase(), contract.address, contractAbi).then(setContractMethods);
   }, [contract.address, contract.net, contractAbi]);
 
-  const sendTransactionMutationData = transactionHashParam
-    ? { hash: transactionHashParam }
+  const sendTransactionMutationData = transactionHash
+    ? { hash: transactionHash }
     : (sendTransactionMutation.data as any)?.transaction?.hash
     ? { hash: (sendTransactionMutation.data as any)?.transaction?.hash }
     : sendTransactionMutation.data;
