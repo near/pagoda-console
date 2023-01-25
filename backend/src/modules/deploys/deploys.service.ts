@@ -249,6 +249,8 @@ export class DeploysService {
           deployConfig,
           file: file.buffer,
           repoDeploymentSlug: repoDeployment.slug,
+          projectSlug: repo.projectSlug,
+          subId: repo.environmentSubId,
         });
       }),
     );
@@ -309,7 +311,13 @@ export class DeploysService {
   /**
    * Deploys a single contract WASM bundle
    */
-  async deployContract({ deployConfig, file, repoDeploymentSlug }) {
+  async deployContract({
+    deployConfig,
+    file,
+    repoDeploymentSlug,
+    projectSlug,
+    subId,
+  }) {
     const keyPair = KeyPair.fromString(deployConfig.nearPrivateKey);
     const keyStore = new keyStores.InMemoryKeyStore();
     const nearConfig = {
@@ -337,6 +345,14 @@ export class DeploysService {
       try {
         txOutcome = await account.deployContract(file);
       } catch (e: any) {
+        await this.prisma.contractDeployment.create({
+          data: {
+            slug: nanoid(),
+            repoDeploymentSlug,
+            contractDeployConfigSlug: deployConfig.slug,
+            status: 'ERROR',
+          },
+        });
         throw new VError(
           e,
           `Could not deploy wasm to account ${account.accountId}`,
@@ -350,8 +366,15 @@ export class DeploysService {
         repoDeploymentSlug,
         contractDeployConfigSlug: deployConfig.slug,
         deployTransactionHash: txOutcome ? txOutcome.transaction.hash : null,
+        status: 'SUCCESS',
       },
     });
+
+    await this.projectsService.systemAddContract(
+      projectSlug,
+      subId,
+      account.accountId,
+    );
   }
 
   /**
@@ -451,28 +474,6 @@ export class DeploysService {
             nearAccountId: true,
           },
         },
-        repoDeployments: {
-          // Get the latest deployment
-          orderBy: {
-            createdAt: 'desc',
-          },
-          take: 1,
-          include: {
-            frontendDeployments: {
-              select: {
-                slug: true,
-                url: true,
-                cid: true,
-              },
-            },
-            contractDeployments: {
-              select: {
-                slug: true,
-                deployTransactionHash: true,
-              },
-            },
-          },
-        },
       },
     });
 
@@ -485,7 +486,6 @@ export class DeploysService {
         enabled,
         frontendDeployConfigs,
         contractDeployConfigs,
-        repoDeployments,
       } = repository;
 
       return {
@@ -496,25 +496,6 @@ export class DeploysService {
         enabled,
         frontendDeployConfigs,
         contractDeployConfigs,
-        repoDeployments: repoDeployments.map((r) => {
-          const {
-            slug,
-            commitHash,
-            commitMessage,
-            createdAt,
-            frontendDeployments,
-            contractDeployments,
-          } = r;
-
-          return {
-            slug,
-            commitHash,
-            commitMessage,
-            createdAt: createdAt.toISOString(),
-            frontendDeployments,
-            contractDeployments,
-          };
-        }),
       };
     });
   }
@@ -544,17 +525,28 @@ export class DeploysService {
       },
       take,
       include: {
+        repository: {
+          select: {
+            githubRepoFullName: true,
+          },
+        },
         frontendDeployments: {
           select: {
             slug: true,
             url: true,
             cid: true,
+            frontendDeployConfig: {
+              select: {
+                packageName: true,
+              },
+            },
           },
         },
         contractDeployments: {
           select: {
             slug: true,
             deployTransactionHash: true,
+            status: true,
           },
         },
       },
@@ -568,6 +560,7 @@ export class DeploysService {
         createdAt,
         frontendDeployments,
         contractDeployments,
+        repository,
       } = deployment;
 
       return {
@@ -577,6 +570,7 @@ export class DeploysService {
         createdAt: createdAt.toISOString(),
         frontendDeployments,
         contractDeployments,
+        githubRepoFullName: repository.githubRepoFullName,
       };
     });
   }

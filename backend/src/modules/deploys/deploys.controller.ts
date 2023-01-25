@@ -48,6 +48,7 @@ export class DeploysController {
     });
     return {
       repositorySlug: repository.slug,
+      projectSlug: repository.projectSlug,
     };
   }
 
