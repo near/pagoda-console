@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -12,6 +13,7 @@ import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { useApiMutation } from '@/hooks/api-mutation';
 import { useRouteParam } from '@/hooks/route';
+import { useProjectSelector } from '@/hooks/selected-project';
 import { AuthForm } from '@/modules/core/components/AuthForm';
 import type { Template } from '@/stores/gallery/gallery';
 import analytics from '@/utils/analytics';
@@ -65,6 +67,9 @@ interface DeployFormData {
 }
 
 function ConnectedModalContent(props: Props) {
+  const { selectProject } = useProjectSelector();
+  const router = useRouter();
+
   const repositoryName = props.template.attributes.githubUrl.split('/').pop() as string;
   const form = useForm<DeployFormData>({
     defaultValues: {
@@ -73,7 +78,7 @@ function ConnectedModalContent(props: Props) {
   });
 
   const deployMutation = useApiMutation('/deploys/addDeploy', {
-    onSuccess: () => {
+    onSuccess: (res) => {
       analytics.track('DC Deploy Gallery Template', {
         status: 'success',
         id: props.template.id,
@@ -87,6 +92,8 @@ function ConnectedModalContent(props: Props) {
         description: `Repository was created: ${name}`,
       });
 
+      selectProject(res.projectSlug);
+      router.push('/deploys');
       props.setShow(false);
 
       // TODO: Redirect to deploy module page to show progress?

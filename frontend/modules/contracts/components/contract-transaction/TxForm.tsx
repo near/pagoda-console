@@ -67,7 +67,7 @@ const TxForm = ({ contract, mutation, methods }: TxFormProps) => {
         const params = JSON.parse(paramsRaw);
 
         for (const param in params) {
-          form.setValue(`params.${param}`, params[param]);
+          form.setValue(param as any, params[param]);
         }
 
         sessionStorage.removeItem(`contractInteractForm:${contract.slug}`);

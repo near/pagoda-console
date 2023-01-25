@@ -14,7 +14,7 @@ export function useRecentTransactions(contract: string | undefined, net: Net | u
   const { data: transactions, error } = useSWR(
     contract && net ? ['/explorer/getTransactions' as const, contract, net] : null,
     (path, contract, net) => {
-      return api.query(path, { contracts: contract.split(','), net }, true);
+      return api.query(path, { contracts: contract.split(','), net }, false);
     },
   );
 
