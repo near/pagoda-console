@@ -1,7 +1,7 @@
 # ┌─────────────┬────────────────────────────────────────────────────────┐
 # │ BUILD STAGE │
 # └─────────────┘
-FROM node:16-alpine as prune
+FROM node:16.19-alpine3.17 as prune
 RUN apk update
 
 # turborepo setup
@@ -19,7 +19,7 @@ RUN turbo prune --scope=@pc/cms --docker
 # ┌─────────────┬────────────────────────────────────────────────────────┐
 # │ BUILD STAGE │
 # └─────────────┘
-FROM node:16-alpine as build
+FROM node:16.19-alpine3.17 as build
 RUN apk update
 
 # strapi deps
@@ -55,7 +55,7 @@ RUN turbo build:cms --filter=@pc/cms...
 # ┌─────────────┬────────────────────────────────────────────────────────┐
 # │ BUILD STAGE │
 # └─────────────┘
-FROM node:16-alpine
+FROM node:16.19-alpine3.17
 RUN apk update
 # Installing libvips-dev for sharp Compatibility
 RUN apk add vips-dev
