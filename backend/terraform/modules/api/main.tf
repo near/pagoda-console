@@ -313,6 +313,36 @@ resource "google_cloud_run_service" "console_api" {
             }
           }
         }
+
+        env {
+          name = "DEPLOYS_DATABASE_URL"
+          value_from {
+            secret_key_ref {
+              name = "DEPLOYS_DATABASE_URL_${var.database_secret_suffix}"
+              key  = "latest"
+            }
+          }
+        }
+
+        env {
+          name = "GITHUB_CONNECT_CLIENT_ID"
+          value_from {
+            secret_key_ref {
+              name = "GITHUB_CONNECT_CLIENT_ID_${local.environment_upper}"
+              key  = "1"
+            }
+          }
+        }
+
+        env {
+          name = "GITHUB_CONNECT_CLIENT_SECRET"
+          value_from {
+            secret_key_ref {
+              name = "GITHUB_CONNECT_CLIENT_SECRET_${local.environment_upper}"
+              key  = "1"
+            }
+          }
+        }
       }
     }
   }
