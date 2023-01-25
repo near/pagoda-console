@@ -1,5 +1,5 @@
 {
-  "name": "rpcaas-client",
+  "name": "@pc/rpcaas-client",
   "version": "",
   "description": "OpenAPI client for ",
   "author": "OpenAPI-Generator Contributors",

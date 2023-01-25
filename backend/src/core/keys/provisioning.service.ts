@@ -11,7 +11,7 @@ import {
   SecretApi,
   SecretBody,
   SecretBodyKongCredTypeEnum,
-} from 'rpcaas-client';
+} from '@pc/rpcaas-client';
 import { VError } from 'verror';
 
 @Injectable()

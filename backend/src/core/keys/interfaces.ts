@@ -1,4 +1,4 @@
-import { Consumer } from 'rpcaas-client';
+import { Consumer } from '@pc/rpcaas-client';
 
 export interface ApiKeysProvisioningServiceInterface {
   createOrganization(kongConsumer: string, orgSlug: string);

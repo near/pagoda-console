@@ -14,7 +14,8 @@
     "cms",
     "test",
     "abi",
-    "eslint-rules"
+    "eslint-rules",
+    "rpcaas-client"
   ],
   "scripts": {
     "prepare": "husky install",
