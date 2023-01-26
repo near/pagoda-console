@@ -48,7 +48,7 @@ function useProjectPages(): SidebarEntry[] {
   }
 
   pages.push(...apisEntries);
-  if(repositories && repositories.length) {
+  if (repositories && repositories.length) {
     pages.push(...deploysEntries);
   }
   pages.push(...alertsEntries);

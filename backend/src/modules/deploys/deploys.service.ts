@@ -370,11 +370,18 @@ export class DeploysService {
       },
     });
 
-    await this.projectsService.systemAddContract(
-      projectSlug,
-      subId,
-      account.accountId,
-    );
+    try {
+      await this.projectsService.systemAddContract(
+        projectSlug,
+        subId,
+        account.accountId,
+      );
+    } catch (e: any) {
+      if (e.jse_info.response === 'DUPLICATE_CONTRACT_ADDRESS') {
+        return;
+      }
+      throw e;
+    }
   }
 
   /**
