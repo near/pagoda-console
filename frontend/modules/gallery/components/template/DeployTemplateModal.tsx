@@ -181,8 +181,10 @@ function UnconnectedModalContent(props: Props) {
 function UnauthenticatedModalContent() {
   return (
     <Flex stack gap="l">
-      <Text>To deploy this template, you&apos;ll need to sign in and connect your GitHub account:</Text>
-      <AuthForm />
+      <Flex stack gap="l">
+        <Text>To deploy this template, you&apos;ll need to sign in to your account:</Text>
+        <AuthForm />
+      </Flex>
     </Flex>
   );
 }
