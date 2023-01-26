@@ -18,6 +18,7 @@ COPY ./common/package.json ./common/package.json
 COPY ./abi/package.json ./abi/package.json
 COPY ./backend/package.json ./backend/package.json
 COPY ./frontend/package.json ./frontend/package.json
+COPY ./rpcaas-client/package.json ./rpcaas-client/package.json
 
 # Ignore prepare script which will attempt to install husky: https://typicode.github.io/husky/#/?id=disable-husky-in-cidockerprod
 RUN npm set-script prepare ""
@@ -32,6 +33,7 @@ COPY ./backend ./backend
 COPY ./common ./common
 COPY ./abi ./abi
 COPY ./database ./database
+COPY ./rpcaas-client ./rpcaas-client
 
 # This will also build any other packages in the repo which backend depends on
 RUN npx turbo build --filter=backend
