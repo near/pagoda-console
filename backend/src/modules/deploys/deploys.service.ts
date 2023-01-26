@@ -377,7 +377,7 @@ export class DeploysService {
         account.accountId,
       );
     } catch (e: any) {
-      if (e.jse_info.response === 'DUPLICATE_CONTRACT_ADDRESS') {
+      if (VError.info(e)?.response === 'DUPLICATE_CONTRACT_ADDRESS') {
         return;
       }
       throw e;
