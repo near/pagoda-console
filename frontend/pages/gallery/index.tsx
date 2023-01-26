@@ -127,7 +127,7 @@ const Gallery = ({ templates, filters }: GalleryProps) => {
             <Step
               icon={<IconThree />}
               header="Enjoy Automated Builds & Deploys"
-              text="Your contracts are auto-deployed to the NEAR testnet and Github pages (for templates with a UI)."
+              text="Your contracts are auto-deployed to the NEAR testnet and IPFS (for templates with a UI)."
             />
           </Flex>
         </Container>
