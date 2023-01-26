@@ -9,9 +9,10 @@
       "@/*": ["./*"],
       "@generated/*": ["./generated/*"],
       "@pc/common/*": ["../common/*"],
-      "@pc/abi/*": ["../abi/*"]
+      "@pc/abi/*": ["../abi/*"],
+      "@pc/rpcaas-client/*": ["../rpcaas-client/*"]
     }
   },
-  "include": ["**/*", "../common/**/*", "../abi/**/*"],
+  "include": ["**/*", "../common/**/*", "../abi/**/*", "../rpcaas-client/**/*"],
   "exclude": ["modules/template/**/*"]
 }
