@@ -67,7 +67,7 @@ const Testnet = () => {
   // TODO add better loading state
   if (!repositories || !repositories.length) {
     return (
-      <Flex align="center">
+      <Flex align="center" style={{ width: '35rem' }}>
         <MainCard borderRadius="m" padding="none">
           <Box padding="m" background="surface3"></Box>
         </MainCard>
