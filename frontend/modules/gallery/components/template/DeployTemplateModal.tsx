@@ -72,11 +72,7 @@ function ConnectedModalContent(props: Props) {
   const router = useRouter();
 
   const repositoryName = props.template.attributes.githubUrl.split('/').pop() as string;
-  const form = useForm<DeployFormData>({
-    defaultValues: {
-      repositoryName: `${repositoryName}-copy`,
-    },
-  });
+  const form = useForm<DeployFormData>();
 
   const deployMutation = useApiMutation('/deploys/addDeploy', {
     onSuccess: (res) => {
@@ -135,13 +131,17 @@ function ConnectedModalContent(props: Props) {
               label="Github User Name"
               placeholder={'satoshi'}
               stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_REPO_USER_NAME_INPUT}
-              {...form.register('githubUsername')}
+              {...form.register('githubUsername', {
+                required: true,
+              })}
             />
             <Form.FloatingLabelInput
               label="Repository Name"
               placeholder={repositoryName}
               stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_REPO_NAME_INPUT}
-              {...form.register('repositoryName')}
+              {...form.register('repositoryName', {
+                required: true,
+              })}
             />
           </Form.Group>
 
