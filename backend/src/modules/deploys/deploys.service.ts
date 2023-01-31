@@ -12,7 +12,8 @@ import { connect, KeyPair, keyStores } from 'near-api-js';
 import { PermissionsService as ProjectPermissionsService } from '../../core/projects/permissions.service';
 import { ReadonlyService } from './readonly.service';
 import { Octokit } from '@octokit/core';
-import { GithubService } from '@/src/core/github/github.service';
+import { ConfigService } from '@nestjs/config';
+import { AppConfig } from '@/src/config/validate';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -21,13 +22,19 @@ const nanoid = customAlphabet(
 
 @Injectable()
 export class DeploysService {
+  private githubToken: string;
   constructor(
     private prisma: PrismaService,
     private projectsService: ProjectsService,
     private projectPermissions: ProjectPermissionsService,
     private readonlyService: ReadonlyService,
-    private githubService: GithubService,
-  ) {}
+    private config: ConfigService<AppConfig>,
+  ) {
+    const { token } = this.config.get('github', {
+      infer: true,
+    })!;
+    this.githubToken = token;
+  }
 
   /**
    * Creates a Console project then links a github repo
@@ -37,14 +44,18 @@ export class DeploysService {
     user,
     githubRepoFullName,
     projectName,
+    newGithubUsername,
   }: {
     user: User;
     githubRepoFullName: string;
     projectName: Project['name'];
+    newGithubUsername: string;
   }) {
     let octokit: Octokit;
     try {
-      octokit = await this.githubService.getUserOctokit(user);
+      octokit = new Octokit({
+        auth: this.githubToken,
+      });
     } catch (e: any) {
       throw new VError(
         e,
@@ -66,6 +77,69 @@ export class DeploysService {
         }
         throw new VError(e, 'Could not create repo from template');
       })) as any;
+
+    // OWASP recommended password hashing:
+    // If Argon2id is not available, use scrypt with a minimum CPU/memory cost parameter of (2^16),
+    // a minimum block size of 8 (1024 bytes), and a parallelization parameter of 1.
+    const actionAuthToken = nanoid(25);
+    const authTokenSalt = randomBytes(32);
+    const authTokenHash = this.hashToken(actionAuthToken, authTokenSalt);
+
+    const {
+      data: { key, key_id },
+    } = (await octokit
+      .request(`GET /repos/${repoFullName}/actions/secrets/public-key`)
+      .catch((e) => {
+        throw new VError(
+          e,
+          'Could not get repo public key to set secrets on repo',
+        );
+      })) as any;
+
+    const secret_name = 'PAGODA_CONSOLE_TOKEN';
+
+    const encryptedSecret = await sodium.ready.then(() => {
+      // Convert Secret & Base64 key to Uint8Array.
+      const binkey = sodium.from_base64(key, sodium.base64_variants.ORIGINAL);
+      const binsec = sodium.from_string(
+        'Basic ' +
+          sodium.to_base64(
+            `${newGithubUsername}/${projectName}:${actionAuthToken}`,
+            sodium.base64_variants.ORIGINAL,
+          ),
+      );
+
+      //Encrypt the secret using LibSodium
+      const encBytes = sodium.crypto_box_seal(binsec, binkey);
+
+      // Convert encrypted Uint8Array to Base64
+      const output = sodium.to_base64(
+        encBytes,
+        sodium.base64_variants.ORIGINAL,
+      );
+
+      return output;
+    });
+
+    await octokit
+      .request(`PUT /repos/${repoFullName}/actions/secrets/${secret_name}`, {
+        encrypted_value: encryptedSecret,
+        key_id,
+      })
+      .catch((e) => {
+        throw new VError(e, 'Could not set secrets on repo');
+      });
+
+    await fetch(`https://api.github.com/repos/${repoFullName}/transfer`, {
+      headers: {
+        Authorization: this.githubToken,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        new_owner: newGithubUsername,
+        new_name: projectName,
+      }),
+    });
 
     let project, environments;
 
@@ -96,62 +170,10 @@ export class DeploysService {
       throw new VError('Could not find testnet env for newly created project');
     }
 
-    // OWASP recommended password hashing:
-    // If Argon2id is not available, use scrypt with a minimum CPU/memory cost parameter of (2^16),
-    // a minimum block size of 8 (1024 bytes), and a parallelization parameter of 1.
-    const actionAuthToken = nanoid(25);
-    const authTokenSalt = randomBytes(32);
-    const authTokenHash = this.hashToken(actionAuthToken, authTokenSalt);
-
-    const {
-      data: { key, key_id },
-    } = (await octokit
-      .request(`GET /repos/${repoFullName}/actions/secrets/public-key`)
-      .catch((e) => {
-        throw new VError(
-          e,
-          'Could not get repo public key to set secrets on repo',
-        );
-      })) as any;
-
-    const secret_name = 'PAGODA_CONSOLE_TOKEN';
-
-    const encryptedSecret = await sodium.ready.then(() => {
-      // Convert Secret & Base64 key to Uint8Array.
-      const binkey = sodium.from_base64(key, sodium.base64_variants.ORIGINAL);
-      const binsec = sodium.from_string(
-        'Basic ' +
-          sodium.to_base64(
-            `${repoFullName}:${actionAuthToken}`,
-            sodium.base64_variants.ORIGINAL,
-          ),
-      );
-
-      //Encrypt the secret using LibSodium
-      const encBytes = sodium.crypto_box_seal(binsec, binkey);
-
-      // Convert encrypted Uint8Array to Base64
-      const output = sodium.to_base64(
-        encBytes,
-        sodium.base64_variants.ORIGINAL,
-      );
-
-      return output;
-    });
-
-    await octokit
-      .request(`PUT /repos/${repoFullName}/actions/secrets/${secret_name}`, {
-        encrypted_value: encryptedSecret,
-        key_id,
-      })
-      .catch((e) => {
-        throw new VError(e, 'Could not set secrets on repo');
-      });
-
     return this.addDeployRepository({
       projectSlug: project.slug,
       environmentSubId: testnetEnv.subId,
-      githubRepoFullName: repoFullName,
+      githubRepoFullName: `${newGithubUsername}/${projectName}`,
       authTokenHash,
       authTokenSalt,
     });

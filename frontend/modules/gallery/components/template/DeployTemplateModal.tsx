@@ -2,7 +2,6 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { AuthStatusRenderer } from '@/components/AuthStatusRenderer';
 import { GithubConnect } from '@/components/GithubConnect';
 import { Button, ButtonLink } from '@/components/lib/Button';
 import * as Dialog from '@/components/lib/Dialog';
@@ -43,11 +42,12 @@ export function DeployTemplateModal({ setShow, ...props }: Props) {
         Otherwise, we'd have to worry about manually resetting the state
         and form each time it opened or closed. */}
 
-        <AuthStatusRenderer
+        {/* <AuthStatusRenderer
           custom
           authenticated={<ModalContent setShow={setShow} {...props} />}
           unauthenticated={<UnauthenticatedModalContent />}
-        />
+        /> */}
+        <ModalContent setShow={setShow} {...props} />
       </Dialog.Content>
     </Dialog.Root>
   );
@@ -64,6 +64,7 @@ function ModalContent(props: Props) {
 
 interface DeployFormData {
   repositoryName: string;
+  githubUsername: string;
 }
 
 function ConnectedModalContent(props: Props) {
@@ -73,7 +74,7 @@ function ConnectedModalContent(props: Props) {
   const repositoryName = props.template.attributes.githubUrl.split('/').pop() as string;
   const form = useForm<DeployFormData>({
     defaultValues: {
-      repositoryName,
+      repositoryName: `${repositoryName}-copy`,
     },
   });
 
@@ -114,10 +115,12 @@ function ConnectedModalContent(props: Props) {
   function deploy(data: DeployFormData) {
     const githubRepoFullName = props.template.attributes.githubUrl.split('/').slice(-2).join('/');
     const projectName = data.repositoryName || repositoryName;
+    const newGithubUsername = data.githubUsername;
 
     deployMutation.mutate({
       githubRepoFullName,
       projectName,
+      newGithubUsername,
     });
   }
 
@@ -128,6 +131,12 @@ function ConnectedModalContent(props: Props) {
           <Text>Deploying this template will create a new repository on your connected GitHub account.</Text>
 
           <Form.Group>
+            <Form.FloatingLabelInput
+              label="Github User Name"
+              placeholder={'satoshi'}
+              stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_REPO_USER_NAME_INPUT}
+              {...form.register('githubUsername')}
+            />
             <Form.FloatingLabelInput
               label="Repository Name"
               placeholder={repositoryName}
@@ -178,7 +187,7 @@ function UnconnectedModalContent(props: Props) {
   );
 }
 
-function UnauthenticatedModalContent() {
+export function UnauthenticatedModalContent() {
   return (
     <Flex stack gap="l">
       <Text>To deploy this template, you&apos;ll need to sign in and connect your GitHub account:</Text>

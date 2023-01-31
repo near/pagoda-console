@@ -38,6 +38,7 @@ export class DeploysController {
     {
       githubRepoFullName,
       projectName,
+      newGithubUsername,
     }: z.infer<typeof Deploys.mutation.inputs.addDeploy>,
   ): Promise<Api.Mutation.Output<'/deploys/addDeploy'>> {
     // called from Console frontend to initialize a new repo for deployment
@@ -45,6 +46,7 @@ export class DeploysController {
       user: req.user as User, // TODO change to UserDetails from auth service
       githubRepoFullName,
       projectName,
+      newGithubUsername,
     });
     return {
       repositorySlug: repository.slug,
