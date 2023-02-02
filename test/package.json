@@ -5,8 +5,6 @@
   "scripts": {
     "lint:check": "eslint --cache --max-warnings 0 .",
     "lint:fix": "eslint --cache --fix .",
-    "lint:prettier": "prettier --write .",
-    "format:check": "prettier --check .",
     "test:snapshot": "playwright test tests/snapshot/",
     "test:e2e": "playwright test tests/e2e/",
     "test": "playwright test"

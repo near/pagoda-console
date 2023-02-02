@@ -11,8 +11,6 @@
     "start": "next start",
     "lint:check": "eslint --cache --max-warnings 0 .",
     "lint:fix": "eslint --cache --fix .",
-    "lint:prettier": "prettier --write .",
-    "format:check": "prettier --check .",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

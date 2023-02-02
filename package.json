@@ -21,7 +21,9 @@
     "postinstall": "npm install turbo -D",
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "start": "turbo run start"
+    "start": "turbo run start",
+    "format:check": "prettier --check . && npm -w database run lint:check",
+    "format:fix": "prettier --write ."
   },
   "repository": {
     "type": "git",

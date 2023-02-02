@@ -10,7 +10,6 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/backend/src/main",
     "lint:check": "eslint --cache --max-warnings 0 .",
-    "format:check": "prettier --check .",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
