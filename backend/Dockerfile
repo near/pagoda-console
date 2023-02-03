@@ -54,6 +54,11 @@ COPY --from=builder --chown=node:node /usr/src/app/backend/node_modules ./backen
 COPY --from=builder --chown=node:node /usr/src/app/backend/package*.json ./backend/
 COPY --from=builder --chown=node:node /usr/src/app/turbo.json ./
 COPY --from=builder --chown=node:node /usr/src/app/database/clients ./database/clients
+# node_modules' @pc/rpcaas-client symlinks to /rpcaas-client
+# so we need to copy that folder to the same location
+# we only need the dist folder and package.json though
+COPY --from=builder --chown=node:node /usr/src/app/rpcaas-client/package.json ./rpcaas-client/
+COPY --from=builder --chown=node:node /usr/src/app/rpcaas-client/dist ./rpcaas-client/dist
 COPY --from=builder --chown=node:node /usr/src/app/backend/dist ./backend/dist
 
 USER node
