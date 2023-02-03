@@ -4,8 +4,6 @@ on:
     branches: [develop]
     paths:
       - "cms/**"
-  pull_request:
-    branches: [develop]
 defaults:
   run:
     working-directory: cms
