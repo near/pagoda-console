@@ -1,6 +1,10 @@
 import { ProjectsService } from '@/src/core/projects/projects.service';
 import sodium from 'libsodium-wrappers';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
 import { PrismaService } from './prisma.service';
 import { Environment, Project, User } from '@pc/database/clients/core';
@@ -44,12 +48,10 @@ export class DeploysService {
     user,
     githubRepoFullName,
     projectName,
-    newGithubUsername,
   }: {
     user: User;
     githubRepoFullName: string;
     projectName: Project['name'];
-    newGithubUsername: string;
   }) {
     let octokit: Octokit;
     try {
@@ -96,7 +98,7 @@ export class DeploysService {
         );
       })) as any;
 
-    const secret_name = 'PAGODA_CONSOLE_TOKEN';
+    const secret_name = 'PAGODA_SYSTEM_CONSOLE_TOKEN';
 
     const encryptedSecret = await sodium.ready.then(() => {
       // Convert Secret & Base64 key to Uint8Array.
@@ -104,7 +106,7 @@ export class DeploysService {
       const binsec = sodium.from_string(
         'Basic ' +
           sodium.to_base64(
-            `${newGithubUsername}/${projectName}:${actionAuthToken}`,
+            `${repoFullName}:${actionAuthToken}`,
             sodium.base64_variants.ORIGINAL,
           ),
       );
@@ -129,17 +131,6 @@ export class DeploysService {
       .catch((e) => {
         throw new VError(e, 'Could not set secrets on repo');
       });
-
-    await fetch(`https://api.github.com/repos/${repoFullName}/transfer`, {
-      headers: {
-        Authorization: this.githubToken,
-      },
-      method: 'POST',
-      body: JSON.stringify({
-        new_owner: newGithubUsername,
-        new_name: projectName,
-      }),
-    });
 
     let project, environments;
 
@@ -173,9 +164,132 @@ export class DeploysService {
     return this.addDeployRepository({
       projectSlug: project.slug,
       environmentSubId: testnetEnv.subId,
-      githubRepoFullName: `${newGithubUsername}/${projectName}`,
+      githubRepoFullName: repoFullName,
       authTokenHash,
       authTokenSalt,
+    });
+  }
+
+  async transferGithubRepository({
+    user,
+    newGithubUsername,
+    repositorySlug,
+  }: {
+    user: User;
+    newGithubUsername: string;
+    repositorySlug: string;
+  }) {
+    const repo = await this.prisma.repository.findUnique({
+      where: {
+        slug: repositorySlug,
+      },
+    });
+
+    if (!repo) {
+      throw new BadRequestException('repo does not exist');
+    }
+
+    const { createdBy } = await this.projectsService.getActiveProject({
+      slug: repo.projectSlug,
+    });
+
+    if (createdBy !== user.id) {
+      throw new ForbiddenException('User cannot modify this repo');
+    }
+
+    let octokit: Octokit;
+    try {
+      octokit = new Octokit({
+        auth: this.githubToken,
+      });
+    } catch (e: any) {
+      throw new VError(
+        e,
+        'Could not establish octokit conneciton for template creation',
+      );
+    }
+
+    const actionAuthToken = nanoid(25);
+    const authTokenSalt = randomBytes(32);
+    const authTokenHash = this.hashToken(actionAuthToken, authTokenSalt);
+
+    const {
+      data: { key, key_id },
+    } = (await octokit
+      .request(
+        `GET /repos/${repo.githubRepoFullName}/actions/secrets/public-key`,
+      )
+      .catch((e) => {
+        throw new VError(
+          e,
+          'Could not get repo public key to set secrets on repo',
+        );
+      })) as any;
+
+    const secret_name = 'PAGODA_CONSOLE_TOKEN';
+
+    const encryptedSecret = await sodium.ready.then(() => {
+      // Convert Secret & Base64 key to Uint8Array.
+      const binkey = sodium.from_base64(key, sodium.base64_variants.ORIGINAL);
+      const binsec = sodium.from_string(
+        'Basic ' +
+          sodium.to_base64(
+            `${newGithubUsername}/${
+              repo.githubRepoFullName.split('/')[1]
+            }:${actionAuthToken}`,
+            sodium.base64_variants.ORIGINAL,
+          ),
+      );
+
+      //Encrypt the secret using LibSodium
+      const encBytes = sodium.crypto_box_seal(binsec, binkey);
+
+      // Convert encrypted Uint8Array to Base64
+      const output = sodium.to_base64(
+        encBytes,
+        sodium.base64_variants.ORIGINAL,
+      );
+
+      return output;
+    });
+
+    await octokit
+      .request(
+        `PUT /repos/${repo.githubRepoFullName}/actions/secrets/${secret_name}`,
+        {
+          encrypted_value: encryptedSecret,
+          key_id,
+        },
+      )
+      .catch((e) => {
+        throw new VError(e, 'Could not set secrets on repo');
+      });
+
+    await fetch(
+      `https://api.github.com/repos/${repo.githubRepoFullName}/transfer`,
+      {
+        headers: {
+          Authorization: this.githubToken,
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          new_owner: newGithubUsername,
+          new_name: repo.githubRepoFullName.split('/')[1],
+        }),
+      },
+    );
+
+    return this.prisma.repository.update({
+      where: {
+        slug: repositorySlug,
+      },
+      data: {
+        githubRepoFullName: `${newGithubUsername}/${
+          repo.githubRepoFullName.split('/')[1]
+        }`,
+        authTokenHash,
+        authTokenSalt,
+      },
     });
   }
 

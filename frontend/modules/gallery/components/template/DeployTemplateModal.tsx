@@ -111,12 +111,10 @@ function ConnectedModalContent(props: Props) {
   function deploy(data: DeployFormData) {
     const githubRepoFullName = props.template.attributes.githubUrl.split('/').slice(-2).join('/');
     const projectName = data.repositoryName || repositoryName;
-    const newGithubUsername = data.githubUsername;
 
     deployMutation.mutate({
       githubRepoFullName,
       projectName,
-      newGithubUsername,
     });
   }
 
@@ -127,14 +125,6 @@ function ConnectedModalContent(props: Props) {
           <Text>Deploying this template will create a new repository on your connected GitHub account.</Text>
 
           <Form.Group>
-            <Form.FloatingLabelInput
-              label="Github User Name"
-              placeholder={'satoshi'}
-              stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_REPO_USER_NAME_INPUT}
-              {...form.register('githubUsername', {
-                required: true,
-              })}
-            />
             <Form.FloatingLabelInput
               label="Repository Name"
               placeholder={repositoryName}

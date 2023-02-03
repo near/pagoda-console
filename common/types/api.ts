@@ -327,6 +327,11 @@ export namespace Api {
         output: z.infer<typeof Deploys.mutation.outputs.addDeploy>;
         error: z.infer<typeof Deploys.mutation.errors.addDeploy>;
       };
+      '/deploys/transferGithubRepository': {
+        input: z.infer<typeof Deploys.mutation.inputs.transferGithubRepository>;
+        output: z.infer<typeof Deploys.mutation.outputs.transferGithubRepository>;
+        error: z.infer<typeof Deploys.mutation.errors.transferGithubRepository>;
+      };
       '/deploys/deployWasm': {
         input: z.infer<typeof Deploys.mutation.inputs.deployWasm>;
         output: z.infer<typeof Deploys.mutation.outputs.deployWasm>;

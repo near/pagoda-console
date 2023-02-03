@@ -38,7 +38,6 @@ export class DeploysController {
     {
       githubRepoFullName,
       projectName,
-      newGithubUsername,
     }: z.infer<typeof Deploys.mutation.inputs.addDeploy>,
   ): Promise<Api.Mutation.Output<'/deploys/addDeploy'>> {
     // called from Console frontend to initialize a new repo for deployment
@@ -46,11 +45,35 @@ export class DeploysController {
       user: req.user as User, // TODO change to UserDetails from auth service
       githubRepoFullName,
       projectName,
-      newGithubUsername,
     });
     return {
       repositorySlug: repository.slug,
       projectSlug: repository.projectSlug,
+    };
+  }
+
+  @Post('transferGithubRepository')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(
+    new ZodValidationPipe(Deploys.mutation.inputs.transferGithubRepository),
+  )
+  async transferGithubRepository(
+    @Req() req: ExpressRequest,
+    @Body()
+    {
+      repositorySlug,
+      newGithubUsername,
+    }: z.infer<typeof Deploys.mutation.inputs.transferGithubRepository>,
+  ): Promise<Api.Mutation.Output<'/deploys/transferGithubRepository'>> {
+    // called from Console frontend to initialize a new repo for deployment
+    const repository = await this.deploysService.transferGithubRepository({
+      user: req.user as User, // TODO change to UserDetails from auth service
+      newGithubUsername,
+      repositorySlug,
+    });
+    return {
+      repositorySlug: repository.slug,
+      githubRepoFullName: repository.githubRepoFullName,
     };
   }
 

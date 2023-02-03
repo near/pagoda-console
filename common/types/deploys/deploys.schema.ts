@@ -79,6 +79,9 @@ export const mutation = {
     addDeploy: z.strictObject({
       githubRepoFullName: z.string().regex(/[\w\.\-]+\/[\w\.\-]+/), // matches <owner/repo> e.g. 'near/pagoda-console`
       projectName: z.string(),
+    }),
+    transferGithubRepository: z.strictObject({
+      repositorySlug: z.string(),
       newGithubUsername: z.string(),
     }),
     deployWasm: z.strictObject({
@@ -107,6 +110,10 @@ export const mutation = {
       repositorySlug: z.string(),
       projectSlug: z.string(),
     }),
+    transferGithubRepository: z.strictObject({
+      repositorySlug: z.string(),
+      githubRepoFullName: z.string(),
+    }),
     deployWasm: z.void(),
     wasmFiles: z.void(),
     addFrontend: z.void(),
@@ -114,6 +121,7 @@ export const mutation = {
 
   errors: {
     addDeploy: z.unknown(),
+    transferGithubRepository: z.unknown(),
     deployWasm: z.unknown(),
     wasmFiles: z.unknown(),
     addFrontend: z.unknown(),
