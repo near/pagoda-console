@@ -38,9 +38,3 @@ jobs:
       # cloud run instance if the docker image has changed.
       - name: Build docker image and push
         run: ./scripts/docker_build_and_push.sh ${NAMESPACE} near-dev-platform
-
-      - id: image
-        name: "Outputs docker image with registry's sha256"
-        run: |
-          export API_IMAGE=$(docker inspect --format='{{index .RepoDigests 0}}' gcr.io/near-dev-platform/developer-console-api:$NAMESPACE)
-          echo "image=$API_IMAGE" >> $GITHUB_OUTPUT
