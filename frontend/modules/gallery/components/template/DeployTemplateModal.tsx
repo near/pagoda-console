@@ -2,13 +2,12 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { GithubConnect } from '@/components/GithubConnect';
+import { AuthStatusRenderer } from '@/components/AuthStatusRenderer';
 import { Button, ButtonLink } from '@/components/lib/Button';
 import * as Dialog from '@/components/lib/Dialog';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { Text } from '@/components/lib/Text';
-import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { useApiMutation } from '@/hooks/api-mutation';
 import { useRouteParam } from '@/hooks/route';
@@ -55,9 +54,9 @@ export function DeployTemplateModal({ setShow, ...props }: Props) {
 
 function ModalContent(props: Props) {
   return (
-    <GithubConnect
-      connected={<ConnectedModalContent {...props} />}
-      unconnected={<UnconnectedModalContent {...props} />}
+    <AuthStatusRenderer
+      authenticated={<ConnectedModalContent {...props} />}
+      unauthenticated={<UnauthenticatedModalContent />}
     />
   );
 }
@@ -155,24 +154,6 @@ function ConnectedModalContent(props: Props) {
           </ButtonLink>
         </Flex>
       </Form.Root>
-    </Flex>
-  );
-}
-
-function UnconnectedModalContent(props: Props) {
-  return (
-    <Flex stack>
-      <Text>
-        To deploy this template, you&apos;ll need to connect your GitHub account. This will allow us to create and
-        configure the{' '}
-        <TextLink
-          href={props.template.attributes.githubUrl}
-          external
-          stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_VIEW_REPO_LINK}
-        >
-          Template Repository
-        </TextLink>
-      </Text>
     </Flex>
   );
 }
