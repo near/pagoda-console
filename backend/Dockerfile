@@ -50,6 +50,7 @@ WORKDIR /usr/src/app
 COPY --from=builder --chown=node:node /usr/src/app/backend/tsconfig.json ./backend/
 COPY --from=builder --chown=node:node /usr/src/app/package*.json ./
 COPY --from=builder --chown=node:node /usr/src/app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /usr/src/app/backend/node_modules ./backend/
 COPY --from=builder --chown=node:node /usr/src/app/backend/package*.json ./backend/
 COPY --from=builder --chown=node:node /usr/src/app/turbo.json ./
 COPY --from=builder --chown=node:node /usr/src/app/database/clients ./database/clients
