@@ -9,7 +9,7 @@ RUN apk add --no-cache libc6-compat
 RUN npm i -g turbo
 
 WORKDIR /opt/
-COPY .. .
+COPY . .
 
 # pruning allows us to create a significantly more compact image, it trims the
 # monorepo—including the package lock file—down to only what is needed for this
