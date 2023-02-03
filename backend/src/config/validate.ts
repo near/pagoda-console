@@ -248,12 +248,10 @@ export default function validate(config: Record<string, any>): AppConfig {
     },
     featureEnabled: {
       core: {
-        contractAddressValidation:
-          config.CORE_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
+        contractAddressValidation: true,
       },
       alerts: {
-        contractAddressValidation:
-          config.ALERT_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
+        contractAddressValidation: true,
       },
     },
     metricsPort: config.METRICS_PORT,

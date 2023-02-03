@@ -128,6 +128,8 @@ function ModalContent(props: Props) {
                 {props.destination.type === 'TELEGRAM' && props.destination.config.chatTitle}
                 {props.destination.type === 'WEBHOOK' && props.destination.config.url}
                 {props.destination.type === 'EMAIL' && props.destination.config.email}
+                {props.destination.type === 'AGGREGATION' && props.destination.config.indexerName}
+                {props.destination.type === 'AGGREGATION' && props.destination.config.indexerFunctionCode}
               </Text>
             </Flex>
           </Flex>
@@ -148,6 +150,7 @@ function ModalContent(props: Props) {
           <WebhookDestinationForm onUpdate={onUpdate} onSecretRotate={onWebhookSecretRotate} {...props} />
         )}
         {props.destination.type === 'EMAIL' && <EmailDestinationForm onUpdate={onUpdate} {...props} />}
+        {props.destination.type === 'AGGREGATION' && <AggregationDestinationForm onUpdate={onUpdate} {...props} />}
       </Flex>
 
       <DeleteDestinationModal
@@ -318,7 +321,7 @@ function WebhookDestinationForm({ destination, onUpdate, setShow, onSecretRotate
           <Button
             stableId={StableId.EDIT_DESTINATION_MODAL_UPDATE_BUTTON}
             type="submit"
-            loading={updateDestinationMutation.isLoading}
+            loading={formState.isSubmitting}
           >
             Update
           </Button>
@@ -393,6 +396,114 @@ function EmailDestinationForm({ destination, onUpdate, setShow }: FormProps) {
               })}
             />
             <Form.Feedback>{formState.errors.name?.message}</Form.Feedback>
+          </Form.Group>
+        </Flex>
+
+        <Flex justify="spaceBetween" align="center">
+          <Button
+            stableId={StableId.EDIT_DESTINATION_MODAL_UPDATE_BUTTON}
+            type="submit"
+            loading={formState.isSubmitting}
+          >
+            Update
+          </Button>
+          <TextButton
+            stableId={StableId.EDIT_DESTINATION_MODAL_CANCEL_BUTTON}
+            color="neutral"
+            onClick={() => setShow(false)}
+          >
+            Cancel
+          </TextButton>
+        </Flex>
+      </Flex>
+    </Form.Root>
+  );
+}
+
+interface AggregationFormData {
+  name: string;
+  indexerName: string;
+  indexerFunctionCode: string;
+}
+
+function AggregationDestinationForm({ destination, onUpdate, setShow }: FormProps) {
+  if (destination.type !== 'AGGREGATION') throw new Error('Invalid destination for AggregationDestinationForm');
+
+  const { formState, setValue, register, handleSubmit } = useForm<AggregationFormData>();
+  const { updateDestinationMutation } = useUpdateDestinationMutation();
+
+  useEffect(() => {
+    if (destination.name) {
+      setValue('name', destination.name);
+    }
+    setValue('indexerName', destination.config.indexerName);
+    setValue('indexerFunctionCode', destination.config.indexerFunctionCode);
+  }, [setValue, destination]);
+
+  function submitForm(data: AggregationFormData) {
+    updateDestinationMutation.mutate(
+      {
+        id: destination.id,
+        name: data.name,
+        config: {
+          type: 'AGGREGATION',
+          indexerName: data.indexerName,
+          indexerFunctionCode: data.indexerFunctionCode,
+        },
+      },
+      {
+        onSuccess: (destination) => {
+          onUpdate(destination);
+        },
+      },
+    );
+  }
+
+  return (
+    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
+      <Flex stack gap="l">
+        <HR />
+
+        <Flex stack>
+          <Form.Group>
+            <Form.FloatingLabelInput
+              label="Destination Name"
+              isInvalid={!!formState.errors.name}
+              stableId={StableId.EDIT_DESTINATION_MODAL_NAME_INPUT}
+              {...register('name', {
+                required: 'Please enter a destination name',
+                maxLength: {
+                  value: 100,
+                  message: 'Destination name must be 100 characters or less',
+                },
+              })}
+            />
+            <Form.Feedback>{formState.errors.name?.message}</Form.Feedback>
+          </Form.Group>
+
+          <Form.Group>
+            <Form.FloatingLabelInput
+              label="Indexer Name"
+              placeholder="aggregations.buildnear.testnet"
+              isInvalid={!!formState.errors.indexerName}
+              stableId={StableId.EDIT_DESTINATION_MODAL_AGGREGATION_CONTRACT_NAME_INPUT}
+              {...register('indexerName')}
+            />
+            <Form.Feedback>{formState.errors.indexerName?.message}</Form.Feedback>
+          </Form.Group>
+          <Form.Group>
+            <Form.Label htmlFor="indexerFunctionCode">Indexer Function Code</Form.Label>
+            <Text family="code">indexer_function(block, context) &#123; </Text>
+            <Form.Textarea
+              id="indexerFunctionCode"
+              style={{ whiteSpace: 'pre-line' }}
+              placeholder={['for(let a in block.getActions()) {', '  context.save(a);', '}'].join('\n')}
+              isInvalid={!!formState.errors.indexerFunctionCode}
+              stableId={StableId.EDIT_DESTINATION_MODAL_AGGREGATION_FUNCTION_NAME_INPUT}
+              {...register('indexerFunctionCode')}
+            />
+            <Text family="code"> &#125; </Text>
+            <Form.Feedback>{formState.errors.indexerFunctionCode?.message}</Form.Feedback>
           </Form.Group>
         </Flex>
 

@@ -151,6 +151,9 @@ function ModalContent(props: Props) {
       {destinationType === 'TELEGRAM' && <TelegramDestinationForm setIsCreated={setIsCreated} {...props} />}
       {destinationType === 'WEBHOOK' && <WebhookDestinationForm setIsCreated={setIsCreated} {...props} />}
       {destinationType === 'EMAIL' && <EmailDestinationForm setIsCreated={setIsCreated} {...props} />}
+      {destinationType === 'AGGREGATION' && (
+        <AggregationDestinationForm setIsCreated={setIsCreated} {...(props as Props)} />
+      )}
     </Flex>
   );
 }
@@ -344,6 +347,85 @@ function EmailDestinationForm(props: FormProps) {
           >
             Cancel
           </TextButton>
+        </Flex>
+      </Flex>
+    </Form.Root>
+  );
+}
+
+interface AggregationFormData {
+  indexerName: string;
+  indexerFunctionCode: string;
+}
+
+function AggregationDestinationForm(props: FormProps) {
+  const { createDestinationMutation, destination, form } = useNewDestinationForm<AggregationFormData>(props);
+
+  async function submitForm(data: AggregationFormData) {
+    createDestinationMutation.mutate({
+      projectSlug: props.projectSlug,
+      config: {
+        type: 'AGGREGATION',
+        ...data,
+      },
+    });
+  }
+
+  if (destination)
+    return (
+      <Flex stack gap="l">
+        <Flex align="center">
+          <FeatherIcon icon="check-circle" color="primary" size="m" />
+          <H5>Aggregation destination has been created.</H5>
+        </Flex>
+      </Flex>
+    );
+
+  return (
+    <Form.Root disabled={form.formState.isSubmitting} onSubmit={form.handleSubmit(submitForm)}>
+      <Flex stack gap="l">
+        <Flex stack>
+          <Form.Group>
+            <Form.FloatingLabelInput
+              label="Indexer Name"
+              placeholder="posts"
+              isInvalid={!!form.formState.errors.indexerName}
+              stableId={StableId.NEW_DESTINATION_MODAL_AGGREGATION_CONTRACT_NAME_INPUT}
+              {...form.register('indexerName')}
+            />
+            <Form.Feedback>{form.formState.errors.indexerName?.message}</Form.Feedback>
+          </Form.Group>
+          <Form.Group>
+            <Form.Label htmlFor="indexerFunctionCode">Indexer Function Code</Form.Label>
+            <Text family="code">indexer_function(block, context) &#123; </Text>
+            <Form.Textarea
+              id="indexerFunctionCode"
+              style={{ whiteSpace: 'pre-line' }}
+              placeholder={['for(let a in block.getActions()) {', '  context.save(a);', '}'].join('\n')}
+              isInvalid={!!form.formState.errors.indexerFunctionCode}
+              stableId={StableId.NEW_DESTINATION_MODAL_AGGREGATION_FUNCTION_NAME_INPUT}
+              {...form.register('indexerFunctionCode')}
+            />
+            <Text family="code"> &#125; </Text>
+            <Form.Feedback>{form.formState.errors.indexerFunctionCode?.message}</Form.Feedback>
+          </Form.Group>
+        </Flex>
+
+        <Flex>
+          <Button
+            loading={createDestinationMutation.isLoading}
+            type="submit"
+            stableId={StableId.NEW_DESTINATION_MODAL_CREATE_BUTTON}
+          >
+            Create
+          </Button>
+          <Button
+            onClick={() => props.setShow(false)}
+            color="neutral"
+            stableId={StableId.NEW_DESTINATION_MODAL_CANCEL_BUTTON}
+          >
+            Cancel
+          </Button>
         </Flex>
       </Flex>
     </Form.Root>
