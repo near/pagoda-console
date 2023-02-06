@@ -79,10 +79,12 @@ export const mutation = {
     addDeploy: z.strictObject({
       githubRepoFullName: z.string().regex(/[\w\.\-]+\/[\w\.\-]+/), // matches <owner/repo> e.g. 'near/pagoda-console`
       projectName: z.string(),
+      githubUsername: z.string(),
     }),
     transferGithubRepository: z.strictObject({
       repositorySlug: z.string(),
       newGithubUsername: z.string(),
+      newRepoName: z.string(),
     }),
     deployWasm: z.strictObject({
       githubRepoFullName: z.string().regex(/[\w\.\-]+\/[\w\.\-]+/), // matches <owner/repo> e.g. 'near/pagoda-console`

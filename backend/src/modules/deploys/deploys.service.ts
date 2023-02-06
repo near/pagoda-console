@@ -18,6 +18,7 @@ import { ReadonlyService } from './readonly.service';
 import { Octokit } from '@octokit/core';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from '@/src/config/validate';
+import { DeployError } from './deploy-error';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -48,10 +49,12 @@ export class DeploysService {
     user,
     githubRepoFullName,
     projectName,
+    githubUsername,
   }: {
     user: User;
     githubRepoFullName: string;
     projectName: Project['name'];
+    githubUsername: string;
   }) {
     let octokit: Octokit;
     try {
@@ -65,15 +68,20 @@ export class DeploysService {
       );
     }
 
+    const fullProjectName = `${githubUsername}-${projectName}`;
+
     const {
       data: { full_name: repoFullName },
     } = (await octokit
       .request(`POST /repos/${githubRepoFullName}/generate`, {
-        name: projectName,
+        name: fullProjectName,
+        private: true,
+        owner: 'pagoda-gallery', // TODO set as environment variable
       })
       .catch((e) => {
         if (/Name already exists on this account/.test(e.message)) {
-          throw new BadRequestException(
+          throw new VError(
+            { info: { code: DeployError.NAME_CONFLICT } },
             'Repository name already exists on this GitHub account',
           );
         }
@@ -83,54 +91,15 @@ export class DeploysService {
     // OWASP recommended password hashing:
     // If Argon2id is not available, use scrypt with a minimum CPU/memory cost parameter of (2^16),
     // a minimum block size of 8 (1024 bytes), and a parallelization parameter of 1.
-    const actionAuthToken = nanoid(25);
+    const actionAuthToken = nanoid(25); //value
     const authTokenSalt = randomBytes(32);
     const authTokenHash = this.hashToken(actionAuthToken, authTokenSalt);
-
-    const {
-      data: { key, key_id },
-    } = (await octokit
-      .request(`GET /repos/${repoFullName}/actions/secrets/public-key`)
-      .catch((e) => {
-        throw new VError(
-          e,
-          'Could not get repo public key to set secrets on repo',
-        );
-      })) as any;
-
-    const secret_name = 'PAGODA_SYSTEM_CONSOLE_TOKEN';
-
-    const encryptedSecret = await sodium.ready.then(() => {
-      // Convert Secret & Base64 key to Uint8Array.
-      const binkey = sodium.from_base64(key, sodium.base64_variants.ORIGINAL);
-      const binsec = sodium.from_string(
-        'Basic ' +
-          sodium.to_base64(
-            `${repoFullName}:${actionAuthToken}`,
-            sodium.base64_variants.ORIGINAL,
-          ),
-      );
-
-      //Encrypt the secret using LibSodium
-      const encBytes = sodium.crypto_box_seal(binsec, binkey);
-
-      // Convert encrypted Uint8Array to Base64
-      const output = sodium.to_base64(
-        encBytes,
-        sodium.base64_variants.ORIGINAL,
-      );
-
-      return output;
-    });
-
-    await octokit
-      .request(`PUT /repos/${repoFullName}/actions/secrets/${secret_name}`, {
-        encrypted_value: encryptedSecret,
-        key_id,
-      })
-      .catch((e) => {
-        throw new VError(e, 'Could not set secrets on repo');
-      });
+    await this.setRepositorySecret(
+      octokit,
+      repoFullName,
+      'PAGODA_SYSTEM_CONSOLE_TOKEN',
+      actionAuthToken,
+    );
 
     let project, environments;
 
@@ -138,6 +107,12 @@ export class DeploysService {
     try {
       project = await this.projectsService.create(user, projectName);
     } catch (e: any) {
+      if (VError.info(e)?.code === 'CONFLICT') {
+        throw new VError(
+          { info: { code: DeployError.NAME_CONFLICT } },
+          'Project name already exists',
+        );
+      }
       throw new VError(e, 'Failed to create project for deployment');
     }
 
@@ -170,13 +145,65 @@ export class DeploysService {
     });
   }
 
+  private async setRepositorySecret(
+    octokit: Octokit,
+    repoFullName: string,
+    secret_name: string,
+    secret_value: string,
+  ) {
+    const {
+      data: { key, key_id },
+    } = (await octokit
+      .request(`GET /repos/${repoFullName}/actions/secrets/public-key`)
+      .catch((e) => {
+        throw new VError(
+          e,
+          'Could not get repo public key to set secrets on repo',
+        );
+      })) as any;
+
+    const encryptedSecret = await sodium.ready.then(() => {
+      // Convert Secret & Base64 key to Uint8Array.
+      const binkey = sodium.from_base64(key, sodium.base64_variants.ORIGINAL);
+      const binsec = sodium.from_string(
+        'Basic ' +
+          sodium.to_base64(
+            `${repoFullName}:${secret_value}`,
+            sodium.base64_variants.ORIGINAL,
+          ),
+      );
+
+      //Encrypt the secret using LibSodium
+      const encBytes = sodium.crypto_box_seal(binsec, binkey);
+
+      // Convert encrypted Uint8Array to Base64
+      const output = sodium.to_base64(
+        encBytes,
+        sodium.base64_variants.ORIGINAL,
+      );
+
+      return output;
+    });
+
+    await octokit
+      .request(`PUT /repos/${repoFullName}/actions/secrets/${secret_name}`, {
+        encrypted_value: encryptedSecret,
+        key_id,
+      })
+      .catch((e) => {
+        throw new VError(e, 'Could not set secrets on repo');
+      });
+  }
+
   async transferGithubRepository({
     user,
     newGithubUsername,
+    newRepoName,
     repositorySlug,
   }: {
     user: User;
     newGithubUsername: string;
+    newRepoName: string;
     repositorySlug: string;
   }) {
     const repo = await this.prisma.repository.findUnique({
@@ -265,19 +292,11 @@ export class DeploysService {
         throw new VError(e, 'Could not set secrets on repo');
       });
 
-    await fetch(
-      `https://api.github.com/repos/${repo.githubRepoFullName}/transfer`,
-      {
-        headers: {
-          Authorization: this.githubToken,
-        },
-        method: 'POST',
-        body: JSON.stringify({
-          new_owner: newGithubUsername,
-          new_name: repo.githubRepoFullName.split('/')[1],
-        }),
-      },
-    );
+    // Transfer github repo using octokit.
+    await octokit.request(`POST /repos/${repo.githubRepoFullName}/transfer`, {
+      new_owner: newGithubUsername,
+      new_name: newRepoName,
+    });
 
     return this.prisma.repository.update({
       where: {

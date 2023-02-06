@@ -71,7 +71,11 @@ function ConnectedModalContent(props: Props) {
   const router = useRouter();
 
   const repositoryName = props.template.attributes.githubUrl.split('/').pop() as string;
-  const form = useForm<DeployFormData>();
+  const form = useForm<DeployFormData>({
+    defaultValues: {
+      repositoryName,
+    },
+  });
 
   const deployMutation = useApiMutation('/deploys/addDeploy', {
     onSuccess: (res) => {
@@ -91,18 +95,23 @@ function ConnectedModalContent(props: Props) {
       selectProject(res.projectSlug);
       router.push('/deploys');
       props.setShow(false);
-
-      // TODO: Redirect to deploy module page to show progress?
     },
     onError: (error: any) => {
+      let toastTitle, toastDescription;
+      if (error.statusCode === 409) {
+        toastTitle = 'Repository name already exists';
+      } else {
+        toastTitle = 'Deploy Failure';
+        toastDescription = error.statusCode === 400 ? error.message : 'Unknown error.';
+      }
       handleMutationError({
         error,
         eventLabel: 'DC Deploy Gallery Template',
         eventData: {
           id: props.template.id,
         },
-        toastTitle: 'Deploy Failure',
-        toastDescription: error.statusCode === 400 ? error.message : 'Unknown error.',
+        toastTitle,
+        toastDescription,
       });
     },
   });
@@ -114,6 +123,7 @@ function ConnectedModalContent(props: Props) {
     deployMutation.mutate({
       githubRepoFullName,
       projectName,
+      githubUsername: data.githubUsername,
     });
   }
 
@@ -121,16 +131,28 @@ function ConnectedModalContent(props: Props) {
     <Flex stack>
       <Form.Root onSubmit={form.handleSubmit(deploy)}>
         <Flex stack>
-          <Text>Deploying this template will create a new repository on your connected GitHub account.</Text>
+          <Text>
+            Deploying this template will create a new repository and initiate a transfer to your GitHub account.
+          </Text>
+
+          <Form.Group>
+            <Form.FloatingLabelInput
+              label="Github Username"
+              placeholder="satoshi"
+              isInvalid={!!form.formState.errors.githubUsername}
+              stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_GITHUB_USERNAME_INPUT}
+              {...form.register('githubUsername', {
+                required: true,
+              })}
+            />
+          </Form.Group>
 
           <Form.Group>
             <Form.FloatingLabelInput
               label="Repository Name"
               placeholder={repositoryName}
               stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_REPO_NAME_INPUT}
-              {...form.register('repositoryName', {
-                required: true,
-              })}
+              {...form.register('repositoryName')}
             />
           </Form.Group>
 
@@ -161,7 +183,7 @@ function ConnectedModalContent(props: Props) {
 export function UnauthenticatedModalContent() {
   return (
     <Flex stack gap="l">
-      <Text>To deploy this template, you&apos;ll need to sign in and connect your GitHub account:</Text>
+      <Text>To deploy this template, you&apos;ll need to sign in:</Text>
       <AuthForm />
     </Flex>
   );
