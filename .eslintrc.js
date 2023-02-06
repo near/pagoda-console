@@ -17,7 +17,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'simple-import-sort'],
   overrides: [
     {
-      files: ['backend/**/*.+(jsx|js|tsx|ts)'],
+      files: ['backend/**/*.+(js|ts)'],
       parser: '@typescript-eslint/parser',
       parserOptions: {
         project: 'tsconfig.json',
@@ -29,6 +29,9 @@ module.exports = {
         jest: true,
       },
       rules: {
+        'simple-import-sort/imports': 'off',
+        'simple-import-sort/exports': 'off',
+        '@typescript-eslint/consistent-type-imports': 'off',
         '@typescript-eslint/interface-name-prefix': 'off',
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -72,5 +75,9 @@ module.exports = {
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/consistent-type-imports': 'error',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+    "@next/next/no-html-link-for-pages": [
+      "error",
+      "frontend/",
+    ],
   },
 };

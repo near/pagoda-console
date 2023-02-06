@@ -24,7 +24,7 @@
     "start": "turbo run start",
     "format:check": "prettier --check . && npm -w database run lint:check",
     "format:fix": "prettier --write .",
-    "lint:check": "eslint --cache --max-warnings 0 . && cd database && npx lint:check"
+    "lint:check": "eslint --cache --max-warnings 0 . && cd database && npm run lint:check"
   },
   "repository": {
     "type": "git",
