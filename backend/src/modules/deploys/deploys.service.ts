@@ -100,7 +100,7 @@ export class DeploysService {
     await this.setRepositorySecret(
       octokit,
       repoFullName,
-      'PAGODA_SYSTEM_CONSOLE_TOKEN',
+      'PAGODA_CONSOLE_TOKEN',
       actionAuthToken,
     );
 
