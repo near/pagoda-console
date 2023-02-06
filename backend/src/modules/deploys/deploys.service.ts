@@ -34,10 +34,10 @@ export class DeploysService {
     private readonlyService: ReadonlyService,
     private config: ConfigService<AppConfig>,
   ) {
-    const { token } = this.config.get('github', {
+    const { githubToken } = this.config.get('gallery', {
       infer: true,
     })!;
-    this.githubToken = token;
+    this.githubToken = githubToken;
   }
 
   /**

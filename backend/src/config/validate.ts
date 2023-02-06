@@ -123,7 +123,9 @@ const appConfigSchema = z.strictObject({
   github: z.strictObject({
     clientId: z.string(),
     clientSecret: z.string(),
-    token: z.string(),
+  }),
+  gallery: z.strictObject({
+    githubToken: z.string(),
   }),
 });
 
@@ -268,7 +270,9 @@ export default function validate(config: Record<string, any>): AppConfig {
     github: {
       clientId: config.GITHUB_CONNECT_CLIENT_ID,
       clientSecret: config.GITHUB_CONNECT_CLIENT_SECRET,
-      token: config.GITHUB_TOKEN,
+    },
+    gallery: {
+      githubToken: config.GALLERY_GITHUB_TOKEN,
     },
   };
 

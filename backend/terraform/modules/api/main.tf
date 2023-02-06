@@ -348,6 +348,16 @@ resource "google_cloud_run_service" "console_api" {
             }
           }
         }
+
+        env {
+          name = "GALLERY_GITHUB_TOKEN"
+          value_from {
+            secret_key_ref {
+              name = "GALLERY_GITHUB_TOKEN_${local.environment_upper}"
+              key  = "1"
+            }
+          }
+        }
       }
     }
   }
