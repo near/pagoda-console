@@ -1,0 +1,8 @@
+.next
+eslint-rules
+database
+common
+cms
+abi
+backend/dist
+backend/modules/template
