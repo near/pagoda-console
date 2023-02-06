@@ -28,6 +28,7 @@ const nanoid = customAlphabet(
 @Injectable()
 export class DeploysService {
   private githubToken: string;
+  private repositoryOwner: string;
   constructor(
     private prisma: PrismaService,
     private projectsService: ProjectsService,
@@ -35,10 +36,11 @@ export class DeploysService {
     private readonlyService: ReadonlyService,
     private config: ConfigService<AppConfig>,
   ) {
-    const { githubToken } = this.config.get('gallery', {
+    const { githubToken, repositoryOwner } = this.config.get('gallery', {
       infer: true,
     })!;
     this.githubToken = githubToken;
+    this.repositoryOwner = repositoryOwner;
   }
 
   /**
@@ -76,7 +78,7 @@ export class DeploysService {
       .request(`POST /repos/${githubRepoFullName}/generate`, {
         name: fullProjectName,
         private: true,
-        owner: 'pagoda-gallery', // TODO set as environment variable
+        owner: this.repositoryOwner,
       })
       .catch((e) => {
         if (/Name already exists on this account/.test(e.message)) {
