@@ -232,82 +232,21 @@ export class DeploysService {
     } catch (e: any) {
       throw new VError(
         e,
-        'Could not establish octokit conneciton for template creation',
+        'Could not establish octokit conneciton for repo transfer',
       );
     }
 
-    const actionAuthToken = nanoid(25);
-    const authTokenSalt = randomBytes(32);
-    const authTokenHash = this.hashToken(actionAuthToken, authTokenSalt);
-
-    const {
-      data: { key, key_id },
-    } = (await octokit
-      .request(
-        `GET /repos/${repo.githubRepoFullName}/actions/secrets/public-key`,
-      )
-      .catch((e) => {
-        throw new VError(
-          e,
-          'Could not get repo public key to set secrets on repo',
-        );
-      })) as any;
-
-    const secret_name = 'PAGODA_CONSOLE_TOKEN';
-
-    const encryptedSecret = await sodium.ready.then(() => {
-      // Convert Secret & Base64 key to Uint8Array.
-      const binkey = sodium.from_base64(key, sodium.base64_variants.ORIGINAL);
-      const binsec = sodium.from_string(
-        'Basic ' +
-          sodium.to_base64(
-            `${newGithubUsername}/${
-              repo.githubRepoFullName.split('/')[1]
-            }:${actionAuthToken}`,
-            sodium.base64_variants.ORIGINAL,
-          ),
-      );
-
-      //Encrypt the secret using LibSodium
-      const encBytes = sodium.crypto_box_seal(binsec, binkey);
-
-      // Convert encrypted Uint8Array to Base64
-      const output = sodium.to_base64(
-        encBytes,
-        sodium.base64_variants.ORIGINAL,
-      );
-
-      return output;
-    });
-
-    await octokit
-      .request(
-        `PUT /repos/${repo.githubRepoFullName}/actions/secrets/${secret_name}`,
-        {
-          encrypted_value: encryptedSecret,
-          key_id,
-        },
-      )
-      .catch((e) => {
-        throw new VError(e, 'Could not set secrets on repo');
-      });
-
-    // Transfer github repo using octokit.
     await octokit.request(`POST /repos/${repo.githubRepoFullName}/transfer`, {
       new_owner: newGithubUsername,
       new_name: newRepoName,
     });
 
-    return this.prisma.repository.update({
+    await this.prisma.repository.update({
       where: {
         slug: repositorySlug,
       },
       data: {
-        githubRepoFullName: `${newGithubUsername}/${
-          repo.githubRepoFullName.split('/')[1]
-        }`,
-        authTokenHash,
-        authTokenSalt,
+        githubRepoFullName: `${newGithubUsername}/${newRepoName}`,
       },
     });
   }

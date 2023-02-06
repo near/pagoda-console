@@ -50,6 +50,12 @@ export class DeploysController {
         projectName,
         githubUsername,
       });
+      await this.deploysService.transferGithubRepository({
+        user: req.user as User, // TODO change to UserDetails from auth service
+        newGithubUsername: githubUsername,
+        newRepoName: projectName,
+        repositorySlug: repository.slug,
+      });
       return {
         repositorySlug: repository.slug,
         projectSlug: repository.projectSlug,
@@ -57,33 +63,6 @@ export class DeploysController {
     } catch (e: any) {
       throw mapError(e);
     }
-  }
-
-  @Post('transferGithubRepository')
-  @UseGuards(BearerAuthGuard)
-  @UsePipes(
-    new ZodValidationPipe(Deploys.mutation.inputs.transferGithubRepository),
-  )
-  async transferGithubRepository(
-    @Req() req: ExpressRequest,
-    @Body()
-    {
-      repositorySlug,
-      newGithubUsername,
-      newRepoName,
-    }: z.infer<typeof Deploys.mutation.inputs.transferGithubRepository>,
-  ): Promise<Api.Mutation.Output<'/deploys/transferGithubRepository'>> {
-    // called from Console frontend to initialize a new repo for deployment
-    const repository = await this.deploysService.transferGithubRepository({
-      user: req.user as User, // TODO change to UserDetails from auth service
-      newGithubUsername,
-      newRepoName,
-      repositorySlug,
-    });
-    return {
-      repositorySlug: repository.slug,
-      githubRepoFullName: repository.githubRepoFullName,
-    };
   }
 
   @Post('deployWasm')
