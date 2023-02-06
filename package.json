@@ -36,7 +36,7 @@
     "eslint-plugin-custom-rules": "./eslint-rules",
     "husky": "^8.0.0",
     "prettier": "^2.7.1",
-    "turbo": "^1.7.0"
+    "turbo": "^1.7.3"
   },
   "dependencies": {
     "immer": "^9.0.16"
