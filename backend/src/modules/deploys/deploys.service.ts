@@ -51,7 +51,7 @@ export class DeploysService {
     user,
     githubRepoFullName,
     projectName,
-    githubUsername,
+    githubUsername: _githubUsername,
   }: {
     user: User;
     githubRepoFullName: string;
@@ -70,13 +70,14 @@ export class DeploysService {
       );
     }
 
-    const fullProjectName = `${githubUsername}-${projectName}`;
+    // TODO this would be nice to do if we could transfer to final user with a new non-namespaced name.
+    // const fullProjectName = `${githubUsername}-${projectName}`;
 
     const {
       data: { full_name: repoFullName },
     } = (await octokit
       .request(`POST /repos/${githubRepoFullName}/generate`, {
-        name: fullProjectName,
+        name: projectName, // fullProjectName,
         private: true,
         owner: this.repositoryOwner,
       })
@@ -240,7 +241,7 @@ export class DeploysService {
 
     await octokit.request(`POST /repos/${repo.githubRepoFullName}/transfer`, {
       new_owner: newGithubUsername,
-      new_name: newRepoName,
+      // new_name: newRepoName, // TODO github isn't respecting this new_name for some reason
     });
 
     await this.prisma.repository.update({
@@ -251,6 +252,61 @@ export class DeploysService {
         githubRepoFullName: `${newGithubUsername}/${newRepoName}`,
       },
     });
+  }
+
+  async isRepositoryTransferred(
+    user: User,
+    repositorySlug: Repository['slug'],
+  ) {
+    const repo = await this.prisma.repository.findUnique({
+      where: {
+        slug: repositorySlug,
+      },
+    });
+
+    if (!repo) {
+      throw new VError(
+        { info: { code: DeployError.BAD_REPO } },
+        'Repository not found',
+      );
+    }
+
+    await this.projectPermissions.checkUserProjectPermission(
+      user.id,
+      repo.projectSlug,
+    );
+
+    let octokit: Octokit;
+    try {
+      octokit = new Octokit({
+        auth: this.githubToken,
+      });
+    } catch (e: any) {
+      throw new VError(e, 'Could not establish octokit connection');
+    }
+
+    const originalOwner = this.repositoryOwner;
+    const originalRepositoryName = repo.githubRepoFullName.split('/')[1];
+
+    const oldFullName = `${originalOwner}/${originalRepositoryName}`;
+
+    let isTransferred;
+    // Get repository details from Github.
+    try {
+      const { data } = await octokit.request(
+        `GET /repos/${originalOwner}/${originalRepositoryName}`,
+      );
+      isTransferred = data.full_name !== oldFullName;
+    } catch (e: any) {
+      if (e.message !== 'Not Found') {
+        throw new VError(e, 'Could not get repo details from github');
+      }
+      isTransferred = true;
+    }
+
+    return {
+      isTransferred,
+    };
   }
 
   /**

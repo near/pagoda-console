@@ -33,3 +33,15 @@ export function useDeployments(project: string | undefined) {
 
   return { deployments, error, mutate };
 }
+
+export function useIsRepositoryTransferred(repository: string | undefined) {
+  const { data, error, mutate } = useSWR(
+    repository ? ['/deploys/isRepositoryTransferred' as const, repository] : null,
+    (path, repository) => {
+      return api.query(path, { repository });
+    },
+    { refreshInterval: 3000 },
+  );
+
+  return { isTransferred: data?.isTransferred, error, mutate };
+}

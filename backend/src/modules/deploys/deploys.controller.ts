@@ -65,6 +65,26 @@ export class DeploysController {
     }
   }
 
+  @Post('isRepositoryTransferred')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(Deploys.query.inputs.isRepositoryTransferred))
+  async isRepoTransferred(
+    @Req() req: ExpressRequest,
+    @Body()
+    {
+      repository,
+    }: z.infer<typeof Deploys.query.inputs.isRepositoryTransferred>,
+  ): Promise<Api.Query.Output<'/deploys/isRepositoryTransferred'>> {
+    try {
+      return await this.deploysService.isRepositoryTransferred(
+        req.user as User, // TODO change to UserDetails from auth service
+        repository,
+      );
+    } catch (e: any) {
+      throw mapError(e);
+    }
+  }
+
   @Post('deployWasm')
   @UseInterceptors(AnyFilesInterceptor())
   @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
