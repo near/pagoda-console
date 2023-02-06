@@ -98,7 +98,7 @@ export class DeploysService {
         );
       })) as any;
 
-    const secret_name = 'PAGODA_SYSTEM_CONSOLE_TOKEN';
+    const secret_name = 'PAGODA_CONSOLE_TOKEN';
 
     const encryptedSecret = await sodium.ready.then(() => {
       // Convert Secret & Base64 key to Uint8Array.
