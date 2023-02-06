@@ -46,7 +46,7 @@ const Deploys: NextPageWithLayout = () => {
             <Flex stack align="center">
               <FeatherIcon icon="mail" size="l" />
               <Text>{`Please accept the Github repository transfer request in your email to view deployments.`}</Text>
-              <Link href={`https://github.com/settings/emails`}>
+              <Link href={`https://github.com/settings/emails`} passHref>
                 <TextLink stableId={StableId.DEPLOYS_GITHUB_EMAIL_LINK} external>
                   {`Find your Github account's email address`}
                 </TextLink>
