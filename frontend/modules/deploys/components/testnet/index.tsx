@@ -176,7 +176,7 @@ const Testnet = () => {
           <Card borderRadius="m" padding="m">
             {lastDeploy?.contractDeployments?.some(({ status }) => status === 'ERROR')
               ? 'Deployment Failed'
-              : 'Deployment In Progress...'}
+              : 'Waiting for deployment...'}
           </Card>
         )}
         {wasmDeployCompleted(lastDeploy) ? (
