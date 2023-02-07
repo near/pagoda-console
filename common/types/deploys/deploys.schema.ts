@@ -40,6 +40,9 @@ export const query = {
     listDeployments: z.strictObject({
       project: z.string(),
     }),
+    isRepositoryTransferred: z.strictObject({
+      repositorySlug: z.string(),
+    }),
   },
 
   outputs: {
@@ -66,11 +69,15 @@ export const query = {
       }),
     ),
     listDeployments: repoDeployments,
+    isRepositoryTransferred: z.strictObject({
+      isTransferred: z.boolean(),
+    }),
   },
 
   errors: {
     listRepositories: z.unknown(),
     listDeployments: z.unknown(),
+    isRepositoryTransferred: z.unknown(),
   },
 };
 

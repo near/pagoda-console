@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import useSWR from 'swr';
 
 import { api } from '@/utils/api';
@@ -32,4 +33,22 @@ export function useDeployments(project: string | undefined) {
   );
 
   return { deployments, error, mutate };
+}
+
+export function useIsRepositoryTransferred(repositorySlug: string | undefined) {
+  const [isTransferred, setIsTransferred] = useState(false);
+
+  const { data, error, mutate } = useSWR(
+    repositorySlug ? ['/deploys/isRepositoryTransferred' as const, repositorySlug] : null,
+    (path, repositorySlug) => {
+      return api.query(path, { repositorySlug });
+    },
+    {
+      refreshInterval: isTransferred ? 0 : 10000,
+      onSuccess: ({ isTransferred }) => setIsTransferred(isTransferred),
+      fallbackData: { isTransferred: true },
+    },
+  );
+
+  return { isRepositoryTransferred: data?.isTransferred, error, mutate };
 }

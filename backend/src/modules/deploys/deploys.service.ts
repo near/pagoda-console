@@ -18,6 +18,7 @@ import { ReadonlyService } from './readonly.service';
 import { Octokit } from '@octokit/core';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from '@/src/config/validate';
+import { DeployError } from './deploy-error';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -27,6 +28,7 @@ const nanoid = customAlphabet(
 @Injectable()
 export class DeploysService {
   private githubToken: string;
+  private repositoryOwner: string;
   constructor(
     private prisma: PrismaService,
     private projectsService: ProjectsService,
@@ -34,10 +36,11 @@ export class DeploysService {
     private readonlyService: ReadonlyService,
     private config: ConfigService<AppConfig>,
   ) {
-    const { token } = this.config.get('github', {
+    const { githubToken, repositoryOwner } = this.config.get('gallery', {
       infer: true,
     })!;
-    this.githubToken = token;
+    this.githubToken = githubToken;
+    this.repositoryOwner = repositoryOwner;
   }
 
   /**
@@ -179,6 +182,15 @@ export class DeploysService {
     newGithubUsername: string;
     repositorySlug: string;
   }) {
+    const { isTransferred } = await this.isRepositoryTransferred(
+      user,
+      repositorySlug,
+    );
+
+    if (isTransferred) {
+      throw new BadRequestException('Repository was already transferred');
+    }
+
     const repo = await this.prisma.repository.findUnique({
       where: {
         slug: repositorySlug,
@@ -206,6 +218,27 @@ export class DeploysService {
       throw new VError(
         e,
         'Could not establish octokit conneciton for template creation',
+      );
+    }
+
+    const transferRes = await fetch(
+      `https://api.github.com/repos/${repo.githubRepoFullName}/transfer`,
+      {
+        headers: {
+          Authorization: this.githubToken,
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          new_owner: newGithubUsername,
+          new_name: repo.githubRepoFullName.split('/')[1],
+        }),
+      },
+    );
+
+    if (!/^20/.test('' + transferRes.status)) {
+      throw new BadRequestException(
+        'Could not transfer the repository due to GitHub error: ' +
+          transferRes.statusText,
       );
     }
 
@@ -265,20 +298,6 @@ export class DeploysService {
         throw new VError(e, 'Could not set secrets on repo');
       });
 
-    await fetch(
-      `https://api.github.com/repos/${repo.githubRepoFullName}/transfer`,
-      {
-        headers: {
-          Authorization: this.githubToken,
-        },
-        method: 'POST',
-        body: JSON.stringify({
-          new_owner: newGithubUsername,
-          new_name: repo.githubRepoFullName.split('/')[1],
-        }),
-      },
-    );
-
     return this.prisma.repository.update({
       where: {
         slug: repositorySlug,
@@ -291,6 +310,61 @@ export class DeploysService {
         authTokenSalt,
       },
     });
+  }
+
+  async isRepositoryTransferred(
+    user: User,
+    repositorySlug: Repository['slug'],
+  ) {
+    const repo = await this.prisma.repository.findUnique({
+      where: {
+        slug: repositorySlug,
+      },
+    });
+
+    if (!repo) {
+      throw new VError(
+        { info: { code: DeployError.BAD_REPO } },
+        'Repository not found',
+      );
+    }
+
+    await this.projectPermissions.checkUserProjectPermission(
+      user.id,
+      repo.projectSlug,
+    );
+
+    let octokit: Octokit;
+    try {
+      octokit = new Octokit({
+        auth: this.githubToken,
+      });
+    } catch (e: any) {
+      throw new VError(e, 'Could not establish octokit connection');
+    }
+
+    const originalOwner = this.repositoryOwner;
+    const originalRepositoryName = repo.githubRepoFullName.split('/')[1];
+
+    const oldFullName = `${originalOwner}/${originalRepositoryName}`;
+
+    let isTransferred;
+    // Get repository details from Github.
+    try {
+      const { data } = await octokit.request(
+        `GET /repos/${originalOwner}/${originalRepositoryName}`,
+      );
+      isTransferred = data.full_name !== oldFullName;
+    } catch (e: any) {
+      if (e.message !== 'Not Found') {
+        throw new VError(e, 'Could not get repo details from github');
+      }
+      isTransferred = true;
+    }
+
+    return {
+      isTransferred,
+    };
   }
 
   /**

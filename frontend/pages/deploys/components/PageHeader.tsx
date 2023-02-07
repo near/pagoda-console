@@ -5,7 +5,7 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H1 } from '@/components/lib/Heading';
 import { Section } from '@/components/lib/Section';
-import { useDeployments, useRepositories } from '@/hooks/deploys';
+import { useDeployments, useIsRepositoryTransferred, useRepositories } from '@/hooks/deploys';
 import { useSelectedProject } from '@/hooks/selected-project';
 import { TransferGithubModal } from '@/modules/gallery/components/template/TransferGithubModal';
 import { StableId } from '@/utils/stable-ids';
@@ -26,6 +26,8 @@ const PageHeader = () => {
 
   const repo = repositories?.[0];
 
+  const { isRepositoryTransferred } = useIsRepositoryTransferred(repo?.slug);
+
   return repo ? (
     <>
       <Section>
@@ -37,7 +39,7 @@ const PageHeader = () => {
             </Flex>
 
             <Flex justify="end">
-              {hasAtLeastOneDeploy ? (
+              {hasAtLeastOneDeploy && !isRepositoryTransferred ? (
                 <Button
                   color="neutral"
                   stableId={StableId.DEPLOYS_GITHUB_REPO}

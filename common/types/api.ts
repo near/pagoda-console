@@ -140,6 +140,12 @@ export namespace Api {
         error: z.infer<typeof Deploys.query.errors.listDeployments>;
       };
 
+      '/deploys/isRepositoryTransferred': {
+        input: z.infer<typeof Deploys.query.inputs.isRepositoryTransferred>;
+        output: z.infer<typeof Deploys.query.outputs.isRepositoryTransferred>;
+        error: z.infer<typeof Deploys.query.errors.isRepositoryTransferred>;
+      };
+      
       '/users/getGithubConnection': {
         input: z.infer<typeof Users.query.inputs.getGithubConnection>;
         output: z.infer<typeof Users.query.outputs.getGithubConnection>;
