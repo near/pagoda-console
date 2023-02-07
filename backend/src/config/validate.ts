@@ -103,10 +103,10 @@ const appConfigSchema = z.strictObject({
   }),
   featureEnabled: z.strictObject({
     core: z.strictObject({
-      contractAddressValidation: z.boolean().optional().default(true),
+      contractAddressValidation: z.boolean(),
     }),
     alerts: z.strictObject({
-      contractAddressValidation: z.boolean().optional().default(true),
+      contractAddressValidation: z.boolean(),
     }),
   }),
   metricsPort: z.number().int().optional().default(3030),
@@ -249,11 +249,15 @@ export default function validate(config: Record<string, any>): AppConfig {
     featureEnabled: {
       core: {
         contractAddressValidation:
-          config.CORE_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
+          config.CORE_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED === 'false'
+            ? false
+            : true,
       },
       alerts: {
         contractAddressValidation:
-          config.ALERT_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
+          config.ALERT_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED === 'false'
+            ? false
+            : true,
       },
     },
     metricsPort: config.METRICS_PORT,
