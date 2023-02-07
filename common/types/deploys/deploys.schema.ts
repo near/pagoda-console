@@ -112,6 +112,9 @@ export const mutation = {
         (data) => !!data.frontendDeployUrl || !!data.cid,
         'Either frontendDeployUrl or cid should be filled in.',
       ),
+    triggerGithubWorkflow: z.strictObject({
+      repository: z.string(),
+    }),
   },
 
   outputs: {
@@ -126,6 +129,7 @@ export const mutation = {
     deployWasm: z.void(),
     wasmFiles: z.void(),
     addFrontend: z.void(),
+    triggerGithubWorkflow: z.void(),
   },
 
   errors: {
@@ -134,5 +138,6 @@ export const mutation = {
     deployWasm: z.unknown(),
     wasmFiles: z.unknown(),
     addFrontend: z.unknown(),
+    triggerGithubWorkflow: z.unknown(),
   },
 };

@@ -139,7 +139,6 @@ export namespace Api {
         output: z.infer<typeof Deploys.query.outputs.listDeployments>;
         error: z.infer<typeof Deploys.query.errors.listDeployments>;
       };
-
       '/deploys/isRepositoryTransferred': {
         input: z.infer<typeof Deploys.query.inputs.isRepositoryTransferred>;
         output: z.infer<typeof Deploys.query.outputs.isRepositoryTransferred>;
@@ -359,6 +358,11 @@ export namespace Api {
         input: z.infer<typeof Users.mutation.inputs.connectGithub>;
         output: z.infer<typeof Users.mutation.outputs.connectGithub>;
         error: z.infer<typeof Users.mutation.errors.connectGithub>;
+      };
+      '/deploys/triggerGithubWorkflow': {
+        input: z.infer<typeof Deploys.mutation.inputs.triggerGithubWorkflow>;
+        output: z.infer<typeof Deploys.mutation.outputs.triggerGithubWorkflow>;
+        error: z.infer<typeof Deploys.mutation.errors.triggerGithubWorkflow>;
       };
     };
 

@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   UsePipes,
   ConflictException,
+  HttpCode,
 } from '@nestjs/common';
 import { DeploysService } from './deploys.service';
 import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
@@ -78,6 +79,29 @@ export class DeploysController {
     try {
       return await this.deploysService.isRepositoryTransferred(
         req.user as User, // TODO change to UserDetails from auth service
+        repository,
+      );
+    } catch (e: any) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('triggerGithubWorkflow')
+  @HttpCode(204)
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(
+    new ZodValidationPipe(Deploys.mutation.inputs.triggerGithubWorkflow),
+  )
+  async triggerGithubWorkflow(
+    @Req() req: ExpressRequest,
+    @Body()
+    {
+      repository,
+    }: z.infer<typeof Deploys.mutation.inputs.triggerGithubWorkflow>,
+  ): Promise<Api.Mutation.Output<'/deploys/triggerGithubWorkflow'>> {
+    try {
+      return await this.deploysService.triggerGithubWorkflow(
+        req.user as User,
         repository,
       );
     } catch (e: any) {

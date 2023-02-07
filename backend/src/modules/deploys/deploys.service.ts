@@ -29,6 +29,7 @@ const nanoid = customAlphabet(
 export class DeploysService {
   private githubToken: string;
   private repositoryOwner: string;
+  private workflowName: string;
   constructor(
     private prisma: PrismaService,
     private projectsService: ProjectsService,
@@ -36,11 +37,15 @@ export class DeploysService {
     private readonlyService: ReadonlyService,
     private config: ConfigService<AppConfig>,
   ) {
-    const { githubToken, repositoryOwner } = this.config.get('gallery', {
-      infer: true,
-    })!;
+    const { githubToken, repositoryOwner, workflowName } = this.config.get(
+      'gallery',
+      {
+        infer: true,
+      },
+    )!;
     this.githubToken = githubToken;
     this.repositoryOwner = repositoryOwner;
+    this.workflowName = workflowName;
   }
 
   /**
@@ -307,6 +312,65 @@ export class DeploysService {
     return {
       isTransferred,
     };
+  }
+
+  // Triggers the first github workflow, if needed.
+  async triggerGithubWorkflow(user: User, repositorySlug: Repository['slug']) {
+    const repository = await this.prisma.repository.findUnique({
+      where: {
+        slug: repositorySlug,
+      },
+      include: {
+        repoDeployments: true,
+      },
+    });
+
+    if (!repository) {
+      throw new VError(
+        { info: { code: DeployError.BAD_REPO } },
+        'Repository not found',
+      );
+    }
+
+    await this.projectPermissions.checkUserProjectPermission(
+      user.id,
+      repository.projectSlug,
+    );
+
+    let octokit: Octokit;
+    try {
+      octokit = new Octokit({
+        auth: this.githubToken,
+      });
+    } catch (e: any) {
+      throw new VError(e, 'Could not establish octokit connection');
+    }
+
+    const {
+      data: { workflows },
+    } = (await octokit
+      .request(`GET /repos/${repository.githubRepoFullName}/actions/workflows`)
+      .catch((e) => {
+        throw new VError(e, 'Could not get GitHub workflows');
+      })) as any;
+    const deployWorkflow = workflows.find(
+      (workflow: any) => workflow.name === this.workflowName,
+    );
+
+    if (!deployWorkflow) {
+      throw new VError('Could not find deploy workflow');
+    }
+
+    await octokit
+      .request(
+        `POST /repos/${repository.githubRepoFullName}/actions/workflows/${deployWorkflow.id}/dispatches`,
+        {
+          ref: 'main',
+        },
+      )
+      .catch((e) => {
+        throw new VError(e, 'Could not dispatch GitHub workflow');
+      });
   }
 
   /**
