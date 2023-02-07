@@ -1,6 +1,10 @@
 import { ProjectsService } from '@/src/core/projects/projects.service';
 import sodium from 'libsodium-wrappers';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
 import { PrismaService } from './prisma.service';
 import { Environment, Project, User } from '@pc/database/clients/core';
@@ -12,7 +16,9 @@ import { connect, KeyPair, keyStores } from 'near-api-js';
 import { PermissionsService as ProjectPermissionsService } from '../../core/projects/permissions.service';
 import { ReadonlyService } from './readonly.service';
 import { Octokit } from '@octokit/core';
-import { GithubService } from '@/src/core/github/github.service';
+import { ConfigService } from '@nestjs/config';
+import { AppConfig } from '@/src/config/validate';
+import { DeployError } from './deploy-error';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -21,13 +27,21 @@ const nanoid = customAlphabet(
 
 @Injectable()
 export class DeploysService {
+  private githubToken: string;
+  private repositoryOwner: string;
   constructor(
     private prisma: PrismaService,
     private projectsService: ProjectsService,
     private projectPermissions: ProjectPermissionsService,
     private readonlyService: ReadonlyService,
-    private githubService: GithubService,
-  ) {}
+    private config: ConfigService<AppConfig>,
+  ) {
+    const { githubToken, repositoryOwner } = this.config.get('gallery', {
+      infer: true,
+    })!;
+    this.githubToken = githubToken;
+    this.repositoryOwner = repositoryOwner;
+  }
 
   /**
    * Creates a Console project then links a github repo
@@ -44,7 +58,9 @@ export class DeploysService {
   }) {
     let octokit: Octokit;
     try {
-      octokit = await this.githubService.getUserOctokit(user);
+      octokit = new Octokit({
+        auth: this.githubToken,
+      });
     } catch (e: any) {
       throw new VError(
         e,
@@ -66,35 +82,6 @@ export class DeploysService {
         }
         throw new VError(e, 'Could not create repo from template');
       })) as any;
-
-    let project, environments;
-
-    // create the project which this deployment will be placed under
-    try {
-      project = await this.projectsService.create(user, projectName);
-    } catch (e: any) {
-      throw new VError(e, 'Failed to create project for deployment');
-    }
-
-    // grab environments from the newly created project because we attach
-    // deploys to specific environments
-    try {
-      environments = await this.projectsService.getEnvironments(user, {
-        slug: project.slug,
-      });
-    } catch (e: any) {
-      throw new VError(
-        e,
-        'Failed to fetch environments for newly created deploy project',
-      );
-    }
-
-    // for templates, we only support deploying to testnet at the moment, so
-    // this is hardcoded
-    const testnetEnv = environments.find((env) => env.net === 'TESTNET');
-    if (!testnetEnv) {
-      throw new VError('Could not find testnet env for newly created project');
-    }
 
     // OWASP recommended password hashing:
     // If Argon2id is not available, use scrypt with a minimum CPU/memory cost parameter of (2^16),
@@ -148,6 +135,35 @@ export class DeploysService {
         throw new VError(e, 'Could not set secrets on repo');
       });
 
+    let project, environments;
+
+    // create the project which this deployment will be placed under
+    try {
+      project = await this.projectsService.create(user, projectName);
+    } catch (e: any) {
+      throw new VError(e, 'Failed to create project for deployment');
+    }
+
+    // grab environments from the newly created project because we attach
+    // deploys to specific environments
+    try {
+      environments = await this.projectsService.getEnvironments(user, {
+        slug: project.slug,
+      });
+    } catch (e: any) {
+      throw new VError(
+        e,
+        'Failed to fetch environments for newly created deploy project',
+      );
+    }
+
+    // for templates, we only support deploying to testnet at the moment, so
+    // this is hardcoded
+    const testnetEnv = environments.find((env) => env.net === 'TESTNET');
+    if (!testnetEnv) {
+      throw new VError('Could not find testnet env for newly created project');
+    }
+
     return this.addDeployRepository({
       projectSlug: project.slug,
       environmentSubId: testnetEnv.subId,
@@ -155,6 +171,200 @@ export class DeploysService {
       authTokenHash,
       authTokenSalt,
     });
+  }
+
+  async transferGithubRepository({
+    user,
+    newGithubUsername,
+    repositorySlug,
+  }: {
+    user: User;
+    newGithubUsername: string;
+    repositorySlug: string;
+  }) {
+    const { isTransferred } = await this.isRepositoryTransferred(
+      user,
+      repositorySlug,
+    );
+
+    if (isTransferred) {
+      throw new BadRequestException('Repository was already transferred');
+    }
+
+    const repo = await this.prisma.repository.findUnique({
+      where: {
+        slug: repositorySlug,
+      },
+    });
+
+    if (!repo) {
+      throw new BadRequestException('repo does not exist');
+    }
+
+    const { createdBy } = await this.projectsService.getActiveProject({
+      slug: repo.projectSlug,
+    });
+
+    if (createdBy !== user.id) {
+      throw new ForbiddenException('User cannot modify this repo');
+    }
+
+    let octokit: Octokit;
+    try {
+      octokit = new Octokit({
+        auth: this.githubToken,
+      });
+    } catch (e: any) {
+      throw new VError(
+        e,
+        'Could not establish octokit conneciton for template creation',
+      );
+    }
+
+    const transferRes = await fetch(
+      `https://api.github.com/repos/${repo.githubRepoFullName}/transfer`,
+      {
+        headers: {
+          Authorization: this.githubToken,
+        },
+        method: 'POST',
+        body: JSON.stringify({
+          new_owner: newGithubUsername,
+          new_name: repo.githubRepoFullName.split('/')[1],
+        }),
+      },
+    );
+
+    if (!/^20/.test('' + transferRes.status)) {
+      throw new BadRequestException(
+        'Could not transfer the repository due to GitHub error: ' +
+          transferRes.statusText,
+      );
+    }
+
+    const actionAuthToken = nanoid(25);
+    const authTokenSalt = randomBytes(32);
+    const authTokenHash = this.hashToken(actionAuthToken, authTokenSalt);
+
+    const {
+      data: { key, key_id },
+    } = (await octokit
+      .request(
+        `GET /repos/${repo.githubRepoFullName}/actions/secrets/public-key`,
+      )
+      .catch((e) => {
+        throw new VError(
+          e,
+          'Could not get repo public key to set secrets on repo',
+        );
+      })) as any;
+
+    const secret_name = 'PAGODA_CONSOLE_TOKEN';
+
+    const encryptedSecret = await sodium.ready.then(() => {
+      // Convert Secret & Base64 key to Uint8Array.
+      const binkey = sodium.from_base64(key, sodium.base64_variants.ORIGINAL);
+      const binsec = sodium.from_string(
+        'Basic ' +
+          sodium.to_base64(
+            `${newGithubUsername}/${
+              repo.githubRepoFullName.split('/')[1]
+            }:${actionAuthToken}`,
+            sodium.base64_variants.ORIGINAL,
+          ),
+      );
+
+      //Encrypt the secret using LibSodium
+      const encBytes = sodium.crypto_box_seal(binsec, binkey);
+
+      // Convert encrypted Uint8Array to Base64
+      const output = sodium.to_base64(
+        encBytes,
+        sodium.base64_variants.ORIGINAL,
+      );
+
+      return output;
+    });
+
+    await octokit
+      .request(
+        `PUT /repos/${repo.githubRepoFullName}/actions/secrets/${secret_name}`,
+        {
+          encrypted_value: encryptedSecret,
+          key_id,
+        },
+      )
+      .catch((e) => {
+        throw new VError(e, 'Could not set secrets on repo');
+      });
+
+    return this.prisma.repository.update({
+      where: {
+        slug: repositorySlug,
+      },
+      data: {
+        githubRepoFullName: `${newGithubUsername}/${
+          repo.githubRepoFullName.split('/')[1]
+        }`,
+        authTokenHash,
+        authTokenSalt,
+      },
+    });
+  }
+
+  async isRepositoryTransferred(
+    user: User,
+    repositorySlug: Repository['slug'],
+  ) {
+    const repo = await this.prisma.repository.findUnique({
+      where: {
+        slug: repositorySlug,
+      },
+    });
+
+    if (!repo) {
+      throw new VError(
+        { info: { code: DeployError.BAD_REPO } },
+        'Repository not found',
+      );
+    }
+
+    await this.projectPermissions.checkUserProjectPermission(
+      user.id,
+      repo.projectSlug,
+    );
+
+    let octokit: Octokit;
+    try {
+      octokit = new Octokit({
+        auth: this.githubToken,
+      });
+    } catch (e: any) {
+      throw new VError(e, 'Could not establish octokit connection');
+    }
+
+    const originalOwner = this.repositoryOwner;
+    const originalRepositoryName = repo.githubRepoFullName.split('/')[1];
+
+    const oldFullName = `${originalOwner}/${originalRepositoryName}`;
+
+    let isTransferred;
+    // Get repository details from Github.
+    try {
+      const { data } = await octokit.request(
+        `GET /repos/${originalOwner}/${originalRepositoryName}`,
+      );
+      isTransferred = data.full_name !== oldFullName;
+    } catch (e: any) {
+      if (e.message !== 'Not Found') {
+        throw new VError(e, 'Could not get repo details from github');
+      }
+      isTransferred = true;
+    }
+
+    return {
+      isTransferred,
+    };
   }
 
   /**

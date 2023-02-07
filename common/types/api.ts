@@ -140,6 +140,12 @@ export namespace Api {
         error: z.infer<typeof Deploys.query.errors.listDeployments>;
       };
 
+      '/deploys/isRepositoryTransferred': {
+        input: z.infer<typeof Deploys.query.inputs.isRepositoryTransferred>;
+        output: z.infer<typeof Deploys.query.outputs.isRepositoryTransferred>;
+        error: z.infer<typeof Deploys.query.errors.isRepositoryTransferred>;
+      };
+      
       '/users/getGithubConnection': {
         input: z.infer<typeof Users.query.inputs.getGithubConnection>;
         output: z.infer<typeof Users.query.outputs.getGithubConnection>;
@@ -326,6 +332,11 @@ export namespace Api {
         input: z.infer<typeof Deploys.mutation.inputs.addDeploy>;
         output: z.infer<typeof Deploys.mutation.outputs.addDeploy>;
         error: z.infer<typeof Deploys.mutation.errors.addDeploy>;
+      };
+      '/deploys/transferGithubRepository': {
+        input: z.infer<typeof Deploys.mutation.inputs.transferGithubRepository>;
+        output: z.infer<typeof Deploys.mutation.outputs.transferGithubRepository>;
+        error: z.infer<typeof Deploys.mutation.errors.transferGithubRepository>;
       };
       '/deploys/deployWasm': {
         input: z.infer<typeof Deploys.mutation.inputs.deployWasm>;

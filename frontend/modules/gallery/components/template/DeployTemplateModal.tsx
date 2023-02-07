@@ -3,13 +3,11 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { AuthStatusRenderer } from '@/components/AuthStatusRenderer';
-import { GithubConnect } from '@/components/GithubConnect';
 import { Button, ButtonLink } from '@/components/lib/Button';
 import * as Dialog from '@/components/lib/Dialog';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { Text } from '@/components/lib/Text';
-import { TextLink } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
 import { useApiMutation } from '@/hooks/api-mutation';
 import { useRouteParam } from '@/hooks/route';
@@ -43,11 +41,12 @@ export function DeployTemplateModal({ setShow, ...props }: Props) {
         Otherwise, we'd have to worry about manually resetting the state
         and form each time it opened or closed. */}
 
-        <AuthStatusRenderer
+        {/* <AuthStatusRenderer
           custom
           authenticated={<ModalContent setShow={setShow} {...props} />}
           unauthenticated={<UnauthenticatedModalContent />}
-        />
+        /> */}
+        <ModalContent setShow={setShow} {...props} />
       </Dialog.Content>
     </Dialog.Root>
   );
@@ -55,15 +54,16 @@ export function DeployTemplateModal({ setShow, ...props }: Props) {
 
 function ModalContent(props: Props) {
   return (
-    <GithubConnect
-      connected={<ConnectedModalContent {...props} />}
-      unconnected={<UnconnectedModalContent {...props} />}
+    <AuthStatusRenderer
+      authenticated={<ConnectedModalContent {...props} />}
+      unauthenticated={<UnauthenticatedModalContent />}
     />
   );
 }
 
 interface DeployFormData {
   repositoryName: string;
+  githubUsername: string;
 }
 
 function ConnectedModalContent(props: Props) {
@@ -71,11 +71,7 @@ function ConnectedModalContent(props: Props) {
   const router = useRouter();
 
   const repositoryName = props.template.attributes.githubUrl.split('/').pop() as string;
-  const form = useForm<DeployFormData>({
-    defaultValues: {
-      repositoryName,
-    },
-  });
+  const form = useForm<DeployFormData>();
 
   const deployMutation = useApiMutation('/deploys/addDeploy', {
     onSuccess: (res) => {
@@ -132,7 +128,9 @@ function ConnectedModalContent(props: Props) {
               label="Repository Name"
               placeholder={repositoryName}
               stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_REPO_NAME_INPUT}
-              {...form.register('repositoryName')}
+              {...form.register('repositoryName', {
+                required: true,
+              })}
             />
           </Form.Group>
 
@@ -160,25 +158,7 @@ function ConnectedModalContent(props: Props) {
   );
 }
 
-function UnconnectedModalContent(props: Props) {
-  return (
-    <Flex stack>
-      <Text>
-        To deploy this template, you&apos;ll need to connect your GitHub account. This will allow us to create and
-        configure the{' '}
-        <TextLink
-          href={props.template.attributes.githubUrl}
-          external
-          stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_VIEW_REPO_LINK}
-        >
-          Template Repository
-        </TextLink>
-      </Text>
-    </Flex>
-  );
-}
-
-function UnauthenticatedModalContent() {
+export function UnauthenticatedModalContent() {
   return (
     <Flex stack gap="l">
       <Text>To deploy this template, you&apos;ll need to sign in and connect your GitHub account:</Text>
