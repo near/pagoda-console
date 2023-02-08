@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Box } from '@/components/lib/Box';
+// import { Box } from '@/components/lib/Box';
 import { Button, ButtonLink } from '@/components/lib/Button';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
@@ -76,8 +76,6 @@ const Header = () => {
             <UseTemplateButton stableId={StableId.GALLERY_USE_TEMPLATE} onClick={openDeployModal}>
               <IconShare icon="share-2" size="s" />
               Use Template
-              <Box />
-              28.4 k
             </UseTemplateButton>
           </Flex>
           <Flex justify="end">

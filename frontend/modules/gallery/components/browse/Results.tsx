@@ -1,9 +1,15 @@
 import { Box } from '@/components/lib/Box';
 import { Flex } from '@/components/lib/Flex';
-import { Text } from '@/components/lib/Text';
+// import { Text } from '@/components/lib/Text';
 import { useGalleryStore } from '@/stores/gallery';
-import { selectDbLoader, selectNumberOfResults, selectTemplatesFiltered } from '@/stores/gallery/gallery';
-import { keyframes, styled } from '@/styles/stitches';
+import {
+  // selectDbLoader, selectNumberOfResults,
+  selectTemplatesFiltered,
+} from '@/stores/gallery/gallery';
+import {
+  // keyframes,
+  styled,
+} from '@/styles/stitches';
 
 // import ResultsSortBy from './ResultsSortBy';
 import ResultsTemplate from './ResultsTemplate';
@@ -26,80 +32,80 @@ const Templates = styled('div', {
   },
 });
 
-const spinAnimation = keyframes({
-  from: { transform: 'rotate(0deg)' },
-  to: { transform: 'rotate(360deg)' },
-});
+// const spinAnimation = keyframes({
+//   from: { transform: 'rotate(0deg)' },
+//   to: { transform: 'rotate(360deg)' },
+// });
 
-const ResetLink = styled('span', {
-  color: 'var(--color-primary)',
-  cursor: 'pointer',
-  position: 'relative',
+// const ResetLink = styled('span', {
+//   color: 'var(--color-primary)',
+//   cursor: 'pointer',
+//   position: 'relative',
 
-  variants: {
-    loader: {
-      true: {
-        [`& span`]: {
-          opacity: 0,
-        },
+//   variants: {
+//     loader: {
+//       true: {
+//         [`& span`]: {
+//           opacity: 0,
+//         },
 
-        '&:before': {
-          opacity: 1,
-        },
-      },
-      false: {
-        [`& span`]: {
-          opacity: 1,
-        },
+//         '&:before': {
+//           opacity: 1,
+//         },
+//       },
+//       false: {
+//         [`& span`]: {
+//           opacity: 1,
+//         },
 
-        '&:before': {
-          opacity: 0,
-        },
-      },
-    },
-    default: {
-      [`& span`]: {
-        opacity: 1,
-      },
+//         '&:before': {
+//           opacity: 0,
+//         },
+//       },
+//     },
+//     default: {
+//       [`& span`]: {
+//         opacity: 1,
+//       },
 
-      '&:before': {
-        opacity: 0,
-      },
-    },
-  },
+//       '&:before': {
+//         opacity: 0,
+//       },
+//     },
+//   },
 
-  [`& span`]: {
-    transition: 'opacity 0.2s',
-  },
+//   [`& span`]: {
+//     transition: 'opacity 0.2s',
+//   },
 
-  '&:before': {
-    transition: 'opacity 0.2s',
-    content: '',
-    display: 'block',
-    width: '1.2em',
-    height: '1.2em',
-    position: 'absolute',
-    top: '50%',
-    left: 0,
-    right: 0,
-    margin: '-0.6rem 0 0 0.8rem',
-    borderRadius: '100%',
-    border: '3px solid currentColor',
-    borderTopColor: 'transparent',
-    animation: `${spinAnimation} 700ms linear infinite`,
-  },
-});
+//   '&:before': {
+//     transition: 'opacity 0.2s',
+//     content: '',
+//     display: 'block',
+//     width: '1.2em',
+//     height: '1.2em',
+//     position: 'absolute',
+//     top: '50%',
+//     left: 0,
+//     right: 0,
+//     margin: '-0.6rem 0 0 0.8rem',
+//     borderRadius: '100%',
+//     border: '3px solid currentColor',
+//     borderTopColor: 'transparent',
+//     animation: `${spinAnimation} 700ms linear infinite`,
+//   },
+// });
 
 const Results = () => {
   const templates = useGalleryStore(selectTemplatesFiltered);
-  const numberOfResults = useGalleryStore(selectNumberOfResults);
-  const resetFilters = useGalleryStore((state) => state.resetFilters);
-  const dbLoader = useGalleryStore(selectDbLoader);
+  // const numberOfResults = useGalleryStore(selectNumberOfResults);
+  // const resetFilters = useGalleryStore((state) => state.resetFilters);
+  // const dbLoader = useGalleryStore(selectDbLoader);
 
   return (
     <Box>
       <ResultsTop align="center">
-        <Flex
+        {/* <Flex
           gap={{
             '@smallTablet': 's',
           }}
@@ -109,7 +115,7 @@ const Results = () => {
           <ResetLink loader={dbLoader} onClick={resetFilters}>
             <span>Reset</span>
           </ResetLink>
-        </Flex>
+        </Flex> */}
         {/* <Flex justify="end">
           <ResultsSortBy />
         </Flex> */}
