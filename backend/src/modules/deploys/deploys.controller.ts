@@ -10,6 +10,7 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
+  ConflictException,
 } from '@nestjs/common';
 import { DeploysService } from './deploys.service';
 import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
@@ -40,18 +41,21 @@ export class DeploysController {
       projectName,
     }: z.infer<typeof Deploys.mutation.inputs.addDeploy>,
   ): Promise<Api.Mutation.Output<'/deploys/addDeploy'>> {
-    // called from Console frontend to initialize a new repo for deployment
-    const repository = await this.deploysService.createDeployProject({
-      user: req.user as User, // TODO change to UserDetails from auth service
-      githubRepoFullName,
-      projectName,
-    });
-    return {
-      repositorySlug: repository.slug,
-      projectSlug: repository.projectSlug,
-    };
+    try {
+      // called from Console frontend to initialize a new repo for deployment
+      const repository = await this.deploysService.createDeployProject({
+        user: req.user as User, // TODO change to UserDetails from auth service
+        githubRepoFullName,
+        projectName,
+      });
+      return {
+        repositorySlug: repository.slug,
+        projectSlug: repository.projectSlug,
+      };
+    } catch (e: any) {
+      throw mapError(e);
+    }
   }
-
   @Post('isRepositoryTransferred')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new ZodValidationPipe(Deploys.query.inputs.isRepositoryTransferred))
@@ -191,11 +195,16 @@ function mapError(e: Error) {
   // TODO log in dev
   // console.error(e);
   const errorInfo = VError.info(e);
-  switch (errorInfo?.code) {
+  const code = errorInfo?.code;
+  switch (code) {
     case 'PERMISSION_DENIED':
       return new ForbiddenException();
     case 'TOO_MANY_REQUESTS':
       return new TooManyRequestsException();
+    case 'NAME_CONFLICT':
+      return new ConflictException(code);
+    case 'CONFLICT':
+      return new ConflictException(code);
     default:
       return e;
   }

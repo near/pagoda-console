@@ -101,9 +101,9 @@ const Gallery = ({ templates, filters }: GalleryProps) => {
               <Text size="h1" family="sprint">
                 Build fast, learn fast with templates.
               </Text>
-              <Text color="text2">
+              {/* <Text color="text2">
                 This is a subheading to tell the user more about what this page is and how it should be used.
-              </Text>
+              </Text> */}
             </Flex>
           </Header>
           <Flex
@@ -127,7 +127,7 @@ const Gallery = ({ templates, filters }: GalleryProps) => {
             <Step
               icon={<IconThree />}
               header="Enjoy Automated Builds & Deploys"
-              text="Your contracts are auto-deployed to the NEAR testnet and Github pages (for templates with a UI)."
+              text="Your contracts are auto-deployed to the NEAR testnet and IPFS (for templates with a UI)."
             />
           </Flex>
         </Container>

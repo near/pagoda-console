@@ -79,7 +79,7 @@ function ModalContent(props) {
             <Form.FloatingLabelInput
               label="New Github Username"
               placeholder={'satoshi'}
-              stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_REPO_NEW_USER_NAME_INPUT}
+              stableId={StableId.GALLERY_DEPLOY_TRANSFER_MODAL_REPO_NEW_USER_NAME_INPUT}
               {...form.register('newGithubUsername', {
                 required: true,
               })}
@@ -87,7 +87,7 @@ function ModalContent(props) {
           </Form.Group>
 
           <Button
-            stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_CONFIRM_BUTTON}
+            stableId={StableId.GALLERY_DEPLOY_TRANSFER_MODAL_CONFIRM_BUTTON}
             type="submit"
             stretch
             loading={transferMutation.isLoading}
@@ -97,7 +97,7 @@ function ModalContent(props) {
 
           <ButtonLink
             href={`https://www.github.com/${props.repository.githubRepoFullName}`}
-            stableId={StableId.GALLERY_DEPLOY_TEMPLATE_MODAL_VIEW_REPO_LINK}
+            stableId={StableId.GALLERY_DEPLOY_TRANSFER_MODAL_VIEW_REPO_LINK}
             external
             color="neutral"
             stretch
