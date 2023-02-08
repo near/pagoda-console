@@ -5,7 +5,7 @@ import { useGalleryStore } from '@/stores/gallery';
 import { selectDbLoader, selectNumberOfResults, selectTemplatesFiltered } from '@/stores/gallery/gallery';
 import { keyframes, styled } from '@/styles/stitches';
 
-import ResultsSortBy from './ResultsSortBy';
+// import ResultsSortBy from './ResultsSortBy';
 import ResultsTemplate from './ResultsTemplate';
 
 const ResultsTop = styled(Flex, {
@@ -110,9 +110,9 @@ const Results = () => {
             <span>Reset</span>
           </ResetLink>
         </Flex>
-        <Flex justify="end">
+        {/* <Flex justify="end">
           <ResultsSortBy />
-        </Flex>
+        </Flex> */}
       </ResultsTop>
       <Templates>
         {templates.map((template, i) => (
