@@ -362,9 +362,31 @@ export class DeploysService {
       isTransferred = true;
     }
 
+    if (isTransferred) {
+      this.removeGithubCollaborator(repo.githubRepoFullName);
+    }
+
     return {
       isTransferred,
     };
+  }
+
+  async removeGithubCollaborator(repoFullName) {
+    let octokit: Octokit;
+    try {
+      octokit = new Octokit({
+        auth: this.githubToken,
+      });
+    } catch (e: any) {
+      throw new VError(
+        e,
+        'Could not establish octokit conneciton for template creation',
+      );
+    }
+
+    await octokit.request(
+      `DELETE /repos/${repoFullName}/collaborators/${this.repositoryOwner}`,
+    );
   }
 
   /**
