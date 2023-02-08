@@ -82,7 +82,7 @@ function Projects() {
             <Message
               content="That project does not exist or you don't have permission to access it."
               color="danger"
-              dismiss={() => setShowRedirectAlert(false)}
+              onClickButton={() => setShowRedirectAlert(false)}
             />
           )}
 

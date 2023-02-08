@@ -4,6 +4,7 @@ import { Button } from '@/components/lib/Button';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H1 } from '@/components/lib/Heading';
+import { Message } from '@/components/lib/Message';
 import { Section } from '@/components/lib/Section';
 import { useDeployments, useIsRepositoryTransferred, useRepositories } from '@/hooks/deploys';
 import { useSelectedProject } from '@/hooks/selected-project';
@@ -39,17 +40,6 @@ const PageHeader = () => {
             </Flex>
 
             <Flex justify="end">
-              {hasAtLeastOneDeploy && !isRepositoryTransferred ? (
-                <Button
-                  color="neutral"
-                  stableId={StableId.DEPLOYS_GITHUB_REPO}
-                  hideText="tablet"
-                  onClick={openTransferModal}
-                >
-                  <FeatherIcon icon="github" /> Transfer
-                </Button>
-              ) : null}
-
               <Button
                 color="neutral"
                 stableId={StableId.DEPLOYS_GITHUB_REPO}
@@ -59,16 +49,27 @@ const PageHeader = () => {
                 <FeatherIcon icon="share" /> GitHub Repo
               </Button>
 
-              <Button
-                stableId={StableId.DEPLOYS_CODE}
-                hideText="tablet"
-                onClick={() => window.open(`https://github.dev/${repo.githubRepoFullName}`, '_blank')}
-              >
-                <FeatherIcon icon="code" /> Code
-              </Button>
+              {isRepositoryTransferred ? (
+                <Button
+                  stableId={StableId.DEPLOYS_CODE}
+                  hideText="tablet"
+                  onClick={() => window.open(`https://github.dev/${repo.githubRepoFullName}`, '_blank')}
+                >
+                  <FeatherIcon icon="code" /> Code
+                </Button>
+              ) : null}
             </Flex>
           </Flex>
         </Flex>
+        {hasAtLeastOneDeploy && !isRepositoryTransferred ? (
+          <Message
+            onClickButton={openTransferModal}
+            buttonText={'Transfer'}
+            icon="github"
+            content="Transfer the repository to your personal Github to start making code changes."
+            style={{ marginTop: 20 }}
+          />
+        ) : null}
       </Section>
       <TransferGithubModal repository={repo} show={showTransferModal} setShow={setShowTransferModal} />
     </>
