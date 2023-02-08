@@ -22,7 +22,7 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "start": "turbo run start",
-    "format:check": "prettier --check . && npm -w database run lint:check",
+    "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
     "lint:check": "eslint --cache --max-warnings 0 . && cd database && npm run lint:check"
   },
