@@ -35,7 +35,7 @@ export function ConfirmModal({ setShow, ...props }: Props) {
         <Flex stack gap="l">
           {props.children}
 
-          <Message content={props.errorText} type="error" dismiss={props.resetError} />
+          <Message content={props.errorText} type="error" onClickButton={props.resetError} />
 
           <Flex justify="spaceBetween" align="center">
             <Button

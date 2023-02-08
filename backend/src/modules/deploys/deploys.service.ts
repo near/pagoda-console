@@ -68,15 +68,33 @@ export class DeploysService {
       );
     }
 
+    // Make sure the project name is unique before generating the GitHub repo.
+    const isUnique = await this.projectsService.isProjectNameUniqueForUser(
+      user,
+      projectName,
+    );
+    if (!isUnique) {
+      throw new VError(
+        {
+          info: {
+            code: 'NAME_CONFLICT',
+          },
+        },
+        'Project name is not unique',
+      );
+    }
+
     const {
       data: { full_name: repoFullName },
     } = (await octokit
       .request(`POST /repos/${githubRepoFullName}/generate`, {
         name: projectName,
+        owner: this.repositoryOwner,
       })
       .catch((e) => {
         if (/Name already exists on this account/.test(e.message)) {
-          throw new BadRequestException(
+          throw new VError(
+            { info: { code: DeployError.NAME_CONFLICT } },
             'Repository name already exists on this GitHub account',
           );
         }
@@ -362,9 +380,31 @@ export class DeploysService {
       isTransferred = true;
     }
 
+    if (isTransferred) {
+      this.removeGithubCollaborator(repo.githubRepoFullName);
+    }
+
     return {
       isTransferred,
     };
+  }
+
+  async removeGithubCollaborator(repoFullName) {
+    let octokit: Octokit;
+    try {
+      octokit = new Octokit({
+        auth: this.githubToken,
+      });
+    } catch (e: any) {
+      throw new VError(
+        e,
+        'Could not establish octokit conneciton for template creation',
+      );
+    }
+
+    await octokit.request(
+      `DELETE /repos/${repoFullName}/collaborators/${this.repositoryOwner}`,
+    );
   }
 
   /**

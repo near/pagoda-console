@@ -31,7 +31,7 @@ const EnhancedAPI = () => {
     <Flex stack>
       {displayMessage && (
         <Message
-          dismiss={() => {
+          onClickButton={() => {
             setDisplayMessage(false);
           }}
         >

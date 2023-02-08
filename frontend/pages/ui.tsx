@@ -1050,7 +1050,7 @@ const Settings: NextPageWithLayout = () => {
         <Message type="warning" content="Here is a warning message." />
         <Message type="success" content="Here is a success message." />
         <Message type="success" content="With a custom icon." icon="zap" />
-        <Message type="error" content={errorMessage} dismiss={() => setErrorMessage('')} />
+        <Message type="error" content={errorMessage} onClickButton={() => setErrorMessage('')} />
         <Message>
           <H5>Custom Content</H5>
           <Text>Hello there! Here is more content.</Text>

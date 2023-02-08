@@ -9,7 +9,13 @@ const axios = require('axios');
 
 if (!process.env.CI) {
   console.log('Local build, loading dotenv files');
-  require('dotenv').config();
+  // Load both .env and frontend/.env in case you
+  // are running in the root or the frontend folder.
+  const dotenv = require('dotenv');
+  dotenv.config({ path: 'frontend/.env.local' });
+  dotenv.config({ path: 'frontend/.env' });
+  dotenv.config({ path: '.env.local' });
+  dotenv.config({ path: '.env' });
 }
 
 const CMS_CHECK_ENDPOINT = `${process.env.CMS_URL}/templates`;
