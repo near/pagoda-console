@@ -1,3 +1,5 @@
+import ReactMarkdown from 'react-markdown';
+
 import { Box } from '@/components/lib/Box';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Text } from '@/components/lib/Text';
@@ -26,10 +28,14 @@ const CustomBox = styled(Box, {
 
 const CustomText = styled(Text, {
   paddingBottom: '2rem',
+  ul: {
+    listStyleType: 'disc',
+    paddingLeft: '2rem',
+  },
 });
 
 const TemplateDetails = () => {
-  const { features, featuresRich, benefits, benefitsRich, architectureUrl } = useGalleryStore(selectTemplateAttributes);
+  const { features, featuresRich, benefitsRich, architectureUrl } = useGalleryStore(selectTemplateAttributes);
   const { tools } = useGalleryStore(selectTemplateTools);
 
   return (
@@ -42,12 +48,19 @@ const TemplateDetails = () => {
           <CustomText size="h5" color="text1">
             Key Features
           </CustomText>
-          <CustomText>{featuresRich}</CustomText>
-          <CustomText>{benefits}</CustomText>
-          <CustomText size="h5" color="text1">
-            Blockchain Benefits
+          <CustomText>
+            <ReactMarkdown>{featuresRich}</ReactMarkdown>
           </CustomText>
-          <CustomText>{benefitsRich}</CustomText>
+          {benefitsRich && (
+            <>
+              <CustomText size="h5" color="text1">
+                Blockchain Benefits
+              </CustomText>
+              <CustomText>
+                <ReactMarkdown>{benefitsRich}</ReactMarkdown>
+              </CustomText>
+            </>
+          )}
         </CustomBox>
         <Details>
           <TemplateArchitecture architectureUrl={architectureUrl} />

@@ -952,6 +952,15 @@ export class ProjectsService {
     }
   }
 
+  async isProjectNameUniqueForUser(user: User, name: Project['name']) {
+    try {
+      const { slug } = await this.users.getPersonalOrg(user);
+      return this.isProjectNameUnique(name, slug);
+    } catch (e: any) {
+      throw new VError(e, 'Failed to find personal org for user');
+    }
+  }
+
   async isProjectNameUnique(name: Project['name'], orgSlug: Org['slug']) {
     try {
       const p = await this.prisma.project.findFirst({

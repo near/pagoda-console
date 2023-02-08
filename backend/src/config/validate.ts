@@ -120,13 +120,10 @@ const appConfigSchema = z.strictObject({
       apiKey: z.string(),
     }),
   ]),
-  github: z.strictObject({
-    clientId: z.string(),
-    clientSecret: z.string(),
-  }),
   gallery: z.strictObject({
     githubToken: z.string(),
     repositoryOwner: z.string(),
+    web3StorageToken: z.string(),
   }),
 });
 
@@ -273,13 +270,10 @@ export default function validate(config: Record<string, any>): AppConfig {
             url: config.RPC_API_KEYS_URL,
             apiKey: config.RPC_API_KEYS_API_KEY,
           },
-    github: {
-      clientId: config.GITHUB_CONNECT_CLIENT_ID,
-      clientSecret: config.GITHUB_CONNECT_CLIENT_SECRET,
-    },
     gallery: {
       githubToken: config.GALLERY_GITHUB_TOKEN,
       repositoryOwner: config.GALLERY_REPOSITORY_OWNER,
+      web3StorageToken: config.GALLERY_WEB3_STORAGE_TOKEN,
     },
   };
 
