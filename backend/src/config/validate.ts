@@ -123,6 +123,7 @@ const appConfigSchema = z.strictObject({
   gallery: z.strictObject({
     githubToken: z.string(),
     repositoryOwner: z.string(),
+    web3StorageToken: z.string(),
   }),
 });
 
@@ -272,6 +273,7 @@ export default function validate(config: Record<string, any>): AppConfig {
     gallery: {
       githubToken: config.GALLERY_GITHUB_TOKEN,
       repositoryOwner: config.GALLERY_REPOSITORY_OWNER,
+      web3StorageToken: config.GALLERY_WEB3_STORAGE_TOKEN,
     },
   };
 

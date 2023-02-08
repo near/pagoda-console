@@ -343,6 +343,16 @@ resource "google_cloud_run_service" "console_api" {
           name  = "GALLERY_REPOSITORY_OWNER"
           value = "pagoda-gallery-repos"
         }
+
+        env {
+          name = "GALLERY_WEB3_STORAGE_TOKEN"
+          value_from {
+            secret_key_ref {
+              name = "GALLERY_WEB3_STORAGE_TOKEN_${local.environment_upper}"
+              key  = "1"
+            }
+          }
+        }
       }
     }
   }
