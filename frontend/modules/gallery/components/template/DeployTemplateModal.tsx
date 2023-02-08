@@ -91,18 +91,24 @@ function ConnectedModalContent(props: Props) {
       selectProject(res.projectSlug);
       router.push('/deploys');
       props.setShow(false);
-
-      // TODO: Redirect to deploy module page to show progress?
     },
     onError: (error: any) => {
+      let toastTitle, toastDescription;
+      if (error.statusCode === 409) {
+        toastTitle = 'Repository name already exists';
+        toastDescription = 'Please choose a different name.';
+      } else {
+        toastTitle = 'Deploy Failure';
+        toastDescription = error.statusCode === 400 ? error.message : 'Unknown error.';
+      }
       handleMutationError({
         error,
         eventLabel: 'DC Deploy Gallery Template',
         eventData: {
           id: props.template.id,
         },
-        toastTitle: 'Deploy Failure',
-        toastDescription: error.statusCode === 400 ? error.message : 'Unknown error.',
+        toastTitle,
+        toastDescription,
       });
     },
   });
@@ -161,7 +167,7 @@ function ConnectedModalContent(props: Props) {
 export function UnauthenticatedModalContent() {
   return (
     <Flex stack gap="l">
-      <Text>To deploy this template, you&apos;ll need to sign in and connect your GitHub account:</Text>
+      <Text>To deploy this template, you&apos;ll need to sign in:</Text>
       <AuthForm />
     </Flex>
   );
