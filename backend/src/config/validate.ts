@@ -19,6 +19,7 @@ import { fromZodError } from 'zod-validation-error';
 
 export type Database = {
   host: string;
+  port?: number;
   database: string;
   user: string;
   password: string;
@@ -26,6 +27,7 @@ export type Database = {
 
 const databaseSchema = z.strictObject({
   host: z.string(),
+  port: z.preprocess(Number, z.number().int()).optional(),
   database: z.string(),
   user: z.string(),
   password: z.string(),
@@ -101,10 +103,10 @@ const appConfigSchema = z.strictObject({
   }),
   featureEnabled: z.strictObject({
     core: z.strictObject({
-      contractAddressValidation: z.boolean().optional().default(true),
+      contractAddressValidation: z.boolean(),
     }),
     alerts: z.strictObject({
-      contractAddressValidation: z.boolean().optional().default(true),
+      contractAddressValidation: z.boolean(),
     }),
   }),
   metricsPort: z.number().int().optional().default(3030),
@@ -121,6 +123,10 @@ const appConfigSchema = z.strictObject({
   github: z.strictObject({
     clientId: z.string(),
     clientSecret: z.string(),
+  }),
+  gallery: z.strictObject({
+    githubToken: z.string(),
+    repositoryOwner: z.string(),
   }),
 });
 
@@ -159,6 +165,7 @@ export default function validate(config: Record<string, any>): AppConfig {
       MAINNET: {
         host:
           config.INDEXER_MAINNET_HOST || 'mainnet.db.explorer.indexer.near.dev',
+        port: config.INDEXER_MAINNET_PORT,
         database: config.INDEXER_MAINNET_DATABASE || 'mainnet_explorer',
         user: config.INDEXER_MAINNET_USER || 'public_readonly',
         password: config.INDEXER_MAINNET_PASSWORD || 'nearprotocol',
@@ -166,6 +173,7 @@ export default function validate(config: Record<string, any>): AppConfig {
       TESTNET: {
         host:
           config.INDEXER_TESTNET_HOST || 'testnet.db.explorer.indexer.near.dev',
+        port: config.INDEXER_TESTNET_PORT,
         database: config.INDEXER_TESTNET_DATABASE || 'testnet_explorer',
         user: config.INDEXER_TESTNET_USER || 'public_readonly',
         password: config.INDEXER_TESTNET_PASSWORD || 'nearprotocol',
@@ -245,24 +253,33 @@ export default function validate(config: Record<string, any>): AppConfig {
     featureEnabled: {
       core: {
         contractAddressValidation:
-          config.CORE_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
+          config.CORE_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED === 'false'
+            ? false
+            : true,
       },
       alerts: {
         contractAddressValidation:
-          config.ALERT_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED,
+          config.ALERT_CONTRACT_ADDRESS_VALIDATION_FEATURE_ENABLED === 'false'
+            ? false
+            : true,
       },
     },
     metricsPort: config.METRICS_PORT,
-    rpcProvisioningService: config.MOCK_KEY_SERVICE
-      ? { mock: true }
-      : {
-          mock: false,
-          url: config.RPC_API_KEYS_URL,
-          apiKey: config.RPC_API_KEYS_API_KEY,
-        },
+    rpcProvisioningService:
+      config.MOCK_KEY_SERVICE === 'true'
+        ? { mock: true }
+        : {
+            mock: false,
+            url: config.RPC_API_KEYS_URL,
+            apiKey: config.RPC_API_KEYS_API_KEY,
+          },
     github: {
       clientId: config.GITHUB_CONNECT_CLIENT_ID,
       clientSecret: config.GITHUB_CONNECT_CLIENT_SECRET,
+    },
+    gallery: {
+      githubToken: config.GALLERY_GITHUB_TOKEN,
+      repositoryOwner: config.GALLERY_REPOSITORY_OWNER,
     },
   };
 

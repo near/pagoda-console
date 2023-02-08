@@ -17,13 +17,14 @@ const Template = styled('div', {
   },
 });
 
-const TemplateArchitecture = ({ architectureUrl }) => (
-  <Flex stack>
-    Template Architecture
-    <Template data-stable-id={StableId.GALLERY_TEMPLATE_ARCHITECTURE}>
-      <Image layout="fill" src={architectureUrl} alt="" />
-    </Template>
-  </Flex>
-);
+const TemplateArchitecture = ({ architectureUrl }) =>
+  architectureUrl ? (
+    <Flex stack>
+      Template Architecture
+      <Template data-stable-id={StableId.GALLERY_TEMPLATE_ARCHITECTURE}>
+        <Image layout="fill" src={architectureUrl} alt="" />
+      </Template>
+    </Flex>
+  ) : null;
 
 export default TemplateArchitecture;

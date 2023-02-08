@@ -1,0 +1,38 @@
+name: Build and Push CMS Image
+on:
+  push:
+    branches: [develop]
+    paths:
+      - "cms/**"
+defaults:
+  run:
+    working-directory: cms
+jobs:
+  docker-build-and-push:
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - uses: actions/checkout@v3
+
+      # Setup auth: https://github.com/google-github-actions/setup-gcloud#service-account-key-json
+      - id: "auth"
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: "${{ secrets.GCP_CREDENTIALS_PAGODA_DEVELOPER_CONSOLE }}"
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v1"
+
+      - name: "Use gcloud CLI"
+        run: gcloud auth configure-docker -q
+
+      - name: "Set namespace"
+        run: echo "NAMESPACE=dev" >> $GITHUB_ENV
+
+      # Last line of this script is the docker image url with the sha256 hash that
+      # was uploaded. This should be used in terraform so that we can deploy a new
+      # cloud run instance if the docker image has changed.
+      - name: Build docker image and push
+        run: ./scripts/docker_build_and_push.sh ${NAMESPACE} near-dev-platform

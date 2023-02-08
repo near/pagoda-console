@@ -52,6 +52,51 @@ export class DeploysController {
     };
   }
 
+  @Post('isRepositoryTransferred')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(new ZodValidationPipe(Deploys.query.inputs.isRepositoryTransferred))
+  async isRepoTransferred(
+    @Req() req: ExpressRequest,
+    @Body()
+    {
+      repositorySlug,
+    }: z.infer<typeof Deploys.query.inputs.isRepositoryTransferred>,
+  ): Promise<Api.Query.Output<'/deploys/isRepositoryTransferred'>> {
+    try {
+      return await this.deploysService.isRepositoryTransferred(
+        req.user as User, // TODO change to UserDetails from auth service
+        repositorySlug,
+      );
+    } catch (e: any) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('transferGithubRepository')
+  @UseGuards(BearerAuthGuard)
+  @UsePipes(
+    new ZodValidationPipe(Deploys.mutation.inputs.transferGithubRepository),
+  )
+  async transferGithubRepository(
+    @Req() req: ExpressRequest,
+    @Body()
+    {
+      repositorySlug,
+      newGithubUsername,
+    }: z.infer<typeof Deploys.mutation.inputs.transferGithubRepository>,
+  ): Promise<Api.Mutation.Output<'/deploys/transferGithubRepository'>> {
+    // called from Console frontend to initialize a new repo for deployment
+    const repository = await this.deploysService.transferGithubRepository({
+      user: req.user as User, // TODO change to UserDetails from auth service
+      newGithubUsername,
+      repositorySlug,
+    });
+    return {
+      repositorySlug: repository.slug,
+      githubRepoFullName: repository.githubRepoFullName,
+    };
+  }
+
   @Post('deployWasm')
   @UseInterceptors(AnyFilesInterceptor())
   @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
