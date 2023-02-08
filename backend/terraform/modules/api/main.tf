@@ -330,23 +330,18 @@ resource "google_cloud_run_service" "console_api" {
         }
 
         env {
-          name = "GITHUB_CONNECT_CLIENT_ID"
+          name = "GALLERY_GITHUB_TOKEN"
           value_from {
             secret_key_ref {
-              name = "GITHUB_CONNECT_CLIENT_ID_${local.environment_upper}"
+              name = "GALLERY_GITHUB_TOKEN_${local.environment_upper}"
               key  = "1"
             }
           }
         }
 
         env {
-          name = "GITHUB_CONNECT_CLIENT_SECRET"
-          value_from {
-            secret_key_ref {
-              name = "GITHUB_CONNECT_CLIENT_SECRET_${local.environment_upper}"
-              key  = "1"
-            }
-          }
+          name  = "GALLERY_REPOSITORY_OWNER"
+          value = "pagoda-gallery-repos"
         }
       }
     }
