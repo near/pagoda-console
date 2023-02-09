@@ -39,7 +39,9 @@ export class IPFSController {
       (file) => new File([file.buffer], file.originalname),
     );
 
-    const cid = await web3SorageClient.put(fileObjs);
+    const cid = await web3SorageClient.put(fileObjs, {
+      wrapWithDirectory: true,
+    });
 
     return { cid };
   }
