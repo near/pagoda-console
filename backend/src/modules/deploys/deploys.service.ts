@@ -239,25 +239,18 @@ export class DeploysService {
       );
     }
 
-    const transferRes = await fetch(
-      `https://api.github.com/repos/${repo.githubRepoFullName}/transfer`,
-      {
-        headers: {
-          Authorization: this.githubToken,
-        },
-        method: 'POST',
-        body: JSON.stringify({
-          new_owner: newGithubUsername,
-          new_name: repo.githubRepoFullName.split('/')[1],
-        }),
-      },
-    );
-
-    if (!/^20/.test('' + transferRes.status)) {
-      throw new BadRequestException(
-        'Could not transfer the repository due to GitHub error: ' +
-          transferRes.statusText,
-      );
+    try {
+      await octokit.request(`POST /repos/${repo.githubRepoFullName}/transfer`, {
+        new_owner: newGithubUsername,
+        // * Github doesn't seem to allow changing the name of the repo when transferring.
+        // new_name: repo.githubRepoFullName.split('/')[1],
+      });
+    } catch (e: any) {
+      if (e.status === 404) {
+        // TODO replace with returning a code to the UI and tell the user they already initiaed a transfer.
+        throw new VError(e, 'Could not find the repository to transfer');
+      }
+      throw new VError(e, 'Could not transfer the repository');
     }
 
     const actionAuthToken = nanoid(25);
