@@ -32,6 +32,14 @@ const CustomText = styled(Text, {
     listStyleType: 'disc',
     paddingLeft: '2rem',
   },
+  a: {
+    cursor: 'pointer',
+    fontFamily: 'var(--font-action)',
+
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
 });
 
 const TemplateDetails = () => {
@@ -44,7 +52,9 @@ const TemplateDetails = () => {
       <RunExample />
       <Grid>
         <CustomBox>
-          <CustomText>{features}</CustomText>
+          <CustomText>
+            <ReactMarkdown>{features}</ReactMarkdown>
+          </CustomText>
           <CustomText size="h5" color="text1">
             Key Features
           </CustomText>
