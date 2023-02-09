@@ -41,7 +41,9 @@ const CopyButton = styled(Flex, {
 const FrontendDeployment = ({ deployment }) => {
   const display =
     deployment.frontendDeployConfig.packageName || deployment.cid || new URL(deployment.url as string).hostname;
-  const link = deployment.cid ? `https://${deployment.cid}.ipfs.w3s.link` : (deployment.url as string);
+  // ! If you change the IPFS gateway, make sure you thoroughly test a deployed application. Some gateways don't support
+  // ! calling RPC from the browser because of the server's Content Security policy (w3s.link, etc).
+  const link = deployment.cid ? `https://${deployment.cid}.ipfs.dweb.link` : (deployment.url as string);
   return (
     <Button
       stableId={StableId.DEPLOYS_TESTNET_REPO}
