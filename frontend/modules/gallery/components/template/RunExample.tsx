@@ -35,7 +35,7 @@ const RunExample = () => {
 
   return heroUrl ? (
     <RunExampleImage>
-      <Image layout="fill" src={heroUrl} alt="" />
+      <Image layout="responsive" src={heroUrl} alt="" width="2560" height="1800" />
       {/* <Button stableId={StableId.GALLERY_RUN_EXAMPLE}>
         <FeatherIcon icon="play" size="s" />
         Run Example

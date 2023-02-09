@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
-import PlaceholderImage from '@/public/images/gallery/placeholder.png';
 import { styled } from '@/styles/stitches';
 import { StableId } from '@/utils/stable-ids';
 
@@ -71,7 +70,7 @@ const ResultsTemplate = ({ template }) => {
   return (
     <Template data-stable-id={StableId.GALLERY_VIEW_SOURCE} onClick={onClick}>
       <TemplateImage>
-        <Image layout="fill" src={PlaceholderImage} alt="" />
+        <Image layout="responsive" src={template.attributes.heroUrl} alt="" width="256" height="180" />
         <TemplateGradient />
         <TemplateGradientIcon align="center" justify="center">
           <FeatherIcon icon="maximize-2" color="ctaPrimaryText" size="s" />
