@@ -22,6 +22,7 @@ import { StableId } from '@/utils/stable-ids';
 import Banner from './Banner';
 
 const BackToTemplatesLink = styled(Flex, {
+  marginTop: '4rem',
   marginBottom: '2rem',
 
   '& p': {
