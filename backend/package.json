@@ -29,6 +29,7 @@
     "@pc/abi": "*",
     "@pc/common": "*",
     "@pc/database": "*",
+    "@pc/rpcaas-client": "file:../rpcaas-client",
     "@prisma/client": "^3.4.2",
     "@types/json-schema": "^7.0.11",
     "@types/passport-http-bearer": "^1.0.37",
