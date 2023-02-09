@@ -55,6 +55,7 @@ export function DeployTemplateModal({ setShow, ...props }: Props) {
 function ModalContent(props: Props) {
   return (
     <AuthStatusRenderer
+      custom
       authenticated={<ConnectedModalContent {...props} />}
       unauthenticated={<UnauthenticatedModalContent />}
     />
@@ -127,7 +128,9 @@ function ConnectedModalContent(props: Props) {
     <Flex stack>
       <Form.Root onSubmit={form.handleSubmit(deploy)}>
         <Flex stack>
-          <Text>Deploying this template will create a new repository on your connected GitHub account.</Text>
+          <Text>
+            Deploying this template will create a new repository that you can transfer to your GitHub account.
+          </Text>
 
           <Form.Group>
             <Form.FloatingLabelInput
