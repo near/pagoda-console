@@ -61,7 +61,7 @@ const PageHeader = () => {
             </Flex>
           </Flex>
         </Flex>
-        {hasAtLeastOneDeploy && !isRepositoryTransferred ? (
+        {hasAtLeastOneDeploy && isRepositoryTransferred === false ? (
           <Message
             onClickButton={openTransferModal}
             buttonText={'Transfer'}

@@ -36,7 +36,7 @@ export function useDeployments(project: string | undefined) {
 }
 
 export function useIsRepositoryTransferred(repositorySlug: string | undefined) {
-  const [isTransferred, setIsTransferred] = useState(false);
+  const [isTransferred, setIsTransferred] = useState<boolean | undefined>(undefined);
 
   const { data, error, mutate } = useSWR(
     repositorySlug ? ['/deploys/isRepositoryTransferred' as const, repositorySlug] : null,
@@ -46,7 +46,6 @@ export function useIsRepositoryTransferred(repositorySlug: string | undefined) {
     {
       refreshInterval: isTransferred ? 0 : 10000,
       onSuccess: ({ isTransferred }) => setIsTransferred(isTransferred),
-      fallbackData: { isTransferred: true },
     },
   );
 

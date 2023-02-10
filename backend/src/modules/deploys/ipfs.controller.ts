@@ -36,10 +36,14 @@ export class IPFSController {
     });
 
     const fileObjs = files.map(
-      (file) => new File([file.buffer], file.originalname),
+      // The whole /out directory of a next static site is uploaded.
+      // This substring removes the /out/ prefix from the file path
+      (file) => new File([file.buffer], file.fieldname.substring(5)),
     );
 
-    const cid = await web3SorageClient.put(fileObjs);
+    const cid = await web3SorageClient.put(fileObjs, {
+      wrapWithDirectory: true,
+    });
 
     return { cid };
   }

@@ -57,7 +57,7 @@ const Header = () => {
           <Text size="h3" family="sprint">
             {name}
           </Text>
-          <Flex>
+          <Flex wrap>
             {allUsed.map(({ name, id }) => (
               <Button key={id} size="s" color="input" stableId={StableId.GALLERY_TAGS}>
                 {name}
