@@ -67,10 +67,14 @@ const ResultsTemplate = ({ template }) => {
   const router = useRouter();
   const onClick = () => router.push(`/gallery/${template.attributes.nameSlug}`);
 
+  // TODO: this could be done better by adding an additional field to the cms
+  // to accept a thumbnail Url. This was done as a quick fix to get the thumbnails.
+  const thumbnail = template.attributes.heroUrl.replace('/templates/', '/thumbnails/');
+
   return (
     <Template data-stable-id={StableId.GALLERY_VIEW_SOURCE} onClick={onClick}>
       <TemplateImage>
-        <Image layout="responsive" src={template.attributes.heroUrl} alt="" width="256" height="180" />
+        <Image layout="responsive" src={thumbnail} alt="" width="256" height="180" />
         <TemplateGradient />
         <TemplateGradientIcon align="center" justify="center">
           <FeatherIcon icon="maximize-2" color="ctaPrimaryText" size="s" />
