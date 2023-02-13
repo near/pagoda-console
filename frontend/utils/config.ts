@@ -36,7 +36,8 @@ if (
   !process.env.NEXT_PUBLIC_LAUNCHDARKLY_SDK_ENV ||
   !process.env.NEXT_PUBLIC_ANALYTICS_MAIN_NET_IFRAME ||
   !process.env.NEXT_PUBLIC_ANALYTICS_TEST_NET_IFRAME ||
-  !process.env.NEXT_PUBLIC_GITHUB_CONNECT_CLIENT_ID
+  !process.env.NEXT_PUBLIC_GALLERY_IPFS_GATEWAY_URL ||
+  !process.env.NEXT_PUBLIC_GALLERY_GITHUB_ACTION_DEPLOY_URL
 ) {
   throw new Error('Missing configuration value');
 }
@@ -95,8 +96,9 @@ interface AppConfig {
   launchDarklyEnv: string;
   gleapAuth?: string;
   googleTagManagerId?: string;
-  github: {
-    connectClientId: string;
+  gallery: {
+    ipfsGatewayUrl: string;
+    githubActionDeployUrl: string;
   };
 }
 
@@ -151,8 +153,9 @@ const config: AppConfig = {
   launchDarklyEnv: process.env.NEXT_PUBLIC_LAUNCHDARKLY_SDK_ENV,
   gleapAuth: process.env.NEXT_PUBLIC_GLEAP_AUTH_KEY,
   googleTagManagerId: process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID,
-  github: {
-    connectClientId: process.env.NEXT_PUBLIC_GITHUB_CONNECT_CLIENT_ID,
+  gallery: {
+    ipfsGatewayUrl: process.env.NEXT_PUBLIC_GALLERY_IPFS_GATEWAY_URL,
+    githubActionDeployUrl: process.env.NEXT_PUBLIC_GALLERY_GITHUB_ACTION_DEPLOY_URL,
   },
 };
 
