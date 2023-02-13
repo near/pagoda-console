@@ -1,5 +1,4 @@
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { AuthStatusRenderer } from '@/components/AuthStatusRenderer';
@@ -10,7 +9,6 @@ import * as Form from '@/components/lib/Form';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { useApiMutation } from '@/hooks/api-mutation';
-import { useRouteParam } from '@/hooks/route';
 import { useProjectSelector } from '@/hooks/selected-project';
 import { AuthForm } from '@/modules/core/components/AuthForm';
 import type { Template } from '@/stores/gallery/gallery';
@@ -25,14 +23,6 @@ interface Props {
 }
 
 export function DeployTemplateModal({ setShow, ...props }: Props) {
-  const successParam = useRouteParam('githubConnectSuccess');
-
-  useEffect(() => {
-    if (successParam === 'true') {
-      setShow(true);
-    }
-  }, [setShow, successParam]);
-
   return (
     <Dialog.Root open={props.show} onOpenChange={setShow}>
       <Dialog.Content title="Deploy Template" size="s">

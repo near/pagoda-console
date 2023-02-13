@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button, ButtonLink } from '@/components/lib/Button';
@@ -8,19 +7,10 @@ import * as Form from '@/components/lib/Form';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { useApiMutation } from '@/hooks/api-mutation';
-import { useRouteParam } from '@/hooks/route';
 import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
 
 export function TransferGithubModal({ setShow, ...props }) {
-  const successParam = useRouteParam('githubConnectSuccess');
-
-  useEffect(() => {
-    if (successParam === 'true') {
-      setShow(true);
-    }
-  }, [setShow, successParam]);
-
   return (
     <Dialog.Root open={props.show} onOpenChange={setShow}>
       <Dialog.Content title="Transfer Repository" size="s">
