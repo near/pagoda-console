@@ -42,8 +42,8 @@ function ModalContent(props) {
     onSuccess: (res) => {
       openToast({
         type: 'success',
-        title: 'Transfer Success',
-        description: `Repository was transferred: ${res.githubRepoFullName}`,
+        title: 'Transfer Initiated',
+        description: `Repository transfer initiated: ${res.githubRepoFullName}`,
       });
       props.setShow(false);
     },
@@ -54,7 +54,7 @@ function ModalContent(props) {
         eventData: {
           id: props.template.id,
         },
-        toastTitle: 'Transfer Github repo Failure',
+        toastTitle: 'Failed to transfer repository',
         toastDescription: error.statusCode === 400 ? error.message : 'Unknown error.',
       });
     },
