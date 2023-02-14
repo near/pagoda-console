@@ -33,7 +33,8 @@ function ModalContent(props) {
       openToast({
         type: 'success',
         title: 'Transfer Initiated',
-        description: `Repository transfer initiated: ${res.githubRepoFullName}`,
+        description: `You must accept the transfer request in your Github email to complete the transfer of ${res.githubRepoFullName}.`,
+        duration: 30000,
       });
       props.setShow(false);
     },
