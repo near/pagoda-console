@@ -1,98 +1,160 @@
+import { z } from 'zod';
+
 import {
-  Project,
-  Org,
-  Contract,
-  ProjectTutorial,
-  ApiKey,
-  Environment,
-} from '@pc/database/clients/core';
+  orgSlug,
+  projectSlug,
+  environmentId,
+  contractSlug,
+  apiKeySlug,
+  accountId,
+  projectTutorial,
+  projectName,
+  project,
+  org,
+  contract,
+  environment,
+  apiKey,
+} from './types';
 
-export namespace Query {
-  export namespace Inputs {
-    export type GetDetails = { slug: string };
-    export type GetContracts = { project: string; environment: number };
-    export type GetContract = { slug: string };
-    export type List = void;
-    export type GetEnvironments = { project: string };
-    export type GetKeys = { project: string };
-  }
+export const query = {
+  inputs: {
+    getDetails: z.strictObject({
+      slug: projectSlug,
+    }),
+    getContracts: z.strictObject({
+      project: projectSlug,
+      environment: environmentId,
+    }),
+    getContract: z.strictObject({
+      slug: contractSlug,
+    }),
+    list: z.void(),
+    getEnvironments: z.strictObject({
+      project: projectSlug,
+    }),
+    getKeys: z.strictObject({
+      project: projectSlug,
+    }),
+  },
 
-  export namespace Outputs {
-    export type GetDetails = Pick<Project, 'name' | 'slug' | 'tutorial'> & {
-      org: Pick<Org, 'name' | 'slug' | 'personalForUserId'>;
-    };
-    export type GetContracts = Pick<Contract, 'slug' | 'address' | 'net'>[];
-    export type GetContract = Pick<Contract, 'slug' | 'address' | 'net'>;
-    export type List = (Pick<
-      Project,
-      'id' | 'name' | 'slug' | 'tutorial' | 'active'
-    > & {
-      org: Pick<Org, 'slug' | 'name'> & {
-        isPersonal: boolean;
-      };
-    })[];
-    export type GetEnvironments = Pick<Environment, 'subId' | 'net' | 'name'>[];
-    export type GetKeys = (Pick<ApiKey, 'description'> & {
-      keySlug: ApiKey['slug'];
-      key: string;
-    })[];
-  }
+  outputs: {
+    getDetails: project.pick({ name: true, slug: true, tutorial: true }).merge(
+      z.strictObject({
+        org: org.pick({ name: true, slug: true, personalForUserId: true }),
+      }),
+    ),
+    getContracts: contract
+      .pick({ slug: true, address: true, net: true })
+      .array(),
+    getContract: contract.pick({ slug: true, address: true, net: true }),
+    list: z.array(
+      project
+        .pick({
+          name: true,
+          slug: true,
+          tutorial: true,
+          active: true,
+        })
+        .merge(
+          z.strictObject({
+            org: org.pick({ slug: true, name: true }).merge(
+              z.strictObject({
+                isPersonal: z.boolean(),
+              }),
+            ),
+          }),
+        ),
+    ),
+    getEnvironments: z.array(
+      environment.pick({ subId: true, net: true, name: true }),
+    ),
+    getKeys: z.array(
+      apiKey.pick({ description: true }).merge(
+        z.strictObject({
+          keySlug: apiKey.shape.slug,
+          key: z.string(),
+        }),
+      ),
+    ),
+  },
 
-  export namespace Errors {
-    export type GetDetails = unknown;
-    export type GetContracts = unknown;
-    export type GetContract = unknown;
-    export type List = unknown;
-    export type GetEnvironments = unknown;
-    export type GetKeys = unknown;
-  }
-}
+  errors: {
+    getDetails: z.unknown(),
+    getContracts: z.unknown(),
+    getContract: z.unknown(),
+    list: z.unknown(),
+    getEnvironments: z.unknown(),
+    getKeys: z.unknown(),
+  },
+};
 
-export namespace Mutation {
-  export namespace Inputs {
-    export type Create = {
-      org?: string;
-      name: string;
-      tutorial?: ProjectTutorial;
-    };
-    export type EjectTutorial = { slug: string };
-    export type Delete = { slug: string };
-    export type AddContract = {
-      project: string;
-      environment: number;
-      address: string;
-    };
-    export type RemoveContract = { slug: string };
-    export type RotateKey = { slug: string };
-    export type GenerateKey = { project: string; description: string };
-    export type DeleteKey = { slug: string };
-  }
+export const mutation = {
+  inputs: {
+    create: z.strictObject({
+      name: projectName,
+      org: orgSlug.optional(),
+      tutorial: projectTutorial.optional(),
+    }),
+    ejectTutorial: z.strictObject({
+      slug: projectSlug,
+    }),
+    delete: z.strictObject({
+      slug: projectSlug,
+    }),
+    addContract: z.strictObject({
+      project: projectSlug,
+      environment: environmentId,
+      address: accountId,
+    }),
+    removeContract: z.strictObject({
+      slug: contractSlug,
+    }),
+    rotateKey: z.strictObject({
+      slug: apiKeySlug,
+    }),
+    generateKey: z.strictObject({
+      project: projectSlug,
+      description: z.string(),
+    }),
+    deleteKey: z.strictObject({
+      slug: apiKeySlug,
+    }),
+  },
 
-  export namespace Outputs {
-    export type Create = Pick<Project, 'name' | 'slug'>;
-    export type EjectTutorial = void;
-    export type Delete = void;
-    export type AddContract = Pick<Contract, 'id' | 'slug' | 'address' | 'net'>;
-    export type RemoveContract = void;
-    export type RotateKey = Pick<ApiKey, 'description'> & {
-      keySlug: ApiKey['slug'];
-      key: string;
-    };
-    export type GenerateKey = Pick<ApiKey, 'description'> & {
-      keySlug: ApiKey['slug'];
-      key: string;
-    };
-    export type DeleteKey = void;
-  }
+  outputs: {
+    create: project.pick({ name: true, slug: true }),
+    ejectTutorial: z.void(),
+    delete: z.void(),
+    addContract: contract.pick({
+      id: true,
+      slug: true,
+      address: true,
+      net: true,
+    }),
+    removeContract: z.void(),
+    rotateKey: apiKey.pick({ description: true }).merge(
+      z.strictObject({
+        keySlug: apiKey.shape.slug,
+        key: z.string(),
+      }),
+    ),
+    generateKey: apiKey.pick({ description: true }).merge(
+      z.strictObject({
+        keySlug: apiKey.shape.slug,
+        key: z.string(),
+      }),
+    ),
+    deleteKey: z.void(),
+  },
 
-  export namespace Errors {
-    export type Create = unknown;
-    export type EjectTutorial = unknown;
-    export type Delete = unknown;
-    export type AddContract = unknown;
-    export type RemoveContract = unknown;
-    export type RotateKey = unknown;
-    export type GenerateKey = unknown;
-    export type DeleteKey = unknown;
-  }
-}
+  errors: {
+    create: z.unknown(),
+    ejectTutorial: z.unknown(),
+    delete: z.unknown(),
+    addContract: z.unknown(),
+    removeContract: z.unknown(),
+    rotateKey: z.unknown(),
+    generateKey: z.unknown(),
+    deleteKey: z.unknown(),
+  },
+};

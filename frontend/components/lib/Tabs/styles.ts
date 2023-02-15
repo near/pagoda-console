@@ -1,6 +1,5 @@
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 
-import type { StitchesCSS } from '@/styles/stitches';
 import { styled } from '@/styles/stitches';
 
 export const Root = styled(TabsPrimitive.Root, {
@@ -9,7 +8,7 @@ export const Root = styled(TabsPrimitive.Root, {
   width: '100%',
 });
 
-const triggerStyles: StitchesCSS = {
+export const Trigger = styled(TabsPrimitive.Trigger, {
   display: 'flex',
   alignItems: 'center',
   gap: 'var(--space-s)',
@@ -37,20 +36,12 @@ const triggerStyles: StitchesCSS = {
   '&:focus': {
     borderColor: 'var(--focus-outline-color) !important',
   },
-};
-
-const triggerActiveStyles: StitchesCSS = {
-  color: 'var(--color-cta-primary) !important',
-  boxShadow: 'inset 0 var(--border-size) 0 var(--color-cta-primary) !important',
-  position: 'relative',
-  zIndex: 5,
-};
-
-export const Trigger = styled(TabsPrimitive.Trigger, {
-  ...triggerStyles,
 
   '&[data-state="active"]': {
-    ...triggerActiveStyles,
+    color: 'var(--color-cta-primary) !important',
+    boxShadow: 'inset 0 var(--border-size) 0 var(--color-cta-primary) !important',
+    position: 'relative',
+    zIndex: 5,
   },
 
   '&:disabled': {
@@ -59,21 +50,9 @@ export const Trigger = styled(TabsPrimitive.Trigger, {
   },
 });
 
-export const TriggerLink = styled('a', {
-  ...triggerStyles,
-
-  variants: {
-    active: {
-      true: {
-        ...triggerActiveStyles,
-      },
-    },
-  },
-});
-
 export const List = styled(TabsPrimitive.List, {
   '--border-radius': 'var(--border-radius-m)',
-  '--border-size': '-2px',
+  '--border-size': '-1px',
   '--trigger-padding': 'var(--space-m)',
   display: 'flex',
   width: '100%',
@@ -96,7 +75,7 @@ export const List = styled(TabsPrimitive.List, {
         width: 'auto',
         gap: 'var(--space-l)',
 
-        [`${Trigger}, ${TriggerLink}`]: {
+        [`${Trigger}`]: {
           border: '1px solid transparent',
         },
       },

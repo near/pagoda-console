@@ -2,7 +2,7 @@
 # i.e. as called from parent directory `docker build -t <tag> -f backend/Dockerfile .`
 
 # Implements some security tips found here: https://snyk.io/blog/10-best-practices-to-containerize-nodejs-web-applications-with-docker/
-FROM --platform=linux/amd64 node:16.18.1 as builder
+FROM --platform=linux/amd64 node:16.18 as builder
 # Do not set NODE_ENV to production on this image, or dependencies used for building will not be installed
 
 # Create app directory
@@ -15,8 +15,10 @@ COPY tsconfig.json ./
 
 COPY ./database/package.json ./database/package.json
 COPY ./common/package.json ./common/package.json
+COPY ./abi/package.json ./abi/package.json
 COPY ./backend/package.json ./backend/package.json
 COPY ./frontend/package.json ./frontend/package.json
+COPY ./rpcaas-client/package.json ./rpcaas-client/package.json
 
 # Ignore prepare script which will attempt to install husky: https://typicode.github.io/husky/#/?id=disable-husky-in-cidockerprod
 RUN npm set-script prepare ""
@@ -29,12 +31,14 @@ RUN npm ci
 
 COPY ./backend ./backend
 COPY ./common ./common
+COPY ./abi ./abi
 COPY ./database ./database
+COPY ./rpcaas-client ./rpcaas-client
 
 # This will also build any other packages in the repo which backend depends on
 RUN npx turbo build --filter=backend
 
-FROM --platform=linux/amd64 node:16.18.1-alpine3.16 as runner
+FROM --platform=linux/amd64 node:16.18-alpine3.16 as runner
 
 EXPOSE 8080
 ENV NODE_ENV=production
@@ -46,9 +50,15 @@ WORKDIR /usr/src/app
 COPY --from=builder --chown=node:node /usr/src/app/backend/tsconfig.json ./backend/
 COPY --from=builder --chown=node:node /usr/src/app/package*.json ./
 COPY --from=builder --chown=node:node /usr/src/app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /usr/src/app/backend/node_modules ./backend/
 COPY --from=builder --chown=node:node /usr/src/app/backend/package*.json ./backend/
 COPY --from=builder --chown=node:node /usr/src/app/turbo.json ./
 COPY --from=builder --chown=node:node /usr/src/app/database/clients ./database/clients
+# node_modules' @pc/rpcaas-client symlinks to /rpcaas-client
+# so we need to copy that folder to the same location
+# we only need the dist folder and package.json though
+COPY --from=builder --chown=node:node /usr/src/app/rpcaas-client/package.json ./rpcaas-client/
+COPY --from=builder --chown=node:node /usr/src/app/rpcaas-client/dist ./rpcaas-client/dist
 COPY --from=builder --chown=node:node /usr/src/app/backend/dist ./backend/dist
 
 USER node

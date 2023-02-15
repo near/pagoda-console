@@ -38,7 +38,7 @@ const PickTutorial: NextPageWithLayout = () => {
   return (
     <Section>
       <Container size="m">
-        <Flex stack gap="xl">
+        <Flex stack gap={{ '@initial': 'xl', '@tablet': 'l' }}>
           <Flex stack>
             <Link href="/pick-project" passHref>
               <TextLink stableId={StableId.TUTORIAL_TYPE_BACK_TO_PROJECT_TYPE_LINK}>
@@ -49,17 +49,16 @@ const PickTutorial: NextPageWithLayout = () => {
             <Text>Choose from a variety of interactive tutorials. Each one ends with a production-ready project.</Text>
           </Flex>
 
-          <Flex>
+          <Flex wrap>
             {projects.map((project) => (
-              <div key={project.id}>
-                <ProjectCard
-                  id={project.id}
-                  isComingSoon={!project.path}
-                  title={project.title}
-                  description={project.description}
-                  onClick={() => project.path && router.push(project.path)}
-                />
-              </div>
+              <ProjectCard
+                key={project.id}
+                id={project.id}
+                isComingSoon={!project.path}
+                title={project.title}
+                description={project.description}
+                onClick={() => project.path && router.push(project.path)}
+              />
             ))}
           </Flex>
         </Flex>

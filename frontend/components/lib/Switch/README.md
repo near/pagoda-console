@@ -10,11 +10,10 @@ If you don't want to display a label alongside the switch, use an `aria-label` a
 
 ```tsx
 import { Switch } from '@/components/lib/Switch';
-import { StableId } from '@/utils/stable-ids';
 
 ...
 
-<Switch stableId={StableId.TURBO_MODE_SWITCH} aria-label="Turbo Mode" />
+<Switch aria-label="Turbo Mode" />
 ```
 
 ## With a Label
@@ -28,13 +27,13 @@ import { Switch } from '@/components/lib/Switch';
 ...
 
 <Flex as="label" align="center">
-  <Switch stableId={StableId.TURBO_MODE_SWITCH} />
+  <Switch />
   Turbo Mode (Label On Right)
 </Flex>
 
 <Flex as="label" align="center">
   Turbo Mode (Label On Left)
-  <Switch stableId={StableId.TURBO_MODE_SWITCH} />
+  <Switch />
 </Flex>
 ```
 
@@ -46,7 +45,7 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 
 ...
 
-<Switch stableId={StableId.ZAP_MODE_SWITCH} aria-label="Zap Mode">
+<Switch aria-label="Zap Mode">
   <FeatherIcon icon="zap" size="xs" />
 </Switch>
 ```
@@ -59,7 +58,7 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 
 ...
 
-<Switch stableId={StableId.DARK_MODE_SWITCH} aria-label="Dark Mode">
+<Switch aria-label="Dark Mode">
   <FeatherIcon icon="moon" size="xs" data-on />
   <FeatherIcon icon="sun" size="xs" data-off />
 </Switch>
@@ -88,7 +87,6 @@ const updateFeatureIsActive = useCallback(
 ...
 
 <Switch
-  stableId={StableId.COOL_FEATURE_SWITCH}
   aria-label="Cool Feature"
   checked={something.isActive}
   onCheckedChange={updateFeatureIsActive}
@@ -118,14 +116,9 @@ import { useDebounce } from '@/hooks/debounce';
 const myDebouncedHandler = useDebounce(...);
 
 <Switch
-  stableId={StableId.COOL_FEATURE_SWITCH}
   aria-label="Cool Feature"
   onCheckedChange={myDebouncedHandler}
 />;
 ```
 
 For more information on debouncing, read this article: https://dmitripavlutin.com/react-throttle-debounce/
-
-## Stable ID
-
-Please refer to the [Stable ID Documentation](../Button/README.md) in the `Button` component.

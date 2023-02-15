@@ -11,6 +11,7 @@ import {
   TxMatchingRule,
 } from '../serde/db.types';
 import { VError } from 'verror';
+import { Alerts } from '@pc/common/types/alerts';
 
 @Injectable()
 export class TriggeredAlertsService {
@@ -152,11 +153,11 @@ export class TriggeredAlertsService {
       slug,
       name: alert.name,
       alertId: alert.id,
-      type: this.alertsService.toAlertType(rule),
+      type: this.alertsService.toAlertType(rule) as Alerts.RuleType,
       triggeredInBlockHash,
       triggeredInTransactionHash,
       triggeredInReceiptId,
-      triggeredAt: triggeredAt.toString(),
+      triggeredAt: triggeredAt.toISOString(),
       extraData,
     };
   }

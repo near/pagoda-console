@@ -3,7 +3,6 @@ import type { DurationLikeObject } from 'luxon';
 import { Duration, Interval } from 'luxon';
 import * as React from 'react';
 import useSWR from 'swr';
-import type { BareFetcher, PublicConfiguration, Revalidator, RevalidatorOptions } from 'swr/dist/types';
 
 import { Flex } from '@/components/lib/Flex';
 import { H4 } from '@/components/lib/Heading';
@@ -11,8 +10,8 @@ import { Placeholder } from '@/components/lib/Placeholder';
 import { Spinner } from '@/components/lib/Spinner';
 import { Text } from '@/components/lib/Text';
 import { useNet } from '@/hooks/net';
-import { styled } from '@/styles/stitches';
-import { unauthenticatedPost } from '@/utils/http';
+import { api } from '@/utils/api';
+import { getCustomErrorRetry } from '@/utils/query';
 import { StableId } from '@/utils/stable-ids';
 
 import { Button } from '../../lib/Button';
@@ -22,69 +21,26 @@ type Props = {
   transactionHash: string | null;
 };
 
-type ToogleReceipt = {
+type ToggleReceipt = {
   id: string;
   active: boolean;
 };
 
 type TransactionReceiptContext = {
-  selectedReceipts: ToogleReceipt[];
+  selectedReceipts: ToggleReceipt[];
   toggleReceipts: (id: string) => void;
 };
-
-const Wrapper = styled('div', {
-  display: 'flex',
-  flexDirection: 'column',
-  width: '100%',
-});
-
-const TitleWrapper = styled('div', {
-  display: 'flex',
-  justifyContent: 'space-between',
-  width: '100%',
-  marginBottom: 30,
-});
-
-// Differs from the global error retry by retrying on 400 errors.
-function customErrorRetry(
-  err: any,
-  __: string,
-  config: Readonly<PublicConfiguration<Explorer.Transaction, any, BareFetcher<Explorer.Transaction>>>,
-  revalidate: Revalidator,
-  opts: Required<RevalidatorOptions>,
-): void {
-  switch (err.statusCode) {
-    case 401:
-    case 403:
-    case 404:
-      console.log(`breaking for status code of ${err.status}`);
-      return;
-  }
-
-  const maxRetryCount = config.errorRetryCount;
-  const currentRetryCount = opts.retryCount;
-
-  const timeout = ~~((Math.random() + 0.5) * (1 << (currentRetryCount < 8 ? currentRetryCount : 8))) + 1500;
-
-  if (maxRetryCount !== undefined && currentRetryCount > maxRetryCount) {
-    return;
-  }
-
-  setTimeout(revalidate, timeout, opts);
-}
 
 const TransactionActions: React.FC<Props> = React.memo(({ transactionHash }) => {
   const net = useNet();
 
   const query = useSWR(
-    transactionHash ? ['explorer/transaction', transactionHash, net] : null,
-    () =>
-      unauthenticatedPost('/explorer/transaction', {
-        hash: transactionHash!,
-        net,
-      }),
+    transactionHash ? ['/explorer/transaction' as const, transactionHash, net] : null,
+    (path, hash, net) => {
+      return api.query(path, { hash, net }, false);
+    },
     {
-      onErrorRetry: customErrorRetry,
+      onErrorRetry: getCustomErrorRetry([401, 403, 404]),
       // TODO currently this is a quick hack to load TXs that may have pending receipts that are scheduled to execute in the next block. We could stop refreshing once we get the last receipt's execution outcome timestamp.
       refreshInterval: 3000,
     },
@@ -140,7 +96,7 @@ export const TransactionReceiptContext = React.createContext<TransactionReceiptC
 
 const TransactionActionsList: React.FC<ListProps> = React.memo(({ transaction }) => {
   const preCollectedReceipts = React.useMemo(() => {
-    const receipts = [] as ToogleReceipt[];
+    const receipts = [] as ToggleReceipt[];
     const collectReceiptHashes: any = (receipt: Explorer.Transaction['receipt']) => {
       const id = receipt.id;
       receipts.push({ id, active: false });
@@ -201,23 +157,25 @@ const TransactionActionsList: React.FC<ListProps> = React.memo(({ transaction })
 
   return (
     <TransactionReceiptContext.Provider value={{ selectedReceipts: activeReceipts, toggleReceipts }}>
-      <Wrapper>
-        <TitleWrapper>
+      <Flex stack gap="l">
+        <Flex justify="spaceBetween">
           <div>
             <H4>Execution Plan</H4>
             <span>Processed in {pending === '0 seconds' ? '< 1 second' : pending}</span>
           </div>
+
           <Button stableId={StableId.TRANSACTION_ACTIONS_RESPONSE_EXPAND_BUTTON} size="s" onClick={toggleAllReceipts}>
             {toggleType === 'toggle' ? 'Collapse all -' : 'Expand All + '}
           </Button>
-        </TitleWrapper>
+        </Flex>
+
         <TransactionReceipt
           receipt={transaction.receipt}
           fellowOutgoingReceipts={[]}
           className=""
           convertionReceipt={true}
         />
-      </Wrapper>
+      </Flex>
     </TransactionReceiptContext.Provider>
   );
 });

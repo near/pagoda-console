@@ -11,16 +11,16 @@ jobs:
       run:
         working-directory: backend/terraform
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: hashicorp/setup-terraform@v2
 
       - id: "auth"
-        uses: "google-github-actions/auth@v0"
+        uses: "google-github-actions/auth@v1"
         with:
           credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
 
       - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v0"
+        uses: "google-github-actions/setup-gcloud@v1"
 
       - name: "Set namespace"
         run: echo "PREVIEW_NAMESPACE=$(../scripts/preview_namespace.sh)" >> $GITHUB_ENV
@@ -67,7 +67,7 @@ jobs:
       GIT_REPO: pagoda-console
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: "Set Vercel env"
         run: |

@@ -1,11 +1,16 @@
 import type { ComponentProps, ReactElement } from 'react';
 
 import { DashboardLayout } from '@/components/layouts/DashboardLayout';
+import { GalleryLayout } from '@/components/layouts/GalleryLayout';
 import { OrganizationsLayout } from '@/components/layouts/OrganizationsLayout';
 import { SimpleLayout } from '@/components/layouts/SimpleLayout';
 import { SimpleLogoutLayout } from '@/components/layouts/SimpleLogoutLayout';
 
 type DashboardLayoutProps = Omit<ComponentProps<typeof DashboardLayout>, 'children'>;
+
+export function useGalleryLayout(page: ReactElement) {
+  return <GalleryLayout>{page}</GalleryLayout>;
+}
 
 export function useDashboardLayout(page: ReactElement) {
   return <DashboardLayout>{page}</DashboardLayout>;

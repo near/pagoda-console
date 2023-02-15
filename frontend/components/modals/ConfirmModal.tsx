@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useCallback } from 'react';
 
 import * as Dialog from '@/components/lib/Dialog';
 import { StableId } from '@/utils/stable-ids';
@@ -17,27 +18,24 @@ interface Props {
   isProcessing?: boolean;
   disabled?: boolean;
   onConfirm?: () => void;
-  setErrorText?: (error: string) => void;
+  resetError?: () => void;
   setShow: (show: boolean) => void;
   size?: 's' | 'm';
   show: boolean;
   title: string;
 }
 
-export function ConfirmModal(props: Props) {
+export function ConfirmModal({ setShow, ...props }: Props) {
   const size = props.size || 's';
+  const hideDialog = useCallback(() => setShow(false), [setShow]);
 
   return (
-    <Dialog.Root open={props.show} onOpenChange={props.setShow}>
+    <Dialog.Root open={props.show} onOpenChange={setShow}>
       <Dialog.Content title={props.title} size={size}>
         <Flex stack gap="l">
           {props.children}
 
-          <Message
-            content={props.errorText}
-            type="error"
-            dismiss={props.setErrorText ? () => props.setErrorText!('') : undefined}
-          />
+          <Message content={props.errorText} type="error" onClickButton={props.resetError} />
 
           <Flex justify="spaceBetween" align="center">
             <Button
@@ -50,13 +48,7 @@ export function ConfirmModal(props: Props) {
               {props.confirmText || 'Confirm'}
             </Button>
 
-            <TextButton
-              stableId={StableId.CONFIRM_MODAL_CANCEL_BUTTON}
-              color="neutral"
-              onClick={() => {
-                props.setShow(false);
-              }}
-            >
+            <TextButton stableId={StableId.CONFIRM_MODAL_CANCEL_BUTTON} color="neutral" onClick={hideDialog}>
               {props.cancelText || 'Cancel'}
             </TextButton>
           </Flex>

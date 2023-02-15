@@ -1,6 +1,6 @@
+import { upgradeAbi } from '@pc/abi/upgrade';
 import type { Net } from '@pc/database/clients/core';
 import * as fzstd from 'fzstd';
-import type { AbiRoot } from 'near-abi-client-js';
 import * as nearApi from 'near-api-js';
 
 import config from '@/utils/config';
@@ -55,8 +55,8 @@ export async function inspectContract(net: Net, contract: string) {
 
   try {
     const decompressed = fzstd.decompress(response);
-    const abi: AbiRoot = JSON.parse(Buffer.from(decompressed).toString());
-    return abi;
+    const abi: any = JSON.parse(Buffer.from(decompressed).toString());
+    return upgradeAbi(abi);
   } catch (e) {
     console.error('failed to decompress or parse embedded abi for contract', contract, e);
   }

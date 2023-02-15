@@ -13,9 +13,13 @@ const flashRowAnimation = keyframes({
 });
 
 export const Root = styled('div', {
-  minWidth: '100%',
+  width: '100%',
   borderRadius: 'var(--border-radius-m)',
   background: 'var(--color-surface-2)',
+
+  '@tablet': {
+    overflow: 'auto',
+  },
 
   variants: {
     padding: {
@@ -86,6 +90,10 @@ export const Head = styled('thead', {
       true: {
         position: 'sticky',
         top: 'var(--size-header-height)',
+
+        '@tablet': {
+          position: 'static',
+        },
       },
     },
   },
@@ -122,6 +130,10 @@ export const Foot = styled('tfoot', {
           '&:empty': {
             display: 'none',
           },
+        },
+
+        '@tablet': {
+          position: 'static',
         },
       },
     },
@@ -179,6 +191,17 @@ export const HeaderCell = styled('th', {
   textTransform: 'uppercase',
   background: 'linear-gradient(var(--color-surface-2) 85%, transparent)',
   transition: 'var(--transitions)',
+
+  variants: {
+    textTransform: {
+      none: {
+        textTransform: 'none',
+      },
+      uppercase: {
+        textTransform: 'uppercase',
+      },
+    },
+  },
 });
 
 export const HeaderCustomCell = styled('th', {

@@ -8,9 +8,10 @@
     "paths": {
       "@/*": ["./*"],
       "@generated/*": ["./generated/*"],
-      "@pc/common/*": ["../common/*"]
+      "@pc/common/*": ["../common/*"],
+      "@pc/abi/*": ["../abi/*"]
     }
   },
-  "include": ["**/*", "../common/**/*"],
+  "include": ["**/*", "../common/**/*", "../abi/**/*"],
   "exclude": ["modules/template/**/*"]
 }

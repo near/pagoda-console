@@ -52,6 +52,21 @@ export const Content = styled(TooltipPrimitive.Content, {
         color: 'var(--color-surface-1)',
       },
     },
+
+    disabled: {
+      true: {
+        display: 'none !important',
+      },
+    },
+
+    disabledTouchScreen: {
+      true: {
+        '@media (hover: none) and (pointer: coarse)': {
+          display: 'none',
+        },
+      },
+    },
+
     number: {
       true: {
         fontFamily: 'var(--font-number)',

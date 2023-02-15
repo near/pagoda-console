@@ -1,3 +1,4 @@
+import { useLDClient } from 'launchdarkly-react-client-sdk';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 
@@ -13,6 +14,7 @@ export function useAnalytics() {
   const { authStatus } = useAuth();
   const { user } = useAccount();
   const [hasIdentified, setHasIdentified] = useState(false);
+  const ldClient = useLDClient();
 
   useEffect(() => {
     if (user?.uid) {
@@ -24,9 +26,11 @@ export function useAnalytics() {
         userId: user.uid,
       });
 
+      if (ldClient) ldClient.identify({ key: user.uid });
+
       setHasIdentified(true);
     }
-  }, [user]);
+  }, [ldClient, user]);
 
   useEffect(() => {
     let page;
@@ -45,6 +49,7 @@ export function useAnalytics() {
     lastTrackedPage = page;
 
     analytics.pageView(`DC View ${page} Page`, {
+      status: 'success',
       path: router.pathname,
     });
   }, [authStatus, hasIdentified, router.pathname]);
@@ -88,10 +93,24 @@ function useGlobalClickTracker() {
       ].find((el) => el?.hasAttribute('data-stable-id'));
 
       if (element) {
-        const componentType = element.tagName.toLowerCase() === 'a' ? 'Link' : 'Button';
+        const tagName = element.tagName.toLowerCase();
         const stableId = element.getAttribute('data-stable-id');
+        let componentType = '';
+
+        switch (tagName) {
+          case 'a':
+            componentType = 'Link';
+            break;
+          case 'input':
+          case 'label':
+            componentType = 'Input';
+            break;
+          default:
+            componentType = 'Button';
+        }
 
         analytics.track(`DC ${componentType} Clicked`, {
+          status: 'success',
           stableId,
         });
       }

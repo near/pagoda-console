@@ -6,6 +6,8 @@
     z-index: calc(var(--sidebar-z-index) + 1);
 
     .nws-modal {
+      box-shadow: 0 0 30px 2px rgba(0, 0, 0, 0.5);
+
       .nws-modal-body {
         .alert-message {
           button {
@@ -30,6 +32,41 @@
             }
           }
         }
+      }
+    }
+  }
+
+  @media (max-width: 576px) {
+    .nws-modal {
+      height: 450px;
+    }
+
+    .wallet-options-wrapper {
+      margin-bottom: 0;
+    }
+
+    .options-list {
+      padding-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      overflow: hidden;
+      gap: 15px;
+    }
+
+    .nws-modal-body {
+      margin-top: 0;
+    }
+
+    .single-wallet {
+      width: auto;
+      padding: 0;
+
+      .content {
+        text-align: center;
+      }
+
+      .title {
+        margin-left: 0;
       }
     }
   }

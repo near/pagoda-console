@@ -3,8 +3,8 @@ import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
 import type { Pagination } from '@/hooks/pagination';
+import { api } from '@/utils/api';
 import config from '@/utils/config';
-import { authenticatedPost } from '@/utils/http';
 
 interface TriggeredAlertFilters {
   alertId?: number;
@@ -37,10 +37,10 @@ export function useTriggeredAlerts(
           filters.alertId,
         ]
       : null,
-    (key) => {
-      return authenticatedPost(key, {
-        environmentSubId: environmentSubId!,
-        projectSlug: projectSlug!,
+    (path, projectSlug, environmentSubId) => {
+      return api.query(path, {
+        environmentSubId,
+        projectSlug,
         take,
         skip,
         pagingDateTime: pagination.state.pagingDateTime?.toISOString(),
@@ -68,10 +68,8 @@ export function useTriggeredAlertDetails(slug: string) {
 
   const { data, error } = useSWR(
     identity ? ['/triggeredAlerts/getTriggeredAlertDetails' as const, slug] : null,
-    (key) => {
-      return authenticatedPost(key, {
-        slug,
-      });
+    (path) => {
+      return api.query(path, { slug });
     },
   );
 

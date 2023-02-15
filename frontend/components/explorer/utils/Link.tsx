@@ -9,7 +9,7 @@ const LinkWrapper = React.forwardRef<HTMLAnchorElement, React.ComponentProps<'a'
   const href = baseUrl + props.href;
   return (
     <a
-      onClick={() => analytics.track('DC Explorer link', { net, href: props.href })}
+      onClick={() => analytics.track('DC Explorer link', { status: 'success', net, href: props.href })}
       target="_blank"
       rel="noopener noreferrer"
       {...props}

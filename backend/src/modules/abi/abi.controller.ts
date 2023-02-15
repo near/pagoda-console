@@ -1,5 +1,5 @@
 import { BearerAuthGuard } from '@/src/core/auth/bearer-auth.guard';
-import { JoiValidationPipe } from '@/src/pipes/JoiValidationPipe';
+import { ZodValidationPipe } from '@/src/pipes/ZodValidationPipe';
 import {
   BadRequestException,
   Body,
@@ -13,7 +13,7 @@ import {
 import { VError } from 'verror';
 import { Api } from '@pc/common/types/api';
 import { AbiService } from './abi.service';
-import { AddContractAbiSchema, GetContractAbiSchema } from './dto';
+import { Abi } from '@pc/common/types/abi';
 
 @Controller('abi')
 export class AbiController {
@@ -21,7 +21,7 @@ export class AbiController {
 
   @Post('addContractAbi')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(AddContractAbiSchema))
+  @UsePipes(new ZodValidationPipe(Abi.mutation.inputs.addContractAbi))
   async addContractAbi(
     @Request() req,
     @Body() { contract, abi }: Api.Mutation.Input<'/abi/addContractAbi'>,
@@ -35,7 +35,7 @@ export class AbiController {
 
   @Post('getContractAbi')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new JoiValidationPipe(GetContractAbiSchema))
+  @UsePipes(new ZodValidationPipe(Abi.query.inputs.getContractAbi))
   async getContractAbi(
     @Request() req,
     @Body() { contract }: Api.Query.Input<'/abi/getContractAbi'>,

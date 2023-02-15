@@ -24,23 +24,33 @@ interface Props {
 export const ContractInteract = ({ contract }: Props) => {
   const { publicModeIsActive } = usePublicMode();
   const [abiUploaded, setAbiUploaded] = useState<boolean | undefined>(undefined);
-  const { contractAbi, error } = useAnyAbi(contract);
+  const { embeddedQuery, privateQuery } = useAnyAbi(contract);
+  const error = embeddedQuery.error || privateQuery.error;
+  const abi = embeddedQuery.data || privateQuery.data;
+  const isValidating = embeddedQuery.isValidating || privateQuery.isValidating;
 
   useEffect(() => {
-    if (contractAbi) {
+    if (abi) {
       setAbiUploaded(true);
-    } else if (error?.message === 'ABI_NOT_FOUND') {
+    } else if (!isValidating && error?.message === 'ABI_NOT_FOUND') {
       setAbiUploaded(false);
     } else {
       setAbiUploaded(undefined);
     }
-  }, [contract, contractAbi, error]);
+  }, [abi, isValidating, error]);
 
-  if (error && error.message && ['Failed to fetch', 'ABI_NOT_FOUND'].indexOf(error.message) < 0) {
-    openToast({
-      type: 'error',
-      title: 'Failed to retrieve ABI.',
-    });
+  useEffect(() => {
+    if (error && error.message && ['Failed to fetch', 'ABI_NOT_FOUND'].indexOf(error.message) < 0) {
+      openToast({
+        type: 'error',
+        title: 'Failed to retrieve ABI.',
+      });
+    }
+  }, [error]);
+
+  function onAbiUpload() {
+    embeddedQuery.mutate();
+    privateQuery.mutate();
   }
 
   if (!contract || abiUploaded === undefined) {
@@ -53,31 +63,30 @@ export const ContractInteract = ({ contract }: Props) => {
     );
   }
 
-  return (
-    <>
-      {abiUploaded ? (
-        <ContractTransaction contract={contract} />
-      ) : publicModeIsActive ? (
-        <Card>
-          <Flex align="center" gap="l">
-            <FeatherIcon icon="alert-circle" size="m" color="warning" />
+  if (abiUploaded) {
+    return <ContractTransaction contract={contract} />;
+  }
+  if (publicModeIsActive) {
+    return (
+      <Card>
+        <Flex align="center" gap="l">
+          <FeatherIcon icon="alert-circle" size="m" color="warning" />
 
-            <Text>
-              This contract doesn&apos;t appear to have an{' '}
-              <TextLink
-                stableId={StableId.CONTRACT_INTERACT_NEAR_ABI_DOCS_LINK}
-                href="https://github.com/near/abi"
-                external
-              >
-                embedded ABI
-              </TextLink>
-              . To interact with this contract, ask the owner of this contract to deploy an embedded ABI.
-            </Text>
-          </Flex>
-        </Card>
-      ) : (
-        <UploadContractAbi contractSlug={contract.slug} setAbiUploaded={setAbiUploaded} />
-      )}
-    </>
-  );
+          <Text>
+            This contract doesn&apos;t appear to have an{' '}
+            <TextLink
+              stableId={StableId.CONTRACT_INTERACT_NEAR_ABI_DOCS_LINK}
+              href="https://github.com/near/abi"
+              external
+            >
+              embedded ABI
+            </TextLink>
+            . To interact with this contract, ask the owner of this contract to deploy an embedded ABI.
+          </Text>
+        </Flex>
+      </Card>
+    );
+  }
+
+  return <UploadContractAbi contractSlug={contract.slug} onUpload={onAbiUpload} />;
 };

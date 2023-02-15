@@ -14,6 +14,7 @@ type DeployEnvironment = 'LOCAL' | 'DEVELOPMENT' | 'PRODUCTION';
 // * down, or add non-null assertion on every usage.
 // * https://nextjs.org/docs/basic-features/environment-variables#loading-environment-variables
 if (
+  !process.env.NEXT_PUBLIC_HOST_URL ||
   !process.env.NEXT_PUBLIC_API_BASE_URL ||
   !process.env.NEXT_PUBLIC_MAIN_NET_RPC ||
   !process.env.NEXT_PUBLIC_TEST_NET_RPC ||
@@ -34,7 +35,9 @@ if (
   !process.env.NEXT_PUBLIC_DEPLOY_ENV ||
   !process.env.NEXT_PUBLIC_LAUNCHDARKLY_SDK_ENV ||
   !process.env.NEXT_PUBLIC_ANALYTICS_MAIN_NET_IFRAME ||
-  !process.env.NEXT_PUBLIC_ANALYTICS_TEST_NET_IFRAME
+  !process.env.NEXT_PUBLIC_ANALYTICS_TEST_NET_IFRAME ||
+  !process.env.NEXT_PUBLIC_GALLERY_IPFS_GATEWAY_URL ||
+  !process.env.NEXT_PUBLIC_GALLERY_GITHUB_ACTION_DEPLOY_URL
 ) {
   throw new Error('Missing configuration value');
 }
@@ -68,6 +71,7 @@ if (process.env.NEXT_PUBLIC_DEPLOY_ENV !== 'LOCAL' && !process.env.NEXT_PUBLIC_T
 // Define config:
 interface AppConfig {
   url: {
+    host: string;
     api: string;
     explorer: ExplorerNets;
     rpc: {
@@ -92,11 +96,16 @@ interface AppConfig {
   launchDarklyEnv: string;
   gleapAuth?: string;
   googleTagManagerId?: string;
+  gallery: {
+    ipfsGatewayUrl: string;
+    githubActionDeployUrl: string;
+  };
 }
 
 // TODO remove recommended RPC since there is no longer a separate URL from default
 const config: AppConfig = {
   url: {
+    host: process.env.NEXT_PUBLIC_HOST_URL,
     api: process.env.NEXT_PUBLIC_API_BASE_URL,
     explorer: {
       MAINNET: process.env.NEXT_PUBLIC_MAIN_NET_EXPLORER,
@@ -144,6 +153,10 @@ const config: AppConfig = {
   launchDarklyEnv: process.env.NEXT_PUBLIC_LAUNCHDARKLY_SDK_ENV,
   gleapAuth: process.env.NEXT_PUBLIC_GLEAP_AUTH_KEY,
   googleTagManagerId: process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID,
+  gallery: {
+    ipfsGatewayUrl: process.env.NEXT_PUBLIC_GALLERY_IPFS_GATEWAY_URL,
+    githubActionDeployUrl: process.env.NEXT_PUBLIC_GALLERY_GITHUB_ACTION_DEPLOY_URL,
+  },
 };
 
 export default config;

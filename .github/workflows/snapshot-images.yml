@@ -8,8 +8,8 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: "16.x"
       - name: Install dependencies
@@ -17,15 +17,15 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps
       - name: Run snapshot tests
-        run: npx playwright test frontend/tests/playwright/snapshot/ --update-snapshots
+        run: npx playwright test test/tests/snapshot/ --update-snapshots
         env:
           TEST_URL: https://core.dev.console.pagoda.co
           TEST_EMAIL: jon+e2e@near.org
           TEST_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
           TEST_NFT_TUTORIAL_PROJECT: AcxeBjT5uWPLG
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: updated-snapshots
-          path: frontend/tests/playwright/snapshot
+          path: test/tests/snapshot
           retention-days: 1

@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import { Badge } from '@/components/lib/Badge';
 import * as DropdownMenu from '@/components/lib/DropdownMenu';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
-import { Flex } from '@/components/lib/Flex';
 import { Text } from '@/components/lib/Text';
 import { TextOverflow } from '@/components/lib/TextOverflow';
 import { useProjectGroups } from '@/hooks/projects';
@@ -45,21 +44,25 @@ export function ProjectSelector(props: Props) {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Button stableId={StableId.PROJECT_SELECTOR_DROPDOWN} css={{ width: '22rem', height: 'auto' }}>
+      <DropdownMenu.Button
+        stableId={StableId.PROJECT_SELECTOR_DROPDOWN}
+        css={{
+          height: 'auto',
+          padding: '0 var(--space-s)',
+          width: '20rem',
+          '@tablet': {
+            width: 'auto',
+          },
+        }}
+        hideText="tablet"
+      >
+        <FeatherIcon icon="box" />
         <TextOverflow>{project?.name || '...'}</TextOverflow>
       </DropdownMenu.Button>
 
-      <DropdownMenu.Content width="trigger" innerCss={{ padding: 0, borderRadius: 'inherit' }}>
+      <DropdownMenu.Content>
         {projectGroups && projectGroups.length > 0 && (
-          <Flex
-            css={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'stretch',
-              gap: 'var(--space-m)',
-              padding: 'var(--space-s)',
-            }}
-          >
+          <>
             {projectGroups?.map(([orgName, projects]) => {
               return (
                 <div key={orgName}>
@@ -68,38 +71,33 @@ export function ProjectSelector(props: Props) {
                       {orgName}
                     </Text>
                   </DropdownMenu.ContentItem>
-                  {projects.map((project) => (
-                    <DropdownMenu.Item key={project.id} onSelect={() => onSelectProject(project)}>
-                      {project.name}
-                      {project.tutorial && <Badge size="s">Tutorial</Badge>}
+                  {projects.map((p) => (
+                    <DropdownMenu.Item key={p.slug} onSelect={() => onSelectProject(p)}>
+                      {project?.slug === p.slug ? (
+                        <FeatherIcon icon="check-circle" size="xs" color="primary" />
+                      ) : (
+                        <FeatherIcon icon="circle" size="xs" color="text3" />
+                      )}
+                      {p.name}
+                      {p.tutorial && <Badge size="s">Tutorial</Badge>}
                     </DropdownMenu.Item>
                   ))}
                 </div>
               );
             })}
-          </Flex>
+          </>
         )}
 
-        <Flex
-          css={{
-            position: 'sticky',
-            bottom: 0,
-            background: 'var(--background-color)',
-            padding: 'var(--space-s)',
-
-            '&:not(:first-child)': {
-              borderTop: 'solid 1px var(--color-border-1)',
-            },
-          }}
-        >
+        <DropdownMenu.ContentStickyFooter>
           <DropdownMenu.Item
+            color="primary"
             onSelect={() => onSelectNewProject()}
-            css={{ color: 'var(--color-primary)', width: '100%' }}
+            stableId={StableId.PROJECT_SELECTOR_CREATE_NEW_PROJECT_BUTTON}
           >
-            <FeatherIcon icon="plus-circle" />
+            <FeatherIcon icon="plus" />
             Create New Project
           </DropdownMenu.Item>
-        </Flex>
+        </DropdownMenu.ContentStickyFooter>
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   );

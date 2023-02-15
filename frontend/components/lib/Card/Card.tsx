@@ -38,7 +38,7 @@ export const Card = styled('div', {
         cursor: 'pointer',
 
         '&:hover': {
-          background: 'var(--color-surface-1)',
+          background: 'var(--color-surface-3)',
         },
 
         '&:focus': {
@@ -50,6 +50,9 @@ export const Card = styled('div', {
     },
 
     padding: {
+      none: {
+        padding: '0rem',
+      },
       s: {
         padding: 'var(--space-s)',
       },

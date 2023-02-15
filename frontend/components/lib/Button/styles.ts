@@ -16,7 +16,7 @@ export const Button = styled('button', {
   borderRadius: 'var(--border-radius-s)',
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 'var(--space-m)',
+  gap: 'var(--space-s)',
   justifyContent: 'center',
   cursor: 'pointer',
   fontWeight: 500,
@@ -58,11 +58,11 @@ export const Button = styled('button', {
         },
       },
       dangerBorder: {
-        background: 'transparent',
+        background: 'var(--color-surface-1)',
         boxShadow: 'inset 0 0 0 1px currentColor',
         color: 'var(--color-danger)',
         '&:hover': {
-          background: 'var(--color-surface-1)',
+          background: 'var(--color-surface-2)',
         },
       },
       input: {
@@ -85,26 +85,45 @@ export const Button = styled('button', {
         },
       },
       primaryBorder: {
-        background: 'transparent',
+        background: 'var(--color-surface-1)',
         boxShadow: 'inset 0 0 0 1px currentColor',
         color: 'var(--color-primary)',
         '&:hover': {
-          background: 'var(--color-surface-1)',
+          background: 'var(--color-surface-2)',
         },
       },
       neutral: {
-        background: 'transparent',
+        background: 'var(--color-surface-1)',
         boxShadow: 'inset 0 0 0 1px var(--color-surface-5)',
         color: 'var(--color-text-1)',
         '&:hover': {
-          background: 'var(--color-surface-1)',
+          background: 'var(--color-surface-2)',
         },
       },
       transparent: {
         background: 'transparent',
         color: 'var(--color-text-1)',
         '&:hover': {
-          background: 'var(--color-surface-1)',
+          background: 'var(--color-surface-2)',
+        },
+      },
+    },
+
+    hideText: {
+      mobile: {
+        '@mobile': {
+          fontSize: '0 !important',
+          [`${Content}`]: {
+            gap: '0 !important',
+          },
+        },
+      },
+      tablet: {
+        '@tablet': {
+          fontSize: '0 !important',
+          [`${Content}`]: {
+            gap: '0 !important',
+          },
         },
       },
     },

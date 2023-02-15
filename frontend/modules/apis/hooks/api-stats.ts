@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
-import { authenticatedPost } from '@/utils/http';
+import { api } from '@/utils/api';
 
 type Project = Api.Query.Output<'/projects/getDetails'>;
 type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
@@ -136,16 +136,17 @@ export function useApiStats(
       ? [
           '/rpcstats/endpointMetrics' as const,
           'date',
+          project.slug,
           environment.subId,
           identity.uid,
           startDateTime.toISO(),
           endDateTime.toISO(),
         ]
       : null,
-    (key) => {
-      return authenticatedPost(key, {
-        environmentSubId: environment!.subId,
-        projectSlug: project!.slug,
+    (path, filter, projectSlug, environmentSubId) => {
+      return api.query(path, {
+        projectSlug,
+        environmentSubId,
         startDateTime: startDateTime.toString(),
         endDateTime: endDateTime.toString(),
         filter: {
@@ -161,16 +162,17 @@ export function useApiStats(
       ? [
           '/rpcstats/endpointMetrics' as const,
           'endpoint',
+          project.slug,
           environment.subId,
           identity.uid,
           startDateTime.toISO(),
           endDateTime.toISO(),
         ]
       : null,
-    (key) => {
-      return authenticatedPost(key, {
-        environmentSubId: environment!.subId,
-        projectSlug: project!.slug,
+    (path, filter, projectSlug, environmentSubId) => {
+      return api.query(path, {
+        projectSlug,
+        environmentSubId,
         startDateTime: startDateTime.toString(),
         endDateTime: endDateTime.toString(),
         filter: { type: 'endpoint' },

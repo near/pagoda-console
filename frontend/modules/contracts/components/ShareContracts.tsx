@@ -39,6 +39,7 @@ export function ShareContracts({ contracts, environment }: Props) {
     });
 
     analytics.track('DC Share Contracts: Copied URL', {
+      status: 'success',
       addresses: selectedAddresses.join(','),
       url,
     });
@@ -56,6 +57,7 @@ export function ShareContracts({ contracts, environment }: Props) {
     }
 
     analytics.track('DC Share Contracts: Shared URL', {
+      status: 'success',
       addresses: selectedAddresses.join(','),
       url,
     });
@@ -68,6 +70,7 @@ export function ShareContracts({ contracts, environment }: Props) {
       });
 
       analytics.track('DC Share Contracts: Contract Selected', {
+        status: 'success',
         address: e.target.value,
       });
     } else {
@@ -76,6 +79,7 @@ export function ShareContracts({ contracts, environment }: Props) {
       });
 
       analytics.track('DC Share Contracts: Contract Deselected', {
+        status: 'success',
         address: e.target.value,
       });
     }
@@ -102,7 +106,7 @@ export function ShareContracts({ contracts, environment }: Props) {
 
         <CheckboxGroup aria-label="Select contracts to share" css={{ width: '100%' }}>
           {contracts.map((c) => (
-            <ContractCheckbox key={c.address} contract={c} environment={environment} onChange={onCheckboxChange} />
+            <ContractCheckbox key={c.address} contract={c} onChange={onCheckboxChange} />
           ))}
         </CheckboxGroup>
       </Flex>
@@ -140,19 +144,18 @@ export function ShareContracts({ contracts, environment }: Props) {
 
 function ContractCheckbox({
   contract,
-  environment,
   onChange,
 }: {
   contract: Contract;
-  environment: Environment;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }) {
-  const { embeddedAbi } = useEmbeddedAbi(environment.net, contract.address);
+  const abiQuery = useEmbeddedAbi(contract);
 
   function abiIconHover() {
     analytics.track('DC Share Contracts: ABI Icon Hover', {
+      status: 'success',
       address: contract.address,
-      hasEmbeddedAbi: !!embeddedAbi,
+      hasEmbeddedAbi: Boolean(abiQuery.data),
     });
   }
 
@@ -168,15 +171,13 @@ function ContractCheckbox({
           {contract.address}
         </Text>
 
-        {embeddedAbi && (
+        {abiQuery.data ? (
           <Tooltip content="Embedded ABI">
             <span>
               <FeatherIcon icon="file-text" color="primary" onMouseEnter={abiIconHover} />
             </span>
           </Tooltip>
-        )}
-
-        {embeddedAbi === null && (
+        ) : (
           <Tooltip content="No embedded ABI">
             <span>
               <FeatherIcon icon="alert-circle" color="warning" onMouseEnter={abiIconHover} />

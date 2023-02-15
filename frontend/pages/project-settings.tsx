@@ -58,7 +58,7 @@ const ProjectSettings: NextPageWithLayout = () => {
             </List>
 
             <Card>
-              <Flex align="center" gap="l">
+              <Flex align="center" gap="l" stack={{ '@mobile': true }}>
                 <FeatherIcon icon="users" size="m" />
 
                 <Text>

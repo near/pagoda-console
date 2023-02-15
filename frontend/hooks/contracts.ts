@@ -5,62 +5,35 @@ import useSWR from 'swr';
 
 import { useAuth } from '@/hooks/auth';
 import { usePublicStore } from '@/stores/public';
-import analytics from '@/utils/analytics';
+import { api } from '@/utils/api';
 import config from '@/utils/config';
-import { authenticatedPost } from '@/utils/http';
 
 type Contract = Api.Query.Output<'/projects/getContracts'>[number];
 
-export async function deleteContract(contract: Contract) {
-  try {
-    await authenticatedPost('/projects/removeContract', {
-      slug: contract.slug,
-    });
-    analytics.track('DC Remove Contract', {
-      status: 'success',
-      contractId: contract.address,
-    });
-    return true;
-  } catch (e: any) {
-    analytics.track('DC Remove Contract', {
-      status: 'failure',
-      contractId: contract.address,
-      error: e.message,
-    });
-    console.error(e);
-    return false;
-  }
-}
-
 export function useContracts(project: string | undefined, environment: number | undefined) {
-  const { identity } = useAuth();
-
   const {
     data: contracts,
     error,
     mutate,
   } = useSWR(
-    identity && project && environment ? ['/projects/getContracts' as const, project, environment, identity.uid] : null,
-    (key, project, environment) => {
-      return authenticatedPost(key, {
-        project,
-        environment,
-      });
+    project && environment ? ['/projects/getContracts' as const, project, environment] : null,
+    (path, project, environment) => {
+      return api.query(path, { project, environment });
     },
   );
 
   return { contracts, error, mutate };
 }
 
-export function useContract(slug: string | undefined) {
+export function useContract(slug: string | null | undefined) {
   const { identity } = useAuth();
 
   const {
     data: contract,
     error,
     mutate,
-  } = useSWR(identity && slug ? ['/projects/getContract' as const, slug, identity.uid] : null, (key, slug) => {
-    return authenticatedPost(key, { slug });
+  } = useSWR(identity && slug ? ['/projects/getContract' as const, slug, identity.uid] : null, (path, slug) => {
+    return api.query(path, { slug });
   });
 
   return { contract, error, mutate };
@@ -103,7 +76,7 @@ export function useContractMetrics(address: string | undefined, net: Net | undef
   };
 }
 
-export function usePublicOrPrivateContract(slug: string | undefined) {
+export function usePublicOrPrivateContract(slug: string | null | undefined) {
   const publicModeHasHydrated = usePublicStore((store) => store.hasHydrated);
   const publicModeIsActive = usePublicStore((store) => store.publicModeIsActive);
   const publicContracts = usePublicStore((store) => store.contracts);

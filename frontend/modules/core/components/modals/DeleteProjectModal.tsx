@@ -1,9 +1,9 @@
-import { useState } from 'react';
-
 import { Text } from '@/components/lib/Text';
+import { openToast } from '@/components/lib/Toast';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { useAuth } from '@/hooks/auth';
-import { deleteProject } from '@/hooks/projects';
+import { useApiMutation } from '@/hooks/api-mutation';
+import analytics from '@/utils/analytics';
+import { handleMutationError } from '@/utils/error-handlers';
 
 interface Props {
   slug: string;
@@ -14,33 +14,45 @@ interface Props {
 }
 
 export default function DeleteProjectModal({ slug, name, show, setShow, onDelete }: Props) {
-  const { identity } = useAuth();
-  const [errorText, setErrorText] = useState<string | undefined>();
-  const [isDeleting, setIsDeleting] = useState(false);
+  const deleteProjectMutation = useApiMutation('/projects/delete', {
+    onSuccess: () => {
+      openToast({
+        type: 'success',
+        title: 'Project Removed',
+        description: name,
+      });
 
-  async function onConfirm() {
-    setIsDeleting(true);
-    setErrorText('');
+      analytics.track('DC Remove Project', {
+        status: 'success',
+        name,
+      });
 
-    const success = await deleteProject(identity?.uid, slug, name);
-
-    if (success) {
       onDelete();
-      setShow(false);
-    } else {
-      setErrorText('Something went wrong.');
-      setIsDeleting(false);
-    }
+    },
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Remove Project',
+        eventData: {
+          name,
+        },
+        toastTitle: 'Failed to remove project.',
+      });
+    },
+  });
+
+  function onConfirm() {
+    deleteProjectMutation.mutate({ slug });
   }
 
   return (
     <ConfirmModal
       confirmColor="danger"
       confirmText="Remove"
-      errorText={errorText}
-      isProcessing={isDeleting}
+      errorText={deleteProjectMutation.status === 'error' ? 'Something went wrong' : undefined}
+      isProcessing={deleteProjectMutation.isLoading}
       onConfirm={onConfirm}
-      setErrorText={setErrorText}
+      resetError={deleteProjectMutation.reset}
       setShow={setShow}
       show={show}
       title={`Remove ${name}`}

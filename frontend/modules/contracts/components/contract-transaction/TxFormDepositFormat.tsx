@@ -10,8 +10,8 @@ const TxFormDepositFormat = ({ form, nearFormat }: TxFormDepositFormatProps) => 
         {nearFormat}
       </DropdownMenu.Button>
       <DropdownMenu.Content>
-        <DropdownMenu.Item onSelect={() => form.setValue('nearFormat', 'NEAR')}>NEAR</DropdownMenu.Item>
-        <DropdownMenu.Item onSelect={() => form.setValue('nearFormat', 'yoctoⓃ')}>yoctoⓃ</DropdownMenu.Item>
+        <DropdownMenu.Item onSelect={() => form.setValue('depositFormat', 'NEAR')}>NEAR</DropdownMenu.Item>
+        <DropdownMenu.Item onSelect={() => form.setValue('depositFormat', 'yoctoⓃ')}>yoctoⓃ</DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   );

@@ -1,4 +1,9 @@
-import { styled } from '@/styles/stitches';
+import { keyframes, styled } from '@/styles/stitches';
+
+const spinAnimation = keyframes({
+  from: { transform: 'rotate(0deg)' },
+  to: { transform: 'rotate(360deg)' },
+});
 
 export const Indicator = styled('span', {
   display: 'flex',
@@ -11,6 +16,7 @@ export const Indicator = styled('span', {
   background: 'var(--color-surface-1)',
   border: '1px solid var(--color-surface-5)',
   transition: 'var(--transitions)',
+  position: 'relative',
 
   svg: {
     width: '0.6rem',
@@ -22,6 +28,27 @@ export const Indicator = styled('span', {
   },
 
   variants: {
+    loader: {
+      true: {
+        '&:before': {
+          transition: 'opacity 0.2s',
+          content: '',
+          display: 'block',
+          width: '1em',
+          height: '1em',
+          position: 'absolute',
+          top: '50%',
+          left: 0,
+          right: 0,
+          margin: '-0.5rem 0 0 0.1rem',
+          borderRadius: '100%',
+          border: '2px solid var(--color-text-2)',
+          borderTopColor: 'transparent',
+          animation: `${spinAnimation} 700ms linear infinite`,
+        },
+      },
+    },
+
     invalid: {
       true: {
         borderColor: 'var(--color-danger)',

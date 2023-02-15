@@ -1,4 +1,5 @@
 import type { Api } from '@pc/common/types/api';
+import type { Net } from '@pc/database/clients/core';
 
 export function assertUnreachable(x: never): never {
   throw new Error(`Unreachable Case: ${x}`);
@@ -35,3 +36,12 @@ export function sleep(ms: number) {
     setTimeout(resolve, ms);
   });
 }
+
+export const mapEnvironmentSubIdToNet = (environmentSubId: number): Net => {
+  switch (environmentSubId) {
+    case 2:
+      return 'MAINNET';
+    default:
+      return 'TESTNET';
+  }
+};

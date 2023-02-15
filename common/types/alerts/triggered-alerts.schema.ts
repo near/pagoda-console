@@ -1,42 +1,57 @@
-import { RuleType } from './alerts.schema';
+import { z } from 'zod';
+import { stringifiedDate } from '../schemas';
+import {
+  blockHash,
+  environmentId,
+  projectSlug,
+  receiptId,
+  transactionHash,
+} from '../core/types';
+import { ruleType, alertId } from './alerts.schema';
 
-export type TriggeredAlert = {
-  slug: string;
-  alertId: number;
-  name: string;
-  type: RuleType;
-  triggeredInBlockHash: string;
-  triggeredInTransactionHash: string | null;
-  triggeredInReceiptId: string | null;
-  triggeredAt: string;
-  extraData?: Record<string, unknown>;
+export const triggeredAlertSlug = z.string();
+export type TriggeredAlertSlug = z.infer<typeof triggeredAlertSlug>;
+
+const triggeredAlert = z.strictObject({
+  slug: triggeredAlertSlug,
+  alertId: z.number(),
+  name: z.string(),
+  type: ruleType,
+  triggeredInBlockHash: blockHash,
+  triggeredInTransactionHash: transactionHash.or(z.null()),
+  triggeredInReceiptId: receiptId.or(z.null()),
+  triggeredAt: stringifiedDate,
+  extraData: z.record(z.unknown()),
+});
+export type TriggeredAlert = z.infer<typeof triggeredAlert>;
+
+const triggeredAlerts = z.strictObject({
+  count: z.number(),
+  page: triggeredAlert.array(),
+});
+
+export const query = {
+  inputs: {
+    listTriggeredAlerts: z.strictObject({
+      projectSlug,
+      environmentSubId: environmentId,
+      skip: z.number().int().min(0).optional(),
+      take: z.number().int().min(0).max(100).optional(),
+      pagingDateTime: stringifiedDate.optional(),
+      alertId: alertId.optional(),
+    }),
+    getTriggeredAlertDetails: z.strictObject({
+      slug: triggeredAlertSlug,
+    }),
+  },
+
+  outputs: {
+    listTriggeredAlerts: triggeredAlerts,
+    getTriggeredAlertDetails: triggeredAlert,
+  },
+
+  errors: {
+    listTriggeredAlerts: z.unknown(),
+    getTriggeredAlertDetails: z.unknown(),
+  },
 };
-
-export type TriggeredAlertList = {
-  count: number;
-  page: Array<TriggeredAlert>;
-};
-
-export namespace Query {
-  export namespace Inputs {
-    export type ListTriggeredAlerts = {
-      projectSlug: string;
-      environmentSubId: number;
-      skip?: number;
-      take?: number;
-      pagingDateTime?: string;
-      alertId?: number;
-    };
-    export type GetTriggeredAlertDetails = { slug: string };
-  }
-
-  export namespace Outputs {
-    export type ListTriggeredAlerts = TriggeredAlertList;
-    export type GetTriggeredAlertDetails = TriggeredAlert;
-  }
-
-  export namespace Errors {
-    export type ListTriggeredAlerts = unknown;
-    export type GetTriggeredAlertDetails = unknown;
-  }
-}

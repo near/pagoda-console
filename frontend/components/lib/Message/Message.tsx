@@ -11,8 +11,8 @@ type MessageType = 'info' | 'error' | 'success' | 'warning';
 
 type Props = Omit<ComponentProps<typeof S.Container>, 'type'> & {
   content?: string;
-  dismiss?: () => void;
-  dismissText?: string;
+  onClickButton?: () => void;
+  buttonText?: string;
   icon?: string;
   type?: MessageType;
 };
@@ -20,8 +20,8 @@ type Props = Omit<ComponentProps<typeof S.Container>, 'type'> & {
 export const Message = ({
   children,
   content,
-  dismiss,
-  dismissText,
+  onClickButton,
+  buttonText,
   icon: iconOverride,
   type = 'info',
   ...props
@@ -51,9 +51,9 @@ export const Message = ({
           )}
         </Flex>
 
-        {dismiss && (
-          <Button stableId={StableId.MESSAGE_DISMISS_BUTTON} size="s" color="neutral" onClick={dismiss}>
-            {dismissText || 'Dismiss'}
+        {onClickButton && (
+          <Button stableId={StableId.MESSAGE_DISMISS_BUTTON} size="s" color="neutral" onClick={onClickButton}>
+            {buttonText || 'Dismiss'}
           </Button>
         )}
       </Flex>

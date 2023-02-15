@@ -1,14 +1,4 @@
-import { keyframes, styled } from '@/styles/stitches';
-
-const darkThemeAnimation = keyframes({
-  from: { transform: 'scale(0.5, 0.5) rotate(0deg)' },
-  to: { transform: 'scale(1, 1) rotate(360deg)' },
-});
-
-const lightThemeAnimation = keyframes({
-  from: { transform: 'scale(0.5, 0.5) rotate(0deg)' },
-  to: { transform: 'scale(1, 1) rotate(-360deg)' },
-});
+import { styled } from '@/styles/stitches';
 
 export const Button = styled('button', {
   '--animation-speed': '500ms',
@@ -35,14 +25,6 @@ export const Button = styled('button', {
   '&:focus': {
     outline: 'var(--focus-outline)',
     outlineOffset: 'var(--focus-outline-offset)',
-  },
-
-  '&[data-theme="dark"]': {
-    svg: { animation: `${darkThemeAnimation} var(--animation-speed) ease forwards` },
-  },
-
-  '&[data-theme="light"]': {
-    svg: { animation: `${lightThemeAnimation} var(--animation-speed) ease forwards` },
   },
 
   variants: {

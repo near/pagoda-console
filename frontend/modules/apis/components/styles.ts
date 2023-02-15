@@ -5,9 +5,9 @@ export const Root = styled('div', {
 
   'div.sl-px-24.sl-overflow-y-auto': {
     // increase the width by decreasing padding
-    paddingLeft: '80px',
+    paddingLeft: '40px',
     paddingRight: '20px',
-    minWidth: '800px',
+    // minWidth: '800px',
   },
   'div.sl-elements-api': {
     // positioning the elements web component
@@ -60,7 +60,7 @@ export const Root = styled('div', {
     },
   },
   'div.sl-elements-api > div, div.sl-bg-canvas-100': {
-    backgroundColor: 'var(--color-surface-3)',
+    // backgroundColor: 'var(--color-surface-3)',
   },
   'div.sl-panel > div.sl-panel__content-wrapper': {
     backgroundColor: 'var(--color-surface-1)',

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import type { ComponentProps } from 'react';
+import type { ComponentProps, TouchEvent } from 'react';
+import { useRef } from 'react';
 import { useEffect } from 'react';
 import { useState } from 'react';
 
@@ -8,12 +9,14 @@ import { Badge } from '@/components/lib/Badge';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Tooltip } from '@/components/lib/Tooltip';
 import { useAuth, useSignOut } from '@/hooks/auth';
+import { useRepositories } from '@/hooks/deploys';
 import { usePublicMode } from '@/hooks/public';
 import { useSelectedProject } from '@/hooks/selected-project';
 import alertsEntries from '@/modules/alerts/sidebar-entries';
 import apisEntries from '@/modules/apis/sidebar-entries';
 import contractsEntries from '@/modules/contracts/sidebar-entries';
 import { ThemeToggle } from '@/modules/core/components/ThemeToggle';
+import deploysEntries from '@/modules/deploys/sidebar-entries';
 import indexersEntries from '@/modules/indexers/sidebar-entries';
 import { StableId } from '@/utils/stable-ids';
 
@@ -32,6 +35,8 @@ function useProjectPages(): SidebarEntry[] {
     enforceSelectedProject: false,
   });
 
+  const { repositories } = useRepositories(project?.slug);
+
   if (project?.tutorial === 'NFT_MARKET') {
     pages.push({
       display: 'Tutorial',
@@ -43,6 +48,9 @@ function useProjectPages(): SidebarEntry[] {
   }
 
   pages.push(...apisEntries);
+  if (repositories && repositories.length) {
+    pages.push(...deploysEntries);
+  }
   pages.push(...alertsEntries);
   pages.push(...contractsEntries);
 
@@ -76,37 +84,52 @@ export function Sidebar({ children, ...props }: Props) {
   const router = useRouter();
   const pages = useProjectPages();
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean | undefined>(undefined);
-  const [sidebarHoverExpand, setSidebarHoverExpand] = useState(false);
-  const [sidebarCollapseButtonHover, setSidebarCollapseButtonHover] = useState(false);
   const sidebarCollapseToggleLabel = sidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
   const signOut = useSignOut();
   const { authStatus } = useAuth();
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
+  const isSmallScreen = typeof window !== 'undefined' && window.innerWidth <= 960;
 
   useEffect(() => {
     if (sidebarCollapsed === undefined) {
-      setSidebarCollapsed(localStorage.getItem('sidebarCollapsed') === 'true');
+      if (isSmallScreen) {
+        setSidebarCollapsed(true);
+      } else {
+        setSidebarCollapsed(localStorage.getItem('sidebarCollapsed') === 'true');
+      }
     }
-  }, [sidebarCollapsed]);
+
+    if (!sidebarCollapsed && isSmallScreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isSmallScreen, sidebarCollapsed]);
+
+  function clickHandler() {
+    if (isSmallScreen && !sidebarCollapsed) {
+      toggleCollapsed();
+    }
+  }
 
   function isLinkSelected(page: SidebarEntry): boolean {
     const matchesPattern = page.routeMatchPattern ? router.pathname.startsWith(page.routeMatchPattern) : false;
     return router.pathname === page.route || matchesPattern;
   }
 
+  function logoTouchHandler(event: TouchEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleCollapsed();
+  }
+
   function toggleCollapsed() {
     localStorage.setItem('sidebarCollapsed', `${!sidebarCollapsed}`);
     setSidebarCollapsed(!sidebarCollapsed);
-    setSidebarHoverExpand(false);
-  }
-
-  function sidebarMouseMoveHandler() {
-    if (sidebarCollapsed && !sidebarCollapseButtonHover) {
-      setSidebarHoverExpand(true);
-    }
-  }
-
-  function sidebarMouseLeaveHandler() {
-    setSidebarHoverExpand(false);
   }
 
   if (sidebarCollapsed === undefined) {
@@ -114,65 +137,73 @@ export function Sidebar({ children, ...props }: Props) {
   }
 
   return (
-    <S.Root
-      {...props}
-      sidebarCollapsed={sidebarCollapsed && !sidebarHoverExpand}
-      sidebarHoverExpand={sidebarHoverExpand}
-    >
-      <S.Sidebar onMouseMove={sidebarMouseMoveHandler} onMouseLeave={sidebarMouseLeaveHandler}>
-        <Logo collapsed={sidebarCollapsed && !sidebarHoverExpand} />
-
-        <Tooltip content={sidebarCollapseToggleLabel}>
-          <S.CollapseButton
+    <S.Root {...props} sidebarCollapsed={sidebarCollapsed} onClick={clickHandler}>
+      <S.Sidebar ref={sidebarRef}>
+        <Tooltip content={sidebarCollapseToggleLabel} side="right" sideOffset={20} disabledTouchScreen>
+          <S.LogoWrapper
             type="button"
             aria-label={sidebarCollapseToggleLabel}
             onClick={toggleCollapsed}
-            onMouseEnter={() => setSidebarCollapseButtonHover(true)}
-            onMouseLeave={() => setSidebarCollapseButtonHover(false)}
+            onTouchEnd={logoTouchHandler}
           >
-            <FeatherIcon icon={'chevron-left'} color="ctaPrimaryText" data-collapse-icon />
-          </S.CollapseButton>
+            <Logo collapsed={sidebarCollapsed} />
+            <S.CollapseIcon>
+              <FeatherIcon icon={'chevron-left'} color="ctaPrimaryText" />
+            </S.CollapseIcon>
+          </S.LogoWrapper>
         </Tooltip>
 
         <S.Nav>
           {pages.map((page) => (
-            <S.NavItem key={page.display}>
-              {page.route ? (
-                <Link href={page.route} passHref>
-                  <S.NavLink selected={isLinkSelected(page)} data-stable-id={page.stableId}>
+            <Tooltip
+              key={page.display}
+              content={page.display}
+              side="right"
+              disabled={!sidebarCollapsed}
+              disabledTouchScreen
+            >
+              <S.NavItem>
+                {page.route ? (
+                  <Link href={page.route} passHref>
+                    <S.NavLink selected={isLinkSelected(page)} data-stable-id={page.stableId}>
+                      <FeatherIcon icon={page.icon} />
+                      <S.NavLinkLabel>
+                        {page.display}
+                        {page.badgeText ? <Badge size="s">{page.badgeText}</Badge> : <></>}
+                      </S.NavLinkLabel>
+                    </S.NavLink>
+                  </Link>
+                ) : (
+                  <S.NavLink as="span" disabled>
                     <FeatherIcon icon={page.icon} />
                     <S.NavLinkLabel>
                       {page.display}
-                      {page.badgeText ? <Badge size="s">{page.badgeText}</Badge> : <></>}
+                      {<Badge size="s">Soon</Badge>}
                     </S.NavLinkLabel>
                   </S.NavLink>
-                </Link>
-              ) : (
-                <S.NavLink as="span" disabled>
-                  <FeatherIcon icon={page.icon} />
-                  <S.NavLinkLabel>
-                    {page.display}
-                    {<Badge size="s">Soon</Badge>}
-                  </S.NavLinkLabel>
-                </S.NavLink>
-              )}
-            </S.NavItem>
+                )}
+              </S.NavItem>
+            </Tooltip>
           ))}
         </S.Nav>
 
         <S.Nav>
           {authStatus === 'AUTHENTICATED' && (
-            <S.NavItem>
-              <S.NavLink as="button" type="button" onClick={signOut}>
-                <FeatherIcon icon="log-out" />
-                <S.NavLinkLabel>Logout</S.NavLinkLabel>
-              </S.NavLink>
-            </S.NavItem>
+            <Tooltip content="Log Out" side="right" disabled={!sidebarCollapsed} disabledTouchScreen>
+              <S.NavItem>
+                <S.NavLink as="button" type="button" onClick={signOut}>
+                  <FeatherIcon icon="log-out" />
+                  <S.NavLinkLabel>Logout</S.NavLinkLabel>
+                </S.NavLink>
+              </S.NavItem>
+            </Tooltip>
           )}
 
-          <S.NavItem>
-            <ThemeToggle collapsed={sidebarCollapsed && !sidebarHoverExpand} />
-          </S.NavItem>
+          <Tooltip content="Toggle Dark Mode" side="right" disabled={!sidebarCollapsed} disabledTouchScreen>
+            <S.NavItem>
+              <ThemeToggle collapsed={sidebarCollapsed} />
+            </S.NavItem>
+          </Tooltip>
         </S.Nav>
       </S.Sidebar>
 

@@ -26,6 +26,10 @@ const Container = styled('button', {
     opacity: '0.2',
     cursor: 'not-allowed',
   },
+
+  '@tablet': {
+    alignItems: 'start',
+  },
 });
 
 const Image = styled('img', {
@@ -34,6 +38,12 @@ const Image = styled('img', {
   borderRadius: 'var(--border-radius-xs)',
   marginRight: 'var(--space-l)',
   transition: 'transform 0.10s ease-in-out',
+
+  '@tablet': {
+    height: '60px',
+    marginRight: 'var(--space-m)',
+    marginTop: 'var(--space-xs)',
+  },
 });
 
 type Props = ComponentProps<typeof Container> & {
@@ -58,7 +68,7 @@ export function ContractTemplateListItem({ image, title, summary, noThumbnail, .
   return (
     <Container {...props}>
       <Image src={image} alt={title} />
-      <Flex stack>
+      <Flex stack gap="s">
         <H4>{title}</H4>
         <Text>{summary}</Text>
       </Flex>

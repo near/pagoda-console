@@ -1,7 +1,6 @@
 import type { Api } from '@pc/common/types/api';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import type { KeyedMutator } from 'swr';
 
 import { Button } from '@/components/lib/Button';
 import * as Dialog from '@/components/lib/Dialog';
@@ -13,11 +12,13 @@ import { HR } from '@/components/lib/HorizontalRule';
 import { Text } from '@/components/lib/Text';
 import { TextButton } from '@/components/lib/TextLink';
 import { openToast } from '@/components/lib/Toast';
+import { useApiMutation } from '@/hooks/api-mutation';
+import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
+import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
-import type { MapDiscriminatedUnion } from '@/utils/types';
 
-import { updateDestination, useDestinations } from '../hooks/destinations';
+import { useDestinations } from '../hooks/destinations';
 import { useVerifyDestinationInterval } from '../hooks/verify-destination-interval';
 import { destinationTypes } from '../utils/constants';
 import { DeleteDestinationModal } from './DeleteDestinationModal';
@@ -26,24 +27,44 @@ import { TelegramDestinationVerification } from './TelegramDestinationVerificati
 import { WebhookDestinationSecret } from './WebhookDestinationSecret';
 
 type Destination = Api.Query.Output<'/alerts/listDestinations'>[number];
-type DestinationType = Destination['type'];
-type MappedDestination<K extends DestinationType> = MapDiscriminatedUnion<Destination, 'type'>[K];
 
-interface Props<K extends DestinationType> {
-  destination: MappedDestination<K>;
+interface Props {
+  destination: Destination;
   show: boolean;
   setShow: (show: boolean) => void;
 }
 
-interface FormProps<K extends DestinationType> extends Props<K> {
-  onUpdate: (destination: MappedDestination<K>) => void;
+interface FormProps extends Props {
+  onUpdate: (destination: Destination) => void;
 }
 
-interface WebhookFormProps extends FormProps<'WEBHOOK'> {
-  onSecretRotate: (destination: MappedDestination<'WEBHOOK'>) => void;
+interface WebhookFormProps extends FormProps {
+  onSecretRotate: (destination: Destination) => void;
 }
 
-export function EditDestinationModal<K extends DestinationType>(props: Props<K>) {
+function useUpdateDestinationMutation() {
+  const updateDestinationMutation = useApiMutation('/alerts/updateDestination', {
+    onSuccess: (destination) => {
+      analytics.track('DC Update Destination', {
+        status: 'success',
+        name: destination.name,
+        id: destination.id,
+      });
+    },
+    onError: (error) => {
+      handleMutationError({
+        error,
+        eventLabel: 'DC Update Destination',
+        toastTitle: 'Update Error',
+        toastDescription: 'Failed to update destination.',
+      });
+    },
+  });
+
+  return { updateDestinationMutation };
+}
+
+export function EditDestinationModal(props: Props) {
   return (
     <Dialog.Root open={props.show} onOpenChange={props.setShow}>
       <Dialog.Content title="Edit Destination" size="m">
@@ -58,37 +79,24 @@ export function EditDestinationModal<K extends DestinationType>(props: Props<K>)
   );
 }
 
-function ModalContent<K extends DestinationType>(props: Props<K>) {
+function ModalContent(props: Props) {
   const { mutate } = useDestinations(props.destination.projectSlug);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const destinationType = destinationTypes[props.destination.type];
 
-  useVerifyDestinationInterval<Destination>(
+  useVerifyDestinationInterval(
     props.destination,
-    mutate as unknown as KeyedMutator<Destination[]>,
+    mutate,
     useCallback(() => props.setShow(false), [props]),
   );
 
   function onDelete() {
-    mutate((data) => {
-      return data?.filter((d) => d.id !== props.destination.id);
-    });
-
+    mutate();
     props.setShow(false);
   }
 
-  function onUpdate(updated: MappedDestination<K>) {
-    mutate((destinations) => {
-      return destinations?.map((d) => {
-        if (d.id === updated.id) {
-          return {
-            ...updated,
-          };
-        }
-
-        return d;
-      });
-    });
+  function onUpdate() {
+    mutate();
 
     openToast({
       type: 'success',
@@ -98,18 +106,8 @@ function ModalContent<K extends DestinationType>(props: Props<K>) {
     props.setShow(false);
   }
 
-  function onWebhookSecretRotate(updated: Destination) {
-    mutate((destinations) => {
-      return destinations?.map((d) => {
-        if (d.id === updated.id) {
-          return {
-            ...updated,
-          };
-        }
-
-        return d;
-      });
-    });
+  function onWebhookSecretRotate() {
+    mutate();
 
     openToast({
       type: 'success',
@@ -127,9 +125,9 @@ function ModalContent<K extends DestinationType>(props: Props<K>) {
               <H5>{destinationType.name}</H5>
 
               <Text family="code" size="bodySmall">
-                {props.destination.type === 'TELEGRAM' && (props as Props<'TELEGRAM'>).destination.config.chatTitle}
-                {props.destination.type === 'WEBHOOK' && (props as Props<'WEBHOOK'>).destination.config.url}
-                {props.destination.type === 'EMAIL' && (props as Props<'EMAIL'>).destination.config.email}
+                {props.destination.type === 'TELEGRAM' && props.destination.config.chatTitle}
+                {props.destination.type === 'WEBHOOK' && props.destination.config.url}
+                {props.destination.type === 'EMAIL' && props.destination.config.email}
               </Text>
             </Flex>
           </Flex>
@@ -145,22 +143,11 @@ function ModalContent<K extends DestinationType>(props: Props<K>) {
           </Button>
         </Flex>
 
-        {props.destination.type === 'TELEGRAM' && (
-          <TelegramDestinationForm
-            onUpdate={onUpdate as FormProps<'TELEGRAM'>['onUpdate']}
-            {...(props as Props<'TELEGRAM'>)}
-          />
-        )}
+        {props.destination.type === 'TELEGRAM' && <TelegramDestinationForm onUpdate={onUpdate} {...props} />}
         {props.destination.type === 'WEBHOOK' && (
-          <WebhookDestinationForm
-            onUpdate={onUpdate as FormProps<'WEBHOOK'>['onUpdate']}
-            onSecretRotate={onWebhookSecretRotate}
-            {...(props as Props<'WEBHOOK'>)}
-          />
+          <WebhookDestinationForm onUpdate={onUpdate} onSecretRotate={onWebhookSecretRotate} {...props} />
         )}
-        {props.destination.type === 'EMAIL' && (
-          <EmailDestinationForm onUpdate={onUpdate as FormProps<'EMAIL'>['onUpdate']} {...(props as Props<'EMAIL'>)} />
-        )}
+        {props.destination.type === 'EMAIL' && <EmailDestinationForm onUpdate={onUpdate} {...props} />}
       </Flex>
 
       <DeleteDestinationModal
@@ -177,10 +164,11 @@ interface TelegramFormData {
   name: string;
 }
 
-function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps<'TELEGRAM'>) {
+function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps) {
   if (destination.type !== 'TELEGRAM') throw new Error('Invalid destination for TelegramDestinationForm');
 
   const { formState, setValue, register, handleSubmit } = useForm<TelegramFormData>();
+  const { updateDestinationMutation } = useUpdateDestinationMutation();
 
   useEffect(() => {
     if (destination.name) {
@@ -188,30 +176,25 @@ function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps<'
     }
   }, [setValue, destination]);
 
-  async function submitForm(data: TelegramFormData) {
-    try {
-      const updated = await updateDestination<'TELEGRAM'>({
+  function submitForm(data: TelegramFormData) {
+    updateDestinationMutation.mutate(
+      {
         id: destination.id,
         name: data.name,
         config: {
           type: 'TELEGRAM',
         },
-      });
-
-      onUpdate(updated);
-    } catch (e: any) {
-      console.error('Failed to update destination', e);
-
-      openToast({
-        type: 'error',
-        title: 'Update Error',
-        description: 'Failed to update destination.',
-      });
-    }
+      },
+      {
+        onSuccess: (destination) => {
+          onUpdate(destination);
+        },
+      },
+    );
   }
 
   return (
-    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
+    <Form.Root disabled={updateDestinationMutation.isLoading} onSubmit={handleSubmit(submitForm)}>
       <Flex stack gap="l">
         {!destination.isValid && (
           <>
@@ -225,6 +208,7 @@ function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps<'
             <Form.FloatingLabelInput
               label="Destination Name"
               isInvalid={!!formState.errors.name}
+              stableId={StableId.EDIT_DESTINATION_MODAL_NAME_INPUT}
               {...register('name', {
                 required: 'Please enter a destination name',
                 maxLength: {
@@ -241,7 +225,7 @@ function TelegramDestinationForm({ destination, onUpdate, setShow }: FormProps<'
           <Button
             stableId={StableId.EDIT_DESTINATION_MODAL_UPDATE_BUTTON}
             type="submit"
-            loading={formState.isSubmitting}
+            loading={updateDestinationMutation.isLoading}
           >
             Update
           </Button>
@@ -267,6 +251,7 @@ function WebhookDestinationForm({ destination, onUpdate, setShow, onSecretRotate
   if (destination.type !== 'WEBHOOK') throw new Error('Invalid destination for WebhookDestinationForm');
 
   const { formState, setValue, register, handleSubmit } = useForm<WebhookFormData>();
+  const { updateDestinationMutation } = useUpdateDestinationMutation();
 
   useEffect(() => {
     if (destination.name) {
@@ -275,31 +260,26 @@ function WebhookDestinationForm({ destination, onUpdate, setShow, onSecretRotate
     setValue('url', destination.config.url);
   }, [setValue, destination]);
 
-  async function submitForm(data: WebhookFormData) {
-    try {
-      const updated = await updateDestination<'WEBHOOK'>({
+  function submitForm(data: WebhookFormData) {
+    updateDestinationMutation.mutate(
+      {
         id: destination.id,
         name: data.name,
         config: {
           type: 'WEBHOOK',
           url: data.url,
         },
-      });
-
-      onUpdate(updated);
-    } catch (e: any) {
-      console.error('Failed to update destination', e);
-
-      openToast({
-        type: 'error',
-        title: 'Update Error',
-        description: 'Failed to update destination.',
-      });
-    }
+      },
+      {
+        onSuccess: (destination) => {
+          onUpdate(destination);
+        },
+      },
+    );
   }
 
   return (
-    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
+    <Form.Root disabled={updateDestinationMutation.isLoading} onSubmit={handleSubmit(submitForm)}>
       <Flex stack gap="l">
         <WebhookDestinationSecret destination={destination} onRotate={onSecretRotate} />
 
@@ -310,6 +290,7 @@ function WebhookDestinationForm({ destination, onUpdate, setShow, onSecretRotate
             <Form.FloatingLabelInput
               label="Destination Name"
               isInvalid={!!formState.errors.name}
+              stableId={StableId.EDIT_DESTINATION_MODAL_NAME_INPUT}
               {...register('name', {
                 required: 'Please enter a destination name',
                 maxLength: {
@@ -326,6 +307,7 @@ function WebhookDestinationForm({ destination, onUpdate, setShow, onSecretRotate
               label="Webhook URL"
               placeholder="https://example.com/webhook"
               isInvalid={!!formState.errors.url}
+              stableId={StableId.EDIT_DESTINATION_MODAL_WEBHOOK_URL_INPUT}
               {...register('url', formValidations.url)}
             />
             <Form.Feedback>{formState.errors.url?.message}</Form.Feedback>
@@ -336,7 +318,7 @@ function WebhookDestinationForm({ destination, onUpdate, setShow, onSecretRotate
           <Button
             stableId={StableId.EDIT_DESTINATION_MODAL_UPDATE_BUTTON}
             type="submit"
-            loading={formState.isSubmitting}
+            loading={updateDestinationMutation.isLoading}
           >
             Update
           </Button>
@@ -357,10 +339,11 @@ interface EmailFormData {
   name: string;
 }
 
-function EmailDestinationForm({ destination, onUpdate, setShow }: FormProps<'EMAIL'>) {
+function EmailDestinationForm({ destination, onUpdate, setShow }: FormProps) {
   if (destination.type !== 'EMAIL') throw new Error('Invalid destination for EmailDestinationForm');
 
   const { formState, setValue, register, handleSubmit } = useForm<EmailFormData>();
+  const { updateDestinationMutation } = useUpdateDestinationMutation();
 
   useEffect(() => {
     if (destination.name) {
@@ -368,30 +351,25 @@ function EmailDestinationForm({ destination, onUpdate, setShow }: FormProps<'EMA
     }
   }, [setValue, destination]);
 
-  async function submitForm(data: EmailFormData) {
-    try {
-      const updated = await updateDestination<'EMAIL'>({
+  function submitForm(data: EmailFormData) {
+    updateDestinationMutation.mutate(
+      {
         id: destination.id,
         name: data.name,
         config: {
           type: 'EMAIL',
         },
-      });
-
-      onUpdate(updated);
-    } catch (e: any) {
-      console.error('Failed to update destination', e);
-
-      openToast({
-        type: 'error',
-        title: 'Update Error',
-        description: 'Failed to update destination.',
-      });
-    }
+      },
+      {
+        onSuccess: (destination) => {
+          onUpdate(destination);
+        },
+      },
+    );
   }
 
   return (
-    <Form.Root disabled={formState.isSubmitting} onSubmit={handleSubmit(submitForm)}>
+    <Form.Root disabled={updateDestinationMutation.isLoading} onSubmit={handleSubmit(submitForm)}>
       <Flex stack gap="l">
         {!destination.isValid && (
           <>
@@ -405,6 +383,7 @@ function EmailDestinationForm({ destination, onUpdate, setShow }: FormProps<'EMA
             <Form.FloatingLabelInput
               label="Destination Name"
               isInvalid={!!formState.errors.name}
+              stableId={StableId.EDIT_DESTINATION_MODAL_NAME_INPUT}
               {...register('name', {
                 required: 'Please enter a destination name',
                 maxLength: {
@@ -421,7 +400,7 @@ function EmailDestinationForm({ destination, onUpdate, setShow }: FormProps<'EMA
           <Button
             stableId={StableId.EDIT_DESTINATION_MODAL_UPDATE_BUTTON}
             type="submit"
-            loading={formState.isSubmitting}
+            loading={updateDestinationMutation.isLoading}
           >
             Update
           </Button>

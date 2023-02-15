@@ -3,7 +3,9 @@ import { useState } from 'react';
 
 import { Text } from '@/components/lib/Text';
 import { ConfirmModal } from '@/components/modals/ConfirmModal';
-import { deleteAlert } from '@/modules/alerts/hooks/alerts';
+import { useApiMutation } from '@/hooks/api-mutation';
+import analytics from '@/utils/analytics';
+import { handleMutationError } from '@/utils/error-handlers';
 
 type Alert = Api.Query.Output<'/alerts/listAlerts'>[number];
 
@@ -16,31 +18,45 @@ interface Props {
 
 export function DeleteAlertModal({ alert, show, setShow, onDelete }: Props) {
   const [errorText, setErrorText] = useState<string | undefined>();
-  const [isDeleting, setIsDeleting] = useState(false);
 
-  async function onConfirm() {
-    setIsDeleting(true);
-    setErrorText('');
+  function onConfirm() {
+    deleteAlertMutation.mutate({
+      id: alert.id,
+    });
+  }
 
-    const success = await deleteAlert(alert);
+  const deleteAlertMutation = useApiMutation('/alerts/deleteAlert', {
+    onMutate: () => {
+      setErrorText('');
+    },
 
-    if (success) {
+    onSuccess: (result, variables) => {
+      analytics.track('DC Remove Alert', {
+        status: 'success',
+        name: variables.id,
+      });
+
       onDelete();
       setShow(false);
-    } else {
-      setErrorText('Something went wrong.');
-      setIsDeleting(false);
-    }
-  }
+    },
+
+    onError: (error) => {
+      setErrorText('Failed to delete alert.');
+      handleMutationError({
+        error,
+        eventLabel: 'DC Remove Alert',
+      });
+    },
+  });
 
   return (
     <ConfirmModal
       confirmColor="danger"
       confirmText="Delete"
       errorText={errorText}
-      isProcessing={isDeleting}
+      isProcessing={deleteAlertMutation.isLoading}
       onConfirm={onConfirm}
-      setErrorText={setErrorText}
+      resetError={() => setErrorText('')}
       setShow={setShow}
       show={show}
       title={`Delete Alert`}

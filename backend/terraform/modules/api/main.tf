@@ -68,11 +68,6 @@ resource "google_cloud_run_service" "console_api" {
           }
         }
 
-        env {
-          name  = "TELEGRAM_ENABLE_WEBHOOK"
-          value = "true"
-        }
-
         # TODO remove this once it's replaced by EMAIL_ALERTS_NO_REPLY
         env {
           name  = "EMAIL_VERIFICATION_FROM"
@@ -244,9 +239,14 @@ resource "google_cloud_run_service" "console_api" {
           value_from {
             secret_key_ref {
               name = "INDEXER_TESTNET_HOST"
-              key  = "1"
+              key  = "3"
             }
           }
+        }
+
+        env {
+          name  = "INDEXER_TESTNET_PORT"
+          value = "6432"
         }
 
         env {
@@ -314,6 +314,41 @@ resource "google_cloud_run_service" "console_api" {
           value_from {
             secret_key_ref {
               name = "INDEXER_ACTIVITY_MAINNET_PASSWORD"
+              key  = "1"
+            }
+          }
+        }
+
+        env {
+          name = "DEPLOYS_DATABASE_URL"
+          value_from {
+            secret_key_ref {
+              name = "DEPLOYS_DATABASE_URL_${var.database_secret_suffix}"
+              key  = "latest"
+            }
+          }
+        }
+
+        env {
+          name = "GALLERY_GITHUB_TOKEN"
+          value_from {
+            secret_key_ref {
+              name = "GALLERY_GITHUB_TOKEN_${local.environment_upper}"
+              key  = "1"
+            }
+          }
+        }
+
+        env {
+          name  = "GALLERY_REPOSITORY_OWNER"
+          value = "pagoda-gallery-repos"
+        }
+
+        env {
+          name = "GALLERY_WEB3_STORAGE_TOKEN"
+          value_from {
+            secret_key_ref {
+              name = "GALLERY_WEB3_STORAGE_TOKEN_${local.environment_upper}"
               key  = "1"
             }
           }
