@@ -42,7 +42,8 @@ module.exports = {
               {
                 name: 'verror',
                 importNames: ['default'],
-                message: "Please use `import { VError } from 'verror'` instead.",
+                message:
+                  "Please use `import { VError } from 'verror'` instead.",
               },
             ],
           },
@@ -60,13 +61,16 @@ module.exports = {
     },
     {
       files: ['frontend/**/*.+(jsx|js|tsx|ts)'],
-      extends: ['next', 'next/core-web-vitals']
+      extends: ['next', 'next/core-web-vitals'],
     },
     // Only uses Testing Library lint rules in test files
     {
-      files: ['frontend/**/__tests__/**/*.[jt]s?(x)', 'frontend/**/?(*.)+(spec|test).[jt]s?(x)'],
+      files: [
+        'frontend/**/__tests__/**/*.[jt]s?(x)',
+        'frontend/**/?(*.)+(spec|test).[jt]s?(x)',
+      ],
       extends: ['plugin:testing-library/react'],
-    }
+    },
   ],
   rules: {
     'simple-import-sort/imports': 'warn',
@@ -74,10 +78,10 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/consistent-type-imports': 'error',
-    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-    "@next/next/no-html-link-for-pages": [
-      "error",
-      "frontend/",
+    '@typescript-eslint/no-unused-vars': [
+      'warn',
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
+    '@next/next/no-html-link-for-pages': ['error', 'frontend/'],
   },
 };

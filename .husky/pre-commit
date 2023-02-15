@@ -2,3 +2,5 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 npx turbo run format:check lint:check
+npm run lint:check
+npm run format:check
