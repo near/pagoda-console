@@ -435,30 +435,15 @@ export class DeploysService {
     });
   }
 
-  /**
-   * Entry point for deploying one or more WASMs from
-   * a github repo
-   */
-  async deployRepository({
+  async addRepoDeployment({
     githubRepoFullName,
     commitHash,
     commitMessage,
-    files,
   }: {
     githubRepoFullName: string;
     commitHash: string;
     commitMessage: string;
-    files: Array<Express.Multer.File>;
   }) {
-    /*
-    - find matching Repository
-    - create new RepoDeployment
-    - match each bundle to a ContractDeployConfig
-      - if a match cannot be found, create a new ContractDeployConfig w/ generateDeployConfig.
-        This allows us to be dynamic and handle new contracts as they are added to the repo
-        instead of making the contract set static at time of connecting the repo
-    - deployContract for contract
-    */
     const repo = await this.prisma.repository.findUnique({
       where: {
         githubRepoFullName,
@@ -474,7 +459,7 @@ export class DeploysService {
       );
     }
 
-    const repoDeployment = await this.prisma.repoDeployment.create({
+    return this.prisma.repoDeployment.create({
       data: {
         slug: nanoid(),
         repositorySlug: repo.slug,
@@ -482,6 +467,40 @@ export class DeploysService {
         commitMessage,
       },
     });
+  }
+
+  /**
+   * Entry point for deploying one or more WASMs from
+   * a github repo
+   */
+  async addContractDeployment({
+    repoDeploymentSlug,
+    files,
+  }: {
+    repoDeploymentSlug: string;
+    files: Array<Express.Multer.File>;
+  }) {
+    /*
+    - find matching Repository
+    - create new RepoDeployment
+    - match each bundle to a ContractDeployConfig
+      - if a match cannot be found, create a new ContractDeployConfig w/ generateDeployConfig.
+        This allows us to be dynamic and handle new contracts as they are added to the repo
+        instead of making the contract set static at time of connecting the repo
+    - deployContract for contract
+    */
+
+    const repoDeployment = await this.getRepoDeploymentBySlug(
+      repoDeploymentSlug,
+    );
+
+    if (!repoDeployment) {
+      throw new BadRequestException(
+        `Could not find repoDeployment with that slug`,
+      );
+    }
+
+    const repo = repoDeployment.repository;
 
     await Promise.all(
       files.map(async (file) => {
@@ -821,26 +840,34 @@ export class DeploysService {
    * Sets Frontend Deploy Url
    */
   async addFrontendDeployment({
-    repositorySlug,
     frontendDeployUrl,
     cid,
     packageName,
     repoDeploymentSlug,
   }) {
-    let frontendDeployConfig = await this.prisma.frontendDeployConfig.findFirst(
-      {
-        where: {
-          repositorySlug,
-          packageName,
-        },
-      },
+    const repoDeployment = await this.getRepoDeploymentBySlug(
+      repoDeploymentSlug,
     );
+
+    if (!repoDeployment) {
+      throw new BadRequestException(
+        `RepoDeployment slug ${repoDeploymentSlug} not found`,
+      );
+    }
+
+    let frontendDeployConfig =
+      repoDeployment.repository.frontendDeployConfigs.find((config) => {
+        return (
+          config.packageName === packageName &&
+          config.repositorySlug === repoDeployment.repositorySlug
+        );
+      });
 
     if (!frontendDeployConfig) {
       frontendDeployConfig = await this.prisma.frontendDeployConfig.create({
         data: {
           slug: nanoid(),
-          repositorySlug,
+          repositorySlug: repoDeployment.repositorySlug,
           packageName,
         },
       });

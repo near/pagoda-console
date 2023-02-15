@@ -10,7 +10,6 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
-  ConflictException,
 } from '@nestjs/common';
 import { DeploysService } from './deploys.service';
 import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
@@ -41,21 +40,18 @@ export class DeploysController {
       projectName,
     }: z.infer<typeof Deploys.mutation.inputs.addDeploy>,
   ): Promise<Api.Mutation.Output<'/deploys/addDeploy'>> {
-    try {
-      // called from Console frontend to initialize a new repo for deployment
-      const repository = await this.deploysService.createDeployProject({
-        user: req.user as User, // TODO change to UserDetails from auth service
-        githubRepoFullName,
-        projectName,
-      });
-      return {
-        repositorySlug: repository.slug,
-        projectSlug: repository.projectSlug,
-      };
-    } catch (e: any) {
-      throw mapError(e);
-    }
+    // called from Console frontend to initialize a new repo for deployment
+    const repository = await this.deploysService.createDeployProject({
+      user: req.user as User, // TODO change to UserDetails from auth service
+      githubRepoFullName,
+      projectName,
+    });
+    return {
+      repositorySlug: repository.slug,
+      projectSlug: repository.projectSlug,
+    };
   }
+
   @Post('isRepositoryTransferred')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new ZodValidationPipe(Deploys.query.inputs.isRepositoryTransferred))
@@ -101,6 +97,27 @@ export class DeploysController {
     };
   }
 
+  @Post('addRepoDeployment')
+  @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addFrontend))
+  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
+  async addRepoDeployment(
+    @Req() req: Request,
+    @Body()
+    {
+      githubRepoFullName,
+      commitHash,
+      commitMessage,
+    }: z.infer<typeof Deploys.mutation.inputs.addRepoDeployment>,
+  ): Promise<Api.Mutation.Output<'/deploys/addRepoDeployment'>> {
+    const repoDeployment = await this.deploysService.addRepoDeployment({
+      githubRepoFullName,
+      commitHash,
+      commitMessage,
+    });
+
+    return { repoDeploymentSlug: repoDeployment.slug };
+  }
+
   @Post('deployWasm')
   @UseInterceptors(AnyFilesInterceptor())
   @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
@@ -118,13 +135,11 @@ export class DeploysController {
     if (parsedFiles.success === false) {
       throw new BadRequestException(fromZodError(parsedFiles.error).toString());
     }
-    const { githubRepoFullName, commitHash, commitMessage } = body;
+    const { repoDeploymentSlug } = body;
 
     // called from Console frontend to initialize a new repo for deployment
-    return this.deploysService.deployRepository({
-      githubRepoFullName,
-      commitHash,
-      commitMessage,
+    return this.deploysService.addContractDeployment({
+      repoDeploymentSlug,
       files,
     });
   }
@@ -180,17 +195,7 @@ export class DeploysController {
       packageName,
     }: z.infer<typeof Deploys.mutation.inputs.addFrontend>,
   ) {
-    const repoDeployment = await this.deploysService.getRepoDeploymentBySlug(
-      repoDeploymentSlug,
-    );
-    if (!repoDeployment) {
-      throw new BadRequestException(
-        `RepoDeployment slug ${repoDeploymentSlug} not found`,
-      );
-    }
-
     return this.deploysService.addFrontendDeployment({
-      repositorySlug: repoDeployment.repositorySlug,
       frontendDeployUrl,
       cid,
       packageName,

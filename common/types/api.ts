@@ -333,6 +333,13 @@ export namespace Api {
         >;
         error: z.infer<typeof Deploys.mutation.errors.transferGithubRepository>;
       };
+      '/deploys/addRepoDeployment': {
+        input: z.infer<typeof Deploys.mutation.inputs.addRepoDeployment>;
+        output: z.infer<
+          typeof Deploys.mutation.outputs.addRepoDeployment
+        >;
+        error: z.infer<typeof Deploys.mutation.errors.addRepoDeployment>;
+      };
       '/deploys/deployWasm': {
         input: z.infer<typeof Deploys.mutation.inputs.deployWasm>;
         output: z.infer<typeof Deploys.mutation.outputs.deployWasm>;
