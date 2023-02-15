@@ -1,5 +1,6 @@
 import { styled } from '@stitches/react';
 import { DateTime } from 'luxon';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import { Badge } from '@/components/lib/Badge';
@@ -11,10 +12,12 @@ import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Text } from '@/components/lib/Text';
+import { TextLink } from '@/components/lib/TextLink';
 import { useContracts, usePublicOrPrivateContracts } from '@/hooks/contracts';
 import { useDeployments, useRepositories } from '@/hooks/deploys';
 import { useCurrentEnvironment } from '@/hooks/environments';
 import { useSelectedProject } from '@/hooks/selected-project';
+import config from '@/utils/config';
 import { StableId } from '@/utils/stable-ids';
 
 const MainCard = styled(Card, {
@@ -43,7 +46,9 @@ const FrontendDeployment = ({ deployment }) => {
     deployment.frontendDeployConfig.packageName || deployment.cid || new URL(deployment.url as string).hostname;
   // ! If you change the IPFS gateway, make sure you thoroughly test a deployed application. Some gateways don't support
   // ! calling RPC from the browser because of the server's Content Security policy (w3s.link, etc).
-  const link = deployment.cid ? `https://${deployment.cid}.ipfs.dweb.link` : (deployment.url as string);
+  const link = deployment.cid
+    ? config.gallery.ipfsGatewayUrl.replace('{{cid}}', deployment.cid)
+    : (deployment.url as string);
   return (
     <Button
       stableId={StableId.DEPLOYS_TESTNET_REPO}
@@ -176,9 +181,18 @@ const Testnet = () => {
           </Box>
         ) : (
           <Card borderRadius="m" padding="m">
-            {lastDeploy?.contractDeployments?.some(({ status }) => status === 'ERROR')
-              ? 'Deployment Failed'
-              : 'Deployment In Progress...'}
+            {lastDeploy?.contractDeployments?.some(({ status }) => status === 'ERROR') ? (
+              'Deployment failed'
+            ) : (
+              <Link
+                href={config.gallery.githubActionDeployUrl.replace('{{repository}}', repo.githubRepoFullName)}
+                passHref
+              >
+                <TextLink external color="neutral" stableId={StableId.DEPLOYS_GITHUB_ACTION_DEPLOY_LINK}>
+                  Deployment in progress...
+                </TextLink>
+              </Link>
+            )}
           </Card>
         )}
         {wasmDeployCompleted(lastDeploy) ? (

@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button, ButtonLink } from '@/components/lib/Button';
@@ -8,19 +7,10 @@ import * as Form from '@/components/lib/Form';
 import { Text } from '@/components/lib/Text';
 import { openToast } from '@/components/lib/Toast';
 import { useApiMutation } from '@/hooks/api-mutation';
-import { useRouteParam } from '@/hooks/route';
 import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
 
 export function TransferGithubModal({ setShow, ...props }) {
-  const successParam = useRouteParam('githubConnectSuccess');
-
-  useEffect(() => {
-    if (successParam === 'true') {
-      setShow(true);
-    }
-  }, [setShow, successParam]);
-
   return (
     <Dialog.Root open={props.show} onOpenChange={setShow}>
       <Dialog.Content title="Transfer Repository" size="s">
@@ -42,8 +32,9 @@ function ModalContent(props) {
     onSuccess: (res) => {
       openToast({
         type: 'success',
-        title: 'Transfer Success',
-        description: `Repository was transferred: ${res.githubRepoFullName}`,
+        title: 'Transfer Initiated',
+        description: `You must accept the transfer request in your Github email to complete the transfer of ${res.githubRepoFullName}.`,
+        duration: 30000,
       });
       props.setShow(false);
     },
@@ -54,7 +45,7 @@ function ModalContent(props) {
         eventData: {
           id: props.template.id,
         },
-        toastTitle: 'Transfer Github repo Failure',
+        toastTitle: 'Failed to transfer repository',
         toastDescription: error.statusCode === 400 ? error.message : 'Unknown error.',
       });
     },
