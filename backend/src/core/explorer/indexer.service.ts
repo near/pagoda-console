@@ -55,7 +55,7 @@ export class IndexerService {
         indexerDatabaseConfig.MAINNET.password,
         {
           host: indexerDatabaseConfig.MAINNET.host,
-          port: indexerDatabaseConfig.TESTNET.port,
+          port: indexerDatabaseConfig.MAINNET.port,
           dialect: 'postgres',
           logging: this.config.get('log.indexer', { infer: true })
             ? console.log
