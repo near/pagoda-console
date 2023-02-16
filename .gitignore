@@ -5,3 +5,4 @@ ignore
 out
 eslint-rules/dist/tsconfig.tsbuildinfo
 .DS_Store
+.eslintcache
