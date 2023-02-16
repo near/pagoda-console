@@ -1,0 +1,14 @@
+# Prettier does not format MDX files correctly.
+*.mdx
+README.md
+.prettierrc
+.github
+.devcontainer
+.next
+dist
+/public/contract-templates
+/database
+/eslint-rules
+/cms
+
+playwright-report/
