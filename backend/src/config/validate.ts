@@ -125,7 +125,7 @@ const appConfigSchema = z.strictObject({
     repositoryOwner: z.string(),
     web3StorageToken: z.string(),
   }),
-  resetPasswordResponseMilliseconds: z.number().int(),
+  resetPasswordResponseMilliseconds: z.preprocess(Number, z.number().int()),
 });
 
 export type AppConfig = z.infer<typeof appConfigSchema>;
