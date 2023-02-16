@@ -37,6 +37,7 @@ const DEFAULT_TEAM_NAME = 'default';
 @Injectable()
 export class UsersService implements OnModuleInit {
   private orgInviteExpiryMinutes: number;
+  private resetPasswordResponseMilliseconds: number;
   private projectsService!: ProjectsService;
   constructor(
     private prisma: PrismaService,
@@ -50,6 +51,10 @@ export class UsersService implements OnModuleInit {
       {
         infer: true,
       },
+    )!;
+    this.resetPasswordResponseMilliseconds = this.config.get(
+      'resetPasswordResponseMilliseconds',
+      { infer: true },
     )!;
   }
 
@@ -1069,7 +1074,12 @@ export class UsersService implements OnModuleInit {
     return orgs;
   }
 
+  // To keep emails private, we need to make sure that this route does not
+  // leak any information about whether an email is registered or not.
+  // This is why we don't return any errors to the caller and why, whether we send an email
+  // or not, we need to ensure the amount of time it takes to respond is the same.
   async resetPassword(email: string) {
+    const start = Date.now();
     try {
       const auth = getAuth();
       await sendPasswordResetEmail(auth, email);
@@ -1090,6 +1100,17 @@ export class UsersService implements OnModuleInit {
             { info: { code: UserError.SERVER_ERROR } },
             'Something went wrong',
           );
+      }
+    } finally {
+      const end = Date.now();
+      // If the request took less than X seconds, wait for the remaining time.
+      if (end - start < this.resetPasswordResponseMilliseconds) {
+        await new Promise((resolve) =>
+          setTimeout(
+            resolve,
+            this.resetPasswordResponseMilliseconds - (end - start),
+          ),
+        );
       }
     }
   }
