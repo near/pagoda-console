@@ -1090,7 +1090,6 @@ export class UsersService implements OnModuleInit {
             { info: { code: UserError.SERVER_ERROR } },
             'Something went wrong',
           );
-          break;
       }
     }
   }
