@@ -10,6 +10,10 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
+  Get,
+  Param,
+  ConflictException,
+  NotFoundException,
 } from '@nestjs/common';
 import { DeploysService } from './deploys.service';
 import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
@@ -50,6 +54,23 @@ export class DeploysController {
       repositorySlug: repository.slug,
       projectSlug: repository.projectSlug,
     };
+  }
+
+  @Get('contractDeployConfigs/:repoDeploymentSlug')
+  async contractDeployConfigs(@Param() params: { repoDeploymentSlug: string }) {
+    const repoDeployment = await this.deploysService.getRepoDeploymentBySlug(
+      params.repoDeploymentSlug,
+    );
+    if (!repoDeployment) {
+      throw new NotFoundException('No such repoDeployment found');
+    }
+    return repoDeployment?.repository.contractDeployConfigs.reduce(
+      (acc, curr) => ({
+        ...acc,
+        [curr.filename]: { nearAccountId: curr.nearAccountId },
+      }),
+      {},
+    );
   }
 
   @Post('isRepositoryTransferred')
@@ -98,8 +119,8 @@ export class DeploysController {
   }
 
   @Post('addRepoDeployment')
-  @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addFrontend))
-  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
+  @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addRepoDeployment))
+  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients with Bearer tokens
   async addRepoDeployment(
     @Req() req: Request,
     @Body()
@@ -120,7 +141,7 @@ export class DeploysController {
 
   @Post('deployWasm')
   @UseInterceptors(AnyFilesInterceptor())
-  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
+  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients with Bearer tokens
   async deployWasm(
     @Req() req: Request,
     @UploadedFiles() files: Array<Express.Multer.File>,
