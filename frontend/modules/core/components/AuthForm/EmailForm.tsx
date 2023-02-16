@@ -38,6 +38,7 @@ export function EmailForm({ mutation: signInViaEmailMutation, externalLoading }:
     switch (signInViaEmailMutation.error.code) {
       case 'auth/user-not-found':
       case 'auth/wrong-password':
+      case 'auth/invalid-login-credentials':
         return 'Incorrect email or password.';
       case 'auth/too-many-requests':
         // hardcode message from Firebase for the time being
