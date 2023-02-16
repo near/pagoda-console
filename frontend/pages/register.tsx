@@ -161,7 +161,7 @@ export function RegisterForm() {
               id="password"
               type="password"
               isInvalid={!!formState.errors.password}
-              placeholder="6+ characters"
+              placeholder="8+ characters"
               stableId={StableId.REGISTER_PASSWORD_INPUT}
               {...register('password', formValidations.password)}
             />
