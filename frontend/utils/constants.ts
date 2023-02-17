@@ -12,7 +12,7 @@ export const formRegex = {
   url: /^https:\/\/.+\..+/,
 };
 
-const passwordValidation = {
+export const passwordValidation = {
   minLength: /.{8,}/,
   containNumber: /\d/,
   lowerCase: /[a-z]/,
