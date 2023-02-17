@@ -7,17 +7,15 @@ export const formRegex = {
     /^((([a-z\d\*]+[\-_])*[a-z\d\*]+\.)*(([a-z\d]+[\-_])*[a-z\d]+\.)+)*([a-z\d]+[\-_])*[a-z\d]+$/,
   contractAddress: /^(([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+$/,
   email: /^(.+)@(.+)[^.]$/,
-  // requires to use strong passwords
-  password: new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})'),
+  password: /.{6,}/,
+  strongPassword: {
+    minLength: /.{8,}/,
+    containNumber: /\d/,
+    lowerCase: /[a-z]/,
+    upperCase: /[A-Z]/,
+    specialCharacter: /[!@#\$%\^&\*]/,
+  },
   url: /^https:\/\/.+\..+/,
-};
-
-export const passwordValidation = {
-  minLength: /.{8,}/,
-  containNumber: /\d/,
-  lowerCase: /[a-z]/,
-  upperCase: /[A-Z]/,
-  specialCharacter: /[!@#\$%\^&\*]/,
 };
 
 export const formValidations = {
@@ -37,17 +35,24 @@ export const formValidations = {
   },
   password: {
     required: 'Please enter a password',
+    pattern: {
+      value: formRegex.password,
+      message: 'Password must be at least 6 characters',
+    },
+  },
+  strongPassword: {
+    required: 'Please enter a password',
     validate: {
       minLength: (value: string) =>
-        passwordValidation.minLength.test(value) || 'Password must be at least 8 characters',
+        formRegex.strongPassword.minLength.test(value) || 'Password must be at least 8 characters',
       containNumber: (value: string) =>
-        passwordValidation.containNumber.test(value) || 'Password must contain at least one number',
+        formRegex.strongPassword.containNumber.test(value) || 'Password must contain at least one number',
       lowerCaseLetter: (value: string) =>
-        passwordValidation.lowerCase.test(value) || 'Password must contain at least one lowercase letter',
+        formRegex.strongPassword.lowerCase.test(value) || 'Password must contain at least one lowercase letter',
       upperCaseLetter: (value: string) =>
-        passwordValidation.upperCase.test(value) || 'Password must contain at least one uppercase letter',
+        formRegex.strongPassword.upperCase.test(value) || 'Password must contain at least one uppercase letter',
       extraSymbol: (value: string) =>
-        passwordValidation.specialCharacter.test(value) ||
+        formRegex.strongPassword.specialCharacter.test(value) ||
         'Password must contain at least one special character like !, @, %, &, *',
     },
   },

@@ -27,7 +27,7 @@ import { useSignedInHandler } from '@/hooks/auth';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { usePublicMode } from '@/hooks/public';
 import analytics from '@/utils/analytics';
-import { formValidations, passwordValidation } from '@/utils/constants';
+import { formRegex, formValidations } from '@/utils/constants';
 import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -168,39 +168,43 @@ export function RegisterForm() {
               }}
               content={
                 <Flex stack>
-                  <span>You password should contain:</span>
+                  <span>Your password should contain:</span>
                   <Flex align="center">
                     <FeatherIcon
-                      icon={passwordValidation.minLength.test(passwordValue) ? 'check-circle' : 'alert-circle'}
-                      color={passwordValidation.minLength.test(passwordValue) ? 'success' : 'warning'}
+                      icon={formRegex.strongPassword.minLength.test(passwordValue) ? 'check-circle' : 'alert-circle'}
+                      color={formRegex.strongPassword.minLength.test(passwordValue) ? 'success' : 'warning'}
                     />{' '}
                     a minimum of 8 characters
                   </Flex>
                   <Flex align="center">
                     <FeatherIcon
-                      icon={passwordValidation.containNumber.test(passwordValue) ? 'check-circle' : 'alert-circle'}
-                      color={passwordValidation.containNumber.test(passwordValue) ? 'success' : 'warning'}
+                      icon={
+                        formRegex.strongPassword.containNumber.test(passwordValue) ? 'check-circle' : 'alert-circle'
+                      }
+                      color={formRegex.strongPassword.containNumber.test(passwordValue) ? 'success' : 'warning'}
                     />{' '}
                     at least 1 numeric character
                   </Flex>
                   <Flex align="center">
                     <FeatherIcon
-                      icon={passwordValidation.lowerCase.test(passwordValue) ? 'check-circle' : 'alert-circle'}
-                      color={passwordValidation.lowerCase.test(passwordValue) ? 'success' : 'warning'}
+                      icon={formRegex.strongPassword.lowerCase.test(passwordValue) ? 'check-circle' : 'alert-circle'}
+                      color={formRegex.strongPassword.lowerCase.test(passwordValue) ? 'success' : 'warning'}
                     />{' '}
                     at least 1 lowercase alphabet character
                   </Flex>
                   <Flex align="center">
                     <FeatherIcon
-                      icon={passwordValidation.upperCase.test(passwordValue) ? 'check-circle' : 'alert-circle'}
-                      color={passwordValidation.upperCase.test(passwordValue) ? 'success' : 'warning'}
+                      icon={formRegex.strongPassword.upperCase.test(passwordValue) ? 'check-circle' : 'alert-circle'}
+                      color={formRegex.strongPassword.upperCase.test(passwordValue) ? 'success' : 'warning'}
                     />{' '}
                     at least 1 uppercase alphabet character
                   </Flex>
                   <Flex align="center">
                     <FeatherIcon
-                      icon={passwordValidation.specialCharacter.test(passwordValue) ? 'check-circle' : 'alert-circle'}
-                      color={passwordValidation.specialCharacter.test(passwordValue) ? 'success' : 'warning'}
+                      icon={
+                        formRegex.strongPassword.specialCharacter.test(passwordValue) ? 'check-circle' : 'alert-circle'
+                      }
+                      color={formRegex.strongPassword.specialCharacter.test(passwordValue) ? 'success' : 'warning'}
                     />{' '}
                     at least 1 special character like !, @, %, &, *
                   </Flex>
@@ -213,7 +217,7 @@ export function RegisterForm() {
                 isInvalid={!!formState.errors.password}
                 placeholder="8+ characters"
                 stableId={StableId.REGISTER_PASSWORD_INPUT}
-                {...register('password', formValidations.password)}
+                {...register('password', formValidations.strongPassword)}
                 onBlur={() => {
                   setIsFocused(false);
                 }}
