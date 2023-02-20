@@ -8,6 +8,13 @@ export const formRegex = {
   contractAddress: /^(([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+$/,
   email: /^(.+)@(.+)[^.]$/,
   password: /.{6,}/,
+  strongPassword: {
+    minLength: /.{8,}/,
+    containNumber: /\d/,
+    lowerCase: /[a-z]/,
+    upperCase: /[A-Z]/,
+    specialCharacter: /[!@#\$%\^&\*]/,
+  },
   url: /^https:\/\/.+\..+/,
 };
 
@@ -31,6 +38,22 @@ export const formValidations = {
     pattern: {
       value: formRegex.password,
       message: 'Password must be at least 6 characters',
+    },
+  },
+  strongPassword: {
+    required: 'Please enter a password',
+    validate: {
+      minLength: (value: string) =>
+        formRegex.strongPassword.minLength.test(value) || 'Password must be at least 8 characters',
+      containNumber: (value: string) =>
+        formRegex.strongPassword.containNumber.test(value) || 'Password must contain at least one number',
+      lowerCaseLetter: (value: string) =>
+        formRegex.strongPassword.lowerCase.test(value) || 'Password must contain at least one lowercase letter',
+      upperCaseLetter: (value: string) =>
+        formRegex.strongPassword.upperCase.test(value) || 'Password must contain at least one uppercase letter',
+      extraSymbol: (value: string) =>
+        formRegex.strongPassword.specialCharacter.test(value) ||
+        'Password must contain at least one special character like !, @, %, &, *',
     },
   },
   projectName: {
