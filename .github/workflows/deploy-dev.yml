@@ -1,11 +1,8 @@
 # Frontend changes will automatically deploy via the vercel git integration.
 name: Deploy a develop environment
 on:
-  push:
+  pull_request:
     branches: [develop]
-    paths:
-      - "backend/**"
-      - "database/**"
 defaults:
   run:
     working-directory: backend
@@ -93,7 +90,7 @@ jobs:
         run: |
           cd .. && 
           DB_USER=postgres DB_PASS=${{secrets.DATABASE_PASSWORD_DEVELOP}} DB_URL=$DEV_DB_URL . ./scripts/export_prisma_env_vars.sh &&
-          cd .. && npm ci && npm run -w database migrate:deploy
+          cd .. && pwd && npm ci && npm run -w database migrate:deploy
 
       - name: "Deploy image"
         run: gcloud run deploy $DEV_SERVICE_NAME --image=$DEV_IMAGE_URL --region $DEV_REGION
