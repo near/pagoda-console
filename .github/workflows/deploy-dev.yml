@@ -28,6 +28,15 @@ jobs:
           echo "DEV_REGION=us-east1" >> $GITHUB_ENV
           echo "DEV_DB_URL=35.185.74.37" >> $GITHUB_ENV
           echo "DEV_IMAGE_URL=gcr.io/near-dev-platform/developer-console-api:dev" >> $GITHUB_ENV
+          
+      - name: "Node and npm"
+        run: |
+          node -v
+          npm -v
+          
+      - name: "List files"
+        run: |
+          cd ../.. && ls
 
       - name: "Perform DB migrations"
         run: |
