@@ -20,6 +20,14 @@ jobs:
       GIT_REPO: pagoda-console
     steps:
       - uses: actions/checkout@v3
+      
+      - name: "Set env variables"
+        run: |
+          echo "DEV_NAMESPACE=dev" >> $GITHUB_ENV
+          echo "DEV_SERVICE_NAME=developer-console-api-test" >> $GITHUB_ENV
+          echo "DEV_REGION=us-east1" >> $GITHUB_ENV
+          echo "DEV_DB_URL=35.185.74.37" >> $GITHUB_ENV
+          echo "DEV_IMAGE_URL=gcr.io/near-dev-platform/developer-console-api:dev" >> $GITHUB_ENV
 
       - name: "Perform DB migrations"
         run: |
