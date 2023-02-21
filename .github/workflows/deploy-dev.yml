@@ -58,6 +58,9 @@ jobs:
       GIT_REPO: pagoda-console
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16.x"
 
       # Setup auth: https://github.com/google-github-actions/setup-gcloud#service-account-key-json
       - id: "auth"
