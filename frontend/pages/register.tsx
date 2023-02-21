@@ -9,23 +9,25 @@ import {
 } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect } from 'react';
+import * as React from 'react';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/lib/Button';
 import { Container } from '@/components/lib/Container';
+import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H2 } from '@/components/lib/Heading';
 import { HR } from '@/components/lib/HorizontalRule';
 import { Section } from '@/components/lib/Section';
 import { TextLink } from '@/components/lib/TextLink';
+import { Tooltip } from '@/components/lib/Tooltip';
 import { useSignedInHandler } from '@/hooks/auth';
 import { useSimpleLayout } from '@/hooks/layouts';
 import { usePublicMode } from '@/hooks/public';
 import analytics from '@/utils/analytics';
-import { formValidations } from '@/utils/constants';
+import { formRegex, formValidations } from '@/utils/constants';
 import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
 import type { NextPageWithLayout } from '@/utils/types';
@@ -59,20 +61,21 @@ export function RegisterForm() {
   const router = useRouter();
   const signedInHandler = useSignedInHandler();
   const { publicModeIsActive } = usePublicMode();
+  const [isFocused, setIsFocused] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     window.addEventListener('focus', onFocus);
     return () => {
       window.removeEventListener('focus', onFocus);
     };
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     router.prefetch('/verification');
     router.prefetch('/pick-project');
   }, [router]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const unregisterAuthObserver = onAuthStateChanged(getAuth(), async (user) => {
       if (user && !user.emailVerified) {
         try {
@@ -94,7 +97,7 @@ export function RegisterForm() {
     return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
   }, [getValues, router, signedInHandler]);
 
-  const handleInvalidSubmit = useCallback(() => {
+  const handleInvalidSubmit = React.useCallback(() => {
     analytics.track('DC Submitted email registration form');
     analytics.track('DC Registration form validation failed');
     return false;
@@ -135,6 +138,8 @@ export function RegisterForm() {
     signUpWithEmailMutation.mutate(form);
   };
 
+  const passwordValue = watch('password');
+
   return (
     <Form.Root
       disabled={signUpWithEmailMutation.isLoading}
@@ -157,14 +162,70 @@ export function RegisterForm() {
 
           <Form.Group>
             <Form.Label htmlFor="password">Password</Form.Label>
-            <Form.Input
-              id="password"
-              type="password"
-              isInvalid={!!formState.errors.password}
-              placeholder="6+ characters"
-              stableId={StableId.REGISTER_PASSWORD_INPUT}
-              {...register('password', formValidations.password)}
-            />
+            <Tooltip
+              root={{
+                open: isFocused && !!passwordValue,
+              }}
+              content={
+                <Flex stack>
+                  <span>Your password should contain:</span>
+                  <Flex align="center">
+                    <FeatherIcon
+                      icon={formRegex.strongPassword.minLength.test(passwordValue) ? 'check-circle' : 'alert-circle'}
+                      color={formRegex.strongPassword.minLength.test(passwordValue) ? 'success' : 'warning'}
+                    />{' '}
+                    a minimum of 8 characters
+                  </Flex>
+                  <Flex align="center">
+                    <FeatherIcon
+                      icon={
+                        formRegex.strongPassword.containNumber.test(passwordValue) ? 'check-circle' : 'alert-circle'
+                      }
+                      color={formRegex.strongPassword.containNumber.test(passwordValue) ? 'success' : 'warning'}
+                    />{' '}
+                    at least 1 numeric character
+                  </Flex>
+                  <Flex align="center">
+                    <FeatherIcon
+                      icon={formRegex.strongPassword.lowerCase.test(passwordValue) ? 'check-circle' : 'alert-circle'}
+                      color={formRegex.strongPassword.lowerCase.test(passwordValue) ? 'success' : 'warning'}
+                    />{' '}
+                    at least 1 lowercase alphabet character
+                  </Flex>
+                  <Flex align="center">
+                    <FeatherIcon
+                      icon={formRegex.strongPassword.upperCase.test(passwordValue) ? 'check-circle' : 'alert-circle'}
+                      color={formRegex.strongPassword.upperCase.test(passwordValue) ? 'success' : 'warning'}
+                    />{' '}
+                    at least 1 uppercase alphabet character
+                  </Flex>
+                  <Flex align="center">
+                    <FeatherIcon
+                      icon={
+                        formRegex.strongPassword.specialCharacter.test(passwordValue) ? 'check-circle' : 'alert-circle'
+                      }
+                      color={formRegex.strongPassword.specialCharacter.test(passwordValue) ? 'success' : 'warning'}
+                    />{' '}
+                    at least 1 special character like !, @, %, &, *
+                  </Flex>
+                </Flex>
+              }
+            >
+              <Form.Input
+                id="password"
+                type="password"
+                isInvalid={!!formState.errors.password}
+                placeholder="8+ characters"
+                stableId={StableId.REGISTER_PASSWORD_INPUT}
+                {...register('password', formValidations.strongPassword)}
+                onBlur={() => {
+                  setIsFocused(false);
+                }}
+                onFocus={() => {
+                  setIsFocused(true);
+                }}
+              />
+            </Tooltip>
             <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
           </Form.Group>
 

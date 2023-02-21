@@ -1,0 +1,20 @@
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "overrides": [{
+    "files": [
+      "frontend/**/*.tsx",
+      "frontend/**/*.ts",
+      "frontend/**/*.jsx",
+      "frontend/**/*.js",
+      "frontend/**/*.scss",
+      "frontend/**/*.css",
+      "test/**/*.ts",
+      "test/**/*.js"
+    ],
+    "options": {
+      "singleAttributePerLine": false,
+      "printWidth": 120
+    }
+  }]
+}

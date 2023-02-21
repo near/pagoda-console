@@ -7,8 +7,8 @@ const frontendDeployments = z.array(
     url: z.string().or(z.null()),
     cid: z.string().or(z.null()),
     frontendDeployConfig: z.strictObject({
-      packageName: z.string()
-    })
+      packageName: z.string(),
+    }),
   }),
 );
 
@@ -16,7 +16,7 @@ const contractDeployments = z.array(
   z.strictObject({
     slug: z.string(),
     deployTransactionHash: z.string().or(z.null()),
-    status: z.enum(['IN_PROGRESS', 'ERROR', 'SUCCESS'])
+    status: z.enum(['IN_PROGRESS', 'ERROR', 'SUCCESS']),
   }),
 );
 
@@ -65,7 +65,7 @@ export const query = {
             filename: z.string(),
             nearAccountId: z.string(),
           }),
-        )
+        ),
       }),
     ),
     listDeployments: repoDeployments,

@@ -125,6 +125,7 @@ const appConfigSchema = z.strictObject({
     repositoryOwner: z.string(),
     web3StorageToken: z.string(),
   }),
+  resetPasswordResponseMilliseconds: z.preprocess(Number, z.number().int()),
 });
 
 export type AppConfig = z.infer<typeof appConfigSchema>;
@@ -275,6 +276,8 @@ export default function validate(config: Record<string, any>): AppConfig {
       repositoryOwner: config.GALLERY_REPOSITORY_OWNER,
       web3StorageToken: config.GALLERY_WEB3_STORAGE_TOKEN,
     },
+    resetPasswordResponseMilliseconds:
+      config.RESET_PASSWORD_RESPONSE_MILLISECONDS || 1000,
   };
 
   const parseResult = appConfigSchema.safeParse(structuredConfig);
