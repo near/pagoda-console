@@ -12,9 +12,9 @@ import { Container } from '@/components/lib/Container';
 import { Flex } from '@/components/lib/Flex';
 import * as Form from '@/components/lib/Form';
 import { H2 } from '@/components/lib/Heading';
-import { Message } from '@/components/lib/Message';
 import { PasswordInput } from '@/components/lib/PasswordInput';
 import { Section } from '@/components/lib/Section';
+import { openToast } from '@/components/lib/Toast';
 import { useRouteParam } from '@/hooks/route';
 import analytics from '@/utils/analytics';
 import { formValidations } from '@/utils/constants';
@@ -51,14 +51,18 @@ const ResetPassword = () => {
       const auth = getAuth();
       const actionCode = code!;
 
-      await verifyPasswordResetCode(auth, actionCode).then((email) => {
-        const accountEmail = email;
+      const accountEmail = await verifyPasswordResetCode(auth, actionCode);
 
-        confirmPasswordReset(auth, actionCode, password).then(() => {
-          signInWithEmailAndPassword(auth, accountEmail, password);
-          setPasswordResetSuccessfully(true);
-        });
+      await confirmPasswordReset(auth, actionCode, password);
+      openToast({
+        type: 'success',
+        title: 'Password Reset',
+        description: 'Logging in...',
+        duration: 5000,
       });
+      // * This call shouldn't fail since we just reset password successfully.
+      signInWithEmailAndPassword(auth, accountEmail, password);
+      setPasswordResetSuccessfully(true);
     },
     {
       onSuccess: () => {
@@ -86,7 +90,7 @@ const ResetPassword = () => {
   );
 
   const resetPassword: SubmitHandler<RegisterFormData> = (form) => {
-    analytics.track('DC Submitted reset password  form');
+    analytics.track('DC Submitted reset password form');
     resetPasswordMutation.mutate(form);
   };
 
@@ -95,71 +99,62 @@ const ResetPassword = () => {
       <Section>
         <Container size="xs">
           <Flex stack gap="l">
-            {!passwordResetSuccessfully ? (
-              <>
-                <H2>Reset password</H2>
+            <H2>Reset password</H2>
 
-                <Form.Root
-                  disabled={resetPasswordMutation.isLoading}
-                  onSubmit={handleSubmit(resetPassword, handleInvalidSubmit)}
-                >
-                  <Flex stack gap="l">
-                    <Form.Group>
-                      <Form.Label htmlFor="password">Enter new password</Form.Label>
-                      <Controller
-                        name="password"
-                        control={control}
-                        rules={formValidations.strongPassword}
-                        render={({ field }) => (
-                          <PasswordInput
-                            field={field}
-                            id="password"
-                            type="password"
-                            isInvalid={!!formState.errors.password}
-                            placeholder="8+ characters"
-                            stableId={StableId.REGISTER_PASSWORD_INPUT}
-                          />
-                        )}
-                      />
-                      <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
-                    </Form.Group>
-
-                    <Form.Group>
-                      <Form.Label htmlFor="confirmPassword">Confirm Password</Form.Label>
-                      <Form.Input
-                        id="confirmPassword"
+            <Form.Root
+              disabled={resetPasswordMutation.isLoading}
+              onSubmit={handleSubmit(resetPassword, handleInvalidSubmit)}
+            >
+              <Flex stack gap="l">
+                <Form.Group>
+                  <Form.Label htmlFor="password">Enter new password</Form.Label>
+                  <Controller
+                    name="password"
+                    control={control}
+                    rules={formValidations.strongPassword}
+                    render={({ field }) => (
+                      <PasswordInput
+                        field={field}
+                        id="password"
                         type="password"
-                        isInvalid={!!formState.errors.passwordConfirm}
-                        stableId={StableId.REGISTER_CONFIRM_PASSWORD_INPUT}
-                        {...register('passwordConfirm', {
-                          required: 'Please confirm your password',
-                          validate: (value) => {
-                            if (watch('password') !== value) {
-                              return 'Passwords do not match';
-                            }
-                          },
-                        })}
+                        isInvalid={!!formState.errors.password}
+                        placeholder="8+ characters"
+                        stableId={StableId.REGISTER_PASSWORD_INPUT}
                       />
-                      <Form.Feedback>{formState.errors.passwordConfirm?.message}</Form.Feedback>
-                    </Form.Group>
+                    )}
+                  />
+                  <Form.Feedback>{formState.errors.password?.message}</Form.Feedback>
+                </Form.Group>
 
-                    <Button
-                      stableId={StableId.RESET_PASSWORD_BUTTON}
-                      stretch
-                      type="submit"
-                      loading={resetPasswordMutation.isLoading}
-                    >
-                      Reset Password
-                    </Button>
-                  </Flex>
-                </Form.Root>
-              </>
-            ) : (
-              <Message
-                type="success"
-                content="You have successfully changed your password. Now you'll be redirected to dashboard automatically."
-              />
-            )}
+                <Form.Group>
+                  <Form.Label htmlFor="confirmPassword">Confirm Password</Form.Label>
+                  <Form.Input
+                    id="confirmPassword"
+                    type="password"
+                    isInvalid={!!formState.errors.passwordConfirm}
+                    stableId={StableId.REGISTER_CONFIRM_PASSWORD_INPUT}
+                    {...register('passwordConfirm', {
+                      required: 'Please confirm your password',
+                      validate: (value) => {
+                        if (watch('password') !== value) {
+                          return 'Passwords do not match';
+                        }
+                      },
+                    })}
+                  />
+                  <Form.Feedback>{formState.errors.passwordConfirm?.message}</Form.Feedback>
+                </Form.Group>
+
+                <Button
+                  stableId={StableId.REGISTER_RESET_PASSWORD_BUTTON}
+                  stretch
+                  type="submit"
+                  loading={resetPasswordMutation.isLoading}
+                >
+                  Reset Password
+                </Button>
+              </Flex>
+            </Form.Root>
           </Flex>
         </Container>
       </Section>
