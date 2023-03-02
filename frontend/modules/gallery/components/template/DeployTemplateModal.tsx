@@ -76,7 +76,7 @@ function ConnectedModalContent(props: Props) {
       openToast({
         type: 'success',
         title: 'Deploy Success',
-        description: `Repository was created: ${name}`,
+        description: `Repository was created: ${name}. Please wait while the deploy completes. Then you will be prompted to transfer the repository.`,
       });
 
       selectProject(res.projectSlug);
