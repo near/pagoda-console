@@ -43,13 +43,24 @@ function ModalContent(props) {
         error,
         eventLabel: 'Transfer Github repo',
         eventData: {
-          id: props.template.id,
+          id: props.repository.slug,
         },
         toastTitle: 'Failed to transfer repository',
-        toastDescription: error.statusCode === 400 ? error.message : 'Unknown error.',
+        toastDescription: errorDescriptionHandler(error),
       });
     },
   });
+
+  const errorDescriptionHandler = (error: any) => {
+    switch (error.statusCode) {
+      case 400:
+        return error.message;
+      case 500:
+        return 'You have already started the transfer. Please check your email and accept the transfer request.';
+      default:
+        return 'Unknown error.';
+    }
+  };
 
   function transfer(data: TransferRepoData) {
     const newGithubUsername = data.newGithubUsername;
