@@ -8,16 +8,14 @@ import type { SubmitHandler } from 'react-hook-form';
 import { Flex } from '@/components/lib/Flex';
 import { H2 } from '@/components/lib/Heading';
 import { openToast } from '@/components/lib/Toast';
+import { useRouteParam } from '@/hooks/route';
 import type { RegisterFormData } from '@/modules/core/components/ResetPasswordForm';
 import { ResetPasswordForm } from '@/modules/core/components/ResetPasswordForm';
 import analytics from '@/utils/analytics';
 import { handleMutationError } from '@/utils/error-handlers';
 
-interface Props {
-  verifyCode: string | null;
-}
-
-const ResetPassword = ({ verifyCode }: Props) => {
+const ResetPassword = () => {
+  const verifyCode = useRouteParam('oobCode');
   const handleInvalidSubmit = React.useCallback(() => {
     analytics.track('DC Submitted reset password form');
     analytics.track('DC Reset password form validation failed');

@@ -13,7 +13,6 @@ import ResetPassword from './reset-password';
 type ManagementAction = 'resetPassword' | 'recoverEmail' | 'verifyEmail';
 
 const AuthActionHandler = () => {
-  const verifyCode = useRouteParam('oobCode');
   const actionType = useRouteParam('mode') as ManagementAction;
 
   return (
@@ -23,9 +22,9 @@ const AuthActionHandler = () => {
           {!actionType ? (
             <Spinner center />
           ) : actionType === 'verifyEmail' ? (
-            <EmailVerification verifyCode={verifyCode} />
+            <EmailVerification />
           ) : actionType === 'resetPassword' ? (
-            <ResetPassword verifyCode={verifyCode} />
+            <ResetPassword />
           ) : null}
         </Container>
       </Section>
