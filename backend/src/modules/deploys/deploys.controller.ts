@@ -149,9 +149,16 @@ export class DeploysController {
     if (parsedFiles.success === false) {
       throw new BadRequestException(fromZodError(parsedFiles.error).toString());
     }
+    const { widgetName, widgetDescription, widgetIconIpfsCid, widgetTags } =
+      body;
     return this.deploysService.addNearSocialWidget({
       repoDeploymentSlug: body.repoDeploymentSlug,
-      metadata: body.widgetMetadata || {},
+      metadata: {
+        widgetName,
+        widgetDescription,
+        widgetIconIpfsCid,
+        widgetTags,
+      },
       file: files[0],
     });
   }

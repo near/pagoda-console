@@ -535,9 +535,9 @@ export class DeploysService {
     repoDeploymentSlug: string;
     metadata?: {
       widgetName?: string;
-      description?: string;
+      widgetDescription?: string;
       widgetIconIpfsCid?: string;
-      tags?: string[];
+      widgetTags?: string[];
     };
     file: Express.Multer.File;
   }) {
@@ -594,12 +594,12 @@ export class DeploysService {
 
   metadataInputToNearSocialMetaData(metadata) {
     return {
-      name: metadata.name,
-      description: metadata.description,
+      name: metadata.widgetName,
+      description: metadata.widgetDescription,
       image: {
         ipfs_cid: metadata.widgetIconIpfsCid,
       },
-      tags: (metadata.tags || []).reduce(
+      tags: (metadata.widgetTags || []).reduce(
         (acc, curr) => ({ ...acc, [curr]: '' }),
         {},
       ),

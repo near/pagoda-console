@@ -110,10 +110,13 @@ export const mutation = {
     }),
     deployNearSocialWidget: z.strictObject({
       repoDeploymentSlug: z.string(),
-      widgetName: z.string().optional(),
-      description: z.string().optional(),
+      widgetName: z
+        .string()
+        .regex(/^[a-zA-Z0-9]*$/)
+        .optional(),
+      widgetDescription: z.string().optional(),
       widgetIconIpfsCid: z.string().optional(),
-      tags: z.array(z.string()).optional(),
+      widgetTags: z.array(z.string()).optional(),
     }),
     wasmFiles: z.array(
       z.object({ mimetype: z.string().startsWith('application/wasm') }),
