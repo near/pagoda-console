@@ -43,7 +43,10 @@ const CopyButton = styled(Flex, {
 
 const FrontendDeployment = ({ deployment }) => {
   const display =
-    deployment.frontendDeployConfig?.packageName || deployment.cid || deployment.nearSocialWidgetDeployConfig?.widgetName || (deployment.url ? new URL(deployment.url as string).hostname : '');
+    deployment.frontendDeployConfig?.packageName ||
+    deployment.cid ||
+    deployment.nearSocialWidgetDeployConfig?.widgetName ||
+    (deployment.url ? new URL(deployment.url as string).hostname : '');
   // ! If you change the IPFS gateway, make sure you thoroughly test a deployed application. Some gateways don't support
   // ! calling RPC from the browser because of the server's Content Security policy (w3s.link, etc).
   const link = deployment.cid
