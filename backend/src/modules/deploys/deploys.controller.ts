@@ -129,6 +129,33 @@ export class DeploysController {
     });
   }
 
+  @Post('addNearSocialWidget')
+  @UseInterceptors(AnyFilesInterceptor())
+  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
+  async addNearSocialWidget(
+    @Req() req: Request,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Body()
+    body: z.infer<typeof Deploys.mutation.inputs.deployNearSocialWidget>,
+  ) {
+    const parsedValue =
+      Deploys.mutation.inputs.deployNearSocialWidget.safeParse(body);
+    if (parsedValue.success === false) {
+      throw new BadRequestException(fromZodError(parsedValue.error).toString());
+    }
+
+    const parsedFiles =
+      Deploys.mutation.inputs.nearSocialFiles.safeParse(files);
+    if (parsedFiles.success === false) {
+      throw new BadRequestException(fromZodError(parsedFiles.error).toString());
+    }
+    return this.deploysService.addNearSocialWidget({
+      repoDeploymentSlug: body.repoDeploymentSlug,
+      metadata: body.widgetMetadata || {},
+      file: files[0],
+    });
+  }
+
   @Post('addFrontend')
   @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addFrontend))
   @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients

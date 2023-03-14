@@ -8,7 +8,11 @@ import {
 import { customAlphabet } from 'nanoid';
 import { PrismaService } from './prisma.service';
 import { Environment, Project, User } from '@pc/database/clients/core';
-import { Repository } from '@pc/database/clients/deploys';
+import {
+  ContractDeployConfig,
+  NearSocialWidgetDeployConfig,
+  Repository,
+} from '@pc/database/clients/deploys';
 import { createHash, randomBytes, scryptSync } from 'crypto';
 import { encode } from 'bs58';
 import { VError } from 'verror';
@@ -19,6 +23,8 @@ import { Octokit } from '@octokit/core';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from '@/src/config/validate';
 import { DeployError } from './deploy-error';
+import _ from 'lodash';
+import { parseNearAmount } from 'near-api-js/lib/utils/format';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -483,10 +489,11 @@ export class DeploysService {
           ({ filename }) => filename === file.originalname,
         );
         if (!deployConfig) {
-          deployConfig = await this.generateDeployConfig({
+          deployConfig = (await this.generateDeployConfig({
             filename: file.originalname,
             repositorySlug: repo.slug,
-          });
+            type: 'contract',
+          })) as ContractDeployConfig;
         }
         return this.deployContract({
           deployConfig,
@@ -516,12 +523,180 @@ export class DeploysService {
     });
   }
 
+  /**
+   * Entry point for deploying one or more Near Social Widgets from
+   * a github repo
+   */
+  async addNearSocialWidget({
+    repoDeploymentSlug,
+    metadata = {},
+    file,
+  }: {
+    repoDeploymentSlug: string;
+    metadata?: {
+      widgetName?: string;
+      description?: string;
+      widgetIconIpfsCid?: string;
+      tags?: string[];
+    };
+    file: Express.Multer.File;
+  }) {
+    const repoDeployment = await this.getRepoDeploymentBySlug(
+      repoDeploymentSlug,
+    );
+
+    if (!repoDeployment) {
+      throw new BadRequestException(
+        'Could not find repoDeployment with that slug',
+      );
+    }
+
+    const repo = repoDeployment.repository;
+
+    const widgetName = metadata.widgetName || file.originalname;
+
+    let deployConfig = repo.nearSocialWidgetDeployConfigs.find(
+      (deployConfig) => deployConfig.widgetName === widgetName,
+    );
+
+    if (!deployConfig) {
+      deployConfig = (await this.generateDeployConfig({
+        filename: widgetName,
+        repositorySlug: repo.slug,
+        type: 'widget',
+      })) as NearSocialWidgetDeployConfig;
+    }
+
+    await this.deployNearSocialWidget({
+      deployConfig,
+      file: file.buffer,
+      repoDeploymentSlug: repoDeployment.slug,
+      metadata,
+    });
+
+    return this.prisma.repoDeployment.findUnique({
+      where: {
+        slug: repoDeployment.slug,
+      },
+      include: {
+        nearSocialWidgetDeployments: {
+          include: {
+            nearSocialWidgetDeployConfig: {
+              select: {
+                widgetPath: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  metadataInputToNearSocialMetaData(metadata) {
+    return {
+      name: metadata.name,
+      description: metadata.description,
+      image: {
+        ipfs_cid: metadata.widgetIconIpfsCid,
+      },
+      tags: (metadata.tags || []).reduce(
+        (acc, curr) => ({ ...acc, [curr]: '' }),
+        {},
+      ),
+    };
+  }
+
+  async deployNearSocialWidget({
+    deployConfig,
+    file,
+    repoDeploymentSlug,
+    metadata,
+  }) {
+    const keyPair = KeyPair.fromString(deployConfig.nearPrivateKey);
+    const keyStore = new keyStores.InMemoryKeyStore();
+    const nearConfig = {
+      networkId: 'testnet',
+      keyStore,
+      nodeUrl: 'https://rpc.testnet.near.org', // todo from env?
+      helperUrl: 'https://helper.testnet.near.org',
+      headers: {},
+    };
+    await keyStore.setKey(
+      nearConfig.networkId,
+      deployConfig.nearAccountId,
+      keyPair,
+    );
+
+    const near = await connect(nearConfig);
+    const account = await near.account(deployConfig.nearAccountId);
+
+    const widget = await account.viewFunction('v1.social08.testnet', 'get', {
+      keys: [`${deployConfig.widgetPath}/**`],
+    });
+
+    const newWidget = {
+      '': file.toString('utf-8'),
+      metadata: _.merge(
+        _.cloneDeep(widget.metadata),
+        this.metadataInputToNearSocialMetaData(metadata),
+      ),
+    };
+
+    let txOutcome;
+
+    const updatedWidgetData = _.merge(_.cloneDeep(widget), newWidget);
+
+    if (!_.isEqual(newWidget, widget)) {
+      try {
+        txOutcome = await account.functionCall({
+          contractId: 'v1.social08.testnet',
+          methodName: 'set',
+          args: {
+            data: {
+              [account.accountId]: {
+                widget: {
+                  [deployConfig.widgetName]: updatedWidgetData,
+                },
+              },
+            },
+          },
+          attachedDeposit: parseNearAmount('1'),
+        });
+      } catch (e: any) {
+        await this.prisma.nearSocialWidgetDeployment.create({
+          data: {
+            slug: nanoid(),
+            repoDeploymentSlug,
+            nearSocialWidgetDeployConfigSlug: deployConfig.slug,
+            status: 'ERROR',
+          },
+        });
+        throw new VError(
+          e,
+          `Could not set data on socialDB ${updatedWidgetData}`,
+        );
+      }
+    }
+
+    await this.prisma.nearSocialWidgetDeployment.create({
+      data: {
+        slug: nanoid(),
+        repoDeploymentSlug,
+        nearSocialWidgetDeployConfigSlug: deployConfig.slug,
+        deployTransactionHash: txOutcome ? txOutcome.transaction.hash : null,
+        status: 'SUCCESS',
+      },
+    });
+  }
+
   async generateDeployConfig({
     filename,
     repositorySlug,
+    type,
   }: {
     filename: string;
     repositorySlug: Repository['slug'];
+    type: 'contract' | 'widget';
   }) {
     const keyStore = new keyStores.InMemoryKeyStore();
     const nearConfig = {
@@ -540,15 +715,28 @@ export class DeploysService {
     await near.accountCreator.createAccount(accountId, keyPair.getPublicKey());
     await keyStore.setKey(nearConfig.networkId, accountId, keyPair);
 
-    return this.prisma.contractDeployConfig.create({
-      data: {
-        slug: nanoid(),
-        nearPrivateKey: keyPair.toString(),
-        filename,
-        repositorySlug,
-        nearAccountId: accountId,
-      },
-    });
+    if (type === 'contract') {
+      return this.prisma.contractDeployConfig.create({
+        data: {
+          slug: nanoid(),
+          nearPrivateKey: keyPair.toString(),
+          filename,
+          repositorySlug,
+          nearAccountId: accountId,
+        },
+      });
+    } else {
+      return this.prisma.nearSocialWidgetDeployConfig.create({
+        data: {
+          slug: nanoid(),
+          nearPrivateKey: keyPair.toString(),
+          widgetPath: `${accountId}/widget/${filename}`,
+          widgetName: filename,
+          repositorySlug,
+          nearAccountId: accountId,
+        },
+      });
+    }
   }
 
   /**
@@ -686,7 +874,13 @@ export class DeploysService {
         slug,
       },
       include: {
-        repository: true,
+        repository: {
+          include: {
+            contractDeployConfigs: true,
+            frontendDeployConfigs: true,
+            nearSocialWidgetDeployConfigs: true,
+          },
+        },
       },
     });
   }
@@ -799,6 +993,18 @@ export class DeploysService {
             status: true,
           },
         },
+        nearSocialWidgetDeployments: {
+          select: {
+            slug: true,
+            deployTransactionHash: true,
+            nearSocialWidgetDeployConfig: {
+              select: {
+                widgetName: true,
+                widgetPath: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -810,6 +1016,7 @@ export class DeploysService {
         createdAt,
         frontendDeployments,
         contractDeployments,
+        nearSocialWidgetDeployments,
         repository,
       } = deployment;
 
@@ -820,6 +1027,7 @@ export class DeploysService {
         createdAt: createdAt.toISOString(),
         frontendDeployments,
         contractDeployments,
+        nearSocialWidgetDeployments,
         githubRepoFullName: repository.githubRepoFullName,
       };
     });

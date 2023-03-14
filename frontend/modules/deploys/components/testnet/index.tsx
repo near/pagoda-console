@@ -43,11 +43,13 @@ const CopyButton = styled(Flex, {
 
 const FrontendDeployment = ({ deployment }) => {
   const display =
-    deployment.frontendDeployConfig.packageName || deployment.cid || new URL(deployment.url as string).hostname;
+    deployment.frontendDeployConfig?.packageName || deployment.cid || deployment.nearSocialWidgetDeployConfig?.widgetName || (deployment.url ? new URL(deployment.url as string).hostname : '');
   // ! If you change the IPFS gateway, make sure you thoroughly test a deployed application. Some gateways don't support
   // ! calling RPC from the browser because of the server's Content Security policy (w3s.link, etc).
   const link = deployment.cid
     ? config.gallery.ipfsGatewayUrl.replace('{{cid}}', deployment.cid)
+    : deployment.nearSocialWidgetDeployConfig?.widgetPath
+    ? `https://test.near.social/#/${deployment.nearSocialWidgetDeployConfig?.widgetPath}`
     : (deployment.url as string);
   return (
     <Button
@@ -85,8 +87,11 @@ const Testnet = () => {
   const repo = repositories[0];
   const lastDeploy: any = deployments.length && {
     ...deployments[0],
-    frontendDeployments:
-      deployments.find(({ frontendDeployments }) => frontendDeployments.length)?.frontendDeployments || [],
+    frontendDeployments: [
+      ...(deployments.find(({ frontendDeployments }) => frontendDeployments.length)?.frontendDeployments || []),
+      ...(deployments.find(({ nearSocialWidgetDeployments }) => nearSocialWidgetDeployments?.length)
+        ?.nearSocialWidgetDeployments || []),
+    ],
     contractDeployments:
       deployments.find(({ contractDeployments }) => contractDeployments.length)?.contractDeployments || [],
   };
