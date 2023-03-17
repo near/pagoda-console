@@ -259,7 +259,7 @@ function TotalRequestVolumeChart({ stats }: { stats?: ApiStatsData }) {
               />
 
               <Charts.Tooltip
-                formatter={(value: number) => [formatNumber(value), 'Requests']}
+                formatter={(value) => [formatNumber(value.toString()), 'Requests']}
                 labelFormatter={(value: string) => DateTime.fromISO(value).toLocaleString(DateTime.DATETIME_SHORT)}
                 labelStyle={{ color: 'var(--color-text-3)' }}
                 contentStyle={{
@@ -318,7 +318,7 @@ function MethodBreakdownChart({ stats }: { stats?: ApiStatsData }) {
               />
 
               <Charts.Tooltip
-                formatter={(value: number) => [formatNumber(value), 'Requests']}
+                formatter={(value) => [formatNumber(value.toString()), 'Requests']}
                 labelStyle={{ color: 'var(--color-text-3)' }}
                 contentStyle={{
                   background: 'var(--color-surface-overlay',
