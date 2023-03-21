@@ -10,7 +10,7 @@ export type MapDiscriminatedUnion<T extends Record<K, string>, K extends keyof T
 };
 
 export const netOptions = ['MAINNET', 'TESTNET'] as const;
-export type NetOption = typeof netOptions[number];
+export type NetOption = (typeof netOptions)[number];
 
 export interface PersistedStore {
   hasHydrated?: boolean;
