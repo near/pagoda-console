@@ -728,8 +728,8 @@ export class UsersService implements OnModuleInit {
     }));
     return (
       [] as (
-        | typeof existingMembers[number]
-        | typeof nonExistingMembers[number]
+        | (typeof existingMembers)[number]
+        | (typeof nonExistingMembers)[number]
       )[]
     )
       .concat(existingMembers, nonExistingMembers)
