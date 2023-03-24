@@ -527,7 +527,7 @@ export class DeploysService {
    * Entry point for deploying one or more Near Social Widgets from
    * a github repo
    */
-  async addNearSocialWidget({
+  async addNearSocialWidgetDeployment({
     repoDeploymentSlug,
     metadata = {},
     file,
@@ -678,15 +678,17 @@ export class DeploysService {
       }
     }
 
-    await this.prisma.nearSocialWidgetDeployment.create({
-      data: {
-        slug: nanoid(),
-        repoDeploymentSlug,
-        nearSocialWidgetDeployConfigSlug: deployConfig.slug,
-        deployTransactionHash: txOutcome ? txOutcome.transaction.hash : null,
-        status: 'SUCCESS',
-      },
-    });
+    if (txOutcome?.transaction?.hash) {
+      await this.prisma.nearSocialWidgetDeployment.create({
+        data: {
+          slug: nanoid(),
+          repoDeploymentSlug,
+          nearSocialWidgetDeployConfigSlug: deployConfig.slug,
+          deployTransactionHash: txOutcome.transaction.hash,
+          status: 'SUCCESS',
+        },
+      });
+    }
   }
 
   async generateDeployConfig({
@@ -818,7 +820,7 @@ export class DeploysService {
   /**
    * Sets Frontend Deploy Url
    */
-  async addFrontend({
+  async addFrontendDeployment({
     repositorySlug,
     frontendDeployUrl,
     cid,

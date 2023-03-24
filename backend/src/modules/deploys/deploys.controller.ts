@@ -151,7 +151,7 @@ export class DeploysController {
     }
     const { widgetName, widgetDescription, widgetIconIpfsCid, widgetTags } =
       body;
-    return this.deploysService.addNearSocialWidget({
+    return this.deploysService.addNearSocialWidgetDeployment({
       repoDeploymentSlug: body.repoDeploymentSlug,
       metadata: {
         widgetName,
@@ -185,7 +185,7 @@ export class DeploysController {
       );
     }
 
-    return this.deploysService.addFrontend({
+    return this.deploysService.addFrontendDeployment({
       repositorySlug: repoDeployment.repositorySlug,
       frontendDeployUrl,
       cid,
