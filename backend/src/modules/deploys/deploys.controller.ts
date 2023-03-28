@@ -129,17 +129,17 @@ export class DeploysController {
     });
   }
 
-  @Post('addNearSocialWidget')
+  @Post('addNearSocialComponent')
   @UseInterceptors(AnyFilesInterceptor())
   @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
-  async addNearSocialWidget(
+  async addNearSocialComponent(
     @Req() req: Request,
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body()
-    body: z.infer<typeof Deploys.mutation.inputs.deployNearSocialWidget>,
+    body: z.infer<typeof Deploys.mutation.inputs.deployNearSocialComponent>,
   ) {
     const parsedValue =
-      Deploys.mutation.inputs.deployNearSocialWidget.safeParse(body);
+      Deploys.mutation.inputs.deployNearSocialComponent.safeParse(body);
     if (parsedValue.success === false) {
       throw new BadRequestException(fromZodError(parsedValue.error).toString());
     }
@@ -149,15 +149,19 @@ export class DeploysController {
     if (parsedFiles.success === false) {
       throw new BadRequestException(fromZodError(parsedFiles.error).toString());
     }
-    const { widgetName, widgetDescription, widgetIconIpfsCid, widgetTags } =
-      body;
-    return this.deploysService.addNearSocialWidgetDeployment({
+    const {
+      componentName,
+      componentDescription,
+      componentIconIpfsCid,
+      componentTags,
+    } = body;
+    return this.deploysService.addNearSocialComponentDeployment({
       repoDeploymentSlug: body.repoDeploymentSlug,
       metadata: {
-        widgetName,
-        widgetDescription,
-        widgetIconIpfsCid,
-        widgetTags,
+        componentName,
+        componentDescription,
+        componentIconIpfsCid,
+        componentTags,
       },
       file: files[0],
     });

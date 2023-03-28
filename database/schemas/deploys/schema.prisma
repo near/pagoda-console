@@ -22,7 +22,7 @@ model Repository {
   repoDeployments       RepoDeployment[]
   enabled               Boolean                @default(true)
   frontendDeployConfigs FrontendDeployConfig[]
-  nearSocialWidgetDeployConfigs NearSocialWidgetDeployConfig[]
+  nearSocialComponentDeployConfigs NearSocialComponentDeployConfig[]
   authTokenHash         Bytes
   authTokenSalt         Bytes
 }
@@ -39,16 +39,16 @@ model ContractDeployConfig {
   contractDeployments ContractDeployment[]
 }
 
-// deployment configuration for a given widget in a Repository
-model NearSocialWidgetDeployConfig {
+// deployment configuration for a given near social component in a Repository
+model NearSocialComponentDeployConfig {
   slug                String               @unique
   repository          Repository           @relation(fields: [repositorySlug], references: [slug])
   repositorySlug      String
-  widgetName          String
+  componentName          String
   nearAccountId       String
   nearPrivateKey      String
-  widgetPath          String
-  nearSocialWidgetDeployments NearSocialWidgetDeployment[]
+  componentPath          String
+  nearSocialComponentDeployments NearSocialComponentDeployment[]
 }
 
 // deployment configuration for a given frontend in a Repository
@@ -71,7 +71,7 @@ model RepoDeployment {
   commitMessage       String
   contractDeployments ContractDeployment[]
   frontendDeployments FrontendDeployment[]
-  nearSocialWidgetDeployments NearSocialWidgetDeployment[]
+  nearSocialComponentDeployments NearSocialComponentDeployment[]
   createdAt           DateTime             @default(now()) @db.Timestamptz
 }
 
@@ -92,12 +92,12 @@ model ContractDeployment {
   status                   ContractDeployStatus @default(IN_PROGRESS)
 }
 
-model NearSocialWidgetDeployment {
+model NearSocialComponentDeployment {
   slug                             String               @unique
   repoDeployment                   RepoDeployment       @relation(fields: [repoDeploymentSlug], references: [slug])
   repoDeploymentSlug               String
-  nearSocialWidgetDeployConfig     NearSocialWidgetDeployConfig @relation(fields: [nearSocialWidgetDeployConfigSlug], references: [slug])
-  nearSocialWidgetDeployConfigSlug String
+  nearSocialComponentDeployConfig     NearSocialComponentDeployConfig @relation(fields: [nearSocialComponentDeployConfigSlug], references: [slug])
+  nearSocialComponentDeployConfigSlug String
   deployTransactionHash            String?
   status                           ContractDeployStatus @default(IN_PROGRESS)
 }

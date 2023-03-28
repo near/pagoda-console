@@ -12,13 +12,13 @@ const frontendDeployments = z.array(
   }),
 );
 
-const nearSocialWidgetDeployments = z.array(
+const nearSocialComponentDeployments = z.array(
   z.strictObject({
     slug: z.string(),
     deployTransactionHash: z.string().or(z.null()),
-    nearSocialWidgetDeployConfig: z.strictObject({
-      widgetName: z.string(),
-      widgetPath: z.string(),
+    nearSocialComponentDeployConfig: z.strictObject({
+      componentName: z.string(),
+      componentPath: z.string(),
     }),
   }),
 );
@@ -39,7 +39,7 @@ const repoDeployments = z.array(
     createdAt: stringifiedDate,
     frontendDeployments,
     contractDeployments,
-    nearSocialWidgetDeployments,
+    nearSocialComponentDeployments,
     githubRepoFullName: z.string(),
   }),
 );
@@ -108,15 +108,15 @@ export const mutation = {
       commitHash: z.string(),
       commitMessage: z.string(),
     }),
-    deployNearSocialWidget: z.strictObject({
+    deployNearSocialComponent: z.strictObject({
       repoDeploymentSlug: z.string(),
-      widgetName: z
+      componentName: z
         .string()
         .regex(/^[a-zA-Z0-9]*$/)
         .optional(),
-      widgetDescription: z.string().optional(),
-      widgetIconIpfsCid: z.string().optional(),
-      widgetTags: z.array(z.string()).optional(),
+      componentDescription: z.string().optional(),
+      componentIconIpfsCid: z.string().optional(),
+      componentTags: z.array(z.string()).optional(),
     }),
     wasmFiles: z.array(
       z.object({ mimetype: z.string().startsWith('application/wasm') }),

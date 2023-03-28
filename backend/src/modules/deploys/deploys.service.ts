@@ -10,7 +10,7 @@ import { PrismaService } from './prisma.service';
 import { Environment, Project, User } from '@pc/database/clients/core';
 import {
   ContractDeployConfig,
-  NearSocialWidgetDeployConfig,
+  NearSocialComponentDeployConfig,
   Repository,
 } from '@pc/database/clients/deploys';
 import { createHash, randomBytes, scryptSync } from 'crypto';
@@ -524,20 +524,20 @@ export class DeploysService {
   }
 
   /**
-   * Entry point for deploying one or more Near Social Widgets from
+   * Entry point for deploying one or more Near Social Components from
    * a github repo
    */
-  async addNearSocialWidgetDeployment({
+  async addNearSocialComponentDeployment({
     repoDeploymentSlug,
     metadata = {},
     file,
   }: {
     repoDeploymentSlug: string;
     metadata?: {
-      widgetName?: string;
-      widgetDescription?: string;
-      widgetIconIpfsCid?: string;
-      widgetTags?: string[];
+      componentName?: string;
+      componentDescription?: string;
+      componentIconIpfsCid?: string;
+      componentTags?: string[];
     };
     file: Express.Multer.File;
   }) {
@@ -553,21 +553,21 @@ export class DeploysService {
 
     const repo = repoDeployment.repository;
 
-    const widgetName = metadata.widgetName || file.originalname;
+    const componentName = metadata.componentName || file.originalname;
 
-    let deployConfig = repo.nearSocialWidgetDeployConfigs.find(
-      (deployConfig) => deployConfig.widgetName === widgetName,
+    let deployConfig = repo.nearSocialComponentDeployConfigs.find(
+      (deployConfig) => deployConfig.componentName === componentName,
     );
 
     if (!deployConfig) {
       deployConfig = (await this.generateDeployConfig({
-        filename: widgetName,
+        filename: componentName,
         repositorySlug: repo.slug,
-        type: 'widget',
-      })) as NearSocialWidgetDeployConfig;
+        type: 'component',
+      })) as NearSocialComponentDeployConfig;
     }
 
-    await this.deployNearSocialWidget({
+    await this.deployNearSocialComponent({
       deployConfig,
       file: file.buffer,
       repoDeploymentSlug: repoDeployment.slug,
@@ -579,11 +579,11 @@ export class DeploysService {
         slug: repoDeployment.slug,
       },
       include: {
-        nearSocialWidgetDeployments: {
+        nearSocialComponentDeployments: {
           include: {
-            nearSocialWidgetDeployConfig: {
+            nearSocialComponentDeployConfig: {
               select: {
-                widgetPath: true,
+                componentPath: true,
               },
             },
           },
@@ -594,19 +594,19 @@ export class DeploysService {
 
   metadataInputToNearSocialMetaData(metadata) {
     return {
-      name: metadata.widgetName,
-      description: metadata.widgetDescription,
+      name: metadata.componentName,
+      description: metadata.componentDescription,
       image: {
-        ipfs_cid: metadata.widgetIconIpfsCid,
+        ipfs_cid: metadata.componentIconIpfsCid,
       },
-      tags: (metadata.widgetTags || []).reduce(
+      tags: (metadata.componentTags || []).reduce(
         (acc, curr) => ({ ...acc, [curr]: '' }),
         {},
       ),
     };
   }
 
-  async deployNearSocialWidget({
+  async deployNearSocialComponent({
     deployConfig,
     file,
     repoDeploymentSlug,
@@ -630,23 +630,23 @@ export class DeploysService {
     const near = await connect(nearConfig);
     const account = await near.account(deployConfig.nearAccountId);
 
-    const widget = await account.viewFunction('v1.social08.testnet', 'get', {
-      keys: [`${deployConfig.widgetPath}/**`],
+    const component = await account.viewFunction('v1.social08.testnet', 'get', {
+      keys: [`${deployConfig.componentPath}/**`],
     });
 
-    const newWidget = {
+    const newComponent = {
       '': file.toString('utf-8'),
       metadata: _.merge(
-        _.cloneDeep(widget.metadata),
+        _.cloneDeep(component.metadata),
         this.metadataInputToNearSocialMetaData(metadata),
       ),
     };
 
     let txOutcome;
 
-    const updatedWidgetData = _.merge(_.cloneDeep(widget), newWidget);
+    const updatedComponentData = _.merge(_.cloneDeep(component), newComponent);
 
-    if (!_.isEqual(newWidget, widget)) {
+    if (!_.isEqual(newComponent, component)) {
       try {
         txOutcome = await account.functionCall({
           contractId: 'v1.social08.testnet',
@@ -655,7 +655,7 @@ export class DeploysService {
             data: {
               [account.accountId]: {
                 widget: {
-                  [deployConfig.widgetName]: updatedWidgetData,
+                  [deployConfig.componentName]: updatedComponentData,
                 },
               },
             },
@@ -663,27 +663,27 @@ export class DeploysService {
           attachedDeposit: parseNearAmount('1'),
         });
       } catch (e: any) {
-        await this.prisma.nearSocialWidgetDeployment.create({
+        await this.prisma.nearSocialComponentDeployment.create({
           data: {
             slug: nanoid(),
             repoDeploymentSlug,
-            nearSocialWidgetDeployConfigSlug: deployConfig.slug,
+            nearSocialComponentDeployConfigSlug: deployConfig.slug,
             status: 'ERROR',
           },
         });
         throw new VError(
           e,
-          `Could not set data on socialDB ${updatedWidgetData}`,
+          `Could not set data on socialDB ${updatedComponentData}`,
         );
       }
     }
 
     if (txOutcome?.transaction?.hash) {
-      await this.prisma.nearSocialWidgetDeployment.create({
+      await this.prisma.nearSocialComponentDeployment.create({
         data: {
           slug: nanoid(),
           repoDeploymentSlug,
-          nearSocialWidgetDeployConfigSlug: deployConfig.slug,
+          nearSocialComponentDeployConfigSlug: deployConfig.slug,
           deployTransactionHash: txOutcome.transaction.hash,
           status: 'SUCCESS',
         },
@@ -698,7 +698,7 @@ export class DeploysService {
   }: {
     filename: string;
     repositorySlug: Repository['slug'];
-    type: 'contract' | 'widget';
+    type: 'contract' | 'component';
   }) {
     const keyStore = new keyStores.InMemoryKeyStore();
     const nearConfig = {
@@ -728,12 +728,12 @@ export class DeploysService {
         },
       });
     } else {
-      return this.prisma.nearSocialWidgetDeployConfig.create({
+      return this.prisma.nearSocialComponentDeployConfig.create({
         data: {
           slug: nanoid(),
           nearPrivateKey: keyPair.toString(),
-          widgetPath: `${accountId}/widget/${filename}`,
-          widgetName: filename,
+          componentPath: `${accountId}/widget/${filename}`,
+          componentName: filename,
           repositorySlug,
           nearAccountId: accountId,
         },
@@ -880,7 +880,7 @@ export class DeploysService {
           include: {
             contractDeployConfigs: true,
             frontendDeployConfigs: true,
-            nearSocialWidgetDeployConfigs: true,
+            nearSocialComponentDeployConfigs: true,
           },
         },
       },
@@ -995,14 +995,14 @@ export class DeploysService {
             status: true,
           },
         },
-        nearSocialWidgetDeployments: {
+        nearSocialComponentDeployments: {
           select: {
             slug: true,
             deployTransactionHash: true,
-            nearSocialWidgetDeployConfig: {
+            nearSocialComponentDeployConfig: {
               select: {
-                widgetName: true,
-                widgetPath: true,
+                componentName: true,
+                componentPath: true,
               },
             },
           },
@@ -1018,7 +1018,7 @@ export class DeploysService {
         createdAt,
         frontendDeployments,
         contractDeployments,
-        nearSocialWidgetDeployments,
+        nearSocialComponentDeployments,
         repository,
       } = deployment;
 
@@ -1029,7 +1029,7 @@ export class DeploysService {
         createdAt: createdAt.toISOString(),
         frontendDeployments,
         contractDeployments,
-        nearSocialWidgetDeployments,
+        nearSocialComponentDeployments,
         githubRepoFullName: repository.githubRepoFullName,
       };
     });
