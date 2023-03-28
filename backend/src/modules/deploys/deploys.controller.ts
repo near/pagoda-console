@@ -129,10 +129,10 @@ export class DeploysController {
     });
   }
 
-  @Post('addNearSocialComponent')
+  @Post('addNearSocialComponentDeployment')
   @UseInterceptors(AnyFilesInterceptor())
   @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
-  async addNearSocialComponent(
+  async addNearSocialComponentDeployment(
     @Req() req: Request,
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body()
