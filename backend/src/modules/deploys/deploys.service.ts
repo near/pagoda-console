@@ -850,7 +850,12 @@ export class DeploysService {
     );
 
     if (!repoDeployment) {
-      throw new BadRequestException(
+      throw new VError(
+        {
+          info: {
+            code: 'CONFLICT',
+          },
+        },
         `RepoDeployment slug ${repoDeploymentSlug} not found`,
       );
     }

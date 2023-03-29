@@ -45,15 +45,20 @@ export class DeploysController {
     }: z.infer<typeof Deploys.mutation.inputs.addConsoleDeployProject>,
   ): Promise<Api.Mutation.Output<'/deploys/addConsoleDeployProject'>> {
     // called from Console frontend to initialize a new repo for deployment
-    const repository = await this.deploysService.createDeployProject({
-      user: req.user as User, // TODO change to UserDetails from auth service
-      githubRepoFullName,
-      projectName,
-    });
-    return {
-      repositorySlug: repository.slug,
-      projectSlug: repository.projectSlug,
-    };
+    try {
+      return this.deploysService
+        .createDeployProject({
+          user: req.user as User, // TODO change to UserDetails from auth service
+          githubRepoFullName,
+          projectName,
+        })
+        .then((repository) => ({
+          repositorySlug: repository.slug,
+          projectSlug: repository.projectSlug,
+        }));
+    } catch (e: any) {
+      throw mapError(e);
+    }
   }
 
   @Post('contractDeployConfigs')
