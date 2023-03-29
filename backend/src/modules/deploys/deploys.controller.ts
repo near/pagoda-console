@@ -10,8 +10,6 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
-  Get,
-  Param,
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
@@ -33,17 +31,19 @@ import { Request as ExpressRequest } from 'express';
 export class DeploysController {
   constructor(private readonly deploysService: DeploysService) {}
 
-  @Post('addDeploy')
+  @Post('addConsoleDeployProject')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addDeploy))
-  async addDeploy(
+  @UsePipes(
+    new ZodValidationPipe(Deploys.mutation.inputs.addConsoleDeployProject),
+  )
+  async addConsoleDeployProject(
     @Req() req: ExpressRequest,
     @Body()
     {
       githubRepoFullName,
       projectName,
-    }: z.infer<typeof Deploys.mutation.inputs.addDeploy>,
-  ): Promise<Api.Mutation.Output<'/deploys/addDeploy'>> {
+    }: z.infer<typeof Deploys.mutation.inputs.addConsoleDeployProject>,
+  ): Promise<Api.Mutation.Output<'/deploys/addConsoleDeployProject'>> {
     // called from Console frontend to initialize a new repo for deployment
     const repository = await this.deploysService.createDeployProject({
       user: req.user as User, // TODO change to UserDetails from auth service
@@ -56,10 +56,17 @@ export class DeploysController {
     };
   }
 
-  @Get('contractDeployConfigs/:repoDeploymentSlug')
-  async contractDeployConfigs(@Param() params: { repoDeploymentSlug: string }) {
+  @Post('contractDeployConfigs')
+  @UseGuards(GithubBasicAuthGuard)
+  async contractDeployConfigs(
+    @Req() req: ExpressRequest,
+    @Body()
+    {
+      repoDeploymentSlug,
+    }: z.infer<typeof Deploys.mutation.inputs.contractDeployConfigs>,
+  ): Promise<Api.Mutation.Output<'/deploys/contractDeployConfigs'>> {
     const repoDeployment = await this.deploysService.getRepoDeploymentBySlug(
-      params.repoDeploymentSlug,
+      repoDeploymentSlug,
     );
     if (!repoDeployment) {
       throw new NotFoundException('No such repoDeployment found');
@@ -119,8 +126,8 @@ export class DeploysController {
   }
 
   @Post('addRepoDeployment')
-  @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addRepoDeployment))
   @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients with Bearer tokens
+  @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addRepoDeployment))
   async addRepoDeployment(
     @Req() req: Request,
     @Body()
@@ -139,15 +146,16 @@ export class DeploysController {
     return { repoDeploymentSlug: repoDeployment.slug };
   }
 
-  @Post('deployWasm')
+  @Post('addContractDeployment')
   @UseInterceptors(AnyFilesInterceptor())
   @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients with Bearer tokens
-  async deployWasm(
+  async addContractDeployment(
     @Req() req: Request,
     @UploadedFiles() files: Array<Express.Multer.File>,
-    @Body() body: z.infer<typeof Deploys.mutation.inputs.deployWasm>,
-  ) {
-    const parsedValue = Deploys.mutation.inputs.deployWasm.safeParse(body);
+    @Body() body: z.infer<typeof Deploys.mutation.inputs.addContractDeployment>,
+  ): Promise<Api.Mutation.Output<'/deploys/addContractDeployment'>> {
+    const parsedValue =
+      Deploys.mutation.inputs.addContractDeployment.safeParse(body);
     if (parsedValue.success === false) {
       throw new BadRequestException(fromZodError(parsedValue.error).toString());
     }
@@ -159,7 +167,7 @@ export class DeploysController {
     const { repoDeploymentSlug } = body;
 
     // called from Console frontend to initialize a new repo for deployment
-    return this.deploysService.addContractDeployment({
+    this.deploysService.addContractDeployment({
       repoDeploymentSlug,
       files,
     });
@@ -203,10 +211,12 @@ export class DeploysController {
     });
   }
 
-  @Post('addFrontend')
-  @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addFrontend))
+  @Post('addFrontendDeployment')
+  @UsePipes(
+    new ZodValidationPipe(Deploys.mutation.inputs.addFrontendDeployment),
+  )
   @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
-  async addFrontend(
+  async addFrontendDeployment(
     @Req() req: Request,
     @Body()
     {
@@ -214,8 +224,8 @@ export class DeploysController {
       frontendDeployUrl,
       cid,
       packageName,
-    }: z.infer<typeof Deploys.mutation.inputs.addFrontend>,
-  ) {
+    }: z.infer<typeof Deploys.mutation.inputs.addFrontendDeployment>,
+  ): Promise<Api.Mutation.Output<'/deploys/addFrontendDeployment'>> {
     return this.deploysService.addFrontendDeployment({
       frontendDeployUrl,
       cid,

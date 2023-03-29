@@ -1,16 +1,19 @@
 import { z } from 'zod';
 import { stringifiedDate } from '../schemas';
 
-const frontendDeployments = z.array(
-  z.strictObject({
-    slug: z.string(),
-    url: z.string().or(z.null()),
-    cid: z.string().or(z.null()),
-    frontendDeployConfig: z.strictObject({
-      packageName: z.string(),
-    }),
+const frontendDeployment = z.strictObject({
+  slug: z.string(),
+  url: z.string().or(z.null()),
+  cid: z.string().or(z.null()),
+});
+
+const frontendDeploymentWithConfig = frontendDeployment.extend({
+  frontendDeployConfig: z.strictObject({
+    packageName: z.string(),
   }),
-);
+});
+
+const frontendDeployments = z.array(frontendDeploymentWithConfig);
 
 const nearSocialComponentDeployments = z.array(
   z.strictObject({
@@ -95,7 +98,7 @@ export const query = {
 
 export const mutation = {
   inputs: {
-    addDeploy: z.strictObject({
+    addConsoleDeployProject: z.strictObject({
       githubRepoFullName: z.string().regex(/[\w\.\-]+\/[\w\.\-]+/), // matches <owner/repo> e.g. 'near/pagoda-console`
       projectName: z.string(),
     }),
@@ -103,7 +106,7 @@ export const mutation = {
       repositorySlug: z.string(),
       newGithubUsername: z.string(),
     }),
-    deployWasm: z.strictObject({
+    addContractDeployment: z.strictObject({
       repoDeploymentSlug: z.string(),
     }),
     addRepoDeployment: z.strictObject({
@@ -127,7 +130,7 @@ export const mutation = {
     nearSocialFiles: z
       .array(z.object({ mimetype: z.string().startsWith('text/') }))
       .length(1),
-    addFrontend: z
+    addFrontendDeployment: z
       .strictObject({
         repoDeploymentSlug: z.string(),
         packageName: z.string(),
@@ -138,10 +141,13 @@ export const mutation = {
         (data) => !!data.frontendDeployUrl || !!data.cid,
         'Either frontendDeployUrl or cid should be filled in.',
       ),
+    contractDeployConfigs: z.strictObject({
+      repoDeploymentSlug: z.string(),
+    }),
   },
 
   outputs: {
-    addDeploy: z.strictObject({
+    addConsoleDeployProject: z.strictObject({
       repositorySlug: z.string(),
       projectSlug: z.string(),
     }),
@@ -152,17 +158,21 @@ export const mutation = {
     addRepoDeployment: z.strictObject({
       repoDeploymentSlug: z.string(),
     }),
-    deployWasm: z.void(),
+    addContractDeployment: z.void(),
     wasmFiles: z.void(),
-    addFrontend: z.void(),
+    addFrontendDeployment: frontendDeployment,
+    contractDeployConfigs: z
+      .strictObject({})
+      .catchall(z.strictObject({ nearAccountId: z.string() })),
   },
 
   errors: {
-    addDeploy: z.unknown(),
+    addConsoleDeployProject: z.unknown(),
     transferGithubRepository: z.unknown(),
     addRepoDeployment: z.unknown(),
-    deployWasm: z.unknown(),
+    addContractDeployment: z.unknown(),
     wasmFiles: z.unknown(),
-    addFrontend: z.unknown(),
+    addFrontendDeployment: z.unknown(),
+    contractDeployConfigs: z.unknown(),
   },
 };

@@ -321,10 +321,17 @@ export namespace Api {
           typeof Alerts.mutation.errors.rotateWebhookDestinationSecret
         >;
       };
-      '/deploys/addDeploy': {
-        input: z.infer<typeof Deploys.mutation.inputs.addDeploy>;
-        output: z.infer<typeof Deploys.mutation.outputs.addDeploy>;
-        error: z.infer<typeof Deploys.mutation.errors.addDeploy>;
+      '/deploys/addConsoleDeployProject': {
+        input: z.infer<typeof Deploys.mutation.inputs.addConsoleDeployProject>;
+        output: z.infer<
+          typeof Deploys.mutation.outputs.addConsoleDeployProject
+        >;
+        error: z.infer<typeof Deploys.mutation.errors.addConsoleDeployProject>;
+      };
+      '/deploys/contractDeployConfigs': {
+        input: z.infer<typeof Deploys.mutation.inputs.contractDeployConfigs>;
+        output: z.infer<typeof Deploys.mutation.outputs.contractDeployConfigs>;
+        error: z.infer<typeof Deploys.mutation.errors.contractDeployConfigs>;
       };
       '/deploys/transferGithubRepository': {
         input: z.infer<typeof Deploys.mutation.inputs.transferGithubRepository>;
@@ -335,25 +342,23 @@ export namespace Api {
       };
       '/deploys/addRepoDeployment': {
         input: z.infer<typeof Deploys.mutation.inputs.addRepoDeployment>;
-        output: z.infer<
-          typeof Deploys.mutation.outputs.addRepoDeployment
-        >;
+        output: z.infer<typeof Deploys.mutation.outputs.addRepoDeployment>;
         error: z.infer<typeof Deploys.mutation.errors.addRepoDeployment>;
       };
-      '/deploys/deployWasm': {
-        input: z.infer<typeof Deploys.mutation.inputs.deployWasm>;
-        output: z.infer<typeof Deploys.mutation.outputs.deployWasm>;
-        error: z.infer<typeof Deploys.mutation.errors.deployWasm>;
+      '/deploys/addContractDeployment': {
+        input: z.infer<typeof Deploys.mutation.inputs.addContractDeployment>;
+        output: z.infer<typeof Deploys.mutation.outputs.addContractDeployment>;
+        error: z.infer<typeof Deploys.mutation.errors.addContractDeployment>;
       };
       '/deploys/wasmFiles': {
         input: z.infer<typeof Deploys.mutation.inputs.wasmFiles>;
         output: z.infer<typeof Deploys.mutation.outputs.wasmFiles>;
         error: z.infer<typeof Deploys.mutation.errors.wasmFiles>;
       };
-      '/deploys/addFrontend': {
-        input: z.infer<typeof Deploys.mutation.inputs.addFrontend>;
-        output: z.infer<typeof Deploys.mutation.outputs.addFrontend>;
-        error: z.infer<typeof Deploys.mutation.errors.addFrontend>;
+      '/deploys/addFrontendDeployment': {
+        input: z.infer<typeof Deploys.mutation.inputs.addFrontendDeployment>;
+        output: z.infer<typeof Deploys.mutation.outputs.addFrontendDeployment>;
+        error: z.infer<typeof Deploys.mutation.errors.addFrontendDeployment>;
       };
     };
 
