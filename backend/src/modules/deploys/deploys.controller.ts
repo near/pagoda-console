@@ -46,16 +46,15 @@ export class DeploysController {
   ): Promise<Api.Mutation.Output<'/deploys/addConsoleDeployProject'>> {
     // called from Console frontend to initialize a new repo for deployment
     try {
-      return this.deploysService
-        .createDeployProject({
-          user: req.user as User, // TODO change to UserDetails from auth service
-          githubRepoFullName,
-          projectName,
-        })
-        .then((repository) => ({
-          repositorySlug: repository.slug,
-          projectSlug: repository.projectSlug,
-        }));
+      const repository = await this.deploysService.createDeployProject({
+        user: req.user as User, // TODO change to UserDetails from auth service
+        githubRepoFullName,
+        projectName,
+      });
+      return {
+        repositorySlug: repository.slug,
+        projectSlug: repository.projectSlug,
+      };
     } catch (e: any) {
       throw mapError(e);
     }
@@ -70,19 +69,13 @@ export class DeploysController {
       repoDeploymentSlug,
     }: z.infer<typeof Deploys.mutation.inputs.contractDeployConfigs>,
   ): Promise<Api.Mutation.Output<'/deploys/contractDeployConfigs'>> {
-    const repoDeployment = await this.deploysService.getRepoDeploymentBySlug(
-      repoDeploymentSlug,
-    );
-    if (!repoDeployment) {
-      throw new NotFoundException('No such repoDeployment found');
+    try {
+      return await this.deploysService.getContractDeployConfigs(
+        repoDeploymentSlug,
+      );
+    } catch (e: any) {
+      throw mapError(e);
     }
-    return repoDeployment?.repository.contractDeployConfigs.reduce(
-      (acc, curr) => ({
-        ...acc,
-        [curr.filename]: { nearAccountId: curr.nearAccountId },
-      }),
-      {},
-    );
   }
 
   @Post('isRepositoryTransferred')
@@ -119,15 +112,19 @@ export class DeploysController {
     }: z.infer<typeof Deploys.mutation.inputs.transferGithubRepository>,
   ): Promise<Api.Mutation.Output<'/deploys/transferGithubRepository'>> {
     // called from Console frontend to initialize a new repo for deployment
-    const repository = await this.deploysService.transferGithubRepository({
-      user: req.user as User, // TODO change to UserDetails from auth service
-      newGithubUsername,
-      repositorySlug,
-    });
-    return {
-      repositorySlug: repository.slug,
-      githubRepoFullName: repository.githubRepoFullName,
-    };
+    try {
+      const repository = await this.deploysService.transferGithubRepository({
+        user: req.user as User, // TODO change to UserDetails from auth service
+        newGithubUsername,
+        repositorySlug,
+      });
+      return {
+        repositorySlug: repository.slug,
+        githubRepoFullName: repository.githubRepoFullName,
+      };
+    } catch (e: any) {
+      throw mapError(e);
+    }
   }
 
   @Post('addRepoDeployment')
@@ -142,13 +139,17 @@ export class DeploysController {
       commitMessage,
     }: z.infer<typeof Deploys.mutation.inputs.addRepoDeployment>,
   ): Promise<Api.Mutation.Output<'/deploys/addRepoDeployment'>> {
-    const repoDeployment = await this.deploysService.addRepoDeployment({
-      githubRepoFullName,
-      commitHash,
-      commitMessage,
-    });
+    try {
+      const repoDeployment = await this.deploysService.addRepoDeployment({
+        githubRepoFullName,
+        commitHash,
+        commitMessage,
+      });
 
-    return { repoDeploymentSlug: repoDeployment.slug };
+      return { repoDeploymentSlug: repoDeployment.slug };
+    } catch (e: any) {
+      throw mapError(e);
+    }
   }
 
   @Post('addContractDeployment')
@@ -171,13 +172,19 @@ export class DeploysController {
     }
     const { repoDeploymentSlug } = body;
 
-    // called from Console frontend to initialize a new repo for deployment
-    await this.deploysService.addContractDeployment({
-      repoDeploymentSlug,
-      files,
-    });
+    try {
+      // called from Console frontend to initialize a new repo for deployment
+      await this.deploysService.addContractDeployment({
+        repoDeploymentSlug,
+        files,
+      });
 
-    return this.contractDeployConfigs(req, { repoDeploymentSlug });
+      return await this.deploysService.getContractDeployConfigs(
+        repoDeploymentSlug,
+      );
+    } catch (e: any) {
+      throw mapError(e);
+    }
   }
 
   @Post('addNearSocialComponentDeployment')
@@ -206,16 +213,20 @@ export class DeploysController {
       componentIconIpfsCid,
       componentTags,
     } = body;
-    return this.deploysService.addNearSocialComponentDeployment({
-      repoDeploymentSlug: body.repoDeploymentSlug,
-      metadata: {
-        componentName,
-        componentDescription,
-        componentIconIpfsCid,
-        componentTags,
-      },
-      file: files[0],
-    });
+    try {
+      return await this.deploysService.addNearSocialComponentDeployment({
+        repoDeploymentSlug: body.repoDeploymentSlug,
+        metadata: {
+          componentName,
+          componentDescription,
+          componentIconIpfsCid,
+          componentTags,
+        },
+        file: files[0],
+      });
+    } catch (e: any) {
+      throw mapError(e);
+    }
   }
 
   @Post('addFrontendDeployment')
@@ -233,12 +244,16 @@ export class DeploysController {
       packageName,
     }: z.infer<typeof Deploys.mutation.inputs.addFrontendDeployment>,
   ): Promise<Api.Mutation.Output<'/deploys/addFrontendDeployment'>> {
-    return this.deploysService.addFrontendDeployment({
-      frontendDeployUrl,
-      cid,
-      packageName,
-      repoDeploymentSlug,
-    });
+    try {
+      return await this.deploysService.addFrontendDeployment({
+        frontendDeployUrl,
+        cid,
+        packageName,
+        repoDeploymentSlug,
+      });
+    } catch (e: any) {
+      throw mapError(e);
+    }
   }
 
   @Post('listRepositories')
@@ -279,13 +294,17 @@ function mapError(e: Error) {
   const code = errorInfo?.code;
   switch (code) {
     case 'PERMISSION_DENIED':
-      return new ForbiddenException();
+      return new ForbiddenException(e.message);
     case 'TOO_MANY_REQUESTS':
       return new TooManyRequestsException();
     case 'NAME_CONFLICT':
       return new ConflictException(code);
     case 'CONFLICT':
       return new ConflictException(code);
+    case 'BAD_REQUEST':
+      return new BadRequestException(e.message);
+    case 'NOT_FOUND':
+      return new NotFoundException(e.message);
     default:
       return e;
   }

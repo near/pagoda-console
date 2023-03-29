@@ -1,10 +1,6 @@
 import { ProjectsService } from '@/src/core/projects/projects.service';
 import sodium from 'libsodium-wrappers';
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
 import { PrismaService } from './prisma.service';
 import { Environment, Project, User } from '@pc/database/clients/core';
@@ -212,7 +208,10 @@ export class DeploysService {
     );
 
     if (isTransferred) {
-      throw new BadRequestException('Repository was already transferred');
+      throw new VError(
+        { info: { code: 'BAD_REQUEST' } },
+        'Repository was already transferred',
+      );
     }
 
     const repo = await this.prisma.repository.findUnique({
@@ -222,7 +221,10 @@ export class DeploysService {
     });
 
     if (!repo) {
-      throw new BadRequestException('repo does not exist');
+      throw new VError(
+        { info: { code: 'BAD_REQUEST' } },
+        'repo does not exist',
+      );
     }
 
     const { createdBy } = await this.projectsService.getActiveProject({
@@ -230,7 +232,10 @@ export class DeploysService {
     });
 
     if (createdBy !== user.id) {
-      throw new ForbiddenException('User cannot modify this repo');
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'User cannot modify this repo',
+      );
     }
 
     let octokit: Octokit;
@@ -454,7 +459,8 @@ export class DeploysService {
     });
 
     if (!repo) {
-      throw new BadRequestException(
+      throw new VError(
+        { info: { code: 'BAD_REQUEST' } },
         'githubRepoFullName not found please add a Repository project to deploy to',
       );
     }
@@ -495,7 +501,8 @@ export class DeploysService {
     );
 
     if (!repoDeployment) {
-      throw new BadRequestException(
+      throw new VError(
+        { info: { code: 'BAD_REQUEST' } },
         `Could not find repoDeployment with that slug`,
       );
     }
@@ -565,7 +572,8 @@ export class DeploysService {
     );
 
     if (!repoDeployment) {
-      throw new BadRequestException(
+      throw new VError(
+        { info: { code: 'BAD_REQUEST' } },
         'Could not find repoDeployment with that slug',
       );
     }
@@ -888,7 +896,8 @@ export class DeploysService {
     });
 
     if (existingFrontend) {
-      throw new BadRequestException(
+      throw new VError(
+        { info: { code: 'BAD_REQUEST' } },
         `Package ${packageName} already added for repo deployment ${repoDeploymentSlug}`,
       );
     }
@@ -904,8 +913,19 @@ export class DeploysService {
     });
   }
 
-  getRepoDeploymentBySlug(slug) {
-    return this.prisma.repoDeployment.findUnique({
+  async getContractDeployConfigs(slug) {
+    const repoDeployment = (await this.getRepoDeploymentBySlug(slug)) as any;
+    return repoDeployment.repository.contractDeployConfigs.reduce(
+      (acc, curr) => ({
+        ...acc,
+        [curr.filename]: { nearAccountId: curr.nearAccountId },
+      }),
+      {},
+    );
+  }
+
+  async getRepoDeploymentBySlug(slug) {
+    const repoDeployment = this.prisma.repoDeployment.findUnique({
       where: {
         slug,
       },
@@ -919,6 +939,13 @@ export class DeploysService {
         },
       },
     });
+    if (!repoDeployment) {
+      throw new VError(
+        { info: { code: 'NOT_FOUND' } },
+        `No such repoDeployment found`,
+      );
+    }
+    return repoDeployment;
   }
 
   getDeployRepository(githubRepoFullName: string) {
