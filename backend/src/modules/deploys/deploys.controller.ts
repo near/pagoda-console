@@ -155,7 +155,7 @@ export class DeploysController {
   @UseInterceptors(AnyFilesInterceptor())
   @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients with Bearer tokens
   async addContractDeployment(
-    @Req() req: Request,
+    @Req() req: ExpressRequest,
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() body: z.infer<typeof Deploys.mutation.inputs.addContractDeployment>,
   ): Promise<Api.Mutation.Output<'/deploys/addContractDeployment'>> {
@@ -172,10 +172,12 @@ export class DeploysController {
     const { repoDeploymentSlug } = body;
 
     // called from Console frontend to initialize a new repo for deployment
-    this.deploysService.addContractDeployment({
+    await this.deploysService.addContractDeployment({
       repoDeploymentSlug,
       files,
     });
+
+    return this.contractDeployConfigs(req, { repoDeploymentSlug });
   }
 
   @Post('addNearSocialComponentDeployment')

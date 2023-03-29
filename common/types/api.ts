@@ -347,7 +347,7 @@ export namespace Api {
       };
       '/deploys/addContractDeployment': {
         input: z.infer<typeof Deploys.mutation.inputs.addContractDeployment>;
-        output: z.infer<typeof Deploys.mutation.outputs.addContractDeployment>;
+        output: z.infer<typeof Deploys.mutation.outputs.contractDeployConfigs>;
         error: z.infer<typeof Deploys.mutation.errors.addContractDeployment>;
       };
       '/deploys/wasmFiles': {

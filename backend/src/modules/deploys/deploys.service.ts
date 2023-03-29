@@ -812,15 +812,17 @@ export class DeploysService {
       }
     }
 
-    await this.prisma.contractDeployment.create({
-      data: {
-        slug: nanoid(),
-        repoDeploymentSlug,
-        contractDeployConfigSlug: deployConfig.slug,
-        deployTransactionHash: txOutcome ? txOutcome.transaction.hash : null,
-        status: 'SUCCESS',
-      },
-    });
+    if (txOutcome?.transaction?.hash) {
+      await this.prisma.contractDeployment.create({
+        data: {
+          slug: nanoid(),
+          repoDeploymentSlug,
+          contractDeployConfigSlug: deployConfig.slug,
+          deployTransactionHash: txOutcome.transaction.hash,
+          status: 'SUCCESS',
+        },
+      });
+    }
 
     try {
       await this.projectsService.systemAddContract(
