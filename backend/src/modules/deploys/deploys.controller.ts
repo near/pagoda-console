@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   UsePipes,
   ConflictException,
+  NotFoundException,
 } from '@nestjs/common';
 import { DeploysService } from './deploys.service';
 import { ZodValidationPipe } from 'src/pipes/ZodValidationPipe';
@@ -30,19 +31,21 @@ import { Request as ExpressRequest } from 'express';
 export class DeploysController {
   constructor(private readonly deploysService: DeploysService) {}
 
-  @Post('addDeploy')
+  @Post('addConsoleDeployProject')
   @UseGuards(BearerAuthGuard)
-  @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addDeploy))
-  async addDeploy(
+  @UsePipes(
+    new ZodValidationPipe(Deploys.mutation.inputs.addConsoleDeployProject),
+  )
+  async addConsoleDeployProject(
     @Req() req: ExpressRequest,
     @Body()
     {
       githubRepoFullName,
       projectName,
-    }: z.infer<typeof Deploys.mutation.inputs.addDeploy>,
-  ): Promise<Api.Mutation.Output<'/deploys/addDeploy'>> {
+    }: z.infer<typeof Deploys.mutation.inputs.addConsoleDeployProject>,
+  ): Promise<Api.Mutation.Output<'/deploys/addConsoleDeployProject'>> {
+    // called from Console frontend to initialize a new repo for deployment
     try {
-      // called from Console frontend to initialize a new repo for deployment
       const repository = await this.deploysService.createDeployProject({
         user: req.user as User, // TODO change to UserDetails from auth service
         githubRepoFullName,
@@ -56,6 +59,25 @@ export class DeploysController {
       throw mapError(e);
     }
   }
+
+  @Post('contractDeployConfigs')
+  @UseGuards(GithubBasicAuthGuard)
+  async contractDeployConfigs(
+    @Req() req: ExpressRequest,
+    @Body()
+    {
+      repoDeploymentSlug,
+    }: z.infer<typeof Deploys.mutation.inputs.contractDeployConfigs>,
+  ): Promise<Api.Mutation.Output<'/deploys/contractDeployConfigs'>> {
+    try {
+      return await this.deploysService.getContractDeployConfigs(
+        repoDeploymentSlug,
+      );
+    } catch (e: any) {
+      throw mapError(e);
+    }
+  }
+
   @Post('isRepositoryTransferred')
   @UseGuards(BearerAuthGuard)
   @UsePipes(new ZodValidationPipe(Deploys.query.inputs.isRepositoryTransferred))
@@ -90,26 +112,56 @@ export class DeploysController {
     }: z.infer<typeof Deploys.mutation.inputs.transferGithubRepository>,
   ): Promise<Api.Mutation.Output<'/deploys/transferGithubRepository'>> {
     // called from Console frontend to initialize a new repo for deployment
-    const repository = await this.deploysService.transferGithubRepository({
-      user: req.user as User, // TODO change to UserDetails from auth service
-      newGithubUsername,
-      repositorySlug,
-    });
-    return {
-      repositorySlug: repository.slug,
-      githubRepoFullName: repository.githubRepoFullName,
-    };
+    try {
+      const repository = await this.deploysService.transferGithubRepository({
+        user: req.user as User, // TODO change to UserDetails from auth service
+        newGithubUsername,
+        repositorySlug,
+      });
+      return {
+        repositorySlug: repository.slug,
+        githubRepoFullName: repository.githubRepoFullName,
+      };
+    } catch (e: any) {
+      throw mapError(e);
+    }
   }
 
-  @Post('deployWasm')
-  @UseInterceptors(AnyFilesInterceptor())
-  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
-  async deployWasm(
+  @Post('addRepoDeployment')
+  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients with Bearer tokens
+  @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addRepoDeployment))
+  async addRepoDeployment(
     @Req() req: Request,
+    @Body()
+    {
+      githubRepoFullName,
+      commitHash,
+      commitMessage,
+    }: z.infer<typeof Deploys.mutation.inputs.addRepoDeployment>,
+  ): Promise<Api.Mutation.Output<'/deploys/addRepoDeployment'>> {
+    try {
+      const repoDeployment = await this.deploysService.addRepoDeployment({
+        githubRepoFullName,
+        commitHash,
+        commitMessage,
+      });
+
+      return { repoDeploymentSlug: repoDeployment.slug };
+    } catch (e: any) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('addContractDeployment')
+  @UseInterceptors(AnyFilesInterceptor())
+  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients with Bearer tokens
+  async addContractDeployment(
+    @Req() req: ExpressRequest,
     @UploadedFiles() files: Array<Express.Multer.File>,
-    @Body() body: z.infer<typeof Deploys.mutation.inputs.deployWasm>,
-  ) {
-    const parsedValue = Deploys.mutation.inputs.deployWasm.safeParse(body);
+    @Body() body: z.infer<typeof Deploys.mutation.inputs.addContractDeployment>,
+  ): Promise<Api.Mutation.Output<'/deploys/addContractDeployment'>> {
+    const parsedValue =
+      Deploys.mutation.inputs.addContractDeployment.safeParse(body);
     if (parsedValue.success === false) {
       throw new BadRequestException(fromZodError(parsedValue.error).toString());
     }
@@ -118,21 +170,71 @@ export class DeploysController {
     if (parsedFiles.success === false) {
       throw new BadRequestException(fromZodError(parsedFiles.error).toString());
     }
-    const { githubRepoFullName, commitHash, commitMessage } = body;
+    const { repoDeploymentSlug } = body;
 
-    // called from Console frontend to initialize a new repo for deployment
-    return this.deploysService.deployRepository({
-      githubRepoFullName,
-      commitHash,
-      commitMessage,
-      files,
-    });
+    try {
+      // called from Console frontend to initialize a new repo for deployment
+      await this.deploysService.addContractDeployment({
+        repoDeploymentSlug,
+        files,
+      });
+
+      return await this.deploysService.getContractDeployConfigs(
+        repoDeploymentSlug,
+      );
+    } catch (e: any) {
+      throw mapError(e);
+    }
   }
 
-  @Post('addFrontend')
-  @UsePipes(new ZodValidationPipe(Deploys.mutation.inputs.addFrontend))
+  @Post('addNearSocialComponentDeployment')
+  @UseInterceptors(AnyFilesInterceptor())
   @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
-  async addFrontend(
+  async addNearSocialComponentDeployment(
+    @Req() req: Request,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Body()
+    body: z.infer<typeof Deploys.mutation.inputs.deployNearSocialComponent>,
+  ) {
+    const parsedValue =
+      Deploys.mutation.inputs.deployNearSocialComponent.safeParse(body);
+    if (parsedValue.success === false) {
+      throw new BadRequestException(fromZodError(parsedValue.error).toString());
+    }
+
+    const parsedFiles =
+      Deploys.mutation.inputs.nearSocialFiles.safeParse(files);
+    if (parsedFiles.success === false) {
+      throw new BadRequestException(fromZodError(parsedFiles.error).toString());
+    }
+    const {
+      componentName,
+      componentDescription,
+      componentIconIpfsCid,
+      componentTags,
+    } = body;
+    try {
+      return await this.deploysService.addNearSocialComponentDeployment({
+        repoDeploymentSlug: body.repoDeploymentSlug,
+        metadata: {
+          componentName,
+          componentDescription,
+          componentIconIpfsCid,
+          componentTags,
+        },
+        file: files[0],
+      });
+    } catch (e: any) {
+      throw mapError(e);
+    }
+  }
+
+  @Post('addFrontendDeployment')
+  @UsePipes(
+    new ZodValidationPipe(Deploys.mutation.inputs.addFrontendDeployment),
+  )
+  @UseGuards(GithubBasicAuthGuard) // Currently used only by github - can be extended to authorize other clients
+  async addFrontendDeployment(
     @Req() req: Request,
     @Body()
     {
@@ -140,24 +242,18 @@ export class DeploysController {
       frontendDeployUrl,
       cid,
       packageName,
-    }: z.infer<typeof Deploys.mutation.inputs.addFrontend>,
-  ) {
-    const repoDeployment = await this.deploysService.getRepoDeploymentBySlug(
-      repoDeploymentSlug,
-    );
-    if (!repoDeployment) {
-      throw new BadRequestException(
-        `RepoDeployment slug ${repoDeploymentSlug} not found`,
-      );
+    }: z.infer<typeof Deploys.mutation.inputs.addFrontendDeployment>,
+  ): Promise<Api.Mutation.Output<'/deploys/addFrontendDeployment'>> {
+    try {
+      return await this.deploysService.addFrontendDeployment({
+        frontendDeployUrl,
+        cid,
+        packageName,
+        repoDeploymentSlug,
+      });
+    } catch (e: any) {
+      throw mapError(e);
     }
-
-    return this.deploysService.addFrontend({
-      repositorySlug: repoDeployment.repositorySlug,
-      frontendDeployUrl,
-      cid,
-      packageName,
-      repoDeploymentSlug,
-    });
   }
 
   @Post('listRepositories')
@@ -198,13 +294,17 @@ function mapError(e: Error) {
   const code = errorInfo?.code;
   switch (code) {
     case 'PERMISSION_DENIED':
-      return new ForbiddenException();
+      return new ForbiddenException(e.message);
     case 'TOO_MANY_REQUESTS':
       return new TooManyRequestsException();
     case 'NAME_CONFLICT':
       return new ConflictException(code);
     case 'CONFLICT':
       return new ConflictException(code);
+    case 'BAD_REQUEST':
+      return new BadRequestException(e.message);
+    case 'NOT_FOUND':
+      return new NotFoundException(e.message);
     default:
       return e;
   }

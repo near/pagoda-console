@@ -22,6 +22,7 @@ model Repository {
   repoDeployments       RepoDeployment[]
   enabled               Boolean                @default(true)
   frontendDeployConfigs FrontendDeployConfig[]
+  nearSocialComponentDeployConfigs NearSocialComponentDeployConfig[]
   authTokenHash         Bytes
   authTokenSalt         Bytes
 }
@@ -36,6 +37,18 @@ model ContractDeployConfig {
   nearAccountId       String
   nearPrivateKey      String
   contractDeployments ContractDeployment[]
+}
+
+// deployment configuration for a given near social component in a Repository
+model NearSocialComponentDeployConfig {
+  slug                String               @unique
+  repository          Repository           @relation(fields: [repositorySlug], references: [slug])
+  repositorySlug      String
+  componentName          String
+  nearAccountId       String
+  nearPrivateKey      String
+  componentPath          String
+  nearSocialComponentDeployments NearSocialComponentDeployment[]
 }
 
 // deployment configuration for a given frontend in a Repository
@@ -58,6 +71,7 @@ model RepoDeployment {
   commitMessage       String
   contractDeployments ContractDeployment[]
   frontendDeployments FrontendDeployment[]
+  nearSocialComponentDeployments NearSocialComponentDeployment[]
   createdAt           DateTime             @default(now()) @db.Timestamptz
 }
 
@@ -76,6 +90,16 @@ model ContractDeployment {
   contractDeployConfigSlug String
   deployTransactionHash    String?
   status                   ContractDeployStatus @default(IN_PROGRESS)
+}
+
+model NearSocialComponentDeployment {
+  slug                             String               @unique
+  repoDeployment                   RepoDeployment       @relation(fields: [repoDeploymentSlug], references: [slug])
+  repoDeploymentSlug               String
+  nearSocialComponentDeployConfig     NearSocialComponentDeployConfig @relation(fields: [nearSocialComponentDeployConfigSlug], references: [slug])
+  nearSocialComponentDeployConfigSlug String
+  deployTransactionHash            String?
+  status                           ContractDeployStatus @default(IN_PROGRESS)
 }
 
 // an executed deployment action on a single FrontendDeployConfig
