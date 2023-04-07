@@ -4,7 +4,7 @@ import useSWR from 'swr';
 
 import { api } from '@/utils/api';
 
-export function useRepositories(project: string | undefined, repositorySlug: string | undefined) {
+export function useRepositories(project: string | undefined, repositorySlug?: string) {
   const {
     data: repositories,
     error,
