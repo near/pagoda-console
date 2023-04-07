@@ -10,7 +10,7 @@ import { useProjectSelector } from './selected-project';
 
 type Projects = Api.Query.Output<'/projects/list'>;
 
-export function useProject(projectSlug: string | undefined) {
+export function useProject(projectSlug: string | undefined, enforceSelectedProject = true) {
   const router = useRouter();
   const { selectProject } = useProjectSelector();
 
@@ -27,13 +27,13 @@ export function useProject(projectSlug: string | undefined) {
 
   useEffect(() => {
     if (router.pathname !== '/projects') {
-      if ([400, 403].includes(error?.statusCode)) {
+      if ([400, 403].includes(error?.statusCode) && enforceSelectedProject) {
         selectProject(undefined);
         window.sessionStorage.setItem('redirected', 'true');
         router.push('/projects');
       }
     }
-  }, [error, router, selectProject]);
+  }, [error, router, selectProject, enforceSelectedProject]);
 
   return { project, error };
 }

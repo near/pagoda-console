@@ -50,10 +50,12 @@ const repoDeployments = z.array(
 export const query = {
   inputs: {
     listRepositories: z.strictObject({
-      project: z.string(),
+      project: z.string().optional(),
+      repositorySlug: z.string().optional(),
     }),
     listDeployments: z.strictObject({
-      project: z.string(),
+      project: z.string().optional(),
+      repositorySlug: z.string().optional(),
     }),
     isRepositoryTransferred: z.strictObject({
       repositorySlug: z.string(),
@@ -149,7 +151,7 @@ export const mutation = {
   outputs: {
     addConsoleDeployProject: z.strictObject({
       repositorySlug: z.string(),
-      projectSlug: z.string(),
+      projectSlug: z.string().optional(),
     }),
     transferGithubRepository: z.strictObject({
       repositorySlug: z.string(),

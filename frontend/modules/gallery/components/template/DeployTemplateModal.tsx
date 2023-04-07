@@ -79,8 +79,13 @@ function ConnectedModalContent(props: Props) {
         description: `Repository was created: ${name}. Please wait while the deploy completes. Then you will be prompted to transfer the repository.`,
       });
 
-      selectProject(res.projectSlug);
-      router.push('/deploys');
+      if(res.projectSlug) {
+        selectProject(res.projectSlug);
+        router.push('/deploys');
+      } else {
+        router.push(`/deploys?repositorySlug=${res.repositorySlug}`)
+      }
+      
       props.setShow(false);
     },
     onError: (error: any) => {
@@ -102,7 +107,7 @@ function ConnectedModalContent(props: Props) {
         toastDescription,
       });
     },
-  });
+  }, false);
 
   function deploy(data: DeployFormData) {
     const githubRepoFullName = props.template.attributes.githubUrl.split('/').slice(-2).join('/');

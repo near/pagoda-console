@@ -71,19 +71,21 @@ export class DeploysService {
     }
 
     // Make sure the project name is unique before generating the GitHub repo.
-    const isUnique = await this.projectsService.isProjectNameUniqueForUser(
-      user,
-      projectName,
-    );
-    if (!isUnique) {
-      throw new VError(
-        {
-          info: {
-            code: 'NAME_CONFLICT',
-          },
-        },
-        'Project name is not unique',
+    if (user) {
+      const isUnique = await this.projectsService.isProjectNameUniqueForUser(
+        user,
+        projectName,
       );
+      if (!isUnique) {
+        throw new VError(
+          {
+            info: {
+              code: 'NAME_CONFLICT',
+            },
+          },
+          'Project name is not unique',
+        );
+      }
     }
 
     const {
@@ -155,38 +157,24 @@ export class DeploysService {
         throw new VError(e, 'Could not set secrets on repo');
       });
 
-    let project, environments;
+    let project;
+    // let environments;
 
     // create the project which this deployment will be placed under
-    try {
-      project = await this.projectsService.create(user, projectName);
-    } catch (e: any) {
-      throw new VError(e, 'Failed to create project for deployment');
-    }
-
-    // grab environments from the newly created project because we attach
-    // deploys to specific environments
-    try {
-      environments = await this.projectsService.getEnvironments(user, {
-        slug: project.slug,
-      });
-    } catch (e: any) {
-      throw new VError(
-        e,
-        'Failed to fetch environments for newly created deploy project',
-      );
+    if (user) {
+      try {
+        project = await this.projectsService.create(user, projectName);
+      } catch (e: any) {
+        throw new VError(e, 'Failed to create project for deployment');
+      }
     }
 
     // for templates, we only support deploying to testnet at the moment, so
     // this is hardcoded
-    const testnetEnv = environments.find((env) => env.net === 'TESTNET');
-    if (!testnetEnv) {
-      throw new VError('Could not find testnet env for newly created project');
-    }
 
     return this.addDeployRepository({
-      projectSlug: project.slug,
-      environmentSubId: testnetEnv.subId,
+      projectSlug: project?.slug,
+      environmentSubId: 1,
       githubRepoFullName: repoFullName,
       authTokenHash,
       authTokenSalt,
@@ -224,6 +212,13 @@ export class DeploysService {
       throw new VError(
         { info: { code: 'BAD_REQUEST' } },
         'repo does not exist',
+      );
+    }
+
+    if (!repo.projectSlug) {
+      throw new VError(
+        { info: { code: 'BAD_REQUEST' } },
+        'repo is not associated to a project',
       );
     }
 
@@ -349,6 +344,10 @@ export class DeploysService {
         { info: { code: DeployError.BAD_REPO } },
         'Repository not found',
       );
+    }
+
+    if (!repo.projectSlug) {
+      return { isTransferred: false };
     }
 
     await this.projectPermissions.checkUserProjectPermission(
@@ -831,18 +830,19 @@ export class DeploysService {
         },
       });
     }
-
-    try {
-      await this.projectsService.systemAddContract(
-        projectSlug,
-        subId,
-        account.accountId,
-      );
-    } catch (e: any) {
-      if (VError.info(e)?.response === 'DUPLICATE_CONTRACT_ADDRESS') {
-        return;
+    if (projectSlug) {
+      try {
+        await this.projectsService.systemAddContract(
+          projectSlug,
+          subId,
+          account.accountId,
+        );
+      } catch (e: any) {
+        if (VError.info(e)?.response === 'DUPLICATE_CONTRACT_ADDRESS') {
+          return;
+        }
+        throw e;
       }
-      throw e;
     }
   }
 
@@ -962,32 +962,78 @@ export class DeploysService {
     });
   }
 
-  async listRepositories(user: User, project: Repository['projectSlug']) {
-    await this.projectPermissions.checkUserProjectPermission(user.id, project);
+  async listRepositories(
+    user: User,
+    project: string | undefined,
+    repositorySlug: string | undefined,
+  ) {
+    let repositories;
+    if (project) {
+      await this.projectPermissions.checkUserProjectPermission(
+        user.id,
+        project,
+      );
 
-    // TODO should we filter enabled repositories?
-    const repositories = await this.prisma.repository.findMany({
-      where: {
-        projectSlug: project,
-      },
-      include: {
-        frontendDeployConfigs: {
-          select: { slug: true, packageName: true },
+      // TODO should we filter enabled repositories?
+      repositories = await this.prisma.repository.findMany({
+        where: {
+          projectSlug: project,
         },
-        contractDeployConfigs: {
-          select: {
-            slug: true,
-            filename: true,
-            nearAccountId: true,
+        include: {
+          frontendDeployConfigs: {
+            select: { slug: true, packageName: true },
+          },
+          contractDeployConfigs: {
+            select: {
+              slug: true,
+              filename: true,
+              nearAccountId: true,
+            },
           },
         },
-      },
-    });
+      });
+    } else {
+      if (!repositorySlug) {
+        throw new VError(
+          { info: { code: 'BAD_REQUEST' } },
+          'repositorySlug needs to be provided if no project',
+        );
+      }
+      const repo = await this.prisma.repository.findUnique({
+        where: {
+          slug: repositorySlug,
+        },
+        include: {
+          frontendDeployConfigs: {
+            select: { slug: true, packageName: true },
+          },
+          contractDeployConfigs: {
+            select: {
+              slug: true,
+              filename: true,
+              nearAccountId: true,
+            },
+          },
+        },
+      });
+      if (!repo) {
+        throw new VError(
+          { info: { code: 'NOT_FOUND' } },
+          `No such repository found`,
+        );
+      }
+      if (repo.projectSlug) {
+        throw new VError(
+          { info: { code: 'PERMISSION_DENIED' } },
+          'projectSlug must be provided',
+        );
+      }
+      repositories = [repo];
+    }
 
     return repositories.map((repository) => {
       const {
         slug,
-        projectSlug,
         environmentSubId,
         githubRepoFullName,
         enabled,
@@ -997,7 +1043,7 @@ export class DeploysService {
 
       return {
         slug,
-        projectSlug,
+        projectSlug: project,
         environmentSubId,
         githubRepoFullName,
         enabled,
@@ -1010,22 +1056,53 @@ export class DeploysService {
   async listDeployments(
     user: User,
     project: Repository['projectSlug'],
+    repositorySlug?: string,
     take = 10,
   ) {
-    await this.projectPermissions.checkUserProjectPermission(user.id, project);
+    let repository;
+    if (!repositorySlug) {
+      if (!project) {
+        throw new VError(
+          { info: { code: 'BAD_REQUEST' } },
+          'project needs to be provided if no repositorySlug',
+        );
+      }
+      await this.projectPermissions.checkUserProjectPermission(
+        user.id,
+        project,
+      );
 
-    const repositories = await this.readonlyService.getRepositories(project);
+      const repositories = await this.readonlyService.getRepositories(project);
 
-    if (!repositories.length) {
-      return [];
+      if (!repositories.length) {
+        return [];
+      }
+
+      // TODO right now this assumes we have 1 repo for a given project, which seems to be true for the MVP
+      repository = repositories[0];
+    } else {
+      const repo = await this.prisma.repository.findUnique({
+        where: {
+          slug: repositorySlug,
+        },
+      });
+      if (!repo) {
+        throw new VError(
+          { info: { code: 'NOT_FOUND' } },
+          `No such repository found`,
+        );
+      }
+      if (repo.projectSlug) {
+        throw new VError(
+          { info: { code: 'PERMISSION_DENIED' } },
+          'projectSlug must be provided',
+        );
+      }
     }
-
-    // TODO right now this assumes we have 1 repo for a given project, which seems to be true for the MVP
-    const repository = repositories[0];
 
     const deployments = await this.prisma.repoDeployment.findMany({
       where: {
-        repository,
+        repositorySlug: repositorySlug || repository.slug,
       },
       orderBy: {
         createdAt: 'desc',

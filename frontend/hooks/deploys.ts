@@ -3,15 +3,15 @@ import useSWR from 'swr';
 
 import { api } from '@/utils/api';
 
-export function useRepositories(project: string | undefined) {
+export function useRepositories(project: string | undefined, repositorySlug: string | undefined) {
   const {
     data: repositories,
     error,
     mutate,
   } = useSWR(
-    project ? ['/deploys/listRepositories' as const, project] : null,
+    project || repositorySlug ? ['/deploys/listRepositories' as const, project] : null,
     (path, project) => {
-      return api.query(path, { project: project });
+      return api.query(path, { project: project, repositorySlug });
     },
     { refreshInterval: 10000 },
   );
@@ -19,15 +19,15 @@ export function useRepositories(project: string | undefined) {
   return { repositories, error, mutate };
 }
 
-export function useDeployments(project: string | undefined) {
+export function useDeployments(project: string | undefined, repositorySlug: string | undefined) {
   const {
     data: deployments,
     error,
     mutate,
   } = useSWR(
-    project ? ['/deploys/listDeployments' as const, project] : null,
+    project || repositorySlug ? ['/deploys/listDeployments' as const, project] : null,
     (path, project) => {
-      return api.query(path, { project });
+      return api.query(path, { project, repositorySlug });
     },
     { refreshInterval: 10000 },
   );

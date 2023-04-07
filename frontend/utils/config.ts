@@ -47,7 +47,7 @@ if (
 const downtimeMessage = process.env.NEXT_PUBLIC_DOWNTIME_MESSAGE || '';
 const downtimeModeRaw = process.env.NEXT_PUBLIC_DOWNTIME_MODE;
 const downtimeModes = ['maintenance', 'unexpected', 'custom'] as const;
-type DowntimeMode = (typeof downtimeModes)[number];
+type DowntimeMode = typeof downtimeModes[number];
 let downtimeMode: DowntimeMode | undefined = undefined;
 
 if (downtimeModeRaw) {

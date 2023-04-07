@@ -32,7 +32,7 @@ export class DeploysController {
   constructor(private readonly deploysService: DeploysService) {}
 
   @Post('addConsoleDeployProject')
-  @UseGuards(BearerAuthGuard)
+  // @UseGuards(BearerAuthGuard)
   @UsePipes(
     new ZodValidationPipe(Deploys.mutation.inputs.addConsoleDeployProject),
   )
@@ -51,10 +51,15 @@ export class DeploysController {
         githubRepoFullName,
         projectName,
       });
-      return {
-        repositorySlug: repository.slug,
-        projectSlug: repository.projectSlug,
-      };
+
+      return repository.projectSlug
+        ? {
+            repositorySlug: repository.slug,
+            projectSlug: repository.projectSlug,
+          }
+        : {
+            repositorySlug: repository.slug,
+          };
     } catch (e: any) {
       throw mapError(e);
     }
@@ -262,10 +267,14 @@ export class DeploysController {
   async listRepositories(
     @Request() req,
     @Body()
-    { project }: Api.Query.Input<'/deploys/listRepositories'>,
+    { project, repositorySlug }: Api.Query.Input<'/deploys/listRepositories'>,
   ): Promise<Api.Query.Output<'/deploys/listRepositories'>> {
     try {
-      return await this.deploysService.listRepositories(req.user, project);
+      return await this.deploysService.listRepositories(
+        req.user,
+        project,
+        repositorySlug,
+      );
     } catch (e: any) {
       throw mapError(e);
     }
@@ -277,10 +286,15 @@ export class DeploysController {
   async listDeployments(
     @Request() req,
     @Body()
-    { project }: Api.Query.Input<'/deploys/listDeployments'>,
+    { project, repositorySlug }: Api.Query.Input<'/deploys/listDeployments'>,
   ): Promise<Api.Query.Output<'/deploys/listDeployments'>> {
     try {
-      return await this.deploysService.listDeployments(req.user, project, 10);
+      return await this.deploysService.listDeployments(
+        req.user,
+        project || null,
+        repositorySlug,
+        10,
+      );
     } catch (e: any) {
       throw mapError(e);
     }
