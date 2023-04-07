@@ -17,7 +17,7 @@ import { wasmDeployCompleted } from '../testnet';
 const History = () => {
   const router = useRouter();
   const { repositorySlug } = router.query;
-  const project = useSelectedProject({enforceSelectedProject: !repositorySlug});
+  const project = useSelectedProject({ enforceSelectedProject: !repositorySlug });
   const { deployments } = useDeployments(project.project?.slug, repositorySlug as string);
 
   return (

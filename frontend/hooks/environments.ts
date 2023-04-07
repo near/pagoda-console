@@ -9,9 +9,11 @@ import { useSelectedProject } from './selected-project';
 
 type Environment = Api.Query.Output<'/projects/getEnvironments'>[number];
 
-export function useCurrentEnvironment(options = {
-  enforceSelectedProject: true
-}) {
+export function useCurrentEnvironment(
+  options = {
+    enforceSelectedProject: true,
+  },
+) {
   const testnetEnvironment: Environment = {
     name: 'Testnet',
     net: 'TESTNET',
@@ -27,7 +29,9 @@ export function useCurrentEnvironment(options = {
   const publicModeIsActive = usePublicStore((store) => store.publicModeIsActive);
   const publicContracts = usePublicStore((store) => store.contracts);
   const publicEnvironment = publicContracts[0]?.net === 'MAINNET' ? mainnetEnvironment : testnetEnvironment;
-  const { environment: privateEnvironment } = useSelectedProject({ enforceSelectedProject: options.enforceSelectedProject });
+  const { environment: privateEnvironment } = useSelectedProject({
+    enforceSelectedProject: options.enforceSelectedProject,
+  });
 
   if (!publicModeHasHydrated) return { environment: undefined };
 

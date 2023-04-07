@@ -26,6 +26,7 @@ import { GithubBasicAuthGuard } from '@/src/core/auth/github-basic-auth.guard';
 import { TooManyRequestsException } from '../alerts/exception/tooManyRequestsException';
 import { VError } from 'verror';
 import { Request as ExpressRequest } from 'express';
+import { BearerOptionalAuthGuard } from '@/src/core/auth/bearer-optional.guard';
 
 @Controller('deploys')
 export class DeploysController {
@@ -84,7 +85,7 @@ export class DeploysController {
   }
 
   @Post('isRepositoryTransferred')
-  @UseGuards(BearerAuthGuard)
+  @UseGuards(BearerOptionalAuthGuard)
   @UsePipes(new ZodValidationPipe(Deploys.query.inputs.isRepositoryTransferred))
   async isRepoTransferred(
     @Req() req: ExpressRequest,
@@ -95,8 +96,8 @@ export class DeploysController {
   ): Promise<Api.Query.Output<'/deploys/isRepositoryTransferred'>> {
     try {
       return await this.deploysService.isRepositoryTransferred(
-        req.user as User, // TODO change to UserDetails from auth service
         repositorySlug,
+        req.user as User, // TODO change to UserDetails from auth service
       );
     } catch (e: any) {
       throw mapError(e);
@@ -262,7 +263,7 @@ export class DeploysController {
   }
 
   @Post('listRepositories')
-  @UseGuards(BearerAuthGuard)
+  @UseGuards(BearerOptionalAuthGuard)
   @UsePipes(new ZodValidationPipe(Deploys.query.inputs.listRepositories))
   async listRepositories(
     @Request() req,
@@ -271,9 +272,9 @@ export class DeploysController {
   ): Promise<Api.Query.Output<'/deploys/listRepositories'>> {
     try {
       return await this.deploysService.listRepositories(
-        req.user,
         project,
         repositorySlug,
+        req.user,
       );
     } catch (e: any) {
       throw mapError(e);
@@ -281,7 +282,7 @@ export class DeploysController {
   }
 
   @Post('listDeployments')
-  @UseGuards(BearerAuthGuard)
+  @UseGuards(BearerOptionalAuthGuard)
   @UsePipes(new ZodValidationPipe(Deploys.query.inputs.listDeployments))
   async listDeployments(
     @Request() req,
@@ -290,8 +291,8 @@ export class DeploysController {
   ): Promise<Api.Query.Output<'/deploys/listDeployments'>> {
     try {
       return await this.deploysService.listDeployments(
-        req.user,
         project || null,
+        req.user,
         repositorySlug,
         10,
       );

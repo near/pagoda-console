@@ -22,7 +22,7 @@ import { netOptions } from '@/utils/types';
 type Contract = Api.Query.Output<'/projects/getContract'>;
 
 const validRedirectPageNames = ['analytics', 'contracts', 'contract-details', 'contract-interact'] as const;
-export type RedirectPageName = (typeof validRedirectPageNames)[number];
+export type RedirectPageName = typeof validRedirectPageNames[number];
 
 const Public: NextPageWithLayout = () => {
   const { authStatus } = useAuth();

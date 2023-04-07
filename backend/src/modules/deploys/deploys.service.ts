@@ -191,8 +191,8 @@ export class DeploysService {
     repositorySlug: string;
   }) {
     const { isTransferred } = await this.isRepositoryTransferred(
-      user,
       repositorySlug,
+      user,
     );
 
     if (isTransferred) {
@@ -215,15 +215,30 @@ export class DeploysService {
       );
     }
 
+    let projectSlug = repo.projectSlug;
+
     if (!repo.projectSlug) {
-      throw new VError(
-        { info: { code: 'BAD_REQUEST' } },
-        'repo is not associated to a project',
-      );
+      try {
+        const project = await this.projectsService.create(
+          user,
+          repo.githubRepoFullName.split('/')[1],
+        );
+        await this.prisma.repository.update({
+          where: {
+            slug: repositorySlug,
+          },
+          data: {
+            projectSlug: project.slug,
+          },
+        });
+        projectSlug = project.slug;
+      } catch (e: any) {
+        throw new VError(e, 'Failed to create project for deployment');
+      }
     }
 
     const { createdBy } = await this.projectsService.getActiveProject({
-      slug: repo.projectSlug,
+      slug: projectSlug as string,
     });
 
     if (createdBy !== user.id) {
@@ -330,8 +345,8 @@ export class DeploysService {
   }
 
   async isRepositoryTransferred(
-    user: User,
     repositorySlug: Repository['slug'],
+    user?: User,
   ) {
     const repo = await this.prisma.repository.findUnique({
       where: {
@@ -348,6 +363,13 @@ export class DeploysService {
 
     if (!repo.projectSlug) {
       return { isTransferred: false };
+    }
+
+    if (!user) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'User does not have rights to manage this project',
+      );
     }
 
     await this.projectPermissions.checkUserProjectPermission(
@@ -404,10 +426,13 @@ export class DeploysService {
         'Could not establish octokit conneciton for template creation',
       );
     }
-
-    await octokit.request(
-      `DELETE /repos/${repoFullName}/collaborators/${this.repositoryOwner}`,
-    );
+    try {
+      await octokit.request(
+        `DELETE /repos/${repoFullName}/collaborators/${this.repositoryOwner}`,
+      );
+    } catch (error) {
+      return null;
+    }
   }
 
   /**
@@ -963,12 +988,18 @@ export class DeploysService {
   }
 
   async listRepositories(
-    user: User,
     project: string | undefined,
     repositorySlug: string | undefined,
+    user?: User,
   ) {
     let repositories;
     if (project) {
+      if (!user) {
+        throw new VError(
+          { info: { code: 'PERMISSION_DENIED' } },
+          'User does not have rights to manage this project',
+        );
+      }
       await this.projectPermissions.checkUserProjectPermission(
         user.id,
         project,
@@ -1023,9 +1054,15 @@ export class DeploysService {
         );
       }
       if (repo.projectSlug) {
-        throw new VError(
-          { info: { code: 'PERMISSION_DENIED' } },
-          'projectSlug must be provided',
+        if (!user) {
+          throw new VError(
+            { info: { code: 'PERMISSION_DENIED' } },
+            'User does not have rights to manage this project',
+          );
+        }
+        await this.projectPermissions.checkUserProjectPermission(
+          user.id,
+          repo.projectSlug,
         );
       }
       repositories = [repo];
@@ -1054,8 +1091,8 @@ export class DeploysService {
   }
 
   async listDeployments(
-    user: User,
     project: Repository['projectSlug'],
+    user?: User,
     repositorySlug?: string,
     take = 10,
   ) {
@@ -1065,6 +1102,12 @@ export class DeploysService {
         throw new VError(
           { info: { code: 'BAD_REQUEST' } },
           'project needs to be provided if no repositorySlug',
+        );
+      }
+      if (!user) {
+        throw new VError(
+          { info: { code: 'PERMISSION_DENIED' } },
+          'User does not have rights to manage this project',
         );
       }
       await this.projectPermissions.checkUserProjectPermission(
@@ -1093,9 +1136,15 @@ export class DeploysService {
         );
       }
       if (repo.projectSlug) {
-        throw new VError(
-          { info: { code: 'PERMISSION_DENIED' } },
-          'projectSlug must be provided',
+        if (!user) {
+          throw new VError(
+            { info: { code: 'PERMISSION_DENIED' } },
+            'User does not have rights to manage this project',
+          );
+        }
+        await this.projectPermissions.checkUserProjectPermission(
+          user.id,
+          repo.projectSlug,
         );
       }
     }
