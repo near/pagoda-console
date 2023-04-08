@@ -42,14 +42,24 @@ export class DeploysController {
     @Body()
     {
       githubRepoFullName,
+      nearSocialComponentPath,
       projectName,
     }: z.infer<typeof Deploys.mutation.inputs.addConsoleDeployProject>,
   ): Promise<Api.Mutation.Output<'/deploys/addConsoleDeployProject'>> {
     // called from Console frontend to initialize a new repo for deployment
+    if (
+      [githubRepoFullName, nearSocialComponentPath].filter((a) => !!a)
+        .length !== 1
+    ) {
+      throw new BadRequestException(
+        'one of githubRepoFullName or nearSocialComponentPath must be provided',
+      );
+    }
     try {
       const repository = await this.deploysService.createDeployProject({
         user: req.user as User, // TODO change to UserDetails from auth service
         githubRepoFullName,
+        nearSocialComponentPath,
         projectName,
       });
 

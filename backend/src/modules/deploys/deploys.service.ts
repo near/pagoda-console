@@ -21,6 +21,7 @@ import { AppConfig } from '@/src/config/validate';
 import { DeployError } from './deploy-error';
 import _ from 'lodash';
 import { parseNearAmount } from 'near-api-js/lib/utils/format';
+import { ymlText } from './nearSocialDeployWorkflow';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -52,10 +53,12 @@ export class DeploysService {
   async createDeployProject({
     user,
     githubRepoFullName,
+    nearSocialComponentPath,
     projectName,
   }: {
     user: User;
-    githubRepoFullName: string;
+    githubRepoFullName?: string;
+    nearSocialComponentPath?: string;
     projectName: Project['name'];
   }) {
     let octokit: Octokit;
@@ -88,22 +91,98 @@ export class DeploysService {
       }
     }
 
-    const {
-      data: { full_name: repoFullName },
-    } = (await octokit
-      .request(`POST /repos/${githubRepoFullName}/generate`, {
-        name: projectName,
-        owner: this.repositoryOwner,
-      })
-      .catch((e) => {
-        if (/Name already exists on this account/.test(e.message)) {
-          throw new VError(
-            { info: { code: DeployError.NAME_CONFLICT } },
-            'Repository name already exists on this GitHub account',
-          );
-        }
-        throw new VError(e, 'Could not create repo from template');
-      })) as any;
+    let repoFullName;
+
+    if (githubRepoFullName) {
+      const {
+        data: { full_name },
+      } = (await octokit
+        .request(`POST /repos/${githubRepoFullName}/generate`, {
+          name: projectName,
+          owner: this.repositoryOwner,
+        })
+        .catch((e) => {
+          if (/Name already exists on this account/.test(e.message)) {
+            throw new VError(
+              { info: { code: DeployError.NAME_CONFLICT } },
+              'Repository name already exists on this GitHub account',
+            );
+          }
+          throw new VError(e, 'Could not create repo from template');
+        })) as any;
+      repoFullName = full_name;
+    } else if (nearSocialComponentPath) {
+      const nearConfig = {
+        networkId: 'mainnet',
+        nodeUrl: 'https://rpc.near.org', // todo from env?
+        keyStore: new keyStores.InMemoryKeyStore(),
+        headers: {},
+      };
+
+      const near = await connect(nearConfig);
+      const account = await near.account('');
+
+      let component = await account.viewFunction('social.near', 'get', {
+        keys: [`${nearSocialComponentPath}/**`],
+      });
+
+      component = nearSocialComponentPath
+        .split('/')
+        .reduce((acc, curr) => acc[curr] || acc, component);
+
+      if (component.githubTemplateUrl) {
+        const {
+          data: { full_name },
+        } = (await octokit
+          .request(`POST /repos/${component.githubTemplateUrl}/generate`, {
+            name: projectName,
+            owner: this.repositoryOwner,
+          })
+          .catch((e) => {
+            if (/Name already exists on this account/.test(e.message)) {
+              throw new VError(
+                { info: { code: DeployError.NAME_CONFLICT } },
+                'Repository name already exists on this GitHub account',
+              );
+            }
+            throw new VError(e, 'Could not create repo from template');
+          })) as any;
+        repoFullName = full_name;
+      } else {
+        const {
+          data: { full_name },
+        } = await octokit
+          .request('POST /user/repos', {
+            name: projectName,
+          })
+          .catch((e) => {
+            if (/Name already exists on this account/.test(e.message)) {
+              throw new VError(
+                { info: { code: DeployError.NAME_CONFLICT } },
+                'Repository name already exists on this GitHub account',
+              );
+            }
+            throw new VError(e, 'Could not create repo from template');
+          });
+
+        await octokit.request(`PUT /repos/${full_name}/contents/index.jsx`, {
+          message: 'feat: add near social component',
+          content: sodium.to_base64(
+            component[''],
+            sodium.base64_variants.ORIGINAL,
+          ),
+        });
+
+        await octokit.request(
+          `PUT /repos/${full_name}/contents/.github/workflows/deploy-to-console.yml`,
+          {
+            message: 'feat: add deploy workflow',
+            content: sodium.to_base64(ymlText, sodium.base64_variants.ORIGINAL),
+          },
+        );
+        repoFullName = full_name;
+      }
+    }
 
     // OWASP recommended password hashing:
     // If Argon2id is not available, use scrypt with a minimum CPU/memory cost parameter of (2^16),
@@ -681,9 +760,13 @@ export class DeploysService {
     const near = await connect(nearConfig);
     const account = await near.account(deployConfig.nearAccountId);
 
-    const component = await account.viewFunction('v1.social08.testnet', 'get', {
+    let component = await account.viewFunction('v1.social08.testnet', 'get', {
       keys: [`${deployConfig.componentPath}/**`],
     });
+
+    component = deployConfig.componentPath
+      .split('/')
+      .reduce((acc, curr) => acc[curr] || acc, component);
 
     const newComponent = {
       '': file.toString('utf-8'),
