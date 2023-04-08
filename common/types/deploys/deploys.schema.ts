@@ -101,8 +101,14 @@ export const query = {
 export const mutation = {
   inputs: {
     addConsoleDeployProject: z.strictObject({
-      githubRepoFullName: z.string().regex(/[\w\.\-]+\/[\w\.\-]+/).optional(), // matches <owner/repo> e.g. 'near/pagoda-console`
-      nearSocialComponentPath: z.string().regex(/[\w\.\-]+\/[\w\.\-]+/).optional(),
+      githubRepoFullName: z
+        .string()
+        .regex(/[\w\.\-]+\/[\w\.\-]+/)
+        .optional(), // matches <owner/repo> e.g. 'near/pagoda-console`
+      nearSocialComponentPath: z
+        .string()
+        .regex(/[\w\.\-]+\/[\w\.\-]+/)
+        .optional(),
       projectName: z.string(),
     }),
     transferGithubRepository: z.strictObject({
