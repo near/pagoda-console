@@ -75,7 +75,7 @@ function ModalContent(props) {
     <Flex stack>
       <Form.Root onSubmit={form.handleSubmit(transfer)}>
         <Flex stack>
-          <Text>Transferring this repo will move it to the newly entered GitHub account.</Text>
+          <Text>Transferring this repository will move it to the provided Github account.</Text>
 
           <Form.Group>
             <Form.FloatingLabelInput
