@@ -52,11 +52,11 @@ function ModalContent(props) {
   });
 
   const errorDescriptionHandler = (error: any) => {
+    console.log('errorDescriptionHandler: ', error);
     switch (error.statusCode) {
       case 400:
+      case 404:
         return error.message;
-      case 500:
-        return 'You have already started the transfer. Please check your email and accept the transfer request.';
       default:
         return 'Unknown error.';
     }

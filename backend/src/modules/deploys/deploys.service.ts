@@ -260,6 +260,11 @@ export class DeploysService {
       if (e.status === 404) {
         // TODO replace with returning a code to the UI and tell the user they already initiaed a transfer.
         throw new VError(e, 'Could not find the repository to transfer');
+      } else if (e.status === 400) {
+        throw new VError(
+          { info: { code: DeployError.TRANSFER_INITIATED } },
+          'Repository transfer already initiated',
+        );
       }
       throw new VError(e, 'Could not transfer the repository');
     }
