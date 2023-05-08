@@ -303,6 +303,8 @@ function mapError(e: Error) {
       return new ConflictException(code);
     case 'BAD_REQUEST':
       return new BadRequestException(e.message);
+    case 'TRANSFER_INITIATED':
+      return new BadRequestException(e.message);
     case 'NOT_FOUND':
       return new NotFoundException(e.message);
     default:
