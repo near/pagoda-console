@@ -52,7 +52,6 @@ function ModalContent(props) {
   });
 
   const errorDescriptionHandler = (error: any) => {
-    console.log('errorDescriptionHandler: ', error);
     switch (error.statusCode) {
       case 400:
       case 404:
