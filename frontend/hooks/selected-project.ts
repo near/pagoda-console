@@ -27,7 +27,7 @@ export function useSelectedProject(
   const router = useRouter();
   const projectSlugRouteParam = useRouteParam('project');
   const settings = useSettingsStore((store) => store.currentUser);
-  const { project } = useProject(settings?.selectedProjectSlug);
+  const { project } = useProject(settings?.selectedProjectSlug, options.enforceSelectedProject);
   const { environments } = useEnvironments(settings?.selectedProjectSlug);
   const [environment, setEnvironment] = useState<Environment>();
   const publicModeIsActive = usePublicStore((store) => store.publicModeIsActive);

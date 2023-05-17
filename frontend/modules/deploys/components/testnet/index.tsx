@@ -68,13 +68,14 @@ const FrontendDeployment = ({ deployment }) => {
 };
 
 const Testnet = () => {
-  const project = useSelectedProject();
-  const { repositories } = useRepositories(project.project?.slug);
-  const { deployments = [] } = useDeployments(project.project?.slug);
-  const { environment } = useCurrentEnvironment();
+  const router = useRouter();
+  const { repositorySlug } = router.query;
+  const project = useSelectedProject({ enforceSelectedProject: !repositorySlug });
+  const { repositories } = useRepositories(project?.project?.slug, repositorySlug as string);
+  const { deployments = [] } = useDeployments(project?.project?.slug, repositorySlug as string);
+  const { environment } = useCurrentEnvironment({ enforceSelectedProject: false });
   const { contracts: privateContracts } = useContracts(project.project?.slug, environment?.subId);
   const { contracts } = usePublicOrPrivateContracts(privateContracts);
-  const router = useRouter();
 
   // TODO add better loading state
   if (!repositories || !repositories.length) {
@@ -177,15 +178,17 @@ const Testnet = () => {
                 </DropdownMenu.Root>
               ) : null}
             </FlexTop>
-            <BadgeTop background="dark">
-              <FeatherIcon size="xs" icon="zap" />
-              <Text size="bodySmall" color="text1" family="number">
-                {accountId}
-              </Text>
-              <CopyButton style={{ cursor: 'pointer' }} onClick={() => navigator.clipboard.writeText(accountId)}>
-                <FeatherIcon size="xs" icon="copy" />
-              </CopyButton>
-            </BadgeTop>
+            {lastDeploy.contractDeployments.length ? (
+              <BadgeTop background="dark">
+                <FeatherIcon size="xs" icon="zap" />
+                <Text size="bodySmall" color="text1" family="number">
+                  {accountId}
+                </Text>
+                <CopyButton style={{ cursor: 'pointer' }} onClick={() => navigator.clipboard.writeText(accountId)}>
+                  <FeatherIcon size="xs" icon="copy" />
+                </CopyButton>
+              </BadgeTop>
+            ) : null}
           </Box>
         ) : (
           <Card borderRadius="m" padding="m">
@@ -203,7 +206,7 @@ const Testnet = () => {
             )}
           </Card>
         )}
-        {wasmDeployCompleted(lastDeploy) ? (
+        {wasmDeployCompleted(lastDeploy) && lastDeploy.contractDeployments.length ? (
           <>
             <HR color="warning" />
             <Box padding="m">

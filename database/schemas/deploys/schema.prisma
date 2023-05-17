@@ -15,7 +15,7 @@ generator client {
 // a github repo set up for automated deploys
 model Repository {
   slug                  String                 @unique
-  projectSlug           String
+  projectSlug           String?
   environmentSubId      Int
   githubRepoFullName    String                 @unique
   contractDeployConfigs ContractDeployConfig[]
