@@ -64,7 +64,7 @@ function ConnectedModalContent(props: Props) {
   const repositoryName = props.template.attributes.githubUrl.split('/').pop() as string;
   const form = useForm<DeployFormData>();
 
-  const deployMutation = useApiMutation('/deploys/addDeploy', {
+  const deployMutation = useApiMutation('/deploys/addConsoleDeployProject', {
     onSuccess: (res) => {
       analytics.track('DC Deploy Gallery Template', {
         status: 'success',

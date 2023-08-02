@@ -1,14 +1,14 @@
 import { ProjectsService } from '@/src/core/projects/projects.service';
 import sodium from 'libsodium-wrappers';
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
 import { PrismaService } from './prisma.service';
 import { Environment, Project, User } from '@pc/database/clients/core';
-import { Repository } from '@pc/database/clients/deploys';
+import {
+  ContractDeployConfig,
+  NearSocialComponentDeployConfig,
+  Repository,
+} from '@pc/database/clients/deploys';
 import { createHash, randomBytes, scryptSync } from 'crypto';
 import { encode } from 'bs58';
 import { VError } from 'verror';
@@ -19,6 +19,8 @@ import { Octokit } from '@octokit/core';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from '@/src/config/validate';
 import { DeployError } from './deploy-error';
+import _ from 'lodash';
+import { parseNearAmount } from 'near-api-js/lib/utils/format';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -206,7 +208,10 @@ export class DeploysService {
     );
 
     if (isTransferred) {
-      throw new BadRequestException('Repository was already transferred');
+      throw new VError(
+        { info: { code: 'BAD_REQUEST' } },
+        'Repository was already transferred',
+      );
     }
 
     const repo = await this.prisma.repository.findUnique({
@@ -216,7 +221,10 @@ export class DeploysService {
     });
 
     if (!repo) {
-      throw new BadRequestException('repo does not exist');
+      throw new VError(
+        { info: { code: 'BAD_REQUEST' } },
+        'repo does not exist',
+      );
     }
 
     const { createdBy } = await this.projectsService.getActiveProject({
@@ -224,7 +232,10 @@ export class DeploysService {
     });
 
     if (createdBy !== user.id) {
-      throw new ForbiddenException('User cannot modify this repo');
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'User cannot modify this repo',
+      );
     }
 
     let octokit: Octokit;
@@ -249,6 +260,11 @@ export class DeploysService {
       if (e.status === 404) {
         // TODO replace with returning a code to the UI and tell the user they already initiaed a transfer.
         throw new VError(e, 'Could not find the repository to transfer');
+      } else if (e.status === 400) {
+        throw new VError(
+          { info: { code: DeployError.TRANSFER_INITIATED } },
+          'Repository transfer already initiated',
+        );
       }
       throw new VError(e, 'Could not transfer the repository');
     }
@@ -429,19 +445,50 @@ export class DeploysService {
     });
   }
 
-  /**
-   * Entry point for deploying one or more WASMs from
-   * a github repo
-   */
-  async deployRepository({
+  async addRepoDeployment({
     githubRepoFullName,
     commitHash,
     commitMessage,
-    files,
   }: {
     githubRepoFullName: string;
     commitHash: string;
     commitMessage: string;
+  }) {
+    const repo = await this.prisma.repository.findUnique({
+      where: {
+        githubRepoFullName,
+      },
+      include: {
+        contractDeployConfigs: true,
+      },
+    });
+
+    if (!repo) {
+      throw new VError(
+        { info: { code: 'BAD_REQUEST' } },
+        'githubRepoFullName not found please add a Repository project to deploy to',
+      );
+    }
+
+    return this.prisma.repoDeployment.create({
+      data: {
+        slug: nanoid(),
+        repositorySlug: repo.slug,
+        commitHash,
+        commitMessage,
+      },
+    });
+  }
+
+  /**
+   * Entry point for deploying one or more WASMs from
+   * a github repo
+   */
+  async addContractDeployment({
+    repoDeploymentSlug,
+    files,
+  }: {
+    repoDeploymentSlug: string;
     files: Array<Express.Multer.File>;
   }) {
     /*
@@ -453,29 +500,19 @@ export class DeploysService {
         instead of making the contract set static at time of connecting the repo
     - deployContract for contract
     */
-    const repo = await this.prisma.repository.findUnique({
-      where: {
-        githubRepoFullName,
-      },
-      include: {
-        contractDeployConfigs: true,
-      },
-    });
 
-    if (!repo) {
-      throw new BadRequestException(
-        'githubRepoFullName not found please add a Repository project to deploy to',
+    const repoDeployment = await this.getRepoDeploymentBySlug(
+      repoDeploymentSlug,
+    );
+
+    if (!repoDeployment) {
+      throw new VError(
+        { info: { code: 'BAD_REQUEST' } },
+        `Could not find repoDeployment with that slug`,
       );
     }
 
-    const repoDeployment = await this.prisma.repoDeployment.create({
-      data: {
-        slug: nanoid(),
-        repositorySlug: repo.slug,
-        commitHash,
-        commitMessage,
-      },
-    });
+    const repo = repoDeployment.repository;
 
     await Promise.all(
       files.map(async (file) => {
@@ -483,10 +520,11 @@ export class DeploysService {
           ({ filename }) => filename === file.originalname,
         );
         if (!deployConfig) {
-          deployConfig = await this.generateDeployConfig({
+          deployConfig = (await this.generateDeployConfig({
             filename: file.originalname,
             repositorySlug: repo.slug,
-          });
+            type: 'contract',
+          })) as ContractDeployConfig;
         }
         return this.deployContract({
           deployConfig,
@@ -516,12 +554,183 @@ export class DeploysService {
     });
   }
 
+  /**
+   * Entry point for deploying one or more Near Social Components from
+   * a github repo
+   */
+  async addNearSocialComponentDeployment({
+    repoDeploymentSlug,
+    metadata = {},
+    file,
+  }: {
+    repoDeploymentSlug: string;
+    metadata?: {
+      componentName?: string;
+      componentDescription?: string;
+      componentIconIpfsCid?: string;
+      componentTags?: string[];
+    };
+    file: Express.Multer.File;
+  }) {
+    const repoDeployment = await this.getRepoDeploymentBySlug(
+      repoDeploymentSlug,
+    );
+
+    if (!repoDeployment) {
+      throw new VError(
+        { info: { code: 'BAD_REQUEST' } },
+        'Could not find repoDeployment with that slug',
+      );
+    }
+
+    const repo = repoDeployment.repository;
+
+    const componentName = metadata.componentName || file.originalname;
+
+    let deployConfig = repo.nearSocialComponentDeployConfigs.find(
+      (deployConfig) => deployConfig.componentName === componentName,
+    );
+
+    if (!deployConfig) {
+      deployConfig = (await this.generateDeployConfig({
+        filename: componentName,
+        repositorySlug: repo.slug,
+        type: 'component',
+      })) as NearSocialComponentDeployConfig;
+    }
+
+    await this.deployNearSocialComponent({
+      deployConfig,
+      file: file.buffer,
+      repoDeploymentSlug: repoDeployment.slug,
+      metadata,
+    });
+
+    return this.prisma.repoDeployment.findUnique({
+      where: {
+        slug: repoDeployment.slug,
+      },
+      include: {
+        nearSocialComponentDeployments: {
+          include: {
+            nearSocialComponentDeployConfig: {
+              select: {
+                componentPath: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  metadataInputToNearSocialMetaData(metadata) {
+    return {
+      name: metadata.componentName,
+      description: metadata.componentDescription,
+      image: {
+        ipfs_cid: metadata.componentIconIpfsCid,
+      },
+      tags: (metadata.componentTags || []).reduce(
+        (acc, curr) => ({ ...acc, [curr]: '' }),
+        {},
+      ),
+    };
+  }
+
+  async deployNearSocialComponent({
+    deployConfig,
+    file,
+    repoDeploymentSlug,
+    metadata,
+  }) {
+    const keyPair = KeyPair.fromString(deployConfig.nearPrivateKey);
+    const keyStore = new keyStores.InMemoryKeyStore();
+    const nearConfig = {
+      networkId: 'testnet',
+      keyStore,
+      nodeUrl: 'https://rpc.testnet.near.org', // todo from env?
+      helperUrl: 'https://helper.testnet.near.org',
+      headers: {},
+    };
+    await keyStore.setKey(
+      nearConfig.networkId,
+      deployConfig.nearAccountId,
+      keyPair,
+    );
+
+    const near = await connect(nearConfig);
+    const account = await near.account(deployConfig.nearAccountId);
+
+    const component = await account.viewFunction('v1.social08.testnet', 'get', {
+      keys: [`${deployConfig.componentPath}/**`],
+    });
+
+    const newComponent = {
+      '': file.toString('utf-8'),
+      metadata: _.merge(
+        _.cloneDeep(component.metadata),
+        this.metadataInputToNearSocialMetaData(metadata),
+      ),
+    };
+
+    let txOutcome;
+
+    const updatedComponentData = _.merge(_.cloneDeep(component), newComponent);
+
+    if (!_.isEqual(newComponent, component)) {
+      try {
+        txOutcome = await account.functionCall({
+          contractId: 'v1.social08.testnet',
+          methodName: 'set',
+          args: {
+            data: {
+              [account.accountId]: {
+                widget: {
+                  [deployConfig.componentName]: updatedComponentData,
+                },
+              },
+            },
+          },
+          attachedDeposit: parseNearAmount('1'),
+        });
+      } catch (e: any) {
+        await this.prisma.nearSocialComponentDeployment.create({
+          data: {
+            slug: nanoid(),
+            repoDeploymentSlug,
+            nearSocialComponentDeployConfigSlug: deployConfig.slug,
+            status: 'ERROR',
+          },
+        });
+        throw new VError(
+          e,
+          `Could not set data on socialDB ${updatedComponentData}`,
+        );
+      }
+    }
+
+    if (txOutcome?.transaction?.hash) {
+      await this.prisma.nearSocialComponentDeployment.create({
+        data: {
+          slug: nanoid(),
+          repoDeploymentSlug,
+          nearSocialComponentDeployConfigSlug: deployConfig.slug,
+          deployTransactionHash: txOutcome.transaction.hash,
+          status: 'SUCCESS',
+        },
+      });
+    }
+  }
+
   async generateDeployConfig({
     filename,
     repositorySlug,
+    type,
   }: {
     filename: string;
     repositorySlug: Repository['slug'];
+    type: 'contract' | 'component';
   }) {
     const keyStore = new keyStores.InMemoryKeyStore();
     const nearConfig = {
@@ -540,15 +749,28 @@ export class DeploysService {
     await near.accountCreator.createAccount(accountId, keyPair.getPublicKey());
     await keyStore.setKey(nearConfig.networkId, accountId, keyPair);
 
-    return this.prisma.contractDeployConfig.create({
-      data: {
-        slug: nanoid(),
-        nearPrivateKey: keyPair.toString(),
-        filename,
-        repositorySlug,
-        nearAccountId: accountId,
-      },
-    });
+    if (type === 'contract') {
+      return this.prisma.contractDeployConfig.create({
+        data: {
+          slug: nanoid(),
+          nearPrivateKey: keyPair.toString(),
+          filename,
+          repositorySlug,
+          nearAccountId: accountId,
+        },
+      });
+    } else {
+      return this.prisma.nearSocialComponentDeployConfig.create({
+        data: {
+          slug: nanoid(),
+          nearPrivateKey: keyPair.toString(),
+          componentPath: `${accountId}/widget/${filename}`,
+          componentName: filename,
+          repositorySlug,
+          nearAccountId: accountId,
+        },
+      });
+    }
   }
 
   /**
@@ -603,15 +825,17 @@ export class DeploysService {
       }
     }
 
-    await this.prisma.contractDeployment.create({
-      data: {
-        slug: nanoid(),
-        repoDeploymentSlug,
-        contractDeployConfigSlug: deployConfig.slug,
-        deployTransactionHash: txOutcome ? txOutcome.transaction.hash : null,
-        status: 'SUCCESS',
-      },
-    });
+    if (txOutcome?.transaction?.hash) {
+      await this.prisma.contractDeployment.create({
+        data: {
+          slug: nanoid(),
+          repoDeploymentSlug,
+          contractDeployConfigSlug: deployConfig.slug,
+          deployTransactionHash: txOutcome.transaction.hash,
+          status: 'SUCCESS',
+        },
+      });
+    }
 
     try {
       await this.projectsService.systemAddContract(
@@ -630,27 +854,40 @@ export class DeploysService {
   /**
    * Sets Frontend Deploy Url
    */
-  async addFrontend({
-    repositorySlug,
+  async addFrontendDeployment({
     frontendDeployUrl,
     cid,
     packageName,
     repoDeploymentSlug,
   }) {
-    let frontendDeployConfig = await this.prisma.frontendDeployConfig.findFirst(
-      {
-        where: {
-          repositorySlug,
-          packageName,
-        },
-      },
+    const repoDeployment = await this.getRepoDeploymentBySlug(
+      repoDeploymentSlug,
     );
+
+    if (!repoDeployment) {
+      throw new VError(
+        {
+          info: {
+            code: 'CONFLICT',
+          },
+        },
+        `RepoDeployment slug ${repoDeploymentSlug} not found`,
+      );
+    }
+
+    let frontendDeployConfig =
+      repoDeployment.repository.frontendDeployConfigs.find((config) => {
+        return (
+          config.packageName === packageName &&
+          config.repositorySlug === repoDeployment.repositorySlug
+        );
+      });
 
     if (!frontendDeployConfig) {
       frontendDeployConfig = await this.prisma.frontendDeployConfig.create({
         data: {
           slug: nanoid(),
-          repositorySlug,
+          repositorySlug: repoDeployment.repositorySlug,
           packageName,
         },
       });
@@ -664,7 +901,8 @@ export class DeploysService {
     });
 
     if (existingFrontend) {
-      throw new BadRequestException(
+      throw new VError(
+        { info: { code: 'BAD_REQUEST' } },
         `Package ${packageName} already added for repo deployment ${repoDeploymentSlug}`,
       );
     }
@@ -680,15 +918,39 @@ export class DeploysService {
     });
   }
 
-  getRepoDeploymentBySlug(slug) {
-    return this.prisma.repoDeployment.findUnique({
+  async getContractDeployConfigs(slug) {
+    const repoDeployment = (await this.getRepoDeploymentBySlug(slug)) as any;
+    return repoDeployment.repository.contractDeployConfigs.reduce(
+      (acc, curr) => ({
+        ...acc,
+        [curr.filename]: { nearAccountId: curr.nearAccountId },
+      }),
+      {},
+    );
+  }
+
+  async getRepoDeploymentBySlug(slug) {
+    const repoDeployment = this.prisma.repoDeployment.findUnique({
       where: {
         slug,
       },
       include: {
-        repository: true,
+        repository: {
+          include: {
+            contractDeployConfigs: true,
+            frontendDeployConfigs: true,
+            nearSocialComponentDeployConfigs: true,
+          },
+        },
       },
     });
+    if (!repoDeployment) {
+      throw new VError(
+        { info: { code: 'NOT_FOUND' } },
+        `No such repoDeployment found`,
+      );
+    }
+    return repoDeployment;
   }
 
   getDeployRepository(githubRepoFullName: string) {
@@ -799,6 +1061,18 @@ export class DeploysService {
             status: true,
           },
         },
+        nearSocialComponentDeployments: {
+          select: {
+            slug: true,
+            deployTransactionHash: true,
+            nearSocialComponentDeployConfig: {
+              select: {
+                componentName: true,
+                componentPath: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -810,6 +1084,7 @@ export class DeploysService {
         createdAt,
         frontendDeployments,
         contractDeployments,
+        nearSocialComponentDeployments,
         repository,
       } = deployment;
 
@@ -820,6 +1095,7 @@ export class DeploysService {
         createdAt: createdAt.toISOString(),
         frontendDeployments,
         contractDeployments,
+        nearSocialComponentDeployments,
         githubRepoFullName: repository.githubRepoFullName,
       };
     });

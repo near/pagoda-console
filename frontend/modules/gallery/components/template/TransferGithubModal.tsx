@@ -43,13 +43,23 @@ function ModalContent(props) {
         error,
         eventLabel: 'Transfer Github repo',
         eventData: {
-          id: props.template.id,
+          id: props.repository.slug,
         },
         toastTitle: 'Failed to transfer repository',
-        toastDescription: error.statusCode === 400 ? error.message : 'Unknown error.',
+        toastDescription: errorDescriptionHandler(error),
       });
     },
   });
+
+  const errorDescriptionHandler = (error: any) => {
+    switch (error.statusCode) {
+      case 400:
+      case 404:
+        return error.message;
+      default:
+        return 'Unknown error.';
+    }
+  };
 
   function transfer(data: TransferRepoData) {
     const newGithubUsername = data.newGithubUsername;
@@ -64,7 +74,7 @@ function ModalContent(props) {
     <Flex stack>
       <Form.Root onSubmit={form.handleSubmit(transfer)}>
         <Flex stack>
-          <Text>Transferring this repo will move it to the newly entered GitHub account.</Text>
+          <Text>Transferring this repository will move it to the provided Github account.</Text>
 
           <Form.Group>
             <Form.FloatingLabelInput
