@@ -64,7 +64,7 @@ function ConnectedModalContent(props: Props) {
   const repositoryName = props.template.attributes.githubUrl.split('/').pop() as string;
   const form = useForm<DeployFormData>();
 
-  const deployMutation = useApiMutation('/deploys/addDeploy', {
+  const deployMutation = useApiMutation('/deploys/addConsoleDeployProject', {
     onSuccess: (res) => {
       analytics.track('DC Deploy Gallery Template', {
         status: 'success',
@@ -76,7 +76,7 @@ function ConnectedModalContent(props: Props) {
       openToast({
         type: 'success',
         title: 'Deploy Success',
-        description: `Repository was created: ${name}`,
+        description: `Repository was created: ${name}. Please wait while the deploy completes. Then you will be prompted to transfer the repository.`,
       });
 
       selectProject(res.projectSlug);

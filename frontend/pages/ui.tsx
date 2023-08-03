@@ -33,6 +33,7 @@ import { Info } from '@/components/lib/Info';
 import { List, ListItem } from '@/components/lib/List';
 import { Message } from '@/components/lib/Message';
 import { NearInput } from '@/components/lib/NearInput';
+import { PasswordInput } from '@/components/lib/PasswordInput';
 import { Placeholder } from '@/components/lib/Placeholder';
 import * as Popover from '@/components/lib/Popover';
 import { Progress } from '@/components/lib/Progress';
@@ -2143,6 +2144,7 @@ interface FakeForm {
   termsAccepted: boolean;
   nearAmount: string;
   yoctoNearAmount: string;
+  password: string;
 }
 
 function DocSectionForm() {
@@ -2204,6 +2206,26 @@ function DocSectionForm() {
               {...form.register('email', formValidations.email)}
             />
             <Form.Feedback>{form.formState.errors.email?.message}</Form.Feedback>
+          </Form.Group>
+
+          <Form.Group>
+            <Form.Label htmlFor="password">Password</Form.Label>
+            <Controller
+              name="password"
+              control={form.control}
+              rules={formValidations.strongPassword}
+              render={({ field }) => (
+                <PasswordInput
+                  field={field}
+                  id="password"
+                  type="password"
+                  isInvalid={!!form.formState.errors.password}
+                  placeholder="8+ characters"
+                  stableId={StableId.REGISTER_PASSWORD_INPUT}
+                />
+              )}
+            />
+            <Form.Feedback>{form.formState.errors.password?.message}</Form.Feedback>
           </Form.Group>
 
           <HR />

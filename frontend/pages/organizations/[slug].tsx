@@ -524,12 +524,12 @@ const OrganizationView: NextPageWithLayout = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const switchDeleteModalOpen = useCallback(() => setDeleteModalOpen((open) => !open), [setDeleteModalOpen]);
   const deleteMutation = useApiMutation('/users/deleteOrg', {
-    onSuccess: (_result, { org }) => {
+    onSuccess: (_result, _) => {
       mutateOrganizationMembers(orgSlug);
       mutateOrganizations((orgs) => orgs && orgs.filter((org) => org.slug !== orgSlug), {
         revalidate: false,
       });
-      openSuccessToast(`Organization "${org}" deleted`);
+      openSuccessToast(`Organization "${selectedOrganization?.name}" deleted`);
       router.replace('/organizations');
     },
     onError: (error) => openUserErrorToast(parseError(error, getDeleteOrgMessage)),
@@ -538,7 +538,7 @@ const OrganizationView: NextPageWithLayout = () => {
     if (!selectedOrganization) {
       return;
     }
-    deleteMutation.mutate({ org: selectedOrganization.name });
+    deleteMutation.mutate({ org: selectedOrganization.slug });
   }, [deleteMutation, selectedOrganization]);
 
   return (
