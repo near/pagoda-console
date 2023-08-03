@@ -18,6 +18,7 @@ const ProjectAnalytics: NextPageWithLayout = () => {
           <Text>
             Pagoda Console Analytics has been deprecated in favor of the ecosystem of apps in Near&lsquo;s Blockchain
             Operating System <br />
+            <br />
             <ButtonLink
               stableId={StableId.PROJECT_ANALYTICS_NO_CONTRACTS_BUTTON_LINK}
               href="https://near.org/near/widget/Search.IndexPage?term=analytics"
