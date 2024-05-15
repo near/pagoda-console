@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 
-import { AuthStatusRenderer } from '@/components/AuthStatusRenderer';
 import { Button, ButtonLink } from '@/components/lib/Button';
 import * as Dialog from '@/components/lib/Dialog';
 import { Flex } from '@/components/lib/Flex';
@@ -36,19 +35,9 @@ export function DeployTemplateModal({ setShow, ...props }: Props) {
           authenticated={<ModalContent setShow={setShow} {...props} />}
           unauthenticated={<UnauthenticatedModalContent />}
         /> */}
-        <ModalContent setShow={setShow} {...props} />
+        <ConnectedModalContent setShow={setShow} {...props} />
       </Dialog.Content>
     </Dialog.Root>
-  );
-}
-
-function ModalContent(props: Props) {
-  return (
-    <AuthStatusRenderer
-      custom
-      authenticated={<ConnectedModalContent {...props} />}
-      unauthenticated={<UnauthenticatedModalContent />}
-    />
   );
 }
 
@@ -64,45 +53,54 @@ function ConnectedModalContent(props: Props) {
   const repositoryName = props.template.attributes.githubUrl.split('/').pop() as string;
   const form = useForm<DeployFormData>();
 
-  const deployMutation = useApiMutation('/deploys/addConsoleDeployProject', {
-    onSuccess: (res) => {
-      analytics.track('DC Deploy Gallery Template', {
-        status: 'success',
-        id: props.template.id,
-      });
-
-      const name = form.getValues('repositoryName') || repositoryName;
-
-      openToast({
-        type: 'success',
-        title: 'Deploy Success',
-        description: `Repository was created: ${name}. Please wait while the deploy completes. Then you will be prompted to transfer the repository.`,
-      });
-
-      selectProject(res.projectSlug);
-      router.push('/deploys');
-      props.setShow(false);
-    },
-    onError: (error: any) => {
-      let toastTitle, toastDescription;
-      if (error.statusCode === 409) {
-        toastTitle = 'Repository name already exists';
-        toastDescription = 'Please choose a different name.';
-      } else {
-        toastTitle = 'Deploy Failure';
-        toastDescription = error.statusCode === 400 ? error.message : 'Unknown error.';
-      }
-      handleMutationError({
-        error,
-        eventLabel: 'DC Deploy Gallery Template',
-        eventData: {
+  const deployMutation = useApiMutation(
+    '/deploys/addConsoleDeployProject',
+    {
+      onSuccess: (res) => {
+        analytics.track('DC Deploy Gallery Template', {
+          status: 'success',
           id: props.template.id,
-        },
-        toastTitle,
-        toastDescription,
-      });
+        });
+
+        const name = form.getValues('repositoryName') || repositoryName;
+
+        openToast({
+          type: 'success',
+          title: 'Deploy Success',
+          description: `Repository was created: ${name}. Please wait while the deploy completes. Then you will be prompted to transfer the repository.`,
+        });
+
+        if (res.projectSlug) {
+          selectProject(res.projectSlug);
+          router.push('/deploys');
+        } else {
+          router.push(`/deploys?repositorySlug=${res.repositorySlug}`);
+        }
+
+        props.setShow(false);
+      },
+      onError: (error: any) => {
+        let toastTitle, toastDescription;
+        if (error.statusCode === 409) {
+          toastTitle = 'Repository name already exists';
+          toastDescription = 'Please choose a different name.';
+        } else {
+          toastTitle = 'Deploy Failure';
+          toastDescription = error.statusCode === 400 ? error.message : 'Unknown error.';
+        }
+        handleMutationError({
+          error,
+          eventLabel: 'DC Deploy Gallery Template',
+          eventData: {
+            id: props.template.id,
+          },
+          toastTitle,
+          toastDescription,
+        });
+      },
     },
-  });
+    false,
+  );
 
   function deploy(data: DeployFormData) {
     const githubRepoFullName = props.template.attributes.githubUrl.split('/').slice(-2).join('/');
@@ -160,7 +158,7 @@ function ConnectedModalContent(props: Props) {
 export function UnauthenticatedModalContent() {
   return (
     <Flex stack gap="l">
-      <Text>To deploy this template, you&apos;ll need to sign in:</Text>
+      <Text>To transfer this template, you&apos;ll need to sign in:</Text>
       <AuthForm />
     </Flex>
   );

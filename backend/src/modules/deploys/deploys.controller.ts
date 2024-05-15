@@ -26,13 +26,14 @@ import { GithubBasicAuthGuard } from '@/src/core/auth/github-basic-auth.guard';
 import { TooManyRequestsException } from '../alerts/exception/tooManyRequestsException';
 import { VError } from 'verror';
 import { Request as ExpressRequest } from 'express';
+import { BearerOptionalAuthGuard } from '@/src/core/auth/bearer-optional.guard';
 
 @Controller('deploys')
 export class DeploysController {
   constructor(private readonly deploysService: DeploysService) {}
 
   @Post('addConsoleDeployProject')
-  @UseGuards(BearerAuthGuard)
+  // @UseGuards(BearerAuthGuard)
   @UsePipes(
     new ZodValidationPipe(Deploys.mutation.inputs.addConsoleDeployProject),
   )
@@ -41,20 +42,35 @@ export class DeploysController {
     @Body()
     {
       githubRepoFullName,
+      nearSocialComponentPath,
       projectName,
     }: z.infer<typeof Deploys.mutation.inputs.addConsoleDeployProject>,
   ): Promise<Api.Mutation.Output<'/deploys/addConsoleDeployProject'>> {
     // called from Console frontend to initialize a new repo for deployment
+    if (
+      [githubRepoFullName, nearSocialComponentPath].filter((a) => !!a)
+        .length !== 1
+    ) {
+      throw new BadRequestException(
+        'one of githubRepoFullName or nearSocialComponentPath must be provided',
+      );
+    }
     try {
       const repository = await this.deploysService.createDeployProject({
         user: req.user as User, // TODO change to UserDetails from auth service
         githubRepoFullName,
+        nearSocialComponentPath,
         projectName,
       });
-      return {
-        repositorySlug: repository.slug,
-        projectSlug: repository.projectSlug,
-      };
+
+      return repository.projectSlug
+        ? {
+            repositorySlug: repository.slug,
+            projectSlug: repository.projectSlug,
+          }
+        : {
+            repositorySlug: repository.slug,
+          };
     } catch (e: any) {
       throw mapError(e);
     }
@@ -79,7 +95,7 @@ export class DeploysController {
   }
 
   @Post('isRepositoryTransferred')
-  @UseGuards(BearerAuthGuard)
+  @UseGuards(BearerOptionalAuthGuard)
   @UsePipes(new ZodValidationPipe(Deploys.query.inputs.isRepositoryTransferred))
   async isRepoTransferred(
     @Req() req: ExpressRequest,
@@ -90,8 +106,8 @@ export class DeploysController {
   ): Promise<Api.Query.Output<'/deploys/isRepositoryTransferred'>> {
     try {
       return await this.deploysService.isRepositoryTransferred(
-        req.user as User, // TODO change to UserDetails from auth service
         repositorySlug,
+        req.user as User, // TODO change to UserDetails from auth service
       );
     } catch (e: any) {
       throw mapError(e);
@@ -257,30 +273,39 @@ export class DeploysController {
   }
 
   @Post('listRepositories')
-  @UseGuards(BearerAuthGuard)
+  @UseGuards(BearerOptionalAuthGuard)
   @UsePipes(new ZodValidationPipe(Deploys.query.inputs.listRepositories))
   async listRepositories(
     @Request() req,
     @Body()
-    { project }: Api.Query.Input<'/deploys/listRepositories'>,
+    { project, repositorySlug }: Api.Query.Input<'/deploys/listRepositories'>,
   ): Promise<Api.Query.Output<'/deploys/listRepositories'>> {
     try {
-      return await this.deploysService.listRepositories(req.user, project);
+      return await this.deploysService.listRepositories(
+        project,
+        repositorySlug,
+        req.user,
+      );
     } catch (e: any) {
       throw mapError(e);
     }
   }
 
   @Post('listDeployments')
-  @UseGuards(BearerAuthGuard)
+  @UseGuards(BearerOptionalAuthGuard)
   @UsePipes(new ZodValidationPipe(Deploys.query.inputs.listDeployments))
   async listDeployments(
     @Request() req,
     @Body()
-    { project }: Api.Query.Input<'/deploys/listDeployments'>,
+    { project, repositorySlug }: Api.Query.Input<'/deploys/listDeployments'>,
   ): Promise<Api.Query.Output<'/deploys/listDeployments'>> {
     try {
-      return await this.deploysService.listDeployments(req.user, project, 10);
+      return await this.deploysService.listDeployments(
+        project || null,
+        req.user,
+        repositorySlug,
+        10,
+      );
     } catch (e: any) {
       throw mapError(e);
     }

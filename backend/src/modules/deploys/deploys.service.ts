@@ -21,6 +21,7 @@ import { AppConfig } from '@/src/config/validate';
 import { DeployError } from './deploy-error';
 import _ from 'lodash';
 import { parseNearAmount } from 'near-api-js/lib/utils/format';
+import { ymlText } from './nearSocialDeployWorkflow';
 
 const nanoid = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -52,10 +53,12 @@ export class DeploysService {
   async createDeployProject({
     user,
     githubRepoFullName,
+    nearSocialComponentPath,
     projectName,
   }: {
     user: User;
-    githubRepoFullName: string;
+    githubRepoFullName?: string;
+    nearSocialComponentPath?: string;
     projectName: Project['name'];
   }) {
     let octokit: Octokit;
@@ -71,37 +74,115 @@ export class DeploysService {
     }
 
     // Make sure the project name is unique before generating the GitHub repo.
-    const isUnique = await this.projectsService.isProjectNameUniqueForUser(
-      user,
-      projectName,
-    );
-    if (!isUnique) {
-      throw new VError(
-        {
-          info: {
-            code: 'NAME_CONFLICT',
-          },
-        },
-        'Project name is not unique',
+    if (user) {
+      const isUnique = await this.projectsService.isProjectNameUniqueForUser(
+        user,
+        projectName,
       );
+      if (!isUnique) {
+        throw new VError(
+          {
+            info: {
+              code: 'NAME_CONFLICT',
+            },
+          },
+          'Project name is not unique',
+        );
+      }
     }
 
-    const {
-      data: { full_name: repoFullName },
-    } = (await octokit
-      .request(`POST /repos/${githubRepoFullName}/generate`, {
-        name: projectName,
-        owner: this.repositoryOwner,
-      })
-      .catch((e) => {
-        if (/Name already exists on this account/.test(e.message)) {
-          throw new VError(
-            { info: { code: DeployError.NAME_CONFLICT } },
-            'Repository name already exists on this GitHub account',
-          );
-        }
-        throw new VError(e, 'Could not create repo from template');
-      })) as any;
+    let repoFullName;
+
+    if (githubRepoFullName) {
+      const {
+        data: { full_name },
+      } = (await octokit
+        .request(`POST /repos/${githubRepoFullName}/generate`, {
+          name: projectName,
+          owner: this.repositoryOwner,
+        })
+        .catch((e) => {
+          if (/Name already exists on this account/.test(e.message)) {
+            throw new VError(
+              { info: { code: DeployError.NAME_CONFLICT } },
+              'Repository name already exists on this GitHub account',
+            );
+          }
+          throw new VError(e, 'Could not create repo from template');
+        })) as any;
+      repoFullName = full_name;
+    } else if (nearSocialComponentPath) {
+      const nearConfig = {
+        networkId: 'mainnet',
+        nodeUrl: 'https://rpc.near.org', // todo from env?
+        keyStore: new keyStores.InMemoryKeyStore(),
+        headers: {},
+      };
+
+      const near = await connect(nearConfig);
+      const account = await near.account('');
+
+      let component = await account.viewFunction('social.near', 'get', {
+        keys: [`${nearSocialComponentPath}/**`],
+      });
+
+      component = nearSocialComponentPath
+        .split('/')
+        .reduce((acc, curr) => acc[curr] || acc, component);
+
+      if (component.githubTemplateUrl) {
+        const {
+          data: { full_name },
+        } = (await octokit
+          .request(`POST /repos/${component.githubTemplateUrl}/generate`, {
+            name: projectName,
+            owner: this.repositoryOwner,
+          })
+          .catch((e) => {
+            if (/Name already exists on this account/.test(e.message)) {
+              throw new VError(
+                { info: { code: DeployError.NAME_CONFLICT } },
+                'Repository name already exists on this GitHub account',
+              );
+            }
+            throw new VError(e, 'Could not create repo from template');
+          })) as any;
+        repoFullName = full_name;
+      } else {
+        const {
+          data: { full_name },
+        } = await octokit
+          .request('POST /user/repos', {
+            name: projectName,
+          })
+          .catch((e) => {
+            if (/Name already exists on this account/.test(e.message)) {
+              throw new VError(
+                { info: { code: DeployError.NAME_CONFLICT } },
+                'Repository name already exists on this GitHub account',
+              );
+            }
+            throw new VError(e, 'Could not create repo from template');
+          });
+
+        await octokit.request(`PUT /repos/${full_name}/contents/index.jsx`, {
+          message: 'feat: add near social component',
+          content: sodium.to_base64(
+            component[''],
+            sodium.base64_variants.ORIGINAL,
+          ),
+        });
+
+        await octokit.request(
+          `PUT /repos/${full_name}/contents/.github/workflows/deploy-to-console.yml`,
+          {
+            message: 'feat: add deploy workflow',
+            content: sodium.to_base64(ymlText, sodium.base64_variants.ORIGINAL),
+          },
+        );
+        repoFullName = full_name;
+      }
+    }
 
     // OWASP recommended password hashing:
     // If Argon2id is not available, use scrypt with a minimum CPU/memory cost parameter of (2^16),
@@ -155,38 +236,24 @@ export class DeploysService {
         throw new VError(e, 'Could not set secrets on repo');
       });
 
-    let project, environments;
+    let project;
+    // let environments;
 
     // create the project which this deployment will be placed under
-    try {
-      project = await this.projectsService.create(user, projectName);
-    } catch (e: any) {
-      throw new VError(e, 'Failed to create project for deployment');
-    }
-
-    // grab environments from the newly created project because we attach
-    // deploys to specific environments
-    try {
-      environments = await this.projectsService.getEnvironments(user, {
-        slug: project.slug,
-      });
-    } catch (e: any) {
-      throw new VError(
-        e,
-        'Failed to fetch environments for newly created deploy project',
-      );
+    if (user) {
+      try {
+        project = await this.projectsService.create(user, projectName);
+      } catch (e: any) {
+        throw new VError(e, 'Failed to create project for deployment');
+      }
     }
 
     // for templates, we only support deploying to testnet at the moment, so
     // this is hardcoded
-    const testnetEnv = environments.find((env) => env.net === 'TESTNET');
-    if (!testnetEnv) {
-      throw new VError('Could not find testnet env for newly created project');
-    }
 
     return this.addDeployRepository({
-      projectSlug: project.slug,
-      environmentSubId: testnetEnv.subId,
+      projectSlug: project?.slug,
+      environmentSubId: 1,
       githubRepoFullName: repoFullName,
       authTokenHash,
       authTokenSalt,
@@ -203,8 +270,8 @@ export class DeploysService {
     repositorySlug: string;
   }) {
     const { isTransferred } = await this.isRepositoryTransferred(
-      user,
       repositorySlug,
+      user,
     );
 
     if (isTransferred) {
@@ -227,8 +294,30 @@ export class DeploysService {
       );
     }
 
+    let projectSlug = repo.projectSlug;
+
+    if (!repo.projectSlug) {
+      try {
+        const project = await this.projectsService.create(
+          user,
+          repo.githubRepoFullName.split('/')[1],
+        );
+        await this.prisma.repository.update({
+          where: {
+            slug: repositorySlug,
+          },
+          data: {
+            projectSlug: project.slug,
+          },
+        });
+        projectSlug = project.slug;
+      } catch (e: any) {
+        throw new VError(e, 'Failed to create project for deployment');
+      }
+    }
+
     const { createdBy } = await this.projectsService.getActiveProject({
-      slug: repo.projectSlug,
+      slug: projectSlug as string,
     });
 
     if (createdBy !== user.id) {
@@ -340,8 +429,8 @@ export class DeploysService {
   }
 
   async isRepositoryTransferred(
-    user: User,
     repositorySlug: Repository['slug'],
+    user?: User,
   ) {
     const repo = await this.prisma.repository.findUnique({
       where: {
@@ -353,6 +442,17 @@ export class DeploysService {
       throw new VError(
         { info: { code: DeployError.BAD_REPO } },
         'Repository not found',
+      );
+    }
+
+    if (!repo.projectSlug) {
+      return { isTransferred: false };
+    }
+
+    if (!user) {
+      throw new VError(
+        { info: { code: 'PERMISSION_DENIED' } },
+        'User does not have rights to manage this project',
       );
     }
 
@@ -410,10 +510,13 @@ export class DeploysService {
         'Could not establish octokit conneciton for template creation',
       );
     }
-
-    await octokit.request(
-      `DELETE /repos/${repoFullName}/collaborators/${this.repositoryOwner}`,
-    );
+    try {
+      await octokit.request(
+        `DELETE /repos/${repoFullName}/collaborators/${this.repositoryOwner}`,
+      );
+    } catch (error) {
+      return null;
+    }
   }
 
   /**
@@ -662,9 +765,13 @@ export class DeploysService {
     const near = await connect(nearConfig);
     const account = await near.account(deployConfig.nearAccountId);
 
-    const component = await account.viewFunction('v1.social08.testnet', 'get', {
+    let component = await account.viewFunction('v1.social08.testnet', 'get', {
       keys: [`${deployConfig.componentPath}/**`],
     });
+
+    component = deployConfig.componentPath
+      .split('/')
+      .reduce((acc, curr) => acc[curr] || acc, component);
 
     const newComponent = {
       '': file.toString('utf-8'),
@@ -836,18 +943,19 @@ export class DeploysService {
         },
       });
     }
-
-    try {
-      await this.projectsService.systemAddContract(
-        projectSlug,
-        subId,
-        account.accountId,
-      );
-    } catch (e: any) {
-      if (VError.info(e)?.response === 'DUPLICATE_CONTRACT_ADDRESS') {
-        return;
+    if (projectSlug) {
+      try {
+        await this.projectsService.systemAddContract(
+          projectSlug,
+          subId,
+          account.accountId,
+        );
+      } catch (e: any) {
+        if (VError.info(e)?.response === 'DUPLICATE_CONTRACT_ADDRESS') {
+          return;
+        }
+        throw e;
       }
-      throw e;
     }
   }
 
@@ -967,32 +1075,90 @@ export class DeploysService {
     });
   }
 
-  async listRepositories(user: User, project: Repository['projectSlug']) {
-    await this.projectPermissions.checkUserProjectPermission(user.id, project);
+  async listRepositories(
+    project: string | undefined,
+    repositorySlug: string | undefined,
+    user?: User,
+  ) {
+    let repositories;
+    if (project) {
+      if (!user) {
+        throw new VError(
+          { info: { code: 'PERMISSION_DENIED' } },
+          'User does not have rights to manage this project',
+        );
+      }
+      await this.projectPermissions.checkUserProjectPermission(
+        user.id,
+        project,
+      );
 
-    // TODO should we filter enabled repositories?
-    const repositories = await this.prisma.repository.findMany({
-      where: {
-        projectSlug: project,
-      },
-      include: {
-        frontendDeployConfigs: {
-          select: { slug: true, packageName: true },
+      // TODO should we filter enabled repositories?
+      repositories = await this.prisma.repository.findMany({
+        where: {
+          projectSlug: project,
         },
-        contractDeployConfigs: {
-          select: {
-            slug: true,
-            filename: true,
-            nearAccountId: true,
+        include: {
+          frontendDeployConfigs: {
+            select: { slug: true, packageName: true },
+          },
+          contractDeployConfigs: {
+            select: {
+              slug: true,
+              filename: true,
+              nearAccountId: true,
+            },
           },
         },
-      },
-    });
+      });
+    } else {
+      if (!repositorySlug) {
+        throw new VError(
+          { info: { code: 'BAD_REQUEST' } },
+          'repositorySlug needs to be provided if no project',
+        );
+      }
+      const repo = await this.prisma.repository.findUnique({
+        where: {
+          slug: repositorySlug,
+        },
+        include: {
+          frontendDeployConfigs: {
+            select: { slug: true, packageName: true },
+          },
+          contractDeployConfigs: {
+            select: {
+              slug: true,
+              filename: true,
+              nearAccountId: true,
+            },
+          },
+        },
+      });
+      if (!repo) {
+        throw new VError(
+          { info: { code: 'NOT_FOUND' } },
+          `No such repository found`,
+        );
+      }
+      if (repo.projectSlug) {
+        if (!user) {
+          throw new VError(
+            { info: { code: 'PERMISSION_DENIED' } },
+            'User does not have rights to manage this project',
+          );
+        }
+        await this.projectPermissions.checkUserProjectPermission(
+          user.id,
+          repo.projectSlug,
+        );
+      }
+      repositories = [repo];
+    }
 
     return repositories.map((repository) => {
       const {
         slug,
-        projectSlug,
         environmentSubId,
         githubRepoFullName,
         enabled,
@@ -1002,7 +1168,7 @@ export class DeploysService {
 
       return {
         slug,
-        projectSlug,
+        projectSlug: project,
         environmentSubId,
         githubRepoFullName,
         enabled,
@@ -1013,24 +1179,67 @@ export class DeploysService {
   }
 
   async listDeployments(
-    user: User,
     project: Repository['projectSlug'],
+    user?: User,
+    repositorySlug?: string,
     take = 10,
   ) {
-    await this.projectPermissions.checkUserProjectPermission(user.id, project);
+    let repository;
+    if (!repositorySlug) {
+      if (!project) {
+        throw new VError(
+          { info: { code: 'BAD_REQUEST' } },
+          'project needs to be provided if no repositorySlug',
+        );
+      }
+      if (!user) {
+        throw new VError(
+          { info: { code: 'PERMISSION_DENIED' } },
+          'User does not have rights to manage this project',
+        );
+      }
+      await this.projectPermissions.checkUserProjectPermission(
+        user.id,
+        project,
+      );
 
-    const repositories = await this.readonlyService.getRepositories(project);
+      const repositories = await this.readonlyService.getRepositories(project);
 
-    if (!repositories.length) {
-      return [];
+      if (!repositories.length) {
+        return [];
+      }
+
+      // TODO right now this assumes we have 1 repo for a given project, which seems to be true for the MVP
+      repository = repositories[0];
+    } else {
+      const repo = await this.prisma.repository.findUnique({
+        where: {
+          slug: repositorySlug,
+        },
+      });
+      if (!repo) {
+        throw new VError(
+          { info: { code: 'NOT_FOUND' } },
+          `No such repository found`,
+        );
+      }
+      if (repo.projectSlug) {
+        if (!user) {
+          throw new VError(
+            { info: { code: 'PERMISSION_DENIED' } },
+            'User does not have rights to manage this project',
+          );
+        }
+        await this.projectPermissions.checkUserProjectPermission(
+          user.id,
+          repo.projectSlug,
+        );
+      }
     }
-
-    // TODO right now this assumes we have 1 repo for a given project, which seems to be true for the MVP
-    const repository = repositories[0];
 
     const deployments = await this.prisma.repoDeployment.findMany({
       where: {
-        repository,
+        repositorySlug: repositorySlug || repository.slug,
       },
       orderBy: {
         createdAt: 'desc',

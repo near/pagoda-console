@@ -1,17 +1,18 @@
+import { getAuth } from 'firebase/auth';
 import { useState } from 'react';
 import useSWR from 'swr';
 
 import { api } from '@/utils/api';
 
-export function useRepositories(project: string | undefined) {
+export function useRepositories(project: string | undefined, repositorySlug?: string) {
   const {
     data: repositories,
     error,
     mutate,
   } = useSWR(
-    project ? ['/deploys/listRepositories' as const, project] : null,
-    (path, project) => {
-      return api.query(path, { project: project });
+    project || repositorySlug ? ['/deploys/listRepositories' as const, project, repositorySlug] : null,
+    (path, project, repositorySlug) => {
+      return api.query(path, repositorySlug ? { repositorySlug } : { project }, !!project);
     },
     { refreshInterval: 10000 },
   );
@@ -19,15 +20,15 @@ export function useRepositories(project: string | undefined) {
   return { repositories, error, mutate };
 }
 
-export function useDeployments(project: string | undefined) {
+export function useDeployments(project: string | undefined, repositorySlug: string | undefined) {
   const {
     data: deployments,
     error,
     mutate,
   } = useSWR(
-    project ? ['/deploys/listDeployments' as const, project] : null,
-    (path, project) => {
-      return api.query(path, { project });
+    project || repositorySlug ? ['/deploys/listDeployments' as const, project, repositorySlug] : null,
+    (path, project, repositorySlug) => {
+      return api.query(path, repositorySlug ? { repositorySlug } : { project }, !!project);
     },
     { refreshInterval: 10000 },
   );
@@ -37,11 +38,12 @@ export function useDeployments(project: string | undefined) {
 
 export function useIsRepositoryTransferred(repositorySlug: string | undefined) {
   const [isTransferred, setIsTransferred] = useState<boolean | undefined>(undefined);
+  const user = getAuth().currentUser;
 
   const { data, error, mutate } = useSWR(
     repositorySlug ? ['/deploys/isRepositoryTransferred' as const, repositorySlug] : null,
     (path, repositorySlug) => {
-      return api.query(path, { repositorySlug });
+      return api.query(path, { repositorySlug }, !!user);
     },
     {
       refreshInterval: isTransferred ? 0 : 10000,
