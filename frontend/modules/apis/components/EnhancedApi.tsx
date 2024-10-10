@@ -32,6 +32,7 @@ const EnhancedAPI = () => {
         <Message type="error"
         >
           <Text>Want to interact with RPC API? Check out the key tab for the setup guide.</Text>
+          <Text>Enhanced API is being decomissioned by Dec 9, 2024. Please cease usage by then to avoid disruptions.</Text>
         </Message>
       }
 
