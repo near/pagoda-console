@@ -1,5 +1,3 @@
-// this is a JSON5 file, comments are supported, you may wish to switch your syntax mode
-// to json5 or jsonc
 {
   "$schema": "https://turborepo.org/schema.json",
   "pipeline": {

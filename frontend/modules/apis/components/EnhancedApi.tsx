@@ -1,5 +1,4 @@
 import { API } from '@stoplight/elements';
-import { useState } from 'react';
 
 import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
@@ -23,21 +22,18 @@ import * as S from './styles';
 */
 
 const EnhancedAPI = () => {
-  const [displayMessage, setDisplayMessage] = useState(true);
   const { environment } = useSelectedProject();
   const url = environment && config.url.eapiSpec[environment.net];
 
   return (
     <Flex stack>
-      {displayMessage && (
-        <Message
-          onClickButton={() => {
-            setDisplayMessage(false);
-          }}
-        >
-          <Text>Want to interact with RPC API? Check out the key tab for the setup guide.</Text>
+      {
+        <Message type="error">
+          <Text>
+            Enhanced API is being decomissioned by Dec 9, 2024. Please move to another solution before that date.
+          </Text>
         </Message>
-      )}
+      }
 
       <S.Root className="e-api">
         {url ? <API apiDescriptionUrl={url} router="hash" layout="sidebar" /> : <Spinner center />}
