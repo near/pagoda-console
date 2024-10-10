@@ -23,21 +23,17 @@ import * as S from './styles';
 */
 
 const EnhancedAPI = () => {
-  const [displayMessage, setDisplayMessage] = useState(true);
   const { environment } = useSelectedProject();
   const url = environment && config.url.eapiSpec[environment.net];
 
   return (
     <Flex stack>
-      {displayMessage && (
-        <Message
-          onClickButton={() => {
-            setDisplayMessage(false);
-          }}
+      {
+        <Message type="error"
         >
           <Text>Want to interact with RPC API? Check out the key tab for the setup guide.</Text>
         </Message>
-      )}
+      }
 
       <S.Root className="e-api">
         {url ? <API apiDescriptionUrl={url} router="hash" layout="sidebar" /> : <Spinner center />}
