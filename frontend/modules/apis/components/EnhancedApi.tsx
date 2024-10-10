@@ -1,5 +1,4 @@
 import { API } from '@stoplight/elements';
-import { useState } from 'react';
 
 import { Flex } from '@/components/lib/Flex';
 import { Message } from '@/components/lib/Message';
