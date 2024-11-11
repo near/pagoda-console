@@ -5,6 +5,7 @@ import { ButtonLink } from '@/components/lib/Button';
 import { FeatherIcon } from '@/components/lib/FeatherIcon';
 import { Flex } from '@/components/lib/Flex';
 import { H1 } from '@/components/lib/Heading';
+import { Message } from '@/components/lib/Message';
 import { Spinner } from '@/components/lib/Spinner';
 import * as Table from '@/components/lib/Table';
 import { Text } from '@/components/lib/Text';
@@ -22,6 +23,12 @@ export function Alerts({ environment, project }: { environment?: Environment; pr
 
   return (
     <Flex stack gap="l">
+      <Message type="error">
+        <Text>
+          Alerts functionality is being decomissioned by Dec 9, 2024. Please move to another solution before that date.
+        </Text>
+      </Message>
+
       <Flex justify="spaceBetween" align="center">
         <H1>Alerts</H1>
         <Link href="/alerts/new-alert" passHref>
