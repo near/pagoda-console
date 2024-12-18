@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 
+import { AuthStatusRenderer } from '@/components/AuthStatusRenderer';
 import { Button, ButtonLink } from '@/components/lib/Button';
 import * as Dialog from '@/components/lib/Dialog';
 import { Flex } from '@/components/lib/Flex';
@@ -10,11 +11,17 @@ import { useApiMutation } from '@/hooks/api-mutation';
 import { handleMutationError } from '@/utils/error-handlers';
 import { StableId } from '@/utils/stable-ids';
 
+import { UnauthenticatedModalContent } from './DeployTemplateModal';
+
 export function TransferGithubModal({ setShow, ...props }) {
   return (
     <Dialog.Root open={props.show} onOpenChange={setShow}>
       <Dialog.Content title="Transfer Repository" size="s">
-        <ModalContent setShow={setShow} {...props} />
+        <AuthStatusRenderer
+          custom
+          authenticated={<ModalContent setShow={setShow} {...props} />}
+          unauthenticated={<UnauthenticatedModalContent />}
+        />
       </Dialog.Content>
     </Dialog.Root>
   );

@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon';
+import { useRouter } from 'next/router';
 
 import { Badge } from '@/components/lib/Badge';
 import { Button } from '@/components/lib/Button';
@@ -14,8 +15,10 @@ import { StableId } from '@/utils/stable-ids';
 import { wasmDeployCompleted } from '../testnet';
 
 const History = () => {
-  const project = useSelectedProject();
-  const { deployments } = useDeployments(project.project?.slug);
+  const router = useRouter();
+  const { repositorySlug } = router.query;
+  const project = useSelectedProject({ enforceSelectedProject: !repositorySlug });
+  const { deployments } = useDeployments(project.project?.slug, repositorySlug as string);
 
   return (
     <Table.Root>

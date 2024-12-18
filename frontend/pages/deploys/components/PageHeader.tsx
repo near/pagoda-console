@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import { Button } from '@/components/lib/Button';
@@ -12,10 +13,12 @@ import { TransferGithubModal } from '@/modules/gallery/components/template/Trans
 import { StableId } from '@/utils/stable-ids';
 
 const PageHeader = () => {
-  const project = useSelectedProject();
-  const { deployments = [] } = useDeployments(project.project?.slug);
+  const router = useRouter();
+  const { repositorySlug } = router.query;
+  const project = useSelectedProject({ enforceSelectedProject: !repositorySlug });
+  const { deployments = [] } = useDeployments(project.project?.slug, repositorySlug as string);
   const [showTransferModal, setShowTransferModal] = useState(false);
-  const { repositories } = useRepositories(project.project?.slug);
+  const { repositories } = useRepositories(project.project?.slug, repositorySlug as string);
   const hasAtLeastOneDeploy =
     deployments.length &&
     (deployments.some(({ frontendDeployments }) => frontendDeployments.length) ||

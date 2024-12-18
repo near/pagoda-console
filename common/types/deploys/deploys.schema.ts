@@ -50,10 +50,12 @@ const repoDeployments = z.array(
 export const query = {
   inputs: {
     listRepositories: z.strictObject({
-      project: z.string(),
+      project: z.string().optional(),
+      repositorySlug: z.string().optional(),
     }),
     listDeployments: z.strictObject({
-      project: z.string(),
+      project: z.string().optional(),
+      repositorySlug: z.string().optional(),
     }),
     isRepositoryTransferred: z.strictObject({
       repositorySlug: z.string(),
@@ -99,7 +101,14 @@ export const query = {
 export const mutation = {
   inputs: {
     addConsoleDeployProject: z.strictObject({
-      githubRepoFullName: z.string().regex(/[\w\.\-]+\/[\w\.\-]+/), // matches <owner/repo> e.g. 'near/pagoda-console`
+      githubRepoFullName: z
+        .string()
+        .regex(/[\w\.\-]+\/[\w\.\-]+/)
+        .optional(), // matches <owner/repo> e.g. 'near/pagoda-console`
+      nearSocialComponentPath: z
+        .string()
+        .regex(/[\w\.\-]+\/[\w\.\-]+/)
+        .optional(),
       projectName: z.string(),
     }),
     transferGithubRepository: z.strictObject({
@@ -149,7 +158,7 @@ export const mutation = {
   outputs: {
     addConsoleDeployProject: z.strictObject({
       repositorySlug: z.string(),
-      projectSlug: z.string(),
+      projectSlug: z.string().optional(),
     }),
     transferGithubRepository: z.strictObject({
       repositorySlug: z.string(),
